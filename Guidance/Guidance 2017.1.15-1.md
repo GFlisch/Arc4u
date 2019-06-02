@@ -98,5 +98,5 @@ What's changed:
 
 >! Important
 > The previous code you wrote, didn't contain the MessageScope and you have to update your code in
-> all your facade and interface!
+> all your facade, interface and jobs!
 
