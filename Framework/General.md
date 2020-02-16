@@ -24,7 +24,7 @@ The same philosophy is used for the logging, the serialization and OAuth2 (where
 
 ## The framework.
 
-![Arc4u](../images/Arc4uLayers.png)
+![Arc4u](../Images/Arc4uLayers.png)
 
 The way the framework is built is always based with 2 aspects in mind:
 - abstraction
