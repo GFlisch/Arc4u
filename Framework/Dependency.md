@@ -114,6 +114,123 @@ are used to discover this dynamically and register the types in the Ioc.
 > you can se those attributes. For .Net application, System.Composition.AttributeModel is used and in .Net Core, only 
 > the Arc4u attribute will be used. 
 
+### Configuration.
+
+In a real business application we have a huge number of types to register in the container and doing this needs to manage this correctly.
+
+In the Arc4u.Dependency package, there are extension methods to read json file and based on assemblies or defined types, the method will
+parse a section and add types where an Export attribute exists. Exactly like in Mef2.
+
+````csharp
+    [Export(typeof(IEnvironmentInfoBL)), Shared]
+    public class EnvironmentInfoBL : IEnvironmentInfoBL
+    {
+        [ImportingConstructor]
+        public EnvironmentInfoBL(Config config, IAppSettings settings)
+        {
+            _config = config;
+            _appSettings = settings;
+        }
+        `...
+    }
+````
+
+When the extension will read all the types with an Export attribute, he will in fact do this:
+
+````csharp
+    container.RegisterSingleton<IEnvironmentInfoBL,EnvironmentInfoBL();
+````
+
+As the attribute is coming from System.Composition.AttributedModel, we can give a Name and specify if we want to have a
+singleton pattern or not by adding the Shared attribute or not.
+
+The json file format is:
+
+````json
+{
+  "Application.Dependency": {
+    "Assemblies": [
+      {
+        "Assembly": "Solution3.Business"
+      },
+      {
+        "Assembly": "Solution3.Facade"
+      },
+      {
+        "Assembly": "Solution3.Jobs"
+      }
+    ],
+    "RegisterTypes": [
+      {
+        "Type": "Arc4u.AppSettings, Arc4u.Standard.Configuration"
+      },
+      {
+        "Type": "Arc4u.ConnectionStrings, Arc4u.Standard.Configuration"
+      }
+    ]
+  }
+}
+
+````
+
+In this example, three assemblies are discovered and multiple specific types are added.
+
+If you have some types in an assembly that you don't want to add, you can specify which ones you want to reject.
+
+````json
+{
+  "Application.Dependency": {
+    "Assemblies": [
+      {
+        "Assembly": "Arc4u.Standard.Core.Test",
+        "RejectedTypes": [
+          { "Type": "Arc4u.Core.Test.IdGenerator" },
+          { "Type": "Arc4u.Core.Test.SingletonIdGenerator" }
+        ]
+      }
+    ],
+    "RegisterTypes": [
+      { "Type": "Arc4u.Caching.Memory.MemoryCache, Arc4u.Standard.Caching.Memory" },
+      { "Type": "Arc4u.Caching.CacheContext, Arc4u.Standard.Caching" }
+    ]
+  }
+}
+````
+
+The extension methods in the framework are:
+
+````csharp
+    public static class ContainerInitializerExtention
+    {
+        public static IContainer InitializeFromConfig(this IContainer container, IConfiguration configuration)
+        {
+            ...
+        }
+    }
+````
+
+The Arc4u.standard.Configurtion package defines a helper to read multiple json file or embedded resources and returns an IConfiguration instance.
+When you are using .Net Core, this is done for you but not in .Net, Uwp, Xamarin.Forms and Wpf projects.
+
+For Uwp and Xamrin, you need to read the section from an Embedded resource and files for Wpf and .Net projects.
+
+So the regitration process in the Ioc becomes:
+
+````csharp
+        var configuration = ConfigurationHelper.GetConfigurationFromFile(@"appSettings.json");
+        var config = new Config(configuration);
+
+        var container = new ComponentModelContainer().InitializeFromConfig(configuration);
+        container.RegisterInstance(configuration);
+        container.RegisterInstance(config);
+        container.Register<IObjectSerializerFactory, ProtoBufSerializerFactory>();
+
+        container.CreateContainer();
+
+        DependencyContext.CreateContext(container);
+````
+
+
 ### Arc4u.Dependency.Composition
 
 Used the System.Composition (mef2) with all the possibilities from this Ioc:
