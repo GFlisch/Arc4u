@@ -242,5 +242,24 @@ Used the System.Composition (mef2) with all the possibilities from this Ioc:
 Used the System.ComponentModel (.Net core) implementation:
 - Doesn't accept a named constructor X(IObject2 o).
 - Doesn't accept a property injection.
+- Defining 2 Export with Shared attribute will not reference the same instance!
+
+````csharp
+    [Export(typeof(IGenerator)), Shared]
+    [Export]
+    public class TestParser : IGenerator
+    {
+        public TestParser()
+        {
+            _id = Guid.NewGuid();
+        }
+
+        private Guid _id;
+        public Guid Id => _id;
+    }
+````
+
+Resolving <IGenerator> or <TestParser> will not give the same instance even if the shared attribute is defined.
+This behavior is different from mef2. Mef2 will return the same instance!
 
 
