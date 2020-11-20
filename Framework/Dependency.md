@@ -6,10 +6,7 @@ In Arc4u, the skeleton of the framework is heavily based on the [inversion of co
 
 Finaly the framework is a set of functionality that can be injected when needed in your application.
 
-The Api is defined in the nuget package Arc4u.Standard.Dependency and contains principaly 2 concepts.
-
-The first one is the definition (abstraction) of a container.
-The second is a singleton class: DependencyContext, used to work with the underneath container.
+The Api is defined in the nuget package Arc4u.Standard.Dependency and contains principaly the definition (abstraction) of a container.
 
 ## IContainer.
 
@@ -27,10 +24,10 @@ This interface contains mainly 2 parts: the registration and the resolve.
 
 Each Ioc container used in the framework implements this interface.
 
-During the registration process we can do:
+During the registration process we can do the different registrations:
 
 ````csharp
-   public interface IContainerRegistry
+    public interface IContainerRegistry
     {
         void Register<TFrom, To>() where TFrom : class where To : class, TFrom;
         void Register(Type from, Type to);
@@ -39,10 +36,13 @@ During the registration process we can do:
         void Register(Type from, Type to, string name);
 
         void RegisterFactory<T>(Func<T> exportedInstanceFactory) where T : class;
-        void RegisterFactory(Func<object> exportedInstanceFactory, Type type);
+        void RegisterFactory(Type type, Func<object> exportedInstanceFactory);
 
         void RegisterSingletonFactory<T>(Func<T> exportedInstanceFactory) where T : class;
-        void RegisterSingletonFactory(Func<object> exportedInstanceFactory, Type type);
+        void RegisterSingletonFactory(Type type, Func<object> exportedInstanceFactory);
+
+        void RegisterScopedFactory<T>(Func<T> exportedInstanceFactory) where T : class;
+        void RegisterScopedFactory(Type type, Func<object> exportedInstanceFactory);
 
         void RegisterInstance<T>(T instance) where T : class;
         void RegisterInstance(Type type, object instance);
@@ -53,6 +53,12 @@ During the registration process we can do:
         void RegisterSingleton(Type from, Type to);
         void RegisterSingleton<TFrom, To>() where TFrom : class where To : class, TFrom;
 
+        void RegisterScoped<TFrom, To>() where TFrom : class where To : class, TFrom;
+        void RegisterScoped(Type from, Type to);
+
+        void RegisterScoped<TFrom, To>(string name) where TFrom : class where To : class, TFrom;
+        void RegisterScoped(Type from, Type to, string name);
+
         void RegisterSingleton<TFrom, To>(string name) where TFrom : class where To : class, TFrom;
         void RegisterSingleton(Type from, Type to, string name);
 
@@ -62,26 +68,51 @@ During the registration process we can do:
     }
 ````
 
+If a Ioc doesn't contains a feature like Scoped, an exception is thrown.
 
-## DependencyContext.
+## IContainerResolve.
 
-DependencyContext is a singleton class which is used everywhere in the application to resolve any type registered.
+This interface contains all the methods used to resolve a type.
 
-DependencyContext will not access the registration part of the container but only the resolve methods.
+````csharp
+    public interface IContainerResolve : IDisposable
+    {
+        T Resolve<T>();
+        object Resolve(Type type);
 
-When we use an Ioc we often inject a type using the constructor of the type. 
-Sometimes we need to create a type under certain cirsumstance: on demand. 
-Or we need to create a specific implementation based on a criteria.
-An example for this is in a rule engine where different implementation exist and based on a string (coming from a database) we can resolve a specific implementation.
-In this case, we cannot do this via the constructor!
+        T Resolve<T>(string name);
+        object Resolve(Type type, string name);
 
-Each Ioc engine have their specific way of working. The target of the DependencyContext is to homogenize the different behaviors.
+        bool TryResolve<T>(out T value);
+        bool TryResolve(Type type, out object value);
 
-The golden rules of the DependencyContext are:
+        bool TryResolve<T>(string name, out T value);
+        bool TryResolve(Type type, string name, out object value);
+
+        IEnumerable<T> ResolveAll<T>();
+        IEnumerable<object> ResolveAll(Type type);
+
+        IEnumerable<T> ResolveAll<T>(string name);
+        IEnumerable<object> ResolveAll(Type type, string name);
+
+        IContainerResolve CreateScope();
+
+        bool CanCreateScope { get; }
+    }
+````
+
+One of the specifity with the interface is the ability to resolve with a name. This is a handy functionality that currently doesn’t exist on .Net 5.0 and is possible on Mef2. 
+One example of this usage is for an engine rule. If you have different code to execute based on a criterion, you can use a string (from a database for ex.) and apply the rule based on this name.
+
+In .Net 5.0 the ServiceCollection instance doesn’t allow you to inject in a constructor an interface with a string to differentiate a specific registration.
+Arc4u will not help you to inject the specific instance but you can inject the IContainerResolve interface and resolve by name the specific rule.
+
+Each Ioc engine have their specifics way of working. The target of the IContainer is to homogenize the different behaviors.
+
+The golden rules of the DependencyContext abstraction are:
 - Once created, we cannot add new type to the container.
 - Injecting a type via a constructor cannot be named (via a string to select an implementation).
 
-Basically the pseudo code to work with a container and DependencyContext is:
 
 ````csharp
     var container = new ContinerXXX();
@@ -90,33 +121,34 @@ Basically the pseudo code to work with a container and DependencyContext is:
     container.RegisterSingleton<IObject2, Object2_0>("A");
     container.RegisterSingleton<IObject2, Object2_1>("B");
 
+
+    // When you are on a non AspNet(Core) service like a Wpf, Uwp, Xamarin.Forms or console application.
     container.CreateContainer(); 
 
-    DependencyContext.CreateContext(container);
-
-    // anywhere in the code.
-    var instance = DependencyContext.Current.Resolve<IObject2>("A");
+    container.Resolve<IObject2>("A");
 
     ...
 ````
 
 2 Containers exist in Arc4u:
 - System.Composition (mef2), used before.
-- System.ComponentModel used currently in .Net core.
-
-All the types in the framework are defined via the attributed model of mef2. Even if the Ioc is not used, the attributes:
-- Export
-- Shared
-are used to discover this dynamically and register the types in the Ioc.
-
->! Important
-> Arc4u.Dependency also contains a definition of Export and Shared. If you don't use Mef2 implementation
-> you can se those attributes. For .Net application, System.Composition.AttributeModel is used and in .Net Core, only 
-> the Arc4u attribute will be used. 
+- System.ComponentModel used currently in .Net (core).
 
 ### Configuration.
 
 In a real business application we have a huge number of types to register in the container and doing this needs to manage this correctly.
+
+The problem with the Ioc is the declaration (registration of the different types). 
+It is clear that the extension methods on ServiceCollection are a handy way to configure the Ioc 
+but concerning the business code of the application this is a long list to maintain in another location that your code.
+
+This is why the Dependency package of Arc4u contains a method to parse your assemblies and register on the fly the types you want to register.
+This is largely inspired from the Mef2.0. An Attribute namespace exists on Dependency with the definition of Export, Shared or Scoped.
+
+3 possinilities exists:
+- Export(typeof, name: optional). The behavior will be transient.
+- Export(typeof, name: optional), Shared. The behavior will be singleton.
+- Export(typeof, name: optional), Scoped. The behavior will be scoped.
 
 In the Arc4u.Dependency package, there are extension methods to read json file and based on assemblies or defined types, the method will
 parse a section and add types where an Export attribute exists. Exactly like in Mef2.
@@ -141,8 +173,7 @@ When the extension will read all the types with an Export attribute, he will in 
     container.RegisterSingleton<IEnvironmentInfoBL,EnvironmentInfoBL();
 ````
 
-As the attribute is coming from System.Composition.AttributedModel, we can give a Name and specify if we want to have a
-singleton pattern or not by adding the Shared attribute or not.
+
 
 The json file format is:
 
