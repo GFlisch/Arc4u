@@ -67,10 +67,10 @@ add your caching layer immediately.
 
 You simply implement your business.
 
-![Yarp Full](../Images/YarpFullConnected.png){:height="100" width="100px"}
+![Yarp Full](../Images/YarpFullConnected.png)
 
 From your configuration file you inform the backend you want to reach like this:
-In this exemple, the aggregate root service AR1 is implementing an ArsController.
+In this example, the aggregate root service AR1 is implementing an ArsController.
 
 ````json
 {
@@ -104,7 +104,226 @@ We simply here define that all requests for the api/ars will be redirect to the 
 And that for all the HTTP methods: [GET, POST, PATCH, DELETE, etc...]
 
 Now imagine that we need to add a caching concept and split the command route from the query one.
-![Yarp QRouting](../Images/YarpQRoute.png){:height="400" width="200px"}
+![Yarp QRouting](../Images/YarpQRoute.png)
+
+We have just to redirect the HttpGet method to the cached query service.
+
+The reverse proxy file becomes.
+
+````json
+{
+  "ReverseProxy": {
+    "Routes": [
+      {
+        "RouteId": "ar1/ars/queries",
+        "ClusterId": "ar1cache",
+        "AuthorizationPolicy": "Default",
+        "Match": {
+          "Methods": [ "GET" ],
+          "Path": "/api/ars/{*remainder}"
+        },
+        "Transforms": [
+          { "PathPattern": "/api/ars/{*remainder}" }
+        ]
+      },
+      {
+        "RouteId": "ar1/ars",
+        "ClusterId": "ar1",
+        "AuthorizationPolicy": "Default",
+        "Match": {
+          "Path": "/api/ars/{*remainder}"
+        },
+        "Transforms": [
+          { "PathPattern": "/api/ars/{*remainder}" }
+        ]
+    ],
+    "Clusters": {
+      "ar1": {
+        "Destinations": {
+          "ar1/destination1": {
+            "Address": "http://ar1/"
+          }
+        }
+      },
+     "ar1cache": {
+        "Destinations": {
+          "ar1cache/destination1": {
+            "Address": "http://ar1cache/"
+          }
+        }
+      }
+    }
+  }
+}
+````
+
+The route order is very important, by introducting the filter on the Get methods, we can redirect the 
+traffic to the query service. Here in this example the purpose is to cache the data for the query methods
+but we can imagine that simply the AR1 query part of the service is completely implemented in a dedicated 
+query service.
+
+#### API Gateway with Yarp.
+
+In our microservices we implement by default Swagger with NSwag and publish the interfaces.
+Each service offer 2 kind of interfaces:
+- Dedicated interface for the UIs (called facade).
+- Dedicated interface for the other services (called interface).
+
+The facade apis are protected and only visible by a user or a tool if he has the rights. So a normal user cannot used those interface 
+but via the official UIs.
+On the other end, the interface are there to be consume by everyone. At the level of the interface we implement
+a versionning so an update of the service doesn't imply immediately a change from all the consumers.
+
+The NSwag package is configured like this in a normal service.
+
+````csharp
+   public class Startup
+    {
+        // This method gets called by the runtime. Use this method to add services to the container.
+        public void ConfigureServices(IServiceCollection services)
+        {
+            ...
+
+            services.AddSwaggerDocument(option =>
+            {
+                option.DocumentName = "facade";
+                option.ApiGroupNames = new[] { "facade" };
+                option.PostProcess = postProcess =>
+                {
+                    postProcess.Info.Title = "Facade contracts are only used by Guis and no perinity is provided.";
+                };
+            });
+
+            services.AddSwaggerDocument(option =>
+            {
+                option.DocumentName = "interface";
+                option.ApiGroupNames = new[] { "interface" };
+                option.PostProcess = postProcess =>
+                {
+                    postProcess.Info.Title = "Interface description.";
+                };
+            });
+
+        }
+
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+            ...
+
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            app.UseOpenApi(configure =>
+             {
+                 configure.DocumentName = "facade";
+             })
+            .UseOpenApi(configure =>
+            {
+                configure.DocumentName = "interface";
+            })
+            .UseSwaggerUi3(configure =>
+            {
+                configure.Path = "/swagger/facade";
+                configure.DocumentPath = configure.Path + "/swagger.json";  
+                configure.TagsSorter = "alpha";
+                configure.OperationsSorter = "alpha";                
+            })
+            .UseSwaggerUi3(configure =>
+            {
+                configure.Path = "/swagger/interface";
+                configure.DocumentPath = configure.Path + "/swagger.json";
+                configure.TagsSorter = "alpha";
+                configure.OperationsSorter = "alpha";
+            });
+
+        }
+    }
+````
+
+We can see here that we have 2 swaggers completely distinct: one for the facade and one for the interface.
+The swagger path will be http://ar1/swagger/facade/swagger.json or http://ar1/swagger/interface/swagger.json.
+
+Now we introduce a Yarp service which is in fact a services like the other but with the following change:
+- install the nuget package: Microsoft.ReverseProxy.
+- Add a reverse proxy file.
+- Configure the middleware to add the reverse proxy.
+- Configure NSwag to add the routing of the different swagger endpoint.
+
+````csharp
+    public class Startup
+    {
+        // This method gets called by the runtime. Use this method to add services to the container.
+        public void ConfigureServices(IServiceCollection services)
+        {
+            ...
+
+            services.AddSwaggerDocument(option =>
+            {
+                option.DocumentName = "facade";
+                option.ApiGroupNames = new[] { "facade" };
+                option.PostProcess = postProcess =>
+                {
+                    postProcess.Info.Title = "Facade contracts are only used by Guis and no perinity is provided.";
+                };
+            });
+            services.AddSwaggerDocument(option =>
+            {
+                option.DocumentName = "interface";
+                option.ApiGroupNames = new[] { "interface" };
+                option.PostProcess = postProcess =>
+                {
+                    postProcess.Info.Title = "Interface description.";
+                };
+            });
+
+            services.AddReverseProxy().LoadFromConfig(Configuration.GetSection("ReverseProxy"));
+
+        }
+
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+ 
+            app.UseOpenIdBearerInjector(new OpenIdBearerInjectorOptions { OpenIdSettings = OpenIdSettings });
+
+            _ = app.UseOpenApi(configure =>
+               {
+                   configure.DocumentName = "facade";
+               })
+            .UseOpenApi(configure =>
+            {
+                configure.DocumentName = "interface";
+            })
+            .UseSwaggerUi3(configure =>
+            {
+                configure.Path = "/swagger/facade";
+                configure.DocumentPath = configure.Path + "/swagger.json";
+                configure.TagsSorter = "alpha";
+                configure.OperationsSorter = "alpha";
+                configure.SwaggerRoutes.Add(new NSwag.AspNetCore.SwaggerUi3Route("Environment", "/swagger/facade/swagger.json"));
+                configure.SwaggerRoutes.Add(new NSwag.AspNetCore.SwaggerUi3Route("AR1", "/swagger/ar1/facade/swagger.json"));
+                configure.SwaggerRoutes.Add(new NSwag.AspNetCore.SwaggerUi3Route("AR2", "/swagger/ar2/facade/swagger.json"));
+            })
+            .UseSwaggerUi3(configure =>
+            {
+                configure.Path = "/swagger/interface";
+                configure.DocumentPath = configure.Path + "/swagger.json";
+                configure.TagsSorter = "alpha";
+                configure.OperationsSorter = "alpha";
+                configure.SwaggerRoutes.Add(new NSwag.AspNetCore.SwaggerUi3Route("AR1", "/swagger/ar1/interface/swagger.json"));
+                configure.SwaggerRoutes.Add(new NSwag.AspNetCore.SwaggerUi3Route("AR2", "/swagger/ar2/interface/swagger.json"));
+
+            });
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+                endpoints.MapReverseProxy();
+            });
+        }
+    }
+````
 
 
 
