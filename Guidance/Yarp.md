@@ -37,7 +37,7 @@ At the top level layer, we will find orchestration and or business process servi
 which will root all the gRpc or Http requests to the good services.
 
 
-[alt text] (/images/Yarp ognion.png "ognion overview") 
+![Yarp ognion](../Images/Yarp ognion.png) 
 
 
 This is probably the 
