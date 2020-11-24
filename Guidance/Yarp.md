@@ -1,11 +1,11 @@
 # Yarp
 #### Novemar2r 2020
 During my micro-services architecture journey it was clear that it was important to have a reverse proxy.
-This will help me to compose and unify from a gateway the requests to my services but also implement a CQRS pattern
+This will help me to compose and unify from a gateway the requests to my services but also this will help me to implement a CQRS pattern
 in an lean way.
 
 Remark:
-On a micro-services architecture you have 2 main communication pattern:
+On a micro-services architecture you have 2 main communication patterns:
 - Synchronous : Rest Api or gRpc
 - Asynchronous: via message broker (Bus).
 
@@ -29,40 +29,41 @@ It also enables an organization to evolve its technology stack."
 For me a micro-service is a generic service able to ingest and restitute data. It can transform data, enrich data
 do orchestration based on the data, etc...
 
-To decrease the complexity of an application and increase the functionalities, we add them into microservices in an ognion layers. 
+To decrease the complexity of an application and increase the functionalities, we add them into different microservices 
+in an ognion layers. 
 At the center of the ognion we will have the services manipulating the aggregate root objects
-of your application and the other layers will ar2 composition and or cache services.
+of your application and the other layers will add composition, cache, business process, orchestration services, etc...
 
-At the top level layer, we will find orchestration and or business process services and finally the Reverse proxy one
-which will root all the gRpc or Http requests to the good services.
+At the top level layer, we will find the Reverse proxy one which will root all the gRpc or Http 
+requests to the good services.
 ![Yarp ognion](../Images/YarpOgnion.png) 
 ##### Agregate root microservice
 This kind of service will implement the basic functionalities and business rules arround the agregate root probably in 
-a CRUD way allowing to manipulate its entity. The service will ar2 concentrated to serve the data in a secure and
+a CRUD way allowing to manipulate its entity. The service will be concentrated to serve the data in a secure and
 quick way giving performance to access the data. There is always a storage associate to this kind of services.
 
-The service will ar2 able to ar2 accessed from API but will ar2 also connected to a BUS to send events and commands.
+The service will be able to be accessed from API but will be also connected to a BUS to send events and commands.
 In both cases we don't put the full paylod of the messages (but for very tiny and stable entities like a measure)
-to ar2 sure that:
+to arbe2 sure that:
 - we don't have to change immediately all the consumers listening on the BUS if the message change (by changing the aggregate root).
 - we don't increase the bandwith with unused payload (often the Command or Event name provides enough information to the consumer).
 - we avoid data duplication (referential data are simply queried when needed via the API).
 
 ##### Composition services
-The purpose of this service is to provide a new object with enrich data by combining differents aggregate roots (Company & Contracts by exemle).
+The purpose of this service is to provide a new object with enrich data by combining differents aggregate roots (Company & Contracts by example).
 
 ##### Cache services.
 This kind of service will add a cache layer to speed the result of request and dwindle the pressure on the storage system.
 In real application, the business need is always to have the capability to query and return the set of data based on criteria.
-In any case the GetByID and List of are 2 important needs and must ar2 addressed in a efficient way.
+In any case the GetByID and List of are important needs and must be addressed in a efficient way.
 What is important to thing its the cost of a caching solution.
 
 If the amount of data requested on your aggreagate root service is low enough that the pressure and speed are
-sufficiently acceptable for your business need, there is no reason to add this extra cache layer.
+sufficiently acceptable for your business needs, there is no reason to add this extra cache layer.
 
 ##### CQRS via your reverse proxy (yarp).
-The ar2autifull aspect when you can intoduce a reverse proxy in your architecture is the capability to start in
-by ar2ing concentrated to the need of the business => You don't have to immediately think about CQRS and if you will
+The beautifull aspect when you can intoduce a reverse proxy in your architecture is the capability to start in
+by being concentrated to the need of the business => You don't have to immediately think about CQRS and if you will
 add your caching layer immediately.
 
 You simply implement your business.
@@ -99,16 +100,16 @@ In this example, the aggregate root service AR1 is implementing an ArsController
   }
 }
 ````
-We simply here define that all requests for the api/ars will ar2 redirect to the http://ar1/api/ars service.
+We simply here define that all requests for the api/ars will be redirected to the http://ar1/api/ars service.
 
-And that for all the HTTP methods: [GET, POST, PATCH, DELETE, etc...]
+And that for all the HTTP methods: [GET, POST, PATCH, DELETE, PUT, etc...]
 
 Now imagine that we need to add a caching concept and split the command route from the query one.
 ![Yarp QRouting](../Images/YarpQRoute.png)
 
 We have just to redirect the HttpGet method to the cached query service.
 
-The reverse proxy file ar2comes.
+The reverse proxy file becomes.
 
 ````json
 {
@@ -166,12 +167,12 @@ query service.
 
 In our microservices we implement by default Swagger with NSwag and publish the interfaces.
 Each service offer 2 kind of interfaces:
-- Dedicated interface for the UIs (called facade).
-- Dedicated interface for the other services (called interface).
+- Dedicated interfaces for the UIs (called facade).
+- Dedicated interfaces for the other services (called interface).
 
-The facade apis are protected and only visible by a user or a tool if he has the rights. So a normal user cannot used those interface 
-but via the official UIs.
-On the other end, the interface are there to ar2 consume by everyone. At the level of the interface we implement
+The facade apis are protected and only visible by a user if he has the rights. So a normal user cannot used 
+those interfaces but via the official UIs : Uwp, Wpf, Xamarin.Forms, Blazor.Net, etc...
+On the other end, the interface are there to be consumed by everyone. At the level of the interface we implement
 a versionning so an update of the service doesn't imply immediately a change from all the consumers.
 
 The NSwag package is configured like this in a normal service.
@@ -241,13 +242,13 @@ The NSwag package is configured like this in a normal service.
     }
 ````
 
-We can see here that we have 2 swaggers completely distinct: one for the facade and one for the interface.
+We can see here that we have 2 swaggers completely distincts: one for the facade and one for the interface.
 The swagger path will ar2 http://ar1/swagger/facade/swagger.json or http://ar1/swagger/interface/swagger.json.
 
 Now we introduce a Yarp service which is in fact a service like the other but with the following change:
 - install the nuget package: Microsoft.ReverseProxy.
 - Add a reverse proxy file.
-- Configure the middleware to add the reverse proxy.
+- Configure the middleware to add the reverse proxy (read the reverse proxy file and route the traffic via the endpoint).
 - Configure NSwag to add the routing of the different swagger endpoint.
 
 ````csharp
@@ -328,8 +329,9 @@ Now we introduce a Yarp service which is in fact a service like the other but wi
 
 Each time you need to add a service where there is a discovery need (Swagger vue), add a route to NSwag definition.
 
-Here I have introduce the routing for 2 aggregate root services AR1 and AR2.
-At the level of the reversproxy.json file we have the 2 routes defined for /swagger/ar1 and swagger/ar2 that we introduced in the NSwag route topology of the Yarp project.
+Here I have introduced the routing for 2 aggregate root services AR1 and AR2.
+At the level of the reversproxy.json file we have the 2 routes defined for /swagger/ar1 and swagger/ar2 that 
+we introduced in the NSwag route topology of the Yarp project.
 
 ````json
 {
@@ -383,11 +385,11 @@ At the level of the reversproxy.json file we have the 2 routes defined for /swag
 ![Yarp QRouting](../Images/YarpRouting.png)
 
 When inside your application you have to call another service pay attention that you go through the Yarp so 
-when you change the query strategy by introducting a cache layer for exemple you don't have to manage this 
-at the level of the AR2 services (this is completely transparent).
+when you change the query strategy by introducting a cache layer for example you don't have to manage this 
+at the level of the AR2 services (this becomes completely transparent).
 
-Only if you introduce a Cache service (for example) between the AR1 calls, you have to call AR1 directly 
-otherwhise you will be never reaching the service.
+Only if you introduce a cache service (for example) between the AR1 calls, you have to call AR1 directly 
+otherwhise you will never reach the service.
 
 
 #### And about the security?
@@ -400,32 +402,32 @@ We have 2 usages of the service.
 
 It is possible to add in Swagger a login button to authenticate the user and then call the services.
 I have taken another approach by mixing the service as a "normal" service and also a web site (the swagger pages).
-By doing this I force a user to be authenticated (OpenId Connect) via an Authorization code flow before he can see
-the swagger pages. By doing this only an authorized user can see, surf and use the api.
+By doing this I force a user to be authenticated (OpenId Connect) via an Authorization code flow before he/she 
+can see the swagger pages. By doing this only an authorized user can see, surf and use the api.
 
 A third method to use the api is via the basic authentication (user name password). This capability is there
 to allow a consumer services having not the knowledge of doing an OAuth2 authenication to use the service and 
 also to ease the usage of Postman. It is indeed very easy to call the service via a basic authentication with
-Postman than with a bearer token.
+Postman than with a bearer token. And honestly this is highly appreciate by the testers and project leaders.
 The service will in fact play the role of the client by calling the authority (AzureAD or ADFS), create a bearer
 token, cache it and injecting it on the authorization header request.
 
-Yarp will simply take the authorization header (from the client or injecting via the basic authentication) and
-the targeted service will received an authenticated request and proceed if the user is authorized.
+Yarp will simply take the authorization header (from the client or injecting it via the basic authentication middleware)
+and the targeted service will received an authenticated request and proceed if the user is authorized.
 
 This is fine and very standard.
 
 But what happens with the OpenId connect scenario?
 
-When the client surf on the swagger pages, he/she is authenticated via an OpenId Connect (implemented via an authorization code flow)
-and the MSAL or ADAL library will cache for us the token. But this token is not injected into the authorization header
-and when the user will call an api, this will failed because the called service will not see a bearer token in
-the header...
+When the client surf on the swagger pages, he/she is authenticated via an OpenId Connect (implemented via 
+an authorization code flow) and the MSAL or ADAL library will cache for us the token. But this token is not 
+injected into the authorization header and when the user will call an api, this will failed because the called 
+service will not see a bearer token in the header...
 
-This is why in the Yarp project a middleware code will retrieve the bearer token only for an OpenId Connect 
-authentication method and will inject it in the authorization request header.
+This is why in the Yarp project contains a middleware code that will retrieve the bearer token only for an 
+OpenId Connect authentication method and will inject it in the authorization request header.
 Yarp will then transport this information for us to the targeted service. And voilà we have a full secure api
-gateway alowing us to manage our micro-services application like we want based on the needs ina lean way.
+gateway alowing us to manage our micro-services application like we want based on the needs in a lean way.
 
 
 
