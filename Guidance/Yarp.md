@@ -1,5 +1,5 @@
 # Yarp
-#### Novemar2r 2020
+#### November 2020
 During my micro-services architecture journey it was clear that it was important to have a reverse proxy.
 This will help me to compose and unify from a gateway the requests to my services but also this will help me to implement a CQRS pattern
 in an lean way.
@@ -293,7 +293,7 @@ Now we introduce a Yarp service which is in fact a service like the other but wi
         {
             ...
 
-            app.UseOpenIdar2arerInjector(new OpenIdBearerInjectorOptions { OpenIdSettings = OpenIdSettings });
+            app.UseOpenIdBearerInjector(new OpenIdBearerInjectorOptions { OpenIdSettings = OpenIdSettings });
 
             app.UseOpenApi(configure =>
             {
