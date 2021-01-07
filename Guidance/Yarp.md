@@ -31,17 +31,17 @@ do orchestration based on the data, etc...
 
 To decrease the complexity of an application and increase the functionalities, we add them into different microservices 
 in an ognion layers. 
-At the center of the ognion we will have the services manipulating the business context objects (in DDD model)
+At the center of the ognion we will have the services manipulating the objects of the domain model (in DDD model)
 of your application and the other layers will add composition, cache, business process, orchestration services, etc...
 
 At the top level layer, we will find the Reverse proxy one which will root all the gRpc or Http 
 requests to the good services.
 ![Yarp ognion](../Images/YarpOgnion.png) 
 ##### Business context microservice
-This kind of service will implement the basic functionalities and business rules arround the business context objects probably in 
-a CRUD way allowing to manipulate its entity. The service will be concentrated to serve the data in a secure and
+This kind of service will implement the basic functionalities and business rules arround the domain model objects probably in 
+a CRUD way allowing to manipulate its entities. The service will be concentrated to serve the data in a secure and
 quick way giving performance to access the data. There is always a storage associate to this kind of services. The Apis defined 
-in the service will be based on the aggregate root used to manipulate the business context objects.
+in the service will be based on the aggregate root used to manipulate the domain model objects.
 
 The service will be able to be accessed from API but will be also connected to a BUS to send events and commands.
 In both cases we don't put the full paylod on the messages (but for very tiny and stable entities like a measure)
@@ -51,7 +51,7 @@ to be sure that:
 - we avoid data duplication (referential data are simply queried when needed via the API).
 
 ##### Composition services
-The purpose of this service is to provide a new object with enrich data by combining differents business contexts (Company & Contracts by example).
+The purpose of this service is to provide a new object with enrich data by combining differents business objects (Company & Contracts by example).
 
 ##### Cache services.
 This kind of service will add a cache layer to speed the result of request and dwindle the pressure on the storage system.
@@ -69,8 +69,8 @@ feature without any change to implement from the client tool.
 
 
 ##### CQRS via your reverse proxy (yarp).
-The beautifull aspect when you can intoduce a reverse proxy in your architecture is the capability to start in
-by being concentrated to the need of the business => You don't have to immediately think about CQRS and if you will
+The beautifull aspect when you can intoduce a reverse proxy in your architecture is the capability to start your application
+by being concentrated to the need of the business => You don't have to immediately think about CQRS and if you have to
 add your caching layer immediately.
 
 You simply implement your business.
@@ -78,15 +78,15 @@ You simply implement your business.
 ![Yarp Full](../Images/YarpFullConnected.png)
 
 From your configuration file you inform the backend you want to reach like this:
-In this example, the aggregate root service bc1 is implementing an Ar1Controller.
+In this example, the aggregate root service ar1 is implementing an Ar1Controller.
 
 ````json
 {
   "ReverseProxy": {
     "Routes": [
       {
-        "RouteId": "bc1/ar1",
-        "ClusterId": "bc1",
+        "RouteId": "s1/ar1",
+        "ClusterId": "s1",
         "AuthorizationPolicy": "Default",
         "Match": {
           "Path": "/api/ar1/{*remainder}"
@@ -96,10 +96,10 @@ In this example, the aggregate root service bc1 is implementing an Ar1Controller
         ]
     ],
     "Clusters": {
-      "bc1": {
+      "s1": {
         "Destinations": {
           "bc1/destination1": {
-            "Address": "http://bc1/"
+            "Address": "http://s1/"
           }
         }
       }
@@ -107,7 +107,7 @@ In this example, the aggregate root service bc1 is implementing an Ar1Controller
   }
 }
 ````
-We simply here define that all requests for the api/ar1 will be redirected to the http://bc1/api/ar1 service.
+We simply here define that all requests for the api/ar1 will be redirected to the http://s1/api/ar1 service.
 
 And that for all the HTTP methods: [GET, POST, PATCH, DELETE, PUT, etc...]
 
@@ -124,8 +124,8 @@ The reverse proxy file becomes.
   "ReverseProxy": {
     "Routes": [
       {
-        "RouteId": "bc1/ar1/queries",
-        "ClusterId": "bc1cache",
+        "RouteId": "s1/ar1/queries",
+        "ClusterId": "s1cache",
         "AuthorizationPolicy": "Default",
         "Match": {
           "Methods": [ "GET" ],
@@ -136,8 +136,8 @@ The reverse proxy file becomes.
         ]
       },
       {
-        "RouteId": "bc1/ar1",
-        "ClusterId": "bc1",
+        "RouteId": "s1/ar1",
+        "ClusterId": "s1",
         "AuthorizationPolicy": "Default",
         "Match": {
           "Path": "/api/ar1/{*remainder}"
@@ -150,14 +150,14 @@ The reverse proxy file becomes.
       "bc1": {
         "Destinations": {
           "bc1/destination1": {
-            "Address": "http://bc1/"
+            "Address": "http://s1/"
           }
         }
       },
      "bc1cache": {
         "Destinations": {
           "bc1cache/destination1": {
-            "Address": "http://bc1query/"
+            "Address": "http://s1query/"
           }
         }
       }
@@ -172,7 +172,7 @@ traffic to the query service.
 #### API Gateway with Yarp.
 
 In our microservices we implement by default Swagger with NSwag and publish the interfaces.
-Each service offer 2 kind of interfaces:
+Each service offer 2 kinds of interfaces:
 - Dedicated interfaces for the UIs (called facade).
 - Dedicated interfaces for the other services (called interface).
 
@@ -181,7 +181,7 @@ those interfaces but via the official UIs : Uwp, Wpf, Xamarin.Forms, Blazor.Net,
 On the other end, the interface are there to be consumed by everyone. At the level of the interface we implement
 a versionning so an update of the service doesn't imply immediately a change from all the consumers.
 
-The NSwag package is configured like this in a normal service.
+The NSwag package is configured like this is a normal service.
 
 ````csharp
    public class Startup
@@ -249,7 +249,7 @@ The NSwag package is configured like this in a normal service.
 ````
 
 We can see here that we have 2 swaggers completely distincts: one for the facade and one for the interface.
-The swagger path will be http://bc1/swagger/facade/swagger.json or http://bc1/swagger/interface/swagger.json.
+The swagger path will be http://s1/swagger/facade/swagger.json or http://s1/swagger/interface/swagger.json.
 
 Now we introduce a Yarp service which is in fact a service like the other but with the following change:
 - install the nuget package: Microsoft.ReverseProxy.
@@ -310,8 +310,8 @@ Now we introduce a Yarp service which is in fact a service like the other but wi
                 configure.TagsSorter = "alpha";
                 configure.OperationsSorter = "alpha";
                 configure.SwaggerRoutes.Add(new NSwag.AspNetCore.SwaggerUi3Route("Environment", "/swagger/facade/swagger.json"));
-                configure.SwaggerRoutes.Add(new NSwag.AspNetCore.SwaggerUi3Route("bc1", "/swagger/bc1/facade/swagger.json"));
-                configure.SwaggerRoutes.Add(new NSwag.AspNetCore.SwaggerUi3Route("bc2", "/swagger/bc2/facade/swagger.json"));
+                configure.SwaggerRoutes.Add(new NSwag.AspNetCore.SwaggerUi3Route("s1", "/swagger/s1/facade/swagger.json"));
+                configure.SwaggerRoutes.Add(new NSwag.AspNetCore.SwaggerUi3Route("s2", "/swagger/s2/facade/swagger.json"));
             })
             .UseSwaggerUi3(configure =>
             {
@@ -319,8 +319,8 @@ Now we introduce a Yarp service which is in fact a service like the other but wi
                 configure.DocumentPath = configure.Path + "/swagger.json";
                 configure.TagsSorter = "alpha";
                 configure.OperationsSorter = "alpha";
-                configure.SwaggerRoutes.Add(new NSwag.AspNetCore.SwaggerUi3Route("bc1", "/swagger/bc1/interface/swagger.json"));
-                configure.SwaggerRoutes.Add(new NSwag.AspNetCore.SwaggerUi3Route("bc2", "/swagger/bc2/interface/swagger.json"));
+                configure.SwaggerRoutes.Add(new NSwag.AspNetCore.SwaggerUi3Route("s1", "/swagger/s1/interface/swagger.json"));
+                configure.SwaggerRoutes.Add(new NSwag.AspNetCore.SwaggerUi3Route("s2", "/swagger/s2/interface/swagger.json"));
 
             });
 
@@ -335,8 +335,8 @@ Now we introduce a Yarp service which is in fact a service like the other but wi
 
 Each time you need to add a service where there is a discovery need (Swagger vue), add a route to NSwag definition.
 
-Here I have introduced the routing for 2 business context services bc1 and bc2.
-At the level of the reversproxy.json file we have the 2 routes defined for /swagger/bc1 and swagger/bc2 that 
+Here I have introduced the routing for 2 services s1 and s2.
+At the level of the reversproxy.json file we have the 2 routes defined for /swagger/s1 and swagger/s2 that 
 we introduced in the NSwag route topology of the Yarp project.
 
 ````json
@@ -344,22 +344,22 @@ we introduced in the NSwag route topology of the Yarp project.
   "ReverseProxy": {
     "Routes": [
       {
-        "RouteId": "bc1/swagger",
-        "ClusterId": "bc1",
+        "RouteId": "s1/swagger",
+        "ClusterId": "s1",
         "AuthorizationPolicy": "Default",
         "Match": {
-          "Path": "/swagger/bc1/{*remainder}"
+          "Path": "/swagger/s1/{*remainder}"
         },
         "Transforms": [
           { "PathPattern": "/swagger/{*remainder}" }
         ]
       },
       {
-        "RouteId": "bc2/swagger",
-        "ClusterId": "bc2",
+        "RouteId": "s2/swagger",
+        "ClusterId": "s2",
         "AuthorizationPolicy": "Default",
         "Match": {
-          "Path": "/swagger/bc2/{*remainder}"
+          "Path": "/swagger/s2/{*remainder}"
         },
         "Transforms": [
           { "PathPattern": "/swagger/{*remainder}" }
@@ -367,17 +367,17 @@ we introduced in the NSwag route topology of the Yarp project.
       }
     ],
     "Clusters": {
-      "bc1": {
+      "s1": {
         "Destinations": {
-          "bc1/destination1": {
-            "Address": "http://bc1/"
+          "s1/destination1": {
+            "Address": "http://s1/"
           }
         }
       },
-      "ar2": {
+      "s2": {
         "Destinations": {
-          "ar2/destination1": {
-            "Address": "http://bc2/"
+          "s2/destination1": {
+            "Address": "http://s2/"
           }
         }
       }
