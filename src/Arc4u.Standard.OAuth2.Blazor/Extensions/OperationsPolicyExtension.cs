@@ -8,7 +8,7 @@ namespace Arc4u.Blazor
 {
     public static class OperationsPolicyExtension
     {
-        public static void RegisterOperationsPolicy(this IServiceCollection services, Dictionary<int, String> operations, Action<AuthorizationOptions> authorizationOptions = null)
+        public static void RegisterOperationsPolicy(this IServiceCollection services, IEnumerable<KeyValuePair<int, string>> operations, Action<AuthorizationOptions> authorizationOptions = null)
         {
             services.AddSingleton<IAuthorizationHandler, OperationsHandler>();
 
