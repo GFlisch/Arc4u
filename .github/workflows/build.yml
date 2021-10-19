@@ -10,15 +10,15 @@ env:
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'  
   netStandardVersion: '5.0.11.1'
-  netStandardVersionNuget: '5.0.11.1-preview4'
+  netStandardVersionNuget: '5.0.11.1'
   iOSVersion: '11.1.5011.1'
-  iOSVersionNuget: '11.1.5011.1-preview4'
+  iOSVersionNuget: '11.1.5011.1'
   AndroidVersion: '9.0.5011.1'
-  AndroidVersionNuget: '9.0.5011.1-preview4'
-  UwpVersion: '10.18362.5011.1'
-  UwpVersionNuget: '10.18362.5011.1-preview4'
+  AndroidVersionNuget: '9.0.5011.1'
+  UwpVersion: '10.38362.5011.1'
+  UwpVersionNuget: '10.38362.5011.1'
   PrismVersion: '7.2.5011.1'
-  PrismVersionNuget: '7.2.5011.1-preview4'
+  PrismVersionNuget: '7.2.5011.1'
   PublishToNuget: ${{ false }}
 
 jobs:
