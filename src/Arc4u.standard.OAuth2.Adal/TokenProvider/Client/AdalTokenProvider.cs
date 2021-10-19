@@ -1,0 +1,132 @@
+﻿using Arc4u.Dependency;
+using Arc4u.Diagnostics;
+using Arc4u.OAuth2.Token;
+using Arc4u.ServiceModel;
+using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using AuthenticationContext = Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContext;
+
+namespace Arc4u.OAuth2.TokenProvider.Client
+{
+    public abstract class AdalTokenProvider : ITokenProvider
+    {
+        private Dictionary<string, AuthenticationResult> _resultCache = new Dictionary<string, AuthenticationResult>();
+        protected readonly ILogger Logger;
+        protected readonly IContainerResolve Container;
+
+        public AdalTokenProvider(ILogger logger, IContainerResolve container)
+        {
+            Logger = logger;
+            Container = container;
+        }
+
+        // Request a token 
+        public async Task<TokenInfo> GetTokenAsync(IKeyValueSettings settings, object platformParameters)
+        {
+            if (null == settings)
+                throw new NullReferenceException(nameof(settings));
+
+            if (null == platformParameters as IPlatformParameters)
+                throw new ArgumentException(nameof(platformParameters));
+
+            return await AuthenticationResultAsync(settings, (IPlatformParameters)platformParameters);
+        }
+
+        private async Task<TokenInfo> AuthenticationResultAsync(IKeyValueSettings settings, IPlatformParameters platformParameters)
+        {
+            var authContext = GetContext(settings, out string serviceId, out string clientId, out string authority);
+
+            var redirectUri = new Uri(settings.Values[TokenKeys.RedirectUrl]);
+            Logger.Technical().From<AdalTokenProvider>().System($"{TokenKeys.RedirectUrl} = {redirectUri}.").Log();
+            Logger.Technical().From<AdalTokenProvider>().System("Acquire a token.").Log();
+
+            // Start Vpn if needed.
+            Network.Handler.OnCalling?.Invoke(new Uri(authority));
+
+            AuthenticationResult result = null;
+            // Check if we have an AuthenticationResult cached and still valid.
+            if (_resultCache.ContainsKey(clientId))
+            {
+                result = _resultCache[clientId];
+
+                // Is valid with a security margin of 1 minute.
+                if (null == result || result.ExpiresOn.LocalDateTime.AddMinutes(-1) < DateTime.Now)
+                {
+                    Logger.Technical().From<AdalTokenProvider>().System($"Token cached for clientId = {clientId} is expired. Is removed from the cache.").Log();
+                    _resultCache.Remove(clientId);
+                    result = null;
+                }
+            }
+
+            if (null == result)
+            {
+                result = await authContext.AcquireTokenAsync(serviceId, clientId, redirectUri, platformParameters);
+                _resultCache.Add(clientId, result);
+                Logger.Technical().From<AdalTokenProvider>().System($"Add the token in the cache for clientId = {clientId}.").Log();
+            }
+
+            if (null != result)
+            {
+                // Dump no sensitive information.
+                Logger.Technical().From<AdalTokenProvider>().System($"Token information for user {result.UserInfo.DisplayableId}.").Log();
+                Logger.Technical().From<AdalTokenProvider>().System($"Token expiration = {result.ExpiresOn.ToString("dd-MM-yyyy HH:mm:ss")}.").Log();
+
+                return result.ToTokenInfo();
+            }
+
+            return null;
+        }
+
+        private AuthenticationContext GetContext(IKeyValueSettings settings, out string serviceId, out string clientId, out string authority)
+        {
+            // Valdate arguments.
+            if (!settings.Values.ContainsKey(TokenKeys.AuthorityKey))
+                throw new ArgumentException("Authority is missing. Cannot process the request.");
+            if (!settings.Values.ContainsKey(TokenKeys.ClientIdKey))
+                throw new ArgumentException("ClientId is missing. Cannot process the request.");
+            if (!settings.Values.ContainsKey(TokenKeys.ServiceApplicationIdKey))
+                throw new ArgumentException("ApplicationId is missing. Cannot process the request.");
+
+            Logger.Technical().From<AdalTokenProvider>().System($"Creating an authentication context for the request.").Log();
+            clientId = settings.Values[TokenKeys.ClientIdKey];
+            serviceId = settings.Values[TokenKeys.ServiceApplicationIdKey];
+            authority = settings.Values[TokenKeys.AuthorityKey];
+
+            // Check the information.
+            var messages = new ServiceModel.Messages();
+            if (String.IsNullOrWhiteSpace(clientId))
+                messages.Add(new Message(ServiceModel.MessageCategory.Technical, ServiceModel.MessageType.Warning, $"{TokenKeys.ClientIdKey} is not defined in the configuration file."));
+            else
+                Logger.Technical().From<AdalTokenProvider>().System($"{TokenKeys.ClientIdKey} = {clientId}.").Log();
+
+            if (String.IsNullOrWhiteSpace(serviceId))
+                messages.Add(new Message(ServiceModel.MessageCategory.Technical, ServiceModel.MessageType.Warning, $"No information from the application settings section about an entry: {TokenKeys.ServiceApplicationIdKey}."));
+
+            if (String.IsNullOrWhiteSpace(authority))
+                messages.Add(new Message(ServiceModel.MessageCategory.Technical, ServiceModel.MessageType.Warning, $"{TokenKeys.AuthorityKey} is not defined in the configuration file."));
+            else
+                Logger.Technical().From<AdalTokenProvider>().System($"{TokenKeys.AuthorityKey} = {authority}.").Log();
+
+            messages.LogAndThrowIfNecessary(typeof(AdalTokenProvider));
+            messages.Clear();
+
+            // The cache is per user on the device and Application.
+            var authContext = CreateAuthenticationContext(authority, serviceId);
+            Logger.Technical().From<AdalTokenProvider>().System("Authentication context is created.").Log();
+
+            return authContext;
+        }
+
+        protected abstract AuthenticationContext CreateAuthenticationContext(String authority, string cacheIdentifier);
+
+        public void SignOut(IKeyValueSettings settings)
+        {
+            var authContext = GetContext(settings, out string serviceId, out string clientId, out string authority);
+
+            authContext.TokenCache.Clear();
+        }
+    }
+}

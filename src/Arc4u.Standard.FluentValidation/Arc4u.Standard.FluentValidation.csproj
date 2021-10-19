@@ -1,0 +1,41 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <RootNamespace>Arc4u.FluentValidation</RootNamespace>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>9.9.9.9</Version>
+    <Authors>Gilles Flisch</Authors>
+    <Company>Gilles Flisch</Company>
+    <Description>FluentValidation validators dedicated for Arc4u.</Description>
+    <Copyright>Gilles Flisch</Copyright>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageProjectUrl>https://github.com/GFlisch/Arc4u</PackageProjectUrl>
+    <RepositoryUrl>https://arc4u.visualstudio.com/Arc4u/_git/Standard</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <PackageTags>Arc4u</PackageTags>
+  </PropertyGroup>
+
+
+  
+  <ItemGroup>
+    <None Include="..\..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+
+
+  
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="10.3.3" />
+  </ItemGroup>
+
+
+  
+  <ItemGroup>
+    <ProjectReference Include="..\Arc4u.Standard.Data\Arc4u.Standard.Data.csproj" />
+  </ItemGroup>
+</Project>

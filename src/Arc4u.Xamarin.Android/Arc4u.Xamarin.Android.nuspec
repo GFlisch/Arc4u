@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>Arc4u.Xamarin.Android</id>
+    <version>$version$</version>
+    <title>Arc4u Xamarin for Android</title>
+    <authors>Gilles Flisch</authors>
+    <owners>Gilles FLisch</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>https://github.com/GFlisch/Arc4u</licenseUrl>
+    <projectUrl>https://github.com/GFlisch/Arc4u</projectUrl>
+    <repository type="git" url="https://github.com/GFlisch/Arc4u.git"/>
+    <description>Core Framework used to build Android application.</description>
+    <releaseNotes>First version</releaseNotes>
+    <copyright>Gilles Flisch 2016</copyright>
+    <tags>Arc4u</tags>
+    <dependencies>
+      <dependency id="Arc4u.Standard.Core" version="(netstandardversionnuget)" />
+      <dependency id="Arc4u.Standard" version="(netstandardversionnuget)" />
+      <dependency id="Arc4u.Standard.Caching" version="(netstandardversionnuget)" />
+      <dependency id="Microsoft.Extensions.Caching.Abstractions" version="5.0.0" />
+      <dependency id="Microsoft.Extensions.Configuration.Binder" version="5.0.0" />
+      <dependency id="Microsoft.Extensions.Configuration.Json" version="5.0.0" />
+      <dependency id="Microsoft.Extensions.DependencyInjection" version="5.0.2" />
+      <dependency id="Microsoft.Extensions.Hosting.Abstractions" version="5.0.0" />
+      <dependency id="Newtonsoft.Json" version="13.0.1"  />
+      <dependency id="System.Composition.AttributedModel" version="5.0.1"  />
+      <dependency id="System.Memory" version="4.5.4" />
+      <dependency id="System.Numerics.Vectors" version="4.5.0"  />
+      <dependency id="System.Threading.Tasks.Extensions" version="4.5.4" />
+      <dependency id="Xamarin.Essentials" version="1.7.0"  />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="bin\$configuration$\Arc4u.Xamarin.Android.dll" target="lib\monoandroid90\" />
+  </files>
+</package>

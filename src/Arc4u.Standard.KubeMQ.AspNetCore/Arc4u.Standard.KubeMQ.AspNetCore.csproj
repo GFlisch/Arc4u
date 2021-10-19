@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <RootNamespace>Arc4u.KubeMQ.AspNetCore</RootNamespace>
+    <Authors>Gilles Flisch</Authors>
+    <Description>Core Framework to use KubeMQ on the service project.</Description>
+    <Copyright>Gilles Flisch</Copyright>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <RepositoryUrl>https://arc4u.visualstudio.com/Arc4u/_git/Standard</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>Arc4u</PackageTags>
+    <PackageProjectUrl>https://github.com/GFlisch/Arc4u</PackageProjectUrl>
+    <Version>9.9.9.9</Version>    
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="KubeMQ.SDK.csharp" Version="1.5.2" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="5.0.0" />
+    <PackageReference Include="Newtonsoft.Json.Bson" Version="1.0.2" />
+    <PackageReference Include="Polly" Version="7.2.2" />    
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Arc4u.Standard.Diagnostics\Arc4u.Standard.Diagnostics.csproj" />
+    <ProjectReference Include="..\Arc4u.Standard.KubeMQ\Arc4u.Standard.KubeMQ.csproj" />
+    <ProjectReference Include="..\Arc4u.Standard\Arc4u.Standard.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+  
+</Project>
