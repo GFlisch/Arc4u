@@ -16,7 +16,7 @@ env:
   AndroidVersion: '9.0.5011.2'
   AndroidVersionNuget: '9.0.5011.2-preview1'
   UwpVersion: '10.18362.5011.2'
-  UwpVersionNuget: '10.18362.5011.2-preview1'
+  UwpVersionNuget: '10.38362.5011.2-preview1'
   PrismVersion: '7.2.5011.2'
   PrismVersionNuget: '7.2.5011.2-preview1'
   PublishToNuget: ${{ false }}
