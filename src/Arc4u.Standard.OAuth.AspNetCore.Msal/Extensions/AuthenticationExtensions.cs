@@ -35,7 +35,6 @@ namespace Arc4u.Standard.OAuth2
                 // This lambda determines whether user consent for non-essential cookies is needed for a given request.
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = Microsoft.AspNetCore.Http.SameSiteMode.Unspecified;
-                // Handling SameSite cookie according to https://docs.microsoft.com/en-us/aspnet/core/security/samesite?view=aspnetcore-3.1
                 options.HandleSameSiteCookieCompatibility();
             });
 
@@ -79,41 +78,33 @@ namespace Arc4u.Standard.OAuth2
             (instance, tenantId) = ExtractFromAuthority(authenticationOptions.OpenIdSettings);
 
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-                .AddPolicyScheme(Constants.ChallengePolicyScheme, "Authorization Bearer or OIDC", options =>
-                {
-                    options.ForwardDefaultSelector = context =>
-                    {
-                        var authHeader = context.Request.Headers[HeaderNames.Authorization].FirstOrDefault();
-                        if (authHeader?.StartsWith("Bearer ") == true)
-                            return JwtBearerDefaults.AuthenticationScheme;
-
-                        return OpenIdConnectDefaults.AuthenticationScheme;
-
-                    };
-                })
                 .AddMicrosoftIdentityWebApp(options =>
                 {
                     options.MetadataAddress = authenticationOptions.MetadataAddress;
                     options.RequireHttpsMetadata = true;
+                    options.Authority = authenticationOptions.OpenIdSettings.Values[TokenKeys.AuthorityKey];
+                    options.ForwardDefaultSelector = ctx =>
+                    {
+                        var authHeader = ctx?.Request?.Headers[HeaderNames.Authorization].FirstOrDefault();
+                        if (authHeader?.StartsWith("Bearer ") == true)
+                            return JwtBearerDefaults.AuthenticationScheme;
+
+                        return null;
+                    };
                     options.Instance = instance;
                     options.ClientId = authenticationOptions.OpenIdSettings.Values[TokenKeys.ClientIdKey];
                     options.TenantId = tenantId;
                     options.ClientSecret = authenticationOptions.OpenIdSettings.Values[TokenKeys.ApplicationKey];
-                    options.TokenValidationParameters.SaveSigninToken = true;
+                    options.TokenValidationParameters.SaveSigninToken = false;
                     options.TokenValidationParameters.AuthenticationType = Constants.CookiesAuthenticationType;
                     options.TokenValidationParameters.ValidateAudience = true;
                     options.TokenValidationParameters.ValidAudiences = new[] { authenticationOptions.OpenIdSettings.Values[TokenKeys.ServiceApplicationIdKey] };
                 }).EnableTokenAcquisitionToCallDownstreamApi()
                 .AddInMemoryTokenCaches();
 
-            return services.AddAuthentication(auth =>
-            {
-                auth.DefaultAuthenticateScheme = Constants.ChallengePolicyScheme;
-                auth.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
-                auth.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            });
-        }
+            return services.AddAuthentication();
 
+        }
         private static (string instance, string tenantId) ExtractFromAuthority(IKeyValueSettings settings)
         {
             var authority = new Uri(settings.Values[TokenKeys.AuthorityKey]);
@@ -122,7 +113,7 @@ namespace Arc4u.Standard.OAuth2
             var tenantId = authority.AbsolutePath.Trim(new char[] { '/', ' ' });
 
             if (settings.Values.ContainsKey(TokenKeys.TenantIdKey))
-                tenantId = settings.Values[TokenKeys.TenantIdKey];  
+                tenantId = settings.Values[TokenKeys.TenantIdKey];
 
             if (settings.Values.ContainsKey(TokenKeys.InstanceKey))
                 instance = settings.Values[TokenKeys.InstanceKey];
