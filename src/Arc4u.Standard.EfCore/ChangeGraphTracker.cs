@@ -15,9 +15,6 @@ namespace Arc4u.EfCore
         {
             node.Entry.State = node.Entry.Entity is IPersistEntity persistEntity ? persistEntity.PersistChange.Convert() : EntityState.Unchanged;
 
-            //if (newState != node.Entry.State 
-            //    && (node.Entry.State != EntityState.Detached || newState != EntityState.Unchanged))
-            //    node.Entry.State = newState;
         }
 
     }

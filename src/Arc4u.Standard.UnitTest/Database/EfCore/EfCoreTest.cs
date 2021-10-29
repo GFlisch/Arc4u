@@ -87,6 +87,7 @@ namespace Arc4u.Standard.UnitTest.Database.EfCore
                 var id = contract.Id;
 
                 db.ChangeTracker.TrackGraph(contract, e => ChangeGraphTracker.Tracker(e));
+                db.ChangeTracker.Clear();
 
                 await db.SaveChangesAsync(CancellationToken.None).ConfigureAwait(false);
                 contract = null;
@@ -104,7 +105,7 @@ namespace Arc4u.Standard.UnitTest.Database.EfCore
                 db.ChangeTracker.TrackGraph(contract, e => ChangeGraphTracker.Tracker(e));
                 
                 await db.SaveChangesAsync(CancellationToken.None).ConfigureAwait(false);
-
+                db.ChangeTracker.Clear();
             }
         }
     }
