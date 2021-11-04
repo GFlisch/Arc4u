@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;netcoreapp3.1</TargetFrameworks>
     <RootNamespace>Arc4u.gRPC</RootNamespace>
     <Authors>Gilles Flisch</Authors>
     <Description>Core Framework to use gRPC.</Description>
@@ -14,11 +14,18 @@
     <PackageProjectUrl>https://github.com/GFlisch/Arc4u</PackageProjectUrl>
     <Version>9.9.9.9</Version>
   </PropertyGroup>
-    
+  
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' != 'netcoreapp3.1'">
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Grpc.Core.Api" Version="2.41.0" />
     <PackageReference Include="GrpcRichError" Version="0.1.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
   </ItemGroup>
 
   <ItemGroup>

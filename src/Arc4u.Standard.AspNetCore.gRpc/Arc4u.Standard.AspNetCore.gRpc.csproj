@@ -20,9 +20,8 @@
 
   <ItemGroup>
     <PackageReference Include="Grpc.AspNetCore.Server" Version="2.40.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
   </ItemGroup>
-
+  
   <ItemGroup>
     <ProjectReference Include="..\Arc4u.Standard.Dependency\Arc4u.Standard.Dependency.csproj" />
     <ProjectReference Include="..\Arc4u.Standard.Diagnostics\Arc4u.Standard.Diagnostics.csproj" />
