@@ -38,12 +38,12 @@
   
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="10.1.1" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0">
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Realm" Version="10.6.0" />
-    <PackageReference Include="Serilog.Sinks.PeriodicBatching" Version="2.3.0" />
+    <PackageReference Include="Serilog.Sinks.PeriodicBatching" Version="2.3.1" />
     <PackageReference Include="System.Composition.AttributedModel" Version="5.0.1" />
     <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
   </ItemGroup>
