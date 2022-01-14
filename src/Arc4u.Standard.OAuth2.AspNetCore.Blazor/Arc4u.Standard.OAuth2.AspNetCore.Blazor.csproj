@@ -16,12 +16,7 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RootNamespace>Arc4u.Blazor</RootNamespace>
   </PropertyGroup>
-  
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
-  </ItemGroup>
-
+ 
   <ItemGroup>
     <None Include="..\..\LICENSE">
       <Pack>True</Pack>
