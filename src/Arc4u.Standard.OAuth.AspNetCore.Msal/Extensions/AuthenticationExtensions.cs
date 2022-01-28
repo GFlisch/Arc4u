@@ -35,6 +35,7 @@ namespace Arc4u.Standard.OAuth2
                 // This lambda determines whether user consent for non-essential cookies is needed for a given request.
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = Microsoft.AspNetCore.Http.SameSiteMode.Unspecified;
+                // Handling SameSite cookie according to https://docs.microsoft.com/en-us/aspnet/core/security/samesite?view=aspnetcore-3.1
                 options.HandleSameSiteCookieCompatibility();
             });
 
@@ -48,7 +49,7 @@ namespace Arc4u.Standard.OAuth2
                         bearerOptions.MetadataAddress = authenticationOptions.MetadataAddress;
                         bearerOptions.Authority = authenticationOptions.OAuthSettings.Values[TokenKeys.AuthorityKey];
                         bearerOptions.TokenValidationParameters.SaveSigninToken = true;
-                        bearerOptions.TokenValidationParameters.AuthenticationType = Constants.BearerAuthenticationType;
+                        bearerOptions.TokenValidationParameters.AuthenticationType = Arc4u.Standard.OAuth2.Constants.BearerAuthenticationType;
                         bearerOptions.TokenValidationParameters.ValidateAudience = true;
                         bearerOptions.TokenValidationParameters.ValidAudiences = new[] { authenticationOptions.OAuthSettings.Values[TokenKeys.ServiceApplicationIdKey] };
                     }, (identityOptions) =>
@@ -61,7 +62,7 @@ namespace Arc4u.Standard.OAuth2
                         identityOptions.ClientId = authenticationOptions.OAuthSettings.Values[TokenKeys.ClientIdKey];
                         identityOptions.ClientSecret = authenticationOptions.OAuthSettings.Values[TokenKeys.ApplicationKey];
                         identityOptions.TokenValidationParameters.SaveSigninToken = true;
-                        identityOptions.TokenValidationParameters.AuthenticationType = Constants.BearerAuthenticationType;
+                        identityOptions.TokenValidationParameters.AuthenticationType = Arc4u.Standard.OAuth2.Constants.BearerAuthenticationType;
                         identityOptions.TokenValidationParameters.ValidateAudience = true;
                         identityOptions.TokenValidationParameters.ValidAudiences = new[] { authenticationOptions.OAuthSettings.Values[TokenKeys.ServiceApplicationIdKey] };
                     })
@@ -96,7 +97,7 @@ namespace Arc4u.Standard.OAuth2
                     options.TenantId = tenantId;
                     options.ClientSecret = authenticationOptions.OpenIdSettings.Values[TokenKeys.ApplicationKey];
                     options.TokenValidationParameters.SaveSigninToken = false;
-                    options.TokenValidationParameters.AuthenticationType = Constants.CookiesAuthenticationType;
+                    options.TokenValidationParameters.AuthenticationType = Arc4u.Standard.OAuth2.Constants.CookiesAuthenticationType;
                     options.TokenValidationParameters.ValidateAudience = true;
                     options.TokenValidationParameters.ValidAudiences = new[] { authenticationOptions.OpenIdSettings.Values[TokenKeys.ServiceApplicationIdKey] };
                 }).EnableTokenAcquisitionToCallDownstreamApi()
@@ -105,6 +106,7 @@ namespace Arc4u.Standard.OAuth2
             return services.AddAuthentication();
 
         }
+
         private static (string instance, string tenantId) ExtractFromAuthority(IKeyValueSettings settings)
         {
             var authority = new Uri(settings.Values[TokenKeys.AuthorityKey]);
