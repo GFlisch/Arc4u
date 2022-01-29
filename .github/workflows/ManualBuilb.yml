@@ -1,4 +1,4 @@
-name: CI
+name: Manual
 
 on: 
   workflow_dispatch:
@@ -11,7 +11,7 @@ on:
         description: 'true or false' 
         type: boolean
         required: true
-        default: ${{ false }}
+        default: false
         
 env:
   solution: '**/*.sln'
