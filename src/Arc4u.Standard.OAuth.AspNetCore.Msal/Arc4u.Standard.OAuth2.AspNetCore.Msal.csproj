@@ -25,6 +25,12 @@
     <Description>Core Framework used in AspNetCore to authenticate user based on Msal.</Description>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
+  
+  <ItemGroup>
+    <Compile Remove="Properties\**" />
+    <EmbeddedResource Remove="Properties\**" />
+    <None Remove="Properties\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Identity.Web" Version="1.*" />
@@ -36,9 +42,4 @@
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>  </ItemGroup>
-
-
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
 </Project>

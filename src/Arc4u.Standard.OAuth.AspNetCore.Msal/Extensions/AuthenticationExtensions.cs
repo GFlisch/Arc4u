@@ -49,7 +49,7 @@ namespace Arc4u.Standard.OAuth2
                         bearerOptions.MetadataAddress = authenticationOptions.MetadataAddress;
                         bearerOptions.Authority = authenticationOptions.OAuthSettings.Values[TokenKeys.AuthorityKey];
                         bearerOptions.TokenValidationParameters.SaveSigninToken = true;
-                        bearerOptions.TokenValidationParameters.AuthenticationType = Constants.CookiesAuthenticationType;
+                        bearerOptions.TokenValidationParameters.AuthenticationType = Constants.BearerAuthenticationType;
                         bearerOptions.TokenValidationParameters.ValidateAudience = true;
                         bearerOptions.TokenValidationParameters.ValidAudiences = new[] { authenticationOptions.OAuthSettings.Values[TokenKeys.ServiceApplicationIdKey] };
                     }, (identityOptions) =>
