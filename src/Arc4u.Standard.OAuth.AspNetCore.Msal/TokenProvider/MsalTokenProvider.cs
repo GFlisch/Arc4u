@@ -1,8 +1,9 @@
-﻿using Arc4u;
-using Arc4u.Dependency;
+﻿using Arc4u.Dependency;
 using Arc4u.Dependency.Attribute;
+using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Token;
 using Arc4u.Security.Principal;
+using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Web;
 using System;
 using System.IdentityModel.Tokens.Jwt;
@@ -17,44 +18,55 @@ namespace Arc4u.OAuth2.TokenProvider
     {
         const string ProviderName = "Msal";
 
-        public MsalTokenProvider(IContainerResolve container, IApplicationContext applicationContext)
+        public MsalTokenProvider(IContainerResolve container, IApplicationContext applicationContext, ILogger<MsalTokenProvider> logger)
         {
             _container = container;
             _applicationContext = applicationContext;
+            _logger = logger;
         }
 
         private readonly IContainerResolve _container;
         private readonly IApplicationContext _applicationContext;
+        private readonly ILogger<MsalTokenProvider> _logger;
 
         public async Task<TokenInfo> GetTokenAsync(IKeyValueSettings settings, object platformParameters)
         {
-            var authenticationType = _applicationContext.Principal.Identity.AuthenticationType;
-
-            if (authenticationType.Equals(Arc4u.Standard.OAuth2.Constants.BearerAuthenticationType))
+            try
             {
-                var identity = _applicationContext.Principal?.Identity as ClaimsIdentity;
+                var authenticationType = _applicationContext.Principal?.Identity?.AuthenticationType;
 
-                if (null != identity?.BootstrapContext)
+                if (authenticationType == null) return null;
+
+                if (authenticationType.Equals(Standard.OAuth2.Constants.BearerAuthenticationType))
                 {
-                    var tokenInfo = TokenIsValid(settings, identity.BootstrapContext.ToString());
+                    var identity = _applicationContext.Principal?.Identity as ClaimsIdentity;
 
-                    if (null != tokenInfo)
-                        return tokenInfo;
+                    if (null != identity?.BootstrapContext)
+                    {
+                        var tokenInfo = TokenIsValid(settings, identity.BootstrapContext.ToString());
+
+                        if (null != tokenInfo)
+                            return tokenInfo;
+                    }
+                }
+
+                if (authenticationType.Equals(Standard.OAuth2.Constants.CookiesAuthenticationType))
+                {
+                    if (!settings.Values.ContainsKey(TokenKeys.Scopes))
+                        throw new ArgumentException("Scopes field is missing. Cannot process the request.");
+
+                    var scopes = settings.Values[TokenKeys.Scopes].Split(',', ';');
+
+                    var tokenAcquisition = _container.Resolve<ITokenAcquisition>();
+
+                    var result = await tokenAcquisition.GetAuthenticationResultForUserAsync(scopes);
+
+                    return new TokenInfo("Bearer", result.AccessToken, result.IdToken, result.ExpiresOn.UtcDateTime);
                 }
             }
-
-            if (authenticationType.Equals(Arc4u.Standard.OAuth2.Constants.CookiesAuthenticationType))
+            catch (Exception ex)
             {
-                if (!settings.Values.ContainsKey("Scopes"))
-                    throw new ArgumentException("Scopes field is missing. Cannot process the request.");
-
-                var scopes = settings.Values["Scopes"].Split(',', ';');
-
-                var tokenAcquisition = _container.Resolve<ITokenAcquisition>();
-
-                var result = await tokenAcquisition.GetAuthenticationResultForUserAsync(scopes);
-
-                return new TokenInfo("Bearer", result.AccessToken, result.IdToken, result.ExpiresOn.UtcDateTime);
+                _logger.Technical().Exception(ex).Log();
             }
 
             return null;
