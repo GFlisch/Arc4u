@@ -1,18 +1,15 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using Arc4u.OAuth2.Token;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Net.Http.Headers;
 using Microsoft.Identity.Web;
+using Microsoft.Net.Http.Headers;
 using System;
 using System.Linq;
-using AuthenticationOptions = Arc4u.Standard.OAuth2.Extensions.AuthenticationOptions;
-using Arc4u.OAuth2.Token;
-using Microsoft.Extensions.Options;
 
-namespace Arc4u.Standard.OAuth2
+namespace Arc4u.Standard.OAuth2.Extensions
 {
     public static class AuthenticationExtensions
     {
