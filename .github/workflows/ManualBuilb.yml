@@ -2,22 +2,32 @@ name: CI
 
 on: 
   workflow_dispatch:
-
+    inputs:
+      nugetPreviewName:
+        description: 'nuget preview ?'     
+        required: true
+        default: '-preview1'
+      publish:
+        description: 'true or false' 
+        type: boolean
+        required: true
+        default: ${{ false }}
+        
 env:
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'  
   netStandardVersion: '5.0.13.1'
-  netStandardVersionNuget: '5.0.13.1-preview1'
+  netStandardVersionNuget: '5.0.13.1${{ github.event.inputs.nugetPreviewName }}'
   iOSVersion: '11.2.5013.1'
-  iOSVersionNuget: '11.2.5013.1-preview1'
+  iOSVersionNuget: '11.2.5013.1${{ github.event.inputs.nugetPreviewName }}'
   AndroidVersion: '9.0.5013.1'
-  AndroidVersionNuget: '9.0.5013.1-preview1'
+  AndroidVersionNuget: '9.0.5013.1${{ github.event.inputs.nugetPreviewName }}'
   UwpVersion: '10.18362.5013.1'
-  UwpVersionNuget: '10.38362.5013.1-preview1'
+  UwpVersionNuget: '10.38362.5013.1${{ github.event.inputs.nugetPreviewName }}'
   PrismVersion: '7.2.5013.1'
-  PrismVersionNuget: '7.2.5013.1-preview1'
-  PublishToNuget: ${{ true }}
+  PrismVersionNuget: '7.2.5013.1${{ github.event.inputs.nugetPreviewName }}'
+  PublishToNuget: ${{ github.event.inputs.publish }}
 
 jobs:
   build:
