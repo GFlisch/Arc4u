@@ -16,6 +16,7 @@
 [assembly: InternalsVisibleTo("Arc4u.Standard.OAuth2.Adal")]
 [assembly: InternalsVisibleTo("Arc4u.Standard.OAuth2.Blazor")]
 [assembly: InternalsVisibleTo("Arc4u.Standard.OAuth2.AspNetCore")]
+[assembly: InternalsVisibleTo("Arc4u.Standard.OAuth2.AspNetCore.Msal")]
 [assembly: InternalsVisibleTo("Arc4u.Standard.OAuth2.AspNetCore.Api")]
 [assembly: InternalsVisibleTo("Arc4u.Standard.OAuth2.Client")]
 [assembly: InternalsVisibleTo("Arc4u.Standard.EF")]
