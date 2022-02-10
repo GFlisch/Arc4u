@@ -1,4 +1,5 @@
-﻿using Arc4u.Diagnostics;
+﻿using Arc4u.Dependency.Attribute;
+using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Security.Principal;
 using Arc4u.OAuth2.Token;
 using Arc4u.ServiceModel;
@@ -7,24 +8,22 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Composition;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace Arc4u.OAuth2.TokenProvider
 {
-    [System.Composition.Export(CredentialTokenProvider.ProviderName, typeof(ICredentialTokenProvider)), System.Composition.Shared]
+    [Export(CredentialTokenProvider.ProviderName, typeof(ICredentialTokenProvider)), Shared]
     public class CredentialTokenProvider : ICredentialTokenProvider
     {
         public const string ProviderName = "CredentialDirect";
 
-        private readonly ILogger Logger;
+        private readonly ILogger<CredentialTokenProvider> _logger;
 
-        [ImportingConstructor]
-        public CredentialTokenProvider(ILogger logger)
+        public CredentialTokenProvider(ILogger<CredentialTokenProvider> logger)
         {
-            Logger = logger;
+            _logger = logger;
         }
 
         public async Task<TokenInfo> GetTokenAsync(IKeyValueSettings settings, CredentialsResult credential)
@@ -41,7 +40,7 @@ namespace Arc4u.OAuth2.TokenProvider
             messages.Clear();
 
             // no cache, do a direct call on every calls.
-            Logger.Technical().From<CredentialTokenProvider>().System($"Call STS: {authority} for user: {credential.Upn}").Log();
+            _logger.Technical().System($"Call STS: {authority} for user: {credential.Upn}").Log();
             return await GetTokenInfoAsync(serviceApplicationId, clientId, authority, credential.Upn, credential.Password);
 
         }
@@ -77,14 +76,14 @@ namespace Arc4u.OAuth2.TokenProvider
                          ServiceModel.MessageType.Error,
                          "ApplicationId is missing. Cannot process the request."));
 
-            Logger.Technical().From<CredentialTokenProvider>().System($"Creating an authentication context for the request.").Log();
+            _logger.Technical().System($"Creating an authentication context for the request.").Log();
             clientId = settings.Values[TokenKeys.ClientIdKey];
             serviceApplicationId = settings.Values[TokenKeys.ServiceApplicationIdKey];
             authority = settings.Values[TokenKeys.AuthorityKey];
 
-            Logger.Technical().From<CredentialTokenProvider>().System($"ClientId = {clientId}.").Log();
-            Logger.Technical().From<CredentialTokenProvider>().System($"ServiceApplicationId = {serviceApplicationId}.").Log();
-            Logger.Technical().From<CredentialTokenProvider>().System($"Authority = {authority}.").Log();
+            _logger.Technical().System($"ClientId = {clientId}.").Log();
+            _logger.Technical().System($"ServiceApplicationId = {serviceApplicationId}.").Log();
+            _logger.Technical().System($"Authority = {authority}.").Log();
 
             return messages;
 
@@ -115,7 +114,7 @@ namespace Arc4u.OAuth2.TokenProvider
 
                         if (response.StatusCode == HttpStatusCode.BadRequest)
                         {
-                            Logger.Technical().From<CredentialTokenProvider>().Error("A bad request was received.").Log();
+                            _logger.Technical().Error("A bad request was received.").Log();
                             JObject error = JObject.Parse(responseBody);
                             if (error.ContainsKey("error"))
                             {
@@ -137,7 +136,7 @@ namespace Arc4u.OAuth2.TokenProvider
 
                         if (response.StatusCode == HttpStatusCode.Unauthorized)
                         {
-                            Logger.Technical().From<CredentialTokenProvider>().Error("You are unauthorized.").Log();
+                            _logger.Technical().Error("You are unauthorized.").Log();
                             JObject error = JObject.Parse(responseBody);
 
                             var message = error.ContainsKey("error_description") ? error["error_description"].Value<String>() : "No error descrption.";
@@ -147,7 +146,7 @@ namespace Arc4u.OAuth2.TokenProvider
 
                         var responseValues = JsonConvert.DeserializeObject<Dictionary<string, string>>(responseBody);
 
-                        Logger.Technical().From<CredentialTokenProvider>().System($"Token is received for user {upn}.").Log();
+                        _logger.Technical().System($"Token is received for user {upn}.").Log();
 
                         var accessToken = responseValues["access_token"];
                         var idToken = responseValues["id_token"];
@@ -158,14 +157,14 @@ namespace Arc4u.OAuth2.TokenProvider
                         Int64.TryParse(expiresIn, out var offset);
                         var dateUtc = DateTime.UtcNow.AddSeconds(offset);
 
-                        Logger.Technical().From<CredentialTokenProvider>().System($"Access token will expire at {dateUtc} utc.").Log();
+                        _logger.Technical().System($"Access token will expire at {dateUtc} utc.").Log();
 
                         return new TokenInfo(tokenType, accessToken, idToken, dateUtc);
                     }
                 }
                 catch (Exception ex)
                 {
-                    Logger.Technical().From<CredentialTokenProvider>().Exception(ex).Log();
+                    _logger.Technical().Exception(ex).Log();
                     throw new AppException(new Message(Arc4u.ServiceModel.MessageCategory.Technical, Arc4u.ServiceModel.MessageType.Error, "Trust", "Rejected", ex.Message));
                 }
             }
