@@ -1,10 +1,12 @@
-﻿using Arc4u.OAuth2.Token;
+﻿using Arc4u.OAuth2.Msal.Token;
+using Arc4u.OAuth2.Token;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Web;
+using Microsoft.Identity.Web.TokenCacheProviders;
 using Microsoft.Net.Http.Headers;
 using System;
 using System.Linq;
@@ -26,6 +28,7 @@ namespace Arc4u.Standard.OAuth2.Extensions
 
             services.AddAuthorization();
             services.AddHttpContextAccessor(); // give access to the HttpContext if requested by an external packages.
+            services.AddSingleton<IMsalTokenCacheProvider, Cache>();
 
             services.Configure<CookiePolicyOptions>(options =>
             {
@@ -97,8 +100,7 @@ namespace Arc4u.Standard.OAuth2.Extensions
                     options.TokenValidationParameters.AuthenticationType = Constants.CookiesAuthenticationType;
                     options.TokenValidationParameters.ValidateAudience = true;
                     options.TokenValidationParameters.ValidAudiences = new[] { authenticationOptions.OpenIdSettings.Values[TokenKeys.ServiceApplicationIdKey] };
-                }).EnableTokenAcquisitionToCallDownstreamApi()
-                .AddInMemoryTokenCaches();
+                }).EnableTokenAcquisitionToCallDownstreamApi();
 
             return services.AddAuthentication();
 
