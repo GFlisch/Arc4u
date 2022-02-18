@@ -94,7 +94,7 @@ namespace Arc4u.KubeMQ.AspNetCore.PubSub
 
             }
             /// CancellationToken is canceled.
-            catch (OperationCanceledException ex)
+            catch (OperationCanceledException)
             {
                 // Log we skip this.
                 _logger.Technical().System($"Exit listening publisher {_subscriberParameters.Namespace}.").Log();

@@ -53,9 +53,16 @@ namespace Arc4u.Standard.OAuth2.Middleware
 
                     var tokenInfo = await provider.GetTokenAsync(_options.OpenIdSettings, context.User.Identity);
 
-                    var authorization = new AuthenticationHeaderValue("Bearer", tokenInfo.AccessToken).ToString();
-                    context.Request.Headers.Remove("Authorization");
-                    context.Request.Headers.Add("Authorization", authorization);
+                    if (tokenInfo?.AccessToken != null)
+                    {
+                        // Do we have an OAuth2Settings to do OBO?
+                        // If yes, we request an AccessToken that will be one for the Api services.
+
+                        var authorization = new AuthenticationHeaderValue("Bearer", tokenInfo.AccessToken).ToString();
+                        context.Request.Headers.Remove("Authorization");
+                        context.Request.Headers.Add("Authorization", authorization);
+                    }
+
                 }
             }
             await _next.Invoke(context);

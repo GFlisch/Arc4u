@@ -4,5 +4,6 @@
     {
         public IKeyValueSettings OpenIdSettings { get; set; } = null;
 
+        public IKeyValueSettings OAuth2Settings { get; set; } = null;
     }
 }
