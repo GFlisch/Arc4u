@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.TokenCacheProviders;
 using Microsoft.Net.Http.Headers;
@@ -15,7 +16,7 @@ namespace Arc4u.Standard.OAuth2.Extensions
 {
     public static class AuthenticationExtensions
     {
-        public static AuthenticationBuilder AddMsalAuthentication(this IServiceCollection services, AuthenticationOptions authenticationOptions)
+        public static AuthenticationBuilder AddMsalAuthentication2(this IServiceCollection services, AuthenticationOptions authenticationOptions)
         {
             if (null == authenticationOptions)
                 throw new ArgumentNullException(nameof(authenticationOptions));
@@ -28,7 +29,7 @@ namespace Arc4u.Standard.OAuth2.Extensions
 
             services.AddAuthorization();
             services.AddHttpContextAccessor(); // give access to the HttpContext if requested by an external packages.
-            services.AddSingleton<IMsalTokenCacheProvider, Cache>();
+            services.TryAddSingleton<IMsalTokenCacheProvider, Cache>();
 
             services.Configure<CookiePolicyOptions>(options =>
             {
@@ -72,7 +73,7 @@ namespace Arc4u.Standard.OAuth2.Extensions
                         options.ClientId = authenticationOptions.OAuthSettings.Values[TokenKeys.ClientIdKey];
                         options.Instance = instance;
                         options.TenantId = tenantId;
-                    }).AddInMemoryTokenCaches();
+                    });
 
 
             // OpenId Connect
