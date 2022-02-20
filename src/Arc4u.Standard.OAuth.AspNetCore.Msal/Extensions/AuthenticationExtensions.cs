@@ -16,7 +16,7 @@ namespace Arc4u.Standard.OAuth2.Extensions
 {
     public static class AuthenticationExtensions
     {
-        public static AuthenticationBuilder AddMsalAuthentication2(this IServiceCollection services, AuthenticationOptions authenticationOptions)
+        public static AuthenticationBuilder AddMsalAuthentication(this IServiceCollection services, AuthenticationOptions authenticationOptions)
         {
             if (null == authenticationOptions)
                 throw new ArgumentNullException(nameof(authenticationOptions));
