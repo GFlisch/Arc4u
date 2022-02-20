@@ -4,6 +4,7 @@ using Arc4u.OAuth2.Token;
 using Arc4u.Security.Principal;
 using Microsoft.AspNetCore.Http;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
@@ -49,23 +50,62 @@ namespace Arc4u.Standard.OAuth2.Middleware
 
                 using (var activity = _activitySource?.StartActivity("Inject bearer token in header", ActivityKind.Producer))
                 {
-                    ITokenProvider provider = container.Resolve<ITokenProvider>(_options.OpenIdSettings.Values[TokenKeys.ProviderIdKey]);
-
-                    var tokenInfo = await provider.GetTokenAsync(_options.OpenIdSettings, context.User.Identity);
-
-                    if (tokenInfo?.AccessToken != null)
+                    TokenInfo tokenInfo = null;
+                    // Do we have an OAuth2Settings to do OBO?
+                    // If yes, we request an AccessToken that will be one for the Api services.
+                    if (null != _options.OAuth2Settings) // Do obo.
                     {
-                        // Do we have an OAuth2Settings to do OBO?
-                        // If yes, we request an AccessToken that will be one for the Api services.
+                        var oboDic = new Dictionary<string, string>
+                            {
+                                { TokenKeys.ClientIdKey, _options.OpenIdSettings.Values[TokenKeys.ClientIdKey] },
+                                { TokenKeys.ApplicationKey, _options.OpenIdSettings.Values[TokenKeys.ApplicationKey] },
+                                { TokenKeys.AuthorityKey, _options.OpenIdSettings.Values[TokenKeys.AuthorityKey] },
+                                { TokenKeys.Scopes, _options.OAuth2Settings.Values[TokenKeys.Scopes] },
+                                { "OpenIdSettingsReader", _options.OpenIdProviderKey },
+                            };
+                        var oboSettings = new SimpleKeyValueSettings(oboDic);
 
-                        var authorization = new AuthenticationHeaderValue("Bearer", tokenInfo.AccessToken).ToString();
-                        context.Request.Headers.Remove("Authorization");
-                        context.Request.Headers.Add("Authorization", authorization);
+                        ITokenProvider provider = container.Resolve<ITokenProvider>(_options.OboProviderKey);
+
+                        tokenInfo = await provider.GetTokenAsync(oboSettings, null);
+                    }
+                    else
+                    {
+                        ITokenProvider provider = container.Resolve<ITokenProvider>(_options.OpenIdSettings.Values[TokenKeys.ProviderIdKey]);
+
+                        tokenInfo = await provider.GetTokenAsync(_options.OpenIdSettings, null);
                     }
 
+                    var authorization = new AuthenticationHeaderValue("Bearer", tokenInfo.AccessToken).ToString();
+                    context.Request.Headers.Remove("Authorization");
+                    context.Request.Headers.Add("Authorization", authorization);
                 }
             }
             await _next.Invoke(context);
         }
+
+        private class SimpleKeyValueSettings : IKeyValueSettings
+        {
+            public SimpleKeyValueSettings(Dictionary<string, string> keyValues)
+            {
+                _keyValues = keyValues;
+            }
+
+            private readonly Dictionary<string, string> _keyValues;
+
+            public IReadOnlyDictionary<string, string> Values => _keyValues;
+
+            public override int GetHashCode()
+            {
+                int hash = 0;
+                foreach (var value in Values)
+                {
+                    hash ^= value.GetHashCode();
+                }
+
+                return hash;
+            }
+        }
     }
 }
+
