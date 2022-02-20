@@ -3,6 +3,7 @@ using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Token;
 using Arc4u.Security.Principal;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -27,6 +28,7 @@ namespace Arc4u.Standard.OAuth2.Middleware
         private readonly RequestDelegate _next;
         private ActivitySource _activitySource;
         private bool hasAlreadyTriedToResolve = false;
+        private ILogger<OpenIdBearerInjectorMiddleware> _logger = null;
 
         public async Task Invoke(HttpContext context)
         {
@@ -48,6 +50,8 @@ namespace Arc4u.Standard.OAuth2.Middleware
                     _activitySource = container.Resolve<IActivitySourceFactory>()?.GetArc4u();
                 }
 
+                _logger ??= container.Resolve<ILogger<OpenIdBearerInjectorMiddleware>>();
+
                 using (var activity = _activitySource?.StartActivity("Inject bearer token in header", ActivityKind.Producer))
                 {
                     TokenInfo tokenInfo = null;
@@ -65,15 +69,30 @@ namespace Arc4u.Standard.OAuth2.Middleware
                             };
                         var oboSettings = new SimpleKeyValueSettings(oboDic);
 
-                        ITokenProvider provider = container.Resolve<ITokenProvider>(_options.OboProviderKey);
+                        try
+                        {
+                            ITokenProvider provider = container.Resolve<ITokenProvider>(_options.OboProviderKey);
 
-                        tokenInfo = await provider.GetTokenAsync(oboSettings, null);
+                            tokenInfo = await provider.GetTokenAsync(oboSettings, null);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.Technical().Exception(ex).Log();
+                        }
+
                     }
                     else
                     {
-                        ITokenProvider provider = container.Resolve<ITokenProvider>(_options.OpenIdSettings.Values[TokenKeys.ProviderIdKey]);
+                        try
+                        {
+                            ITokenProvider provider = container.Resolve<ITokenProvider>(_options.OpenIdSettings.Values[TokenKeys.ProviderIdKey]);
 
-                        tokenInfo = await provider.GetTokenAsync(_options.OpenIdSettings, null);
+                            tokenInfo = await provider.GetTokenAsync(_options.OpenIdSettings, null);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.Technical().Exception(ex).Log();
+                        }
                     }
 
                     var authorization = new AuthenticationHeaderValue("Bearer", tokenInfo.AccessToken).ToString();
