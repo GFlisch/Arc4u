@@ -1,4 +1,5 @@
-﻿using Arc4u.Dependency;
+﻿using Arc4u.Configuration;
+using Arc4u.Dependency;
 using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Token;
 using Arc4u.Security.Principal;
@@ -101,29 +102,6 @@ namespace Arc4u.Standard.OAuth2.Middleware
                 }
             }
             await _next.Invoke(context);
-        }
-
-        private class SimpleKeyValueSettings : IKeyValueSettings
-        {
-            public SimpleKeyValueSettings(Dictionary<string, string> keyValues)
-            {
-                _keyValues = keyValues;
-            }
-
-            private readonly Dictionary<string, string> _keyValues;
-
-            public IReadOnlyDictionary<string, string> Values => _keyValues;
-
-            public override int GetHashCode()
-            {
-                int hash = 0;
-                foreach (var value in Values)
-                {
-                    hash ^= value.GetHashCode();
-                }
-
-                return hash;
-            }
         }
     }
 }
