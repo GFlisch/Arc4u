@@ -33,5 +33,6 @@
   </metadata>
   <files>
     <file src="bin\$configuration$\Arc4u.Xamarin.Android.dll" target="lib\monoandroid90\" />
+	<file src="LICENSE"/>
   </files>
 </package>
