@@ -219,6 +219,7 @@
   <ItemGroup>
     <None Include="..\..\LICENSE">
       <Link>LICENSE</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Arc4u.Windows.Mvvm.nuspec" />
   </ItemGroup>
