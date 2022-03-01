@@ -7,7 +7,7 @@
     <authors>Gilles Flisch</authors>
     <owners>Gilles FLisch</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-	<license type="LICENSE"></license>
+	<license type="file">LICENSE</license>
     <projectUrl>https://github.com/GFlisch/Arc4u</projectUrl>
     <description>Mvvm implementation for Uwp applications.</description>
     <repository type="git" url="https://github.com/GFlisch/Arc4u.git"/>
