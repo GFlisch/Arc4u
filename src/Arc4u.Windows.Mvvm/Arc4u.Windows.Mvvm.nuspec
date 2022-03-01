@@ -30,6 +30,6 @@
   </metadata>
   <files>
     <file src="bin\$configuration$\Arc4u.Windows.Mvvm.dll" target="lib\uap10.0\" />
-	  <file src="LICENSE" />
+	  <file src="..\..\LICENSE" />
   </files>
 </package>
