@@ -63,6 +63,9 @@
     <Compile Include="SettingsReaderBase.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\LICENSE">
+      <Link>LICENSE</Link>
+    </None>
     <None Include="app.config" />
     <None Include="Arc4u.Xamarin.iOS.nuspec" />
   </ItemGroup>
