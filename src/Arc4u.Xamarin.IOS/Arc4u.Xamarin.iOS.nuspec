@@ -79,5 +79,6 @@
   <files>
     <file src="bin\$configuration$\Arc4u.Xamarin.iOS.pdb" target="lib\xamarinios10\" />
     <file src="bin\$configuration$\Arc4u.Xamarin.iOS.dll" target="lib\xamarinios10\" />
+	<file src="..\..\LICENSE" />
   </files>
 </package>
