@@ -1,5 +1,4 @@
-﻿using Arc4u.Caching;
-using Arc4u.Dependency.Attribute;
+﻿using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Dapr.Client;
 using Microsoft.Extensions.Logging;
