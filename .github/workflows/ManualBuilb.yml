@@ -11,6 +11,7 @@ on:
         description: 'true or false' 
         type: boolean
         required: true
+        default: false
         
 env:
   solution: '**/*.sln'
@@ -83,6 +84,9 @@ jobs:
         shell: powershell        
       - name: Change Arc4u.Standard.Caching.Redis versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Caching.Redis.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "9.9.9.9" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
+      - name: Change Arc4u.Standard.Caching.Dapr versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Caching.Dapr.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "9.9.9.9" "${{env.netStandardVersionNuget}}"
         shell: powershell        
       - name: Change Arc4u.Standard.NServiceBus versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.NServiceBus.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "9.9.9.9" "${{env.netStandardVersionNuget}}"
