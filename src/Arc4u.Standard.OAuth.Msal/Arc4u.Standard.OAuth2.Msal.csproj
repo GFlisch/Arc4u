@@ -1,23 +1,43 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-  </PropertyGroup>
+	<PropertyGroup Label="Globals">
+		<SccProjectName>SAK</SccProjectName>
+		<SccProvider>SAK</SccProvider>
+		<SccAuxPath>SAK</SccAuxPath>
+		<SccLocalPath>SAK</SccLocalPath>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="Client\**" />
-    <Compile Remove="Extensions\**" />
-    <EmbeddedResource Remove="Client\**" />
-    <EmbeddedResource Remove="Extensions\**" />
-    <None Remove="Client\**" />
-    <None Remove="Extensions\**" />
-  </ItemGroup>
+	<PropertyGroup>
+		<TargetFramework>net5.0</TargetFramework>
+		<RootNamespace>Arc4u.OAuth2.Msal</RootNamespace>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<AssemblyVersion>1.0.0.0</AssemblyVersion>
+		<FileVersion>1.0.0.0</FileVersion>
+		<Version>0.0.0.0</Version>
+		<Authors>Gilles Flisch</Authors>
+		<Company>Gilles Flisch</Company>
+		<Copyright>Gilles Flisch</Copyright>
+		<PackageProjectUrl>https://github.com/GFlisch/Arc4u</PackageProjectUrl>
+		<RepositoryUrl>https://arc4u.visualstudio.com/Arc4u/_git/Standard</RepositoryUrl>
+		<PackageLicenseExpression></PackageLicenseExpression>
+		<Description>Core Framework used to connect application with OAuth2 and Msal.</Description>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<RepositoryType>git</RepositoryType>
+		<PackageTags>Arc4u</PackageTags>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Http" Version="5.*" />
-    <PackageReference Include="Microsoft.Identity.Client" Version="4.41.0" />
-    <ProjectReference Include="..\Arc4u.Standard.Diagnostics\Arc4u.Standard.Diagnostics.csproj" />
-    <ProjectReference Include="..\Arc4u.Standard.OAuth2\Arc4u.Standard.OAuth2.csproj" />
-    <ProjectReference Include="..\Arc4u.Standard\Arc4u.Standard.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.Http" Version="5.*" />
+		<PackageReference Include="Microsoft.Identity.Client" Version="4.41.0" />
+		<ProjectReference Include="..\Arc4u.Standard.Diagnostics\Arc4u.Standard.Diagnostics.csproj" />
+		<ProjectReference Include="..\Arc4u.Standard.OAuth2\Arc4u.Standard.OAuth2.csproj" />
+		<ProjectReference Include="..\Arc4u.Standard\Arc4u.Standard.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\..\LICENSE">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+	</ItemGroup>
 </Project>
