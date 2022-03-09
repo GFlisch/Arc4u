@@ -11,21 +11,22 @@ on:
         description: 'true or false' 
         type: boolean
         required: true
+        default: false
         
 env:
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'  
-  netStandardVersion: '5.0.13.1'
-  netStandardVersionNuget: '5.0.13.1${{ github.event.inputs.nugetPreviewName }}'
-  iOSVersion: '11.2.5013.1'
-  iOSVersionNuget: '11.2.5013.1${{ github.event.inputs.nugetPreviewName }}'
-  AndroidVersion: '9.0.5013.1'
-  AndroidVersionNuget: '9.0.5013.1${{ github.event.inputs.nugetPreviewName }}'
-  UwpVersion: '10.18362.5013.1'
-  UwpVersionNuget: '10.38362.5013.1${{ github.event.inputs.nugetPreviewName }}'
-  PrismVersion: '7.2.5013.1'
-  PrismVersionNuget: '7.2.5013.1${{ github.event.inputs.nugetPreviewName }}'
+  netStandardVersion: '5.0.14.1'
+  netStandardVersionNuget: '5.0.14.1${{ github.event.inputs.nugetPreviewName }}'
+  iOSVersion: '11.2.5014.1'
+  iOSVersionNuget: '11.2.5014.1${{ github.event.inputs.nugetPreviewName }}'
+  AndroidVersion: '9.0.5014.1'
+  AndroidVersionNuget: '9.0.5014.1${{ github.event.inputs.nugetPreviewName }}'
+  UwpVersion: '10.18362.5014.1'
+  UwpVersionNuget: '10.38362.5014.1${{ github.event.inputs.nugetPreviewName }}'
+  PrismVersion: '7.2.5014.1'
+  PrismVersionNuget: '7.2.5014.1${{ github.event.inputs.nugetPreviewName }}'
   PublishToNuget: ${{ github.event.inputs.publish }}
 
 jobs:
@@ -84,6 +85,9 @@ jobs:
       - name: Change Arc4u.Standard.Caching.Redis versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Caching.Redis.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "9.9.9.9" "${{env.netStandardVersionNuget}}"
         shell: powershell        
+      - name: Change Arc4u.Standard.Caching.Dapr versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Caching.Dapr.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "9.9.9.9" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
       - name: Change Arc4u.Standard.NServiceBus versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.NServiceBus.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "9.9.9.9" "${{env.netStandardVersionNuget}}"
         shell: powershell        
@@ -119,6 +123,9 @@ jobs:
         shell: powershell        
       - name: Change Arc4u.Standard.OAuth2.Adal versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.OAuth2.Adal.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "9.9.9.9" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
+      - name: Change Arc4u.Standard.OAuth2.Msal versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.OAuth2.Msal.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "9.9.9.9" "${{env.netStandardVersionNuget}}"
         shell: powershell        
       - name: Change Arc4u.Standard.OAuth2.AspNetCore versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.OAuth2.AspNetCore.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "9.9.9.9" "${{env.netStandardVersionNuget}}"
