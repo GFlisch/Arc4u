@@ -37,7 +37,7 @@ namespace Arc4u.KubeMQ
 
                     if (messages.Count > 0)
                     {
-                        activity?.AddTag("QueueMessages", messages.Count);
+                        activity?.SetTag("QueueMessages", messages.Count);
                         _logger.Technical().System($"{messages.Count} messages will be sent to queues.").Log();
                         _queueMessageSender.SendBatch(messages);
                     }
@@ -46,7 +46,7 @@ namespace Arc4u.KubeMQ
 
                     if (pubSubEvents.Count > 0)
                     {
-                        activity?.AddTag("PubSubMessages", pubSubEvents.Count);
+                        activity?.SetTag("PubSubMessages", pubSubEvents.Count);
                         _logger.Technical().System($"{pubSubEvents.Count} event(s) will be sent to publishers.").Log();
                         await _publisher.PublishBatchAsync(pubSubEvents);
                     }

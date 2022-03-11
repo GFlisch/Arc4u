@@ -134,7 +134,7 @@ namespace Arc4u.Standard.OAuth2.Middleware
 
                             principal.ActivityID = activityId;
                         }
-                        activity?.AddTag(LoggingConstants.ActivityId, principal.ActivityID);
+                        activity?.SetTag(LoggingConstants.ActivityId, principal.ActivityID);
                         // Check for a culture.
                         var cultureHeader = context.Request?.Headers?.FirstOrDefault(h => h.Key.Equals("culture", StringComparison.InvariantCultureIgnoreCase));
                         if (null != cultureHeader && cultureHeader.HasValue && StringValues.Empty != activityIdHeader.Value && cultureHeader.Value.Value.Count > 0)

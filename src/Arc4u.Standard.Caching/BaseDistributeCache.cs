@@ -62,7 +62,7 @@ namespace Arc4u.Caching
                 byte[] blob = null;
                 using (var activity = _activitySource?.StartActivity("Get from cache.", ActivityKind.Producer))
                 {
-                    activity?.AddTag("cacheKey", key);
+                    activity?.SetTag("cacheKey", key);
 
                     blob = DistributeCache?.Get(key);
                     if (null == blob)
@@ -89,7 +89,7 @@ namespace Arc4u.Caching
                 byte[] blob = null;
                 using (var activity = _activitySource?.StartActivity("Get from cache.", ActivityKind.Producer))
                 {
-                    activity?.AddTag("cacheKey", key);
+                    activity?.SetTag("cacheKey", key);
 
                     blob = await DistributeCache?.GetAsync(key, cancellation);
                     if (null == blob)
@@ -127,7 +127,7 @@ namespace Arc4u.Caching
                     blob = SerializerFactory.Serialize<T>(value);
 
 
-                activity?.AddTag("cacheKey", key);
+                activity?.SetTag("cacheKey", key);
                 DistributeCache?.Set(key, blob, DefaultOption);
             }
 
@@ -147,7 +147,7 @@ namespace Arc4u.Caching
                     blob = SerializerFactory.Serialize<T>(value);
 
 
-                activity?.AddTag("cacheKey", key);
+                activity?.SetTag("cacheKey", key);
 
                 await DistributeCache.SetAsync(key, blob, DefaultOption, cancellation);
             }
@@ -174,7 +174,7 @@ namespace Arc4u.Caching
                     dceo.SetAbsoluteExpiration(timeout);
 
 
-                activity?.AddTag("cacheKey", key);
+                activity?.SetTag("cacheKey", key);
 
                 DistributeCache?.Set(key, blob, dceo);
             }
@@ -200,7 +200,7 @@ namespace Arc4u.Caching
                 else
                     dceo.SetAbsoluteExpiration(timeout);
 
-                activity?.AddTag("cacheKey", key);
+                activity?.SetTag("cacheKey", key);
 
 
                 await DistributeCache.SetAsync(key, blob, dceo, cancellation);
@@ -212,7 +212,7 @@ namespace Arc4u.Caching
         {
             using (var activity = _activitySource?.StartActivity("Remove from cache.", ActivityKind.Producer))
             {
-                activity?.AddTag("cacheKey", key);
+                activity?.SetTag("cacheKey", key);
 
                 CheckIfInitialized();
 
@@ -232,7 +232,7 @@ namespace Arc4u.Caching
         {
             using (var activity = _activitySource?.StartActivity("Remove from cache.", ActivityKind.Producer))
             {
-                activity?.AddTag("cacheKey", key);
+                activity?.SetTag("cacheKey", key);
                 CheckIfInitialized();
 
                 try
