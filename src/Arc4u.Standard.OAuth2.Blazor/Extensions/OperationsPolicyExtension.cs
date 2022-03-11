@@ -1,6 +1,7 @@
 ﻿using Arc4u.Standard.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using System;
 using System.Collections.Generic;
 
@@ -10,7 +11,7 @@ namespace Arc4u.Blazor
     {
         public static void RegisterOperationsPolicy(this IServiceCollection services, IEnumerable<KeyValuePair<int, string>> operations, Action<AuthorizationOptions> authorizationOptions = null)
         {
-            services.AddSingleton<IAuthorizationHandler, OperationsHandler>();
+            services.TryAddSingleton<IAuthorizationHandler, OperationsHandler>();
 
             if (null != authorizationOptions)
                 services.Configure(authorizationOptions);
