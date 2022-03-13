@@ -42,7 +42,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Realm" Version="10.9.0" />
+    <PackageReference Include="Realm" Version="10.10.0" />
     <PackageReference Include="Serilog.Sinks.PeriodicBatching" Version="2.3.1" />
     <PackageReference Include="System.Composition.AttributedModel" Version="5.0.1" />
     <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
