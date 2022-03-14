@@ -8,7 +8,7 @@
     <Copyright>Gilles Flisch</Copyright>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <RepositoryUrl>https://arc4u.visualstudio.com/Arc4u/_git/Standard</RepositoryUrl>
+    <RepositoryUrl>https://github.com/GFlisch/Arc4u</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Arc4u</PackageTags>
     <PackageProjectUrl>https://github.com/GFlisch/Arc4u</PackageProjectUrl>

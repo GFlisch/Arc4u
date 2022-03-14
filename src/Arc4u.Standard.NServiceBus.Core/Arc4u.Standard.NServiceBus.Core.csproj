@@ -12,7 +12,7 @@
     <Company>Gilles Flisch</Company>
     <Copyright>Gilles Flisch</Copyright>
     <PackageProjectUrl>https://github.com/GFlisch/Arc4u</PackageProjectUrl>
-    <RepositoryUrl>https://arc4u.visualstudio.com/Arc4u/_git/Standard</RepositoryUrl>
+    <RepositoryUrl>https://github.com/GFlisch/Arc4u</RepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageLicenseExpression></PackageLicenseExpression>
