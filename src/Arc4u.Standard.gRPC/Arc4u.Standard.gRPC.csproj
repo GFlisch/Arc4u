@@ -12,7 +12,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>Arc4u</PackageTags>
     <PackageProjectUrl>https://github.com/GFlisch/Arc4u</PackageProjectUrl>
-    <Version>9.9.9.9</Version>
+    <Version>0.0.0.0</Version>
   </PropertyGroup>
   
   <ItemGroup>
