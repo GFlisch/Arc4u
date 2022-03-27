@@ -11,4 +11,3 @@ namespace Arc4u.Diagnostics
         public List<string> Sources { get; set; }
     }
 }
-}
