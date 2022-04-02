@@ -4,6 +4,7 @@ using Arc4u.OAuth2.Token;
 using Arc4u.Security.Principal;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Client.Extensibility;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
@@ -19,14 +20,14 @@ namespace Arc4u.OAuth2.Msal.TokenProvider.Client
 
         public MsalTokenProvider(PublicClientApp clientApp, IApplicationContext applicationContext, ILogger<MsalTokenProvider> logger)
         {
-            _publicClientApplication = clientApp.PublicClient;
+            _publicClientApplication = clientApp;
             _applicationContext = applicationContext;
             _logger = logger;
         }
 
-        private readonly IPublicClientApplication? _publicClientApplication;
+        private readonly PublicClientApp _publicClientApplication;
         private readonly IApplicationContext _applicationContext;
-        private readonly ILogger<MsalTokenProvider> _logger;    
+        private readonly ILogger<MsalTokenProvider> _logger;
 
         public async Task<TokenInfo> GetTokenAsync(IKeyValueSettings settings, object platformParameters)
         {
@@ -50,14 +51,14 @@ namespace Arc4u.OAuth2.Msal.TokenProvider.Client
 
             if (null == _publicClientApplication) return null;
 
-            var accounts = await _publicClientApplication.GetAccountsAsync();
+            var accounts = await _publicClientApplication.PublicClient.GetAccountsAsync();
             var firstAccount = accounts.FirstOrDefault();
 
             var scopes = settings.Values[TokenKeys.Scopes].Split(",", StringSplitOptions.RemoveEmptyEntries);
             AuthenticationResult authResult = null;
             try
             {
-                authResult = await _publicClientApplication.AcquireTokenSilent(scopes, firstAccount).ExecuteAsync();
+                authResult = await _publicClientApplication.PublicClient.AcquireTokenSilent(scopes, firstAccount).ExecuteAsync();
 
                 JwtSecurityToken jwt = new(authResult.AccessToken);
                 return new TokenInfo("Bearer", authResult.AccessToken, authResult.IdToken, jwt.ValidTo);
@@ -70,10 +71,15 @@ namespace Arc4u.OAuth2.Msal.TokenProvider.Client
 
                 try
                 {
-                    authResult = await _publicClientApplication.AcquireTokenInteractive(scopes)
-                                            .WithAccount(accounts.FirstOrDefault())
-                                            .WithPrompt(Prompt.SelectAccount)
-                                            .ExecuteAsync();
+                    var builder = _publicClientApplication.PublicClient
+                                    .AcquireTokenInteractive(scopes)
+                                    .WithAccount(accounts.FirstOrDefault())
+                                    .WithPrompt(Prompt.SelectAccount);
+
+                    if (_publicClientApplication.HasCustomWebUi)
+                        builder.WithCustomWebUi(_publicClientApplication.CustomWebUi);
+
+                    authResult = await builder.ExecuteAsync();
 
                     JwtSecurityToken jwt = new(authResult.AccessToken);
                     return new TokenInfo("Bearer", authResult.AccessToken, authResult.IdToken, jwt.ValidTo);
@@ -91,20 +97,17 @@ namespace Arc4u.OAuth2.Msal.TokenProvider.Client
             return null;
         }
 
-
-
-
         public void SignOut(IKeyValueSettings settings)
         {
             if (null != _publicClientApplication)
             {
-                var accounts = _publicClientApplication.GetAccountsAsync().Result;
+                var accounts = _publicClientApplication.PublicClient.GetAccountsAsync().Result;
 
                 if (accounts.Any())
                 {
                     try
                     {
-                        _publicClientApplication.RemoveAsync(accounts.FirstOrDefault()).Wait();
+                        _publicClientApplication.PublicClient.RemoveAsync(accounts.FirstOrDefault()).Wait();
                     }
                     catch (MsalException msalex)
                     {
