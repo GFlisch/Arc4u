@@ -2,6 +2,7 @@
 using Arc4u.Diagnostics;
 using NServiceBus;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Arc4u.NServiceBus
@@ -38,6 +39,8 @@ namespace Arc4u.NServiceBus
                 // business work to implement.
                 await Handle(message);
 
+                var messagesNotProcessed = new MessagesToPublish();
+
                 // Publish events.
                 foreach (Object _event in messages.Events)
                 {
@@ -48,6 +51,7 @@ namespace Arc4u.NServiceBus
                     catch (System.Exception ex)
                     {
                         Logger.Technical.From(typeof(HandleMessageBase<T>)).Exception(ex).Log();
+                        messagesNotProcessed.Add(_event);
                     }
                 }
 
@@ -61,13 +65,19 @@ namespace Arc4u.NServiceBus
                     catch (System.Exception ex)
                     {
                         Logger.Technical.From(typeof(HandleMessageBase<T>)).Exception(ex).Log();
+                        messagesNotProcessed.Add(command);
                     }
                 }
 
+                if (messagesNotProcessed.Events.Any() || messagesNotProcessed.Commands.Any())
+                {
+                    await handleMessagesNotProcessedAsync(messagesNotProcessed);
+                }
             }
             catch (System.Exception ex)
             {
                 Logger.Technical.From(typeof(HandleMessageBase<T>)).Exception(ex).Log();
+                throw;
             }
             finally
             {
@@ -83,5 +93,11 @@ namespace Arc4u.NServiceBus
         /// <param name="message"></param>
         /// <returns></returns>
         public abstract Task Handle(T message);
+
+        public virtual Task handleMessagesNotProcessedAsync(MessagesToPublish notProcessedMessages)
+        {
+            notProcessedMessages.Clear();
+            return Task.CompletedTask;
+        }
     }
 }
