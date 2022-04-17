@@ -11,12 +11,13 @@ using Microsoft.Identity.Web.TokenCacheProviders;
 using Microsoft.Net.Http.Headers;
 using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Arc4u.Standard.OAuth2.Extensions
 {
     public static partial class AuthenticationExtensions
     {
-        public static AuthenticationBuilder AddMsalAuthentication(this IServiceCollection services, AuthenticationOptions authenticationOptions)
+        public static AuthenticationBuilder AddMsalB2CAuthentication(this IServiceCollection services, AuthenticationOptions authenticationOptions)
         {
             if (null == authenticationOptions)
                 throw new ArgumentNullException(nameof(authenticationOptions));
@@ -41,7 +42,7 @@ namespace Arc4u.Standard.OAuth2.Extensions
             });
 
             // OAuth.
-            var (instance, tenantId) = ExtractFromAuthority(authenticationOptions.OAuthSettings);
+            var (instance, policy, tenantId) = ExtractFromB2CAuthority(authenticationOptions.OAuthSettings);
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                     .AddMicrosoftIdentityWebApi((bearerOptions) =>
@@ -50,9 +51,10 @@ namespace Arc4u.Standard.OAuth2.Extensions
                         bearerOptions.MetadataAddress = authenticationOptions.MetadataAddress;
                         bearerOptions.Authority = authenticationOptions.OAuthSettings.Values[TokenKeys.AuthorityKey];
                         bearerOptions.TokenValidationParameters.SaveSigninToken = true;
-                        bearerOptions.TokenValidationParameters.AuthenticationType = Constants.BearerAuthenticationType;
+                        bearerOptions.TokenValidationParameters.AuthenticationType = authenticationOptions.OAuthSettings.Values[TokenKeys.AuthenticationTypeKey];
                         bearerOptions.TokenValidationParameters.ValidateAudience = true;
                         bearerOptions.TokenValidationParameters.ValidAudiences = new[] { authenticationOptions.OAuthSettings.Values[TokenKeys.ServiceApplicationIdKey] };
+                        bearerOptions.TokenValidationParameters.NameClaimType = "name";
                     }, (identityOptions) =>
                     {
                         identityOptions.MetadataAddress = authenticationOptions.MetadataAddress;
@@ -63,7 +65,7 @@ namespace Arc4u.Standard.OAuth2.Extensions
                         identityOptions.ClientId = authenticationOptions.OAuthSettings.Values[TokenKeys.ClientIdKey];
                         identityOptions.ClientSecret = authenticationOptions.OAuthSettings.Values[TokenKeys.ApplicationKey];
                         identityOptions.TokenValidationParameters.SaveSigninToken = true;
-                        identityOptions.TokenValidationParameters.AuthenticationType = Constants.BearerAuthenticationType;
+                        identityOptions.TokenValidationParameters.AuthenticationType = authenticationOptions.OAuthSettings.Values[TokenKeys.AuthenticationTypeKey];
                         identityOptions.TokenValidationParameters.ValidateAudience = true;
                         identityOptions.TokenValidationParameters.ValidAudiences = new[] { authenticationOptions.OAuthSettings.Values[TokenKeys.ServiceApplicationIdKey] };
                     })
@@ -75,16 +77,21 @@ namespace Arc4u.Standard.OAuth2.Extensions
                         options.TenantId = tenantId;
                     });
 
+            (instance, policy, tenantId) = ExtractFromB2CAuthority(authenticationOptions.OpenIdSettings);
 
-            // OpenId Connect
-            (instance, tenantId) = ExtractFromAuthority(authenticationOptions.OpenIdSettings);
+            var scopes = authenticationOptions.OpenIdSettings.Values[TokenKeys.Scopes].Split(',', ';');
 
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                 .AddMicrosoftIdentityWebApp(options =>
                 {
-                    options.MetadataAddress = authenticationOptions.MetadataAddress;
-                    options.RequireHttpsMetadata = true;
+                    options.ClientId = authenticationOptions.OpenIdSettings.Values[TokenKeys.ClientIdKey];
+                    options.ClientSecret = authenticationOptions.OpenIdSettings.Values[TokenKeys.ApplicationKey];
                     options.Authority = authenticationOptions.OpenIdSettings.Values[TokenKeys.AuthorityKey];
+                    options.Instance = instance;
+                    options.Domain = tenantId;
+                    if (authenticationOptions.OpenIdSettings.Values.ContainsKey("SignedOutCallbackPath"))
+                        options.SignedOutCallbackPath = authenticationOptions.OpenIdSettings.Values["SignedOutCallbackPath"];
+                    options.SignUpSignInPolicyId = authenticationOptions.OpenIdSettings.Values["SignUpSignInPolicyId"];
                     options.ForwardDefaultSelector = ctx =>
                     {
                         var authHeader = ctx?.Request?.Headers[HeaderNames.Authorization].FirstOrDefault();
@@ -93,34 +100,34 @@ namespace Arc4u.Standard.OAuth2.Extensions
 
                         return null;
                     };
-                    options.Instance = instance;
-                    options.ClientId = authenticationOptions.OpenIdSettings.Values[TokenKeys.ClientIdKey];
-                    options.TenantId = tenantId;
-                    options.ClientSecret = authenticationOptions.OpenIdSettings.Values[TokenKeys.ApplicationKey];
+                    options.CallbackPath = new Uri(authenticationOptions.OpenIdSettings.Values[TokenKeys.RedirectUrl]).AbsolutePath;
                     options.TokenValidationParameters.SaveSigninToken = false;
-                    options.TokenValidationParameters.AuthenticationType = Constants.CookiesAuthenticationType;
+                    options.TokenValidationParameters.AuthenticationType = authenticationOptions.OpenIdSettings.Values[TokenKeys.AuthenticationTypeKey];
                     options.TokenValidationParameters.ValidateAudience = true;
-                    options.TokenValidationParameters.ValidAudiences = new[] { authenticationOptions.OpenIdSettings.Values[TokenKeys.ServiceApplicationIdKey] };
-                }).EnableTokenAcquisitionToCallDownstreamApi();
+                })
+                .EnableTokenAcquisitionToCallDownstreamApi();
 
             return services.AddAuthentication();
-
         }
 
-        private static (string instance, string tenantId) ExtractFromAuthority(IKeyValueSettings settings)
+        // https://<host>/tfp/<tenant>/<policy>
+        private static (string instance, string policy, string tenant) ExtractFromB2CAuthority(IKeyValueSettings settings)
         {
-            var authority = new Uri(settings.Values[TokenKeys.AuthorityKey]);
+            var authority = settings.Values[TokenKeys.AuthorityKey];
 
-            var instance = authority.GetLeftPart(UriPartial.Authority);
-            var tenantId = authority.AbsolutePath.Trim(new char[] { '/', ' ' });
+            // validate the authority.
+            var expression = new Regex(@"https://(\S+)/tfp/(\S+)/(\S+)(/\S+)?");
 
-            if (settings.Values.ContainsKey(TokenKeys.TenantIdKey))
-                tenantId = settings.Values[TokenKeys.TenantIdKey];
+            var match = expression.Match(authority);
 
-            if (settings.Values.ContainsKey(TokenKeys.InstanceKey))
-                instance = settings.Values[TokenKeys.InstanceKey];
+            if (!match.Success)
+                throw new ApplicationException("B2C 'authority' Uri should have at least 3 segments in the path (i.e. https://<host>/tfp/<tenant>/<policy>/...). ");
 
-            return (instance, tenantId);
+            var instance = $"https://{match.Groups[1].Value}";
+            var tenant = match.Groups[2].Value;
+            var policy = match.Groups[3].Value;
+
+            return (instance, policy, tenant);
         }
     }
 }
