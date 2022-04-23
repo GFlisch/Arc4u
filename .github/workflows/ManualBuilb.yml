@@ -47,9 +47,6 @@ jobs:
       - name: Change Arc4u.Standard.Dependency versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Dependency.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
         shell: powershell        
-      - name: Change Arc4u.Standard.Dependency.Composition versions
-        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Dependency.Composition.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
-        shell: powershell        
       - name: Change Arc4u.Standard.Dependency.ComponentModel versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Dependency.ComponentModel.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
         shell: powershell        
