@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>net6.0</TargetFrameworks>
     <RootNamespace>Arc4u</RootNamespace>
     <Company>Arc4u.net</Company>
     <Description>Cross platform core base framework</Description>
@@ -55,7 +55,7 @@
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
-    <PackageReference Include="System.Composition.AttributedModel" Version="5.0.1" />
+    <PackageReference Include="System.Composition.AttributedModel" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup>

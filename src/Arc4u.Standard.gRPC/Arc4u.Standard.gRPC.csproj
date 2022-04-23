@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>net6.0</TargetFrameworks>
     <RootNamespace>Arc4u.gRPC</RootNamespace>
     <Authors>Gilles Flisch</Authors>
     <Description>Core Framework to use gRPC.</Description>

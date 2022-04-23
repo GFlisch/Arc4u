@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>Arc4u.KubeMQ.AspNetCore</RootNamespace>
     <Authors>Gilles Flisch</Authors>
     <Description>Core Framework to use KubeMQ on the service project.</Description>
@@ -17,7 +17,7 @@
 
   <ItemGroup>
     <PackageReference Include="KubeMQ.SDK.csharp" Version="1.5.2" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="6.0.0" />
     <PackageReference Include="Newtonsoft.Json.Bson" Version="1.0.2" />
     <PackageReference Include="Polly" Version="7.2.3" />    
   </ItemGroup>
