@@ -1,4 +1,5 @@
 ﻿using Arc4u.Dependency;
+using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Arc4u.IdentityModel.Claims;
 using Arc4u.OAuth2.Token;
@@ -6,7 +7,6 @@ using Arc4u.Security.Principal;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Composition;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Runtime.Serialization.Json;
@@ -19,7 +19,6 @@ namespace Arc4u.OAuth2.Security.Principal
     [Export(typeof(IClaimsFiller))]
     public class ClaimsBearerTokenExtractor : IClaimsFiller
     {
-        [ImportingConstructor]
         public ClaimsBearerTokenExtractor(IContainerResolve container, ILogger logger)
         {
             _container = container;

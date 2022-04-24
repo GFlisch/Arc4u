@@ -1,7 +1,7 @@
-﻿using Arc4u.Diagnostics;
+﻿using Arc4u.Dependency.Attribute;
+using Arc4u.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using System;
-using System.Composition;
 using System.Linq;
 using System.Security.Claims;
 
@@ -10,7 +10,6 @@ namespace Arc4u.OAuth2.Configuration
     [Export(typeof(OAuthConfig)), Shared]
     public class OAuthConfig
     {
-        [ImportingConstructor]
         public OAuthConfig(IConfiguration configuration)
         {
             User = new UserConfig();

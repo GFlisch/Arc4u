@@ -1,4 +1,4 @@
-﻿using System.Composition;
+﻿using Arc4u.Dependency.Attribute;
 using System.Security.Claims;
 using System.Threading;
 

@@ -1,7 +1,7 @@
-﻿using Arc4u.Diagnostics;
+﻿using Arc4u.Dependency.Attribute;
+using Arc4u.Diagnostics;
 using System;
 using System.Collections.Generic;
-using System.Composition;
 using System.Linq;
 using System.Runtime.Serialization.Json;
 using System.Security.Claims;

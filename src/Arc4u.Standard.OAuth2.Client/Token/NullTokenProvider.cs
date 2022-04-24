@@ -1,5 +1,5 @@
-﻿using Arc4u.Diagnostics;
-using System.Composition;
+﻿using Arc4u.Dependency.Attribute;
+using Arc4u.Diagnostics;
 using System.Threading.Tasks;
 
 namespace Arc4u.OAuth2.Token

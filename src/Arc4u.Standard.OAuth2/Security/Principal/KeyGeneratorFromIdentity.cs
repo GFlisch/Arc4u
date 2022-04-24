@@ -1,5 +1,5 @@
-﻿using Arc4u.OAuth2.Configuration;
-using System.Composition;
+﻿using Arc4u.Dependency.Attribute;
+using Arc4u.OAuth2.Configuration;
 using System.Security.Claims;
 
 namespace Arc4u.OAuth2.Security.Principal
@@ -12,7 +12,6 @@ namespace Arc4u.OAuth2.Security.Principal
     [Export(typeof(ICacheKeyGenerator)), Shared]
     public class KeyGeneratorFromIdentity : ICacheKeyGenerator
     {
-        [ImportingConstructor]
         public KeyGeneratorFromIdentity(OAuthConfig oAuthConfig)
         {
             Config = oAuthConfig;

@@ -1,10 +1,10 @@
 ﻿using Arc4u.Dependency;
+using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Arc4u.Serializer;
 using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Composition;
 using StackExchangeRedis = Microsoft.Extensions.Caching.StackExchangeRedis.RedisCache;
 
 
@@ -21,7 +21,6 @@ namespace Arc4u.Caching.Redis
 
         private readonly ILogger Logger;
 
-        [ImportingConstructor]
         public RedisCache(ILogger logger, IContainerResolve container) : base(container)
         {
             Logger = logger;

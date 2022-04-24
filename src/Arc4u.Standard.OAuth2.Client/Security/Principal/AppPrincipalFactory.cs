@@ -1,5 +1,6 @@
 ﻿using Arc4u.Caching;
 using Arc4u.Dependency;
+using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Arc4u.IdentityModel.Claims;
 using Arc4u.Network.Connectivity;
@@ -8,7 +9,6 @@ using Arc4u.Security.Principal;
 using Arc4u.ServiceModel;
 using System;
 using System.Collections.Generic;
-using System.Composition;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace Arc4u.OAuth2.Client.Security.Principal
 {
-    [System.Composition.Export(typeof(IAppPrincipalFactory))]
+    [Export(typeof(IAppPrincipalFactory))]
     public class AppPrincipalFactory : IAppPrincipalFactory
     {
         public const string ProviderKey = "ProviderId";
@@ -31,7 +31,6 @@ namespace Arc4u.OAuth2.Client.Security.Principal
         private bool copyClaimsFromCache = false;
         private List<ClaimDto> cachedClaims;
 
-        [ImportingConstructor]
         public AppPrincipalFactory(INetworkInformation networkInformation, ISecureCache claimsCache, ICacheKeyGenerator cacheKeyGenerator, IContainerResolve container, IApplicationContext applicationContext)
         {
             NetworkInformation = networkInformation;

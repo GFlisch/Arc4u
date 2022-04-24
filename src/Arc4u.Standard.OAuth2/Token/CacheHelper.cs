@@ -1,15 +1,14 @@
 ﻿using Arc4u.Caching;
+using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Composition;
 
 namespace Arc4u.OAuth2.Token
 {
     [Export, Shared]
     public class CacheHelper
     {
-        [ImportingConstructor]
         public CacheHelper(CacheContext cacheContext, ILogger logger)
         {
             try

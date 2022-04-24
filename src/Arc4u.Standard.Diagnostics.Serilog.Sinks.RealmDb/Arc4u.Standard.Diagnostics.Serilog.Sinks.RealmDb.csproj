@@ -44,7 +44,6 @@
     </PackageReference>
     <PackageReference Include="Realm" Version="10.11.2" />
     <PackageReference Include="Serilog.Sinks.PeriodicBatching" Version="2.3.1" />
-    <PackageReference Include="System.Composition.AttributedModel" Version="6.0.0" />
     <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
   </ItemGroup>
 

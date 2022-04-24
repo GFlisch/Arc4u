@@ -1,7 +1,7 @@
 ﻿using Arc4u.Caching;
+using Arc4u.Dependency.Attribute;
 using Arc4u.OAuth2.Token;
 using System;
-using System.Composition;
 using System.Text;
 
 namespace Arc4u.OAuth2.Net
@@ -9,7 +9,6 @@ namespace Arc4u.OAuth2.Net
     [Export(typeof(IBasicAuthorizationHeader)), Shared]
     public class BasicAuthorizationHeader : IBasicAuthorizationHeader
     {
-        [ImportingConstructor]
         public BasicAuthorizationHeader(ISecureCache secureCache)
         {
             this.secureCache = secureCache;

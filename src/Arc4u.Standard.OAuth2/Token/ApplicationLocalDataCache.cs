@@ -1,22 +1,21 @@
 ﻿using Arc4u.Caching;
+using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Composition;
 
 namespace Arc4u.OAuth2.Token
 {
     /// <summary>
     /// This cache is used for a local client application
     /// </summary>
-    [System.Composition.Export(typeof(ITokenCache)), Shared]
+    [Export(typeof(ITokenCache)), Shared]
     public class ApplicationLocalDataCache : ITokenCache
     {
         private object _token;
         private readonly ICache Cache;
         private readonly ILogger Logger;
 
-        [ImportingConstructor]
         public ApplicationLocalDataCache(ISecureCache cache, ILogger logger)
         {
             Cache = cache;

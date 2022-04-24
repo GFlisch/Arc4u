@@ -1,20 +1,19 @@
 ﻿using Arc4u.Caching;
+using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Composition;
 
 namespace Arc4u.OAuth2.Token
 {
 
-    [Export(typeof(ITokenCache)), System.Composition.Shared]
+    [Export(typeof(ITokenCache)), Shared]
     public class ApplicationCache : ITokenCache
     {
         /// <summary>
         /// Read the cache used to store the tokens! If nothing is identified, Default is used!
         /// </summary>
-        [ImportingConstructor]
         public ApplicationCache(CacheContext cacheContext, CacheHelper cacheHelper, ILogger logger)
         {
             _logger = logger;

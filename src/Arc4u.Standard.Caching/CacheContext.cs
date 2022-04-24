@@ -1,11 +1,11 @@
 ﻿using Arc4u.Configuration;
 using Arc4u.Dependency;
+using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Composition;
 
 namespace Arc4u.Caching
 {
@@ -37,7 +37,6 @@ namespace Arc4u.Caching
         /// <summary>
         /// Initialise the cache following the caching config section.
         /// </summary>
-        [ImportingConstructor]
         public CacheContext(IConfiguration configuration, ILogger logger, IContainerResolve dependency)
         {
             _logger = logger;

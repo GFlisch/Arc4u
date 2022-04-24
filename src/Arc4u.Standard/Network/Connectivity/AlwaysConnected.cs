@@ -1,5 +1,5 @@
-﻿using System;
-using System.Composition;
+﻿using Arc4u.Dependency.Attribute;
+using System;
 
 namespace Arc4u.Network.Connectivity
 {

@@ -1,8 +1,8 @@
 ﻿using Arc4u.Configuration;
+using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Composition;
 using System.Globalization;
 using System.Linq;
 
@@ -31,7 +31,6 @@ namespace Arc4u
         /// </summary>
         //internal bool _isSameTimeZoneInfo;
 
-        [ImportingConstructor]
         public TimeZoneContext(Config config, ILogger logger)
         {
             _timeZone = TimeZoneInfo.Local;

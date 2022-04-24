@@ -1,10 +1,11 @@
-﻿using Arc4u.OAuth2.Token;
+﻿using Arc4u.Dependency.Attribute;
+using Arc4u.OAuth2.Token;
 using System;
 using System.Threading.Tasks;
 
 namespace Arc4u.OAuth2.TokenProvider
 {
-    [System.Composition.Export(RemoteClientSecretTokenProvider.ProviderName, typeof(ITokenProvider)), System.Composition.Shared]
+    [Export(RemoteClientSecretTokenProvider.ProviderName, typeof(ITokenProvider)), Shared]
     public class RemoteClientSecretTokenProvider : ITokenProvider
     {
         public const string ProviderName = "RemoteSecret";

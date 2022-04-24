@@ -1,10 +1,10 @@
 ﻿using Arc4u.Dependency;
+using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Arc4u.Serializer;
 using Microsoft.Extensions.Caching.SqlServer;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Composition;
 
 namespace Arc4u.Caching.Sql
 {
@@ -23,7 +23,6 @@ namespace Arc4u.Caching.Sql
 
         private readonly ILogger Logger;
 
-        [ImportingConstructor]
         public SqlCache(ILogger logger, IContainerResolve container) : base(container)
         {
             Logger = logger;

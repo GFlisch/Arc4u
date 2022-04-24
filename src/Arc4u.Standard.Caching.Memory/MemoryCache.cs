@@ -1,11 +1,11 @@
 ﻿using Arc4u.Dependency;
+using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Arc4u.Serializer;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Composition;
 
 namespace Arc4u.Caching.Memory
 {
@@ -20,7 +20,6 @@ namespace Arc4u.Caching.Memory
 
         private readonly ILogger Logger;
 
-        [ImportingConstructor]
         public MemoryCache(ILogger logger, IContainerResolve container) : base(container)
         {
             Logger = logger;
