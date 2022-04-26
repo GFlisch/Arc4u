@@ -3,7 +3,6 @@
 
     public class BasicFixture : ContainerFixture
     {
-
         public override string ConfigFile => @"Configs\Basic.json";
     }
 }
