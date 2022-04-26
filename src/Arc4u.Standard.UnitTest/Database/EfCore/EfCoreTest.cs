@@ -1,5 +1,4 @@
-﻿using Arc4u.Core.Test.Infrastructure;
-using Arc4u.EfCore;
+﻿using Arc4u.EfCore;
 using Arc4u.Standard.UnitTest.Database.EfCore.Model;
 using Arc4u.Standard.UnitTest.Infrastructure;
 using AutoFixture;

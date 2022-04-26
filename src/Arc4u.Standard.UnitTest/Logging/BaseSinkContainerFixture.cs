@@ -1,17 +1,17 @@
-using Arc4u.Diagnostics;
-using Arc4u.Standard.UnitTest.Infrastructure;
+﻿using Arc4u.Diagnostics;
 using Microsoft.Extensions.Logging;
+using Serilog.Core;
 using System.Runtime.CompilerServices;
 using Xunit;
 
-namespace Arc4u.Standard.UnitTest.Infrastructure
+namespace Arc4u.Standard.UnitTest.Logging
 {
-    public abstract class BaseContainerFixture<T, TFixture> : IClassFixture<TFixture> where TFixture : class, IContainerFixture
+    public abstract class BaseSinkContainerFixture<T, TFixture> : IClassFixture<TFixture> where TFixture : class, ISinkContainerFixture
     {
-        protected readonly IContainerFixture _containerFixture;
+        protected readonly ISinkContainerFixture _containerFixture;
         private readonly ILogger<T> _logger;
 
-        public BaseContainerFixture(TFixture? containerFixture)
+        public BaseSinkContainerFixture(TFixture? containerFixture)
         {
             _containerFixture = containerFixture;
             _logger = containerFixture.SharedContainer.Resolve<ILogger<T>>();
@@ -19,7 +19,9 @@ namespace Arc4u.Standard.UnitTest.Infrastructure
 
         public ILogger<T> Logger => _logger;
 
-        public IContainerFixture Fixture => _containerFixture;
+        public ILogEventSink Sink => _containerFixture.Sink;
+
+        public ISinkContainerFixture Fixture => _containerFixture;
 
         public virtual void LogStartBanner([CallerMemberName] string methodName = "")
         {
