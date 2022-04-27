@@ -68,9 +68,6 @@ public class SerilogTests : BaseContainerFixture<SerilogTests, BasicFixture>
             Assert.Equal(100, (int)value);
         }
     }
-
-
-
 }
 
 #region sinks and SerilogWriter
@@ -87,21 +84,7 @@ public sealed class AnonymousSinkTest : ILogEventSink, IDisposable
     }
 }
 
-public sealed class ExceptionSinkTest : ILogEventSink, IDisposable
-{
-    public bool HasException { get; set; }
-    public Type InnerException { get; set; }
 
-    public void Dispose()
-    {
-    }
-
-    public void Emit(LogEvent logEvent)
-    {
-        HasException = null != logEvent.Exception;
-        InnerException = logEvent.Exception.InnerException.GetType();
-    }
-}
 
 public sealed class SinkTest : ILogEventSink, IDisposable
 {
@@ -174,8 +157,6 @@ public sealed class FromSinkTest : ILogEventSink, IDisposable
     }
 }
 
-
-
 public class LoggerFromTest : SerilogWriter
 {
     public FromSinkTest FromTest { get; set; }
@@ -212,17 +193,7 @@ public class LoggerAnonymousSinkTest : SerilogWriter
     }
 }
 
-public class LoggerExceptionSinkTest : SerilogWriter
-{
-    public ExceptionSinkTest Sink { get; set; }
 
-    public override void Configure(LoggerConfiguration configurator)
-    {
-        Sink = new ExceptionSinkTest();
-
-        configurator.WriteTo.Sink(Sink);
-    }
-}
 
 //public class LoggerTest : SerilogWriter
 //{
