@@ -18,12 +18,10 @@ namespace Arc4u.Standard.UnitTest.Logging
         }
 
         [Fact]
-        public async Task ExceptionTest()
+        public void ExceptionTest()
         {
             using (var container = Fixture.CreateScope())
             {
-                LogStartBanner();
-
                 var logger = container.Resolve<ILogger<LoggerExceptionTests>>();
 
                 var sink = (ExceptionSinkTest)Fixture.Sink;
@@ -31,10 +29,28 @@ namespace Arc4u.Standard.UnitTest.Logging
                 logger.Technical().Exception(new StackOverflowException("Overflow", new DivideByZeroException())).Log();
 
                 Assert.True(sink.HasException);
-                Assert.Equal(typeof(DivideByZeroException), sink.InnerException);
-
-                LogEndBanner();
+                Assert.Equal(typeof(StackOverflowException), sink.Exception.GetType());
+                Assert.Equal(typeof(DivideByZeroException), sink.InnerException.GetType());
             }
+        }
+
+        [Fact]
+        public void TestInException()
+        {
+            using (var container = Fixture.CreateScope())
+            {
+                var logger = container.Resolve<ILogger<LoggerExceptionTests>>();
+
+                var sink = (ExceptionSinkTest)Fixture.Sink;
+
+                logger.Technical().Exception(new StackOverflowException("Overflow", new DivideByZeroException("Go back to school", new AppDomainUnloadedException("Houston, we have a problem.")))).Log();
+
+                Assert.True(sink.HasException);
+                Assert.Equal(typeof(StackOverflowException), sink.Exception.GetType());
+                Assert.Equal(typeof(DivideByZeroException), sink.InnerException.GetType());
+                Assert.Equal(typeof(AppDomainUnloadedException), sink.InnerException.InnerException.GetType());
+            }
+
         }
     }
 
@@ -53,7 +69,9 @@ namespace Arc4u.Standard.UnitTest.Logging
     public sealed class ExceptionSinkTest : ILogEventSink, IDisposable
     {
         public bool HasException { get; set; }
-        public Type InnerException { get; set; }
+        public Exception InnerException { get; set; }
+
+        public Exception Exception { get; set; }
 
         public void Dispose()
         {
@@ -62,8 +80,8 @@ namespace Arc4u.Standard.UnitTest.Logging
         public void Emit(LogEvent logEvent)
         {
             HasException = null != logEvent.Exception;
-
-            InnerException = logEvent.Exception?.InnerException?.GetType();
+             Exception = logEvent.Exception;
+            InnerException = logEvent.Exception?.InnerException;
         }
     }
 
