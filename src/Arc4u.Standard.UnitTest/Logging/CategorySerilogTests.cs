@@ -1,13 +1,7 @@
 ﻿using Arc4u.Diagnostics;
 using Arc4u.Diagnostics.Serilog;
-using Arc4u.Standard.UnitTest.Infrastructure;
-using AutoFixture;
 using Microsoft.Extensions.Logging;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
