@@ -54,7 +54,7 @@ namespace Arc4u.OAuth2.Msal.TokenProvider.Client
             var accounts = await _publicClientApplication.PublicClient.GetAccountsAsync();
             var firstAccount = accounts.FirstOrDefault();
 
-            var scopes = settings.Values[TokenKeys.Scopes].Split(",", StringSplitOptions.RemoveEmptyEntries);
+            var scopes = settings.Values[TokenKeys.Scopes].Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
             AuthenticationResult authResult = null;
             try
             {

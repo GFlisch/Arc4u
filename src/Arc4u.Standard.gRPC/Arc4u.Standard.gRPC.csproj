@@ -1,37 +1,38 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFrameworks>net6.0</TargetFrameworks>
-    <RootNamespace>Arc4u.gRPC</RootNamespace>
-    <Authors>Gilles Flisch</Authors>
-    <Description>Core Framework to use gRPC.</Description>
-    <Copyright>Gilles Flisch</Copyright>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <RepositoryUrl>https://github.com/GFlisch/Arc4u</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <PackageTags>Arc4u</PackageTags>
-    <PackageProjectUrl>https://github.com/GFlisch/Arc4u</PackageProjectUrl>
-    <Version>0.0.0.0</Version>
-  </PropertyGroup>
-  
-  <ItemGroup>
-    <PackageReference Include="Grpc.Core.Api" Version="2.45.0" />
-    <PackageReference Include="GrpcRichError" Version="0.1.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
-  </ItemGroup>
+	<PropertyGroup>
+		<TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+		<RootNamespace>Arc4u.gRPC</RootNamespace>
+		<Authors>Gilles Flisch</Authors>
+		<Description>Core Framework to use gRPC.</Description>
+		<Copyright>Gilles Flisch</Copyright>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<RepositoryUrl>https://github.com/GFlisch/Arc4u</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageTags>Arc4u</PackageTags>
+		<PackageProjectUrl>https://github.com/GFlisch/Arc4u</PackageProjectUrl>
+		<Version>0.0.0.0</Version>
+		<LangVersion>latest</LangVersion>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Arc4u.Standard.Configuration\Arc4u.Standard.Configuration.csproj" />
-    <ProjectReference Include="..\Arc4u.Standard.Dependency\Arc4u.Standard.Dependency.csproj" />
-    <ProjectReference Include="..\Arc4u.Standard.OAuth2\Arc4u.Standard.OAuth2.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Grpc.Core.Api" Version="2.45.0" />
+		<PackageReference Include="GrpcRichError" Version="0.1.2" />
+		<PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Include="..\..\LICENSE">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Arc4u.Standard.Configuration\Arc4u.Standard.Configuration.csproj" />
+		<ProjectReference Include="..\Arc4u.Standard.Dependency\Arc4u.Standard.Dependency.csproj" />
+		<ProjectReference Include="..\Arc4u.Standard.OAuth2\Arc4u.Standard.OAuth2.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\..\LICENSE">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+	</ItemGroup>
 
 </Project>

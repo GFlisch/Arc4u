@@ -8,7 +8,7 @@
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
+		<TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
 		<RootNamespace>Arc4u.OAuth2.Msal</RootNamespace>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<AssemblyVersion>1.0.0.0</AssemblyVersion>
@@ -24,6 +24,7 @@
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<RepositoryType>git</RepositoryType>
 		<PackageTags>Arc4u</PackageTags>
+		<LangVersion>latest</LangVersion>
 	</PropertyGroup>
 
 	<ItemGroup>

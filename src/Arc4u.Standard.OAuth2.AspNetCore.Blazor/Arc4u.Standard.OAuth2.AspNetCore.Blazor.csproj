@@ -1,32 +1,33 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
- <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <Version>0.0.0.0</Version>
-    <Authors>Gilles Flisch</Authors>
-    <Description>Package used on Façade projects to add OpenId endpoint to Blazor projects.</Description>
-    <Copyright>Gilles Flisch</Copyright>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageProjectUrl>https://github.com/GFlisch/Arc4u</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/GFlisch/Arc4u</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <PackageTags>Arc4u</PackageTags>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.0</FileVersion>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <RootNamespace>Arc4u.Blazor</RootNamespace>
-  </PropertyGroup>
- 
-  <ItemGroup>
-    <None Include="..\..\LICENSE">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-  </ItemGroup>
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<Version>0.0.0.0</Version>
+		<Authors>Gilles Flisch</Authors>
+		<Description>Package used on Façade projects to add OpenId endpoint to Blazor projects.</Description>
+		<Copyright>Gilles Flisch</Copyright>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<PackageProjectUrl>https://github.com/GFlisch/Arc4u</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/GFlisch/Arc4u</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageTags>Arc4u</PackageTags>
+		<AssemblyVersion>1.0.0.0</AssemblyVersion>
+		<FileVersion>1.0.0.0</FileVersion>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<RootNamespace>Arc4u.Blazor</RootNamespace>
+		<LangVersion>latest</LangVersion>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Arc4u.Standard.OAuth2.AspNetCore.Api\Arc4u.Standard.OAuth2.AspNetCore.Api.csproj" />
-    <ProjectReference Include="..\Arc4u.Standard.OAuth2\Arc4u.Standard.OAuth2.csproj" />
-  </ItemGroup>
-  
+	<ItemGroup>
+		<None Include="..\..\LICENSE">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Arc4u.Standard.OAuth2.AspNetCore.Api\Arc4u.Standard.OAuth2.AspNetCore.Api.csproj" />
+		<ProjectReference Include="..\Arc4u.Standard.OAuth2\Arc4u.Standard.OAuth2.csproj" />
+	</ItemGroup>
+
 </Project>

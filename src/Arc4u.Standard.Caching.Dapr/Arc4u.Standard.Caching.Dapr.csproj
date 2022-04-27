@@ -24,6 +24,7 @@
 		<RepositoryType>git</RepositoryType>
 		<PackageTags>Arc4u</PackageTags>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<LangVersion>latest</LangVersion>
 	</PropertyGroup>
 
 	<ItemGroup>

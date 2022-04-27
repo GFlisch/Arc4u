@@ -30,6 +30,7 @@
 		<PackageTags>Arc4u</PackageTags>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<LangVersion>latest</LangVersion>
 	</PropertyGroup>
 	<ItemGroup>
 		<None Include="..\..\LICENSE">

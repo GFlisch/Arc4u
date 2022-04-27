@@ -59,13 +59,7 @@ namespace Arc4u.Standard.UnitTest.Logging
                 await monitoring.StopAsync(new System.Threading.CancellationToken());
 
                 Assert.True(sink.Emited);
-
             }
-
-            
-
-            
-
         }
     }
 

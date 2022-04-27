@@ -1,69 +1,70 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup Label="Globals">
-    <SccProjectName>SAK</SccProjectName>
-    <SccProvider>SAK</SccProvider>
-    <SccAuxPath>SAK</SccAuxPath>
-    <SccLocalPath>SAK</SccLocalPath>
-  </PropertyGroup>
+	<PropertyGroup Label="Globals">
+		<SccProjectName>SAK</SccProjectName>
+		<SccProvider>SAK</SccProvider>
+		<SccAuxPath>SAK</SccAuxPath>
+		<SccLocalPath>SAK</SccLocalPath>
+	</PropertyGroup>
 
-  <PropertyGroup>
-    <TargetFrameworks>net6.0</TargetFrameworks>
-    <RootNamespace>Arc4u</RootNamespace>
-    <Company>Arc4u.net</Company>
-    <Description>Cross platform core base framework</Description>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.0</FileVersion>
-    <Version>0.0.0.0</Version>
-    <Authors>Gilles Flisch</Authors>
-    <Company>Gilles Flisch</Company>
-    <Copyright>Gilles Flisch</Copyright>
-    <PackageProjectUrl>https://github.com/GFlisch/Arc4u</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/GFlisch/Arc4u</RepositoryUrl>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <PackageLicenseExpression></PackageLicenseExpression>
-    <PackageTags>Arc4u</PackageTags>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+		<RootNamespace>Arc4u</RootNamespace>
+		<Company>Arc4u.net</Company>
+		<Description>Cross platform core base framework</Description>
+		<AssemblyVersion>1.0.0.0</AssemblyVersion>
+		<FileVersion>1.0.0.0</FileVersion>
+		<Version>0.0.0.0</Version>
+		<Authors>Gilles Flisch</Authors>
+		<Company>Gilles Flisch</Company>
+		<Copyright>Gilles Flisch</Copyright>
+		<PackageProjectUrl>https://github.com/GFlisch/Arc4u</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/GFlisch/Arc4u</RepositoryUrl>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<PackageLicenseExpression></PackageLicenseExpression>
+		<PackageTags>Arc4u</PackageTags>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<LangVersion>latest</LangVersion>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DebugType>full</DebugType>
-    <DebugSymbols>True</DebugSymbols>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<DebugType>full</DebugType>
+		<DebugSymbols>True</DebugSymbols>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DebugType>full</DebugType>
-    <DebugSymbols>True</DebugSymbols>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<DebugType>full</DebugType>
+		<DebugSymbols>True</DebugSymbols>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="Properties\**" />
-    <Compile Remove="Threading\**" />
-    <EmbeddedResource Remove="Properties\**" />
-    <EmbeddedResource Remove="Threading\**" />
-    <None Remove="Properties\**" />
-    <None Remove="Threading\**" />
-    <None Include="..\..\LICENSE">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Remove="Properties\**" />
+		<Compile Remove="Threading\**" />
+		<EmbeddedResource Remove="Properties\**" />
+		<EmbeddedResource Remove="Threading\**" />
+		<None Remove="Properties\**" />
+		<None Remove="Threading\**" />
+		<None Include="..\..\LICENSE">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+		<PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Arc4u.Standard.Caching\Arc4u.Standard.Caching.csproj" />
-    <ProjectReference Include="..\Arc4u.Standard.Configuration\Arc4u.Standard.Configuration.csproj" />
-    <ProjectReference Include="..\Arc4u.Standard.Core\Arc4u.Standard.Core.csproj" />
-    <ProjectReference Include="..\Arc4u.Standard.Dependency\Arc4u.Standard.Dependency.csproj" />
-    <ProjectReference Include="..\Arc4u.Standard.Diagnostics\Arc4u.Standard.Diagnostics.csproj" />
-    <ProjectReference Include="..\Arc4u.Standard.Threading\Arc4u.Standard.Threading.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Arc4u.Standard.Caching\Arc4u.Standard.Caching.csproj" />
+		<ProjectReference Include="..\Arc4u.Standard.Configuration\Arc4u.Standard.Configuration.csproj" />
+		<ProjectReference Include="..\Arc4u.Standard.Core\Arc4u.Standard.Core.csproj" />
+		<ProjectReference Include="..\Arc4u.Standard.Dependency\Arc4u.Standard.Dependency.csproj" />
+		<ProjectReference Include="..\Arc4u.Standard.Diagnostics\Arc4u.Standard.Diagnostics.csproj" />
+		<ProjectReference Include="..\Arc4u.Standard.Threading\Arc4u.Standard.Threading.csproj" />
+	</ItemGroup>
 
 </Project>
