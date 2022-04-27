@@ -40,6 +40,8 @@ namespace Arc4u.Diagnostics
 
         public string MethodName { get; }
         public string TypeClass { get; }
+        public object[] Args { get; set; }
+
         internal Dictionary<string, object> Properties { get; }
         internal Exception Exception { get; set; }
 
@@ -48,6 +50,17 @@ namespace Arc4u.Diagnostics
             if (LogLevel < LoggerBase.FilterLevel) return;
 
             if (null == _logger) return;
+
+            // Used to extract the properties injected in the message and extracted from the internal struct Microsoft.Extensions.Logging.FormattedLogValues
+            var extractor = new StateExtractorLogger();
+            extractor.Log(LogLevel,
+                          0,
+                          Exception,
+                          Text,
+                          Args);
+
+            foreach(var property in extractor.Properties)
+                Properties.AddIfNotExist(property.Key, property.Value);
 
             if (null != LoggerContext.Current?.All())
             {
@@ -63,11 +76,44 @@ namespace Arc4u.Diagnostics
             Properties.AddIfNotExist(LoggingConstants.Category, (short)Category);
             Properties.AddIfNotExist(LoggingConstants.Stacktrace, StackTrace);
 
+
             _logger.Log(LogLevel,
                         0,
                         Properties,
                         Exception,
-                        (state, ex) => Text);
+                        (state, ex) => "");
+        }
+    }
+
+    internal class StateExtractorLogger : ILogger
+    {
+        public StateExtractorLogger()
+        {
+            _properties = new();
+        }
+        public IDisposable BeginScope<TState>(TState state)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool IsEnabled(LogLevel logLevel)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<KeyValuePair<string, object>> Properties => _properties;
+
+        public string Message => _message;
+
+        private List<KeyValuePair<string, object>> _properties;
+        private string _message;
+
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+        {
+            if (state is IEnumerable<KeyValuePair<string, object>> pairs)
+            {
+                _properties.AddRange(pairs);
+            }
         }
     }
 }

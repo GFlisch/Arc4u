@@ -20,6 +20,37 @@ public class SerilogTests : BaseContainerFixture<SerilogTests, BasicFixture>
     }
 
     [Fact]
+    public async Task LoggerArgumentTest()
+    {
+        using (var container = Fixture.CreateScope())
+        {
+            LogStartBanner();
+
+            var logger = container.Resolve<ILogger<SerilogTests>>();
+
+            using (new LoggerContext())
+            {
+                LoggerContext.Current.Add("Speed", 101011);
+
+                logger.Technical().LogDebug("Debug {Code}", 100);
+                logger.Technical().LogInformation("Information {Code}", 101);
+                logger.Technical().LogWarning("Warning {Code}", 102);
+                logger.Technical().LogError("Error {Code}", 103);
+                logger.Technical().LogFatal("Fatal {Code}", 104);
+                logger.Technical().LogException(new DivideByZeroException("Cannot divide by zero"));
+
+                await Task.Delay(1000);
+
+                Assert.True(1 == 1);
+            }
+
+
+            LogEndBanner();
+        }
+    }
+
+
+    [Fact]
     public async Task LoggerTechnicalTest()
     {
         using (var container = Fixture.CreateScope())
@@ -32,7 +63,11 @@ public class SerilogTests : BaseContainerFixture<SerilogTests, BasicFixture>
             {
                 LoggerContext.Current.Add("Speed", 101011);
 
-                logger.Technical().Debug("Test").Add("Code", "100").Log();
+                logger.Technical().Debug("Debug").Add("Code", "100").Log();
+                logger.Technical().Information("Information").Add("Code", "101").Log();
+                logger.Technical().Warning("Warning").Add("Code", "102").Log();
+                logger.Technical().Error("Error").Add("Code", "103").Log();
+                logger.Technical().Fatal("Fatal").Add("Code", "104").Log();
                 logger.Technical().Exception(new DivideByZeroException("Cannot divide by zero")).Log();
                 logger.Monitoring().Debug("Memory").AddMemoryUsage().Log();
 
