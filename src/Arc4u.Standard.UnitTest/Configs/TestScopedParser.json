@@ -1,0 +1,18 @@
+{
+  "Application.Configuration": {
+    "ApplicationName": "Test",
+    "Environment": {
+      "Name": "Dev",
+      "LoggingName": "Test",
+      "TimeZone": "Romance Standard Time",
+      "LoggingLevel": "Trace"
+    }
+  },
+  "Application.Dependency": {
+    "Assemblies": [
+    ],
+    "RegisterTypes": [
+      "Arc4u.Standard.UnitTest.TestScopedParser, Arc4u.Standard.UnitTest"
+    ]
+  }
+}
