@@ -8,7 +8,6 @@ using Serilog;
 using Serilog.Core;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Security.Principal;
 
 namespace Arc4u.Standard.UnitTest.Infrastructure
@@ -22,9 +21,7 @@ namespace Arc4u.Standard.UnitTest.Infrastructure
 
             var services = new ServiceCollection();
 
-            _logger = new LoggerConfiguration()
-                 .ReadFrom.Configuration(configuration)
-                 .CreateLogger();
+            _logger = BuildLogger(configuration);
 
             services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(logger: _logger, dispose: false));
             services.AddILogger();
@@ -45,6 +42,13 @@ namespace Arc4u.Standard.UnitTest.Infrastructure
         }
 
         private readonly Logger _logger;
+
+        protected virtual Logger BuildLogger(IConfiguration configuration)
+        {
+            return new LoggerConfiguration()
+                                 .ReadFrom.Configuration(configuration)
+                                 .CreateLogger();
+        }
 
         protected virtual void AddServices(IServiceCollection services, IConfiguration configuration) { }
 

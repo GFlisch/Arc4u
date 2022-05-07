@@ -1,76 +1,57 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{54E25127-FE77-4B89-BB76-7915E7C12F3B}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Prism.DI.Wpf</RootNamespace>
-    <AssemblyName>Arc4u.Prism.DI.Wpf</AssemblyName>
-    <TargetFrameworks>net461;net472</TargetFrameworks>
-    <FileAlignment>512</FileAlignment>
-    <Deterministic>true</Deterministic>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
-    <Version>9.9.9.9</Version>
-    <Authors>Gilles Flisch</Authors>
-    <Company>Gilles Flisch</Company>
-    <Description></Description>
-    <Copyright>Gilles Flisch</Copyright>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageProjectUrl>https://github.com/GFlisch/Arc4u</PackageProjectUrl>
-    <PackageTags>Arc4u</PackageTags>
-    <RepositoryUrl>https://arc4u.visualstudio.com/Arc4u/_git/Net4x</RepositoryUrl>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.0</FileVersion>
-    <RepositoryType>git</RepositoryType>
-    <PackageId>Arc4u.Prism.DI.Wpf</PackageId>
-    <Product>Arc4u.Prism.DI.Wpf</Product>
-  </PropertyGroup>
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-  </Target>
-  <ItemGroup>
-    <None Include="..\..\LICENSE">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="CommonServiceLocator" Version="2.0.6" />
-    <PackageReference Include="Prism.Wpf" Version="7.2.0.1422" />
-    <PackageReference Include="System.Composition.AttributedModel" Version="5.0.1" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Arc4u.Standard.Dependency\Arc4u.Standard.Dependency.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="PresentationFramework" />
-    <Reference Include="WindowsBase" />
-  </ItemGroup>
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<Nullable>enable</Nullable>
+		<RootNamespace>Prism.DI.Wpf</RootNamespace>
+		<AssemblyName>Arc4u.Prism.DI.Wpf</AssemblyName>
+		<TargetFrameworks>net461;net472;net48;net5.0-windows</TargetFrameworks>
+		<LangVersion>9.0</LangVersion>
+	</PropertyGroup>
+	<PropertyGroup Label="Globals">
+		<SccProjectName>SAK</SccProjectName>
+		<SccProvider>SAK</SccProvider>
+		<SccAuxPath>SAK</SccAuxPath>
+		<SccLocalPath>SAK</SccLocalPath>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<Description>Wpf Prism framework with DI</Description>
+		<AssemblyVersion>1.0.0.0</AssemblyVersion>
+		<FileVersion>1.0.0.0</FileVersion>
+		<Version>0.0.0.0</Version>
+		<Authors>Gilles Flisch</Authors>
+		<Company>Gilles Flisch</Company>
+		<Copyright>Gilles Flisch</Copyright>
+		<PackageProjectUrl>https://github.com/GFlisch/Arc4u</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/GFlisch/Arc4u</RepositoryUrl>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<PackageLicenseExpression></PackageLicenseExpression>
+		<PackageTags>Arc4u</PackageTags>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+	</PropertyGroup>
+	<ItemGroup>
+		<None Include="..\..\LICENSE">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Net.Compilers" Version="4.1.0">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+		<PackageReference Include="CommonServiceLocator" Version="2.0.6" />
+		<PackageReference Include="Prism.Wpf" Version="7.2.0.1422" />
+		<PackageReference Include="System.Composition.AttributedModel" Version="5.0.1" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Arc4u.Standard.Dependency\Arc4u.Standard.Dependency.csproj" />
+	</ItemGroup>
+	<ItemGroup Condition=" '$(TargetFramework)' == 'net461' or '$(TargetFramework)' == 'net472' or '$(TargetFramework)' == 'net48' ">
+		<Reference Include="PresentationFramework" />
+		<Reference Include="WindowsBase" />
+	</ItemGroup>
 </Project>

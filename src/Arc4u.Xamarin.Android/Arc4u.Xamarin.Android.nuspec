@@ -7,7 +7,7 @@
     <authors>Gilles Flisch</authors>
     <owners>Gilles FLisch</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <licenseUrl>https://github.com/GFlisch/Arc4u</licenseUrl>
+	<license type="file">LICENSE</license>
     <projectUrl>https://github.com/GFlisch/Arc4u</projectUrl>
     <repository type="git" url="https://github.com/GFlisch/Arc4u.git"/>
     <description>Core Framework used to build Android application.</description>
@@ -33,5 +33,6 @@
   </metadata>
   <files>
     <file src="bin\$configuration$\Arc4u.Xamarin.Android.dll" target="lib\monoandroid90\" />
+	<file src="..\..\LICENSE" />
   </files>
 </package>

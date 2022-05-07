@@ -1,4 +1,5 @@
 ﻿using Serilog;
+using Serilog.Core;
 using System;
 using ILogger = Serilog.ILogger;
 
@@ -9,11 +10,11 @@ namespace Arc4u.Diagnostics.Serilog
         private bool _isInitialized;
         private bool _disposed = false;
         private static object _locker = new object();
-        private ILogger _logger;
+        private Logger _logger;
 
         public abstract void Configure(LoggerConfiguration configurator);
 
-        public ILogger Logger => _logger;
+        public Logger Logger => _logger;
 
         public void Initialize()
         {

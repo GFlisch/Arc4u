@@ -1,10 +1,12 @@
 ﻿using Arc4u.Dependency;
+using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Security.Principal;
 using Arc4u.OAuth2.Token;
 using Arc4u.Security;
 using Arc4u.Security.Cryptography;
 using Arc4u.ServiceModel;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
@@ -18,19 +20,19 @@ namespace Arc4u.OAuth2.TokenProvider
     /// - Base64 clientSecret string (user:password).
     /// - Encrypted clientSecret string (user:password).
     /// </summary>
-    [System.Composition.Export(ClientSecretTokenProvider.ProviderName, typeof(ITokenProvider))]
-
-    public class ClientSecretTokenProvider : ITokenProvider
+    [Export(ClientSecretTokenProvider.ProviderName, typeof(ITokenProvider))]
+    public sealed class ClientSecretTokenProvider : ITokenProvider
     {
-        [System.Composition.ImportingConstructor]
-        public ClientSecretTokenProvider(ITokenCache tokenCache, IContainerResolve container)
+        public ClientSecretTokenProvider(ITokenCache tokenCache, IContainerResolve container, ILogger<ClientSecretTokenProvider> logger)
         {
-            TokenCache = tokenCache;
-            Container = container;
+            _tokenCache = tokenCache;
+            _container = container;
+            _logger = logger;
         }
 
-        protected ITokenCache TokenCache { get; private set; }
-        protected IContainerResolve Container { get; set; }
+        private readonly ITokenCache _tokenCache;
+        private readonly IContainerResolve _container;
+        private readonly ILogger<ClientSecretTokenProvider> _logger;
 
         public const string ProviderName = "ClientSecret";
 
@@ -48,7 +50,7 @@ namespace Arc4u.OAuth2.TokenProvider
 
             var cacheKey = "Secret_" + serviceApplicationId.ToLowerInvariant() + clientSecret.GetHashCode().ToString();
 
-            var tokenInfo = TokenCache.Get<TokenInfo>(cacheKey);
+            var tokenInfo = _tokenCache.Get<TokenInfo>(cacheKey);
 
             if (null == tokenInfo || tokenInfo.ExpiresOnUtc < DateTime.UtcNow.AddMinutes(-1))
             {
@@ -68,13 +70,13 @@ namespace Arc4u.OAuth2.TokenProvider
 
                 tokenInfo = await CreateBasicTokenInfoAsync(settings, credential);
 
-                TokenCache.Put(cacheKey, tokenInfo);
+                _tokenCache.Put(cacheKey, tokenInfo);
             }
 
             return tokenInfo;
         }
 
-        private static void ValidateKeys(IKeyValueSettings settings, out string clientSecret, out string serviceApplicationId, out CertificateInfo certificateInfo)
+        private void ValidateKeys(IKeyValueSettings settings, out string clientSecret, out string serviceApplicationId, out CertificateInfo certificateInfo)
         {
             var messages = new Messages();
 
@@ -91,7 +93,7 @@ namespace Arc4u.OAuth2.TokenProvider
             if (String.IsNullOrWhiteSpace(clientSecret))
                 messages.Add(new Message(ServiceModel.MessageCategory.Technical, ServiceModel.MessageType.Warning, $"{TokenKeys.ClientSecret} is not defined in the configuration file."));
             else
-                Logger.Technical.From<ClientSecretTokenProvider>().System($"{TokenKeys.ApplicationKey} = {clientSecret}.").Log();
+                _logger.Technical().System($"{TokenKeys.ClientSecret} = {clientSecret}.").Log();
 
             var certificateName = settings.Values.ContainsKey(TokenKeys.CertificateName) ? settings.Values[TokenKeys.CertificateName] : null;
             var findType = settings.Values.ContainsKey(TokenKeys.FindType) ? settings.Values[TokenKeys.FindType] : null;
@@ -100,7 +102,7 @@ namespace Arc4u.OAuth2.TokenProvider
 
             if (null == certificateName)
             {
-                Logger.Technical.From<ClientSecretTokenProvider>().System("No Certificate, Base64 encoding of the username password.").Log();
+                _logger.Technical().System("No Certificate, Base64 encoding of the username password.").Log();
                 certificateInfo = null;
             }
             else
@@ -144,7 +146,7 @@ namespace Arc4u.OAuth2.TokenProvider
             }
             catch (KeyNotFoundException)
             {
-                Logger.Technical.From(this).Error($"No certificate found with {certificateInfo.FindType} = {certificateInfo.Name} in location = {certificateInfo.Location}.")
+                _logger.Technical().Error($"No certificate found with {certificateInfo.FindType} = {certificateInfo.Name} in location = {certificateInfo.Location}.")
                     .Add("FindType", certificateInfo.FindType.ToString())
                     .Add("Name", certificateInfo.Name)
                     .Add("Location", certificateInfo.Location.ToString())
@@ -174,7 +176,7 @@ namespace Arc4u.OAuth2.TokenProvider
         }
         protected async Task<TokenInfo> CreateBasicTokenInfoAsync(IKeyValueSettings settings, CredentialsResult credential)
         {
-            var basicTokenProvider = Container.Resolve<ICredentialTokenProvider>(CredentialTokenProvider.ProviderName);
+            var basicTokenProvider = _container.Resolve<ICredentialTokenProvider>(CredentialTokenProvider.ProviderName);
 
             return await basicTokenProvider.GetTokenAsync(settings, credential);
         }
@@ -185,7 +187,7 @@ namespace Arc4u.OAuth2.TokenProvider
 
             var cacheKey = "Secret_" + serviceApplicationId.ToLowerInvariant() + clientSecret.GetHashCode().ToString();
 
-            TokenCache.DeleteItem(cacheKey);
+            _tokenCache.DeleteItem(cacheKey);
         }
 
 

@@ -1,9 +1,12 @@
-﻿using Arc4u.Dependency;
+﻿using Arc4u.Configuration;
+using Arc4u.Dependency;
 using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Token;
 using Arc4u.Security.Principal;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
@@ -26,6 +29,7 @@ namespace Arc4u.Standard.OAuth2.Middleware
         private readonly RequestDelegate _next;
         private ActivitySource _activitySource;
         private bool hasAlreadyTriedToResolve = false;
+        private ILogger<OpenIdBearerInjectorMiddleware> _logger = null;
 
         public async Task Invoke(HttpContext context)
         {
@@ -47,11 +51,50 @@ namespace Arc4u.Standard.OAuth2.Middleware
                     _activitySource = container.Resolve<IActivitySourceFactory>()?.GetArc4u();
                 }
 
+                _logger ??= container.Resolve<ILogger<OpenIdBearerInjectorMiddleware>>();
+
                 using (var activity = _activitySource?.StartActivity("Inject bearer token in header", ActivityKind.Producer))
                 {
-                    ITokenProvider provider = container.Resolve<ITokenProvider>(_options.OpenIdSettings.Values[TokenKeys.ProviderIdKey]);
+                    TokenInfo tokenInfo = null;
+                    // Do we have an OAuth2Settings to do OBO?
+                    // If yes, we request an AccessToken that will be one for the Api services.
+                    if (null != _options.OAuth2Settings) // Do obo.
+                    {
+                        var oboDic = new Dictionary<string, string>
+                            {
+                                { TokenKeys.ClientIdKey, _options.OpenIdSettings.Values[TokenKeys.ClientIdKey] },
+                                { TokenKeys.ApplicationKey, _options.OpenIdSettings.Values[TokenKeys.ApplicationKey] },
+                                { TokenKeys.AuthorityKey, _options.OpenIdSettings.Values[TokenKeys.AuthorityKey] },
+                                { TokenKeys.Scopes, _options.OAuth2Settings.Values[TokenKeys.Scopes] },
+                                { "OpenIdSettingsReader", _options.OpenIdProviderKey },
+                            };
+                        var oboSettings = new SimpleKeyValueSettings(oboDic);
 
-                    var tokenInfo = await provider.GetTokenAsync(_options.OpenIdSettings, context.User.Identity);
+                        try
+                        {
+                            ITokenProvider provider = container.Resolve<ITokenProvider>(_options.OboProviderKey);
+
+                            tokenInfo = await provider.GetTokenAsync(oboSettings, null);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.Technical().Exception(ex).Log();
+                        }
+
+                    }
+                    else
+                    {
+                        try
+                        {
+                            ITokenProvider provider = container.Resolve<ITokenProvider>(_options.OpenIdSettings.Values[TokenKeys.ProviderIdKey]);
+
+                            tokenInfo = await provider.GetTokenAsync(_options.OpenIdSettings, null);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.Technical().Exception(ex).Log();
+                        }
+                    }
 
                     var authorization = new AuthenticationHeaderValue("Bearer", tokenInfo.AccessToken).ToString();
                     context.Request.Headers.Remove("Authorization");
@@ -62,3 +105,4 @@ namespace Arc4u.Standard.OAuth2.Middleware
         }
     }
 }
+

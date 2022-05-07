@@ -61,7 +61,7 @@ namespace Arc4u.KubeMQ.AspNetCore.PubSub
         {
             using (var activity = _activitySource?.StartActivity("Send PubSub events to KubeMQ", ActivityKind.Producer))
             {
-                activity?.AddTag("Count", messages.Count());
+                activity?.SetTag("Count", messages.Count());
 
                 Dictionary<ChannelParameter, List<PubSubEvent>> channels = SplitByChannels(messages);
 
@@ -109,7 +109,7 @@ namespace Arc4u.KubeMQ.AspNetCore.PubSub
 
                 var channel = CreateChannel(definition);
 
-                sendActivity?.AddTag("Address", definition.Address);
+                sendActivity?.SetTag("Address", definition.Address);
 
                 var serializer = GetSerializer(definition);
 

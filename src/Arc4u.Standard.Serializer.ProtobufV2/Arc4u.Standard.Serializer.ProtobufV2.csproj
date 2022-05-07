@@ -6,12 +6,12 @@
     <Description>Cross platform protobuf V2 serializer.</Description>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
-    <Version>9.9.9.9</Version>
+    <Version>0.0.0.0</Version>
     <Authors>Gilles Flisch</Authors>
     <Company>Gilles Flisch</Company>
     <Copyright>Gilles Flisch</Copyright>
     <PackageProjectUrl>https://github.com/GFlisch/Arc4u</PackageProjectUrl>
-    <RepositoryUrl>https://arc4u.visualstudio.com/Arc4u/_git/Standard</RepositoryUrl>
+    <RepositoryUrl>https://github.com/GFlisch/Arc4u</RepositoryUrl>
     <PackageLicenseExpression></PackageLicenseExpression>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <RepositoryType>git</RepositoryType>
@@ -20,7 +20,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0">
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

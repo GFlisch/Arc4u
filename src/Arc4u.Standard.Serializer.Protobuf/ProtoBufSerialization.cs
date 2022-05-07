@@ -23,7 +23,7 @@ namespace Arc4u.Serializer
 
         public virtual byte[] Serialize<T>(T value)
         {
-            Activity.Current?.AddTag("SerializerType", "ProtobufV3");
+            Activity.Current?.SetTag("SerializerType", "ProtobufV3");
 
             ProtoBufModel.ModelUpdater.Update(typeof(T));
 
@@ -36,7 +36,7 @@ namespace Arc4u.Serializer
 
         public virtual object Deserialize(byte[] data, Type objectType)
         {
-            Activity.Current?.AddTag("SerializerType", "ProtobufV3");
+            Activity.Current?.SetTag("SerializerType", "ProtobufV3");
 
             ProtoBufModel.ModelUpdater.Update(objectType);
 

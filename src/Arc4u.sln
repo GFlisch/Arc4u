@@ -103,6 +103,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arc4u.Standard.UnitTest", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arc4u.Prism.DI.Wpf", "Arc4u.Prism.DI.Wpf\Arc4u.Prism.DI.Wpf.csproj", "{54E25127-FE77-4B89-BB76-7915E7C12F3B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arc4u.Standard.Caching.Dapr", "Arc4u.Standard.Caching.Dapr\Arc4u.Standard.Caching.Dapr.csproj", "{EA273269-7720-48DE-8866-FC82E2C9490F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -1017,6 +1019,26 @@ Global
 		{54E25127-FE77-4B89-BB76-7915E7C12F3B}.Release|x64.Build.0 = Release|Any CPU
 		{54E25127-FE77-4B89-BB76-7915E7C12F3B}.Release|x86.ActiveCfg = Release|Any CPU
 		{54E25127-FE77-4B89-BB76-7915E7C12F3B}.Release|x86.Build.0 = Release|Any CPU
+		{EA273269-7720-48DE-8866-FC82E2C9490F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA273269-7720-48DE-8866-FC82E2C9490F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA273269-7720-48DE-8866-FC82E2C9490F}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{EA273269-7720-48DE-8866-FC82E2C9490F}.Debug|ARM.Build.0 = Debug|Any CPU
+		{EA273269-7720-48DE-8866-FC82E2C9490F}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{EA273269-7720-48DE-8866-FC82E2C9490F}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{EA273269-7720-48DE-8866-FC82E2C9490F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{EA273269-7720-48DE-8866-FC82E2C9490F}.Debug|x64.Build.0 = Debug|Any CPU
+		{EA273269-7720-48DE-8866-FC82E2C9490F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{EA273269-7720-48DE-8866-FC82E2C9490F}.Debug|x86.Build.0 = Debug|Any CPU
+		{EA273269-7720-48DE-8866-FC82E2C9490F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA273269-7720-48DE-8866-FC82E2C9490F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA273269-7720-48DE-8866-FC82E2C9490F}.Release|ARM.ActiveCfg = Release|Any CPU
+		{EA273269-7720-48DE-8866-FC82E2C9490F}.Release|ARM.Build.0 = Release|Any CPU
+		{EA273269-7720-48DE-8866-FC82E2C9490F}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{EA273269-7720-48DE-8866-FC82E2C9490F}.Release|ARM64.Build.0 = Release|Any CPU
+		{EA273269-7720-48DE-8866-FC82E2C9490F}.Release|x64.ActiveCfg = Release|Any CPU
+		{EA273269-7720-48DE-8866-FC82E2C9490F}.Release|x64.Build.0 = Release|Any CPU
+		{EA273269-7720-48DE-8866-FC82E2C9490F}.Release|x86.ActiveCfg = Release|Any CPU
+		{EA273269-7720-48DE-8866-FC82E2C9490F}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

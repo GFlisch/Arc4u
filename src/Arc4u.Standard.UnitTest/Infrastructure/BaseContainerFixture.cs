@@ -4,14 +4,14 @@ using Microsoft.Extensions.Logging;
 using System.Runtime.CompilerServices;
 using Xunit;
 
-namespace Arc4u.Core.Test.Infrastructure
+namespace Arc4u.Standard.UnitTest.Infrastructure
 {
     public abstract class BaseContainerFixture<T, TFixture> : IClassFixture<TFixture> where TFixture : class, IContainerFixture
     {
         protected readonly IContainerFixture _containerFixture;
         private readonly ILogger<T> _logger;
 
-        public BaseContainerFixture(TFixture containerFixture)
+        public BaseContainerFixture(TFixture? containerFixture)
         {
             _containerFixture = containerFixture;
             _logger = containerFixture.SharedContainer.Resolve<ILogger<T>>();

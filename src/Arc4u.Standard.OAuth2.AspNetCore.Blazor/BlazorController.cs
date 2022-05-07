@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -39,9 +38,9 @@ namespace Arc4u.Blazor
         /// <response code="2buffer">The Obo Bearer token</response>
         /// <returns>The Obo name.</returns>
         [ServiceAspect()]
-        [ProducesResponseType(typeof(String), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(String), StatusCodes.Status401Unauthorized)]
-        [Route("{id?}")]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
+        [HttpGet("{id?}")]
         public async Task<IActionResult> Get(int? id, [FromServices] IApplicationContext applicationContext, [FromServices] IContainerResolve containerResolve)
         {
             if (applicationContext.Principal.Authorization.Operations.Count == 0) return Unauthorized();
@@ -58,7 +57,7 @@ namespace Arc4u.Blazor
                 }
                 else
                 {
-                    if (containerResolve.TryResolve<IKeyValueSettings>("OpenID", out var settings))
+                    if (containerResolve.TryResolve<IKeyValueSettings>("OpenId", out var settings))
                     {
                         if (containerResolve.TryResolve<ITokenProvider>(settings.Values[TokenKeys.ProviderIdKey], out var tokenProvider))
                         {
@@ -68,7 +67,7 @@ namespace Arc4u.Blazor
                 }
             }
 
-            if (!String.IsNullOrEmpty(accessToken))
+            if (!string.IsNullOrEmpty(accessToken))
             {
                 var redirectUrl = Request.Query["redirectUrl"][0];
 
@@ -76,13 +75,13 @@ namespace Arc4u.Blazor
 
                 if (accessToken.Length > index * buffer)
                 {
-                    containerResolve.TryResolve<IKeyValueSettings>("OAuth", out var settings);
+                    containerResolve.TryResolve<IKeyValueSettings>("OAuth2", out var settings);
                     var thisController = settings.Values[TokenKeys.RootServiceUrlKey].TrimEnd('/') + $"/blazor/{index + 1}&redirectUrl={redirectUrl}&token={accessToken.Substring((index - 1) * buffer, buffer)}";
                     return Redirect($"{redirectUri}?url={thisController}");
                 }
                 else
                 {
-                    return Redirect($"{redirectUri}?token={accessToken.Substring((index - 1) * buffer, accessToken.Length - ((index - 1) * buffer))}");
+                    return Redirect($"{redirectUri}?token={accessToken.Substring((index - 1) * buffer, accessToken.Length - (index - 1) * buffer)}");
                 }
             }
 

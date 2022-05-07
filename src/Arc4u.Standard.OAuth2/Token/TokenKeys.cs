@@ -86,5 +86,10 @@
         /// Header to use when injecting the client secret.
         /// </summary>
         public const string ClientSecretHeader = "HeaderKey";
+
+        /// <summary>
+        /// Scopes defined to identify the rigth(s) to a sts to access the requested resource.
+        /// </summary>
+        public const string Scopes = "Scopes";
     }
 }

@@ -10,7 +10,7 @@ namespace Arc4u.Serializer
     {
         public byte[] Serialize<T>(T value)
         {
-            Activity.Current?.AddTag("SerializerType", "Json");
+            Activity.Current?.SetTag("SerializerType", "Json");
 
             string json = String.Empty;
 
@@ -30,7 +30,7 @@ namespace Arc4u.Serializer
 
         public T Deserialize<T>(byte[] data)
         {
-            Activity.Current?.AddTag("SerializerType", "Json");
+            Activity.Current?.SetTag("SerializerType", "Json");
 
             var json = UTF8Encoding.UTF8.GetString(data);
 

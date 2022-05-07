@@ -2,13 +2,13 @@
 
  <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <Version>9.9.9.9</Version>
+    <Version>0.0.0.0</Version>
     <Authors>Gilles Flisch</Authors>
     <Description>Package used on Façade projects to add OpenId endpoint to Blazor projects.</Description>
     <Copyright>Gilles Flisch</Copyright>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/GFlisch/Arc4u</PackageProjectUrl>
-    <RepositoryUrl>https://arc4u.visualstudio.com/Arc4u/_git/Standard</RepositoryUrl>
+    <RepositoryUrl>https://github.com/GFlisch/Arc4u</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Arc4u</PackageTags>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
@@ -16,12 +16,7 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RootNamespace>Arc4u.Blazor</RootNamespace>
   </PropertyGroup>
-  
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
-  </ItemGroup>
-
+ 
   <ItemGroup>
     <None Include="..\..\LICENSE">
       <Pack>True</Pack>

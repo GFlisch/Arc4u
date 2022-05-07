@@ -44,8 +44,8 @@ namespace Arc4u.KubeMQ.AspNetCore.Queues
         {
             using (var activity = _activitySource?.StartActivity("Send message to KubeMQ", ActivityKind.Producer))
             {
-                activity?.AddTag("Delay message [s]", sendAfterSeconds);
-                activity?.AddTag("Expire message after [s]", expireAfterSeconds);
+                activity?.SetTag("Delay message [s]", sendAfterSeconds);
+                activity?.SetTag("Expire message after [s]", expireAfterSeconds);
 
                 if (message is IEnumerable)
                     throw new ArgumentException("Collection are not accepted!");
@@ -192,7 +192,7 @@ namespace Arc4u.KubeMQ.AspNetCore.Queues
 
                 using (var serializerActivity = _activitySource?.StartActivity("Serialize.", ActivityKind.Producer))
                 {
-                    serializerActivity?.AddTag("Count", messages.Count());
+                    serializerActivity?.SetTag("Count", messages.Count());
                     // I use messageType because we consider that we send a message of the same type...
                     // Doing it by ChannelParameter will be more efficient...
                     foreach (var message in messages)
@@ -216,7 +216,7 @@ namespace Arc4u.KubeMQ.AspNetCore.Queues
         {
             using (var activity = _activitySource?.StartActivity("Send messages to KubeMQ", ActivityKind.Producer))
             {
-                activity?.AddTag("Split", splitByQueues);
+                activity?.SetTag("Split", splitByQueues);
 
                 if (splitByQueues < 2)
                     throw new ArgumentOutOfRangeException("Number of queues must be greater than 1!");
@@ -252,8 +252,8 @@ namespace Arc4u.KubeMQ.AspNetCore.Queues
                 {
                     using (var createactivity = _activitySource?.StartActivity("Create KubeMQ messages", ActivityKind.Producer))
                     {
-                        createactivity?.AddTag("Count", messages.Count());
-                        createactivity?.AddTag("QueueName", $"{definition.Namespace}.{queueIdx}");
+                        createactivity?.SetTag("Count", messages.Count());
+                        createactivity?.SetTag("QueueName", $"{definition.Namespace}.{queueIdx}");
 
                         _messages.Add(
                             new Message($"{definition.Namespace}.{queueIdx}", serializer.Serialize(message.Value), String.Empty, Guid.NewGuid().ToString(), BuildTags(messageType, message.Tags, activityId))

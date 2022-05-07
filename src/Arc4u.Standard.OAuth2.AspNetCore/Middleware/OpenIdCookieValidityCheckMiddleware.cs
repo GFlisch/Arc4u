@@ -54,7 +54,7 @@ namespace Arc4u.Standard.OAuth2.Middleware
 
                     using (var activity = _activitySource?.StartActivity("Validate bearer token expiration", ActivityKind.Producer))
                     {
-                        activity?.AddTag("AuthenticationType", _options.AuthenticationType);
+                        activity?.SetTag("AuthenticationType", _options.AuthenticationType);
 
                         if (container.TryResolve<IApplicationContext>(out var applicationContext))
                         {

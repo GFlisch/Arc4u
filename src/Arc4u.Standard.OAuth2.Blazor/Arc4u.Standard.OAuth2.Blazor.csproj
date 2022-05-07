@@ -4,30 +4,26 @@
     <TargetFramework>net5.0</TargetFramework>
     <RootNamespace>Arc4u.Blazor</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>9.9.9.9</Version>
+    <Version>0.0.0.0</Version>
     <Authors>Gilles Flisch</Authors>
     <Company>Gilles Flisch</Company>
     <Description>OAuth2 scenario for Blazor.</Description>
     <Copyright>Gilles Flisch</Copyright>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/GFlisch/Arc4u</PackageProjectUrl>
-    <RepositoryUrl>https://arc4u.visualstudio.com/Arc4u/_git/Standard</RepositoryUrl>
+    <RepositoryUrl>https://github.com/GFlisch/Arc4u</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
     <PackageTags>Arc4u</PackageTags>
   </PropertyGroup>
 
-
   <ItemGroup>
-    <PackageReference Include="Blazored.LocalStorage" Version="4.1.5" />
-    <PackageReference Include="Microsoft.AspNetCore.Components" Version="5.0.11" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="5.0.11" />
+    <PackageReference Include="Blazored.LocalStorage" Version="4.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="5.0.16" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="5.0.16" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Extensions" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="5.0.11" />
   </ItemGroup>
-
 
   <ItemGroup>
     <None Include="..\..\LICENSE">
@@ -35,7 +31,6 @@
       <PackagePath></PackagePath>
     </None>
   </ItemGroup>
-
 
   <ItemGroup>
     <ProjectReference Include="..\Arc4u.Standard.OAuth2.Client\Arc4u.Standard.OAuth2.Client.csproj" />

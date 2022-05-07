@@ -1,5 +1,4 @@
-﻿using Arc4u.Core.Test.Infrastructure;
-using Arc4u.Diagnostics;
+﻿using Arc4u.Diagnostics;
 using Arc4u.Standard.UnitTest.Infrastructure;
 using KubeMQ.Grpc;
 using KubeMQ.SDK.csharp.Events;
