@@ -311,15 +311,19 @@ namespace Arc4u.Dependency.ComponentModel
             IEnumerable<object> instances;
 
             if (name == null)
-                instances = _serviceProvider.GetServices(type);
+            {
+                value = _serviceProvider.GetService(type);
+            }
             else
+            {
                 instances = GetNamedInstances(type, name, throwIfError);
-            if (instances.Count() > 1)
-                if (throwIfError)
-                    throw new MultipleRegistrationException(type, instances);
-                else
-                    return false;
-            value = instances.FirstOrDefault();
+                if (instances.Count() > 1)
+                    if (throwIfError)
+                        throw new MultipleRegistrationException(type, instances);
+                    else
+                        return false;
+                value = instances.FirstOrDefault();
+            }
             return value != null;
         }
 
@@ -335,13 +339,13 @@ namespace Arc4u.Dependency.ComponentModel
 
             if (name == null)
             {
-                var instances = _serviceProvider.GetServices<T>();
-                if (instances.Count() > 1)
-                    if (throwIfError)
-                        throw new MultipleRegistrationException<T>(instances);
-                    else
-                        return false;
-                value = instances.FirstOrDefault();
+                var instance = _serviceProvider.GetService<T>();
+                //if (instances.Count() > 1)
+                //    if (throwIfError)
+                //        throw new MultipleRegistrationException<T>(instances);
+                //    else
+                //        return false;
+                value = instance;
             }
             else
             {
