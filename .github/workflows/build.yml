@@ -10,16 +10,16 @@ env:
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'  
   netStandardVersion: '5.0.16.1'
-  netStandardVersionNuget: '5.0.16.1${{ github.event.inputs.nugetPreviewName }}'
+  netStandardVersionNuget: '5.0.16.1'
   iOSVersion: '11.2.5016.1'
-  iOSVersionNuget: '11.2.5016.1${{ github.event.inputs.nugetPreviewName }}'
+  iOSVersionNuget: '11.2.5016.1'
   AndroidVersion: '9.0.5016.1'
-  AndroidVersionNuget: '9.0.5016.1${{ github.event.inputs.nugetPreviewName }}'
+  AndroidVersionNuget: '9.0.5016.1'
   UwpVersion: '10.18362.5016.1'
-  UwpVersionNuget: '10.38362.5016.1${{ github.event.inputs.nugetPreviewName }}'
+  UwpVersionNuget: '10.38362.5016.1'
   PrismVersion: '7.2.5016.1'
-  PrismVersionNuget: '7.2.5016.1${{ github.event.inputs.nugetPreviewName }}'
-  PublishToNuget: ${{ false }}
+  PrismVersionNuget: '7.2.5016.1'
+  PublishToNuget: true
 
 jobs:
   build:
