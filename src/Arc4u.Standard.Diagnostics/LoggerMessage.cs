@@ -89,7 +89,7 @@ namespace Arc4u.Diagnostics
     {
         public StateExtractorLogger()
         {
-            _properties = new();
+            _properties = new List<KeyValuePair<string, object>>();
         }
         public IDisposable BeginScope<TState>(TState state)
         {

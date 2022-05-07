@@ -11,242 +11,244 @@ using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Arc4u.Standard.UnitTest.Logging;
-
-public class SerilogTests : BaseContainerFixture<SerilogTests, BasicFixture>
+namespace Arc4u.Standard.UnitTest.Logging
 {
-    public SerilogTests(BasicFixture containerFixture) : base(containerFixture)
-    {
-    }
 
-    [Fact]
-    public async Task LoggerArgumentTest()
+    public class SerilogTests : BaseContainerFixture<SerilogTests, BasicFixture>
     {
-        using (var container = Fixture.CreateScope())
+        public SerilogTests(BasicFixture containerFixture) : base(containerFixture)
         {
-            LogStartBanner();
-
-            var logger = container.Resolve<ILogger<SerilogTests>>();
-
-            using (new LoggerContext())
-            {
-                LoggerContext.Current.Add("Speed", 101011);
-
-                logger.Technical().LogDebug("Debug {Code}", 100);
-                logger.Technical().LogInformation("Information {Code}", 101);
-                logger.Technical().LogWarning("Warning {Code}", 102);
-                logger.Technical().LogError("Error {Code}", 103);
-                logger.Technical().LogFatal("Fatal {Code}", 104);
-                logger.Technical().LogException(new DivideByZeroException("Cannot divide by zero"));
-
-                await Task.Delay(1000);
-
-                Assert.True(1 == 1);
-            }
-
-
-            LogEndBanner();
         }
-    }
 
-
-    [Fact]
-    public async Task LoggerTechnicalTest()
-    {
-        using (var container = Fixture.CreateScope())
+        [Fact]
+        public async Task LoggerArgumentTest()
         {
-            LogStartBanner();
-
-            var logger = container.Resolve<ILogger<SerilogTests>>();
-
-            using (new LoggerContext())
+            using (var container = Fixture.CreateScope())
             {
-                LoggerContext.Current.Add("Speed", 101011);
+                LogStartBanner();
 
-                logger.Technical().Debug("Debug").Add("Code", "100").Log();
-                logger.Technical().Information("Information").Add("Code", "101").Log();
-                logger.Technical().Warning("Warning").Add("Code", "102").Log();
-                logger.Technical().Error("Error").Add("Code", "103").Log();
-                logger.Technical().Fatal("Fatal").Add("Code", "104").Log();
-                logger.Technical().Exception(new DivideByZeroException("Cannot divide by zero")).Log();
-                logger.Monitoring().Debug("Memory").AddMemoryUsage().Log();
+                var logger = container.Resolve<ILogger<SerilogTests>>();
 
-                await Task.Delay(1000);
+                using (new LoggerContext())
+                {
+                    LoggerContext.Current.Add("Speed", 101011);
 
-                Assert.True(1 == 1);
+                    logger.Technical().LogDebug("Debug {Code}", 100);
+                    logger.Technical().LogInformation("Information {Code}", 101);
+                    logger.Technical().LogWarning("Warning {Code}", 102);
+                    logger.Technical().LogError("Error {Code}", 103);
+                    logger.Technical().LogFatal("Fatal {Code}", 104);
+                    logger.Technical().LogException(new DivideByZeroException("Cannot divide by zero"));
+
+                    await Task.Delay(1000);
+
+                    Assert.True(1 == 1);
+                }
+
+
+                LogEndBanner();
             }
-
-
-            LogEndBanner();
         }
-    }
 
-    [Fact]
-    public void LoggerContextWithEnlistmentTest()
-    {
-        using (new LoggerContext())
+
+        [Fact]
+        public async Task LoggerTechnicalTest()
         {
-            LoggerContext.Current.Add("Code", 100);
+            using (var container = Fixture.CreateScope())
+            {
+                LogStartBanner();
 
+                var logger = container.Resolve<ILogger<SerilogTests>>();
+
+                using (new LoggerContext())
+                {
+                    LoggerContext.Current.Add("Speed", 101011);
+
+                    logger.Technical().Debug("Debug").Add("Code", "100").Log();
+                    logger.Technical().Information("Information").Add("Code", "101").Log();
+                    logger.Technical().Warning("Warning").Add("Code", "102").Log();
+                    logger.Technical().Error("Error").Add("Code", "103").Log();
+                    logger.Technical().Fatal("Fatal").Add("Code", "104").Log();
+                    logger.Technical().Exception(new DivideByZeroException("Cannot divide by zero")).Log();
+                    logger.Monitoring().Debug("Memory").AddMemoryUsage().Log();
+
+                    await Task.Delay(1000);
+
+                    Assert.True(1 == 1);
+                }
+
+
+                LogEndBanner();
+            }
+        }
+
+        [Fact]
+        public void LoggerContextWithEnlistmentTest()
+        {
             using (new LoggerContext())
             {
-                Assert.Equal((int)(LoggerContext.Current.All().First(kv => kv.Key.Equals("Code")).Value), (long)100);
-                LoggerContext.Current.Add("Code2", 101);
-                LoggerContext.Current.Add("Code", 101);
-                Assert.Contains(LoggerContext.Current.All(), kv => kv.Key.Equals("Code2"));
-                Assert.Equal((int)(LoggerContext.Current.All().First(kv => kv.Key.Equals("Code2")).Value), (long)101);
+                LoggerContext.Current.Add("Code", 100);
+
+                using (new LoggerContext())
+                {
+                    Assert.Equal((int)(LoggerContext.Current.All().First(kv => kv.Key.Equals("Code")).Value), (long)100);
+                    LoggerContext.Current.Add("Code2", 101);
+                    LoggerContext.Current.Add("Code", 101);
+                    Assert.Contains(LoggerContext.Current.All(), kv => kv.Key.Equals("Code2"));
+                    Assert.Equal((int)(LoggerContext.Current.All().First(kv => kv.Key.Equals("Code2")).Value), (long)101);
+                    Assert.Contains(LoggerContext.Current.All(), kv => kv.Key.Equals("Code"));
+                }
+                Assert.DoesNotContain(LoggerContext.Current.All(), kv => kv.Key.Equals("Code2"));
                 Assert.Contains(LoggerContext.Current.All(), kv => kv.Key.Equals("Code"));
+                var value = LoggerContext.Current.All().First(kv => kv.Key.Equals("Code")).Value;
+                Assert.Equal(100, (int)value);
             }
-            Assert.DoesNotContain(LoggerContext.Current.All(), kv => kv.Key.Equals("Code2"));
-            Assert.Contains(LoggerContext.Current.All(), kv => kv.Key.Equals("Code"));
-            var value = LoggerContext.Current.All().First(kv => kv.Key.Equals("Code")).Value;
-            Assert.Equal(100, (int)value);
         }
     }
-}
 
-#region sinks and SerilogWriter
-public sealed class AnonymousSinkTest : ILogEventSink, IDisposable
-{
-    public bool IsAnonymous { get; set; }
-    public void Dispose()
+    #region sinks and SerilogWriter
+    public sealed class AnonymousSinkTest : ILogEventSink, IDisposable
     {
-    }
-
-    public void Emit(LogEvent logEvent)
-    {
-        IsAnonymous = !logEvent.Properties.ContainsKey(Diagnostics.LoggingConstants.Identity);
-    }
-}
-
-
-
-public sealed class SinkTest : ILogEventSink, IDisposable
-{
-    public bool Emited { get; set; }
-    public void Dispose()
-    {
-    }
-
-    public void Emit(LogEvent logEvent)
-    {
-        Emited = true;
-    }
-}
-
-public sealed class FromSinkTest : ILogEventSink, IDisposable
-{
-    public string Class { get; set; }
-
-    public string MethodName { get; set; }
-
-    public string Application { get; set; }
-
-    public Diagnostics.MessageCategory Category { get; set; }
-
-    public string ActivityId { get; set; }
-
-    public IReadOnlyDictionary<string, LogEventPropertyValue> Properties { get; set; }
-
-    public void Dispose()
-    {
-    }
-
-    public void Emit(LogEvent logEvent)
-    {
-        if (logEvent.Properties.TryGetValue(LoggingConstants.Class, out var classPropertyValue))
+        public bool IsAnonymous { get; set; }
+        public void Dispose()
         {
-            Class = GetValue(classPropertyValue, "");
         }
 
-        if (logEvent.Properties.TryGetValue(LoggingConstants.MethodName, out var methodPropertyValue))
+        public void Emit(LogEvent logEvent)
         {
-            MethodName = GetValue(methodPropertyValue, "");
+            IsAnonymous = !logEvent.Properties.ContainsKey(Diagnostics.LoggingConstants.Identity);
+        }
+    }
+
+
+
+    public sealed class SinkTest : ILogEventSink, IDisposable
+    {
+        public bool Emited { get; set; }
+        public void Dispose()
+        {
         }
 
-        if (logEvent.Properties.TryGetValue(LoggingConstants.Category, out var categoryPropertyValue))
+        public void Emit(LogEvent logEvent)
         {
-            Category = (Diagnostics.MessageCategory)GetValue<short>(categoryPropertyValue, 1);
+            Emited = true;
+        }
+    }
+
+    public sealed class FromSinkTest : ILogEventSink, IDisposable
+    {
+        public string Class { get; set; }
+
+        public string MethodName { get; set; }
+
+        public string Application { get; set; }
+
+        public Diagnostics.MessageCategory Category { get; set; }
+
+        public string ActivityId { get; set; }
+
+        public IReadOnlyDictionary<string, LogEventPropertyValue> Properties { get; set; }
+
+        public void Dispose()
+        {
         }
 
-        if (logEvent.Properties.TryGetValue(LoggingConstants.Application, out var applicationName))
+        public void Emit(LogEvent logEvent)
         {
-            Application = GetValue(applicationName, "");
+            if (logEvent.Properties.TryGetValue(LoggingConstants.Class, out var classPropertyValue))
+            {
+                Class = GetValue(classPropertyValue, "");
+            }
+
+            if (logEvent.Properties.TryGetValue(LoggingConstants.MethodName, out var methodPropertyValue))
+            {
+                MethodName = GetValue(methodPropertyValue, "");
+            }
+
+            if (logEvent.Properties.TryGetValue(LoggingConstants.Category, out var categoryPropertyValue))
+            {
+                Category = (Diagnostics.MessageCategory)GetValue<short>(categoryPropertyValue, 1);
+            }
+
+            if (logEvent.Properties.TryGetValue(LoggingConstants.Application, out var applicationName))
+            {
+                Application = GetValue(applicationName, "");
+            }
+
+            if (logEvent.Properties.TryGetValue(LoggingConstants.ActivityId, out var activityId))
+            {
+                ActivityId = GetValue(activityId, "");
+            }
+
+            Properties = logEvent.Properties;
         }
 
-        if (logEvent.Properties.TryGetValue(LoggingConstants.ActivityId, out var activityId))
+        public T GetValue<T>(LogEventPropertyValue pv, T defaultValue)
         {
-            ActivityId = GetValue(activityId, "");
+            return pv.GetType().Name switch
+            {
+                nameof(ScalarValue) => (T)((ScalarValue)pv).Value,
+                _ => defaultValue,
+            };
         }
-
-        Properties = logEvent.Properties;
     }
 
-    public T GetValue<T>(LogEventPropertyValue pv, T defaultValue)
+    public class LoggerFromTest : SerilogWriter
     {
-        return pv.GetType().Name switch
+        public FromSinkTest FromTest { get; set; }
+
+        public override void Configure(LoggerConfiguration configurator)
         {
-            nameof(ScalarValue) => (T)((ScalarValue)pv).Value,
-            _ => defaultValue,
-        };
+            FromTest = new FromSinkTest();
+
+            configurator.WriteTo.Sink(FromTest);
+        }
     }
-}
 
-public class LoggerFromTest : SerilogWriter
-{
-    public FromSinkTest FromTest { get; set; }
-
-    public override void Configure(LoggerConfiguration configurator)
+    public class LoggerFilterSinkTest : SerilogWriter
     {
-        FromTest = new FromSinkTest();
+        public SinkTest Sink { get; set; }
 
-        configurator.WriteTo.Sink(FromTest);
+        public override void Configure(LoggerConfiguration configurator)
+        {
+            Sink = new SinkTest();
+
+            configurator.WriteTo.Sink(Sink);
+        }
     }
-}
 
-public class LoggerFilterSinkTest : SerilogWriter
-{
-    public SinkTest Sink { get; set; }
-
-    public override void Configure(LoggerConfiguration configurator)
+    public class LoggerAnonymousSinkTest : SerilogWriter
     {
-        Sink = new SinkTest();
+        public AnonymousSinkTest Sink { get; set; }
 
-        configurator.WriteTo.Sink(Sink);
+        public override void Configure(LoggerConfiguration configurator)
+        {
+            Sink = new AnonymousSinkTest();
+
+            configurator.WriteTo.Anonymizer(Sink);
+        }
     }
-}
 
-public class LoggerAnonymousSinkTest : SerilogWriter
-{
-    public AnonymousSinkTest Sink { get; set; }
 
-    public override void Configure(LoggerConfiguration configurator)
+
+    //public class LoggerTest : SerilogWriter
+    //{
+    //    public override void Configure(LoggerConfiguration configurator)
+    //    {
+    //        RealmDBExtension.DefaultConfig = () => new RealmConfiguration(@"c:\temp\LoggingDB.realm") { SchemaVersion = 1 };
+    //        configurator
+    //            .WriteTo.File(new SimpleTextFormatter(), @"c:\temp\log-.txt"
+    //                          , rollingInterval: RollingInterval.Minute)
+    //            .WriteTo.RealmDB();
+    //    }
+    //}
+
+    public class EmptyLogger : SerilogWriter
     {
-        Sink = new AnonymousSinkTest();
-
-        configurator.WriteTo.Anonymizer(Sink);
+        public override void Configure(LoggerConfiguration configurator)
+        {
+        }
     }
+
+    #endregion sinks and SerilogWriter
 }
-
-
-
-//public class LoggerTest : SerilogWriter
-//{
-//    public override void Configure(LoggerConfiguration configurator)
-//    {
-//        RealmDBExtension.DefaultConfig = () => new RealmConfiguration(@"c:\temp\LoggingDB.realm") { SchemaVersion = 1 };
-//        configurator
-//            .WriteTo.File(new SimpleTextFormatter(), @"c:\temp\log-.txt"
-//                          , rollingInterval: RollingInterval.Minute)
-//            .WriteTo.RealmDB();
-//    }
-//}
-
-public class EmptyLogger : SerilogWriter
-{
-    public override void Configure(LoggerConfiguration configurator)
-    {
-    }
-}
-
-#endregion sinks and SerilogWriter
