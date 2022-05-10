@@ -7,7 +7,7 @@ using Arc4u.Security.Principal;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using System;
 using System.Collections.Generic;
-using System.Composition;
+using Arc4u.Dependency.Attribute;
 using System.Linq;
 using System.Runtime.Serialization.Json;
 using System.Security.Principal;

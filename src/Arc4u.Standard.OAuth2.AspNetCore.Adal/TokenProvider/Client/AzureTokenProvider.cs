@@ -3,7 +3,7 @@ using Arc4u.OAuth2.Token;
 using Arc4u.OAuth2.Token.Adal;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
-using System.Composition;
+using Arc4u.Dependency.Attribute;
 
 namespace Arc4u.OAuth2.TokenProvider.Client
 {
@@ -12,7 +12,7 @@ namespace Arc4u.OAuth2.TokenProvider.Client
     {
         public const string ProviderName = "azureAD";
 
-        [ImportingConstructor]
+        
         public AzureTokenProvider(ILogger logger, IContainerResolve container) : base(logger, container)
         {
         }

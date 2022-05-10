@@ -128,6 +128,9 @@ jobs:
       - name: Change Arc4u.Standard.OAuth2.AspNetCore.Msal versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.OAuth2.AspNetCore.Msal.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
         shell: powershell        
+      - name: Change Arc4u.Standard.OAuth2.AspNetCore.Adal versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.OAuth2.AspNetCore.Adal.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell    
       - name: Change Arc4u.Standard.OAuth2.AspNetCore.Blazor versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.OAuth2.AspNetCore.Blazor.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
         shell: powershell        
