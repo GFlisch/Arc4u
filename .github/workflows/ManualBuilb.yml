@@ -17,14 +17,14 @@ env:
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'  
-  netStandardVersion: '6.0.4.1'
-  netStandardVersionNuget: '6.0.4.1${{ github.event.inputs.nugetPreviewName }}'
-  iOSVersion: '11.2.6004.1'
-  iOSVersionNuget: '11.2.6004.1${{ github.event.inputs.nugetPreviewName }}'
-  AndroidVersion: '9.0.6004.1'
-  AndroidVersionNuget: '9.0.6004.1${{ github.event.inputs.nugetPreviewName }}'
-  PrismVersion: '7.2.6004.1'
-  PrismVersionNuget: '7.2.6004.1${{ github.event.inputs.nugetPreviewName }}'
+  netStandardVersion: '6.0.5.1'
+  netStandardVersionNuget: '6.0.5.1${{ github.event.inputs.nugetPreviewName }}'
+  iOSVersion: '11.2.6005.1'
+  iOSVersionNuget: '11.2.6005.1${{ github.event.inputs.nugetPreviewName }}'
+  AndroidVersion: '9.0.6005.1'
+  AndroidVersionNuget: '9.0.6005.1${{ github.event.inputs.nugetPreviewName }}'
+  PrismVersion: '7.2.6005.1'
+  PrismVersionNuget: '7.2.6005.1${{ github.event.inputs.nugetPreviewName }}'
   PublishToNuget: ${{ github.event.inputs.publish }}
 
 jobs:

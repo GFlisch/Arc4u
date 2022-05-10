@@ -44,7 +44,6 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
-		<PackageReference Include="CommonServiceLocator" Version="2.0.6" />
 		<PackageReference Include="Prism.Wpf" Version="7.2.0.1422" />
 	</ItemGroup>
 	<ItemGroup>
