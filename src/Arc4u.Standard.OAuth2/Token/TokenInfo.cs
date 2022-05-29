@@ -6,7 +6,6 @@ namespace Arc4u.OAuth2.Token
     [DataContract]
     public class TokenInfo
     {
-        public TokenInfo() { }
 
         public TokenInfo(string accessTokenType, string accessToken, string idToken, DateTime expiresOnUtc)
         {
