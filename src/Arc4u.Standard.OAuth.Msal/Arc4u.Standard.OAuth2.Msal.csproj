@@ -28,8 +28,8 @@
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Extensions.Http" Version="5.*" />
-		<PackageReference Include="Microsoft.Identity.Client" Version="4.43.0" />
-		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.17.0" />
+		<PackageReference Include="Microsoft.Identity.Client" Version="4.44.0" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.18.0" />
 		<ProjectReference Include="..\Arc4u.Standard.Diagnostics\Arc4u.Standard.Diagnostics.csproj" />
 		<ProjectReference Include="..\Arc4u.Standard.OAuth2\Arc4u.Standard.OAuth2.csproj" />
 		<ProjectReference Include="..\Arc4u.Standard\Arc4u.Standard.csproj" />
