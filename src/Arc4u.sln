@@ -89,7 +89,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arc4u.Standard.KubeMQ", "Ar
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arc4u.Standard.Serializer.Protobuf", "Arc4u.Standard.Serializer.Protobuf\Arc4u.Standard.Serializer.Protobuf.csproj", "{2C72D9E5-BC16-4E2F-B603-EDCC2AC70D96}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arc4u.Standard.Serializer.JSon", "Arc4u.Standard.Serializer.BSon\Arc4u.Standard.Serializer.JSon.csproj", "{FACC7AF6-8AAF-41B9-A0EF-0E6285EE1CA7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arc4u.Standard.Serializer.JSon", "Arc4u.Standard.Serializer.JSon\Arc4u.Standard.Serializer.JSon.csproj", "{FACC7AF6-8AAF-41B9-A0EF-0E6285EE1CA7}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arc4u.Standard.OAuth2.AspNetCore.Blazor", "Arc4u.Standard.OAuth2.AspNetCore.Blazor\Arc4u.Standard.OAuth2.AspNetCore.Blazor.csproj", "{F854BCF4-D7DF-46D3-809A-0EF53586EC00}"
 EndProject
