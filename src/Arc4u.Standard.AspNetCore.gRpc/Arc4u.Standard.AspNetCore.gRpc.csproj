@@ -20,7 +20,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Grpc.AspNetCore.Server" Version="2.45.0" />
+		<PackageReference Include="Grpc.AspNetCore.Server" Version="2.46.0" />
 	</ItemGroup>
 
 	<ItemGroup>
