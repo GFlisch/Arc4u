@@ -13,11 +13,11 @@ namespace Arc4u.OAuth2.TokenProvider
     public class AzureOboTokenProvider : AdalOboTokenProvider
     {
         
-        public AzureOboTokenProvider(OAuthConfig oAuthConfig, ILogger logger, IContainerResolve container, IApplicationContext applicationContext) : base(oAuthConfig, logger, container, applicationContext) { }
+        public AzureOboTokenProvider(OAuthConfig oAuthConfig, ILogger<AzureOboTokenProvider> logger, IContainerResolve container, IApplicationContext applicationContext) : base(oAuthConfig, logger, container, applicationContext) { }
 
         protected override AuthenticationContext CreateAuthenticationContext(string authority, string cacheIdentifier)
         {
-            return new AuthenticationContext(authority, true, new Cache(Logger, Container, cacheIdentifier));
+            return new AuthenticationContext(authority, true, new Cache(_logger, Container, cacheIdentifier));
         }
     }
 }

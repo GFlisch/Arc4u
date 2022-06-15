@@ -89,7 +89,7 @@ namespace Arc4u.OAuth2.TokenProvider
                 else
                     messages.Add(new Message(ServiceModel.MessageCategory.Technical, MessageType.Error, $"Cannot resolve the KeyValues settings with name {settingsProviderName}."));
 
-                messages.LogAndThrowIfNecessary(this);
+                messages.LogAndThrowIfNecessary(_logger);
             }
 
             var cca = CreateCca(settings);

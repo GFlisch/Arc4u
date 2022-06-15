@@ -36,7 +36,7 @@ namespace Arc4u.OAuth2.TokenProvider
             if (String.IsNullOrWhiteSpace(credential.Password))
                 messages.Add(new Message(ServiceModel.MessageCategory.Technical, ServiceModel.MessageType.Warning, "No password is provided."));
 
-            messages.LogAndThrowIfNecessary(this);
+            messages.LogAndThrowIfNecessary(_logger);
             messages.Clear();
 
             // no cache, do a direct call on every calls.

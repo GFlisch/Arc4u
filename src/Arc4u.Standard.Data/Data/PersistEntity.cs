@@ -1,4 +1,5 @@
 using Arc4u.ServiceModel;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -158,9 +159,9 @@ namespace Arc4u.Data
             return messages;
         }
 
-        public void Validate()
+        public void Validate<T>(ILogger<T> logger)
         {
-            TryValidate().LogAndThrowIfNecessary(this);
+            TryValidate().LogAndThrowIfNecessary(logger);
         }
     }
 }

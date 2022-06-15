@@ -14,12 +14,12 @@ namespace Arc4u.OAuth2.TokenProvider.Client
     public abstract class AdalTokenProvider : ITokenProvider
     {
         private Dictionary<string, AuthenticationResult> _resultCache = new Dictionary<string, AuthenticationResult>();
-        protected readonly ILogger Logger;
+        protected readonly ILogger<AdalTokenProvider> _logger;
         protected readonly IContainerResolve Container;
 
-        public AdalTokenProvider(ILogger logger, IContainerResolve container)
+        public AdalTokenProvider(ILogger<AdalTokenProvider> logger, IContainerResolve container)
         {
-            Logger = logger;
+            _logger = logger;
             Container = container;
         }
 
@@ -40,8 +40,8 @@ namespace Arc4u.OAuth2.TokenProvider.Client
             var authContext = GetContext(settings, out string serviceId, out string clientId, out string authority);
 
             var redirectUri = new Uri(settings.Values[TokenKeys.RedirectUrl]);
-            Logger.Technical().From<AdalTokenProvider>().System($"{TokenKeys.RedirectUrl} = {redirectUri}.").Log();
-            Logger.Technical().From<AdalTokenProvider>().System("Acquire a token.").Log();
+            _logger.Technical().System($"{TokenKeys.RedirectUrl} = {redirectUri}.").Log();
+            _logger.Technical().System("Acquire a token.").Log();
 
             // Start Vpn if needed.
             Network.Handler.OnCalling?.Invoke(new Uri(authority));
@@ -55,7 +55,7 @@ namespace Arc4u.OAuth2.TokenProvider.Client
                 // Is valid with a security margin of 1 minute.
                 if (null == result || result.ExpiresOn.LocalDateTime.AddMinutes(-1) < DateTime.Now)
                 {
-                    Logger.Technical().From<AdalTokenProvider>().System($"Token cached for clientId = {clientId} is expired. Is removed from the cache.").Log();
+                    _logger.Technical().System($"Token cached for clientId = {clientId} is expired. Is removed from the cache.").Log();
                     _resultCache.Remove(clientId);
                     result = null;
                 }
@@ -65,14 +65,14 @@ namespace Arc4u.OAuth2.TokenProvider.Client
             {
                 result = await authContext.AcquireTokenAsync(serviceId, clientId, redirectUri, platformParameters);
                 _resultCache.Add(clientId, result);
-                Logger.Technical().From<AdalTokenProvider>().System($"Add the token in the cache for clientId = {clientId}.").Log();
+                _logger.Technical().System($"Add the token in the cache for clientId = {clientId}.").Log();
             }
 
             if (null != result)
             {
                 // Dump no sensitive information.
-                Logger.Technical().From<AdalTokenProvider>().System($"Token information for user {result.UserInfo.DisplayableId}.").Log();
-                Logger.Technical().From<AdalTokenProvider>().System($"Token expiration = {result.ExpiresOn.ToString("dd-MM-yyyy HH:mm:ss")}.").Log();
+                _logger.Technical().System($"Token information for user {result.UserInfo.DisplayableId}.").Log();
+                _logger.Technical().System($"Token expiration = {result.ExpiresOn.ToString("dd-MM-yyyy HH:mm:ss")}.").Log();
 
                 return result.ToTokenInfo();
             }
@@ -90,7 +90,7 @@ namespace Arc4u.OAuth2.TokenProvider.Client
             if (!settings.Values.ContainsKey(TokenKeys.ServiceApplicationIdKey))
                 throw new ArgumentException("ApplicationId is missing. Cannot process the request.");
 
-            Logger.Technical().From<AdalTokenProvider>().System($"Creating an authentication context for the request.").Log();
+            _logger.Technical().System($"Creating an authentication context for the request.").Log();
             clientId = settings.Values[TokenKeys.ClientIdKey];
             serviceId = settings.Values[TokenKeys.ServiceApplicationIdKey];
             authority = settings.Values[TokenKeys.AuthorityKey];
@@ -100,7 +100,7 @@ namespace Arc4u.OAuth2.TokenProvider.Client
             if (String.IsNullOrWhiteSpace(clientId))
                 messages.Add(new Message(ServiceModel.MessageCategory.Technical, ServiceModel.MessageType.Warning, $"{TokenKeys.ClientIdKey} is not defined in the configuration file."));
             else
-                Logger.Technical().From<AdalTokenProvider>().System($"{TokenKeys.ClientIdKey} = {clientId}.").Log();
+                _logger.Technical().System($"{TokenKeys.ClientIdKey} = {clientId}.").Log();
 
             if (String.IsNullOrWhiteSpace(serviceId))
                 messages.Add(new Message(ServiceModel.MessageCategory.Technical, ServiceModel.MessageType.Warning, $"No information from the application settings section about an entry: {TokenKeys.ServiceApplicationIdKey}."));
@@ -108,14 +108,14 @@ namespace Arc4u.OAuth2.TokenProvider.Client
             if (String.IsNullOrWhiteSpace(authority))
                 messages.Add(new Message(ServiceModel.MessageCategory.Technical, ServiceModel.MessageType.Warning, $"{TokenKeys.AuthorityKey} is not defined in the configuration file."));
             else
-                Logger.Technical().From<AdalTokenProvider>().System($"{TokenKeys.AuthorityKey} = {authority}.").Log();
+                _logger.Technical().System($"{TokenKeys.AuthorityKey} = {authority}.").Log();
 
-            messages.LogAndThrowIfNecessary(typeof(AdalTokenProvider));
+            messages.LogAndThrowIfNecessary(_logger);
             messages.Clear();
 
             // The cache is per user on the device and Application.
             var authContext = CreateAuthenticationContext(authority, serviceId);
-            Logger.Technical().From<AdalTokenProvider>().System("Authentication context is created.").Log();
+            _logger.Technical().System("Authentication context is created.").Log();
 
             return authContext;
         }

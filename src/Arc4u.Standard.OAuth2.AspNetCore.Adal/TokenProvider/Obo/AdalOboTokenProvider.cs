@@ -18,14 +18,14 @@ namespace Arc4u.OAuth2.TokenProvider
         public const string ProviderName = "Obo";
 
         private OAuthConfig oAuthConfig;
-        protected readonly ILogger Logger;
+        protected readonly ILogger<AdalOboTokenProvider> _logger;
         protected readonly IContainerResolve Container;
         private readonly IApplicationContext _applicationContext;
 
 
-        public AdalOboTokenProvider(OAuthConfig oAuthConfig, ILogger logger, IContainerResolve container, IApplicationContext applicationContext)
+        public AdalOboTokenProvider(OAuthConfig oAuthConfig, ILogger<AdalOboTokenProvider> logger, IContainerResolve container, IApplicationContext applicationContext)
         {
-            Logger = logger;
+            _logger = logger;
             Container = container;
             this.oAuthConfig = oAuthConfig;
             _applicationContext = applicationContext;
@@ -54,7 +54,7 @@ namespace Arc4u.OAuth2.TokenProvider
             if (null == credential)
                 throw new AppException("No client credential was created. This is needed for an on behalf of scenario.");
 
-            Logger.Technical().From(typeof(AdalOboTokenProvider)).Debug("Acquire a token on behal of.").Log();
+            _logger.Technical().LogDebug("Acquire a token on behal of.");
 
             return await authContext.AcquireTokenAsync(serviceApplicationId, credential, new UserAssertion(accessToken));
         }
@@ -93,7 +93,7 @@ namespace Arc4u.OAuth2.TokenProvider
                 messages.Add(new Message(ServiceModel.MessageCategory.Technical, MessageType.Error, $"Cannot resolve the KeyValues settings with name {settingsProviderName}."));
 
 
-            messages.LogAndThrowIfNecessary(this);
+            messages.LogAndThrowIfNecessary(_logger);
             messages.Clear();
 
             return null;
@@ -127,16 +127,16 @@ namespace Arc4u.OAuth2.TokenProvider
                 if (!oauthSettings.Values.ContainsKey(TokenKeys.ApplicationKey))
                     messages.Add(new Message(ServiceModel.MessageCategory.Technical, MessageType.Error, "ApplicationKey is missing. Cannot process the request."));
 
-                messages.LogAndThrowIfNecessary(this);
+                messages.LogAndThrowIfNecessary(_logger);
                 messages.Clear();
 
 
-                Logger.Technical().From(typeof(AdalOboTokenProvider)).Debug($"Creating an authentication context for the request.").Log();
+                _logger.Technical().LogDebug($"Creating an authentication context for the request.");
                 serviceApplicationId = settings.Values[TokenKeys.ServiceApplicationIdKey];
                 var authority = oauthSettings.Values[TokenKeys.AuthorityKey];
 
-                Logger.Technical().From(typeof(AdalOboTokenProvider)).Debug($"ServiceApplicationId = {serviceApplicationId}.").Log();
-                Logger.Technical().From(typeof(AdalOboTokenProvider)).Debug($"Authority = {authority}.").Log();
+                _logger.Technical().LogDebug($"ServiceApplicationId = {serviceApplicationId}.");
+                _logger.Technical().LogDebug($"Authority = {authority}.");
 
                 if (!oauthSettings.Values.TryGetValue(TokenKeys.ClientIdKey, out var clientId)) // ClientId exists only for AzureAD.
                     clientId = oauthSettings.Values[TokenKeys.ServiceApplicationIdKey];
@@ -157,16 +157,16 @@ namespace Arc4u.OAuth2.TokenProvider
                     messages.Add(new Message(ServiceModel.MessageCategory.Technical, MessageType.Error, "No user object identifier is found in the claims collection to identify the user."));
                 }
 
-                messages.LogAndThrowIfNecessary(this);
+                messages.LogAndThrowIfNecessary(_logger);
 
                 var authContext = CreateAuthenticationContext(authority, serviceApplicationId + identity.AuthenticationType + userObjectId);
-                Logger.Technical().From(typeof(AdalOboTokenProvider)).Debug("Created the authentication context.").Log();
+                _logger.Technical().LogDebug("Created the authentication context.");
 
                 return authContext;
             }
 
             messages.Add(new Message(ServiceModel.MessageCategory.Technical, MessageType.Error, $"No OAuth Settings file found: {oauthSettingsName}."));
-            messages.LogAndThrowIfNecessary(this);
+            messages.LogAndThrowIfNecessary(_logger);
 
             serviceApplicationId = string.Empty;
             credential = null;

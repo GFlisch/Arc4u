@@ -16,12 +16,12 @@ namespace Arc4u.OAuth2.Token
     [Export(UsernamePasswordTokenProvider.ProviderName, typeof(ITokenProvider))]
     public class UsernamePasswordTokenProvider : ITokenProvider
     {
-        public UsernamePasswordTokenProvider(ISecureCache secureCache, INetworkInformation networkStatus, ILogger logger, IContainerResolve container)
+        public UsernamePasswordTokenProvider(ISecureCache secureCache, INetworkInformation networkStatus, ILogger<UsernamePasswordTokenProvider> logger, IContainerResolve container)
         {
             this.secureCache = secureCache;
             this.networkStatus = networkStatus;
             Container = container;
-            Logger = logger;
+            _logger = logger;
         }
 
         public const string ProviderName = "usernamePassword";
@@ -29,7 +29,7 @@ namespace Arc4u.OAuth2.Token
         private readonly ICache secureCache;
         private readonly INetworkInformation networkStatus;
         private readonly IContainerResolve Container;
-        private readonly ILogger Logger;
+        private readonly ILogger<UsernamePasswordTokenProvider> _logger;
 
         private string userkey;
         private string pwdkey;
@@ -97,7 +97,7 @@ namespace Arc4u.OAuth2.Token
             }
             catch (Exception ex)
             {
-                Logger.Technical().From<UsernamePasswordTokenProvider>().Exception(ex).Log();
+                _logger.Technical().LogException(ex);
 
                 throw;
             }
@@ -128,7 +128,7 @@ namespace Arc4u.OAuth2.Token
             }
             catch (Exception ex)
             {
-                Logger.Technical().From<UsernamePasswordTokenProvider>().Exception(ex).Log();
+                _logger.Technical().LogException(ex);
                 return false;
             }
         }
@@ -153,7 +153,7 @@ namespace Arc4u.OAuth2.Token
             if (String.IsNullOrWhiteSpace(authority))
                 messages.Add(new Message(ServiceModel.MessageCategory.Technical, ServiceModel.MessageType.Warning, $"{TokenKeys.AuthorityKey} is not defined in the configuration file."));
 
-            messages.LogAndThrowIfNecessary(this);
+            messages.LogAndThrowIfNecessary(_logger);
             messages.Clear();
 
             passwordStoreKey = "secret";
@@ -176,7 +176,7 @@ namespace Arc4u.OAuth2.Token
             }
             catch (Exception ex)
             {
-                Logger.Technical().From<UsernamePasswordTokenProvider>().Exception(ex).Log();
+                _logger.Technical().LogException(ex);
             }
 
             try
@@ -186,7 +186,7 @@ namespace Arc4u.OAuth2.Token
             }
             catch (Exception ex)
             {
-                Logger.Technical().From<UsernamePasswordTokenProvider>().Exception(ex).Log();
+                _logger.Technical().LogException(ex);
             }
 
         }

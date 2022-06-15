@@ -13,13 +13,13 @@ namespace Arc4u.OAuth2.TokenProvider.Client
         public const string ProviderName = "azureAD";
 
         
-        public AzureTokenProvider(ILogger logger, IContainerResolve container) : base(logger, container)
+        public AzureTokenProvider(ILogger<AzureTokenProvider> logger, IContainerResolve container) : base(logger, container)
         {
         }
 
         protected override AuthenticationContext CreateAuthenticationContext(string authority, string cacheIdentifier)
         {
-            return new AuthenticationContext(authority, new Cache(Logger, Container, cacheIdentifier));
+            return new AuthenticationContext(authority, new Cache(_logger, Container, cacheIdentifier));
         }
     }
 }

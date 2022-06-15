@@ -21,12 +21,12 @@ namespace Arc4u.OAuth2.TokenProvider
         public const string ProviderName = "Adal";
         private readonly OAuthConfig oAuthConfig;
         private ClaimsIdentity identity;
-        protected readonly ILogger Logger;
+        protected readonly ILogger<AdalTokenProvider> _logger;
         protected readonly IContainerResolve Container;
 
-        public AdalTokenProvider(OAuthConfig oAuthConfig, ILogger logger, IContainerResolve container)
+        public AdalTokenProvider(OAuthConfig oAuthConfig, ILogger<AdalTokenProvider> logger, IContainerResolve container)
         {
-            Logger = logger;
+            _logger = logger;
             Container = container;
             this.oAuthConfig = oAuthConfig;
         }
@@ -74,7 +74,7 @@ namespace Arc4u.OAuth2.TokenProvider
             AuthenticationResult result = null;
             if (null != credential)
             {
-                Logger.Technical().From(this).System("Acquire a token silently for an application identified by his application key.").Log();
+                _logger.Technical().System("Acquire a token silently for an application identified by his application key.").Log();
 
                 if (Enum.TryParse<UserIdentifierType>(oAuthConfig.User.Identifier, out var identifier))
                     result = await authContext.AcquireTokenSilentAsync(serviceApplicationId, credential, new UserIdentifier(userObjectId, identifier));
@@ -83,8 +83,8 @@ namespace Arc4u.OAuth2.TokenProvider
             if (null != result)
             {
                 // Dump no sensitive information.
-                Logger.Technical().From(this).System($"Token information for user {result.UserInfo.DisplayableId}.").Log();
-                Logger.Technical().From(this).System($"Token expiration = {result.ExpiresOn.ToString("dd-MM-yyyy HH:mm:ss")}.").Log();
+                _logger.Technical().System($"Token information for user {result.UserInfo.DisplayableId}.").Log();
+                _logger.Technical().System($"Token expiration = {result.ExpiresOn.ToString("dd-MM-yyyy HH:mm:ss")}.").Log();
             }
 
             return result;
@@ -117,7 +117,7 @@ namespace Arc4u.OAuth2.TokenProvider
                 messages.Add(new Message(Arc4u.ServiceModel.MessageCategory.Technical,
                                          Arc4u.ServiceModel.MessageType.Error,
                                          "Settings parameter cannot be null."));
-                messages.LogAndThrowIfNecessary(this);
+                messages.LogAndThrowIfNecessary(_logger);
                 messages.Clear();
             }
 
@@ -132,7 +132,7 @@ namespace Arc4u.OAuth2.TokenProvider
             if (!settings.Values.ContainsKey(TokenKeys.AuthenticationTypeKey))
                 throw new ArgumentException("AuthenticationType is missing. Cannot process the request.");
 
-            Logger.Technical().From(this).System($"Creating an authentication context for the request.").Log();
+            _logger.Technical().System($"Creating an authentication context for the request.").Log();
             clientId = settings.Values[TokenKeys.ClientIdKey];
             serviceApplicationId = settings.Values[TokenKeys.ServiceApplicationIdKey];
 
@@ -143,9 +143,9 @@ namespace Arc4u.OAuth2.TokenProvider
             else
                 redirectUri = null;
 
-            Logger.Technical().From(this).System($"ClientId = {clientId}.").Log();
-            Logger.Technical().From(this).System($"ServiceApplicationId = {serviceApplicationId}.").Log();
-            Logger.Technical().From(this).System($"Authority = {authority}.").Log();
+            _logger.Technical().System($"ClientId = {clientId}.").Log();
+            _logger.Technical().System($"ServiceApplicationId = {serviceApplicationId}.").Log();
+            _logger.Technical().System($"Authority = {authority}.").Log();
 
             if (settings.Values.TryGetValue(TokenKeys.ApplicationKey, out var applicationKey))
             {
@@ -153,7 +153,7 @@ namespace Arc4u.OAuth2.TokenProvider
             }
             else
             {
-                Logger.Technical().From(this).System("No application key is defined to identify the application in the STS.").Log();
+                _logger.Technical().System("No application key is defined to identify the application in the STS.").Log();
                 credential = null;
             }
 
@@ -171,12 +171,12 @@ namespace Arc4u.OAuth2.TokenProvider
                 if (String.IsNullOrWhiteSpace(userObjectId))
                 {
                     messages.Add(new Message(Arc4u.ServiceModel.MessageCategory.Technical, Arc4u.ServiceModel.MessageType.Error, "No user object identifier is found in the claims collection to identify the user."));
-                    messages.LogAndThrowIfNecessary(typeof(AdalTokenProvider));
+                    messages.LogAndThrowIfNecessary(_logger);
                 }
             }
 
             var authContext = CreateAuthenticationContext(authority, serviceApplicationId + settings.Values[TokenKeys.AuthenticationTypeKey] + userObjectId);
-            Logger.Technical().From(this).System("Created the authentication context.").Log();
+            _logger.Technical().System("Created the authentication context.").Log();
 
 
             return authContext;

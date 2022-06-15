@@ -88,7 +88,7 @@ namespace Arc4u.OAuth2.TokenProvider
             else if (!Uri.TryCreate(settings.Values["OboEndpointUrl"], UriKind.Absolute, out var uri))
                 messages.Add(new Message(Arc4u.ServiceModel.MessageCategory.Technical, MessageType.Error, "Obo url is invalid."));
 
-            messages.LogAndThrowIfNecessary(this);
+            messages.LogAndThrowIfNecessary(_logger);
 
             // I can do this because settings is registered in the DI as Shared => Singleton!
             _settings.Add(settings.GetHashCode(), settings);

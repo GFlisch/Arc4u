@@ -1,4 +1,5 @@
 ﻿using Arc4u.Diagnostics;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -248,10 +249,10 @@ namespace Arc4u.ServiceModel
         /// <param name="level">Message level</param>
         /// <param name="message">The message.</param>
         /// <param name="stringFormatParameters">The parameters to inject into the message.</param>
-        public static void LogAndThrowIfNecessary<T>(MessageType level, Expression<Func<string>> message, params object[] stringFormatParameters)
+        public static void LogAndThrowIfNecessary<T>(ILogger<T> logger,MessageType level, Expression<Func<string>> message, params object[] stringFormatParameters)
         {
             var messages = new Messages { new Message(level, message, stringFormatParameters) };
-            messages.LogAndThrowIfNecessary(typeof(T));
+            messages.LogAndThrowIfNecessary(logger);
         }
 
 

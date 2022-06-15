@@ -57,30 +57,14 @@ namespace Arc4u.ServiceModel
             return Errors.Any() || (Warnings.Any() && !_ignoreWarnings);
         }
 
-        public void LogAndThrowIfNecessary(object This, [CallerMemberName] string methodName = "")
+        public void LogAndThrowIfNecessary<T>(ILogger<T> logger, [CallerMemberName] string methodName = "")
         {
             if (WouldThrow())
                 throw new AppException(this);
 
-            LogAll(This, methodName);
+            LogAll(logger, methodName);
 
         }
-
-        public void LogAndThrowIfNecessary(Type type, [CallerMemberName] string methodName = "")
-        {
-            if (WouldThrow())
-                throw new AppException(this);
-
-            LogAll(type, methodName);
-
-        }
-
-        public void LogAll(object This, [CallerMemberName] string methodName = "")
-        {
-            object _this = null != This ? This : this;
-            LogAll(_this.GetType(), methodName);
-        }
-
         /// <summary>
         /// Localized and log all messages.
         /// </summary>

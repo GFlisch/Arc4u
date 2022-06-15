@@ -13,11 +13,11 @@ namespace Arc4u.OAuth2.TokenProvider
     public class AdfsOboTokenProvider : AdalOboTokenProvider
     {
         
-        public AdfsOboTokenProvider(OAuthConfig oAuthConfig, ILogger logger, IContainerResolve container, IApplicationContext applicationContext) : base(oAuthConfig, logger, container, applicationContext) { }
+        public AdfsOboTokenProvider(OAuthConfig oAuthConfig, ILogger<AdfsOboTokenProvider> logger, IContainerResolve container, IApplicationContext applicationContext) : base(oAuthConfig, logger, container, applicationContext) { }
 
         protected override AuthenticationContext CreateAuthenticationContext(string authority, string cacheIdentifier)
         {
-            return new AuthenticationContext(authority, false, new Cache(Logger, Container, cacheIdentifier));
+            return new AuthenticationContext(authority, false, new Cache(_logger, Container, cacheIdentifier));
         }
     }
 }

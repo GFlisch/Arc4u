@@ -12,12 +12,12 @@ namespace Arc4u.OAuth2.TokenProvider
     class AzureADTokenProvider : AdalTokenProvider
     {
         
-        public AzureADTokenProvider(OAuthConfig oAuthConfig, ILogger logger, IContainerResolve container) : base(oAuthConfig, logger, container) { }
+        public AzureADTokenProvider(OAuthConfig oAuthConfig, ILogger<AzureADTokenProvider> logger, IContainerResolve container) : base(oAuthConfig, logger, container) { }
 
 
         protected override AuthenticationContext CreateAuthenticationContext(string authority, string cacheIdentifier)
         {
-            return new AuthenticationContext(authority, true, new Cache(Logger, Container, cacheIdentifier));
+            return new AuthenticationContext(authority, true, new Cache(_logger, Container, cacheIdentifier));
         }
     }
 }

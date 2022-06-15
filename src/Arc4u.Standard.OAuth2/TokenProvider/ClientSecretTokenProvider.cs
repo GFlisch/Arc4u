@@ -120,7 +120,7 @@ namespace Arc4u.OAuth2.TokenProvider
                     certificateInfo.StoreName = storeName_;
             }
 
-            messages.LogAndThrowIfNecessary(typeof(ClientSecretTokenProvider));
+            messages.LogAndThrowIfNecessary(_logger);
         }
 
         private CredentialsResult GetCredential(string clientSecret)
