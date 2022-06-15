@@ -154,7 +154,7 @@ namespace Arc4u.OAuth2.TokenProvider
             }
             catch (Exception ex)
             {
-                Logger.Technical.From(this).Exception(ex).Log();
+                _logger.Technical().LogException(ex);
             }
 
             return new CredentialsResult(false);
@@ -165,7 +165,7 @@ namespace Arc4u.OAuth2.TokenProvider
             var ix = formatedCredential.IndexOf(':');
             if (ix == -1)
             {
-                Logger.Technical.From(this).Warning("Basic authentication is not well formed.").Log();
+                _logger.Technical().LogWarning("Basic authentication is not well formed.");
                 return new CredentialsResult(false);
             }
 

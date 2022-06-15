@@ -1,5 +1,6 @@
 ﻿using Arc4u.Dependency;
 using Arc4u.Diagnostics;
+using Microsoft.Extensions.Logging;
 using NServiceBus;
 using System;
 using System.Linq;
@@ -32,7 +33,7 @@ namespace Arc4u.NServiceBus
         public async Task Handle(T message, IMessageHandlerContext context)
         {
             var messages = _container.Resolve<MessagesToPublish>();
-
+            var logger = _container.Resolve<ILogger<HandleMessageBase<T>>>();
             try
             {
 
@@ -50,7 +51,7 @@ namespace Arc4u.NServiceBus
                     }
                     catch (System.Exception ex)
                     {
-                        Logger.Technical.From(typeof(HandleMessageBase<T>)).Exception(ex).Log();
+                        logger?.Technical().LogException(ex);
                         messagesNotProcessed.Add(_event);
                     }
                 }
@@ -64,7 +65,7 @@ namespace Arc4u.NServiceBus
                     }
                     catch (System.Exception ex)
                     {
-                        Logger.Technical.From(typeof(HandleMessageBase<T>)).Exception(ex).Log();
+                        logger?.Technical().LogException(ex);
                         messagesNotProcessed.Add(command);
                     }
                 }
@@ -76,7 +77,7 @@ namespace Arc4u.NServiceBus
             }
             catch (System.Exception ex)
             {
-                Logger.Technical.From(typeof(HandleMessageBase<T>)).Exception(ex).Log();
+                logger?.Technical().LogException(ex);
                 throw;
             }
             finally

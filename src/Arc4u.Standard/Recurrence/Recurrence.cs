@@ -111,7 +111,6 @@ namespace Arc4u
                 // track discontinuous sequence
                 if (now < NextScheduledTime)
                 {
-                    Logger.Technical.From<Recurrence>().Information($"Discontinuous sequence of occurrences between {NextScheduledTime.ToString("o")} and {now.ToString("o")}.").Log();
                     Reset();
                 }
 

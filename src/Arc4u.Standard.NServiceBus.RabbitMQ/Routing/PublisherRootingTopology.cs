@@ -28,26 +28,12 @@ namespace Arc4u.NServiceBus.RabbitMQ.Routing
 
         public void Publish(IModel channel, Type type, OutgoingMessage message, IBasicProperties properties)
         {
-            try
-            {
-                channel.BasicPublish(ExchangeName(type), String.Empty, false, properties, message.Body);
-            }
-            catch (Exception ex)
-            {
-                Logger.Technical.From<PublisherRootingTopology>().Exception(ex).Log();
-            }
+            channel.BasicPublish(ExchangeName(type), String.Empty, false, properties, message.Body);
         }
 
         public void Send(IModel channel, string address, OutgoingMessage message, IBasicProperties properties)
         {
-            try
-            {
-                channel.BasicPublish(address, String.Empty, true, properties, message.Body);
-            }
-            catch (Exception ex)
-            {
-                Logger.Technical.From<PublisherRootingTopology>().Exception(ex).Log();
-            }
+            channel.BasicPublish(address, String.Empty, true, properties, message.Body);
         }
 
         public void RawSendInCaseOfFailure(IModel channel, string address, byte[] body, IBasicProperties properties)
@@ -66,7 +52,6 @@ namespace Arc4u.NServiceBus.RabbitMQ.Routing
 
         public void RawSendInCaseOfFailure(IModel channel, string address, ReadOnlyMemory<byte> body, IBasicProperties properties)
         {
-            Logger.Technical.From<PublisherRootingTopology>().Error($"A message cannot be deserialized: Address = {address}.").Log();
         }
     }
 }

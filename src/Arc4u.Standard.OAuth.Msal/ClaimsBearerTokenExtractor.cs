@@ -19,7 +19,7 @@ namespace Arc4u.OAuth2.Security.Principal
     [Export(typeof(IClaimsFiller))]
     public class ClaimsBearerTokenExtractor : IClaimsFiller
     {
-        public ClaimsBearerTokenExtractor(IContainerResolve container, ILogger logger)
+        public ClaimsBearerTokenExtractor(IContainerResolve container, ILogger<ClaimsBearerTokenExtractor> logger)
         {
             _container = container;
 
@@ -30,7 +30,7 @@ namespace Arc4u.OAuth2.Security.Principal
 
         private readonly DataContractJsonSerializer _jsonSerializer;
         private readonly IContainerResolve _container;
-        private readonly ILogger _logger;
+        private readonly ILogger<ClaimsBearerTokenExtractor> _logger;
 
         public async Task<IEnumerable<ClaimDto>> GetAsync(IIdentity identity, IEnumerable<IKeyValueSettings> settings, object parameter)
         {
@@ -38,24 +38,24 @@ namespace Arc4u.OAuth2.Security.Principal
 
             if (null == identity)
             {
-                _logger.Technical().From<ClaimsBearerTokenExtractor>().Error($"A null identity was received. No Claims will be generated.").Log();
+                _logger.Technical().LogError($"A null identity was received. No Claims will be generated.");
                 return result;
             }
 
             if (!(identity is ClaimsIdentity claimsIdentity))
             {
-                _logger.Technical().From<ClaimsBearerTokenExtractor>().Error($"The identity received is not of type ClaimsIdentity.").Log();
+                _logger.Technical().LogError($"The identity received is not of type ClaimsIdentity.");
                 return result;
             }
 
             if (null == settings || settings.Count() == 0)
             {
-                _logger.Technical().From<ClaimsBearerTokenExtractor>().Error($"We need token settings to call the backend.").Log();
+                _logger.Technical().LogError($"We need token settings to call the backend.");
                 return result;
             }
             if (null == claimsIdentity.BootstrapContext && !settings.Any(s => s.Values.ContainsKey(TokenKeys.AuthenticationTypeKey) && s.Values[TokenKeys.AuthenticationTypeKey].Equals(identity.AuthenticationType)))
             {
-                _logger.Technical().From<ClaimsBearerTokenExtractor>().System($"Skip fetching claims, no setting found for authentication type {identity.AuthenticationType}.");
+                _logger.Technical().System($"Skip fetching claims, no setting found for authentication type {identity.AuthenticationType}.").Log();
                 return result;
             }
 
@@ -74,7 +74,7 @@ namespace Arc4u.OAuth2.Security.Principal
 
                     ITokenProvider provider = _container.Resolve<ITokenProvider>(providerSettings.Values[TokenKeys.ProviderIdKey]);
 
-                    Logger.Technical.From<ClaimsBearerTokenExtractor>().System("Requesting an authentication token.").Log();
+                    _logger.Technical().System("Requesting an authentication token.").Log();
                     var tokenInfo = await provider.GetTokenAsync(providerSettings, claimsIdentity);
 
                     bearerToken = new JwtSecurityToken(tokenInfo.AccessToken);
@@ -85,7 +85,7 @@ namespace Arc4u.OAuth2.Security.Principal
             }
             catch (Exception exception)
             {
-                _logger.Technical().From<ClaimsBearerTokenExtractor>().Exception(exception).Log();
+                _logger.Technical().LogException(exception);
             }
 
             return result;

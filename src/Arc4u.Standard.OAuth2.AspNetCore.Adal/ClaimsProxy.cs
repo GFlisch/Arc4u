@@ -13,13 +13,14 @@ using System.Runtime.Serialization.Json;
 using System.Security.Principal;
 using System.Threading.Tasks;
 using IHttpClientFactory = System.Net.Http.IHttpClientFactory;
+using Microsoft.Extensions.Logging;
 
 namespace Arc4u.OAuth2.Security.Principal
 {
     [Export(typeof(IClaimsFiller))]
     public class ClaimsProxy : IClaimsFiller
     {
-        public ClaimsProxy(IContainerResolve container, IAppSettings appSettings, Config config, IHttpClientFactory httpClientFactory)
+        public ClaimsProxy(IContainerResolve container, IAppSettings appSettings, Config config, IHttpClientFactory httpClientFactory, ILogger<ClaimsProxy> logger)
         {
             _container = container;
             _httpClientFactory = httpClientFactory;
@@ -34,6 +35,7 @@ namespace Arc4u.OAuth2.Security.Principal
         private string _applicationName;
         protected readonly IContainerResolve _container;
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly ILogger<ClaimsProxy> _logger;
 
         public async Task<IEnumerable<ClaimDto>> GetAsync(IIdentity identity, IEnumerable<IKeyValueSettings> settings, object parameter)
         {
@@ -41,18 +43,18 @@ namespace Arc4u.OAuth2.Security.Principal
 
             if (null == identity)
             {
-                Logger.Technical.From<ClaimsProxy>().Error($"A null identity was received. No Claims will be generated.").Log();
+                _logger.Technical().LogError($"A null identity was received. No Claims will be generated.");
                 return result;
             }
 
             if (null == settings || settings.Count() == 0)
             {
-                Logger.Technical.From<ClaimsProxy>().Error($"We need token settings to call the backend.").Log();
+                _logger.Technical().LogError($"We need token settings to call the backend.");
                 return result;
             }
             if (!settings.Any(s => s.Values.ContainsKey(TokenKeys.AuthenticationTypeKey) && s.Values[TokenKeys.AuthenticationTypeKey].Equals(identity.AuthenticationType)))
             {
-                Logger.Technical.From<ClaimsProxy>().Debug($"Skip fetching claims, no setting found for authentication type {identity.AuthenticationType}.");
+                _logger.Technical().LogDebug($"Skip fetching claims, no setting found for authentication type {identity.AuthenticationType}.");
                 return result;
             }
 
@@ -65,7 +67,7 @@ namespace Arc4u.OAuth2.Security.Principal
                 else
                     _url = String.Format(_url, _applicationName);
 
-                Logger.Technical.From<ClaimsProxy>().System($"Call back-end service for authorization, endpoint = {_url}.").Log();
+                _logger.Technical().System($"Call back-end service for authorization, endpoint = {_url}.").Log();
 
                 IPlatformParameters platformParameters = parameter is IPlatformParameters parameters ? parameters : null;
 
@@ -78,15 +80,15 @@ namespace Arc4u.OAuth2.Security.Principal
                 var response = await client.GetAsync(_url);
                 if (response.IsSuccessStatusCode)
                 {
-                    Logger.Technical.From<ClaimsProxy>().System($"Call service {_url} succeeds.").Log();
+                    _logger.Technical().System($"Call service {_url} succeeds.").Log();
                     String responseString = await response.Content.ReadAsStringAsync();
                     // Add the claims.
                     result.AddRange(_jsonSerializer.ReadObject<IEnumerable<ClaimDto>>(responseString));
-                    Logger.Technical.From<ClaimsProxy>().System($"{result.Count} claim(s) received.").Log();
+                    _logger.Technical().System($"{result.Count} claim(s) received.").Log();
                 }
                 else
                 {
-                    Logger.Technical.From<ClaimsProxy>().Error($"Call service {_url} gives error status ${response.StatusCode}.").Log();
+                    _logger.Technical().LogError($"Call service {_url} gives error status ${response.StatusCode}.");
                 }
 
             }
@@ -95,11 +97,11 @@ namespace Arc4u.OAuth2.Security.Principal
                 Exception inner = exception.InnerException;
                 while (null != inner)
                 {
-                    Logger.Technical.From<ClaimsProxy>().Exception(inner).Log();
+                    _logger.Technical().LogException(inner);
                     inner = inner.InnerException;
                 }
 
-                Logger.Technical.From<ClaimsProxy>().Exception(exception).Log();
+                _logger.Technical().LogException(exception);
             }
 
             return result;

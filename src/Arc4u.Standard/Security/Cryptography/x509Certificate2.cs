@@ -1,5 +1,4 @@
-﻿using Arc4u.Diagnostics;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
@@ -107,7 +106,6 @@ namespace Arc4u.Security.Cryptography
                 }
                 catch (KeyNotFoundException)
                 {
-                    Logger.Technical.From(typeof(Certificate)).Error($"No certificate found with {certificateInfo.FindType} =  in location = {certificateInfo.Location}.").Log();
                     throw;
                 }
 

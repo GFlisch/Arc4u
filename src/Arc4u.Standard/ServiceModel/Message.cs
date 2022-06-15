@@ -212,33 +212,26 @@ namespace Arc4u.ServiceModel
         {
             if (this.Text.StartsWith("{") && this.Text.EndsWith("}"))
             {
-                try
-                {
-                    var serializer = new DataContractJsonSerializer(typeof(LocalizedMessage));
-                    var msg = serializer.ReadObject<LocalizedMessage>(Text);
+                var serializer = new DataContractJsonSerializer(typeof(LocalizedMessage));
+                var msg = serializer.ReadObject<LocalizedMessage>(Text);
 
-                    if (msg != null && !String.IsNullOrEmpty(msg.Message) && msg.Type != null)
+                if (msg != null && !String.IsNullOrEmpty(msg.Message) && msg.Type != null)
+                {
+                    var textOut = GetResourceFromLocalizableMessage(msg, culture);
+                    if (msg.Parameters != null && msg.Parameters.Any() && !String.IsNullOrWhiteSpace(textOut))
                     {
-                        var textOut = GetResourceFromLocalizableMessage(msg, culture);
-                        if (msg.Parameters != null && msg.Parameters.Any() && !String.IsNullOrWhiteSpace(textOut))
-                        {
-                            textOut = String.Format(textOut, msg.Parameters);
-                        }
-
-                        // Clone the message so the MessageSource is the same!
-                        var clone = this.Clone() as Message;
-                        if (null != clone)
-                        {
-                            clone.Text = textOut;
-                            return clone;
-                        }
-
-                        return new Message(this.Category, this.Type, this.Code, this.Subject, textOut);
+                        textOut = String.Format(textOut, msg.Parameters);
                     }
-                }
-                catch (Exception exception)
-                {
-                    Logger.Technical.From<Message>().Exception(exception).Log();
+
+                    // Clone the message so the MessageSource is the same!
+                    var clone = this.Clone() as Message;
+                    if (null != clone)
+                    {
+                        clone.Text = textOut;
+                        return clone;
+                    }
+
+                    return new Message(this.Category, this.Type, this.Code, this.Subject, textOut);
                 }
             }
             return this;
@@ -317,21 +310,13 @@ namespace Arc4u.ServiceModel
 
         private static Type GetTypeFromString(string typeAsString)
         {
-            try
+            lock (TypeCache)
             {
-                lock (TypeCache)
+                if (!TypeCache.ContainsKey(typeAsString))
                 {
-                    if (!TypeCache.ContainsKey(typeAsString))
-                    {
-                        TypeCache.Add(typeAsString, System.Type.GetType(typeAsString));
-                    }
-                    return TypeCache[typeAsString];
+                    TypeCache.Add(typeAsString, System.Type.GetType(typeAsString));
                 }
-            }
-            catch (Exception ex)
-            {
-                Logger.Technical.From<Message>().Exception(ex).Log();
-                return null;
+                return TypeCache[typeAsString];
             }
         }
     }

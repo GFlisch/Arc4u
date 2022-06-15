@@ -1,6 +1,7 @@
 ﻿using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Security.Claims;
@@ -10,8 +11,10 @@ namespace Arc4u.OAuth2.Configuration
     [Export(typeof(OAuthConfig)), Shared]
     public class OAuthConfig
     {
-        public OAuthConfig(IConfiguration configuration)
+        public OAuthConfig(IConfiguration configuration, ILogger<OAuthConfig> logger)
         {
+            _logger = logger;
+            
             User = new UserConfig();
 
             configuration.Bind("Application.TokenCacheConfiguration", this);
@@ -27,7 +30,7 @@ namespace Arc4u.OAuth2.Configuration
 
         public UserConfig User { get; set; }
 
-
+        private readonly ILogger<OAuthConfig> _logger;
 
         public String GetClaimsKey(ClaimsIdentity identity)
         {
@@ -35,11 +38,11 @@ namespace Arc4u.OAuth2.Configuration
 
             if (null == id)
             {
-                Logger.Technical.From<OAuthConfig>().Error($"No claim type found equal to {String.Join(",", User.Claims)} in the current identity.").Log();
+                _logger.Technical().LogError($"No claim type found equal to {String.Join(",", User.Claims)} in the current identity.");
                 return null;
             }
 
-            Logger.Technical.From<OAuthConfig>().System($"Claim Type id used to identify the user is {id}.").Log();
+            _logger.Technical().System($"Claim Type id used to identify the user is {id}.").Log();
 
             return GetClaimsKey(id);
         }

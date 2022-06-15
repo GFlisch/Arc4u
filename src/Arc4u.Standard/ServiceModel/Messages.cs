@@ -1,4 +1,5 @@
 ﻿using Arc4u.Diagnostics;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -83,28 +84,32 @@ namespace Arc4u.ServiceModel
         /// <summary>
         /// Localized and log all messages.
         /// </summary>
-        public void LogAll(Type type, [CallerMemberName] string methodName = "")
+        public void LogAll<T>(ILogger<T> logger, [CallerMemberName] string methodName = "")
         {
-            var _type = null == type ? this.GetType() : type;
+            if (null == logger)
+            {
+                throw new ArgumentNullException(nameof(logger));
+            }
+            var _type = typeof(T);
 
             ForEach((m) =>
             {
                 var lm = m.LocalizeMessage(Threading.Culture.Neutral);
-                var logger = m.Category == MessageCategory.Business ? Logger.Business.From(_type, methodName) : Logger.Technical.From(_type, methodName);
+                CommonMessageLogger categoryLogger = m.Category == MessageCategory.Business ? logger.Business(methodName) : logger.Technical(methodName);
                 CommonLoggerProperties property = null;
                 switch (m.Type)
                 {
                     case MessageType.Information:
-                        property = logger.Information(lm.Text);
+                        property = categoryLogger.Information(lm.Text);
                         break;
                     case MessageType.Warning:
-                        property = logger.Warning(lm.Text);
+                        property = categoryLogger.Warning(lm.Text);
                         break;
                     case MessageType.Error:
-                        property = logger.Error(lm.Text);
+                        property = categoryLogger.Error(lm.Text);
                         break;
                     case MessageType.Critical:
-                        property = logger.Fatal(lm.Text);
+                        property = categoryLogger.Fatal(lm.Text);
                         break;
                 }
                 if (!String.IsNullOrWhiteSpace(m.Code)) property.Add("Code", m.Code);

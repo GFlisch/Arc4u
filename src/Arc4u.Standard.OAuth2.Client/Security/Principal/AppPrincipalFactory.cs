@@ -7,6 +7,7 @@ using Arc4u.Network.Connectivity;
 using Arc4u.OAuth2.Token;
 using Arc4u.Security.Principal;
 using Arc4u.ServiceModel;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -31,13 +32,14 @@ namespace Arc4u.OAuth2.Client.Security.Principal
         private bool copyClaimsFromCache = false;
         private List<ClaimDto> cachedClaims;
 
-        public AppPrincipalFactory(INetworkInformation networkInformation, ISecureCache claimsCache, ICacheKeyGenerator cacheKeyGenerator, IContainerResolve container, IApplicationContext applicationContext)
+        public AppPrincipalFactory(INetworkInformation networkInformation, ISecureCache claimsCache, ICacheKeyGenerator cacheKeyGenerator, IContainerResolve container, IApplicationContext applicationContext, ILogger<AppPrincipalFactory> logger)
         {
             NetworkInformation = networkInformation;
             ClaimsCache = claimsCache;
             CacheKeyGenerator = cacheKeyGenerator;
             Container = container;
             ApplicationContext = applicationContext;
+            _logger = logger;
         }
 
         private INetworkInformation NetworkInformation { get; set; }
@@ -51,6 +53,8 @@ namespace Arc4u.OAuth2.Client.Security.Principal
         private ICacheKeyGenerator CacheKeyGenerator { get; set; }
 
         private IApplicationContext ApplicationContext { get; set; }
+
+        private readonly ILogger<AppPrincipalFactory> _logger;
 
         public async Task<AppPrincipal> CreatePrincipal(Messages messages, object parameter = null)
         {
@@ -114,7 +118,7 @@ namespace Arc4u.OAuth2.Client.Security.Principal
             }
             catch (Exception ex)
             {
-                Logger.Technical.From<AppPrincipalFactory>().Exception(ex).Log();
+                _logger.Technical().LogException(ex);
             }
 
             if (null != token)
@@ -248,7 +252,7 @@ namespace Arc4u.OAuth2.Client.Security.Principal
             }
             catch (Exception ex)
             {
-                Logger.Technical.From<AppPrincipalFactory>().Exception(ex).Log();
+                _logger.Technical().LogException(ex);
             }
         }
 
@@ -260,7 +264,7 @@ namespace Arc4u.OAuth2.Client.Security.Principal
             }
             catch (Exception ex)
             {
-                Logger.Technical.From<AppPrincipalFactory>().Exception(ex).Log();
+                _logger.Technical().LogException(ex);
             }
         }
 

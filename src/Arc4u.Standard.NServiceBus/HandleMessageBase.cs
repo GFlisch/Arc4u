@@ -1,4 +1,5 @@
 ﻿using Arc4u.Diagnostics;
+using Microsoft.Extensions.Logging;
 using NServiceBus;
 using System;
 using System.Threading.Tasks;
@@ -13,6 +14,12 @@ namespace Arc4u.NServiceBus
     /// <typeparam name="T"></typeparam>
     public abstract class HandleMessageBase<T> : IHandleMessages<T>
     {
+        public HandleMessageBase(ILogger<HandleMessageBase<T>> logger = null)
+        {
+            _logger = logger;
+        }
+
+        private readonly ILogger<HandleMessageBase<T>> _logger;
         /// <summary>
         /// Method that will be used by NServiceBus to process a message.
         /// The real work is implemented in the Handle(T message) abstract method.
@@ -39,7 +46,7 @@ namespace Arc4u.NServiceBus
                     }
                     catch (System.Exception ex)
                     {
-                        Logger.Technical.From(typeof(HandleMessageBase<T>)).Exception(ex).Log();
+                        _logger?.Technical().LogException(ex);
                     }
                 }
 
@@ -52,14 +59,14 @@ namespace Arc4u.NServiceBus
                     }
                     catch (System.Exception ex)
                     {
-                        Logger.Technical.From(typeof(HandleMessageBase<T>)).Exception(ex).Log();
+                        _logger?.Technical().LogException(ex);
                     }
                 }
 
             }
             catch (System.Exception ex)
             {
-                Logger.Technical.From(typeof(HandleMessageBase<T>)).Exception(ex).Log();
+                _logger?.Technical().LogException(ex);
             }
             finally
             {

@@ -1,5 +1,6 @@
 ﻿using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,13 @@ namespace Arc4u.Security.Principal
     [Export(typeof(IClaimAuthorizationFiller)), Shared]
     public class ClaimsAuthorizationFiller : IClaimAuthorizationFiller
     {
+        public ClaimsAuthorizationFiller(ILogger<ClaimsAuthorizationFiller> logger)
+        {
+            _logger = logger;
+        }
+
+        private readonly ILogger<ClaimsAuthorizationFiller> _logger;
+        
         public Authorization GetAuthorization(System.Security.Principal.IIdentity identity)
         {
             if (null == identity)
@@ -33,7 +41,7 @@ namespace Arc4u.Security.Principal
 
         }
 
-        private static Authorization GetAuthorization(string claimAuthorization)
+        private Authorization GetAuthorization(string claimAuthorization)
         {
             try
             {
@@ -42,7 +50,7 @@ namespace Arc4u.Security.Principal
             }
             catch (Exception ex)
             {
-                Logger.Technical.From(typeof(ClaimsAuthorizationFiller)).Exception(ex).Log();
+                _logger.Technical().LogException(ex);
             }
 
             return new Authorization();

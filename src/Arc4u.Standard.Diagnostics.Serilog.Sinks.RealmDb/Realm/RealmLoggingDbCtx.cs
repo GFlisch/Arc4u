@@ -29,41 +29,30 @@ namespace Arc4u.Diagnostics.Serilog.Sinks.RealmDb
             var hasCriteria = !String.IsNullOrWhiteSpace(criteria);
             var searchText = hasCriteria ? criteria.ToLowerInvariant() : "";
 
-            try
+            IOrderedQueryable<LogDBMessage> queryable = _realm.All<LogDBMessage>().OrderByDescending(msg => msg.Timestamp);
+
+            var enumerator = queryable.GetEnumerator();
+
+            int i = 0;
+            while (i < skip && enumerator.MoveNext())
             {
-                IOrderedQueryable<LogDBMessage> queryable = _realm.All<LogDBMessage>().OrderByDescending(msg => msg.Timestamp);
-
-                var enumerator = queryable.GetEnumerator();
-
-                int i = 0;
-                while (i < skip && enumerator.MoveNext())
-                {
-                    i++;
-                }
-
-                var result = new List<LogDBMessage>(take);
-                i = 0;
-
-                while (i < take && enumerator.MoveNext())
-                {
-                    if (hasCriteria && enumerator.Current.Message.ToLowerInvariant().Contains(searchText))
-                        result.Add(enumerator.Current);
-                    if (!hasCriteria)
-                        result.Add(enumerator.Current);
-
-                    i++;
-                }
-
-                return Mapper.Map<List<LogMessage>>(result);
-
-            }
-            catch (Exception ex)
-            {
-                Logger.Technical.From<RealmLoggingDbCtx>().Exception(ex).Log();
-                return new List<LogMessage>();
+                i++;
             }
 
+            var result = new List<LogDBMessage>(take);
+            i = 0;
 
+            while (i < take && enumerator.MoveNext())
+            {
+                if (hasCriteria && enumerator.Current.Message.ToLowerInvariant().Contains(searchText))
+                    result.Add(enumerator.Current);
+                if (!hasCriteria)
+                    result.Add(enumerator.Current);
+
+                i++;
+            }
+
+            return Mapper.Map<List<LogMessage>>(result);
         }
 
         private Realm _realm;
