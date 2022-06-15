@@ -1,6 +1,10 @@
-name: Build
+name: SonarBuild
 on:
   workflow_dispatch:
+env:
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'    
 jobs:
   build:
     name: Build
@@ -32,6 +36,14 @@ jobs:
         run: |
           New-Item -Path .\.sonar\scanner -ItemType Directory
           dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
+      - name: setup nuget
+        uses: nuget/setup-nuget@v1
+        with:
+          nuget-version: latest
+      - name: nuget restore
+        run: nuget restore .\src\arc4u.sln
+      - name: msbuild
+        uses: microsoft/setup-msbuild@v1.0.3          
       - name: Build and analyze
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
@@ -39,5 +51,5 @@ jobs:
         shell: powershell
         run: |
           .\.sonar\scanner\dotnet-sonarscanner begin /k:"GFlisch_Arc4u" /o:"gflisch" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
-          <insert_your_build_command>
+          msbuild .\src\arc4u.sln /p:configuration=${{env.buildConfiguration}}
           .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
