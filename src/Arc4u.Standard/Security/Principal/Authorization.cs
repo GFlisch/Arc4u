@@ -10,30 +10,20 @@ namespace Arc4u.Security.Principal
     [DataContract(Namespace = "urn:arc4u.profile.operation")]
     public class Operation
     {
-        private string _name;
-        private int _id;
 
         /// <summary>
         /// Gets or sets the name of the operation.
         /// </summary>
         /// <value>The name.</value>
         [DataMember(EmitDefaultValue = false)]
-        public string Name
-        {
-            get { return _name; }
-            set { _name = value; }
-        }
+        public string Name { get; set; }
 
         /// <summary>
         /// Gets or sets the ID.
         /// </summary>
         /// <value>The ID.</value>
         [DataMember(EmitDefaultValue = false)]
-        public int ID
-        {
-            get { return _id; }
-            set { _id = value; }
-        }
+        public int ID { get; set; }
 
         public override string ToString()
         {
@@ -47,31 +37,20 @@ namespace Arc4u.Security.Principal
     [DataContract(Namespace = "urn:arc4u.profile.scopedroles")]
     public class ScopedRoles
     {
-        private string _scope;
 
         /// <summary>
         /// A scope is a subset of the authority defined only for the specific scope
         /// </summary>
         /// <value>The scope.</value>
         [DataMember(EmitDefaultValue = false)]
-        public string Scope
-        {
-            get { return _scope; }
-            set { _scope = value; }
-        }
-
-        private List<String> _roles;
+        public string Scope { get; set; }
 
         /// <summary>
         /// Gets or sets the roles defined in the scope.
         /// </summary>
         /// <value>The roles.</value>
         [DataMember(EmitDefaultValue = false)]
-        public List<String> Roles
-        {
-            get { return _roles; }
-            set { _roles = value; }
-        }
+        public List<String> Roles { get; set; }
     }
     /// <summary>
     ///  The ScopedOperations are the operations defined for a specific scope.
@@ -79,31 +58,20 @@ namespace Arc4u.Security.Principal
     [DataContract(Namespace = "urn:arc4u.profile.scopedoperations")]
     public class ScopedOperations
     {
-        private string _scope;
 
         /// <summary>
         /// A scope is a subset of the authority defined only for the specific scope
         /// </summary>
         /// <value>The scope.</value>
         [DataMember(EmitDefaultValue = false)]
-        public string Scope
-        {
-            get { return _scope; }
-            set { _scope = value; }
-        }
-
-        private List<Int32> _operations;
+        public string Scope { get; set; }
 
         /// <summary>
         /// Gets or sets the operations defined for the scope.
         /// </summary>
         /// <value>The operations.</value>
         [DataMember(EmitDefaultValue = false)]
-        public List<Int32> Operations
-        {
-            get { return _operations; }
-            set { _operations = value; }
-        }
+        public List<Int32> Operations { get; set; }
 
     }
 
@@ -124,42 +92,26 @@ namespace Arc4u.Security.Principal
 
         }
 
-        private List<ScopedOperations> _operations;
-        private List<ScopedRoles> _roles;
-        private List<String> _scopes;
-
         /// <summary>
         /// Gets or sets the roles.
         /// </summary>
         /// <value>The roles.</value>
         [DataMember(EmitDefaultValue = false)]
-        public List<ScopedRoles> Roles
-        {
-            get { return _roles; }
-            set { _roles = value; }
-        }
+        public List<ScopedRoles> Roles { get; set; }
 
         /// <summary>
         /// Gets or sets the operations.
         /// </summary>
         /// <value>The operations.</value>
         [DataMember(EmitDefaultValue = false)]
-        public List<ScopedOperations> Operations
-        {
-            get { return _operations; }
-            set { _operations = value; }
-        }
+        public List<ScopedOperations> Operations { get; set; }
 
         /// <summary>
         /// Gets or sets the scopes.
         /// </summary>
         /// <value>The scopes.</value>
         [DataMember(EmitDefaultValue = false)]
-        public List<String> Scopes
-        {
-            get { return _scopes; }
-            set { _scopes = value; }
-        }
+        public List<String> Scopes { get; set; }
 
         /// <summary>
         /// Return the list of operations so it is possible to show the complete operations list!

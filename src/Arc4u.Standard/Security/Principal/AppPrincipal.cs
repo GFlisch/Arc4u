@@ -117,24 +117,11 @@ namespace Arc4u.Security.Principal
         /// <exclude/>
         public Authorization Authorization { get; }
 
-        // ActivityID is a way to trace a task execution from a specific demand.
-        private Guid activity = Guid.Empty;
-
         /// <summary>
         /// Gets or sets the activity ID.
         /// </summary>
         /// <value>The activity ID.</value>
-        public Guid ActivityID
-        {
-            get
-            {
-                return activity;
-            }
-            set
-            {
-                activity = value;
-            }
-        }
+        public Guid ActivityID { get; set; } = Guid.Empty;
 
         // If user profile is 
         private UserProfile profile;

@@ -35,7 +35,7 @@ namespace Arc4u.Security.Principal
                 };
                 _operations.Add(scopedOperations.Scope, operations);
                 _operationsName.Add(scopedOperations.Scope, operationsName);
-            };
+            }
 
             // Add Roles.
             _roles = new Dictionary<string, Dictionary<string, short>>();
@@ -45,7 +45,7 @@ namespace Arc4u.Security.Principal
                 foreach (var role in scopedRoles.Roles) roles.Add(role, 0);
 
                 _roles.Add(scopedRoles.Scope, roles);
-            };
+            }
 
             _scopes = authorizationData.Scopes;
         }
@@ -67,18 +67,18 @@ namespace Arc4u.Security.Principal
             return Roles(string.Empty);
         }
 
-        public string[] Roles(string Scope)
+        public string[] Roles(string scope)
         {
             try
             {
-                var roles = new string[_roles[Scope].Count];
-                _roles[Scope].Keys.CopyTo(roles, 0);
+                var roles = new string[_roles[scope].Count];
+                _roles[scope].Keys.CopyTo(roles, 0);
 
                 return roles;
             }
             catch
             {
-                return null;
+                return new string[0];
             }
         }
 
@@ -100,9 +100,7 @@ namespace Arc4u.Security.Principal
                 {
                     if (!_operations[scope].ContainsKey(i))
                         return false;
-
                 }
-
             }
             else // No Scope no Operations.
                 return false;
@@ -157,7 +155,7 @@ namespace Arc4u.Security.Principal
             }
             catch
             {
-                return null;
+                return new string[0];
             }
         }
 

@@ -12,8 +12,9 @@ namespace Arc4u.KubeMQ.AspNetCore
             Queues = new ConcurrentDictionary<string, QueueStream>();
         }
 
-        private ConcurrentDictionary<string, QueueStream> Queues;
-
+        private readonly ConcurrentDictionary<string, QueueStream> Queues;
+        private readonly object lockObj = new object();
+        
         public QueueStream Get(ChannelParameter channel)
         {
             var key = BuildKey(channel);
@@ -21,13 +22,13 @@ namespace Arc4u.KubeMQ.AspNetCore
                 return queue;
 
             // The object must be instantiated in a Singleton mode.
-            lock (this)
+            lock (lockObj)
             {
                 return Queues.GetOrAdd(key, new QueueStream(channel.Address, channel.Identifier, null));
             }
         }
 
-        private string BuildKey(ChannelParameter channel)
+        private static string BuildKey(ChannelParameter channel)
         {
             return $"{channel.Address}_{channel.Identifier}".ToLowerInvariant();
         }
