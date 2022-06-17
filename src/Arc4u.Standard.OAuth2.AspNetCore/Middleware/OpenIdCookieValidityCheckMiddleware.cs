@@ -75,7 +75,7 @@ namespace Arc4u.Standard.OAuth2.Middleware
                 }
                 catch (Exception)
                 {
-                    _options.CookieManager.DeleteCookie(context, _options.CookieName, new CookieOptions() { Secure = true, SameSite = SameSiteMode.Strict });
+                    _options.CookieManager.DeleteCookie(context, _options.CookieName, new CookieOptions());
 
                     logger?.Technical().System("Force an OpenId connection.").Log();
                     var cleanUri = new Uri(new Uri(context.Request.GetEncodedUrl()).GetLeftPart(UriPartial.Path));
