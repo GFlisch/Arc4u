@@ -52,7 +52,7 @@ namespace Arc4u.gRPC.ChannelCertificate
 
             _logger.Technical().System($"Certificate callback received with Subject = {certificate.Subject}.").Log();
 
-            return true;
+            return SslPolicyErrors.None == sslPolicyErrors;
         }
     }
 }
