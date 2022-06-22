@@ -13,7 +13,7 @@
 [assembly: InternalsVisibleTo("Arc4u.Standard.Serializer.Protobuf")]
 [assembly: InternalsVisibleTo("Arc4u.Standard.OAuth2")]
 [assembly: InternalsVisibleTo("Arc4u.Standard.KubeMQ")]
-[assembly: InternalsVisibleTo("Arc4u.Standard.OAuth2.Adal")]
+[assembly: InternalsVisibleTo("Arc4u.Standard.OAuth2.AspNetCore.Adal")]
 [assembly: InternalsVisibleTo("Arc4u.Standard.OAuth2.Msal")]
 [assembly: InternalsVisibleTo("Arc4u.Standard.OAuth2.Blazor")]
 [assembly: InternalsVisibleTo("Arc4u.Standard.OAuth2.AspNetCore")]

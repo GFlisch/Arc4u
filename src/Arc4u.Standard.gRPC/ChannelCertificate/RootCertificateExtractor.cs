@@ -33,17 +33,13 @@ namespace Arc4u.gRPC.ChannelCertificate
                 request.AllowAutoRedirect = false;
                 request.ServerCertificateValidationCallback = ServerCertificateValidationCallback;
 
-                try
-                {
-                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                    response.Close();
-                }
-                catch (Exception)
-                {
-                }
+                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                response.Close();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.Technical().LogException(ex);
+
                 return false;
             }
 
@@ -55,11 +51,6 @@ namespace Arc4u.gRPC.ChannelCertificate
             Certificate = new X509Certificate2(certificate);
 
             _logger.Technical().System($"Certificate callback received with Subject = {certificate.Subject}.").Log();
-            //foreach (var cer in chain.ChainElements)
-            //{
-            //    _logger.Technical().Debug(cer.Certificate.Subject).Log();
-            //    _logger.Technical().Debug(ExportToPem(cer.Certificate)).Log();
-            //}
 
             return true;
         }

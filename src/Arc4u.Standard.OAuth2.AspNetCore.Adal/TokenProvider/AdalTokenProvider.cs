@@ -114,11 +114,9 @@ namespace Arc4u.OAuth2.TokenProvider
 
             if (null == settings)
             {
-                messages.Add(new Message(Arc4u.ServiceModel.MessageCategory.Technical,
-                                         Arc4u.ServiceModel.MessageType.Error,
-                                         "Settings parameter cannot be null."));
-                messages.LogAndThrowIfNecessary(_logger);
-                messages.Clear();
+                _logger.Technical().LogError("Settings parameter cannot be null.");
+
+                throw new ArgumentNullException(nameof(settings));
             }
 
 
@@ -159,11 +157,9 @@ namespace Arc4u.OAuth2.TokenProvider
 
             if (null == credential) // we create an account based on the current user running (here a service account).
             {
-                if (WindowsIdentity.GetCurrent().IsAuthenticated)
-                {
-                    userObjectId = WindowsIdentity.GetCurrent().Name;
-                }
-                else userObjectId = "svc_user";
+                _logger.Technical().LogError("No client credential has been created.");
+
+                throw new ArgumentNullException(nameof(credential));
             }
             else
             {
