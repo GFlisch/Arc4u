@@ -10,7 +10,7 @@ namespace Arc4u.Utils
     public struct Enum<T> : IEnumerable<T>, IEnumerable
         where T : struct, IComparable, IFormattable, IConvertible
     {
-        private T _value;
+        private readonly T _value;
         public Enum(T value)
         {
             _value = value;
