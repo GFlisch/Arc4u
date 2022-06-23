@@ -47,7 +47,7 @@ namespace Arc4u.gRPC
             // Allow multiple has been set to false => should not be possible to have more than one by design.
             var serviceAspect = serviceAspects.FirstOrDefault();
 
-            if (null == serviceType)
+            if (null == serviceAspect)
                 return RegisterEmptyAspectForMethod(method);
 
             RightsOnMethod[method] = serviceAspect;
