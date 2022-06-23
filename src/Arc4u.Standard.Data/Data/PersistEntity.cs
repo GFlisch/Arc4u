@@ -102,7 +102,7 @@ namespace Arc4u.Data
         /// <ignore/>
         /// <remarks>This methods must be public; otherwise Silverlight serializers will not be able to use it.</remarks>
         [OnDeserializing]
-        public void OnDeserializing(StreamingContext context)
+        void OnDeserializing(StreamingContext context)
         {
             IgnoreOnPropertyChanged = true;
         }
@@ -110,7 +110,7 @@ namespace Arc4u.Data
         /// <ignore/>        
         /// <remarks>This methods must be public; otherwise Silverlight serializers will not be able to use it.</remarks>
         [OnDeserialized]
-        public void OnDeserialized(StreamingContext context)
+        void OnDeserialized(StreamingContext context)
         {
             IgnoreOnPropertyChanged = false;
         }
