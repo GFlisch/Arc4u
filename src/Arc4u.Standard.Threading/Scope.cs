@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Threading;
+
+namespace Arc4u.Threading;
+
 /// <summary>
 /// Scopes a type instance.
 /// </summary>
