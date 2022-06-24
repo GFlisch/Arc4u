@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Arc4u.Threading;
+using Microsoft.Extensions.Logging;
 
 namespace Arc4u.Diagnostics
 {

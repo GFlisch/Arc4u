@@ -21,7 +21,20 @@ namespace Arc4u.KubeMQ.AspNetCore.Configuration
         /// <returns></returns>
         public override int GetHashCode()
         {
-            return (Namespace + Address).ToLowerInvariant().GetHashCode();
+            return  HashCode.Combine(Namespace,Address, WaitTimeMilliSecondsQueueMessages, MaxNumberOfMessagesRead);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (null == obj) return false;
+
+            if (obj is QueueParameters parameters)
+            {
+                return parameters.Namespace.Equals(Namespace) && parameters.Address.Equals(Address) 
+                    && parameters.WaitTimeMilliSecondsQueueMessages == WaitTimeMilliSecondsQueueMessages && parameters.MaxNumberOfMessagesRead == MaxNumberOfMessagesRead;
+            }
+
+            return false;
         }
 
         public Func<PolicyBuilder, RetryPolicy> RetryPolicy = policyBuilder =>
