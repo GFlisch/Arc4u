@@ -94,6 +94,21 @@ namespace Arc4u.OAuth2.TokenProvider
 
             var cca = CreateCca(settings);
 
+            if (null == cca)
+            {
+                throw new AppException(new Message(ServiceModel.MessageCategory.Technical,
+                                                   MessageType.Error,
+                                                   "Confidential Client application is not created."));
+            }
+
+            if (!settings.Values.ContainsKey(TokenKeys.Scopes))
+            {
+                throw new AppException(new Message(ServiceModel.MessageCategory.Technical,
+                                   MessageType.Error,
+                                   "A Scope must be defined! Check your config file."));
+
+            }
+
             var builder = cca.AcquireTokenOnBehalfOf(settings.Values[TokenKeys.Scopes].Split(',', StringSplitOptions.RemoveEmptyEntries), new UserAssertion(_tokenInfo.AccessToken));
 
             var authenticationResult = await builder.ExecuteAsync();
