@@ -38,5 +38,22 @@ namespace Arc4u.Configuration
 
             return hash;
         }
+
+        public override bool Equals(object obj)
+        {
+            if (null == obj) return false;
+
+            if (obj is SimpleKeyValueSettings other)
+            {
+                foreach (var keyValue in Values)
+                {
+                    if (!other.Values.ContainsKey(keyValue.Key) || !other.Values[keyValue.Key].Equals(keyValue.Value))
+                        return false;
+                }
+                return true;
+            }
+
+            return false;
+        }
     }
 }
