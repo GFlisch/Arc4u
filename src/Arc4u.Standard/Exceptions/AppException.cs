@@ -23,7 +23,7 @@ namespace Arc4u
         private static string ToString(IEnumerable<Message> messages)
         {
             //consider argument
-            if (messages == null) return null;
+            if (messages == null) return String.Empty;
 
             var builder = new StringBuilder();
 
