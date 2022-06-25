@@ -22,13 +22,7 @@ namespace Arc4u.ServiceModel
     [Serializable]
     public sealed class Message : ICloneable
     {
-        private static readonly Dictionary<string, Type> TypeCache;
-
-        static Message()
-        {
-            TypeCache = new Dictionary<string, Type>();
-        }
-
+        private static readonly Dictionary<string, Type> TypeCache = new Dictionary<string, Type>();
 
         /// <summary>
         /// Gets or sets the code of the current <see cref="Message"/> when applicable.
@@ -261,7 +255,7 @@ namespace Arc4u.ServiceModel
             var type = GetTypeFromString(msg.Type);
 
             if (null == type)
-                throw new ApplicationException($"The given type({type.FullName}) does not exist.");
+                throw new AppException($"The given type({msg.Type}) does not exist.");
 
             // Check the resource file contains at least the property.
             var resourceManagerProp = type.GetProperty(msg.Message);
