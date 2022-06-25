@@ -123,7 +123,7 @@ namespace Arc4u.Standard.OAuth2.Middleware
                             principal.ActivityID = Guid.NewGuid();
                         else
                         {
-                            Guid activityId = Guid.Empty;
+                            Guid activityId;
                             if (Guid.TryParse(activityIdHeader.Value.Value[0], out activityId) && activityId != Guid.Empty)
                                 logger.Technical().Information($"Set the activity to the principal based on the caller information: {activityId}.").Log();
                             else
@@ -134,10 +134,12 @@ namespace Arc4u.Standard.OAuth2.Middleware
 
                             principal.ActivityID = activityId;
                         }
+                        
                         activity?.SetTag(LoggingConstants.ActivityId, principal.ActivityID);
+                        
                         // Check for a culture.
                         var cultureHeader = context.Request?.Headers?.FirstOrDefault(h => h.Key.Equals("culture", StringComparison.InvariantCultureIgnoreCase));
-                        if (cultureHeader.HasValue && StringValues.Empty != activityIdHeader.Value.Value && cultureHeader.Value.Value.Any())
+                        if (cultureHeader.HasValue && StringValues.Empty != cultureHeader.Value.Value && cultureHeader.Value.Value.Any())
                         {
                             try
                             {
