@@ -92,6 +92,11 @@ namespace Arc4u.OAuth2.TokenProvider
                 messages.LogAndThrowIfNecessary(_logger);
             }
 
+            if (null == _tokenInfo?.AccessToken)
+            {
+                throw new AppException("Access token is null. Cannot perform an on behalf of scenario.");
+            }
+
             var cca = CreateCca(settings);
 
             if (null == cca)
