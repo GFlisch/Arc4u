@@ -95,6 +95,9 @@ namespace Arc4u.ServiceModel
                     case MessageType.Critical:
                         property = categoryLogger.Fatal(lm.Text);
                         break;
+                    default:
+                        property = categoryLogger.Debug(lm.Text);
+                        break;
                 }
                 if (!String.IsNullOrWhiteSpace(m.Code)) property.Add("Code", m.Code);
                 if (!String.IsNullOrWhiteSpace(m.Subject)) property.Add("Subject", m.Subject);
