@@ -8,15 +8,15 @@ We have different concepts in the architecture and before digging into detail, t
 
     -----------------                               |---------------|------------|------------|
     |               |          Rest and gRPC        |               |            |            |---> MongoDB
-    | UWP           |  <------------------------>   |   Facade      |    B  L    |     Dal    |---> Sql Server
-    | Xamarin.Forms |          Http/2               |      +        |    u  a    |            |---> Neo4J    
+    | Wpf           |  <------------------------>   |   Facade      |    B  L    |     Dal    |---> Sql Server
+    | Blazor        |          Http/2               |      +        |    u  a    |            |---> Neo4J    
     |               |                               |    Dtos       |    s  y    |            |
     |---------------|                               |---------------|    i  e    |------------|
-    |               |          Rest                 |               |    n  r    |            |---> General I/O activities
-    |    VueJS      |  <------------------------>   |   Interface   |    e       |    Service |     Files, Rest and gRPC, Ftp
-    |    Blazor     |          Http/1               |      +        |    s       |    Agent   |     etc...
-    |               |                               |    Dtos       |    s       |            |
-    |---------------|                               |---------------|------------|------------|
+                                                    |               |    n  r    |            |---> General I/O activities
+                                                    |   Interface   |    e       |    Service |     Files, Rest and gRPC, Ftp
+                                                    |      +        |    s       |    Agent   |     etc...
+                                                    |    Dtos       |    s       |            |
+                                                    |---------------|------------|------------|
                                                                     |            | 
                                                                     |   Domain   | 
                                                                     |   Model    |
