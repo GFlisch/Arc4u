@@ -7,6 +7,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: setup nuget
+        uses: nuget/setup-nuget@v1
+        with:
+          nuget-version: latest
+      - name: nuget restore
+        run: nuget restore .\src\arc4u.sln
+      - name: msbuild
+        uses: microsoft/setup-msbuild@v1.0.3
+      - name: build
+        run: msbuild .\src\arc4u.sln /p:configuration=${{env.buildConfiguration}}
       - name: Depcheck
         uses: dependency-check/Dependency-Check_Action@main
         id: Depcheck
