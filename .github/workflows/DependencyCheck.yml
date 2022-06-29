@@ -17,10 +17,11 @@ jobs:
           dotnet-version: 6.0.x
       - name: nuget restore
         run: nuget restore ./src/Arc4u.sln
-      - name: msbuild
-        uses: microsoft/setup-msbuild@v1.0.3
-      - name: build
-        run: msbuild ./src/Arc4u.sln /p:configuration=${{env.buildConfiguration}}
+      - name: Restore dependencies
+        run: dotnet restore
+  
+      - name: Build
+        run: dotnet build -c Release --no-restore
       - name: Depcheck
         uses: dependency-check/Dependency-Check_Action@main
         id: Depcheck
