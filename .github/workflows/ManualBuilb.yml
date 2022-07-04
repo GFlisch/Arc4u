@@ -166,5 +166,5 @@ jobs:
       
       - name: Publish packages
         if: ${{ env.PublishToNuget }}
-        run: dotnet nuget push "**/*.nupkg" --skip-duplicate --no-symbols true --api-key ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json
+        run: dotnet nuget push "**/Arc4u.*.nupkg" --skip-duplicate --no-symbols true --api-key ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json
         
