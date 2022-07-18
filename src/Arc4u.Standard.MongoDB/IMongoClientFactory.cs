@@ -9,9 +9,10 @@ namespace Arc4u.MongoDB
     {
         IMongoClient CreateClient();
 
+        IMongoClient CreateClient(MongoClientSettings mongoClientSettings);
+
         IMongoCollection<TEntity> GetCollection<TEntity>(string collectionName);
 
         IMongoCollection<TEntity> GetCollection<TEntity>();
     }
-
 }
