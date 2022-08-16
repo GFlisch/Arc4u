@@ -35,7 +35,8 @@ namespace Arc4u.OAuth2.TokenProvider
             var authority = settings.Values.ContainsKey(TokenKeys.AuthorityKey) ? settings.Values[TokenKeys.AuthorityKey] : throw new ArgumentNullException(TokenKeys.AuthorityKey);
             var redirectUrl = settings.Values.ContainsKey(TokenKeys.RedirectUrl) ? settings.Values[TokenKeys.RedirectUrl] : throw new ArgumentNullException(TokenKeys.RedirectUrl);
 
-            await WindowInterop.OpenWindowAsync(_jsRuntime, _localStorage, UriHelper.Encode(new Uri($"{authority}?redirectUrl={redirectUrl}")));
+            var interop = new WindowInterop();
+            await interop.OpenWindowAsync(_jsRuntime, _localStorage, UriHelper.Encode(new Uri($"{authority}?redirectUrl={redirectUrl}")));
 
             return await GetToken() ?? throw new Exception("No token found!");
         }

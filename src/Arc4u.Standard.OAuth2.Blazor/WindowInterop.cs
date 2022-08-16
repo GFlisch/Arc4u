@@ -6,7 +6,7 @@ namespace Arc4u.Blazor
 {
     public class WindowInterop
     {
-        public static async Task OpenWindowAsync(IJSRuntime jsRuntime, ILocalStorageService localStorage, string url, string feature = "toolbar=no,scrollbars=yes,resizable=yes,top=500,left=500,width=450,height=500")
+        public virtual async Task  OpenWindowAsync(IJSRuntime jsRuntime, ILocalStorageService localStorage, string url, string feature = "toolbar=no,scrollbars=yes,resizable=yes,top=500,left=500,width=450,height=500")
         {
 
             if (await localStorage.ContainKeyAsync("token"))

@@ -17,6 +17,15 @@ namespace Arc4u.Standard.UnitTest.Blazor
 {
     public class TokenTests
     {
+        public TokenTests()
+        {
+            fixture = new Fixture();
+            fixture.Customize(new AutoMoqCustomization());
+        }
+        
+        private readonly Fixture fixture;
+
+
         [Fact]
         public void AccessTokenValidityShould()
         {
@@ -67,9 +76,6 @@ namespace Arc4u.Standard.UnitTest.Blazor
 
             var tokenInfo = new TokenInfo("Bearer", jwt.EncodedPayload, jwt.EncodedHeader, DateTime.UtcNow);
 
-            var fixture = new Fixture();
-            fixture.Customize(new AutoMoqCustomization());
-
             var storeName = "store name";
             Dictionary<String, String> keySettings = new();
             keySettings.Add(MemoryCache.CompactionPercentageKey, "20");
@@ -112,9 +118,6 @@ namespace Arc4u.Standard.UnitTest.Blazor
 
             var tokenInfo = new TokenInfo("Bearer", jwt.EncodedPayload, jwt.EncodedHeader, DateTime.UtcNow);
 
-            var fixture = new Fixture();
-            fixture.Customize(new AutoMoqCustomization());
-
             var storeName = "store name";
             Dictionary<String, String> keySettings = new();
             keySettings.Add(MemoryCache.CompactionPercentageKey, "20");
@@ -156,9 +159,6 @@ namespace Arc4u.Standard.UnitTest.Blazor
             JwtSecurityToken jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddMinutes(-10));
 
             var tokenInfo = new TokenInfo("Bearer", jwt.EncodedPayload, jwt.EncodedHeader, DateTime.UtcNow);
-
-            var fixture = new Fixture();
-            fixture.Customize(new AutoMoqCustomization());
 
             var storeName = "store name";
             Dictionary<String, String> keySettings = new();
