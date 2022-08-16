@@ -46,7 +46,7 @@ namespace Arc4u.Standard.UnitTest.Blazor
         }
 
         [Fact]
-        public async Task GetTokenShoud()
+        public async Task GetValidTokenShoud()
         {
             // Arrange
             JwtSecurityToken jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
@@ -77,6 +77,39 @@ namespace Arc4u.Standard.UnitTest.Blazor
             // assert
             token.Should().NotBeNull();
             token.AccessToken.Should().Be(accessToken);
+        }
+
+        [Fact]
+        public async Task GetTokenWithNullSettingsValuesShoud()
+        {
+            // Arrange
+            Dictionary<String, String> keySettings = null;
+
+            var mockKeyValueSettings = fixture.Freeze<Mock<IKeyValueSettings>>();
+            mockKeyValueSettings.SetupGet(p => p.Values).Returns(keySettings);
+
+            var sut = fixture.Create<BlazorTokenProvider>();
+
+            // act
+            var exception = await Record.ExceptionAsync(async () => await sut.GetTokenAsync(mockKeyValueSettings.Object, null));
+
+            // assert
+            exception.Should().NotBeNull();
+            exception.Should().BeOfType<ArgumentNullException>();
+        }
+
+        [Fact]
+        public async Task GetTokenWithNullSettingsShoud()
+        {
+            // Arrange
+            var sut = fixture.Create<BlazorTokenProvider>();
+
+            // act
+            var exception = await Record.ExceptionAsync(async () => await sut.GetTokenAsync(null, null));
+
+            // assert
+            exception.Should().NotBeNull();
+            exception.Should().BeOfType<ArgumentNullException>();
         }
     }
 }

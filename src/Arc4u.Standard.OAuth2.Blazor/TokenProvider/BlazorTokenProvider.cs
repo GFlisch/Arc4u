@@ -28,6 +28,8 @@ namespace Arc4u.OAuth2.TokenProvider
         {
             if (null == settings) throw new ArgumentNullException(nameof(settings));
 
+            if (null == settings.Values) throw new ArgumentNullException(nameof(settings.Values));
+
             var token = await GetToken();
 
             if (null != token) return token;
