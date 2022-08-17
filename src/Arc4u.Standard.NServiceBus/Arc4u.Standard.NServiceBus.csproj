@@ -33,7 +33,7 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="NServiceBus" Version="7.7.3" />
+		<PackageReference Include="NServiceBus" Version="7.7.4" />
 	</ItemGroup>
 
 	<ItemGroup>
