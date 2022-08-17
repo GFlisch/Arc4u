@@ -2,7 +2,7 @@
 using System.IO;
 using System.IO.Compression;
 
-namespace Arc4u.Serializer.Protobuf
+namespace Arc4u.Serializer
 {
     public class ProtoBufZipSerialization : ProtoBufSerialization
     {

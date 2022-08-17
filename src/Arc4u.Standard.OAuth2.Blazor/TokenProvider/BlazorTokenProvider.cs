@@ -15,18 +15,22 @@ namespace Arc4u.OAuth2.TokenProvider
     {
         public const string ProviderName = "blazor";
 
-        public BlazorTokenProvider(ILocalStorageService localStorageService, IJSRuntime jsRuntime)
+        public BlazorTokenProvider(ILocalStorageService localStorageService, IJSRuntime jsRuntime, ITokenWindowInterop windowInterop)
         {
             _localStorage = localStorageService;
             _jsRuntime = jsRuntime;
+            _windowInterop = windowInterop;
         }
 
         private readonly ILocalStorageService _localStorage;
         private readonly IJSRuntime _jsRuntime;
+        private readonly ITokenWindowInterop _windowInterop;
 
         public async Task<TokenInfo> GetTokenAsync(IKeyValueSettings settings, object platformParameters)
         {
             if (null == settings) throw new ArgumentNullException(nameof(settings));
+
+            if (null == settings.Values) throw new ArgumentNullException(nameof(settings.Values));
 
             var token = await GetToken();
 
@@ -35,7 +39,7 @@ namespace Arc4u.OAuth2.TokenProvider
             var authority = settings.Values.ContainsKey(TokenKeys.AuthorityKey) ? settings.Values[TokenKeys.AuthorityKey] : throw new ArgumentNullException(TokenKeys.AuthorityKey);
             var redirectUrl = settings.Values.ContainsKey(TokenKeys.RedirectUrl) ? settings.Values[TokenKeys.RedirectUrl] : throw new ArgumentNullException(TokenKeys.RedirectUrl);
 
-            await WindowInterop.OpenWindowAsync(_jsRuntime, _localStorage, UriHelper.Encode(new Uri($"{authority}?redirectUrl={redirectUrl}")));
+            await _windowInterop.OpenWindowAsync(_jsRuntime, _localStorage, UriHelper.Encode(new Uri($"{authority}?redirectUrl={redirectUrl}")));
 
             return await GetToken() ?? throw new Exception("No token found!");
         }
@@ -47,9 +51,20 @@ namespace Arc4u.OAuth2.TokenProvider
 
             if (!String.IsNullOrEmpty(accessToken))
             {
-                var token = new JwtSecurityToken(accessToken);
-                if (token.ValidTo > DateTime.UtcNow.AddMinutes(-5))
-                    return new TokenInfo("Bearer", accessToken, "", token.ValidTo);
+                try
+                {
+                    var token = new JwtSecurityToken(accessToken);
+                    if (token.ValidTo > DateTime.UtcNow.AddMinutes(-5))
+                        return new TokenInfo("Bearer", accessToken, "", token.ValidTo);
+
+                    // ensure the token is removed before we try to have a new one.
+                    await _localStorage.RemoveItemAsync("token");
+                }
+                catch (Exception)
+                {
+                    await _localStorage.RemoveItemAsync("token");
+                }
+
             }
 
             return null;
