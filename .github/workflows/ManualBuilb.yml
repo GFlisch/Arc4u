@@ -17,14 +17,14 @@ env:
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'  
-  netStandardVersion: '6.0.6.1'
-  netStandardVersionNuget: '6.0.6.1${{ github.event.inputs.nugetPreviewName }}'
-  iOSVersion: '11.2.6006.1'
-  iOSVersionNuget: '11.2.6006.1${{ github.event.inputs.nugetPreviewName }}'
-  AndroidVersion: '9.0.6006.1'
-  AndroidVersionNuget: '9.0.6006.1${{ github.event.inputs.nugetPreviewName }}'
-  PrismVersion: '7.2.6006.1'
-  PrismVersionNuget: '7.2.6006.1${{ github.event.inputs.nugetPreviewName }}'
+  netStandardVersion: '6.0.6.8'
+  netStandardVersionNuget: '6.0.6.8${{ github.event.inputs.nugetPreviewName }}'
+  iOSVersion: '11.2.6008.1'
+  iOSVersionNuget: '11.2.6008.1${{ github.event.inputs.nugetPreviewName }}'
+  AndroidVersion: '9.0.6008.1'
+  AndroidVersionNuget: '9.0.6008.1${{ github.event.inputs.nugetPreviewName }}'
+  PrismVersion: '7.2.6008.1'
+  PrismVersionNuget: '7.2.6008.1${{ github.event.inputs.nugetPreviewName }}'
   PublishToNuget: ${{ github.event.inputs.publish }}
 
 jobs:
@@ -35,7 +35,7 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
         with:
-           dotnet-version: 5.0.x
+           dotnet-version: 6.0.x
       - name: Change Arc4u.Core versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Core.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
         shell: powershell
@@ -164,7 +164,7 @@ jobs:
       - name: msbuild
         uses: microsoft/setup-msbuild@v1.0.3
         with:
-          vs-version: '16.11.13'
+          vs-version: '17.13.1'
 
       - name: nuget restore
         run: nuget restore .\src\arc4u.sln
