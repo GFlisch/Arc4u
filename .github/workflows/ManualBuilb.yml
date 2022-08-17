@@ -164,7 +164,7 @@ jobs:
       - name: msbuild
         uses: microsoft/setup-msbuild@v1.0.3
         with:
-          vs-version: '17.13.1'
+          vs-version: '17.3.1'
 
       - name: nuget restore
         run: nuget restore .\src\arc4u.sln
@@ -173,6 +173,6 @@ jobs:
         run: msbuild .\src\arc4u.sln /p:configuration=${{env.buildConfiguration}}
       
       - name: Publish packages
-        if: ${{ env.PublishToNuget }}
+        if: ${{ env.PublishToNuget == 'true'  }}
         run: dotnet nuget push "**/Arc4u.*.nupkg" --skip-duplicate --no-symbols true --api-key ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json
         
