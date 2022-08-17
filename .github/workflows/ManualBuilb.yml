@@ -186,7 +186,7 @@ jobs:
       - name: nuget restore
         run: nuget restore .\src\arc4u.sln
 
-matmdd      - name: build
+      - name: build
         run: msbuild .\src\arc4u.sln /p:configuration=${{env.buildConfiguration}}
 
       - name: Change Arc4u.Windows.Mvvm version
