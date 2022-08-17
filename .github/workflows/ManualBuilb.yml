@@ -181,7 +181,7 @@ jobs:
       - name: msbuild
         uses: microsoft/setup-msbuild@v1.0.3
         with:
-          vs-version: '[16.4,17.0['
+          vs-version: '[16.4,17.0)'
       - name: nuget restore
         run: nuget restore .\src\arc4u.sln
       - name: build
