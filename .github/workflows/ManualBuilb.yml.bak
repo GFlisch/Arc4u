@@ -1,0 +1,191 @@
+name: Manual
+
+on: 
+  workflow_dispatch:
+    inputs:
+      nugetPreviewName:
+        description: 'nuget preview ?'     
+        required: true
+        default: '-preview01'
+      publish:
+        description: 'true or false' 
+        type: boolean
+        required: true
+        default: false
+        
+env:
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'  
+<<<<<<< HEAD
+  netStandardVersion: '6.0.6.1'
+  netStandardVersionNuget: '6.0.6.1${{ github.event.inputs.nugetPreviewName }}'
+  iOSVersion: '11.2.6006.1'
+  iOSVersionNuget: '11.2.6006.1${{ github.event.inputs.nugetPreviewName }}'
+  AndroidVersion: '9.0.6006.1'
+  AndroidVersionNuget: '9.0.6006.1${{ github.event.inputs.nugetPreviewName }}'
+  PrismVersion: '7.2.6006.1'
+  PrismVersionNuget: '7.2.6006.1${{ github.event.inputs.nugetPreviewName }}'
+=======
+  netStandardVersion: '5.0.17.2'
+  netStandardVersionNuget: '5.0.17.2${{ github.event.inputs.nugetPreviewName }}'
+  iOSVersion: '11.2.5017.2'
+  iOSVersionNuget: '11.2.5017.2${{ github.event.inputs.nugetPreviewName }}'
+  AndroidVersion: '9.0.5017.2'
+  AndroidVersionNuget: '9.0.5017.2${{ github.event.inputs.nugetPreviewName }}'
+  UwpVersion: '10.18362.5017.2'
+  UwpVersionNuget: '10.38362.5017.2${{ github.event.inputs.nugetPreviewName }}'
+  PrismVersion: '7.2.5017.2'
+  PrismVersionNuget: '7.2.5017.2${{ github.event.inputs.nugetPreviewName }}'
+>>>>>>> 9ca6bd6 (Test Token Serialization with Moq)
+  PublishToNuget: ${{ github.event.inputs.publish }}
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+           dotnet-version: 5.0.x
+      - name: Change Arc4u.Core versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Core.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell
+      - name: Change Arc4u.Standard versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
+      - name: Change Arc4u.Standard.FluentValidation versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.FluentValidation.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
+      - name: Change Arc4u.Standard.Configuration versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Configuration.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
+      - name: Change Arc4u.Standard.Dependency versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Dependency.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
+      - name: Change Arc4u.Standard.Dependency.ComponentModel versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Dependency.ComponentModel.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
+      - name: Change Arc4u.Standard.EfCore versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.EfCore.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
+      - name: Change Arc4u.Standard.gRPC versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.gRPC.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
+      - name: Change Arc4u.Standard.KubeMQ versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.KubeMQ.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
+      - name: Change Arc4u.Standard.KubeMQ.AspNetCore versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.KubeMQ.AspNetCore.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
+      - name: Change Arc4u.Standard.MongoDB versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.MongoDB.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
+      - name: Change Arc4u.Standard.AspNetCore.gRpc versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.AspNetCore.gRpc.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
+      - name: Change Arc4u.Standard.Caching versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Caching.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
+      - name: Change Arc4u.Standard.Caching.Memory versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Caching.Memory.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
+      - name: Change Arc4u.Standard.Caching.Sql versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Caching.Sql.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
+      - name: Change Arc4u.Standard.Caching.Redis versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Caching.Redis.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
+      - name: Change Arc4u.Standard.Caching.Dapr versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Caching.Dapr.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
+      - name: Change Arc4u.Standard.NServiceBus versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.NServiceBus.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
+      - name: Change Arc4u.Standard.NServiceBus.Core versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.NServiceBus.Core.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
+      - name: Change Arc4u.Standard.NServiceBus.RabbitMQ versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.NServiceBus.RabbitMQ.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
+      - name: Change Arc4u.Standard.Serializer versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Serializer.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
+      - name: Change Arc4u.Standard.Serializer.JSon versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Serializer.JSon.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
+      - name: Change Arc4u.Standard.Serializer.Protobuf versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Serializer.Protobuf.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
+      - name: Change Arc4u.Standard.Serializer.ProtobufV2 versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Serializer.ProtobufV2.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
+      - name: Change Arc4u.Standard.Data versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Data.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
+      - name: Change Arc4u.Standard.Threading versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Threading.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
+      - name: Change Arc4u.Standard.OAuth2.Client versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.OAuth2.Client.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
+      - name: Change Arc4u.Standard.OAuth2 versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.OAuth2.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
+      - name: Change Arc4u.Standard.OAuth2.Msal versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.OAuth2.Msal.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
+      - name: Change Arc4u.Standard.OAuth2.AspNetCore versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.OAuth2.AspNetCore.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
+      - name: Change Arc4u.Standard.OAuth2.AspNetCore.Api versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.OAuth2.AspNetCore.Api.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
+      - name: Change Arc4u.Standard.OAuth2.AspNetCore.Msal versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.OAuth2.AspNetCore.Msal.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
+      - name: Change Arc4u.Standard.OAuth2.AspNetCore.Adal versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.OAuth2.AspNetCore.Adal.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
+      - name: Change Arc4u.Standard.OAuth2.AspNetCore.Blazor versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.OAuth2.AspNetCore.Blazor.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
+      - name: Change Arc4u.Standard.OAuth2.Blazor versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.OAuth2.Blazor.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
+      - name: Change Arc4u.Standard.Diagnostics versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Diagnostics.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
+      - name: Change Arc4u.Standard.Diagnostics.TraceListeners versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Diagnostics.TraceListeners.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
+      - name: Change Arc4u.Standard.Diagnostics.Serilog versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Diagnostics.Serilog.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
+      - name: Change Arc4u.Standard.Diagnostics.Serilog.Sinks.RealmDb versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Diagnostics.Serilog.Sinks.RealmDb.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
+      - name: Change Arc4u.Prism.DI.Wpf versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Prism.DI.Wpf.csproj" "1.0.0.0" "${{env.PrismVersion}}" "0.0.0.0" "${{env.PrismVersionNuget}}"
+        shell: powershell        
+
+      - name: setup nuget
+        uses: nuget/setup-nuget@v1
+        with:
+          nuget-version: latest
+      - name: msbuild
+        uses: microsoft/setup-msbuild@v1.0.3
+        with:
+          vs-version: '16.11.13'
+
+      - name: nuget restore
+        run: nuget restore .\src\arc4u.sln
+
+      - name: build
+        run: msbuild .\src\arc4u.sln /p:configuration=${{env.buildConfiguration}}
+      
+      - name: Publish packages
+        if: ${{ env.PublishToNuget }}
+        run: dotnet nuget push "**/Arc4u.*.nupkg" --skip-duplicate --no-symbols true --api-key ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json
+        

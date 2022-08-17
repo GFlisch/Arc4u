@@ -6,39 +6,11 @@
 		<LangVersion>latest</LangVersion>
 	</PropertyGroup>
 
-	<ItemGroup>
-		<PackageReference Include="KubeMQ.SDK.csharp" Version="1.5.2" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="6.0.6" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.6" />
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0" />
-		<PackageReference Include="xunit" Version="2.4.1" />
-		<PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-			<PrivateAssets>all</PrivateAssets>
-		</PackageReference>
-		<PackageReference Include="coverlet.collector" Version="3.1.2">
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-			<PrivateAssets>all</PrivateAssets>
-		</PackageReference>
-		<PackageReference Include="Serilog" Version="2.11.0" />
-		<PackageReference Include="Serilog.Enrichers.Environment" Version="2.2.0" />
-		<PackageReference Include="Serilog.Expressions" Version="3.4.0" />
-		<PackageReference Include="Serilog.Extensions.Logging" Version="3.1.0" />
-		<PackageReference Include="Serilog.Sinks.Async" Version="1.5.0" />
-		<PackageReference Include="Serilog.Sinks.Seq" Version="5.1.1" />
-		<PackageReference Include="Serilog.Exceptions" Version="8.2.0" />
-		<PackageReference Include="Serilog.AspNetCore" Version="5.0.0" />
-		<PackageReference Include="AutoFixture" Version="4.17.0" />
-		<PackageReference Include="AutoFixture.AutoMoq" Version="4.17.0" />
-		<PackageReference Include="AutoFixture.SeedExtensions" Version="4.17.0" />
-		<PackageReference Include="AutoFixture.Xunit2" Version="4.17.0" />
-	</ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="6.7.0" />
     <PackageReference Include="KubeMQ.SDK.csharp" Version="1.5.2" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="5.0.17" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.17" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="6.0.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.6" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0" />
     <PackageReference Include="xunit" Version="2.4.2" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
@@ -78,12 +50,27 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Configs\appsettings.RejectedTypes.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Configs\Basic.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
 
     <None Update="Configs\EfCore.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+
+    <None Update="Configs\EmptyAssemblies.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+
+    <None Update="Configs\TestParser.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+
+    <None Update="Configs\TestScopedParser.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

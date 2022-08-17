@@ -1,7 +1,6 @@
 ﻿using Arc4u.ServiceModel;
 using Arc4u.Standard.UnitTest.Infrastructure;
 using Arc4u.Standard.UnitTest.KubeMQ;
-using Arc4u.Standard.UnitTest.Serialization;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;

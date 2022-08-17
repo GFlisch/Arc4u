@@ -86,10 +86,11 @@ namespace Arc4u.Standard.UnitTest.Database.EfCore
                 var id = contract.Id;
 
                 db.ChangeTracker.TrackGraph(contract, e => ChangeGraphTracker.Tracker(e));
-                db.ChangeTracker.Clear();
 
                 await db.SaveChangesAsync(CancellationToken.None).ConfigureAwait(false);
                 contract = null;
+                db.ChangeTracker.Clear();
+
 
                 contract = db.Contracts.First(c => c.Id == id);
 
