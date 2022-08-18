@@ -177,7 +177,21 @@ jobs:
         run: |
             Get-ChildItem -Filter *.*UnitTest.csproj -Recurse | ForEach-Object { dotnet test $_.FullName -c ${{ env.buildConfiguration }} --filter 'Category = CI' }
         shell: pwsh     
-      
+
+      - name: Copy the nuget packages to a folder to have only one published.
+        run: |
+            Copy-Item -Path ./ -Filter Arc4u.*.nupkg -Recurse -Container:$false -Destination ./packages
+        shell: pwsh  
+
+      - name: Save nuget packages
+        if: ${{ env.PublishToNuget == 'false'  }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: artifact
+          path: |
+            ./packages
+          retention-days: 1
+        
       - name: Publish packages
         if: ${{ env.PublishToNuget == 'true'  }}
-        run: dotnet nuget push "**/Arc4u.*.nupkg" --skip-duplicate --no-symbols true --api-key ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json
+        run: dotnet nuget push "./packages/*.nupkg" --skip-duplicate --no-symbols true --api-key ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json
