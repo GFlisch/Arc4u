@@ -180,7 +180,8 @@ jobs:
 
       - name: Copy the nuget packages to a folder to have only one published.
         run: |
-            Copy-Item -Path ./ -Filter Arc4u.*.nupkg -Recurse -Container:$false -Destination ./packages
+            New-Item -Path '.\packages' -ItemType Directory
+            Copy-Item -Path .\ -Filter Arc4u.*.nupkg -Recurse -Container:$false -Destination .\packages
         shell: pwsh  
 
       - name: Save nuget packages
