@@ -175,12 +175,13 @@ jobs:
 
       - name: Run Test projects matching *UnitTest.csproj with filter Category = CI
         run: |
-            Get-ChildItem -Filter *.*UnitTest.csproj -Recurse | ForEach-Object { dotnet test $_.FullName -c ${{ env.buildConfiguration }} --filter 'Category = CI' }
+            Get-ChildItem -Filter *.*UnitTest.csproj -Recurse | ForEach-Object { dotnet test $_.FullName --no-restore -c ${{ env.buildConfiguration }} --filter 'Category = CI' }
         shell: pwsh     
 
       - name: Copy the nuget packages to a folder to have only one published.
         run: |
-            Copy-Item -Path .\src -Filter Arc4u.*.nupkg -Recurse -Container:$false -Destination .\packages
+            md .\packages 
+            Get-ChildItem -Path .\ -Recurse -Filter *.nupkg |  ForEach-Object { Copy-Item -Path $_.FullName -Destination (".\packages\"+$_) }
         shell: pwsh  
 
       - name: Save nuget packages
