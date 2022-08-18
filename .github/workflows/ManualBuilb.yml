@@ -181,7 +181,7 @@ jobs:
       - name: Copy the nuget packages to a folder to have only one published.
         run: |
             md .\packages 
-            Get-ChildItem -Path .\ -Recurse -Filter *.nupkg |  ForEach-Object { Copy-Item -Path $_.FullName -Destination (".\packages\"+$_) }
+            Get-ChildItem -Path .\ -Recurse -Filter *.nupkg |  ForEach-Object { Copy-Item -Path $_.FullName -Destination (".\packages\"+$_.Name) }
         shell: pwsh  
 
       - name: Save nuget packages
