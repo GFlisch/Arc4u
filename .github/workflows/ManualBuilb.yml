@@ -36,6 +36,7 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
            dotnet-version: 6.0.x
+  
       - name: Change Arc4u.Core versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Core.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
         shell: powershell
@@ -171,8 +172,12 @@ jobs:
 
       - name: build
         run: msbuild .\src\arc4u.sln /p:configuration=${{env.buildConfiguration}}
+
+      - name: Run Test projects matching *UnitTest.csproj with filter Category = CI
+        run: |
+            Get-ChildItem -Filter *.*UnitTest.csproj -Recurse | ForEach-Object { dotnet test $_.FullName -c ${{ env.buildConfiguration }} --filter 'Category = CI' }
+        shell: pwsh     
       
       - name: Publish packages
         if: ${{ env.PublishToNuget == 'true'  }}
         run: dotnet nuget push "**/Arc4u.*.nupkg" --skip-duplicate --no-symbols true --api-key ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json
-        

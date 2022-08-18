@@ -21,6 +21,7 @@ using Xunit;
 
 namespace Arc4u.Standard.UnitTest.Blazor
 {
+    [Trait("Category", "CI")]
     public class BlazorTokenProviderTests
     {
         public BlazorTokenProviderTests()

@@ -4,6 +4,8 @@ using Xunit;
 
 namespace Arc4u.Standard.UnitTest.Core
 {
+
+    [Trait("Category", "CI")]
     public class KevalueSettingsTests
     {
         [Fact]

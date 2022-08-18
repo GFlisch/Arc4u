@@ -11,6 +11,7 @@ using Xunit;
 namespace Arc4u.Standard.UnitTest.Database.EfCore
 {
     [TestCaseOrderer("Arc4u.Standard.UnitTest.Infrastructure.PriorityOrderer", "Arc4u.Standard.UnitTest")]
+    [Trait("Category", "CI")]
     public class EfCoreTests : BaseContainerFixture<EfCoreTests, EfCoreFixture>
     {
         public EfCoreTests(EfCoreFixture fixture) : base(fixture)

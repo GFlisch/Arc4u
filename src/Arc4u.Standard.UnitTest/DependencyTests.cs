@@ -8,6 +8,7 @@ using Xunit;
 
 namespace Arc4u.Standard.UnitTest
 {
+    [Trait("Category", "CI")]
     public class DependencyTests
     {
         #region ComponentModelContainer
