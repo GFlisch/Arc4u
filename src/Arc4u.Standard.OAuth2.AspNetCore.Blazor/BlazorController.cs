@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -71,12 +72,14 @@ namespace Arc4u.Blazor
 
             if (!string.IsNullOrEmpty(accessToken)) return BadRequest();
 
-            var redirectUri = "https://" + redirectTo.TrimEnd('/') + "/_content/Arc4u.Standard.OAuth2.Blazor/GetToken.html";
+            var redirectUrl = WebUtility.UrlDecode(redirectTo);
+
+            var redirectUri = "https://" + redirectUrl.TrimEnd('/') + "/_content/Arc4u.Standard.OAuth2.Blazor/GetToken.html";
 
             if (accessToken.Length > index * buffer)
             {
                 containerResolve.TryResolve<IKeyValueSettings>("OAuth2", out var settings);
-                var thisController = settings.Values[TokenKeys.RootServiceUrlKey].TrimEnd('/') + $"/blazor/redirectto/{redirectTo}/{index + 1}&token={accessToken.Substring((index - 1) * buffer, buffer)}";
+                var thisController = settings.Values[TokenKeys.RootServiceUrlKey].TrimEnd('/') + $"/blazor/redirectto/{redirectUrl}/{index + 1}&token={accessToken.Substring((index - 1) * buffer, buffer)}";
                 return Redirect(UriHelper.Encode(new Uri($"{redirectUri}?url={thisController}")));
             }
             else

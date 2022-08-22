@@ -43,7 +43,7 @@ namespace Arc4u.OAuth2.TokenProvider
 
             if (!result) throw new UriFormatException($"RedirectUrl {redirectUrl} is not a valid url.");
 
-            await _windowInterop.OpenWindowAsync(_jsRuntime, _localStorage, UriHelper.Encode(new Uri($"{authority}/redirectto/{redirectUri.Authority}")));
+            await _windowInterop.OpenWindowAsync(_jsRuntime, _localStorage, UriHelper.Encode(new Uri($"{authority}/redirectto/{redirectUri.Authority + redirectUri.LocalPath}")));
 
             return await GetToken() ?? throw new Exception("No token found!");
         }

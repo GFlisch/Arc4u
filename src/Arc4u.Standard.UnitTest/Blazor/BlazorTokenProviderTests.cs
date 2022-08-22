@@ -326,12 +326,13 @@ namespace Arc4u.Standard.UnitTest.Blazor
             // arrange
             Uri x;
             
-            var result = Uri.TryCreate("HTTPS://localhost:44345/", UriKind.Absolute, out x);
+            var result = Uri.TryCreate("HTTPS://localhost:44345/webapp", UriKind.Absolute, out x);
 
             result.Should().BeTrue();
             x.Authority.Should().Be("localhost:44345");
             x.Scheme.Should().Be("https");
 
+            (x.Authority + x.LocalPath).Should().Be("localhost:44345/webapp");
         }
 
         [Fact]
