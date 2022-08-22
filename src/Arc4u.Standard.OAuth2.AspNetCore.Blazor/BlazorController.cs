@@ -5,8 +5,10 @@ using Arc4u.Security.Principal;
 using Arc4u.ServiceModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -40,8 +42,8 @@ namespace Arc4u.Blazor
         [ServiceAspect()]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
-        [HttpGet("{id?}")]
-        public async Task<IActionResult> Get(int? id, [FromServices] IApplicationContext applicationContext, [FromServices] IContainerResolve containerResolve)
+        [HttpGet("redirectTo/{redirectTo}/{id?}")]
+        public async Task<IActionResult> Get(int? id, string redirectTo, [FromServices] IApplicationContext applicationContext, [FromServices] IContainerResolve containerResolve, [FromServices] ILogger<BlazorController> logger)
         {
             if (applicationContext.Principal.Authorization.Operations.Count == 0) return Unauthorized();
 
@@ -67,25 +69,20 @@ namespace Arc4u.Blazor
                 }
             }
 
-            if (!string.IsNullOrEmpty(accessToken))
+            if (!string.IsNullOrEmpty(accessToken)) return BadRequest();
+
+            var redirectUri = "https://" + redirectTo.TrimEnd('/') + "/_content/Arc4u.Standard.OAuth2.Blazor/GetToken.html";
+
+            if (accessToken.Length > index * buffer)
             {
-                var redirectUrl = Request.Query["redirectUrl"][0];
-
-                var redirectUri = redirectUrl.TrimEnd('/') + "/_content/Arc4u.Standard.OAuth2.Blazor/GetToken.html";
-
-                if (accessToken.Length > index * buffer)
-                {
-                    containerResolve.TryResolve<IKeyValueSettings>("OAuth2", out var settings);
-                    var thisController = settings.Values[TokenKeys.RootServiceUrlKey].TrimEnd('/') + $"/blazor/{index + 1}&redirectUrl={redirectUrl}&token={accessToken.Substring((index - 1) * buffer, buffer)}";
-                    return Redirect($"{redirectUri}?url={thisController}");
-                }
-                else
-                {
-                    return Redirect($"{redirectUri}?token={accessToken.Substring((index - 1) * buffer, accessToken.Length - (index - 1) * buffer)}");
-                }
+                containerResolve.TryResolve<IKeyValueSettings>("OAuth2", out var settings);
+                var thisController = settings.Values[TokenKeys.RootServiceUrlKey].TrimEnd('/') + $"/blazor/redirectto/{redirectTo}/{index + 1}&token={accessToken.Substring((index - 1) * buffer, buffer)}";
+                return Redirect(UriHelper.Encode(new Uri($"{redirectUri}?url={thisController}")));
             }
-
-            return BadRequest();
+            else
+            {
+                return Redirect($"{redirectUri}?token={accessToken.Substring((index - 1) * buffer, accessToken.Length - (index - 1) * buffer)}");
+            }
         }
     }
 }

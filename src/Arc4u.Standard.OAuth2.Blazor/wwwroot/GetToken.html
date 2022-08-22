@@ -19,7 +19,6 @@
 
         function fetching() {
             const url = getQueryVariable('url');
-            const redirectUrl = getQueryVariable('redirectUrl');
             const token = getQueryVariable('token');
             const storageToken = localStorage.getItem('token');
 
@@ -29,8 +28,8 @@
                 localStorage.setItem('token', token);
 
 
-            if (null != url && null != redirectUrl)
-                window.location.href = url + "?redirectUrl=" + redirectUrl;
+            if (null != url)
+                window.location.href = url;
             else {
                 localStorage.setItem('fetching', 'done');
                 window.close();
