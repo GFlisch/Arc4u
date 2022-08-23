@@ -8,12 +8,14 @@ using AutoFixture;
 using AutoFixture.AutoMoq;
 using Blazored.LocalStorage;
 using FluentAssertions;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.JSInterop;
 using Moq;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
@@ -327,6 +329,8 @@ namespace Arc4u.Standard.UnitTest.Blazor
             Uri x;
             
             var result = Uri.TryCreate("HTTPS://localhost:44345/webapp", UriKind.Absolute, out x);
+
+            var o = WebUtility.UrlEncode("/test /");
 
             result.Should().BeTrue();
             x.Authority.Should().Be("localhost:44345");
