@@ -1,19 +1,14 @@
 ﻿using Arc4u.Blazor;
-using Arc4u.Caching.Memory;
-using Arc4u.Dependency;
 using Arc4u.OAuth2.Token;
 using Arc4u.OAuth2.TokenProvider;
-using Arc4u.Serializer;
 using AutoFixture;
 using AutoFixture.AutoMoq;
 using Blazored.LocalStorage;
 using FluentAssertions;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.JSInterop;
 using Moq;
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Security.Claims;
@@ -228,7 +223,7 @@ namespace Arc4u.Standard.UnitTest.Blazor
                             .Returns(ValueTask.FromResult(accessToken));
             mockLocalStorage.Setup(p => p.RemoveItemAsync("token", It.IsAny<CancellationToken?>()));
 
-            var mockInterop = fixture.Freeze<Mock<ITokenWindowInterop>> ();
+            var mockInterop = fixture.Freeze<Mock<ITokenWindowInterop>>();
             mockInterop.Setup(m => m.OpenWindowAsync(It.IsAny<IJSRuntime>(), It.IsAny<ILocalStorageService>(), It.IsAny<String>(), It.IsAny<String>()))
                          .Returns(Task.CompletedTask);
 
@@ -327,16 +322,14 @@ namespace Arc4u.Standard.UnitTest.Blazor
         {
             // arrange
             Uri x;
-            
             var result = Uri.TryCreate("HTTPS://localhost:44345/webapp", UriKind.Absolute, out x);
-
-            var o = WebUtility.UrlEncode("/test /");
 
             result.Should().BeTrue();
             x.Authority.Should().Be("localhost:44345");
             x.Scheme.Should().Be("https");
 
-            (x.Authority + x.LocalPath).Should().Be("localhost:44345/webapp");
+            WebUtility.UrlEncode(x.Authority + x.LocalPath).Should().Be("localhost%3A44345%2Fwebapp");
+
         }
 
         [Fact]

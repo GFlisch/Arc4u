@@ -1,4 +1,5 @@
 ﻿using Arc4u.Dependency;
+using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Aspect;
 using Arc4u.OAuth2.Token;
 using Arc4u.Security.Principal;
@@ -47,7 +48,6 @@ namespace Arc4u.Blazor
         public async Task<IActionResult> Get(int? id, string redirectTo, [FromServices] IApplicationContext applicationContext, [FromServices] IContainerResolve containerResolve, [FromServices] ILogger<BlazorController> logger)
         {
             if (applicationContext.Principal.Authorization.Operations.Count == 0) return Unauthorized();
-
             string accessToken = null;
 
             int index = id.HasValue ? id.Value : 1;

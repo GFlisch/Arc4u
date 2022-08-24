@@ -17,6 +17,23 @@
             }
         }
 
+        function getRedirectTo(url) {
+            var regex = /([\w +?.?:?\/]*)redirectto\/([\w+?.?:?\/]*)\/(\d)/g;
+            var rootUrl = "";
+            var redirectTo = "";
+            var index = "";
+            url.replace(regex, function ($0, $1, $2, $3) {
+                rootUrl = $1
+                redirectTo = $2;
+                index = $3;
+            });
+
+            redirectTo = redirectTo.replace(/:/g, "%3A");
+            redirectTo = redirectTo.replace(/\//g, "%2F");
+
+            return rootUrl + "redirectto/" + redirectTo + "/" + index;
+        }
+
         function fetching() {
             const url = getQueryVariable('url');
             const token = getQueryVariable('token');
@@ -29,7 +46,7 @@
 
 
             if (null != url)
-                window.location.href = url;
+                window.location.href = getRedirectTo(url);
             else {
                 localStorage.setItem('fetching', 'done');
                 window.close();
