@@ -70,6 +70,9 @@ jobs:
       - name: Change Arc4u.Standard.MongoDB versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.MongoDB.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
         shell: powershell        
+      - name: Change Arc4u.Standard.OData versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.OData.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
       - name: Change Arc4u.Standard.AspNetCore.gRpc versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.AspNetCore.gRpc.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
         shell: powershell        
