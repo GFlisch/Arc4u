@@ -17,7 +17,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Grpc.Core.Api" Version="2.47.0" />
+		<PackageReference Include="Grpc.Core.Api" Version="2.48.0" />
 		<PackageReference Include="GrpcRichError" Version="0.1.2" />
 		<PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
 	</ItemGroup>

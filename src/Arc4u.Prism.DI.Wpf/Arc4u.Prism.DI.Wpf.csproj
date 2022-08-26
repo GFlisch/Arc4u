@@ -44,7 +44,7 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
-		<PackageReference Include="Prism.Wpf" Version="7.2.0.1422" />
+		<PackageReference Include="Prism.Wpf" Version="8.1.97" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Arc4u.Standard.Dependency\Arc4u.Standard.Dependency.csproj" />
