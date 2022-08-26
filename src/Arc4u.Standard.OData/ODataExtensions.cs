@@ -10,7 +10,7 @@ namespace Arc4u.Standard.OData
     /// <summary>
     /// These extensions are required to make sure all URI's that our OData replies expose are relative to Yarp's address, not the address of our local service.
     /// </summary>
-    public static class Arc4UODataExtensions
+    public static class ODataExtensions
     {
         /// <summary>
         /// Make sure that the service root URI used in OData serialization points to the endpoint used by external consumers (as understood by YARP).
@@ -35,7 +35,7 @@ namespace Arc4u.Standard.OData
         public static IServiceCollection AddODataSerializerBaseAddress(this IServiceCollection configureServices, Uri odataBaseAddress)
         {
             if (odataBaseAddress != null)
-                configureServices.AddSingleton<IODataSerializerProvider>(rootContainer => new Arc4UODataSerializerProvider(rootContainer, odataBaseAddress));
+                configureServices.AddSingleton((Func<IServiceProvider, IODataSerializerProvider>)(rootContainer => new ODataSerializerProvider(rootContainer, odataBaseAddress)));
             return configureServices;
         }
 

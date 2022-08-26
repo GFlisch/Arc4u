@@ -5,11 +5,11 @@ using System;
 
 namespace Arc4u.Standard.OData
 {
-    internal class Arc4UODataSerializerProvider: ODataSerializerProvider
+    internal class ODataSerializerProvider: Microsoft.AspNetCore.OData.Formatter.Serialization.ODataSerializerProvider
     {
         private readonly Uri _odataBaseAddress;
 
-        public Arc4UODataSerializerProvider(IServiceProvider rootContainer, Uri odataBaseAddress)
+        public ODataSerializerProvider(IServiceProvider rootContainer, Uri odataBaseAddress)
             : base(rootContainer)
         {
             _odataBaseAddress = odataBaseAddress;
