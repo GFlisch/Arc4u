@@ -20,7 +20,7 @@ jobs:
         run: dotnet restore ./src/Arc4u.sln
   
       - name: Build
-        run: dotnet build -c Release --no-restore
+        run: dotnet build ./src/Arc4u.sln -c Release --no-restore
 
       - name: Depcheck
         uses: dependency-check/Dependency-Check_Action@main
