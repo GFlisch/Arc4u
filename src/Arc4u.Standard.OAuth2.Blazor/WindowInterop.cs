@@ -27,6 +27,7 @@ namespace Arc4u.Blazor
             }
             while (null == await localStorage.GetItemAsync<string>("fetching"));
 
+            await localStorage.RemoveItemAsync("fetching");
         }
     }
 }

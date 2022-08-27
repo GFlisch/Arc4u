@@ -1,12 +1,12 @@
-﻿using Arc4u.Dependency.Attribute;
+﻿using Arc4u.Blazor;
+using Arc4u.Dependency.Attribute;
 using Arc4u.OAuth2.Token;
-using Arc4u.Blazor;
 using Blazored.LocalStorage;
 using Microsoft.JSInterop;
 using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http.Extensions;
 
 namespace Arc4u.OAuth2.TokenProvider
 {
@@ -39,7 +39,13 @@ namespace Arc4u.OAuth2.TokenProvider
             var authority = settings.Values.ContainsKey(TokenKeys.AuthorityKey) ? settings.Values[TokenKeys.AuthorityKey] : throw new ArgumentNullException(TokenKeys.AuthorityKey);
             var redirectUrl = settings.Values.ContainsKey(TokenKeys.RedirectUrl) ? settings.Values[TokenKeys.RedirectUrl] : throw new ArgumentNullException(TokenKeys.RedirectUrl);
 
-            await _windowInterop.OpenWindowAsync(_jsRuntime, _localStorage, UriHelper.Encode(new Uri($"{authority}?redirectUrl={redirectUrl}")));
+            var result = Uri.TryCreate(redirectUrl, UriKind.Absolute, out Uri redirectUri);
+
+            if (!result) throw new UriFormatException($"RedirectUrl {redirectUrl} is not a valid url.");
+
+            var redirectTo = WebUtility.UrlEncode(redirectUri.Authority + redirectUri.LocalPath.TrimEnd(new[] { '/' }));
+
+            await _windowInterop.OpenWindowAsync(_jsRuntime, _localStorage, $"{authority}/redirectto/{redirectTo}");
 
             return await GetToken() ?? throw new Exception("No token found!");
         }
