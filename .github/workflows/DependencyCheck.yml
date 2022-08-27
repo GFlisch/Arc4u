@@ -4,23 +4,23 @@ on:
 
 jobs:
   depchecktest:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: setup nuget
-        uses: nuget/setup-nuget@v1
-        with:
-          nuget-version: latest
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: 6.0.x
+      #- name: setup nuget
+      #  uses: nuget/setup-nuget@v1
+      #  with:
+      #    nuget-version: latest
+      #- name: Setup .NET
+      #  uses: actions/setup-dotnet@v1
+      #  with:
+      #    dotnet-version: 6.0.x
 
-      - name: Restore dependencies
-        run: dotnet restore ./src/Arc4u.sln
+      #- name: Restore dependencies
+      #  run: dotnet restore ./src/Arc4u.sln
   
-      - name: Build
-        run: dotnet build ./src/Arc4u.sln -c Release --no-restore
+      #- name: Build
+      #  run: dotnet build ./src/Arc4u.sln -c Release --no-restore
 
       - name: Depcheck
         uses: dependency-check/Dependency-Check_Action@main
