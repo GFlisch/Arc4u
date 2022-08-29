@@ -1,32 +1,39 @@
-name: Manual
+name: Build And Publish
 
 on: 
-  workflow_dispatch:
+  workflow_call:
     inputs:
+      nugetVersion:
+        description: 'nuget version number x.y.z.w'     
+        required: false
+        type: string
+      nugetVersionSpecific:
+        description: 'nuget version number z.w for specific packages'     
+        required: false
+        type: string
       nugetPreviewName:
         description: 'nuget preview ?'     
-        required: true
-        default: '-preview01'
+        required: false
+        type: string
       publish:
-        description: 'true or false' 
-        type: boolean
+        description: 'Publish to nuget.org?' 
+        type: string
         required: true
-        default: false
         
 env:
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'  
-  netStandardVersion: '5.0.17.2'
-  netStandardVersionNuget: '5.0.17.2${{ github.event.inputs.nugetPreviewName }}'
-  iOSVersion: '11.2.5017.2'
-  iOSVersionNuget: '11.2.5017.2${{ github.event.inputs.nugetPreviewName }}'
-  AndroidVersion: '9.0.5017.2'
-  AndroidVersionNuget: '9.0.5017.2${{ github.event.inputs.nugetPreviewName }}'
-  UwpVersion: '10.18362.5017.2'
-  UwpVersionNuget: '10.38362.5017.2${{ github.event.inputs.nugetPreviewName }}'
-  PrismVersion: '7.2.5017.2'
-  PrismVersionNuget: '7.2.5017.2${{ github.event.inputs.nugetPreviewName }}'
+  netStandardVersion: '${{ github.event.inputs.nugetVersion }}'
+  netStandardVersionNuget: '${{ github.event.inputs.nugetVersion }}${{ github.event.inputs.nugetPreviewName }}'
+  iOSVersion: '11.2.${{ github.event.inputs.nugetVersionSpecific }}'
+  iOSVersionNuget: '11.2.${{ github.event.inputs.nugetVersionSpecific }}${{ github.event.inputs.nugetPreviewName }}'
+  AndroidVersion: '9.0.${{ github.event.inputs.nugetVersionSpecific }}'
+  AndroidVersionNuget: '9.0.${{ github.event.inputs.nugetVersionSpecific }}${{ github.event.inputs.nugetPreviewName }}'
+  UwpVersion: '10.18362.${{ github.event.inputs.nugetVersionSpecific }}'
+  UwpVersionNuget: '10.38362.${{ github.event.inputs.nugetVersionSpecific }}${{ github.event.inputs.nugetPreviewName }}'
+  PrismVersion: '7.2.${{ github.event.inputs.nugetVersionSpecific }}'
+  PrismVersionNuget: '7.2.${{ github.event.inputs.nugetVersionSpecific }}${{ github.event.inputs.nugetPreviewName }}'
   PublishToNuget: ${{ github.event.inputs.publish }}
 
 jobs:
@@ -206,8 +213,23 @@ jobs:
         shell: powershell        
       - name: Pack Arc4u.Xamarin.Android
         run: nuget pack .\src\Arc4u.Xamarin.Android\Arc4u.Xamarin.Android.nuspec -Version ${{env.AndroidVersionNuget}} -Properties Configuration=${{env.buildConfiguration}} -OutputDirectory .\src
-      
-      - name: Publish packages
-        if: ${{ env.PublishToNuget }}
-        run: dotnet nuget push "**/*.nupkg" --skip-duplicate --no-symbols true --api-key ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json
+
+      - name: Copy the nuget packages to a folder to have only one published.
+        run: |
+            md .\packages 
+            Get-ChildItem -Path .\ -Recurse -Filter *.nupkg |  ForEach-Object { Copy-Item -Path $_.FullName -Destination (".\packages\"+$_.Name) }
+        shell: pwsh  
+
+      - name: Save nuget packages
+        if: ${{ env.PublishToNuget == 'false'  }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: artifact
+          path: |
+            ./packages
+          retention-days: 1
         
+      - name: Publish packages
+        if: ${{ env.PublishToNuget == 'true'  }}
+        run: dotnet nuget push ".\packages\*.nupkg" --skip-duplicate --no-symbols true --api-key ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json
+              
