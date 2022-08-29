@@ -5,9 +5,14 @@ window.Arc4u = {
 
         const win = window.open("_content/Arc4u.Standard.OAuth2.Blazor/authenticate.html", "_blank", feature);
 
-        win.onload = function () {
+        if (!win || win.closed || typeof win.closed == "undefined") {
+            window.location.href = "popup.html";
+            return;
 
-            win.location.href = authority;
         };
+
+        win.onload = function () {
+            win.location.href = authority;
+        }
     }
 };
