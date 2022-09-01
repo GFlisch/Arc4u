@@ -4,8 +4,8 @@
 		<Nullable>enable</Nullable>
 		<RootNamespace>Prism.DI.Wpf</RootNamespace>
 		<AssemblyName>Arc4u.Prism.DI.Wpf</AssemblyName>
-		<TargetFramework>net6.0-windows</TargetFramework>
-		<LangVersion>10.0</LangVersion>
+		<TargetFrameworks>net461;net472;net48;net5.0-windows</TargetFrameworks>
+		<LangVersion>9.0</LangVersion>
 	</PropertyGroup>
 	<PropertyGroup Label="Globals">
 		<SccProjectName>SAK</SccProjectName>
@@ -44,7 +44,7 @@
 		</PackageReference>
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
 		<PackageReference Include="Prism.Wpf" Version="7.2.0.1422" />
-		<PackageReference Include="System.Composition.AttributedModel" Version="6.0.0" />
+		<PackageReference Include="System.Composition.AttributedModel" Version="5.0.1" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Arc4u.Standard.Dependency\Arc4u.Standard.Dependency.csproj" />

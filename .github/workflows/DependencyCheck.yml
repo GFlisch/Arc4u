@@ -1,13 +1,16 @@
-name: Dependency Check
+
 on:
   workflow_dispatch:
 
 jobs:
   depchecktest:
     runs-on: ubuntu-latest
+    name: depecheck_test
     steps:
-      - uses: actions/checkout@v2
- 
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build project with Maven
+        run: mvn clean install
       - name: Depcheck
         uses: dependency-check/Dependency-Check_Action@main
         id: Depcheck
@@ -15,7 +18,9 @@ jobs:
           project: 'Arc4u'
           path: '.'
           format: 'HTML'    
-
+          args: >
+            --failOnCVSS 7
+            --enableRetired
       - name: Upload Test results
         uses: actions/upload-artifact@master
         with:

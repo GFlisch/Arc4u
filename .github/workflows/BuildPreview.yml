@@ -1,0 +1,35 @@
+name: Build and publish preview
+
+on: 
+  workflow_dispatch:
+    inputs:
+      nugetVersion:
+        description: 'nuget version number x.y.z.w'     
+        required: false
+        type: string
+        default: '5.0.17.2'
+      nugetVersionSpecific:
+        description: 'nuget version number z.w for specific packages'     
+        required: false
+        type: string
+        default: '5017.2'
+      nugetPreviewName:
+        description: 'nuget preview ?'     
+        required: true
+        default: '-preview01'
+      publish:
+        description: 'true or false' 
+        type: boolean
+        required: true
+        default: false
+        
+jobs:
+  build:
+    uses: ./.github/workflows/CoreBuild.yml
+    with:
+      nugetVersion: ${{ github.event.inputs.nugetVersion }}
+      nugetVersionSpecific: ${{ github.event.inputs.nugetVersionSpecific }}
+      nugetPreviewName: ${{ github.event.inputs.nugetPreviewName }}
+      publish: ${{ github.event.inputs.publish }}
+    secrets:
+      NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
