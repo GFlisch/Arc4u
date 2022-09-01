@@ -19,6 +19,9 @@ on:
         description: 'Publish to nuget.org?' 
         type: string
         required: true
+    secrets:
+       NUGET_API_KEY:
+         required: true
         
 env:
   solution: '**/*.sln'
