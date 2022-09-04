@@ -24,8 +24,6 @@
 		<Copyright>Gilles Flisch</Copyright>
 		<PackageProjectUrl>https://github.com/GFlisch/Arc4u</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/GFlisch/Arc4u</RepositoryUrl>
-		<IncludeSymbols>true</IncludeSymbols>
-		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageLicenseExpression></PackageLicenseExpression>
 		<PackageTags>Arc4u</PackageTags>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>

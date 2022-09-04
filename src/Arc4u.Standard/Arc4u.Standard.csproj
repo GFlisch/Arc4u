@@ -20,23 +20,11 @@
 		<Copyright>Gilles Flisch</Copyright>
 		<PackageProjectUrl>https://github.com/GFlisch/Arc4u</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/GFlisch/Arc4u</RepositoryUrl>
-		<IncludeSymbols>true</IncludeSymbols>
-		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageLicenseExpression></PackageLicenseExpression>
 		<PackageTags>Arc4u</PackageTags>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<LangVersion>latest</LangVersion>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<DebugType>full</DebugType>
-		<DebugSymbols>True</DebugSymbols>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-		<DebugType>full</DebugType>
-		<DebugSymbols>True</DebugSymbols>
 	</PropertyGroup>
 
 	<ItemGroup>
