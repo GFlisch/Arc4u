@@ -1,30 +1,42 @@
-name: Manual
+name: Build And Publish
 
 on: 
-  workflow_dispatch:
+  workflow_call:
     inputs:
+      nugetVersion:
+        description: 'nuget version number x.y.z.w'     
+        required: false
+        type: string
+      nugetVersionSpecific:
+        description: 'nuget version number z.w for specific packages'     
+        required: false
+        type: string
       nugetPreviewName:
         description: 'nuget preview ?'     
-        required: true
-        default: '-preview01'
+        required: false
+        type: string
       publish:
-        description: 'true or false' 
-        type: boolean
+        description: 'Publish to nuget.org?' 
+        type: string
         required: true
-        default: false
+    secrets:
+       NUGET_API_KEY:
+         required: true
         
 env:
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'  
-  netStandardVersion: '6.0.8.1'
-  netStandardVersionNuget: '6.0.8.1${{ github.event.inputs.nugetPreviewName }}'
-  iOSVersion: '11.2.6008.1'
-  iOSVersionNuget: '11.2.6008.1${{ github.event.inputs.nugetPreviewName }}'
-  AndroidVersion: '9.0.6008.1'
-  AndroidVersionNuget: '9.0.6008.1${{ github.event.inputs.nugetPreviewName }}'
-  PrismVersion: '7.2.6008.1'
-  PrismVersionNuget: '7.2.6008.1${{ github.event.inputs.nugetPreviewName }}'
+  netStandardVersion: '${{ github.event.inputs.nugetVersion }}'
+  netStandardVersionNuget: '${{ github.event.inputs.nugetVersion }}${{ github.event.inputs.nugetPreviewName }}'
+  iOSVersion: '11.2.${{ github.event.inputs.nugetVersionSpecific }}'
+  iOSVersionNuget: '11.2.${{ github.event.inputs.nugetVersionSpecific }}${{ github.event.inputs.nugetPreviewName }}'
+  AndroidVersion: '9.0.${{ github.event.inputs.nugetVersionSpecific }}'
+  AndroidVersionNuget: '9.0.${{ github.event.inputs.nugetVersionSpecific }}${{ github.event.inputs.nugetPreviewName }}'
+  UwpVersion: '10.18362.${{ github.event.inputs.nugetVersionSpecific }}'
+  UwpVersionNuget: '10.38362.${{ github.event.inputs.nugetVersionSpecific }}${{ github.event.inputs.nugetPreviewName }}'
+  PrismVersion: '7.2.${{ github.event.inputs.nugetVersionSpecific }}'
+  PrismVersionNuget: '7.2.${{ github.event.inputs.nugetVersionSpecific }}${{ github.event.inputs.nugetPreviewName }}'
   PublishToNuget: ${{ github.event.inputs.publish }}
 
 jobs:
@@ -36,7 +48,6 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
            dotnet-version: 6.0.x
-  
       - name: Change Arc4u.Core versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Core.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
         shell: powershell
@@ -52,6 +63,9 @@ jobs:
       - name: Change Arc4u.Standard.Dependency versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Dependency.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
         shell: powershell        
+      - name: Change Arc4u.Standard.Dependency.Composition versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Dependency.Composition.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
       - name: Change Arc4u.Standard.Dependency.ComponentModel versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Dependency.ComponentModel.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
         shell: powershell        
@@ -64,14 +78,14 @@ jobs:
       - name: Change Arc4u.Standard.KubeMQ versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.KubeMQ.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
         shell: powershell        
+      - name: Change Arc4u.Standard.OData versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.OData.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
       - name: Change Arc4u.Standard.KubeMQ.AspNetCore versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.KubeMQ.AspNetCore.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
         shell: powershell        
       - name: Change Arc4u.Standard.MongoDB versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.MongoDB.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
-        shell: powershell        
-      - name: Change Arc4u.Standard.OData versions
-        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.OData.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
         shell: powershell        
       - name: Change Arc4u.Standard.AspNetCore.gRpc versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.AspNetCore.gRpc.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
@@ -124,6 +138,9 @@ jobs:
       - name: Change Arc4u.Standard.OAuth2 versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.OAuth2.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
         shell: powershell        
+      - name: Change Arc4u.Standard.OAuth2.Adal versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.OAuth2.Adal.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
       - name: Change Arc4u.Standard.OAuth2.Msal versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.OAuth2.Msal.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
         shell: powershell        
@@ -135,9 +152,6 @@ jobs:
         shell: powershell        
       - name: Change Arc4u.Standard.OAuth2.AspNetCore.Msal versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.OAuth2.AspNetCore.Msal.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
-        shell: powershell        
-      - name: Change Arc4u.Standard.OAuth2.AspNetCore.Adal versions
-        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.OAuth2.AspNetCore.Adal.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
         shell: powershell        
       - name: Change Arc4u.Standard.OAuth2.AspNetCore.Blazor versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.OAuth2.AspNetCore.Blazor.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
@@ -154,8 +168,20 @@ jobs:
       - name: Change Arc4u.Standard.Diagnostics.Serilog versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Diagnostics.Serilog.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
         shell: powershell        
+      - name: Change Arc4u.Xamarin.Forms.Mvvm versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Xamarin.Forms.Mvvm.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
       - name: Change Arc4u.Standard.Diagnostics.Serilog.Sinks.RealmDb versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Diagnostics.Serilog.Sinks.RealmDb.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
+      - name: Change iOSAssemblyInfo versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "iOSAssemblyInfo.cs" "1.0.0.0" "${{env.iOSVersion}}" "1.0.0.0" "1.0.0.0"
+        shell: powershell        
+      - name: Change DroidAssembly versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "DroidAssembly.cs" "1.0.0.0" "${{env.AndroidVersion}}" "1.0.0.0" "1.0.0.0"
+        shell: powershell        
+      - name: Change WindowsAssemblyInfo versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "WindowsAssemblyInfo.cs" "1.0.0.0" "${{env.UwpVersion}}" "1.0.0.0" "1.0.0.0"
         shell: powershell        
       - name: Change Arc4u.Prism.DI.Wpf versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Prism.DI.Wpf.csproj" "1.0.0.0" "${{env.PrismVersion}}" "0.0.0.0" "${{env.PrismVersionNuget}}"
@@ -168,7 +194,7 @@ jobs:
       - name: msbuild
         uses: microsoft/setup-msbuild@v1.0.3
         with:
-          vs-version: '17.3.1'
+          vs-version: '16.11.13'
 
       - name: nuget restore
         run: nuget restore .\src\arc4u.sln
@@ -176,10 +202,23 @@ jobs:
       - name: build
         run: msbuild .\src\arc4u.sln /p:configuration=${{env.buildConfiguration}}
 
-      - name: Run Test projects matching *UnitTest.csproj with filter Category = CI
-        run: |
-            Get-ChildItem -Filter *.*UnitTest.csproj -Recurse | ForEach-Object { dotnet test $_.FullName --no-restore -c ${{ env.buildConfiguration }} --filter 'Category = CI' }
-        shell: pwsh     
+      - name: Change Arc4u.Windows.Mvvm version
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Windows.Mvvm.nuspec" "(netstandardversionnuget)" "${{env.netStandardVersionNuget}}" "1.0.0.0" "1.0.0.0"
+        shell: powershell        
+      - name: Pack Arc4u.Windows.Mvvm
+        run: nuget pack .\src\Arc4u.Windows.Mvvm\Arc4u.Windows.Mvvm.nuspec -Version ${{env.UwpVersionNuget}} -Properties Configuration=${{env.buildConfiguration}} -OutputDirectory .\src
+        
+      - name: Change Xamarin.iOS version
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Xamarin.iOS.nuspec" "(netstandardversionnuget)" "${{env.netStandardVersionNuget}}" "1.0.0.0" "1.0.0.0"
+        shell: powershell        
+      - name: Pack Xamarin.iOS
+        run: nuget pack .\src\Arc4u.Xamarin.IOS\Arc4u.Xamarin.iOS.nuspec -Version ${{env.iOSVersionNuget}} -Properties Configuration=${{env.buildConfiguration}} -OutputDirectory .\src
+        
+      - name: Change Arc4u.Xamarin.Android version
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Xamarin.Android.nuspec" "(netstandardversionnuget)" "${{env.netStandardVersionNuget}}" "1.0.0.0" "1.0.0.0"
+        shell: powershell        
+      - name: Pack Arc4u.Xamarin.Android
+        run: nuget pack .\src\Arc4u.Xamarin.Android\Arc4u.Xamarin.Android.nuspec -Version ${{env.AndroidVersionNuget}} -Properties Configuration=${{env.buildConfiguration}} -OutputDirectory .\src
 
       - name: Copy the nuget packages to a folder to have only one published.
         run: |
@@ -198,4 +237,5 @@ jobs:
         
       - name: Publish packages
         if: ${{ env.PublishToNuget == 'true'  }}
-        run: dotnet nuget push "./packages/*.nupkg" --skip-duplicate --no-symbols true --api-key ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json
+        run: dotnet nuget push ".\packages\*.nupkg" --skip-duplicate --no-symbols true --api-key ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json
+              
