@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release' AND $(IsPackable) == true">
-    <!-- Produce a NuGet package upon build.-->
+    <!-- Produce a NuGet package upon build -->
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <!-- Publish the repository URL in the built .nupkg -->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
