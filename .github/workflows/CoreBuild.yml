@@ -181,37 +181,24 @@ jobs:
         uses: microsoft/setup-msbuild@v1.0.3
         with:
           vs-version: '[17.3, 18.0)'
-
+ 
       - name: nuget restore
         run: nuget restore .\src\arc4u.sln
-
+ 
       - name: build
         run: msbuild .\src\arc4u.sln /p:configuration=${{env.buildConfiguration}}
-
-      - name: Change Arc4u.Windows.Mvvm version
-        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Windows.Mvvm.nuspec" "(netstandardversionnuget)" "${{env.netStandardVersionNuget}}" "1.0.0.0" "1.0.0.0"
-        shell: powershell        
-      - name: Pack Arc4u.Windows.Mvvm
-        run: nuget pack .\src\Arc4u.Windows.Mvvm\Arc4u.Windows.Mvvm.nuspec -Version ${{env.UwpVersionNuget}} -Properties Configuration=${{env.buildConfiguration}} -OutputDirectory .\src
-        
-      - name: Change Xamarin.iOS version
-        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Xamarin.iOS.nuspec" "(netstandardversionnuget)" "${{env.netStandardVersionNuget}}" "1.0.0.0" "1.0.0.0"
-        shell: powershell        
-      - name: Pack Xamarin.iOS
-        run: nuget pack .\src\Arc4u.Xamarin.IOS\Arc4u.Xamarin.iOS.nuspec -Version ${{env.iOSVersionNuget}} -Properties Configuration=${{env.buildConfiguration}} -OutputDirectory .\src
-        
-      - name: Change Arc4u.Xamarin.Android version
-        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Xamarin.Android.nuspec" "(netstandardversionnuget)" "${{env.netStandardVersionNuget}}" "1.0.0.0" "1.0.0.0"
-        shell: powershell        
-      - name: Pack Arc4u.Xamarin.Android
-        run: nuget pack .\src\Arc4u.Xamarin.Android\Arc4u.Xamarin.Android.nuspec -Version ${{env.AndroidVersionNuget}} -Properties Configuration=${{env.buildConfiguration}} -OutputDirectory .\src
-
+ 
+      - name: Run Test projects matching *UnitTest.csproj with filter Category = CI
+        run: |
+            Get-ChildItem -Filter *.*UnitTest.csproj -Recurse | ForEach-Object { dotnet test $_.FullName --no-restore -c ${{ env.buildConfiguration }} --filter 'Category = CI' }
+        shell: pwsh     
+ 
       - name: Copy the nuget packages to a folder to have only one published.
         run: |
             md .\packages 
             Get-ChildItem -Path .\ -Recurse -Filter *.nupkg |  ForEach-Object { Copy-Item -Path $_.FullName -Destination (".\packages\"+$_.Name) }
         shell: pwsh  
-
+ 
       - name: Save nuget packages
         if: ${{ env.PublishToNuget == 'false'  }}
         uses: actions/upload-artifact@v3
@@ -223,5 +210,4 @@ jobs:
         
       - name: Publish packages
         if: ${{ env.PublishToNuget == 'true'  }}
-        run: dotnet nuget push ".\packages\*.nupkg" --skip-duplicate --no-symbols true --api-key ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json
-              
+        run: dotnet nuget push "./packages/*.nupkg" --skip-duplicate --no-symbols true --api-key ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json
