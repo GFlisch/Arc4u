@@ -1,4 +1,4 @@
-name: Build
+name: Sonarqube
 on:
   workflow_dispatch:
 jobs:
