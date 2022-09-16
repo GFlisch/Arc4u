@@ -1,6 +1,6 @@
 ﻿using Arc4u.Diagnostics;
-using Arc4u.Security.Principal;
 using Arc4u.ServiceModel;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -27,13 +27,13 @@ namespace Arc4u.OAuth2.Aspect
         private readonly int[] _operations;
         private readonly String _scope = string.Empty;
         protected readonly ILogger Logger;
-        protected readonly IApplicationContext ApplicationContext;
+        protected readonly IHttpContextAccessor _httpContextAccessor;
 
         private static Action<Type, TimeSpan> _log = null;
 
-        public ServiceAspectBase(ILogger logger, IApplicationContext applicationContext, String scope, params int[] operations)
+        public ServiceAspectBase(ILogger logger, IHttpContextAccessor httpContextAccessor, string scope, params int[] operations)
         {
-            ApplicationContext = applicationContext;
+            _httpContextAccessor = httpContextAccessor;
             Logger = logger;
             _scope = scope;
             _operations = operations;
@@ -48,7 +48,7 @@ namespace Arc4u.OAuth2.Aspect
 
         public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            Thread.CurrentPrincipal = ApplicationContext.Principal;
+            Thread.CurrentPrincipal = _httpContextAccessor.HttpContext.User;
 
             SetCultureInfo(context);
 
@@ -57,7 +57,9 @@ namespace Arc4u.OAuth2.Aspect
 
         public Task OnAuthorizationAsync(AuthorizationFilterContext context)
         {
-            if (null != ApplicationContext.Principal && ApplicationContext.Principal.IsAuthorized(_scope, _operations))
+            var principal = _httpContextAccessor.HttpContext.User as Arc4u.Security.Principal.AppPrincipal;
+
+            if (null != principal && principal.IsAuthorized(_scope, _operations))
             {
                 return Task.CompletedTask;
             }
