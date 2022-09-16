@@ -11,7 +11,7 @@ namespace Arc4u.Standard.OAuth2.Extensions
 
         public IKeyValueSettings OpenIdSettings { get; set; }
 
-        public string MetadataAddress { get; set; }
+        public string MetadataAddress { get; set; } = null;
 
         public Func<IServiceProvider, IKeyValueSettings, ClaimsPrincipal, string, string, bool, Task<string>> OnAuthorizationCodeReceived { get; set; }
 
