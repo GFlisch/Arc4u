@@ -4,13 +4,15 @@ using Serilog.Formatting.Display;
 using Serilog.Sinks.PeriodicBatching;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Arc4u.Diagnostics.Serilog.Sinks.Memory
 {
-    public class MemoryLogDbSink : PeriodicBatchingSink
+    public class MemoryLogDbSink : IBatchedLogEventSink
     {
-        public MemoryLogDbSink() : base(50, TimeSpan.FromMilliseconds(500))
+        public MemoryLogDbSink() //: base(50, TimeSpan.FromMilliseconds(500))
         {
             LogMessages = new MemoryLogMessages();
             MessageFormatter = new MessageTemplateTextFormatter("{Message}");
@@ -23,7 +25,7 @@ namespace Arc4u.Diagnostics.Serilog.Sinks.Memory
 
         public static MemoryLogMessages LogMessages;
 
-        protected override void EmitBatch(IEnumerable<LogEvent> events)
+        public Task EmitBatchAsync(IEnumerable<LogEvent> events)
         {
             foreach (var _event in events)
             {
@@ -63,6 +65,12 @@ namespace Arc4u.Diagnostics.Serilog.Sinks.Memory
 
             }
 
+            return Task.CompletedTask;
+        }
+
+        public Task OnEmptyBatchAsync()
+        {
+            return Task.CompletedTask;
         }
     }
 }

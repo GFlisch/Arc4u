@@ -1,4 +1,5 @@
 ﻿using Arc4u.Diagnostics.Formatter;
+using Microsoft.Extensions.Logging;
 using Realms;
 using Serilog.Events;
 using Serilog.Formatting.Display;
@@ -6,12 +7,13 @@ using Serilog.Sinks.PeriodicBatching;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Arc4u.Diagnostics.Serilog.Sinks.RealmDb
 {
-    public class RealmDBSink : PeriodicBatchingSink
+    public class RealmDBSink : IBatchedLogEventSink
     {
-        public RealmDBSink(RealmConfiguration config) : base(50, TimeSpan.FromMilliseconds(500))
+        public RealmDBSink(RealmConfiguration config)  //: base(50, TimeSpan.FromMilliseconds(500))
         {
             MessageFormatter = new MessageTemplateTextFormatter("{Message}");
             PropertyFormatter = new JsonPropertiesFormatter();
@@ -25,8 +27,7 @@ namespace Arc4u.Diagnostics.Serilog.Sinks.RealmDb
         private Realm DB { get; set; }
         private RealmConfiguration Config { get; set; }
 
-
-        protected override void EmitBatch(IEnumerable<LogEvent> events)
+        public async Task EmitBatchAsync(IEnumerable<LogEvent> events)
         {
             DB = Realm.GetInstance(Config);
 
@@ -59,7 +60,7 @@ namespace Arc4u.Diagnostics.Serilog.Sinks.RealmDb
                             Identity = Identity,
                         };
 
-                        DB.Write(() =>
+                        await DB.WriteAsync(() =>
                         {
                             DB.Add(logMsg);
                         });
@@ -70,7 +71,11 @@ namespace Arc4u.Diagnostics.Serilog.Sinks.RealmDb
                 }
 
             }
+        }
 
+        public Task OnEmptyBatchAsync()
+        {
+            return Task.CompletedTask;           
         }
     }
 }

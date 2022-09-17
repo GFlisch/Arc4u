@@ -28,6 +28,7 @@ namespace Arc4u.OAuth2.Security.Principal
             // read information to call the backend service from configuration.
             _url = appSettings.Values.ContainsKey("arc4u_ClaimsProxyUri") ? appSettings.Values["arc4u_ClaimsProxyUri"] : null;
             _jsonSerializer = new DataContractJsonSerializer(typeof(IEnumerable<ClaimDto>));
+            _logger = logger;
         }
 
         private string _url;
