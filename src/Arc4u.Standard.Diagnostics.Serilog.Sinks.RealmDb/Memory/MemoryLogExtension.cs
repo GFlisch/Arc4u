@@ -1,5 +1,8 @@
-﻿using Serilog;
+﻿using Arc4u.Diagnostics.Serilog.Sinks.RealmDb;
+using Serilog;
 using Serilog.Configuration;
+using Serilog.Sinks.PeriodicBatching;
+using System;
 
 namespace Arc4u.Diagnostics.Serilog.Sinks.Memory
 {
@@ -7,7 +10,19 @@ namespace Arc4u.Diagnostics.Serilog.Sinks.Memory
     {
         public static LoggerConfiguration MemoryLogDB(this LoggerSinkConfiguration loggerConfiguration)
         {
-            return loggerConfiguration.Sink(new MemoryLogDbSink());
+            var sink = new MemoryLogDbSink();
+
+            var batchingOptions = new PeriodicBatchingSinkOptions
+            {
+                BatchSizeLimit = 50,
+                Period = TimeSpan.FromMilliseconds(500),
+                EagerlyEmitFirstEvent = true,
+                QueueLimit = 10000
+            };
+
+            var batchingSink = new PeriodicBatchingSink(sink, batchingOptions);
+
+            return loggerConfiguration.Sink(batchingSink);
         }
 
     }
