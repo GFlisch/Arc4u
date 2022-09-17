@@ -24,10 +24,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Arc4u.Standard.Diagnostics" Version="6.0.8.1" />
-		<PackageReference Include="Arc4u.Standard.OAuth2.AspNetCore" Version="6.0.8.1" />
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="6.0.8" />
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.8" />
+		<PackageReference Include="Arc4u.Standard.Diagnostics" Version="6.0.9.1" />
+		<PackageReference Include="Arc4u.Standard.OAuth2.AspNetCore" Version="6.0.9.1" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="6.0.9" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.9" />
 	</ItemGroup>
 
 	<ItemGroup>
