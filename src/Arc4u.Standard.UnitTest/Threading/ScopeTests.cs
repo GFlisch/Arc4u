@@ -1,5 +1,4 @@
-﻿using Arc4u.Globalization;
-using Arc4u.Threading;
+﻿using Arc4u.Threading;
 using System;
 using System.Globalization;
 using System.Threading;
@@ -68,17 +67,6 @@ namespace Arc4u.Standard.UnitTest.Threading
         }
 
         [Fact]
-        public void TestCulture1()
-        {
-            var culture = Thread.CurrentThread.CurrentCulture;
-            using (new CultureScope(CultureInfo.InvariantCulture))
-            {
-                Assert.Equal(CultureInfo.InvariantCulture, Thread.CurrentThread.CurrentCulture);
-            }
-            Assert.Equal(culture, Thread.CurrentThread.CurrentCulture);
-        }
-
-        [Fact]
         public async void TestCultureContinueOnCurrentThread()
         {
             var frFR = new CultureInfo("fr-FR");
@@ -116,65 +104,6 @@ namespace Arc4u.Standard.UnitTest.Threading
 
             Assert.NotEqual("fr-FR", Thread.CurrentThread.CurrentCulture.Name);
             Assert.NotEqual("de-DE", Thread.CurrentThread.CurrentUICulture.Name);
-        }
-
-
-        [Fact]
-        public void TestCulture2()
-        {
-            var frFR = new CultureInfo("fr-FR");
-            var culture = Thread.CurrentThread.CurrentCulture;
-            using (new CultureScope(CultureInfo.InvariantCulture))
-            {
-                Assert.Equal(CultureInfo.InvariantCulture, Thread.CurrentThread.CurrentCulture);
-                using (new CultureScope(frFR))
-                {
-                    Assert.Equal(frFR, Thread.CurrentThread.CurrentCulture);
-                }
-                Assert.Equal(CultureInfo.InvariantCulture, Thread.CurrentThread.CurrentCulture);
-            }
-            Assert.Equal(culture, Thread.CurrentThread.CurrentCulture);
-        }
-
-        [Fact]
-        public void TestUICulture()
-        {
-            var frFR = new CultureInfo("fr-FR");
-            var culture = Thread.CurrentThread.CurrentUICulture;
-            using (new UICultureScope(CultureInfo.InvariantCulture))
-            {
-                Assert.Equal(CultureInfo.InvariantCulture, Thread.CurrentThread.CurrentUICulture);
-                using (new UICultureScope(frFR))
-                {
-                    Assert.Equal(frFR, Thread.CurrentThread.CurrentUICulture);
-                }
-                Assert.Equal(CultureInfo.InvariantCulture, Thread.CurrentThread.CurrentUICulture);
-            }
-            Assert.Equal(culture, Thread.CurrentThread.CurrentUICulture);
-        }
-
-        [Fact]
-        public void TestMixCultures()
-        {
-            var frFR = new CultureInfo("fr-FR");
-            var enGB = new CultureInfo("en-GB");
-            var culture = Thread.CurrentThread.CurrentUICulture;
-            using (new UICultureScope(CultureInfo.InvariantCulture))
-            using (new CultureScope(enGB))
-            {
-                Assert.Equal(CultureInfo.InvariantCulture, Thread.CurrentThread.CurrentUICulture);
-                Assert.Equal(enGB, Thread.CurrentThread.CurrentCulture);
-                using (new UICultureScope(frFR))
-                using (new CultureScope(CultureInfo.InvariantCulture))
-                {
-                    Assert.Equal(frFR, Thread.CurrentThread.CurrentUICulture);
-                    Assert.Equal(CultureInfo.InvariantCulture, Thread.CurrentThread.CurrentCulture);
-                }
-
-                Assert.Equal(CultureInfo.InvariantCulture, Thread.CurrentThread.CurrentUICulture);
-                Assert.Equal(enGB, Thread.CurrentThread.CurrentCulture);
-            }
-            Assert.Equal(culture, Thread.CurrentThread.CurrentUICulture);
         }
 
         [Fact]
