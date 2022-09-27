@@ -15,7 +15,7 @@ namespace Arc4u.Dependency
         /// <param name="services"></param>
         public static IServiceCollection AddILogger(this IServiceCollection services)
         {
-            // Add the Arc4u Logger<t> implementation.
+            // Add the Arc4u Logger<T> implementation.
             // Scoped is used because the logger now is linked to the authenticated user which is set per scope in the backend.
             services.TryAddScoped(typeof(ILogger<>), typeof(Diagnostics.Logger<>));
 
