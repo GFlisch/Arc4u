@@ -1,9 +1,10 @@
 ﻿using System.Runtime.CompilerServices;
+using Arc4u.Locking.Abstraction;
 using StackExchange.Redis;
 
 [assembly:InternalsVisibleTo("Arc4u.Locking.UnitTests")]
 
-namespace Arc4u.Locking.Abstraction;
+namespace Arc4u.Locking.Redis;
 internal class RedisLockingDataLayer : ILockingDataLayer
 {
     private readonly Lazy<IDatabase> _lazyDatabase;
@@ -19,8 +20,10 @@ internal class RedisLockingDataLayer : ILockingDataLayer
         var redisKey = new RedisKey(label.ToLowerInvariant());
         var transactionScope = _lazyDatabase.Value.CreateTransaction();
         transactionScope.AddCondition(Condition.KeyNotExists(redisKey));
-        transactionScope.StringSetAsync(new RedisKey(label.ToLowerInvariant()), new RedisValue(label), maxAge);
+       var incrementTask = transactionScope.HashIncrementAsync(redisKey, new RedisValue(label), 1);
+        var expiryTask = transactionScope.KeyExpireAsync(redisKey, maxAge);
         var result = await transactionScope.ExecuteAsync();
+        Task.WaitAll(incrementTask, expiryTask);
         if (result)
         {
             async void ReleaseFunction() => await ReleaseLock(label);
@@ -34,10 +37,5 @@ internal class RedisLockingDataLayer : ILockingDataLayer
     public async Task ReleaseLock(string label)
     {
         await _lazyDatabase.Value.KeyDeleteAsync(label);
-    }
-
-    public async Task CreateLock(string label, TimeSpan maxAge)
-    {
-        await _lazyDatabase.Value.StringSetAsync(new RedisKey(label.ToLowerInvariant()), new RedisValue(), maxAge);
     }
 }

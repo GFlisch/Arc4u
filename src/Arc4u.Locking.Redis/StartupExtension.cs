@@ -1,8 +1,9 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Arc4u.Locking.Abstraction;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using StackExchange.Redis;
 
-namespace Arc4u.Locking.Abstraction;
+namespace Arc4u.Locking.Redis;
 
 public static class StartupExtension
 {

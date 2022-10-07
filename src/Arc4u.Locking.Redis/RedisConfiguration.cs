@@ -1,4 +1,4 @@
-﻿namespace Arc4u.Locking.Abstraction;
+﻿namespace Arc4u.Locking.Redis;
 
 public class RedisConfiguration
 {
