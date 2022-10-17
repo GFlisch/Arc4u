@@ -14,7 +14,7 @@ namespace Arc4u.Serializer.ProtoBuf
     static class ProtoBufModel
     {
         public static readonly RuntimeTypeModel Instance = Create();
-        public static RuntimeTypeModelUpdater ModelUpdater = new RuntimeTypeModelUpdater(Instance);
+        public static readonly RuntimeTypeModelUpdater ModelUpdater = new RuntimeTypeModelUpdater(Instance);
 
         [ProtoContract]
         public class DateTimeOffsetProxy
