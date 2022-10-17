@@ -76,6 +76,8 @@ We can group the features like this.
 - Arc4u.Standard.Caching.Redis
 - Arc4u.Standard.Caching.Sql
 
+[More here](./General/Caching.md).
+
 ### Serialization
 
 - Arc4u.Standard.Serializer

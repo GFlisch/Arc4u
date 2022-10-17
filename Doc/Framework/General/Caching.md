@@ -1,4 +1,4 @@
-﻿[ :back: ](..\General.md)
+﻿[ :back: ](../General.md)
 # Caching
 
 The abstraction introduces by the framework is not to implement what exist already in the .NET framework but to enhance it by adding more flecibility.
