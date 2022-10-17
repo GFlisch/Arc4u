@@ -170,7 +170,7 @@ namespace Arc4u.Serializer.ProtoBuf
         }
 
 
-
+#if false
         /// <summary>
         /// Return true if at least one of the members in <paramref name="memberInfos"/> are decorated with <see cref="DataMemberAttribute"/>
         /// </summary>
@@ -183,7 +183,7 @@ namespace Arc4u.Serializer.ProtoBuf
                     return true;
             return false;
         }
-
+#endif
 
         /// <summary>
         /// Return true if the <paramref name="metaType"/> already defines a field for the specified <paramref name="memberInfo"/>
@@ -304,9 +304,7 @@ namespace Arc4u.Serializer.ProtoBuf
 
             while (baseType != null && baseType != typeof(object))
             {
-                HashSet<Type> baseTypeEntry;
-
-                if (!_subTypes.TryGetValue(baseType, out baseTypeEntry))
+                if (!_subTypes.TryGetValue(baseType, out var baseTypeEntry))
                 {
                     baseTypeEntry = new HashSet<Type>();
                     _subTypes.Add(baseType, baseTypeEntry);

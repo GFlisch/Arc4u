@@ -1,5 +1,4 @@
-﻿using Arc4u.Diagnostics;
-using Arc4u.Serializer.ProtoBuf;
+﻿using Arc4u.Serializer.ProtoBuf;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -16,22 +15,41 @@ namespace Arc4u.Serializer
     /// <typeparam name="T"></typeparam>
     public class ProtoBufSerialization : IObjectSerialization
     {
-        public virtual T Deserialize<T>(byte[] data)
+        private static class TypedSerialize<T>
         {
-            return (T)Deserialize(data, typeof(T));
+            static TypedSerialize()
+            {
+                ProtoBufModel.ModelUpdater.Update(typeof(T));
+            }
+
+            public static byte[] Serialize(T value)
+            {
+                Activity.Current?.SetTag("SerializerType", "ProtobufV3");
+
+                using (var stream = new MemoryStream())
+                {
+                    ProtoBufModel.Instance.Serialize(stream, value);
+                    return stream.ToArray();
+                }
+            }
+
+            public static T Deserialize(byte[] data)
+            {
+                Activity.Current?.SetTag("SerializerType", "ProtobufV3");
+
+                using (var stream = new MemoryStream(data, 0, data.Length))
+                    return (T)ProtoBufModel.Instance.Deserialize(stream, null, typeof(T));
+            }
         }
 
         public virtual byte[] Serialize<T>(T value)
         {
-            Activity.Current?.SetTag("SerializerType", "ProtobufV3");
+            return TypedSerialize<T>.Serialize(value);
+        }
 
-            ProtoBufModel.ModelUpdater.Update(typeof(T));
-
-            using (var stream = new MemoryStream())
-            {
-                ProtoBufModel.Instance.Serialize(stream, value);
-                return stream.ToArray();
-            }
+        public virtual T Deserialize<T>(byte[] data)
+        {
+            return TypedSerialize<T>.Deserialize(data);
         }
 
         public virtual object Deserialize(byte[] data, Type objectType)
