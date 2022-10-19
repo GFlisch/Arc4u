@@ -25,7 +25,11 @@ public static class StartupExtension
       
         var redisConfiguration = new RedisConfiguration();
         configuration.GetSection(nameof(RedisConfiguration)).Bind(redisConfiguration);
-        return new ConfigurationOptions() {EndPoints = {redisConfiguration.Host},};
+        return new ConfigurationOptions()
+        {
+            EndPoints = {redisConfiguration.Host},
+            AllowAdmin = true
+        };
     }
 
     private static Func<ConnectionMultiplexer> CreateMultiplexerFactory(IServiceProvider serviceProvider)
