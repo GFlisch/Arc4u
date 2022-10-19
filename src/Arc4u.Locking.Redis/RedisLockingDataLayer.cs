@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
-using System.Transactions;
 using Arc4u.Locking.Abstraction;
+using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
 
 [assembly:InternalsVisibleTo("Arc4u.Locking.UnitTests")]
@@ -9,10 +9,12 @@ namespace Arc4u.Locking.Redis;
 
 internal class RedisLockingDataLayer : ILockingDataLayer
 {
+    private readonly ILogger<RedisLockingDataLayer> _logger;
     private readonly ConnectionMultiplexer _multiplexer;
 
-    public RedisLockingDataLayer(Func<ConnectionMultiplexer> multiplexerFactory)
+    public RedisLockingDataLayer(Func<ConnectionMultiplexer> multiplexerFactory, ILogger<RedisLockingDataLayer> logger)
     {
+        _logger = logger;
         _multiplexer = multiplexerFactory();
     }
 
@@ -45,13 +47,15 @@ internal class RedisLockingDataLayer : ILockingDataLayer
         return new RedisKey(label.ToLowerInvariant());
     }
 
-    private async Task ReleaseLock(string label)
+    private Task ReleaseLock(string label)
     {
         var ret = _multiplexer.GetDatabase().KeyDelete(  GenerateKey(label));
         if (!ret)
         {
-            // log the error
+            _logger.LogError($"Can not release lock for label {label}");
         }
+
+        return Task.CompletedTask;
     }
 
     private async Task KeepAlive(string label, TimeSpan ttl)
@@ -60,8 +64,7 @@ internal class RedisLockingDataLayer : ILockingDataLayer
         var ret = await lazyDatabaseValue.KeyExpireAsync(  GenerateKey(label), ttl);
         if (!ret)
         {
-            throw new SystemException("can not set expiry!");
-            // log the error
+            _logger.LogCritical($"Can not extend the lock for label {label}");
         }
     }
 }
