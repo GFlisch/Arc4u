@@ -13,28 +13,28 @@ namespace Arc4u.Locking.UnitTests;
 public class LockingTest
 {
     private readonly Fixture _fixture = new();
+    
     [Fact]
-    public async Task Test1()
+    [Trait("Dependency", "Redis")]
+    public async Task RunWithinLock_UsingRedis_SecondCallIsBlocked()
     {
-
         var lockingDl = new RedisLockingDataLayer(() => 
             ConnectionMultiplexer.Connect(new ConfigurationOptions()
             {
                 EndPoints = { "localhost: 6379" }
             }), new NullLogger<RedisLockingDataLayer>());
-     
-        await NewMethod(lockingDl);
-        
+
+        await RunWithinLock_SecondCallIsBlocked(lockingDl);
     }
     
     [Fact]
-    public async Task Test2()
+    public async Task RunWithinLock_UsingInMemory_SecondCallIsBlocked()
     {
         var lockingDl = new MemoryLockingDataLayer();
-        await NewMethod(lockingDl);
+        await RunWithinLock_SecondCallIsBlocked(lockingDl);
     }
 
-    private async Task NewMethod(ILockingDataLayer lockingDl)
+    private async Task RunWithinLock_SecondCallIsBlocked(ILockingDataLayer lockingDl)
     {
         var service = new LockingService(lockingDl, new LockingConfiguration(), new NullLogger<LockingService>());
 
