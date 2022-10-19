@@ -2,8 +2,6 @@
 
 public class Lock : IDisposable
 {
-    private readonly string _label;
-    private readonly TimeSpan _ttl;
     private readonly Func<Task> _keepAliveFunction;
     private readonly Action _releaseFunction;
 
