@@ -6,38 +6,14 @@ using StackExchange.Redis;
 [assembly:InternalsVisibleTo("Arc4u.Locking.UnitTests")]
 
 namespace Arc4u.Locking.Redis;
+
 internal class RedisLockingDataLayer : ILockingDataLayer
 {
-//    private readonly Lazy<IDatabase> _lazyDatabase;
-//    private readonly Lazy<IDatabase> _lazyDatabase;
     private readonly ConnectionMultiplexer _multiplexer;
 
     public RedisLockingDataLayer(Func<ConnectionMultiplexer> multiplexerFactory)
     {
         _multiplexer = multiplexerFactory();
-      /*  _lazyDatabase = new Lazy<IDatabase>(() =>
-            {
-                var ret= _multiplexer.GetDatabase();
-                ret.Multiplexer.ErrorMessage += (sender, args) =>
-                {
-                    Console.WriteLine(args);
-                };
-                ret.Multiplexer.InternalError  += (sender, args) =>
-                {
-                    Console.WriteLine(args);
-                };
-                ret.Multiplexer.ConnectionFailed+= (sender, args) =>
-                {
-                    Console.WriteLine(args);
-                };
-                ret.Multiplexer.ConnectionRestored+= (sender, args) =>
-                {
-                    Console.WriteLine(args);
-                };
-                
-                return ret;
-            },
-            LazyThreadSafetyMode.ExecutionAndPublication);*/
     }
 
     public async Task<Lock?> TryCreateLock(string label, TimeSpan maxAge)
@@ -53,44 +29,39 @@ internal class RedisLockingDataLayer : ILockingDataLayer
         return null;
     }
 
- 
     private async Task<bool> InternalCreateLock(string label, TimeSpan ttl)
     {
-        // var redisKey = new RedisKey(label.ToLowerInvariant());
-        // var transactionScope = _multiplexer.GetDatabase().CreateTransaction();
-        // transactionScope.AddCondition(Condition.KeyNotExists(redisKey));
-        // var incrementTask = transactionScope.HashIncrementAsync(redisKey, new RedisValue(label), 1);
-        // var expiryTask = transactionScope.KeyExpireAsync(redisKey, ttl);
-        // var result = await transactionScope.ExecuteAsync();
-
-
-     var result =   _multiplexer.GetDatabase().StringSet(new RedisKey(label),new RedisValue(label), ttl);
+        var redisKey = GenerateKey(label);
         
-        
-        //actually we do not need to wait on that, because it should be part of the result, but since this is actually
-        //an internal of the Redis implementation, it is better to understand this way and safer for the future
-//        Task.WaitAll(incrementTask, expiryTask);
-        return result;
+        var transactionScope = _multiplexer.GetDatabase().CreateTransaction();
+        transactionScope.AddCondition(Condition.KeyNotExists(redisKey));
+        var _ =transactionScope.StringSetAsync(redisKey, new RedisValue(label), ttl);
+
+        return await transactionScope.ExecuteAsync();
+    }
+
+    private static RedisKey GenerateKey(string label)
+    {
+        return new RedisKey(label.ToLowerInvariant());
     }
 
     private async Task ReleaseLock(string label)
     {
-    // var keys =   _multiplexer.GetServer("localhost:6379").Keys().ToList();
-    // var listKeys = new List<string>();
-     //listKeys.AddRange(keys.GetAsyncEnumerator() .Select(key => (string)key).ToList());
-
-     var ret = _multiplexer.GetDatabase().KeyDelete(label);
-       Console.WriteLine(ret);
+        var ret = _multiplexer.GetDatabase().KeyDelete(  GenerateKey(label));
+        if (!ret)
+        {
+            // log the error
+        }
     }
-    
+
     private async Task KeepAlive(string label, TimeSpan ttl)
     {
-        var lazyDatabaseValue =_multiplexer.GetDatabase();
-        var ret = await lazyDatabaseValue.KeyExpireAsync(label, ttl);
-       if (ret)
-         Console.WriteLine(ret);
-       else 
-           Console.WriteLine(ret);
-       
+        var lazyDatabaseValue = _multiplexer.GetDatabase();
+        var ret = await lazyDatabaseValue.KeyExpireAsync(  GenerateKey(label), ttl);
+        if (!ret)
+        {
+            throw new SystemException("can not set expiry!");
+            // log the error
+        }
     }
 }
