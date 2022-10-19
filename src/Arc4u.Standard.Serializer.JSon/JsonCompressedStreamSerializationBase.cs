@@ -14,7 +14,7 @@ namespace Arc4u.Serializer
         private readonly System.Text.Json.Serialization.JsonSerializerContext _context;
 
         /// <summary>
-        /// For performance purposes, we use Microsoft's recyclable MemoryStrream pool
+        /// For performance purposes, we use Microsoft's recyclable MemoryStream pool
         /// </summary>
         private RecyclableMemoryStreamManager _recyclableMemoryStreamManager;
 
