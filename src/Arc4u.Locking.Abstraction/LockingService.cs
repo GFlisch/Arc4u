@@ -15,25 +15,40 @@ public class LockingService : ILockingService
         _logger = logger;
     }
 
-    public async Task RunWithinLock(string label, TimeSpan maxAge, Func<Task> toBeRun)
+    public async Task RunWithinLockAsync(string label, TimeSpan maxAge, Func<Task> toBeRun, CancellationToken cancellationToken)
     {
-        var lockEntity = await  _lockingDataLayer.TryCreateLock(label, maxAge);
+        var lockEntity = await  _lockingDataLayer.TryCreateLockAsync(label, maxAge);
+        var ttl = _configuration.RefreshRate;
+        
         if (lockEntity is not null)
         {
             _logger.LogDebug($"Got a lock for >{label}<. Running >{toBeRun.Method.Name}<");
             using (lockEntity)
             {
-                var task = toBeRun();
-
-                var ttl = _configuration.RefreshRate;
-                Timer timer = new Timer(state => lockEntity.KeepAlive(),null, ttl, ttl);
-                await task;
-                await timer.DisposeAsync();
+                Timer? timer = null;
+                try
+                {
+                    var task = toBeRun();
+                    timer = new Timer(state => lockEntity.KeepAlive(), null, ttl, ttl);
+                    await task;
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, $"Error while calling {toBeRun.Method.Name} with label {label}");
+                    throw;
+                }
+                finally
+                {
+                    if (timer != null)
+                    {
+                        await timer.DisposeAsync();
+                    }
+                }
             }
         }
         else
         {
-            _logger.LogDebug($"Got not get a lock");
+            _logger.LogDebug( $"Got not get a lock for label {label}");
         }
     }
 }

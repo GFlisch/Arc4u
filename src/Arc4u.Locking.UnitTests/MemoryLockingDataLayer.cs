@@ -9,9 +9,9 @@ internal class MemoryLockingDataLayer : ILockingDataLayer
 {
     private int _counter = 0;
 
-    private ReaderWriterLockSlim _lock = new();
+    private readonly ReaderWriterLockSlim _lock = new();
 
-    public Task<Lock?> TryCreateLock(string label, TimeSpan maxAge)
+    public Task<Lock?> TryCreateLockAsync(string label, TimeSpan maxAge)
     {
         _lock.EnterReadLock();
         try

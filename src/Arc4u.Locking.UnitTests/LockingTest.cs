@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Arc4u.Locking.Abstraction;
 using Arc4u.Locking.Redis;
@@ -40,15 +41,16 @@ public class LockingTest
 
         var label = _fixture.Create<string>();
 
-        var firstTask = service.RunWithinLock(label, TimeSpan.FromMinutes(2),
-            async () => { await Task.Delay(TimeSpan.FromSeconds(3)); });
+        var firstTask = service.RunWithinLockAsync(label, TimeSpan.FromMinutes(2),
+            async () => { await Task.Delay(TimeSpan.FromSeconds(3)); }, CancellationToken.None);
 
         bool run = false;
-        var secondTask = service.RunWithinLock(label, TimeSpan.FromMinutes(2), async () =>
+        var secondTask = service.RunWithinLockAsync(label, TimeSpan.FromMinutes(2), async () =>
         {
             run = true;
             await Task.Delay(TimeSpan.FromSeconds(1));
-        });
+        },
+          CancellationToken.None);
 
         await secondTask;
 

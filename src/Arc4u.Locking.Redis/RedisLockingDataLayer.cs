@@ -18,12 +18,12 @@ internal class RedisLockingDataLayer : ILockingDataLayer
         _multiplexer = multiplexerFactory();
     }
 
-    public async Task<Lock?> TryCreateLock(string label, TimeSpan maxAge)
+    public async Task<Lock?> TryCreateLockAsync(string label, TimeSpan maxAge)
     {
-        var result = await InternalCreateLock(label, maxAge);
+        var result = await InternalCreateLockAsync(label, maxAge);
         if (result)
         {
-            async void ReleaseFunction() => await ReleaseLock(label);
+            async void ReleaseFunction() => await ReleaseLockAsync(label);
             Task KeepAliveFunction() => KeepAlive(label, maxAge);
             return new Lock(KeepAliveFunction, ReleaseFunction);
         }
@@ -31,7 +31,7 @@ internal class RedisLockingDataLayer : ILockingDataLayer
         return null;
     }
 
-    private async Task<bool> InternalCreateLock(string label, TimeSpan ttl)
+    private async Task<bool> InternalCreateLockAsync(string label, TimeSpan ttl)
     {
         var redisKey = GenerateKey(label);
         
@@ -47,7 +47,7 @@ internal class RedisLockingDataLayer : ILockingDataLayer
         return new RedisKey(label.ToLowerInvariant());
     }
 
-    private Task ReleaseLock(string label)
+    private Task ReleaseLockAsync(string label)
     {
         var ret = _multiplexer.GetDatabase().KeyDelete(  GenerateKey(label));
         if (!ret)

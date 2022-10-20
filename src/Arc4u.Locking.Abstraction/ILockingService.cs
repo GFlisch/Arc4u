@@ -2,5 +2,5 @@
 
 public interface ILockingService
 {
-    Task RunWithinLock(string label, TimeSpan maxAge, Func<Task> toBeRun);
+    Task RunWithinLockAsync(string label, TimeSpan maxAge, Func<Task> toBeRun, CancellationToken cancellationToken);
 }
