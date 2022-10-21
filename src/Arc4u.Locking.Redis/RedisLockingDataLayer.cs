@@ -18,14 +18,14 @@ internal class RedisLockingDataLayer : ILockingDataLayer
         _multiplexer = multiplexerFactory();
     }
 
-    public async Task<Lock?> TryCreateLockAsync(string label, TimeSpan maxAge)
+    public async Task<Lock?> TryCreateLockAsync(string label, TimeSpan maxAge, CancellationToken cancellationToken)
     {
         var result = await InternalCreateLockAsync(label, maxAge);
         if (result)
         {
             async void ReleaseFunction() => await ReleaseLockAsync(label);
-            Task KeepAliveFunction() => KeepAlive(label, maxAge);
-            return new Lock(KeepAliveFunction, ReleaseFunction);
+            Task KeepAliveFunction() => KeepAlive(label, maxAge, cancellationToken);
+            return new Lock(KeepAliveFunction, ReleaseFunction, cancellationToken);
         }
 
         return null;
@@ -58,8 +58,10 @@ internal class RedisLockingDataLayer : ILockingDataLayer
         return Task.CompletedTask;
     }
 
-    private async Task KeepAlive(string label, TimeSpan ttl)
+    private async Task KeepAlive(string label, TimeSpan ttl, CancellationToken cancellationToken)
     {
+        if (cancellationToken.IsCancellationRequested)
+            return;
         var lazyDatabaseValue = _multiplexer.GetDatabase();
         var ret = await lazyDatabaseValue.KeyExpireAsync(  GenerateKey(label), ttl);
         if (!ret)
@@ -67,4 +69,5 @@ internal class RedisLockingDataLayer : ILockingDataLayer
             _logger.LogCritical($"Can not extend the lock for label {label}");
         }
     }
+
 }

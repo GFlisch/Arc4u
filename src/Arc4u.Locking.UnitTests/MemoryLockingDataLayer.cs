@@ -11,7 +11,7 @@ internal class MemoryLockingDataLayer : ILockingDataLayer
 
     private readonly ReaderWriterLockSlim _lock = new();
 
-    public Task<Lock?> TryCreateLockAsync(string label, TimeSpan maxAge)
+    public Task<Lock?> TryCreateLockAsync(string label, TimeSpan maxAge, CancellationToken cancellationToken)
     {
         _lock.EnterReadLock();
         try
@@ -41,7 +41,7 @@ internal class MemoryLockingDataLayer : ILockingDataLayer
             _lock.EnterWriteLock();
             _counter = 0;
             _lock.ExitWriteLock();
-        });
+        }, cancellationToken);
         return Task.FromResult((Lock?) @lock);
     }
 }

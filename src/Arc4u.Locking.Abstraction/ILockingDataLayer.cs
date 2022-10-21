@@ -21,5 +21,5 @@ public interface ILockingDataLayer
     /// must be disposed after usage! (Best use in using!)
     /// </remarks>
     /// </returns>
-    Task<Lock?> TryCreateLockAsync(string label, TimeSpan maxAge);
+    Task<Lock?> TryCreateLockAsync(string label, TimeSpan maxAge, CancellationToken cancellationToken);
 }

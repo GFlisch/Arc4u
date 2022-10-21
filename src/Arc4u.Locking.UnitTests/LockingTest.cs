@@ -57,4 +57,45 @@ public class LockingTest
         run.Should().BeFalse();
         await firstTask;
     }
+    
+    
+    [Fact]
+    public async Task RunWithinLock_SecondCallIsBlockedxxxxxx()
+    {
+        var lockingDl = new RedisLockingDataLayer(() => 
+            ConnectionMultiplexer.Connect(new ConfigurationOptions()
+            {
+                EndPoints = { "localhost: 6379" }
+            }), new NullLogger<RedisLockingDataLayer>());
+
+        var service = new LockingService(lockingDl, new LockingConfiguration(), new NullLogger<LockingService>());
+
+        var label = _fixture.Create<string>();
+
+        var cancellationSource = new CancellationTokenSource();
+        var firstTask = service.RunWithinLockAsync(label, TimeSpan.FromMinutes(2),
+            async () =>
+            {
+                await Task.Delay(TimeSpan.FromMilliseconds(100));
+                Console.WriteLine("Releasing");
+                cancellationSource.Cancel();
+                await Task.Delay(TimeSpan.FromSeconds(3));
+            }, cancellationSource.Token);
+        await Task.Delay(TimeSpan.FromMilliseconds(500));
+
+        bool run = false;
+        var secondTask = service.RunWithinLockAsync(label, TimeSpan.FromMinutes(2), async () =>
+            {
+                run = true;
+                await Task.Delay(TimeSpan.FromSeconds(1));
+            },
+            CancellationToken.None);
+
+        
+        await secondTask;
+        await firstTask;
+
+        run.Should().BeTrue();
+        await firstTask;
+    }
 }

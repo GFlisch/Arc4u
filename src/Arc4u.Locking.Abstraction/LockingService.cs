@@ -17,7 +17,7 @@ public class LockingService : ILockingService
 
     public async Task RunWithinLockAsync(string label, TimeSpan maxAge, Func<Task> toBeRun, CancellationToken cancellationToken)
     {
-        var lockEntity = await  _lockingDataLayer.TryCreateLockAsync(label, maxAge);
+        var lockEntity = await  _lockingDataLayer.TryCreateLockAsync(label, maxAge, cancellationToken);
         var ttl = _configuration.RefreshRate;
         
         if (lockEntity is not null)
@@ -29,7 +29,13 @@ public class LockingService : ILockingService
                 try
                 {
                     var task = toBeRun();
-                    timer = new Timer(state => lockEntity.KeepAlive(), null, ttl, ttl);
+                    timer = new Timer(state =>
+                    {
+                        if (!cancellationToken.IsCancellationRequested)
+                        {
+                            lockEntity.KeepAlive();
+                        }
+                    }, null, ttl, ttl);
                     await task;
                 }
                 catch (Exception e)
