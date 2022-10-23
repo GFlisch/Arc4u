@@ -22,4 +22,5 @@ public interface ILockingDataLayer
     /// </remarks>
     /// </returns>
     Task<Lock?> TryCreateLockAsync(string label, TimeSpan maxAge, CancellationToken cancellationToken);
+    Task<Lock?> TryCreateLockAsync(string label, TimeSpan maxAge, Func<Task> cleanUpCallBack, CancellationToken cancellationToken);
 }

@@ -54,7 +54,51 @@ public class LockingService : ILockingService
         }
         else
         {
-            _logger.LogDebug( $"Got not get a lock for label {label}");
+            _logger.LogDebug( $"Could not get a lock for label {label}");
         }
     }
+
+    public async Task<Lock> CreateLock(string label, TimeSpan maxAge, CancellationToken cancellationToken)
+    {
+        var ret = await TryCreateLock(label, maxAge, cancellationToken);
+        if (ret != null)
+        {
+            return ret;
+        }
+
+        throw new Exception($"Could not obtain a lock for label {label}");
+    }
+    
+    public async Task<Lock?> TryCreateLock(string label,TimeSpan maxAge, CancellationToken cancellationToken)
+    {
+         Timer timer = null;
+        var lockEntity = await  _lockingDataLayer.TryCreateLockAsync(label, maxAge, CleanUpCallBack, cancellationToken);
+        var ttl = _configuration.RefreshRate;
+        
+        if (lockEntity is not null)
+        {
+            timer = new Timer(state =>
+                               {
+                                   if (!cancellationToken.IsCancellationRequested)
+                                   {
+                                       lockEntity.KeepAlive();
+                                   }
+                               }, null, ttl, ttl);
+        }
+        else
+        {
+            _logger.LogDebug( $"Could not get a lock for label {label}");
+        }
+
+        return lockEntity;
+        
+        async Task CleanUpCallBack()
+        {
+            if (timer != null)
+            {
+                await timer.DisposeAsync();
+            }
+        }
+    }
+
 }

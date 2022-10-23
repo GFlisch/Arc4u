@@ -31,6 +31,26 @@ internal class RedisLockingDataLayer : ILockingDataLayer
         return null;
     }
 
+    public async Task<Lock?> TryCreateLockAsync(string label, TimeSpan maxAge, Func<Task> cleanUpCallBack,
+        CancellationToken cancellationToken)
+    {
+        var result = await InternalCreateLockAsync(label, maxAge);
+        Console.WriteLine($"Got lock for {label} at {DateTime.Now.TimeOfDay}");
+        if (result)
+        {
+            async void ReleaseFunction()
+            {
+                await ReleaseLockAsync(label);
+                await cleanUpCallBack();
+            }
+
+            Task KeepAliveFunction() => KeepAlive(label, maxAge, cancellationToken);
+            return new Lock(KeepAliveFunction, ReleaseFunction, cancellationToken);
+        }
+
+        return null;
+    }
+
     private async Task<bool> InternalCreateLockAsync(string label, TimeSpan ttl)
     {
         var redisKey = GenerateKey(label);

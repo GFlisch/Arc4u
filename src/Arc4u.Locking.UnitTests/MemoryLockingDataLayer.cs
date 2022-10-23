@@ -44,4 +44,9 @@ internal class MemoryLockingDataLayer : ILockingDataLayer
         }, cancellationToken);
         return Task.FromResult((Lock?) @lock);
     }
+
+    public Task<Lock?> TryCreateLockAsync(string label, TimeSpan maxAge, Func<Task> cleanUpCallBack, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
 }
