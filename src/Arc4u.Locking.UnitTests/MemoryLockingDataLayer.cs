@@ -13,6 +13,10 @@ internal class MemoryLockingDataLayer : ILockingDataLayer
 
     public Task<Lock?> TryCreateLockAsync(string label, TimeSpan maxAge, CancellationToken cancellationToken)
     {
+        return InternalTryCreateLockAsync(label, maxAge, null, cancellationToken);
+    }
+    private Task<Lock?> InternalTryCreateLockAsync(string label, TimeSpan maxAge, Func<Task>? cleanUpCallBack , CancellationToken cancellationToken)
+    {
         _lock.EnterReadLock();
         try
         {
@@ -31,22 +35,29 @@ internal class MemoryLockingDataLayer : ILockingDataLayer
             _lock.ExitWriteLock();
         }, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
 
+        async void ReleaseFunction()
+        {
+            _lock.EnterWriteLock();
+            await timer.DisposeAsync();
+            if (cleanUpCallBack is not null)
+            {
+                await cleanUpCallBack();
+            }
+
+            _counter = 0;
+            _lock.ExitWriteLock();
+        }
+
         var @lock = new Lock(() =>
         {
             _counter = 0;
             return Task.CompletedTask;
-        }, () =>
-        {
-            timer.Dispose();
-            _lock.EnterWriteLock();
-            _counter = 0;
-            _lock.ExitWriteLock();
-        }, cancellationToken);
+        }, ReleaseFunction, cancellationToken);
         return Task.FromResult((Lock?) @lock);
     }
 
     public Task<Lock?> TryCreateLockAsync(string label, TimeSpan maxAge, Func<Task> cleanUpCallBack, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        return InternalTryCreateLockAsync(label, maxAge, cleanUpCallBack, cancellationToken);
     }
 }

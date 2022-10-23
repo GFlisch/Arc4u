@@ -107,7 +107,17 @@ public class LockingTest
             {
                 EndPoints = {"localhost: 6379"}
             }), new NullLogger<RedisLockingDataLayer>());
+        await CreateLock_SecondCallIsBlocked(lockingDl);
+    }
 
+    [Fact]
+    public async Task CreateLock_UsingInMemory_SecondCallIsBlocked()
+    {
+        await CreateLock_SecondCallIsBlocked(new MemoryLockingDataLayer());
+    }
+
+    private async Task CreateLock_SecondCallIsBlocked(ILockingDataLayer lockingDl)
+    {
         var service = new LockingService(lockingDl, new LockingConfiguration(), new NullLogger<LockingService>());
 
         var label = _fixture.Create<string>();
@@ -138,6 +148,20 @@ public class LockingTest
                 EndPoints = {"localhost: 6379"}
             }), new NullLogger<RedisLockingDataLayer>());
 
+        await TryCreateLock_SecondCallIsBlocked(lockingDl);
+    }
+    
+    [Fact]
+    public async Task TryCreateLock_UsingInMemory_SecondCallIsBlocked()
+    {
+        var lockingDl = new MemoryLockingDataLayer();
+
+        await TryCreateLock_SecondCallIsBlocked(lockingDl);
+    }
+    
+    
+    private async Task TryCreateLock_SecondCallIsBlocked(ILockingDataLayer lockingDl)
+    {
         var service = new LockingService(lockingDl, new LockingConfiguration(), new NullLogger<LockingService>());
 
         var label = _fixture.Create<string>();
