@@ -15,10 +15,11 @@ public class LockingService : ILockingService
         _logger = logger;
     }
 
-    public async Task RunWithinLockAsync(string label, TimeSpan maxAge, Func<Task> toBeRun, CancellationToken cancellationToken)
+    
+    public async Task RunWithinLockAsync(string label, TimeSpan ttl, Func<Task> toBeRun, CancellationToken cancellationToken)
     {
-        var lockEntity = await  _lockingDataLayer.TryCreateLockAsync(label, maxAge, cancellationToken);
-        var ttl = _configuration.RefreshRate;
+        var lockEntity = await  _lockingDataLayer.TryCreateLockAsync(label, ttl, cancellationToken);
+        var refreshRate = _configuration.RefreshRate;
         
         if (lockEntity is not null)
         {
@@ -35,7 +36,7 @@ public class LockingService : ILockingService
                         {
                             lockEntity.KeepAlive();
                         }
-                    }, null, ttl, ttl);
+                    }, null, refreshRate, refreshRate);
                     await task;
                 }
                 catch (Exception e)
@@ -58,9 +59,9 @@ public class LockingService : ILockingService
         }
     }
 
-    public async Task<Lock> CreateLock(string label, TimeSpan maxAge, CancellationToken cancellationToken)
+    public async Task<Lock> CreateLock(string label, TimeSpan ttl, CancellationToken cancellationToken)
     {
-        var ret = await TryCreateLock(label, maxAge, cancellationToken);
+        var ret = await TryCreateLock(label, ttl, cancellationToken);
         if (ret != null)
         {
             return ret;
@@ -69,11 +70,11 @@ public class LockingService : ILockingService
         throw new Exception($"Could not obtain a lock for label {label}");
     }
     
-    public async Task<Lock?> TryCreateLock(string label,TimeSpan maxAge, CancellationToken cancellationToken)
+    public async Task<Lock?> TryCreateLock(string label,TimeSpan ttl, CancellationToken cancellationToken)
     {
          Timer timer = null;
-        var lockEntity = await  _lockingDataLayer.TryCreateLockAsync(label, maxAge, CleanUpCallBack, cancellationToken);
-        var ttl = _configuration.RefreshRate;
+        var lockEntity = await  _lockingDataLayer.TryCreateLockAsync(label, ttl, CleanUpCallBack, cancellationToken);
+        var refreshRate = _configuration.RefreshRate;
         
         if (lockEntity is not null)
         {
@@ -83,7 +84,7 @@ public class LockingService : ILockingService
                                    {
                                        lockEntity.KeepAlive();
                                    }
-                               }, null, ttl, ttl);
+                               }, null, refreshRate, refreshRate);
         }
         else
         {

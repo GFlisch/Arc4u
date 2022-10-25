@@ -11,6 +11,7 @@ internal class MemoryLockingDataLayer : ILockingDataLayer
 
     private readonly ReaderWriterLockSlim _lock = new();
 
+    /// <inheritdoc />
     public Task<Lock?> TryCreateLockAsync(string label, TimeSpan maxAge, CancellationToken cancellationToken)
     {
         return InternalTryCreateLockAsync(label, maxAge, null, cancellationToken);
