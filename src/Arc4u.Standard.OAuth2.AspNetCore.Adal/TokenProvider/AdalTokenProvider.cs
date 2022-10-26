@@ -1,16 +1,15 @@
-﻿using Arc4u.Dependency;
-using Arc4u.Diagnostics;
+﻿using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Configuration;
 using Arc4u.OAuth2.Token;
 using Arc4u.Security.Principal;
 using Arc4u.ServiceModel;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
-using System.Security.Principal;
 using System.Threading.Tasks;
 using AuthenticationContext = Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContext;
 
@@ -22,9 +21,9 @@ namespace Arc4u.OAuth2.TokenProvider
         private readonly OAuthConfig oAuthConfig;
         private ClaimsIdentity identity;
         protected readonly ILogger<AdalTokenProvider> _logger;
-        protected readonly IContainerResolve Container;
+        protected readonly IServiceProvider Container;
 
-        public AdalTokenProvider(OAuthConfig oAuthConfig, ILogger<AdalTokenProvider> logger, IContainerResolve container)
+        public AdalTokenProvider(OAuthConfig oAuthConfig, ILogger<AdalTokenProvider> logger, IServiceProvider container)
         {
             _logger = logger;
             Container = container;
@@ -43,7 +42,8 @@ namespace Arc4u.OAuth2.TokenProvider
             // give the identity to platform parameter when used in the BE which is the purpose of this ITokenProvide.
             identity = platformParameters as ClaimsIdentity;
 
-            if (null == identity && Container.TryResolve<IApplicationContext>(out var applicationContext))
+            IApplicationContext applicationContext;
+            if (null == identity && (applicationContext = Container.GetService<IApplicationContext>()) != null)
             {
                 identity = applicationContext.Principal?.Identity as ClaimsIdentity;
             }

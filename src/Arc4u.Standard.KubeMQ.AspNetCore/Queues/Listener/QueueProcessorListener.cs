@@ -1,7 +1,7 @@
-﻿using Arc4u.Dependency;
-using Arc4u.Diagnostics;
+﻿using Arc4u.Diagnostics;
 using Arc4u.KubeMQ.AspNetCore.Configuration;
 using KubeMQ.SDK.csharp.QueueStream;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Polly;
 using System;
@@ -20,12 +20,12 @@ namespace Arc4u.KubeMQ.AspNetCore.Queues
                                       QueueParameters queueParameters,
                                       IQueueStreamManager queueStreamManager,
                                       IMessageHandlerTypes messageHandlers,
-                                      IContainerResolve provider)
+                                      IServiceProvider provider)
         {
             _stoppingToken = stoppingToken;
             _queueParameters = queueParameters;
             _queueStreamManager = queueStreamManager;
-            _logger = provider.Resolve<ILogger<QueueProcessorListener>>();
+            _logger = provider.GetRequiredService<ILogger<QueueProcessorListener>>();
             _messageHandlers = messageHandlers;
             _provider = provider;
             _hasThreadFinishToProcess = new AutoResetEvent(false);
@@ -35,7 +35,7 @@ namespace Arc4u.KubeMQ.AspNetCore.Queues
         private readonly QueueParameters _queueParameters;
         private readonly IQueueStreamManager _queueStreamManager;
         private readonly ILogger<QueueProcessorListener> _logger;
-        private readonly IContainerResolve _provider;
+        private readonly IServiceProvider _provider;
         private readonly IMessageHandlerTypes _messageHandlers;
         private readonly AutoResetEvent _hasThreadFinishToProcess;
 
@@ -120,8 +120,8 @@ namespace Arc4u.KubeMQ.AspNetCore.Queues
 
                                       using (var scope = _provider.CreateScope())
                                       {
-                                          var handler = scope.Resolve(interfaceType);
-                                          var context = scope.Resolve<HandlerContext>();
+                                          var handler = scope.ServiceProvider.GetRequiredService(interfaceType);
+                                          var context = scope.ServiceProvider.GetService<HandlerContext>();
 
                                           if (null != context)
                                           {

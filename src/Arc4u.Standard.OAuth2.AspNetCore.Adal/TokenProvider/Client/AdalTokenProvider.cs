@@ -1,5 +1,4 @@
-﻿using Arc4u.Dependency;
-using Arc4u.Diagnostics;
+﻿using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Token;
 using Arc4u.ServiceModel;
 using Microsoft.Extensions.Logging;
@@ -15,9 +14,9 @@ namespace Arc4u.OAuth2.TokenProvider.Client
     {
         private Dictionary<string, AuthenticationResult> _resultCache = new Dictionary<string, AuthenticationResult>();
         protected readonly ILogger<AdalTokenProvider> _logger;
-        protected readonly IContainerResolve Container;
+        protected readonly IServiceProvider Container;
 
-        public AdalTokenProvider(ILogger<AdalTokenProvider> logger, IContainerResolve container)
+        public AdalTokenProvider(ILogger<AdalTokenProvider> logger, IServiceProvider container)
         {
             _logger = logger;
             Container = container;

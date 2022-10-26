@@ -18,7 +18,6 @@ namespace Arc4u.Standard.OAuth2.Middleware
     {
         private readonly RequestDelegate _next;
         private readonly BasicAuthenticationContextOption _option;
-        private readonly IContainerResolve _container;
         private readonly ILogger<BasicAuthenticationMiddleware> _logger;
         private readonly ITokenCache _tokenCache;
         private readonly ICredentialTokenProvider _provider;
@@ -72,7 +71,6 @@ namespace Arc4u.Standard.OAuth2.Middleware
             }
 
             _option = option;
-            _container = container;
 
             _activitySource = container.Resolve<IActivitySourceFactory>()?.GetArc4u();
         }

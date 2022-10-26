@@ -1,5 +1,4 @@
 ﻿using Arc4u.Configuration;
-using Arc4u.Dependency;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Arc4u.IdentityModel.Claims;
@@ -19,9 +18,8 @@ namespace Arc4u.OAuth2.Security.Principal
     [Export(typeof(IClaimsFiller))]
     public class ClaimsProxy : IClaimsFiller
     {
-        public ClaimsProxy(IContainerResolve container, IAppSettings appSettings, Config config, IHttpClientFactory httpClientFactory, ILogger<ClaimsProxy> logger)
+        public ClaimsProxy(IAppSettings appSettings, Config config, IHttpClientFactory httpClientFactory, ILogger<ClaimsProxy> logger)
         {
-            _container = container;
             _httpClientFactory = httpClientFactory;
             _applicationName = config?.ApplicationName ?? "Unknow";
             // read information to call the backend service from configuration.
@@ -33,7 +31,6 @@ namespace Arc4u.OAuth2.Security.Principal
         private string _url;
         private readonly DataContractJsonSerializer _jsonSerializer;
         private string _applicationName;
-        protected readonly IContainerResolve _container;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<ClaimsProxy> _logger;
         public async Task<IEnumerable<ClaimDto>> GetAsync(IIdentity identity, IEnumerable<IKeyValueSettings> settings, object parameter)

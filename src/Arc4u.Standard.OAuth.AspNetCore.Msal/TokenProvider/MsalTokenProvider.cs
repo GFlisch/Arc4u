@@ -1,8 +1,8 @@
-﻿using Arc4u.Dependency;
-using Arc4u.Dependency.Attribute;
+﻿using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Token;
 using Arc4u.Security.Principal;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Web;
 using System;
@@ -18,14 +18,14 @@ namespace Arc4u.OAuth2.TokenProvider
     {
         const string ProviderName = "Msal";
 
-        public MsalTokenProvider(IContainerResolve container, IApplicationContext applicationContext, ILogger<MsalTokenProvider> logger)
+        public MsalTokenProvider(IServiceProvider container, IApplicationContext applicationContext, ILogger<MsalTokenProvider> logger)
         {
             _container = container;
             _applicationContext = applicationContext;
             _logger = logger;
         }
 
-        private readonly IContainerResolve _container;
+        private readonly IServiceProvider _container;
         private readonly IApplicationContext _applicationContext;
         private readonly ILogger<MsalTokenProvider> _logger;
 
@@ -57,7 +57,7 @@ namespace Arc4u.OAuth2.TokenProvider
 
                     var scopes = settings.Values[TokenKeys.Scopes].Split(',', ';');
 
-                    var tokenAcquisition = _container.Resolve<ITokenAcquisition>();
+                    var tokenAcquisition = _container.GetRequiredService<ITokenAcquisition>();
 
                     var result = await tokenAcquisition.GetAuthenticationResultForUserAsync(scopes);
 

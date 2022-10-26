@@ -1,7 +1,7 @@
-﻿using Arc4u.Dependency;
-using Arc4u.Diagnostics;
+﻿using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Token;
 using Arc4u.OAuth2.Token.Adal;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using System;
@@ -12,16 +12,12 @@ namespace Arc4u.OAuth2.Adal
 {
     public static class OpenIdConnectAuthenticationHandlers
     {
-        public static async Task<string> AuthorizationCodeReceived(IServiceProvider serviceProvider, IKeyValueSettings openIdSettings, ClaimsPrincipal principal, string code, string redirectUri, bool validateAuthority = false)
+        public static async Task<string> AuthorizationCodeReceived(IServiceProvider container, IKeyValueSettings openIdSettings, ClaimsPrincipal principal, string code, string redirectUri, bool validateAuthority = false)
         {
-            IContainerResolve container = serviceProvider.GetService(typeof(IContainerResolve)) as IContainerResolve;
-            if (null == container)
-                throw new NullReferenceException("No container resolve is defined.");
+            var logger = container.GetService<ILogger>();
 
-
-            container.TryResolve<ILogger>(out var logger);
-
-            if (!container.TryResolve<ICacheKeyGenerator>(out var keyGen))
+            var keyGen = container.GetService<ICacheKeyGenerator>();
+            if (keyGen == null)
             {
                 logger?.Technical().From(typeof(OpenIdConnectAuthenticationHandlers)).Error($"No Cache key generator is registered. Unable to uniquely identify a user.").Log();
                 throw new NullReferenceException("ICacheKeyGenerator is not regeistered in the DI container.");
