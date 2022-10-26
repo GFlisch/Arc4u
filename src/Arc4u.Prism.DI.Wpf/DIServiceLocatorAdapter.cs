@@ -1,4 +1,5 @@
 using Arc4u.Dependency;
+using Microsoft.Extensions.DependencyInjection;
 using CommonServiceLocator;
 using System;
 using System.Collections.Generic;
@@ -10,11 +11,11 @@ namespace Prism.DI
     /// </summary>
     public class DIServiceLocatorAdapter : ServiceLocatorImplBase
     {
-        private readonly IContainerResolve Container;
+        private readonly IServiceProvider Container;
         /// <summary>Exposes underlying Container for direct operation.</summary>
         /// <summary>Creates new locator as adapter for provided container.</summary>
         /// <param name="container">Container to use/adapt.</param>
-        public DIServiceLocatorAdapter(IContainerResolve container)
+        public DIServiceLocatorAdapter(IServiceProvider container)
         {
             Container = container;
         }
@@ -26,7 +27,7 @@ namespace Prism.DI
         protected override object DoGetInstance(Type serviceType, string key)
         {
             if (serviceType == null) throw new ArgumentNullException(nameof(serviceType));
-            var result = String.IsNullOrWhiteSpace(key) ? Container.Resolve(serviceType) : Container.Resolve(serviceType, key);
+            var result = String.IsNullOrWhiteSpace(key) ? Container.GetService(serviceType) : Container.GetService(serviceType, key);
             return result;
         }
 
@@ -38,7 +39,7 @@ namespace Prism.DI
         protected override IEnumerable<object> DoGetAllInstances(Type serviceType)
         {
             if (serviceType == null) throw new ArgumentNullException(nameof(serviceType));
-            return Container.ResolveAll(serviceType);
+            return Container.GetServices(serviceType);
         }
     }
 }

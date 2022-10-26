@@ -3,6 +3,7 @@ using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Arc4u.Serializer;
 using Microsoft.Extensions.Caching.StackExchangeRedis;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using StackExchangeRedis = Microsoft.Extensions.Caching.StackExchangeRedis.RedisCache;
@@ -21,7 +22,7 @@ namespace Arc4u.Caching.Redis
 
         private readonly ILogger Logger;
 
-        public RedisCache(ILogger logger, IContainerResolve container) : base(container)
+        public RedisCache(ILogger logger, IServiceProvider container) : base(container)
         {
             Logger = logger;
         }
@@ -37,7 +38,7 @@ namespace Arc4u.Caching.Redis
                 }
                 Name = store;
 
-                if (Container.TryResolve<IKeyValueSettings>(store, out var settings))
+                if (Container.TryGetService<IKeyValueSettings>(store, out var settings))
                 {
                     if (settings.Values.ContainsKey(ConnectionStringKey))
                         ConnectionString = settings.Values[ConnectionStringKey];
@@ -58,9 +59,9 @@ namespace Arc4u.Caching.Redis
 
                     DistributeCache = new StackExchangeRedis(option);
 
-                    if (!Container.TryResolve<IObjectSerialization>(SerializerName, out var serializerFactory))
+                    if (!Container.TryGetService<IObjectSerialization>(SerializerName, out var serializerFactory))
                     {
-                        SerializerFactory = Container.Resolve<IObjectSerialization>();
+                        SerializerFactory = Container.GetService<IObjectSerialization>();
                     }
                     else SerializerFactory = serializerFactory;
 

@@ -1,5 +1,4 @@
 ﻿using Arc4u.Dependency;
-using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Aspect;
 using Arc4u.OAuth2.Token;
 using Arc4u.Security.Principal;
@@ -45,7 +44,7 @@ namespace Arc4u.Blazor
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
         [HttpGet("redirectTo/{redirectTo}/{id?}")]
-        public async Task<IActionResult> Get(int? id, string redirectTo, [FromServices] IApplicationContext applicationContext, [FromServices] IContainerResolve containerResolve, [FromServices] ILogger<BlazorController> logger)
+        public async Task<IActionResult> Get(int? id, string redirectTo, [FromServices] IApplicationContext applicationContext, [FromServices] IServiceProvider containerResolve, [FromServices] ILogger<BlazorController> logger)
         {
             if (applicationContext.Principal.Authorization.Operations.Count == 0) return Unauthorized();
             string accessToken = null;
@@ -60,9 +59,9 @@ namespace Arc4u.Blazor
                 }
                 else
                 {
-                    if (containerResolve.TryResolve<IKeyValueSettings>("OpenId", out var settings))
+                    if (containerResolve.TryGetService<IKeyValueSettings>("OpenId", out var settings))
                     {
-                        if (containerResolve.TryResolve<ITokenProvider>(settings.Values[TokenKeys.ProviderIdKey], out var tokenProvider))
+                        if (containerResolve.TryGetService<ITokenProvider>(settings.Values[TokenKeys.ProviderIdKey], out var tokenProvider))
                         {
                             accessToken = (await tokenProvider.GetTokenAsync(settings, claimsIdentity)).AccessToken;
                         }
@@ -78,7 +77,7 @@ namespace Arc4u.Blazor
 
             if (accessToken.Length > index * buffer)
             {
-                containerResolve.TryResolve<IKeyValueSettings>("OAuth", out var settings);
+                containerResolve.TryGetService<IKeyValueSettings>("OAuth", out var settings);
                 var thisController = settings.Values[TokenKeys.RootServiceUrlKey].TrimEnd('/') + $"/blazor/redirectto/{redirectTo}/{index + 1}&token={accessToken.Substring((index - 1) * buffer, buffer)}";
                 return Redirect(UriHelper.Encode(new Uri($"{redirectUri}?url={thisController}")));
             }

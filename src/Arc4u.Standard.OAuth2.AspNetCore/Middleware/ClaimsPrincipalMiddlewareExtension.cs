@@ -6,7 +6,7 @@ namespace Arc4u.Standard.OAuth2.Middleware
 {
     public static class ClaimsPrincipalMiddlewareExtension
     {
-        public static IApplicationBuilder UseCreatePrincipal(this IApplicationBuilder app, IContainerResolve container, ClaimsPrincipalMiddlewareOption option)
+        public static IApplicationBuilder UseCreatePrincipal(this IApplicationBuilder app, IServiceProvider container, ClaimsPrincipalMiddlewareOption option)
         {
             if (null == app)
                 throw new ArgumentNullException(nameof(app));

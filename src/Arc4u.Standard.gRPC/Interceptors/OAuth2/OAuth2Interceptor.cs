@@ -23,11 +23,11 @@ namespace Arc4u.gRPC.Interceptors
         /// <param name="containerResolve"></param>
         /// <param name="settingsName"></param>
         /// <param name="platformParameter"></param>
-        public OAuth2Interceptor(IContainerResolve containerResolve, string settingsName, object platformParameter) : this(containerResolve)
+        public OAuth2Interceptor(IServiceProvider containerResolve, string settingsName, object platformParameter) : this(containerResolve)
         {
             _container = containerResolve ?? throw new ArgumentNullException(nameof(containerResolve));
 
-            _settings = containerResolve.Resolve<IKeyValueSettings>(settingsName);
+            _settings = containerResolve.GetService<IKeyValueSettings>(settingsName);
 
             // can be null.
             _platformParameter = platformParameter;
@@ -49,13 +49,13 @@ namespace Arc4u.gRPC.Interceptors
         }
 
         // Add logging.
-        private OAuth2Interceptor(IContainerResolve containerResolve)
+        private OAuth2Interceptor(IServiceProvider containerResolve)
         {
-            _logger = containerResolve.Resolve<ILogger<OAuth2Interceptor>>();
+            _logger = containerResolve.GetService<ILogger<OAuth2Interceptor>>();
         }
 
 
-        private IContainerResolve _container;
+        private IServiceProvider _container;
         private object _platformParameter;
         private IKeyValueSettings _settings;
         private readonly ILogger<OAuth2Interceptor> _logger;
@@ -120,7 +120,7 @@ namespace Arc4u.gRPC.Interceptors
 
             if (null != _accessor)
             {
-                _container = _accessor.HttpContext.RequestServices.GetService<IContainerResolve>();
+                _container = _accessor.HttpContext.RequestServices;
             }
 
             // As this is global for an handler, this can be saved at the level of the class.
@@ -128,11 +128,11 @@ namespace Arc4u.gRPC.Interceptors
             // when the JwtHttpHandler is built.
             if (null == _settings && !String.IsNullOrWhiteSpace(_settingsName))
             {
-                if (!_container.TryResolve(_settingsName, out _settings))
+                if (!_container.TryGetService(_settingsName, out _settings))
                     _logger.Technical().Debug($"No settings for {_settingsName} is found.").Log();
             }
 
-            if (_container.TryResolve<IApplicationContext>(out var applicationContext))
+            if (_container.TryGetService<IApplicationContext>(out var applicationContext))
                 _platformParameter = _platformParameter ?? applicationContext?.Principal?.Identity as ClaimsIdentity;
 
 
@@ -160,7 +160,7 @@ namespace Arc4u.gRPC.Interceptors
 
             try
             {
-                ITokenProvider provider = _container.Resolve<ITokenProvider>(_settings.Values[TokenKeys.ProviderIdKey]);
+                ITokenProvider provider = _container.GetService<ITokenProvider>(_settings.Values[TokenKeys.ProviderIdKey]);
                 var tokenInfo = provider.GetTokenAsync(_settings, _platformParameter).Result;
 
                 if (tokenInfo.ExpiresOnUtc < DateTime.UtcNow)

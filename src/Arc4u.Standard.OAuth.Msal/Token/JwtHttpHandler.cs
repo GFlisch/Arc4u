@@ -2,6 +2,7 @@
 using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Token;
 using Arc4u.Security.Principal;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
@@ -25,28 +26,28 @@ namespace Arc4u.OAuth2.Msal.Token
         /// </summary>
         /// <param name="container">The scoped container</param>
         /// <param name="resolvingName">The name used to resolve the settings</param>
-        public JwtHttpHandler(IContainerResolve container, ILogger<JwtHttpHandler> logger, string resolvingName)
+        public JwtHttpHandler(IServiceProvider container, ILogger<JwtHttpHandler> logger, string resolvingName)
         {
             _container = container ?? throw new ArgumentNullException(nameof(container));
 
             _logger = logger;
 
-            if (!container.TryResolve(resolvingName, out _settings))
+            if (!container.TryGetService(resolvingName, out _settings))
                 _logger.Technical().System($"No settings for {resolvingName} is found.").Log();
 
 
-            container.TryResolve(out _applicationContext);
+            container.TryGetService(out _applicationContext);
 
         }
 
         #endregion
 
         private readonly IKeyValueSettings _settings;
-        private readonly IContainerResolve _container;
+        private readonly IServiceProvider _container;
         private readonly IApplicationContext _applicationContext;
         private readonly ILogger<JwtHttpHandler> _logger;
 
-        private IContainerResolve GetResolver() => _container;
+        private IServiceProvider GetResolver() => _container;
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
@@ -54,7 +55,7 @@ namespace Arc4u.OAuth2.Msal.Token
             {
                 _logger.Technical().System($"{GetType().Name} delegate handler is called.").Log();
 
-                var applicationContext = GetResolver().Resolve<IApplicationContext>();
+                var applicationContext = GetResolver().GetService<IApplicationContext>();
 
                 if (null == _settings || null == applicationContext)
                 {
@@ -93,7 +94,7 @@ namespace Arc4u.OAuth2.Msal.Token
 
                 _logger.Technical().System($"{GetType().Name} token provider is called.").Log();
 
-                ITokenProvider provider = GetResolver().Resolve<ITokenProvider>(_settings.Values[TokenKeys.ProviderIdKey]);
+                ITokenProvider provider = GetResolver().GetService<ITokenProvider>(_settings.Values[TokenKeys.ProviderIdKey]);
 
                 _logger.Technical().System("Requesting an authentication token.").Log();
                 var tokenInfo = await provider.GetTokenAsync(_settings, null);

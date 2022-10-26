@@ -10,10 +10,5 @@ namespace Arc4u.OAuth2.Aspect
         {
             services.TryAddScoped<OperationCheckAttribute>();
         }
-
-        public static void AddAuthorizationCheckAttribute(this IContainer container)
-        {
-            container.RegisterScoped<OperationCheckAttribute, OperationCheckAttribute>();
-        }
     }
 }

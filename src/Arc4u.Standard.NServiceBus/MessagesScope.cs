@@ -14,7 +14,7 @@ namespace Arc4u.NServiceBus
     {
         private readonly ILogger Logger;
 
-        public MessagesScope(IContainerResolve container, ILogger logger, string iocResolveName)
+        public MessagesScope(IServiceProvider container, ILogger logger, string iocResolveName)
         {
             Logger = logger;
             // Create the unit of work list of messages.
@@ -22,7 +22,7 @@ namespace Arc4u.NServiceBus
 
             // Search for the instance used to send commands and publish events on start of the
             // scope. So if we have a resolving issue, we know it immediately (and not after the work is done.
-            if (!container.TryResolve<IEndpointConfiguration>(iocResolveName, out var endpointConfig))
+            if (!container.TryGetService<IEndpointConfiguration>(iocResolveName, out var endpointConfig))
             {
                 logger.Technical().From<MessagesScope>().Warning($"Unable to resolve the IEndpointConfiguration with the name '{iocResolveName}'").Log();
                 return;

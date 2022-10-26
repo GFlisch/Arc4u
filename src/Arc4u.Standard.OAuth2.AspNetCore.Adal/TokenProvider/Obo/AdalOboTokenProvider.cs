@@ -19,11 +19,11 @@ namespace Arc4u.OAuth2.TokenProvider
 
         private OAuthConfig oAuthConfig;
         protected readonly ILogger<AdalOboTokenProvider> _logger;
-        protected readonly IContainerResolve Container;
+        protected readonly IServiceProvider Container;
         private readonly IApplicationContext _applicationContext;
 
 
-        public AdalOboTokenProvider(OAuthConfig oAuthConfig, ILogger<AdalOboTokenProvider> logger, IContainerResolve container, IApplicationContext applicationContext)
+        public AdalOboTokenProvider(OAuthConfig oAuthConfig, ILogger<AdalOboTokenProvider> logger, IServiceProvider container, IApplicationContext applicationContext)
         {
             _logger = logger;
             Container = container;
@@ -73,7 +73,7 @@ namespace Arc4u.OAuth2.TokenProvider
 
             var settingsProviderName = settings.Values.ContainsKey("OpenIdSettingsReader") ? settings.Values["OpenIdSettingsReader"] : "OpenID";
 
-            if (Container.TryResolve<IKeyValueSettings>(settingsProviderName, out var openIdSettings))
+            if (Container.TryGetService<IKeyValueSettings>(settingsProviderName, out var openIdSettings))
             {
                 if (!openIdSettings.Values.ContainsKey(TokenKeys.ProviderIdKey))
                     messages.Add(new Message(ServiceModel.MessageCategory.Technical, MessageType.Error, "No Provider defined in OpenId Settings."));
@@ -81,7 +81,7 @@ namespace Arc4u.OAuth2.TokenProvider
                 {
                     var tokenProviderName = openIdSettings.Values[TokenKeys.ProviderIdKey];
 
-                    if (Container.TryResolve<ITokenProvider>(tokenProviderName, out var openIdTokenProvider))
+                    if (Container.TryGetService<ITokenProvider>(tokenProviderName, out var openIdTokenProvider))
                     {
                         return await openIdTokenProvider.GetTokenAsync(openIdSettings, identity);
                     }
@@ -117,7 +117,7 @@ namespace Arc4u.OAuth2.TokenProvider
             // Retrieve information from the OAuth section.
             var oauthSettingsName = settings.Values.ContainsKey("OAuthSettingsReader") ? settings.Values["OAuthSettingsReader"] : "OAuth";
 
-            if (Container.TryResolve<IKeyValueSettings>(oauthSettingsName, out var oauthSettings))
+            if (Container.TryGetService<IKeyValueSettings>(oauthSettingsName, out var oauthSettings))
             {
                 // Valdate arguments.
                 if (!oauthSettings.Values.ContainsKey(TokenKeys.AuthorityKey))

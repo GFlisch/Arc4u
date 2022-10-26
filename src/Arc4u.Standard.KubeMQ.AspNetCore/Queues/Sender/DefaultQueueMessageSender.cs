@@ -4,6 +4,7 @@ using Arc4u.KubeMQ.AspNetCore.Configuration;
 using Arc4u.Security.Principal;
 using Arc4u.Serializer;
 using KubeMQ.SDK.csharp.QueueStream;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
@@ -19,7 +20,7 @@ namespace Arc4u.KubeMQ.AspNetCore.Queues
     public class DefaultQueueMessageSender : IQueueMessageSender
     {
         public DefaultQueueMessageSender(IOptionsMonitor<QueueDefinition> definitions,
-                                         IContainerResolve serviceProvider,
+                                         IServiceProvider serviceProvider,
                                          IQueueStreamManager queueStreamManager,
                                          IApplicationContext applicationContext,
                                          ILogger<DefaultQueueMessageSender> logger,
@@ -34,7 +35,7 @@ namespace Arc4u.KubeMQ.AspNetCore.Queues
         }
 
         private readonly IOptionsMonitor<QueueDefinition> _definitions;
-        private readonly IContainerResolve _serviceProvider;
+        private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<DefaultQueueMessageSender> _logger;
         private readonly IApplicationContext _applicationContext;
         private readonly IQueueStreamManager _queueStreamManager;
@@ -297,9 +298,9 @@ namespace Arc4u.KubeMQ.AspNetCore.Queues
             if (null == definition)
                 throw new ArgumentNullException(nameof(definition));
 
-            if (null == definition.Serializer || !_serviceProvider.TryResolve<IObjectSerialization>(definition.Serializer, out var serializer))
+            if (null == definition.Serializer || !_serviceProvider.TryGetService<IObjectSerialization>(definition.Serializer, out var serializer))
             {
-                return _serviceProvider.Resolve<IObjectSerialization>();
+                return _serviceProvider.GetService<IObjectSerialization>();
             }
 
             return serializer;

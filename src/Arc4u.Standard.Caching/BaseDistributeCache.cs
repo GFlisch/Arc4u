@@ -18,19 +18,19 @@ namespace Arc4u.Caching
         protected object _lock = new object();
         protected bool IsInitialized { get; set; }
 
-        protected readonly IContainerResolve _container;
+        protected readonly IServiceProvider _container;
 
-        protected IContainerResolve Container => _container;
+        protected IServiceProvider Container => _container;
         private readonly ActivitySource _activitySource;
 
-        public BaseDistributeCache(IContainerResolve container)
+        public BaseDistributeCache(IServiceProvider container)
         {
             if (null == container)
                 throw new ArgumentNullException(nameof(container));
 
             _container = container;
 
-            if (container.TryResolve<IActivitySourceFactory>(out var activitySourceFactory))
+            if (container.TryGetService<IActivitySourceFactory>(out var activitySourceFactory))
             {
                 _activitySource = activitySourceFactory.GetArc4u();
             }

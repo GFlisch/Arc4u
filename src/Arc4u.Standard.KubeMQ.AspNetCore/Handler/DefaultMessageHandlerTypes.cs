@@ -2,6 +2,7 @@
 using Arc4u.Diagnostics;
 using Arc4u.KubeMQ.AspNetCore.Handler;
 using Arc4u.Serializer;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
@@ -14,7 +15,7 @@ namespace Arc4u.KubeMQ.AspNetCore
     {
         ConcurrentDictionary<string, Type> _types = new ConcurrentDictionary<string, Type>();
 
-        public DefaultMessageHandlerTypes(IOptionsMonitor<HandlerDefintion> definitions, ILogger<DefaultMessageHandlerTypes> logger, IContainerResolve serviceProvider)
+        public DefaultMessageHandlerTypes(IOptionsMonitor<HandlerDefintion> definitions, ILogger<DefaultMessageHandlerTypes> logger, IServiceProvider serviceProvider)
         {
             _definitions = definitions;
             _logger = logger;
@@ -23,7 +24,7 @@ namespace Arc4u.KubeMQ.AspNetCore
 
         private readonly ILogger<DefaultMessageHandlerTypes> _logger;
         private readonly IOptionsMonitor<HandlerDefintion> _definitions;
-        private readonly IContainerResolve _serviceProvider;
+        private readonly IServiceProvider _serviceProvider;
         private object locker = new Object();
 
         public Type GetOrAddType(string keyName, out Type handlerDataType)
@@ -63,9 +64,9 @@ namespace Arc4u.KubeMQ.AspNetCore
         {
             var handlerDefinition = _definitions.Get(keyName);
 
-            if (null == handlerDefinition.Serializer || !_serviceProvider.TryResolve<IObjectSerialization>(handlerDefinition.Serializer, out var serializerFactory))
+            if (null == handlerDefinition.Serializer || !_serviceProvider.TryGetService<IObjectSerialization>(handlerDefinition.Serializer, out var serializerFactory))
             {
-                return _serviceProvider.Resolve<IObjectSerialization>();
+                return _serviceProvider.GetService<IObjectSerialization>();
             }
 
             return serializerFactory;

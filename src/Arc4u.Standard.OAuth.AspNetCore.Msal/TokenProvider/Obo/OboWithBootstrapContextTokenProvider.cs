@@ -23,7 +23,7 @@ namespace Arc4u.OAuth2.TokenProvider
     {
         public const string ProviderName = "Obo";
 
-        public OboWithBootstrapContextTokenProvider(CacheContext cacheContext, IContainerResolve container, ILogger<OboWithBootstrapContextTokenProvider> logger, IActivitySourceFactory activitySourceFactory)
+        public OboWithBootstrapContextTokenProvider(CacheContext cacheContext, IServiceProvider container, ILogger<OboWithBootstrapContextTokenProvider> logger, IActivitySourceFactory activitySourceFactory)
         {
             _cacheContext = cacheContext;
             _container = container;
@@ -32,7 +32,7 @@ namespace Arc4u.OAuth2.TokenProvider
         }
 
         private readonly CacheContext _cacheContext;
-        private readonly IContainerResolve _container;
+        private readonly IServiceProvider _container;
         private readonly ILogger<OboWithBootstrapContextTokenProvider> _logger;
         private readonly ActivitySource _activitySource;
 
@@ -74,7 +74,7 @@ namespace Arc4u.OAuth2.TokenProvider
             }
             else
             {
-                if (!_container.TryResolve<IApplicationContext>(out IApplicationContext applicationContext))
+                if (!_container.TryGetService(out IApplicationContext applicationContext))
                 {
                     throw new AppException("No user context exists!");
                 }
@@ -91,7 +91,7 @@ namespace Arc4u.OAuth2.TokenProvider
 
             if (settings.Values.ContainsKey("OAuth2"))
             {
-                var oauth2Settings = _container.Resolve<IKeyValueSettings>(settings.Values["OAuth2"]);
+                var oauth2Settings = _container.GetService<IKeyValueSettings>(settings.Values["OAuth2"]);
                 if (!oboSettings.Values.ContainsKey(TokenKeys.ClientIdKey))
                     oboSettings.Add(TokenKeys.ClientIdKey, oauth2Settings.Values[TokenKeys.ClientIdKey]);
                 if (!oboSettings.Values.ContainsKey(TokenKeys.AuthorityKey))
