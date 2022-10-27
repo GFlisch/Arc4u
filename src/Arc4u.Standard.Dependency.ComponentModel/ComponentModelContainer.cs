@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace Arc4u.Dependency.ComponentModel
 {
@@ -38,10 +39,131 @@ namespace Arc4u.Dependency.ComponentModel
             _serviceProvider = scope.ServiceProvider;
         }
 
+
+        #region IContainerRegistry implementation
+
         public void CreateContainer()
         {
             _serviceProvider = _collection.BuildNamedServiceProvider();
         }
+
+        public void Initialize(Type[] types, params Assembly[] assemblies)
+        {
+            _collection.AddExportableTypes(types);
+            _collection.AddExportableTypes(assemblies);
+        }
+
+        public void Register<TFrom, To>() where TFrom : class where To : class, TFrom
+        {
+            _collection.AddTransient<TFrom, To>();
+        }
+
+        public void Register( Type from, Type to)
+        {
+            _collection.AddTransient(from, to);
+        }
+
+        public void Register<TFrom, To>( string name) where TFrom : class where To : class, TFrom
+        {
+            _collection.AddTransient<TFrom, To>(name);
+        }
+
+        public void Register( Type from, Type to, string name)
+        {
+            _collection.AddTransient(from, to, name);
+        }
+
+        public void RegisterFactory<T>( Func<T> exportedInstanceFactory) where T : class
+        {
+            _collection.AddTransient<T>(provider => exportedInstanceFactory());
+        }
+
+        public void RegisterFactory( Type type, Func<object> exportedInstanceFactory)
+        {
+            _collection.AddTransient(type, provider => exportedInstanceFactory());
+        }
+
+        public void RegisterSingletonFactory<T>( Func<T> exportedInstanceFactory) where T : class
+        {
+            _collection.AddSingleton(provider => exportedInstanceFactory());
+        }
+
+        public void RegisterSingletonFactory( Type type, Func<object> exportedInstanceFactory)
+        {
+            _collection.AddSingleton(type, provider => exportedInstanceFactory());
+        }
+
+        public void RegisterScopedFactory<T>( Func<T> exportedInstanceFactory) where T : class
+        {
+            _collection.AddScoped(provider => exportedInstanceFactory());
+        }
+
+        public void RegisterScopedFactory( Type type, Func<object> exportedInstanceFactory)
+        {
+            _collection.AddScoped(type, provider => exportedInstanceFactory());
+        }
+
+        public void RegisterInstance<T>( T instance) where T : class
+        {
+            _collection.AddSingleton(instance);
+        }
+
+        public void RegisterInstance( Type type, object instance)
+        {
+            _collection.AddSingleton(type, instance);
+        }
+
+        public void RegisterInstance<T>( T instance, string name) where T : class
+        {
+            _collection.AddSingleton(instance, name);
+        }
+
+        public void RegisterInstance( Type type, object instance, string name)
+        {
+            _collection.AddSingleton(type, instance, name);
+        }
+
+        public void RegisterSingleton( Type from, Type to)
+        {
+            _collection.AddSingleton(from, to);
+        }
+
+        public void RegisterSingleton<TFrom, To>() where TFrom : class where To : class, TFrom
+        {
+            _collection.AddSingleton(typeof(TFrom), typeof(To));
+        }
+
+        public void RegisterScoped<TFrom, To>() where TFrom : class where To : class, TFrom
+        {
+            _collection.AddScoped<TFrom, To>();
+        }
+
+        public void RegisterScoped( Type from, Type to)
+        {
+            _collection.AddScoped(from, to);
+        }
+
+        public void RegisterScoped<TFrom, To>( string name) where TFrom : class where To : class, TFrom
+        {
+            _collection.AddScoped<TFrom, To>(name);
+        }
+
+        public void RegisterScoped( Type from, Type to, string name)
+        {
+            _collection.AddScoped(from, to, name);
+        }
+
+        public void RegisterSingleton<TFrom, To>( string name) where TFrom : class where To : class, TFrom
+        {
+            _collection.AddSingleton<TFrom, To>(name);
+        }
+
+        public void RegisterSingleton( Type from, Type to, string name)
+        {
+            _collection.AddSingleton(from, to, name);
+        }
+
+        #endregion
 
 
         #region IServiceCollection implementation (forwarded to _collection)
@@ -137,19 +259,16 @@ namespace Arc4u.Dependency.ComponentModel
 
         #endregion
 
-        #region IContainerResolve implementation
-
-        public bool CanCreateScope => true;
-
-        #endregion
-
         #region IContainer implementation
 
         public object Instance => _serviceProvider;
 
         #endregion
 
-        #region IContainerResolve legacy methods
+        #region IContainerResolve implementation
+
+        public bool CanCreateScope => true;
+
         public T Resolve<T>()
         {
             return _serviceProvider.GetService<T>();

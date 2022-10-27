@@ -19,7 +19,7 @@ namespace Arc4u.Dependency
         private static INamedServiceProvider AsNamedServiceProvider(this IServiceProvider provider)
         {
             var namedServiceProvider = provider.GetService<INamedServiceProvider>();
-            if (provider is not null)
+            if (namedServiceProvider is not null)
                 return namedServiceProvider;
             else
             {

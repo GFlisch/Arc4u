@@ -18,29 +18,47 @@ namespace Arc4u.Dependency
         {
             if (implementationType.IsClass && !implementationType.IsAbstract)
             {
-                var exports = implementationType.GetCustomAttributes<ExportAttribute>();
+                // note that we look up attribute by name, since ExportAttribute and SharedAttribute are also defined in System.ComponentModel.Composition
+                // which we don't include here, but can be used in other assemblies defining exportable types
+                var exports = implementationType.GetCustomAttributes().Where(attribute => attribute.GetType().Name == "ExportAttribute");
                 if (exports.Any())
                 {
-                    var shared = implementationType.GetCustomAttribute<SharedAttribute>();
-                    var scoped = implementationType.GetCustomAttribute<ScopedAttribute>();
+                    bool isShared = false;
+                    bool isScoped = false;
+                    // iterate through the custom attributes once to get both Shared and Scoped attributes if they are present
+                    foreach (var attribute in implementationType.GetCustomAttributes())
+                        if(attribute.GetType().Name == "SharedAttribute")
+                            isShared = true;
+                        else if(attribute.GetType().Name == "ScopedAttribute")  // we also test for ScopedAttribute by name, even though it's currently only we who are defining it.
+                            isScoped = true;
                     // Normally, shared and scoped cannot both be defined for the same type. For backwards compatibility with the old code, we don't throw an exception but we interpret this as "Shared": 
                     // This is bad practice!
-                    //if (shared is not null && scoped is not null)
+                    //if (isShared && isScoped)
                     //    throw new Exception($"{implementationType.FullName} has both [Shared] and [Scoped] attributes. Choose one.");
                     ServiceLifetime lifetime;
-                    if (shared is not null)
+                    if (isShared)
                         lifetime = ServiceLifetime.Singleton;
-                    else if (scoped is not null)
+                    else if (isScoped)
                         lifetime = ServiceLifetime.Scoped;
                     else
                         lifetime = ServiceLifetime.Transient;
                     foreach (var export in exports)
                     {
-                        var serviceDescriptor = new ServiceDescriptor(export.ContractType ?? implementationType, implementationType, lifetime);
-                        if (export.ContractName is null)
+                        const string ContractType = "ContractType";
+                        const string ContractName = "ContractName";
+                        var contractTypeProperty = export.GetType().GetProperty(ContractType);
+                        if(contractTypeProperty is null)
+                            throw new MissingMemberException(export.GetType().Name, ContractType);
+                        var contractNameProperty = export.GetType().GetProperty(ContractName);
+                        if (contractNameProperty is null)
+                            throw new MissingMemberException(export.GetType().Name, ContractName);
+                        var contractType = (Type)contractTypeProperty.GetValue(export);
+                        var contractName = (string)contractNameProperty.GetValue(export);    
+                        var serviceDescriptor = new ServiceDescriptor(contractType ?? implementationType, implementationType, lifetime);
+                        if (contractName is null)
                             services.Add(serviceDescriptor);
                         else
-                            services.Add(serviceDescriptor, export.ContractName);
+                            services.Add(serviceDescriptor, contractName);
                     }
                 }
                 else if (throwOnError)
