@@ -291,9 +291,7 @@ namespace Arc4u.Serializer.ProtoBuf
 
             while (baseType != null && baseType != typeof(object))
             {
-                HashSet<Type> baseTypeEntry;
-
-                if (!_subTypes.TryGetValue(baseType, out baseTypeEntry))
+                if (!_subTypes.TryGetValue(baseType, out var baseTypeEntry))
                 {
                     baseTypeEntry = new HashSet<Type>();
                     _subTypes.Add(baseType, baseTypeEntry);

@@ -32,22 +32,10 @@ namespace Arc4u.Diagnostics
                    classType = String.Empty,
                    stacktrace = string.Empty,
                    identity = string.Empty,
-
-                   /* Unmerged change from project 'Arc4u.Standard.Diagnostics.Serilog (netstandard2.1)'
-                   Before:
-                                      application = string.Empty;
-
-                               int     processId = -1,
-                   After:
-                                      application = string.Empty;
-
-                               int     processId = -1,
-                   */
                    application = string.Empty;
-
-            int processId = -1,
-                    threadId = -1;
-            short category = -1;
+               int processId = -1,
+                   threadId = -1;
+             short category = -1;
 
             var filteredProperties = new List<LogEventProperty>();
 
