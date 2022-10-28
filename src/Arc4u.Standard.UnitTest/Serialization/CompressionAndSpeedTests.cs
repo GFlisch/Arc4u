@@ -41,7 +41,7 @@ namespace Arc4u.Standard.UnitTest.Serialization
 
                 var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
 
-                _bearerTokens = new[] { new String('A', 16000) };
+                _bearerTokens = new[] { accessToken, "Bearer " + accessToken };
             }
 
             return _bearerTokens;
@@ -116,12 +116,12 @@ namespace Arc4u.Standard.UnitTest.Serialization
             // act
             var list = new List<Measurement>();
             list.Add(Measure(protoBufSerialization, "Protobuf"));
-            list.Add(Measure(protoBufZipSerialization, "ProtobufZip"));
             list.Add(Measure(jsonSerialization, "Json"));
             list.Add(Measure(jsonBrotliSerialization, "JSon+Brotli"));
             list.Add(Measure(jsonDeflateSerialization, "Json+Deflate"));
             list.Add(Measure(jsonGZipSerialization, "Json+GZip"));
             list.Add(Measure(jsonZipSerialization, "Json+Zip"));
+            list.Add(Measure(protoBufZipSerialization, "Protobuf+Zip"));
 
             // sort by fastest compression
             list.Sort((item1, item2) => item1.TimeSpan.CompareTo(item2.TimeSpan));
