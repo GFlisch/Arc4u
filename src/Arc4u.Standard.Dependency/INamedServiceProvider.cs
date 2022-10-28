@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace Arc4u.Dependency
@@ -7,6 +6,8 @@ namespace Arc4u.Dependency
     /// <summary>
     /// A service provider which also provides named service resolution.
     /// It cannot be as "frugal" as <see cref="IServiceProvider"/>, since we have unique scenarios to implement.
+    /// However, everything that can be done with a <see cref="INamedServiceProvider"/> can be done with a <see cref="IServiceProvider"/>
+    /// as long as AddNamedServicesSupport() was called on the collection creating it.
     /// </summary>
     public interface INamedServiceProvider : IServiceProvider
     {

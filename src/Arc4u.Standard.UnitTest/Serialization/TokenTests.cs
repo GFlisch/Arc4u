@@ -87,15 +87,15 @@ namespace Arc4u.Standard.UnitTest.Blazor
 
             object settings = mockKeyValueSettings.Object;
 
-            var mockContainer = fixture.Freeze<Mock<INamedServiceProvider>>();
-            mockContainer.Setup((m) => m.TryGetService(typeof(IKeyValueSettings), storeName, false, out settings)).Returns(true);
+            var mockResolver = fixture.Freeze<Mock<INameResolver>>();
+            mockResolver.Setup((m) => m.TryGetService(It.IsAny<IServiceProvider>(), typeof(IKeyValueSettings), storeName, false, out settings)).Returns(true);
 
             object noSerializer = null;
             IObjectSerialization serializer = new JsonSerialization();
-            mockContainer.Setup(m => m.TryGetService(typeof(IObjectSerialization), storeName, false, out noSerializer)).Returns(false);
+            mockResolver.Setup(m => m.TryGetService(It.IsAny<IServiceProvider>(), typeof(IObjectSerialization), storeName, false, out noSerializer)).Returns(false);
 
             var serviceProviderMock = fixture.Freeze<Mock<IServiceProvider>>();
-            serviceProviderMock.Setup(m => m.GetService(typeof(INamedServiceProvider))).Returns(mockContainer.Object);
+            serviceProviderMock.Setup(m => m.GetService(typeof(INameResolver))).Returns(mockResolver.Object);
             serviceProviderMock.Setup(m => m.GetService(typeof(IObjectSerialization))).Returns(serializer);
 
             var sut = fixture.Create<MemoryCache>();
@@ -132,15 +132,15 @@ namespace Arc4u.Standard.UnitTest.Blazor
 
             object settings = mockKeyValueSettings.Object;
 
-            var mockContainer = fixture.Freeze<Mock<INamedServiceProvider>>();
-            mockContainer.Setup((m) => m.TryGetService(typeof(IKeyValueSettings), storeName, false, out settings)).Returns(true);
+            var mockResolver = fixture.Freeze<Mock<INameResolver>>();
+            mockResolver.Setup((m) => m.TryGetService(It.IsAny<IServiceProvider>(), typeof(IKeyValueSettings), storeName, false, out settings)).Returns(true);
 
             object noSerializer = null;
             IObjectSerialization serializer = new ProtoBufSerialization();
-            mockContainer.Setup(m => m.TryGetService(typeof(IObjectSerialization), storeName, false, out noSerializer)).Returns(false);
+            mockResolver.Setup(m => m.TryGetService(It.IsAny<IServiceProvider>(), typeof(IObjectSerialization), storeName, false, out noSerializer)).Returns(false);
 
             var serviceProviderMock = fixture.Freeze<Mock<IServiceProvider>>();
-            serviceProviderMock.Setup(m => m.GetService(typeof(INamedServiceProvider))).Returns(mockContainer.Object);
+            serviceProviderMock.Setup(m => m.GetService(typeof(INameResolver))).Returns(mockResolver.Object);
             serviceProviderMock.Setup(m => m.GetService(typeof(IObjectSerialization))).Returns(serializer);
 
             var sut = fixture.Create<MemoryCache>();
@@ -177,15 +177,15 @@ namespace Arc4u.Standard.UnitTest.Blazor
 
             object settings = mockKeyValueSettings.Object;
 
-            var mockContainer = fixture.Freeze<Mock<INamedServiceProvider>>();
-            mockContainer.Setup((m) => m.TryGetService(typeof(IKeyValueSettings), storeName, false, out settings)).Returns(true);
+            var mockResolver = fixture.Freeze<Mock<INameResolver>>();
+            mockResolver.Setup((m) => m.TryGetService(It.IsAny<IServiceProvider>(), typeof(IKeyValueSettings), storeName, false, out settings)).Returns(true);
 
             object noSerializer = null;
             IObjectSerialization serializer = new ProtoBufZipSerialization();
-            mockContainer.Setup(m => m.TryGetService(typeof(IObjectSerialization), storeName, false, out noSerializer)).Returns(false);
+            mockResolver.Setup(m => m.TryGetService(It.IsAny<IServiceProvider>(), typeof(IObjectSerialization), storeName, false, out noSerializer)).Returns(false);
 
             var serviceProviderMock = fixture.Freeze<Mock<IServiceProvider>>();
-            serviceProviderMock.Setup(m => m.GetService(typeof(INamedServiceProvider))).Returns(mockContainer.Object);
+            serviceProviderMock.Setup(m => m.GetService(typeof(INameResolver))).Returns(mockResolver.Object);
             serviceProviderMock.Setup(m => m.GetService(typeof(IObjectSerialization))).Returns(serializer);
 
             var sut = fixture.Create<MemoryCache>();

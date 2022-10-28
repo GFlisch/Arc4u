@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Arc4u.Dependency.ComponentModel
 {
@@ -73,73 +72,12 @@ namespace Arc4u.Dependency.ComponentModel
 
         public IEnumerable<object> GetServices(Type type, string name)
         {
-            if (name == null)
-                return _serviceProvider.GetServices(type);
-
-            if (_nameResolver.TryGetInstances(name, type, out var singletons))
-                return singletons;
-
-            if (!_nameResolver.TryGetTypes(name, type, out var to))
-                throw new NullReferenceException($"No type found registered with the name: {name}.");
-
-            var instances = Array.CreateInstance(type, to.Count);
-            for (int index = 0; index < to.Count; ++index)
-                instances.SetValue(_serviceProvider.GetService(to[index]), index);
-
-            // covariance at work here. This is really a IEnumerable<type>
-            return (IEnumerable<object>)instances;
+            return _nameResolver.GetServices(_serviceProvider, type, name);
         }
 
         public bool TryGetService(Type type, string name, bool throwIfError, out object value)
         {
-            value = null;
-
-            if (name == null)
-                value = _serviceProvider.GetService(type);
-            else
-            {
-                IEnumerable<object> instances;
-
-                if (_nameResolver.TryGetInstances(name, type, out var oto))
-                {
-                    if (oto.Count != 1)
-                        if (throwIfError)
-                            throw new IndexOutOfRangeException($"More than one instance type is registered for name {name}.");
-                        else
-                            return false;
-                    instances = oto;
-                }
-                else
-                {
-                    if (!_nameResolver.TryGetTypes(name, type, out var to))
-                        if (throwIfError)
-                            throw new NullReferenceException($"No type found registered with the name: {name}.");
-                        else
-                            return false;
-
-                    if (to.Count != 1)
-                        if (throwIfError)
-                            throw new IndexOutOfRangeException($"More than one type is registered for name {name}.");
-                        else
-                            return false;
-
-                    instances = _serviceProvider.GetServices(to[0]);
-                }
-
-                // the happy flow is the single-instance case. Don't waste time counting
-                try
-                {
-                    value = instances.SingleOrDefault();
-                }
-                catch (Exception e)
-                {
-                    if (throwIfError)
-                        throw new MultipleRegistrationException(type, instances, e);
-                    else
-                        return false;
-                }
-            }
-            return value != null;
+            return _nameResolver.TryGetService(_serviceProvider, type, name, throwIfError, out value);  
         }
 
         #endregion

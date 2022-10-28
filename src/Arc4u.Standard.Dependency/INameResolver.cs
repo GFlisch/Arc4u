@@ -6,10 +6,12 @@ namespace Arc4u.Dependency
 {
     public interface INameResolver
     {
-        bool TryGetInstances(string name, Type serviceType, out IReadOnlyList<object> instances);
-        bool TryGetTypes(string name, Type serviceType, out IReadOnlyList<Type> types);
+        ServiceDescriptor Add(ServiceDescriptor serviceDescriptor, string name);
 
         void Freeze();
-        ServiceDescriptor Add(ServiceDescriptor serviceDescriptor, string name);
+
+        IEnumerable<object> GetServices(IServiceProvider provider, Type type, string name);
+
+        bool TryGetService(IServiceProvider provider, Type type, string name, bool throwIfError, out object value);
     }
 }
