@@ -25,14 +25,6 @@ namespace Arc4u.Standard.OAuth2.Events
             context.Response.StatusCode = 500;
             context.Response.ContentType = "text/plain";
 
-            // Check there is an issue to improve the Environment.
-
-            //if (Environment.IsDevelopment())
-            //{
-            //    // Debug only, in production do not share exceptions with the remote host.
-            //    return context.Response.WriteAsync(context.Exception.ToString());
-            //}
-
             _logger.Technical().Exception(context.Exception);
 
             await context.Response.WriteAsync("<html><p>You are not authenticated.</p></html>");
