@@ -1,5 +1,5 @@
 ﻿using Arc4u.OAuth2.Token;
-using Arc4u.Standard.OAuth2.Events;
+using Arc4u.Standard.OAuth2.Options;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -14,28 +14,25 @@ namespace Arc4u.Standard.OAuth2.Extensions
 {
     public static partial class AuthenticationExtensions
     {
-        public static AuthenticationBuilder AddOidcAuthentication(this IServiceCollection services, AuthenticationOptions authenticationOptions)
+        public static AuthenticationBuilder AddOidcAuthentication(this IServiceCollection services, Action<AuthenticationOidcOptions> authenticationOptions)
         {
             ArgumentNullException.ThrowIfNull(authenticationOptions);
 
-            ArgumentNullException.ThrowIfNull(authenticationOptions.OAuthSettings);
+            var oidcOptions = new AuthenticationOidcOptions();
+            authenticationOptions(oidcOptions);
 
-            ArgumentNullException.ThrowIfNull(authenticationOptions.OpenIdSettings);
+            ArgumentNullException.ThrowIfNull(oidcOptions.OAuthSettings);
 
+            ArgumentNullException.ThrowIfNull(oidcOptions.OpenIdSettings);
+
+            // Will keep in memory the AccessToken and Refresh token for the time of the request...
+            services.Configure<AuthenticationOidcOptions>(authenticationOptions);
+            services.AddScoped<TokenRefreshInfo>();
             services.AddAuthorization();
             services.AddHttpContextAccessor(); // give access to the HttpContext if requested by an external packages.
 
-            //services.Configure<CookiePolicyOptions>(options =>
-            //{
-            //    // This lambda determines whether user consent for non-essential cookies is needed for a given request.
-            //    options.CheckConsentNeeded = context => true;
-            //    options.MinimumSameSitePolicy = Microsoft.AspNetCore.Http.SameSiteMode.Unspecified;
-            //    // Handling SameSite cookie according to https://docs.microsoft.com/en-us/aspnet/core/security/samesite?view=aspnetcore-3.1
-            //    options.HandleSameSiteCookieCompatibility();
-            //});
-
             // OAuth.
-            var (instance, tenantId) = ExtractFromAuthority(authenticationOptions.OAuthSettings);
+            var (instance, tenantId) = ExtractFromAuthority(oidcOptions.OAuthSettings);
 
             var authenticationBuilder = services
                     .AddAuthentication(auth =>
@@ -60,20 +57,22 @@ namespace Arc4u.Standard.OAuth2.Extensions
                     {
                         // cookie will not be limited in time by the life time of the access token.
                         options.UseTokenLifetime = false;
-                        options.Authority = authenticationOptions.OpenIdSettings.Values[TokenKeys.AuthorityKey]; ;
+                        options.SaveTokens = false;
+                        options.Authority = oidcOptions.OpenIdSettings.Values[TokenKeys.AuthorityKey]; ;
                         options.RequireHttpsMetadata = false; // do we force? Docker image for testing...
-                        options.MetadataAddress = authenticationOptions.MetadataAddress;
+                        options.MetadataAddress = oidcOptions.MetadataAddress;
                         options.ResponseType = OpenIdConnectResponseType.CodeIdTokenToken;
-                        options.ClientId = authenticationOptions.OpenIdSettings.Values[TokenKeys.ClientIdKey];
-                        options.ClientSecret = authenticationOptions.OpenIdSettings.Values[TokenKeys.ApplicationKey];
+                        options.ClientId = oidcOptions.OpenIdSettings.Values[TokenKeys.ClientIdKey];
+                        options.ClientSecret = oidcOptions.OpenIdSettings.Values[TokenKeys.ApplicationKey];
                         options.GetClaimsFromUserInfoEndpoint = true;
+
                         options.TokenValidationParameters.SaveSigninToken = false;
                         options.TokenValidationParameters.AuthenticationType = Constants.CookiesAuthenticationType;
                         options.TokenValidationParameters.ValidateAudience = false;
                         options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                         options.SaveTokens = true;
                         options.AuthenticationMethod = OpenIdConnectRedirectBehavior.FormPost;
-                        options.EventsType = typeof(CustomOpenIdConnectEvents);
+                        options.EventsType = oidcOptions.OpenIdConnectEventsType;
                     })
                     .AddJwtBearer(option =>
                     {
@@ -86,13 +85,21 @@ namespace Arc4u.Standard.OAuth2.Extensions
                         option.TokenValidationParameters.ValidateIssuer = false;
                         option.TokenValidationParameters.ValidateAudience = true;
                         option.TokenValidationParameters.ValidAudiences = new[] { "account" };
-                        option.EventsType = typeof(CustomBearerEvents);
+                        option.EventsType = oidcOptions.JwtBearerEventsType;
+                    }).AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+                    {
+                        options.Cookie.Name = oidcOptions.CookieName;
+                        options.SessionStore = oidcOptions.TicketStore;
+                        options.DataProtectionProvider = oidcOptions.DataProtectionProvider;
+                        options.SlidingExpiration = true;
+                        options.ExpireTimeSpan = TimeSpan.FromDays(7);
+                        options.EventsType = oidcOptions.CookieAuthenticationEventsType;
                     });
 
 
 
             // OpenId Connect
-            (instance, tenantId) = ExtractFromAuthority(authenticationOptions.OpenIdSettings);
+            (instance, tenantId) = ExtractFromAuthority(oidcOptions.OpenIdSettings);
 
 
 

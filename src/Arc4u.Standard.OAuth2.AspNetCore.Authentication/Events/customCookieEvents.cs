@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using Arc4u.Caching;
+using Arc4u.Standard.OAuth2.Options;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,12 +18,14 @@ namespace Arc4u.Standard.OAuth2.Events
 {
     public class customCookieEvents : CookieAuthenticationEvents
     {
-        public customCookieEvents(IServiceProvider serviceProvider)
+        public customCookieEvents(IServiceProvider serviceProvider, IOptions<AuthenticationOidcOptions> oidcOptions)
         {
             _serviceProvider = serviceProvider;
+            _oidcOptions = oidcOptions.Value;
         }
 
         private readonly IServiceProvider _serviceProvider;
+        private readonly AuthenticationOidcOptions _oidcOptions;
 
         public override async Task ValidatePrincipal(CookieValidatePrincipalContext cookieCtx)
         {
@@ -30,13 +34,17 @@ namespace Arc4u.Standard.OAuth2.Events
             var accessTokenExpiration = DateTimeOffset.Parse(expiresAt);
             var timeRemaining = accessTokenExpiration.Subtract(now);
             
-            // TODO: Get this from configuration with a fall back value.
-            var refreshThresholdMinutes = 5;
-            var refreshThreshold = TimeSpan.FromMinutes(refreshThresholdMinutes);
+            // => must be defined in the options
+            var refreshThreshold = _oidcOptions.ForceRefreshTimeoutTimeSpan;
+
+            // Persist the Access and Refresh tokens.
+            var tokensInfo = _serviceProvider!.GetService<TokenRefreshInfo>();
+
+            tokensInfo.AccessToken = cookieCtx.Properties.GetTokenValue("access_token");
+            tokensInfo.RefreshToken = cookieCtx.Properties.GetTokenValue("refresh_token");
 
             if (timeRemaining < refreshThreshold)
             {
-                var refreshToken = cookieCtx.Properties.GetTokenValue("refresh_token");
 
                 IOptionsMonitor<OpenIdConnectOptions> optionsMonitor = _serviceProvider!.GetService<IOptionsMonitor<OpenIdConnectOptions>>();
 
@@ -48,7 +56,7 @@ namespace Arc4u.Standard.OAuth2.Events
                                                 { "client_id", options.ClientId },
                                                 { "client_secret", options.ClientSecret },
                                                 { "grant_type", "refresh_token" },
-                                                { "refresh_token", refreshToken }
+                                                { "refresh_token", tokensInfo.RefreshToken }
                                         };
                 var content = new FormUrlEncodedContent(pairs);
                 var tokenResponse = await options.Backchannel.PostAsync(metadata.TokenEndpoint, content, CancellationToken.None);
