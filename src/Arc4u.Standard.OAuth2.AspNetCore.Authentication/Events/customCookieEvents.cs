@@ -1,5 +1,5 @@
 ﻿using Arc4u.Caching;
-using Arc4u.Standard.OAuth2.Options;
+using Arc4u.OAuth2.Options;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -14,7 +14,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Arc4u.Standard.OAuth2.Events
+namespace Arc4u.OAuth2.Events
 {
     public class customCookieEvents : CookieAuthenticationEvents
     {

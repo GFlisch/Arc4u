@@ -15,8 +15,9 @@
 		<PackageTags>Arc4u</PackageTags>
 		<AssemblyVersion>1.0.0.0</AssemblyVersion>
 		<FileVersion>1.0.0.0</FileVersion>
-		<RootNamespace>Arc4u.Standard.OAuth2</RootNamespace>
-		<LangVersion>latest</LangVersion>
+		<RootNamespace>Arc4u.OAuth2</RootNamespace>
+		<AssemblyName>Arc4u.Standard.OAuth2.AspNetCore.Authentication</AssemblyName>
+			<LangVersion>latest</LangVersion>
 	</PropertyGroup>
 
 	<ItemGroup>

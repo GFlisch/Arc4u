@@ -1,13 +1,13 @@
 ﻿using Arc4u.Dependency.Attribute;
 using Arc4u.OAuth2.Token;
-using Arc4u.Standard.OAuth2.Options;
+using Arc4u.OAuth2.Options;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Threading.Tasks;
 
-namespace Arc4u.Standard.OAuth2.TokenProviders
+namespace Arc4u.OAuth2.TokenProviders
 {
     [Export(OidcTokenProvider.ProviderName, typeof(ITokenProvider))]
     public class OidcTokenProvider : ITokenProvider

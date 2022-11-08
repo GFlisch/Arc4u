@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace Arc4u.Standard.OAuth2.Events
+namespace Arc4u.OAuth2.Events
 {
     public class CustomBearerEvents : JwtBearerEvents
     {

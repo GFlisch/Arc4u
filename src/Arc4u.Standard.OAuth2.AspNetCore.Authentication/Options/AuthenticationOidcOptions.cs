@@ -1,13 +1,13 @@
-﻿using Arc4u.Standard.OAuth2.Events;
+﻿using Arc4u.OAuth2.Events;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 using System;
 
-namespace Arc4u.Standard.OAuth2.Options
+namespace Arc4u.OAuth2.Options
 {
     public class AuthenticationOidcOptions
     {
-        public IKeyValueSettings OAuthSettings { get; set; }
+        public IKeyValueSettings OAuth2Settings { get; set; }
 
         public IKeyValueSettings OpenIdSettings { get; set; }
 
