@@ -18,14 +18,14 @@ namespace Arc4u.OAuth2.Events
 {
     public class customCookieEvents : CookieAuthenticationEvents
     {
-        public customCookieEvents(IServiceProvider serviceProvider, IOptions<AuthenticationOidcOptions> oidcOptions)
+        public customCookieEvents(IServiceProvider serviceProvider, IOptions<OidcAuthenticationOptions> oidcOptions)
         {
             _serviceProvider = serviceProvider;
             _oidcOptions = oidcOptions.Value;
         }
 
         private readonly IServiceProvider _serviceProvider;
-        private readonly AuthenticationOidcOptions _oidcOptions;
+        private readonly OidcAuthenticationOptions _oidcOptions;
 
         public override async Task ValidatePrincipal(CookieValidatePrincipalContext cookieCtx)
         {

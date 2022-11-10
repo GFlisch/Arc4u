@@ -14,7 +14,7 @@ namespace Arc4u.OAuth2.TokenProviders
     {
         const string ProviderName = "Oidc";
 
-        public OidcTokenProvider(ILogger<OidcTokenProvider> logger, TokenRefreshInfo tokenRefreshInfo, IOptions<AuthenticationOidcOptions> oidcOptions)
+        public OidcTokenProvider(ILogger<OidcTokenProvider> logger, TokenRefreshInfo tokenRefreshInfo, IOptions<OidcAuthenticationOptions> oidcOptions)
         {
             _logger = logger;
             _tokenRefreshInfo = tokenRefreshInfo;
@@ -23,7 +23,7 @@ namespace Arc4u.OAuth2.TokenProviders
 
         private readonly ILogger<OidcTokenProvider> _logger;
         private readonly TokenRefreshInfo _tokenRefreshInfo;
-        private readonly AuthenticationOidcOptions _oidcOptions;
+        private readonly OidcAuthenticationOptions _oidcOptions;
 
         /// <summary>
         /// 
@@ -45,7 +45,7 @@ namespace Arc4u.OAuth2.TokenProviders
             if (timeRemaining > _oidcOptions.ForceRefreshTimeoutTimeSpan)
                 return new TokenInfo("Bearer", _tokenRefreshInfo.AccessToken, String.Empty, jwtToken.ValidTo);
 
-            // Refresh the token!
+            // TODO: Refresh the token!
 
             await Task.Delay(1);
 

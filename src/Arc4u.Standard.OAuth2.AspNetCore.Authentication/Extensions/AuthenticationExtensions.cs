@@ -11,16 +11,21 @@ using System;
 using System.Linq;
 using Arc4u.Standard.OAuth2;
 using Arc4u.OAuth2;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace Arc4u.Standard.OAuth2.Extensions;
 
 public static partial class AuthenticationExtensions
 {
-    public static AuthenticationBuilder AddOidcAuthentication(this IServiceCollection services, Action<AuthenticationOidcOptions> authenticationOptions)
+    public static AuthenticationBuilder AddOidcAuthentication(this IServiceCollection services, Action<OidcAuthenticationOptions> authenticationOptions)
     {
+        ArgumentNullException.ThrowIfNull(services);
+
         ArgumentNullException.ThrowIfNull(authenticationOptions);
 
-        var oidcOptions = new AuthenticationOidcOptions();
+        var oidcOptions = new OidcAuthenticationOptions();
         authenticationOptions(oidcOptions);
 
         ArgumentNullException.ThrowIfNull(oidcOptions.OAuth2Settings);
@@ -28,7 +33,7 @@ public static partial class AuthenticationExtensions
         ArgumentNullException.ThrowIfNull(oidcOptions.OpenIdSettings);
 
         // Will keep in memory the AccessToken and Refresh token for the time of the request...
-        services.Configure<AuthenticationOidcOptions>(authenticationOptions);
+        services.Configure(authenticationOptions);
         services.AddScoped<TokenRefreshInfo>();
         services.AddAuthorization();
         services.AddHttpContextAccessor(); // give access to the HttpContext if requested by an external packages.
@@ -62,7 +67,7 @@ public static partial class AuthenticationExtensions
                     // cookie will not be limited in time by the life time of the access token.
                     options.UseTokenLifetime = false;
                     options.SaveTokens = false;
-                    options.Authority = oidcOptions.OpenIdSettings.Values[TokenKeys.AuthorityKey]; ;
+                    options.Authority = oidcOptions.OpenIdSettings.Values[TokenKeys.AuthorityKey];
                     options.RequireHttpsMetadata = false; // do we force? Docker image for testing...
                     options.MetadataAddress = oidcOptions.MetadataAddress;
                     options.ResponseType = OpenIdConnectResponseType.CodeIdTokenToken;
@@ -81,11 +86,11 @@ public static partial class AuthenticationExtensions
                 .AddJwtBearer(option =>
                 {
                     option.RequireHttpsMetadata = false;
-                    option.Authority = "http://localhost:8080/realms/Test/protocol/openid-connect/auth";
-                    option.MetadataAddress = "http://localhost:8080/realms/Test/.well-known/openid-configuration";
+                    option.Authority = oidcOptions.OAuth2Settings.Values[TokenKeys.AuthorityKey];
+                    option.MetadataAddress = oidcOptions.MetadataAddress;
                     option.SaveToken = true;
                     option.TokenValidationParameters.SaveSigninToken = false;
-                    option.TokenValidationParameters.AuthenticationType = "OAuth2Bearer";
+                    option.TokenValidationParameters.AuthenticationType = Constants.BearerAuthenticationType;
                     option.TokenValidationParameters.ValidateIssuer = false;
                     option.TokenValidationParameters.ValidateAudience = true;
                     option.TokenValidationParameters.ValidAudiences = new[] { "account" };
@@ -109,6 +114,43 @@ public static partial class AuthenticationExtensions
 
         return authenticationBuilder;
 
+    }
+
+    public static AuthenticationBuilder AddJwtAuthentication(this IServiceCollection services, Action<JwtAuthenticationOptions> authenticationOptions)
+    {
+        ArgumentNullException.ThrowIfNull(services, nameof(services));
+
+        ArgumentNullException.ThrowIfNull(authenticationOptions, nameof(authenticationOptions));
+
+        var options = new JwtAuthenticationOptions();
+        authenticationOptions(options);
+
+        ArgumentNullException.ThrowIfNull(options.OAuth2Settings, nameof(options.OAuth2Settings));
+        ArgumentNullException.ThrowIfNull(options.JwtBearerEventsType, nameof(options.JwtBearerEventsType));
+        ArgumentNullException.ThrowIfNull(options.MetadataAddress, nameof(options.MetadataAddress));
+
+        services.Configure(authenticationOptions);
+
+        services.AddTransient(options.JwtBearerEventsType);
+        services.AddAuthorization();
+        services.AddHttpContextAccessor();
+        var authenticationBuilder = 
+        services.AddAuthentication(auth => auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(option =>
+                {
+                    option.RequireHttpsMetadata = false;
+                    option.Authority = options.OAuth2Settings.Values[TokenKeys.AuthorityKey];
+                    option.MetadataAddress = options.MetadataAddress;
+                    option.SaveToken = true;
+                    option.TokenValidationParameters.SaveSigninToken = false;
+                    option.TokenValidationParameters.AuthenticationType = Constants.BearerAuthenticationType;
+                    option.TokenValidationParameters.ValidateIssuer = false;
+                    option.TokenValidationParameters.ValidateAudience = true;
+                    option.TokenValidationParameters.ValidAudiences = new[] { "account" };
+                    option.EventsType = options.JwtBearerEventsType;
+                });
+
+        return authenticationBuilder;
     }
 
     private static (string instance, string tenantId) ExtractFromAuthority(IKeyValueSettings settings)
