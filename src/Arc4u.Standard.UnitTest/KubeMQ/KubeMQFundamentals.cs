@@ -132,7 +132,7 @@ namespace Arc4u.Standard.UnitTest.KubeMQ
                 {
                     try
                     {
-                        Assert.Equal(1, msg.Tags.Count());
+                        Assert.Single(msg.Tags);
 
                         Assert.True(Guid.TryParse(Encoding.UTF8.GetString(msg.Body), out var guid));
 
@@ -202,7 +202,7 @@ namespace Arc4u.Standard.UnitTest.KubeMQ
                 {
                     try
                     {
-                        Assert.Equal(1, msg.Tags.Count());
+                        Assert.Single(msg.Tags);
 
                         Assert.True(Guid.TryParse(Encoding.UTF8.GetString(msg.Body), out var guid));
 
@@ -313,7 +313,7 @@ namespace Arc4u.Standard.UnitTest.KubeMQ
                 {
                     try
                     {
-                        Assert.Equal(1, msg.Tags.Count());
+                        Assert.Single(msg.Tags);
 
                         Assert.True(Guid.TryParse(Encoding.UTF8.GetString(msg.Body), out var guid));
                         await Task.Delay(100);

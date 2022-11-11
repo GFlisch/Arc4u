@@ -8,7 +8,7 @@ namespace Arc4u.OAuth2.Msal.TokenProvider.Client
     [Export, Shared]
     public class PublicClientApp
     {
-        public IPublicClientApplication? PublicClient { get; set; }
+        public IPublicClientApplication PublicClient { get; set; }
 
         public void SetCustomWebUi(Func<ICustomWebUi> customWebUi)
         {
@@ -16,7 +16,7 @@ namespace Arc4u.OAuth2.Msal.TokenProvider.Client
         }
         private Func<ICustomWebUi> _customWebUi;
        
-        public ICustomWebUi? CustomWebUi => HasCustomWebUi ? _customWebUi() : null;
+        public ICustomWebUi CustomWebUi => HasCustomWebUi ? _customWebUi() : null;
 
         public bool HasCustomWebUi => _customWebUi is not null;
     }

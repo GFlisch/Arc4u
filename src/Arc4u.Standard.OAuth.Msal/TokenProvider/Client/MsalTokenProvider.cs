@@ -89,7 +89,7 @@ namespace Arc4u.OAuth2.Msal.TokenProvider.Client
                     _logger.Technical().Exception(msalex).Log();
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 return null;
             }

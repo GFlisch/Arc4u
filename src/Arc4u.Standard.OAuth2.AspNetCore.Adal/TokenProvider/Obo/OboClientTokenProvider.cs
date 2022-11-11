@@ -65,7 +65,7 @@ namespace Arc4u.OAuth2.TokenProvider
             {
                 _logger.Technical().Exception(ex).Log();
 
-                throw ex;
+                throw;
             }
 
             throw new ApplicationException("No token could be retrieve");

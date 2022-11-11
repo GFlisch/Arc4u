@@ -20,17 +20,17 @@ namespace Prism.DI.Ioc
 
         public abstract void FinalizeExtension();
 
-        public object Resolve(Type type)
+        public object? Resolve(Type type)
         {
             return Container?.Resolve(type);
         }
 
-        public object Resolve(Type type, string name)
+        public object? Resolve(Type type, string name)
         {
             return Container?.Resolve(type, name);
         }
 
-        public object ResolveViewModelForView(object view, Type viewModelType)
+        public object? ResolveViewModelForView(object view, Type viewModelType)
         {
             return Container?.Resolve(viewModelType);
         }
