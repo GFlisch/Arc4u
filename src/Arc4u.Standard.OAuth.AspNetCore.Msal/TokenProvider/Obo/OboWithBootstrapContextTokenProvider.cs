@@ -82,7 +82,7 @@ namespace Arc4u.OAuth2.TokenProvider
                 var rawToken = ((ClaimsIdentity)applicationContext.Principal.Identity).BootstrapContext.ToString();
                 var jwtUserToken = new JwtSecurityToken(rawToken);
 
-                _tokenInfo = new TokenInfo("Bearer", rawToken, string.Empty, jwtUserToken.ValidTo);
+                _tokenInfo = new TokenInfo("Bearer", rawToken, jwtUserToken.ValidTo);
             }
 
             // if the settings contains the OAuth2 field we will complete the Obo ones by the OAuth2.
@@ -102,13 +102,13 @@ namespace Arc4u.OAuth2.TokenProvider
 
             var cca = CreateCca(oboSettings);
 
-            var builder = cca.AcquireTokenOnBehalfOf(oboSettings.Values[TokenKeys.Scopes].Split(',', StringSplitOptions.RemoveEmptyEntries), new UserAssertion(_tokenInfo.AccessToken));
+            var builder = cca.AcquireTokenOnBehalfOf(oboSettings.Values[TokenKeys.Scopes].Split(',', StringSplitOptions.RemoveEmptyEntries), new UserAssertion(_tokenInfo.Token));
 
             var authenticationResult = await builder.ExecuteAsync();
 
             var jwtToken = new JwtSecurityToken(authenticationResult.AccessToken);
 
-            _tokenInfo = new TokenInfo(authenticationResult.TokenType, authenticationResult.AccessToken, authenticationResult.IdToken, jwtToken.ValidTo);
+            _tokenInfo = new TokenInfo(authenticationResult.TokenType, authenticationResult.AccessToken, jwtToken.ValidTo);
 
             await cache.PutAsync(cacheKey, _tokenInfo.ExpiresOnUtc - DateTime.UtcNow, _tokenInfo);
 

@@ -53,7 +53,7 @@ namespace Arc4u.Standard.UnitTest.Blazor
             JwtSecurityToken jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
 
             var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
-            var tokenInfo = new TokenInfo("Bearer", accessToken, "", DateTime.UtcNow);
+            var tokenInfo = new TokenInfo("Bearer", accessToken, DateTime.UtcNow);
 
 
             Dictionary<String, String> keySettings = new();
@@ -78,7 +78,7 @@ namespace Arc4u.Standard.UnitTest.Blazor
 
             // assert
             token.Should().NotBeNull();
-            token.AccessToken.Should().Be(accessToken);
+            token.Token.Should().Be(accessToken);
 
             mockInterop.Verify(m => m.OpenWindowAsync(It.IsAny<IJSRuntime>(), It.IsAny<ILocalStorageService>(), It.IsAny<String>(), It.IsAny<String>()), Times.Never);
             mockLocalStorage.Verify(p => p.GetItemAsStringAsync("token", It.IsAny<CancellationToken?>()), Times.Once);
@@ -119,7 +119,7 @@ namespace Arc4u.Standard.UnitTest.Blazor
 
             // assert
             token.Should().NotBeNull();
-            token.AccessToken.Should().Be(accessToken);
+            token.Token.Should().Be(accessToken);
 
             mockInterop.Verify(m => m.OpenWindowAsync(It.IsAny<IJSRuntime>(), It.IsAny<ILocalStorageService>(), It.IsAny<String>(), It.IsAny<String>()), Times.Once);
             mockLocalStorage.Verify(p => p.GetItemAsStringAsync("token", It.IsAny<CancellationToken?>()), Times.Exactly(2));
@@ -133,7 +133,7 @@ namespace Arc4u.Standard.UnitTest.Blazor
             JwtSecurityToken jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
 
             var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
-            var tokenInfo = new TokenInfo("Bearer", accessToken, "", DateTime.UtcNow);
+            var tokenInfo = new TokenInfo("Bearer", accessToken, DateTime.UtcNow);
 
 
             Dictionary<String, String> keySettings = new();
@@ -160,7 +160,7 @@ namespace Arc4u.Standard.UnitTest.Blazor
 
             // assert
             token.Should().NotBeNull();
-            token.AccessToken.Should().Be(accessToken);
+            token.Token.Should().Be(accessToken);
 
             mockInterop.Verify(m => m.OpenWindowAsync(It.IsAny<IJSRuntime>(), It.IsAny<ILocalStorageService>(), It.IsAny<String>(), It.IsAny<String>()), Times.Once);
             mockLocalStorage.Verify(p => p.GetItemAsStringAsync("token", It.IsAny<CancellationToken?>()), Times.Exactly(2));
@@ -173,7 +173,7 @@ namespace Arc4u.Standard.UnitTest.Blazor
             JwtSecurityToken jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
 
             var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
-            var tokenInfo = new TokenInfo("Bearer", accessToken, "", DateTime.UtcNow);
+            var tokenInfo = new TokenInfo("Bearer", accessToken, DateTime.UtcNow);
 
 
             Dictionary<String, String> keySettings = new();
@@ -200,7 +200,7 @@ namespace Arc4u.Standard.UnitTest.Blazor
 
             // assert
             token.Should().NotBeNull();
-            token.AccessToken.Should().Be(accessToken);
+            token.Token.Should().Be(accessToken);
 
             mockInterop.Verify(m => m.OpenWindowAsync(It.IsAny<IJSRuntime>(), It.IsAny<ILocalStorageService>(), It.IsAny<String>(), It.IsAny<String>()), Times.Once);
             mockLocalStorage.Verify(p => p.GetItemAsStringAsync("token", It.IsAny<CancellationToken?>()), Times.Exactly(2));

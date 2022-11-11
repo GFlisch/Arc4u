@@ -12,7 +12,6 @@ namespace Arc4u.OAuth2
 
             return new TokenInfo(authenticationResult.AccessTokenType,
                                  authenticationResult.AccessToken,
-                                 authenticationResult.IdToken,
                                  authenticationResult.ExpiresOn.UtcDateTime);
         }
     }

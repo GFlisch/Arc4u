@@ -147,7 +147,7 @@ namespace Arc4u.Standard.OAuth2.Middleware
                             var tokenInfo = await _provider.GetTokenAsync(_option.Settings, credential);
 
                             // Replace the Basic Authorization by the access token in the header.
-                            var authorization = new AuthenticationHeaderValue("Bearer", tokenInfo.AccessToken).ToString();
+                            var authorization = new AuthenticationHeaderValue("Bearer", tokenInfo.Token).ToString();
                             context.Request.Headers.Remove("Authorization");
                             context.Request.Headers.Add("Authorization", authorization);
                         }

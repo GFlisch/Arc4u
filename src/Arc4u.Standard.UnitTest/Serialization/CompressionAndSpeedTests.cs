@@ -50,7 +50,7 @@ namespace Arc4u.Standard.UnitTest.Serialization
 
         private static readonly JwtSecurityToken _jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddMinutes(-10));
 
-        private static readonly TokenInfo _tokenInfo = new TokenInfo("Bearer", _jwt.EncodedPayload, _jwt.EncodedHeader, DateTime.UtcNow);
+        private static readonly TokenInfo _tokenInfo = new TokenInfo("Bearer", _jwt.EncodedPayload, DateTime.UtcNow);
 
         private sealed class Measurement
         {
