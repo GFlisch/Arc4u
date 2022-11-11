@@ -1,13 +1,14 @@
 ﻿using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 
 namespace Arc4u.OAuth2.Token
 {
     [DataContract]
     public class TokenInfo
     {
-
+        [JsonConstructor]
         public TokenInfo(string tokenType, string token, DateTime expiresOnUtc)
         {
             TokenType = tokenType;

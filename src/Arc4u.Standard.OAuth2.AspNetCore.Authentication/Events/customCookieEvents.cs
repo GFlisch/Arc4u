@@ -1,5 +1,5 @@
-﻿using Arc4u.Caching;
-using Arc4u.OAuth2.Options;
+﻿using Arc4u.OAuth2.Options;
+using Arc4u.OAuth2.Token;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -40,8 +40,8 @@ namespace Arc4u.OAuth2.Events
             // Persist the Access and Refresh tokens.
             var tokensInfo = _serviceProvider!.GetService<TokenRefreshInfo>();
 
-            tokensInfo.AccessToken = cookieCtx.Properties.GetTokenValue("access_token");
-            tokensInfo.RefreshToken = cookieCtx.Properties.GetTokenValue("refresh_token");
+            tokensInfo.AccessToken = new TokenInfo("access_token", cookieCtx.Properties.GetTokenValue("access_token"));
+            tokensInfo.RefreshToken = new TokenInfo("refresh_token", cookieCtx.Properties.GetTokenValue("refresh_token"));
 
             if (timeRemaining < refreshThreshold)
             {
@@ -56,7 +56,7 @@ namespace Arc4u.OAuth2.Events
                                                 { "client_id", options.ClientId },
                                                 { "client_secret", options.ClientSecret },
                                                 { "grant_type", "refresh_token" },
-                                                { "refresh_token", tokensInfo.RefreshToken }
+                                                { "refresh_token", tokensInfo.RefreshToken.Token }
                                         };
                 var content = new FormUrlEncodedContent(pairs);
                 var tokenResponse = await options.Backchannel.PostAsync(metadata.TokenEndpoint, content, CancellationToken.None);
