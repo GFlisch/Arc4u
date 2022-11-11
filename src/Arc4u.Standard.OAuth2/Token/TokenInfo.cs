@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IdentityModel.Tokens.Jwt;
 using System.Runtime.Serialization;
 
 namespace Arc4u.OAuth2.Token
@@ -9,9 +10,18 @@ namespace Arc4u.OAuth2.Token
 
         public TokenInfo(string tokenType, string token, DateTime expiresOnUtc)
         {
-            this.TokenType = tokenType;
-            this.Token = token;
-            this.ExpiresOnUtc = expiresOnUtc.ToUniversalTime();
+            TokenType = tokenType;
+            Token = token;
+            ExpiresOnUtc = expiresOnUtc.ToUniversalTime();
+        }
+
+        public TokenInfo(string tokenType, string token)
+        {
+            TokenType = tokenType;
+            Token = token;
+
+            var jwtToken = new JwtSecurityToken(token);
+            ExpiresOnUtc = jwtToken.ValidTo.ToUniversalTime();
         }
 
 

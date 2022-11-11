@@ -4,7 +4,6 @@ using Arc4u.OAuth2.Options;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
-using System.IdentityModel.Tokens.Jwt;
 using System.Threading.Tasks;
 
 namespace Arc4u.OAuth2.TokenProviders
@@ -14,16 +13,18 @@ namespace Arc4u.OAuth2.TokenProviders
     {
         const string ProviderName = "Oidc";
 
-        public OidcTokenProvider(ILogger<OidcTokenProvider> logger, TokenRefreshInfo tokenRefreshInfo, IOptions<OidcAuthenticationOptions> oidcOptions)
+        public OidcTokenProvider(ILogger<OidcTokenProvider> logger, TokenRefreshInfo tokenRefreshInfo, IOptions<OidcAuthenticationOptions> oidcOptions, RefreshTokenProvider refreshTokenProvider)
         {
             _logger = logger;
             _tokenRefreshInfo = tokenRefreshInfo;
             _oidcOptions = oidcOptions.Value;
+            _refreshTokenProvider = refreshTokenProvider;
         }
 
         private readonly ILogger<OidcTokenProvider> _logger;
         private readonly TokenRefreshInfo _tokenRefreshInfo;
         private readonly OidcAuthenticationOptions _oidcOptions;
+        private readonly RefreshTokenProvider _refreshTokenProvider;
 
         /// <summary>
         /// 
@@ -37,19 +38,12 @@ namespace Arc4u.OAuth2.TokenProviders
         {
             ArgumentNullException.ThrowIfNull(settings, nameof(settings));
 
-            // throw a ArgumentNullException if null.
-            var jwtToken = new JwtSecurityToken(_tokenRefreshInfo.AccessToken);
-
-            var timeRemaining = jwtToken.ValidTo.Subtract(DateTime.UtcNow);
+            var timeRemaining = _tokenRefreshInfo.AccessToken.ExpiresOnUtc.Subtract(DateTime.UtcNow);
 
             if (timeRemaining > _oidcOptions.ForceRefreshTimeoutTimeSpan)
-                return new TokenInfo("Bearer", _tokenRefreshInfo.AccessToken, String.Empty, jwtToken.ValidTo);
+                return _tokenRefreshInfo.AccessToken;
 
-            // TODO: Refresh the token!
-
-            await Task.Delay(1);
-
-            throw new NotImplementedException();
+            return await _refreshTokenProvider.GetTokenAsync(settings, null);
         }
 
         public void SignOut(IKeyValueSettings settings)

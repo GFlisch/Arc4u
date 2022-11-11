@@ -45,7 +45,7 @@ namespace Arc4u.OAuth2.TokenProviders
                 JwtSecurityToken jwt = new(token);
 
                 if (jwt.ValidTo > DateTime.UtcNow)
-                    return Task.FromResult(new TokenInfo("Bearer", token, String.Empty, jwt.ValidTo));
+                    return Task.FromResult(new TokenInfo("Bearer", token, jwt.ValidTo));
 
                 throw new TimeoutException("The token provided is expired.");
             }
