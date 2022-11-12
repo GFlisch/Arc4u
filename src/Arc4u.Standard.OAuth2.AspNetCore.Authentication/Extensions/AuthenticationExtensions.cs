@@ -14,6 +14,8 @@ using Arc4u.OAuth2;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Arc4u.OAuth2.TokenProviders;
 
 namespace Arc4u.Standard.OAuth2.Extensions;
 

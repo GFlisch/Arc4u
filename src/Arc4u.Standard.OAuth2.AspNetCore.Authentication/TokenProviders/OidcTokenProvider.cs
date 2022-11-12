@@ -13,7 +13,7 @@ namespace Arc4u.OAuth2.TokenProviders
     {
         const string ProviderName = "Oidc";
 
-        public OidcTokenProvider(ILogger<OidcTokenProvider> logger, TokenRefreshInfo tokenRefreshInfo, IOptions<OidcAuthenticationOptions> oidcOptions, RefreshTokenProvider refreshTokenProvider)
+        public OidcTokenProvider(ILogger<OidcTokenProvider> logger, TokenRefreshInfo tokenRefreshInfo, IOptions<OidcAuthenticationOptions> oidcOptions, ITokenRefreshProvider refreshTokenProvider)
         {
             _logger = logger;
             _tokenRefreshInfo = tokenRefreshInfo;
@@ -24,7 +24,7 @@ namespace Arc4u.OAuth2.TokenProviders
         private readonly ILogger<OidcTokenProvider> _logger;
         private readonly TokenRefreshInfo _tokenRefreshInfo;
         private readonly OidcAuthenticationOptions _oidcOptions;
-        private readonly RefreshTokenProvider _refreshTokenProvider;
+        private readonly ITokenRefreshProvider _refreshTokenProvider;
 
         /// <summary>
         /// 

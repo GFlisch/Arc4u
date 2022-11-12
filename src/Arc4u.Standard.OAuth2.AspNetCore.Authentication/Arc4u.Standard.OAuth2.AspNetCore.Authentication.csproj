@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
@@ -21,6 +21,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+			<PackageReference Include="Arc4u.Standard.Diagnostics" Version="6.0.11.1-preview01" />
+			<PackageReference Include="Arc4u.Standard.OAuth2.AspNetCore" Version="6.0.11.1-preview01" />
 			<PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="6.0.11" />
 			<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.11" />
 	</ItemGroup>
@@ -32,10 +34,5 @@
 		</None>
 	</ItemGroup>
 
-	<ItemGroup>
-	  <ProjectReference Include="..\Arc4u.Standard.Diagnostics\Arc4u.Standard.Diagnostics.csproj" />
-	  <ProjectReference Include="..\Arc4u.Standard.OAuth2.AspNetCore\Arc4u.Standard.OAuth2.AspNetCore.csproj" />
-	  <ProjectReference Include="..\Arc4u.Standard.OAuth2\Arc4u.Standard.OAuth2.csproj" />
-	</ItemGroup>
 
 </Project>

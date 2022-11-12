@@ -2,30 +2,26 @@
 using Arc4u.OAuth2.Token;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Net.Http;
-using System.Text;
-using System.Text.Json;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Arc4u.OAuth2.Events
 {
     public class customCookieEvents : CookieAuthenticationEvents
     {
-        public customCookieEvents(IServiceProvider serviceProvider, IOptions<OidcAuthenticationOptions> oidcOptions)
+        public customCookieEvents(IServiceProvider serviceProvider, IOptions<OidcAuthenticationOptions> oidcOptions, ITokenRefreshProvider tokenRefreshProvider)
         {
             _serviceProvider = serviceProvider;
             _oidcOptions = oidcOptions.Value;
+            _tokenRefreshProvider = tokenRefreshProvider;
         }
 
         private readonly IServiceProvider _serviceProvider;
         private readonly OidcAuthenticationOptions _oidcOptions;
+        private readonly ITokenRefreshProvider _tokenRefreshProvider;
 
         public override async Task ValidatePrincipal(CookieValidatePrincipalContext cookieCtx)
         {
@@ -33,7 +29,7 @@ namespace Arc4u.OAuth2.Events
             var expiresAt = cookieCtx.Properties.GetTokenValue("expires_at");
             var accessTokenExpiration = DateTimeOffset.Parse(expiresAt);
             var timeRemaining = accessTokenExpiration.Subtract(now);
-            
+
             // => must be defined in the options
             var refreshThreshold = _oidcOptions.ForceRefreshTimeoutTimeSpan;
 
@@ -45,48 +41,28 @@ namespace Arc4u.OAuth2.Events
 
             if (timeRemaining < refreshThreshold)
             {
-
-                IOptionsMonitor<OpenIdConnectOptions> optionsMonitor = _serviceProvider!.GetService<IOptionsMonitor<OpenIdConnectOptions>>();
-
-                var options = optionsMonitor!.Get(OpenIdConnectDefaults.AuthenticationScheme);
-                var metadata = await options!.ConfigurationManager!.GetConfigurationAsync(CancellationToken.None);
-
-                var pairs = new Dictionary<string, string>()
-                                        {
-                                                { "client_id", options.ClientId },
-                                                { "client_secret", options.ClientSecret },
-                                                { "grant_type", "refresh_token" },
-                                                { "refresh_token", tokensInfo.RefreshToken.Token }
-                                        };
-                var content = new FormUrlEncodedContent(pairs);
-                var tokenResponse = await options.Backchannel.PostAsync(metadata.TokenEndpoint, content, CancellationToken.None);
-                tokenResponse.EnsureSuccessStatusCode();
-
-                if (tokenResponse.IsSuccessStatusCode)
+                ArgumentNullException.ThrowIfNull(_tokenRefreshProvider, nameof(_tokenRefreshProvider));
+                try
                 {
-                    using (var payload = JsonDocument.Parse(await tokenResponse.Content.ReadAsStringAsync()))
-                    {
-                        // Persist the new acess token
-                        cookieCtx.Properties.UpdateTokenValue("access_token", payload!.RootElement!.GetString("access_token"));
-                        cookieCtx.Properties.UpdateTokenValue("refresh_token", payload!.RootElement!.GetString("refresh_token"));
-                        if (payload.RootElement.TryGetProperty("expires_in", out var property) && property.TryGetInt32(out var seconds))
-                        {
-                            var expirationAt = DateTimeOffset.UtcNow + TimeSpan.FromSeconds(seconds);
-                            cookieCtx.Properties.UpdateTokenValue("expires_at", expirationAt.ToString("o", CultureInfo.InvariantCulture));
-                        }
-                        
-                        //await context.SignInAsync(user, props);
+                    // throws an exception if the call failed.
+                    await _tokenRefreshProvider.GetTokenAsync(null, null);
 
-                        // Indicate to the cookie middleware that the cookie should be remade (since we have updated it)
-                        cookieCtx.ShouldRenew = true;
-                    }
+                    cookieCtx.Properties.UpdateTokenValue("access_token", tokensInfo.AccessToken.Token);
+                    cookieCtx.Properties.UpdateTokenValue("refresh_token", tokensInfo.RefreshToken.Token);
+                    cookieCtx.Properties.UpdateTokenValue("expires_at", tokensInfo.AccessToken.ExpiresOnUtc.ToString("o", CultureInfo.InvariantCulture));
+
+                    cookieCtx.ShouldRenew = true;
+                    cookieCtx.RejectPrincipal();
+
                 }
-                else
+                catch (Exception)
                 {
                     cookieCtx.RejectPrincipal();
                     await cookieCtx.HttpContext.SignOutAsync();
                 }
+
             }
         }
     }
 }
+
