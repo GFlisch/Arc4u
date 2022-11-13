@@ -4,14 +4,11 @@ using Arc4u.OAuth2.Options;
 using Arc4u.OAuth2.Token;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Logging;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading;
@@ -102,7 +99,6 @@ public class RefreshTokenProvider : ITokenRefreshProvider
                 }
             }
         }
-
 
         return _tokenRefreshInfo.AccessToken;
     }

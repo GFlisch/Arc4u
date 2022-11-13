@@ -23,7 +23,7 @@ public class OidcAuthenticationOptions
 
     public Type JwtBearerEventsType { get; set; } = typeof(CustomBearerEvents);
 
-    public Type CookieAuthenticationEventsType { get; set; } = typeof(customCookieEvents);
+    public Type CookieAuthenticationEventsType { get; set; } = typeof(CustomCookieEvents);
 
     public Type OpenIdConnectEventsType { get; set; } = typeof(CustomOpenIdConnectEvents);
 
