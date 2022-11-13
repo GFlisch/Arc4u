@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Arc4u.KubeMQ.AspNetCore.Queues
 {
-    public class DefaultUniqueness : IUniqueness, IEqualityComparer<QueueParameters>
+    public class DefaultUniqueness : IUniqueness
     {
         public DefaultUniqueness(IEnumerable<QueueParameters> queueParameters)
         {
@@ -17,11 +17,18 @@ namespace Arc4u.KubeMQ.AspNetCore.Queues
 
         public IEnumerable<QueueParameters> GetQueues()
         {
-            return _queueParameters.Distinct(this);
+            return _queueParameters.Distinct(QueueParametersEqualityComparer.Default);
         }
+    }
+
+    public class QueueParametersEqualityComparer: IEqualityComparer<QueueParameters>
+    {
+        public static readonly QueueParametersEqualityComparer Default = new();
 
         public bool Equals(QueueParameters x, QueueParameters y)
         {
+            if (x == null || y == null)
+                return x == null && y == null;
             return x.Namespace.Equals(y.Namespace, StringComparison.InvariantCultureIgnoreCase) &&
                    x.Address.Equals(y.Address, StringComparison.InvariantCultureIgnoreCase);
         }
