@@ -211,10 +211,14 @@ namespace Arc4u
         /// <returns>A 32-bit signed integer hash code.</returns>
         public override int GetHashCode()
         {
+#if NETSTANDARD2_1_OR_GREATER
+            return HashCode.Combine(LowerBound, UpperBound);
+#else
             int hash = 0x4043ed47;
             hash = (hash * -1521134295) + (object.Equals(LowerBound, default(Bound<T>)) ? 0 : LowerBound.GetHashCode());
             hash = (hash * -1521134295) + (object.Equals(UpperBound, default(Bound<T>)) ? 0 : UpperBound.GetHashCode());
             return hash;
+#endif
         }
 
         /// <summary>
@@ -226,14 +230,12 @@ namespace Arc4u
         /// </returns>
         public override bool Equals(object obj)
         {
-            return (obj is Interval<T>)
-            ? Equals((Interval<T>)obj)
-            : false;
+            return obj is Interval<T> other && Equals(other);
         }
 
-        #endregion
+#endregion
 
-        #region IEquatable<Interval<T>> Members
+#region IEquatable<Interval<T>> Members
 
         /// <summary>
         /// Returns a value indicating whether this instance is equal to a specified <see cref="Interval&lt;T&gt;"/>.
@@ -250,9 +252,9 @@ namespace Arc4u
                 && UpperBound.Equals(other.UpperBound));
         }
 
-        #endregion
+#endregion
 
-        #region IComparable<Interval<T>> Members
+#region IComparable<Interval<T>> Members
 
         /// <summary>
         /// Compares this instance to a specified <see cref="Interval&lt;T&gt;"/> and returns an indication of their relative values.
@@ -299,9 +301,9 @@ namespace Arc4u
                 : LowerBound.CompareTo(other.LowerBound);
         }
 
-        #endregion
+#endregion
 
-        #region Operators
+#region Operators
 
         /// <summary>
         /// Implements the operator ==.
@@ -369,9 +371,9 @@ namespace Arc4u
             return left != (right as Interval<T>);
         }
 
-        #endregion
+#endregion
 
-        #region Methods
+#region Methods
 
         /// <summary>
         /// Overrides the default bound values of <see cref="Interval&lt;T&gt;"/>.
@@ -521,6 +523,6 @@ namespace Arc4u
             return Interval.DifferenceOf(this, other);
         }
 
-        #endregion       
+#endregion
     }
 }

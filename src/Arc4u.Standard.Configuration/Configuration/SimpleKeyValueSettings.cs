@@ -1,8 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Primitives;
+using System;
+using System.Collections.Generic;
 
 namespace Arc4u.Configuration
 {
-    public class SimpleKeyValueSettings : IKeyValueSettings
+    /// <summary>
+    /// Note that this implements equality, even though it is never used.
+    /// </summary>
+    public class SimpleKeyValueSettings : IKeyValueSettings, IEquatable<SimpleKeyValueSettings>
     {
         public SimpleKeyValueSettings(Dictionary<string, string> keyValues)
         {
@@ -30,6 +37,12 @@ namespace Arc4u.Configuration
 
         public override int GetHashCode()
         {
+#if NETSTANDARD2_1_OR_GREATER
+            var hashCode = new HashCode();
+            foreach (var value in Values)
+                hashCode.Add(value);
+            return hashCode.ToHashCode();
+#else
             int hash = 0;
             foreach (var value in Values)
             {
@@ -37,23 +50,24 @@ namespace Arc4u.Configuration
             }
 
             return hash;
+#endif
+        }
+
+        public bool Equals(SimpleKeyValueSettings other)
+        {
+            if (other != null && other._keyValues.Count == _keyValues.Count)
+            {
+                foreach (var keyValue in _keyValues)
+                    if (!other._keyValues.TryGetValue(keyValue.Key, out var value) || value != keyValue.Value)
+                        return false;
+                return true;
+            }
+            return false;
         }
 
         public override bool Equals(object obj)
         {
-            if (null == obj) return false;
-
-            if (obj is SimpleKeyValueSettings other)
-            {
-                foreach (var keyValue in Values)
-                {
-                    if (!other.Values.ContainsKey(keyValue.Key) || !other.Values[keyValue.Key].Equals(keyValue.Value))
-                        return false;
-                }
-                return true;
-            }
-
-            return false;
+            return obj is SimpleKeyValueSettings other && Equals(other);
         }
     }
 }

@@ -96,7 +96,7 @@ namespace Arc4u.Data
         /// </returns>
         public override int GetHashCode()
         {
-            return object.Equals(Id, default(TId)) ? 0 : Id.GetHashCode();
+            return Id?.GetHashCode() ?? 0;
         }
 
         /// <summary>
@@ -106,9 +106,7 @@ namespace Arc4u.Data
         /// <returns><c>true</c> if the specified <see cref="Object"/> is equal to the current <see cref="Object"/> ; otherwise, <c>false</c>.</returns>
         public override bool Equals(object obj)
         {
-            return (obj is IdEntity<TId>)
-                ? Equals((IdEntity<TId>)obj)
-                : false;
+            return obj is IdEntity<TId> other && Equals(other);
         }
 
         /// <summary>
