@@ -18,6 +18,7 @@ namespace Arc4u.gRPC.ChannelCertificate
             _certificateExtractor = certificateExtractor;
 
             PemsCollections = new Dictionary<string, string>();
+            _logger = logger;
         }
 
         readonly IRootCertificateExtractor _certificateExtractor;

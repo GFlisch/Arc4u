@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Arc4u
 {
@@ -91,10 +92,8 @@ namespace Arc4u
 
         }
 
-        public static void ProcessAppException(HttpResponseMessage exception)
+        private static void ProcessAppExceptionContent(string content)
         {
-            var content = exception.Content.ReadAsStringAsync().Result;
-
             IEnumerable<Message> messages = null;
             try
             {
@@ -109,6 +108,18 @@ namespace Arc4u
             }
 
             throw new AppException(messages);
+        }
+
+        public static async Task ProcessAppExceptionAsync(HttpResponseMessage exception)
+        {
+            var content = await exception.Content.ReadAsStringAsync();
+            ProcessAppExceptionContent(content);
+        }
+
+        public static void ProcessAppException(HttpResponseMessage exception)
+        {
+            var content = exception.Content.ReadAsStringAsync().Result;
+            ProcessAppExceptionContent(content);
         }
     }
 }

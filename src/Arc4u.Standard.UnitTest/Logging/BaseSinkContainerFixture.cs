@@ -11,7 +11,7 @@ namespace Arc4u.Standard.UnitTest.Logging
         protected readonly ISinkContainerFixture _containerFixture;
         private readonly ILogger<T> _logger;
 
-        public BaseSinkContainerFixture(TFixture? containerFixture)
+        public BaseSinkContainerFixture(TFixture containerFixture)
         {
             _containerFixture = containerFixture;
             _logger = containerFixture.SharedContainer.Resolve<ILogger<T>>();
