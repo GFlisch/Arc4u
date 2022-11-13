@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Arc4u.Dependency.ComponentModel
 {
@@ -21,7 +22,7 @@ namespace Arc4u.Dependency.ComponentModel
             _frozen = true;
         }
 
-        public bool TryGetInstances(string name, Type serviceType, out IReadOnlyList<object> instances)
+        private bool TryGetInstances(string name, Type serviceType, out IReadOnlyList<object> instances)
         {
             if (_instances.TryGetValue((name, serviceType), out var values))
             {
@@ -35,7 +36,7 @@ namespace Arc4u.Dependency.ComponentModel
             }    
         }
 
-        public bool TryGetTypes(string name, Type serviceType, out IReadOnlyList<Type> types)
+        private bool TryGetTypes(string name, Type serviceType, out IReadOnlyList<Type> types)
         {
             if (_types.TryGetValue((name, serviceType), out var values))
             {
@@ -47,6 +48,79 @@ namespace Arc4u.Dependency.ComponentModel
                 types = null; 
                 return false;
             }
+        }
+
+        public IEnumerable<object> GetServices(IServiceProvider provider, Type type, string name)
+        {
+            // we should really disallow this.
+            if (name == null)
+                return provider.GetServices(type);
+
+            if (TryGetInstances(name, type, out var singletons))
+                return singletons;
+
+            if (!TryGetTypes(name, type, out var to))
+                throw new NullReferenceException($"No type found registered with the name: {name}.");
+
+            var instances = Array.CreateInstance(type, to.Count);
+            for (int index = 0; index < to.Count; ++index)
+                instances.SetValue(provider.GetService(to[index]), index);
+
+            // covariance at work here. This is really a IEnumerable<type>
+            return (IEnumerable<object>)instances;
+        }
+
+        public bool TryGetService(IServiceProvider provider, Type type, string name, bool throwIfError, out object value)
+        {
+            value = null;
+
+            if (name == null)
+                // we should really disallow this
+                value = provider.GetService(type);
+            else
+            {
+                IEnumerable<object> instances;
+
+                if (TryGetInstances(name, type, out var oto))
+                {
+                    if (oto.Count != 1)
+                        if (throwIfError)
+                            throw new IndexOutOfRangeException($"More than one instance type is registered for name {name}.");
+                        else
+                            return false;
+                    instances = oto;
+                }
+                else
+                {
+                    if (!TryGetTypes(name, type, out var to))
+                        if (throwIfError)
+                            throw new NullReferenceException($"No type found registered with the name: {name}.");
+                        else
+                            return false;
+
+                    if (to.Count != 1)
+                        if (throwIfError)
+                            throw new IndexOutOfRangeException($"More than one type is registered for name {name}.");
+                        else
+                            return false;
+
+                    instances = provider.GetServices(to[0]);
+                }
+
+                // the happy flow is the single-instance case. Don't waste time counting
+                try
+                {
+                    value = instances.SingleOrDefault();
+                }
+                catch (Exception e)
+                {
+                    if (throwIfError)
+                        throw new MultipleRegistrationException(type, instances, e);
+                    else
+                        return false;
+                }
+            }
+            return value != null;
         }
 
         public ServiceDescriptor Add(ServiceDescriptor serviceDescriptor, string name)

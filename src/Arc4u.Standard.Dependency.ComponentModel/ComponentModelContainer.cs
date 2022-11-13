@@ -30,7 +30,11 @@ namespace Arc4u.Dependency.ComponentModel
             if (serviceProvider is INamedServiceProvider namedServiceProvider)
                 _serviceProvider = namedServiceProvider;
             else
-                _serviceProvider = new NamedServiceProvider(serviceProvider, nameResolver);
+            {
+                _serviceProvider = serviceProvider.GetService<INamedServiceProvider>();
+                if (_serviceProvider == null)
+                    _serviceProvider = new NamedServiceProvider(serviceProvider, nameResolver);
+            }
         }
 
         private ComponentModelContainer(INamedServiceScope scope)
