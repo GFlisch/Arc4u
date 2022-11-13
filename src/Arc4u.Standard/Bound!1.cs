@@ -170,11 +170,15 @@ namespace Arc4u
         /// <returns>A 32-bit signed integer hash code.</returns>
         public override int GetHashCode()
         {
+#if NETSTANDARD2_1_OR_GREATER
+            return HashCode.Combine(Type, Direction, Value);
+#else
             int hash = 0x4043ed47;
             hash = (hash * -1521134295) + Type.GetHashCode();
             hash = (hash * -1521134295) + Direction.GetHashCode();
             hash = (hash * -1521134295) + (object.Equals(Value, default(T)) ? 0 : Value.GetHashCode());
             return hash;
+#endif
         }
 
         /// <summary>
@@ -191,9 +195,9 @@ namespace Arc4u
                 : false;
         }
 
-        #endregion
+#endregion
 
-        #region IEquatable<Bound<T>> Members
+#region IEquatable<Bound<T>> Members
 
         /// <summary>
         /// Returns a value indicating whether this instance is equal to a specified <see cref="Bound&lt;T&gt;"/>.
@@ -211,9 +215,9 @@ namespace Arc4u
                 && object.Equals(Value, other.Value));
         }
 
-        #endregion
+#endregion
 
-        #region IComparable<Bound<T>> Members
+#region IComparable<Bound<T>> Members
 
         /// <summary>
         /// Compares this instance to a specified <see cref="Bound&lt;T&gt;"/> and returns an indication of their relative values.
@@ -284,9 +288,9 @@ namespace Arc4u
                     : -1;
         }
 
-        #endregion
+#endregion
 
-        #region Methods
+#region Methods
 
         internal static void OverrideBounds(T lowestValue, T upmostValue)
         {
@@ -381,9 +385,9 @@ namespace Arc4u
                         : Comparer<T>.Default.Compare(Value, value) > 0;
         }
 
-        #endregion
+#endregion
 
-        #region Operators
+#region Operators
 
         /// <summary>
         /// Implements the operator ==.
@@ -463,6 +467,6 @@ namespace Arc4u
             return (left.CompareTo(right) >= 0);
         }
 
-        #endregion
+#endregion
     }
 }

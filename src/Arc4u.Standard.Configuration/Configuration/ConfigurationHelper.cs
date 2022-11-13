@@ -6,7 +6,7 @@ using System.Reflection;
 
 namespace Arc4u.Configuration
 {
-    public class ConfigurationHelper
+    public static class ConfigurationHelper
     {
         /// <summary>
         /// Load json files for the configuration and returns a IConfiguration so we can extract the
