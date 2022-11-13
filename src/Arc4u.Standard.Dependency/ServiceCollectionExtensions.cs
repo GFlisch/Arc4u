@@ -18,30 +18,28 @@ namespace Arc4u.Dependency
         {
             if (implementationType.IsClass && !implementationType.IsAbstract)
             {
+                void throwForbiddenDoubleUsage() => throw new Exception($"{implementationType.FullName} has both [Shared] and [Scoped] attributes. Choose one.");
+                
                 // note that we look up attribute by name, since ExportAttribute and SharedAttribute are also defined in System.ComponentModel.Composition
                 // which we don't include here, but can be used in other assemblies defining exportable types
                 var exports = implementationType.GetCustomAttributes().Where(attribute => attribute.GetType().Name == "ExportAttribute");
                 if (exports.Any())
                 {
-                    bool isShared = false;
-                    bool isScoped = false;
+                    ServiceLifetime lifetime = ServiceLifetime.Transient;
+
                     // iterate through the custom attributes once to get both Shared and Scoped attributes if they are present
                     foreach (var attribute in implementationType.GetCustomAttributes())
-                        if(attribute.GetType().Name == "SharedAttribute")
-                            isShared = true;
-                        else if(attribute.GetType().Name == "ScopedAttribute")  // we also test for ScopedAttribute by name, even though it's currently only we who are defining it.
-                            isScoped = true;
-                    // Normally, shared and scoped cannot both be defined for the same type. For backwards compatibility with the old code, we don't throw an exception but we interpret this as "Shared": 
-                    // This is bad practice!
-                    //if (isShared && isScoped)
-                    //    throw new Exception($"{implementationType.FullName} has both [Shared] and [Scoped] attributes. Choose one.");
-                    ServiceLifetime lifetime;
-                    if (isShared)
-                        lifetime = ServiceLifetime.Singleton;
-                    else if (isScoped)
-                        lifetime = ServiceLifetime.Scoped;
-                    else
-                        lifetime = ServiceLifetime.Transient;
+                        if (attribute.GetType().Name == "SharedAttribute")
+                            if (ServiceLifetime.Scoped == lifetime)
+                                throwForbiddenDoubleUsage();
+                            else
+                                lifetime = ServiceLifetime.Singleton;
+                        else if (attribute.GetType().Name == "ScopedAttribute")  // we also test for ScopedAttribute by name, even though it's currently only we who are defining it.
+                            if (ServiceLifetime.Singleton == lifetime)
+                                throwForbiddenDoubleUsage();
+                            else
+                                lifetime = ServiceLifetime.Scoped;
+
                     foreach (var export in exports)
                     {
                         const string ContractType = "ContractType";
