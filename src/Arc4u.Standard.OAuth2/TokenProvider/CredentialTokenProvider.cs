@@ -110,7 +110,7 @@ namespace Arc4u.OAuth2.TokenProvider
 
                     using (var response = await client.PostAsync(authority + "/oauth2/token", content).ConfigureAwait(true))
                     {
-                        var responseBody = response.Content.ReadAsStringAsync().Result;
+                        var responseBody = await response.Content.ReadAsStringAsync();
 
                         if (response.StatusCode == HttpStatusCode.BadRequest)
                         {

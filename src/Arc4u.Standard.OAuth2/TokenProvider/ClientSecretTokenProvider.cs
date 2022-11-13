@@ -174,7 +174,7 @@ namespace Arc4u.OAuth2.TokenProvider
 
             return new CredentialsResult(true, username, pwd);
         }
-        protected async Task<TokenInfo> CreateBasicTokenInfoAsync(IKeyValueSettings settings, CredentialsResult credential)
+        private async Task<TokenInfo> CreateBasicTokenInfoAsync(IKeyValueSettings settings, CredentialsResult credential)
         {
             var basicTokenProvider = _container.Resolve<ICredentialTokenProvider>(CredentialTokenProvider.ProviderName);
 

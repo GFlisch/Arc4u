@@ -90,11 +90,11 @@ public class SerilogTests : BaseContainerFixture<SerilogTests, BasicFixture>
 
             using (new LoggerContext())
             {
-                Assert.Equal((int)(LoggerContext.Current.All().First(kv => kv.Key.Equals("Code")).Value), (long)100);
+                Assert.Equal(100, (int)(LoggerContext.Current.All().First(kv => kv.Key.Equals("Code")).Value));
                 LoggerContext.Current.Add("Code2", 101);
                 LoggerContext.Current.Add("Code", 101);
                 Assert.Contains(LoggerContext.Current.All(), kv => kv.Key.Equals("Code2"));
-                Assert.Equal((int)(LoggerContext.Current.All().First(kv => kv.Key.Equals("Code2")).Value), (long)101);
+                Assert.Equal(101, (int)(LoggerContext.Current.All().First(kv => kv.Key.Equals("Code2")).Value));
                 Assert.Contains(LoggerContext.Current.All(), kv => kv.Key.Equals("Code"));
             }
             Assert.DoesNotContain(LoggerContext.Current.All(), kv => kv.Key.Equals("Code2"));
