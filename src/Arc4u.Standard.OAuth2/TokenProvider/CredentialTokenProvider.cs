@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -154,7 +155,7 @@ namespace Arc4u.OAuth2.TokenProvider
                         var expiresIn = responseValues["expires_in"];
 
                         // expires in is in ms.
-                        Int64.TryParse(expiresIn, out var offset);
+                        Int64.TryParse(expiresIn, NumberStyles.Integer, CultureInfo.InvariantCulture, out var offset);
                         var dateUtc = DateTime.UtcNow.AddSeconds(offset);
 
                         _logger.Technical().System($"Access token will expire at {dateUtc} utc.").Log();

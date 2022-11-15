@@ -252,7 +252,7 @@ namespace Arc4u.Diagnostics
             var result = 10; // default is 10 days.
             if (AttributesCopy.ContainsKey(MaxFileDaysKey))
             {
-                int.TryParse(AttributesCopy[MaxFileDaysKey], out result);
+                int.TryParse(AttributesCopy[MaxFileDaysKey], NumberStyles.Integer, CultureInfo.InvariantCulture, out result);
             }
 
             return result;
@@ -274,7 +274,7 @@ namespace Arc4u.Diagnostics
             long result = 10 * 1024 * 2014; // default is 10 MBytes.
             if (AttributesCopy.ContainsKey(MaxFileSizeKey))
             {
-                if (long.TryParse(AttributesCopy[MaxFileSizeKey], out result))
+                if (long.TryParse(AttributesCopy[MaxFileSizeKey], NumberStyles.Integer, CultureInfo.InvariantCulture, out result))
                 {
                     if (result > max) result = max;
                     else

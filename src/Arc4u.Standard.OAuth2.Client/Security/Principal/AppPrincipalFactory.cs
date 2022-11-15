@@ -10,6 +10,7 @@ using Arc4u.ServiceModel;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
@@ -129,7 +130,7 @@ namespace Arc4u.OAuth2.Client.Security.Principal
                 var expTokenClaim = jwtToken.Claims.FirstOrDefault(c => c.Type.Equals(tokenExpirationClaimType, StringComparison.InvariantCultureIgnoreCase));
                 long expTokenTicks = 0;
                 if (null != expTokenClaim)
-                    long.TryParse(expTokenClaim.Value, out expTokenTicks);
+                    long.TryParse(expTokenClaim.Value, NumberStyles.Integer, CultureInfo.InvariantCulture,  out expTokenTicks);
 
                 Identity.BootstrapContext = token.AccessToken;
 
@@ -143,7 +144,7 @@ namespace Arc4u.OAuth2.Client.Security.Principal
                 long cachedExpiredTicks = 0;
 
                 if (null != cachedExpiredClaim)
-                    long.TryParse(cachedExpiredClaim.Value, out cachedExpiredTicks);
+                    long.TryParse(cachedExpiredClaim.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out cachedExpiredTicks);
 
                 // we only call the backend if the ticks are not the same.
                 copyClaimsFromCache = cachedExpiredTicks > 0 && expTokenTicks > 0 && cachedClaims.Count > 0 && cachedExpiredTicks == expTokenTicks;

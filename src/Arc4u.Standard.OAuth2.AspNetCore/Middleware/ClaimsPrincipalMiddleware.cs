@@ -203,7 +203,7 @@ namespace Arc4u.Standard.OAuth2.Middleware
                 var cachedExpiredClaim = cachedClaims.FirstOrDefault(c => c.ClaimType.Equals(tokenExpirationClaimType, StringComparison.InvariantCultureIgnoreCase));
                 long cachedExpiredTicks = 0;
 
-                if (null != cachedExpiredClaim && long.TryParse(cachedExpiredClaim.Value, out cachedExpiredTicks))
+                if (null != cachedExpiredClaim && long.TryParse(cachedExpiredClaim.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out cachedExpiredTicks))
                 {
                     var expDate = DateTimeOffset.FromUnixTimeSeconds(cachedExpiredTicks).UtcDateTime;
                     if (expDate > DateTime.UtcNow)
