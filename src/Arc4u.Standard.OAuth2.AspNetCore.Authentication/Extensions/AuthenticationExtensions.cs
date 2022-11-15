@@ -79,7 +79,7 @@ public static partial class AuthenticationExtensions
 
                     options.TokenValidationParameters.SaveSigninToken = false;
                     options.TokenValidationParameters.AuthenticationType = Constants.CookiesAuthenticationType;
-                    options.TokenValidationParameters.ValidateAudience = false;
+                    options.TokenValidationParameters.ValidateAudience = true;
                     options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                     options.SaveTokens = true;
                     options.AuthenticationMethod = OpenIdConnectRedirectBehavior.FormPost;

@@ -61,7 +61,6 @@ public class RefreshTokenProvider : ITokenRefreshProvider
         var options = _openIdConnectOptions.Get(OpenIdConnectDefaults.AuthenticationScheme);
         var metadata = await options!.ConfigurationManager!.GetConfigurationAsync(CancellationToken.None);
 
-        //var metadata = 
         var pairs = new Dictionary<string, string>()
                                     {
                                             { "client_id", options.ClientId },
