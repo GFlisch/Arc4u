@@ -15,7 +15,7 @@ public class LockingService : ILockingService
         _logger = logger;
     }
 
-    
+    /// <inheritdoc />
     public async Task RunWithinLockAsync(string label, TimeSpan ttl, Func<Task> toBeRun, CancellationToken cancellationToken)
     {
         var lockEntity = await  _lockingDataLayer.TryCreateLockAsync(label, ttl, cancellationToken);
@@ -59,6 +59,7 @@ public class LockingService : ILockingService
         }
     }
 
+    /// <inheritdoc />
     public async Task<Lock> CreateLock(string label, TimeSpan ttl, CancellationToken cancellationToken)
     {
         var ret = await TryCreateLock(label, ttl, cancellationToken);
@@ -101,5 +102,4 @@ public class LockingService : ILockingService
             }
         }
     }
-
 }
