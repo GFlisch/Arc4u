@@ -7,6 +7,11 @@ namespace Arc4u.Locking.Redis;
 
 public static class StartupExtension
 {
+    /// <summary>
+    /// Register Redis to be used for distributed locking
+    /// </summary>
+    /// <param name="serviceCollection"></param>
+    /// <returns>ServiceCollection that was provided in <paramref name="serviceCollection"/></returns>
     public static IServiceCollection UseRedisLocking(this IServiceCollection serviceCollection)
     {
         serviceCollection.AddSingleton<ILockingDataLayer, RedisLockingDataLayer>();

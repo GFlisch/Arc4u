@@ -1,8 +1,13 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Runtime.CompilerServices;
+using Microsoft.Extensions.Logging;
 
+[assembly:InternalsVisibleTo("Arc4u.Locking.UnitTests")]
 namespace Arc4u.Locking.Abstraction;
 
-public class LockingService : ILockingService
+/// <summary>
+/// Service in order to manage distributed locking
+/// </summary>
+internal class LockingService : ILockingService
 {
     private readonly ILockingDataLayer _lockingDataLayer;
     private readonly LockingConfiguration _configuration;
@@ -71,9 +76,10 @@ public class LockingService : ILockingService
         throw new Exception($"Could not obtain a lock for label {label}");
     }
     
+    /// <inheritdoc />
     public async Task<Lock?> TryCreateLock(string label,TimeSpan ttl, CancellationToken cancellationToken)
     {
-         Timer timer = null;
+        Timer? timer = null;
         var lockEntity = await  _lockingDataLayer.TryCreateLockAsync(label, ttl, CleanUpCallBack, cancellationToken);
         var refreshRate = _configuration.RefreshRate;
         
