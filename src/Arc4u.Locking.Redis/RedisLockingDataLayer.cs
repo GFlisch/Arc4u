@@ -99,11 +99,11 @@ internal class RedisLockingDataLayer : ILockingDataLayer
         return new RedisKey(label.ToLowerInvariant());
     }
 
-
     /// <summary>
+    /// Releasing a lock on the Redis 
     /// </summary>
-    /// <param name="label"></param>
-    /// <returns></returns>
+    /// <param name="label">Label of the lock, that should be released</param>
+    /// <returns>Task to await the releasing</returns>
     private Task ReleaseLockAsync(string label)
     {
         var ret = _multiplexer.GetDatabase().KeyDelete(GenerateKey(label));
