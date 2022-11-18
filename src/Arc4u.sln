@@ -97,6 +97,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arc4u.Standard.OAuth2.AspNe
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arc4u.Standard.OData", "Arc4u.Standard.OData\Arc4u.Standard.OData.csproj", "{6ED0D79F-96D4-418A-9C75-69E165FA5682}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arc4u.Standard.Ftp", "Arc4u.Standard.Ftp\Arc4u.Standard.Ftp.csproj", "{484EEC7E-5CAA-43C0-9574-6ACC073FA14A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -951,6 +953,26 @@ Global
 		{6ED0D79F-96D4-418A-9C75-69E165FA5682}.Release|x64.Build.0 = Release|Any CPU
 		{6ED0D79F-96D4-418A-9C75-69E165FA5682}.Release|x86.ActiveCfg = Release|Any CPU
 		{6ED0D79F-96D4-418A-9C75-69E165FA5682}.Release|x86.Build.0 = Release|Any CPU
+		{484EEC7E-5CAA-43C0-9574-6ACC073FA14A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{484EEC7E-5CAA-43C0-9574-6ACC073FA14A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{484EEC7E-5CAA-43C0-9574-6ACC073FA14A}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{484EEC7E-5CAA-43C0-9574-6ACC073FA14A}.Debug|ARM.Build.0 = Debug|Any CPU
+		{484EEC7E-5CAA-43C0-9574-6ACC073FA14A}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{484EEC7E-5CAA-43C0-9574-6ACC073FA14A}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{484EEC7E-5CAA-43C0-9574-6ACC073FA14A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{484EEC7E-5CAA-43C0-9574-6ACC073FA14A}.Debug|x64.Build.0 = Debug|Any CPU
+		{484EEC7E-5CAA-43C0-9574-6ACC073FA14A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{484EEC7E-5CAA-43C0-9574-6ACC073FA14A}.Debug|x86.Build.0 = Debug|Any CPU
+		{484EEC7E-5CAA-43C0-9574-6ACC073FA14A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{484EEC7E-5CAA-43C0-9574-6ACC073FA14A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{484EEC7E-5CAA-43C0-9574-6ACC073FA14A}.Release|ARM.ActiveCfg = Release|Any CPU
+		{484EEC7E-5CAA-43C0-9574-6ACC073FA14A}.Release|ARM.Build.0 = Release|Any CPU
+		{484EEC7E-5CAA-43C0-9574-6ACC073FA14A}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{484EEC7E-5CAA-43C0-9574-6ACC073FA14A}.Release|ARM64.Build.0 = Release|Any CPU
+		{484EEC7E-5CAA-43C0-9574-6ACC073FA14A}.Release|x64.ActiveCfg = Release|Any CPU
+		{484EEC7E-5CAA-43C0-9574-6ACC073FA14A}.Release|x64.Build.0 = Release|Any CPU
+		{484EEC7E-5CAA-43C0-9574-6ACC073FA14A}.Release|x86.ActiveCfg = Release|Any CPU
+		{484EEC7E-5CAA-43C0-9574-6ACC073FA14A}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
