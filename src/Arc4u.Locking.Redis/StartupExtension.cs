@@ -8,10 +8,10 @@ namespace Arc4u.Locking.Redis;
 public static class StartupExtension
 {
     /// <summary>
-    /// Register Redis to be used for distributed locking
+    ///     Register Redis to be used for distributed locking
     /// </summary>
     /// <param name="serviceCollection"></param>
-    /// <returns>ServiceCollection that was provided in <paramref name="serviceCollection"/></returns>
+    /// <returns>ServiceCollection that was provided in <paramref name="serviceCollection" /></returns>
     public static IServiceCollection UseRedisLocking(this IServiceCollection serviceCollection)
     {
         serviceCollection.AddSingleton<ILockingDataLayer, RedisLockingDataLayer>();
@@ -22,15 +22,12 @@ public static class StartupExtension
 
     private static ConfigurationOptions CreateRedisConfiguration(IServiceProvider serviceProvider)
     {
-        var configuration =  serviceProvider.GetService<IConfiguration>();
-        if (configuration is null)
-        {
-            throw new SystemException($"Could not resolve {nameof(IConfiguration)}");
-        }
-      
+        var configuration = serviceProvider.GetService<IConfiguration>();
+        if (configuration is null) throw new SystemException($"Could not resolve {nameof(IConfiguration)}");
+
         var redisConfiguration = new RedisConfiguration();
         configuration.GetSection(nameof(RedisConfiguration)).Bind(redisConfiguration);
-        return new ConfigurationOptions()
+        return new ConfigurationOptions
         {
             EndPoints = {redisConfiguration.Host},
             AllowAdmin = true

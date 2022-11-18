@@ -7,16 +7,23 @@ namespace Arc4u.Locking.UnitTests;
 
 internal class MemoryLockingDataLayer : ILockingDataLayer
 {
-    private int _counter = 0;
-
     private readonly ReaderWriterLockSlim _lock = new();
+    private int _counter;
 
     /// <inheritdoc />
     public Task<Lock?> TryCreateLockAsync(string label, TimeSpan maxAge, CancellationToken cancellationToken)
     {
         return InternalTryCreateLockAsync(label, maxAge, null, cancellationToken);
     }
-    private Task<Lock?> InternalTryCreateLockAsync(string label, TimeSpan maxAge, Func<Task>? cleanUpCallBack , CancellationToken cancellationToken)
+
+    public Task<Lock?> TryCreateLockAsync(string label, TimeSpan maxAge, Func<Task> cleanUpCallBack,
+        CancellationToken cancellationToken)
+    {
+        return InternalTryCreateLockAsync(label, maxAge, cleanUpCallBack, cancellationToken);
+    }
+
+    private Task<Lock?> InternalTryCreateLockAsync(string label, TimeSpan maxAge, Func<Task>? cleanUpCallBack,
+        CancellationToken cancellationToken)
     {
         _lock.EnterReadLock();
         try
@@ -40,10 +47,7 @@ internal class MemoryLockingDataLayer : ILockingDataLayer
         {
             _lock.EnterWriteLock();
             await timer.DisposeAsync();
-            if (cleanUpCallBack is not null)
-            {
-                await cleanUpCallBack();
-            }
+            if (cleanUpCallBack is not null) await cleanUpCallBack();
 
             _counter = 0;
             _lock.ExitWriteLock();
@@ -55,10 +59,5 @@ internal class MemoryLockingDataLayer : ILockingDataLayer
             return Task.CompletedTask;
         }, ReleaseFunction, cancellationToken);
         return Task.FromResult((Lock?) @lock);
-    }
-
-    public Task<Lock?> TryCreateLockAsync(string label, TimeSpan maxAge, Func<Task> cleanUpCallBack, CancellationToken cancellationToken)
-    {
-        return InternalTryCreateLockAsync(label, maxAge, cleanUpCallBack, cancellationToken);
     }
 }

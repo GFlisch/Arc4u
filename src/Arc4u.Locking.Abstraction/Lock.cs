@@ -1,7 +1,7 @@
 ﻿namespace Arc4u.Locking.Abstraction;
 
 /// <summary>
-///  Lock holding all informations needed for a distributed lock and handling the release of the lock 
+///     Lock holding all informations needed for a distributed lock and handling the release of the lock
 /// </summary>
 /// <remarks>Distributed lock will be release, when this object in being disposed</remarks>
 public class Lock : IDisposable
@@ -11,7 +11,7 @@ public class Lock : IDisposable
     private readonly Action _releaseFunction;
 
     /// <summary>
-    /// Creates a Lock
+    ///     Creates a Lock
     /// </summary>
     /// <param name="keepAliveFunction">Method that when called will keep the lock alive on datalayer level</param>
     /// <param name="releaseFunction">Method that when called will delete the lock in datalayer level</param>
@@ -30,16 +30,16 @@ public class Lock : IDisposable
     }
 
     /// <summary>
-    /// Disposes the Lock and calls the releaseFunction provided in the ctor
+    ///     Disposes the Lock and calls the releaseFunction provided in the ctor
     /// </summary>
     public void Dispose()
     {
         _cancelTokenSource.Cancel();
         _releaseFunction();
     }
-    
+
     /// <summary>
-    /// Keeping the Lock alive
+    ///     Keeping the Lock alive
     /// </summary>
     /// <returns>Task that can be awaited until the lock was really refreshed</returns>
     /// <remarks>Calls the keepAlivefunctionthat was provided in the ctor </remarks>

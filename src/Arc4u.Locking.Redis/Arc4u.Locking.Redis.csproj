@@ -7,11 +7,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="StackExchange.Redis" Version="2.2.4" />
+        <PackageReference Include="StackExchange.Redis" Version="2.2.4"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Arc4u.Locking.Abstraction\Arc4u.Locking.Abstraction.csproj" />
+        <ProjectReference Include="..\Arc4u.Locking.Abstraction\Arc4u.Locking.Abstraction.csproj"/>
     </ItemGroup>
 
 </Project>

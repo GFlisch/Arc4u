@@ -5,17 +5,17 @@ using StackExchange.Redis;
 using Xunit;
 
 namespace Arc4u.Locking.UnitTests;
+
 [Trait("Dependency", "Redis")]
 public class RedisLockingTest : LockingTest
 {
     protected override ILockingDataLayer BuildDataLayer()
-     {
-         var lockingDl = new RedisLockingDataLayer(() =>
-             ConnectionMultiplexer.Connect(new ConfigurationOptions()
-             {
-                 EndPoints = {"localhost: 6379"}
-             }), new NullLogger<RedisLockingDataLayer>());
-         return lockingDl;
-     }
- 
+    {
+        var lockingDl = new RedisLockingDataLayer(() =>
+            ConnectionMultiplexer.Connect(new ConfigurationOptions
+            {
+                EndPoints = {"localhost: 6379"}
+            }), new NullLogger<RedisLockingDataLayer>());
+        return lockingDl;
+    }
 }

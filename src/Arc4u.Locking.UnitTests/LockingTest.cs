@@ -12,29 +12,29 @@ namespace Arc4u.Locking.UnitTests;
 public abstract class LockingTest
 {
     private readonly Fixture _fixture = new();
-    
+
     [Fact]
     public async Task CreateLock_UsingRedis_SecondCallIsBlocked()
     {
         var lockingDl = BuildDataLayer();
         await CreateLock_SecondCallIsBlocked(lockingDl);
     }
-    
+
     [Fact]
     public async Task TryCreateLock_UsingRedis_SecondCallIsBlocked()
     {
         var lockingDl = BuildDataLayer();
         await TryCreateLock_SecondCallIsBlocked(lockingDl);
     }
-    [Fact]
 
+    [Fact]
     public async Task RunWithinLock_UsingRedis_SecondCallIsBlocked()
     {
         var lockingDl = BuildDataLayer();
-    
+
         await RunWithinLock_SecondCallIsBlocked(lockingDl);
     }
-        
+
     [Fact]
     public async Task RunWithinLock_UsingRedis_CancelFirstLockRunsSecond()
     {
@@ -54,7 +54,7 @@ public abstract class LockingTest
 
         await Task.Delay(TimeSpan.FromMilliseconds(500));
 
-        bool run = false;
+        var run = false;
         var secondTask = service.RunWithinLockAsync(label, TimeSpan.FromMinutes(2), async () =>
             {
                 run = true;
@@ -79,7 +79,7 @@ public abstract class LockingTest
         var firstTask = service.RunWithinLockAsync(label, TimeSpan.FromMinutes(2),
             async () => { await Task.Delay(TimeSpan.FromSeconds(3)); }, CancellationToken.None);
 
-        bool run = false;
+        var run = false;
         var secondTask = service.RunWithinLockAsync(label, TimeSpan.FromMinutes(2), async () =>
             {
                 run = true;
@@ -102,7 +102,7 @@ public abstract class LockingTest
 
 
         var cancellationSource = new CancellationTokenSource();
-        Task firstTask = Task.Run(async () =>
+        var firstTask = Task.Run(async () =>
         {
             using var @lock = await service.CreateLock(label, TimeSpan.FromMinutes(2), CancellationToken.None);
             await Task.Delay(TimeSpan.FromMilliseconds(150), cancellationSource.Token);
@@ -125,7 +125,7 @@ public abstract class LockingTest
 
         var cancellationSource = new CancellationTokenSource();
         var firstLock = await service.TryCreateLock(label, TimeSpan.FromMinutes(2), CancellationToken.None);
-        Task firstTask = Task.Run(async () =>
+        var firstTask = Task.Run(async () =>
         {
             using (firstLock)
             {

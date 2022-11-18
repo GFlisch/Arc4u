@@ -1,19 +1,21 @@
 ﻿using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 
-[assembly:InternalsVisibleTo("Arc4u.Locking.UnitTests")]
+[assembly: InternalsVisibleTo("Arc4u.Locking.UnitTests")]
+
 namespace Arc4u.Locking.Abstraction;
 
 /// <summary>
-/// Service in order to manage distributed locking
+///     Service in order to manage distributed locking
 /// </summary>
 internal class LockingService : ILockingService
 {
-    private readonly ILockingDataLayer _lockingDataLayer;
     private readonly LockingConfiguration _configuration;
+    private readonly ILockingDataLayer _lockingDataLayer;
     private readonly ILogger<LockingService> _logger;
 
-    public LockingService(ILockingDataLayer lockingDataLayer, LockingConfiguration configuration, ILogger<LockingService> logger)
+    public LockingService(ILockingDataLayer lockingDataLayer, LockingConfiguration configuration,
+        ILogger<LockingService> logger)
     {
         _lockingDataLayer = lockingDataLayer;
         _configuration = configuration;
@@ -21,11 +23,12 @@ internal class LockingService : ILockingService
     }
 
     /// <inheritdoc />
-    public async Task RunWithinLockAsync(string label, TimeSpan ttl, Func<Task> toBeRun, CancellationToken cancellationToken)
+    public async Task RunWithinLockAsync(string label, TimeSpan ttl, Func<Task> toBeRun,
+        CancellationToken cancellationToken)
     {
-        var lockEntity = await  _lockingDataLayer.TryCreateLockAsync(label, ttl, cancellationToken);
+        var lockEntity = await _lockingDataLayer.TryCreateLockAsync(label, ttl, cancellationToken);
         var refreshRate = _configuration.RefreshRate;
-        
+
         if (lockEntity is not null)
         {
             _logger.LogDebug($"Got a lock for >{label}<. Running >{toBeRun.Method.Name}<");
@@ -37,10 +40,7 @@ internal class LockingService : ILockingService
                     var task = toBeRun();
                     timer = new Timer(state =>
                     {
-                        if (!cancellationToken.IsCancellationRequested)
-                        {
-                            lockEntity.KeepAlive();
-                        }
+                        if (!cancellationToken.IsCancellationRequested) lockEntity.KeepAlive();
                     }, null, refreshRate, refreshRate);
                     await task;
                 }
@@ -51,16 +51,13 @@ internal class LockingService : ILockingService
                 }
                 finally
                 {
-                    if (timer != null)
-                    {
-                        await timer.DisposeAsync();
-                    }
+                    if (timer != null) await timer.DisposeAsync();
                 }
             }
         }
         else
         {
-            _logger.LogDebug( $"Could not get a lock for label {label}");
+            _logger.LogDebug($"Could not get a lock for label {label}");
         }
     }
 
@@ -68,44 +65,31 @@ internal class LockingService : ILockingService
     public async Task<Lock> CreateLock(string label, TimeSpan ttl, CancellationToken cancellationToken)
     {
         var ret = await TryCreateLock(label, ttl, cancellationToken);
-        if (ret != null)
-        {
-            return ret;
-        }
+        if (ret != null) return ret;
 
         throw new Exception($"Could not obtain a lock for label {label}");
     }
-    
+
     /// <inheritdoc />
-    public async Task<Lock?> TryCreateLock(string label,TimeSpan ttl, CancellationToken cancellationToken)
+    public async Task<Lock?> TryCreateLock(string label, TimeSpan ttl, CancellationToken cancellationToken)
     {
         Timer? timer = null;
-        var lockEntity = await  _lockingDataLayer.TryCreateLockAsync(label, ttl, CleanUpCallBack, cancellationToken);
+        var lockEntity = await _lockingDataLayer.TryCreateLockAsync(label, ttl, CleanUpCallBack, cancellationToken);
         var refreshRate = _configuration.RefreshRate;
-        
+
         if (lockEntity is not null)
-        {
             timer = new Timer(state =>
-                               {
-                                   if (!cancellationToken.IsCancellationRequested)
-                                   {
-                                       lockEntity.KeepAlive();
-                                   }
-                               }, null, refreshRate, refreshRate);
-        }
+            {
+                if (!cancellationToken.IsCancellationRequested) lockEntity.KeepAlive();
+            }, null, refreshRate, refreshRate);
         else
-        {
-            _logger.LogDebug( $"Could not get a lock for label {label}");
-        }
+            _logger.LogDebug($"Could not get a lock for label {label}");
 
         return lockEntity;
-        
+
         async Task CleanUpCallBack()
         {
-            if (timer != null)
-            {
-                await timer.DisposeAsync();
-            }
+            if (timer != null) await timer.DisposeAsync();
         }
     }
 }

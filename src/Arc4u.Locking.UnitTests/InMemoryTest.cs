@@ -4,5 +4,8 @@ namespace Arc4u.Locking.UnitTests;
 
 public class InMemoryLockingTest : LockingTest
 {
-    protected override ILockingDataLayer BuildDataLayer() => new MemoryLockingDataLayer();
+    protected override ILockingDataLayer BuildDataLayer()
+    {
+        return new MemoryLockingDataLayer();
+    }
 }

@@ -1,33 +1,33 @@
 <Project>
-  <PropertyGroup>
-    <RepositoryType>git</RepositoryType>
-    <!-- disable warning when XML comments are missing -->
-    <NoWarn>$(NoWarn);CS1591</NoWarn>
-    <!-- By default every projects are packable -->
-    <IsPackable>true</IsPackable>
-    <!-- But unit test project are not. -->
-    <IsPackable Condition="$(MSBuildProjectName.EndsWith('Test'))">false</IsPackable>
-  </PropertyGroup>
+    <PropertyGroup>
+        <RepositoryType>git</RepositoryType>
+        <!-- disable warning when XML comments are missing -->
+        <NoWarn>$(NoWarn);CS1591</NoWarn>
+        <!-- By default every projects are packable -->
+        <IsPackable>true</IsPackable>
+        <!-- But unit test project are not. -->
+        <IsPackable Condition="$(MSBuildProjectName.EndsWith('Test'))">false</IsPackable>
+    </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)'=='Release' AND $(IsPackable) == true">
-    <!-- Produce a NuGet package upon build -->
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <!-- Publish the repository URL in the built .nupkg -->
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <RepositoryUrl>https://github.com/GFlisch/Arc4u</RepositoryUrl>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <!-- Embed source files that are not tracked by the source control manager in the PDB -->
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <!-- Embed symbols containing Source Link in the main file (exe/dll) -->
-    <DebugType>embedded</DebugType>
-    <!-- Ensure that pdb's can be added to nuget packages -->
-    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
-    <Deterministic>true</Deterministic>
-  </PropertyGroup>
-  
-  <!-- Always set to true when GitHub Actions is running the workflow -->
-  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
-    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
-  </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)'=='Release' AND $(IsPackable) == true">
+        <!-- Produce a NuGet package upon build -->
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <!-- Publish the repository URL in the built .nupkg -->
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <RepositoryUrl>https://github.com/GFlisch/Arc4u</RepositoryUrl>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <!-- Embed source files that are not tracked by the source control manager in the PDB -->
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <!-- Embed symbols containing Source Link in the main file (exe/dll) -->
+        <DebugType>embedded</DebugType>
+        <!-- Ensure that pdb's can be added to nuget packages -->
+        <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+        <Deterministic>true</Deterministic>
+    </PropertyGroup>
+
+    <!-- Always set to true when GitHub Actions is running the workflow -->
+    <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+        <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    </PropertyGroup>
 
 </Project>
