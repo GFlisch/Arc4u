@@ -1,5 +1,13 @@
-﻿using System;
+﻿using Arc4u.Dependency.Attribute;
+using Arc4u.Diagnostics;
+using Arc4u.OAuth2.Security.Principal;
+using Arc4u.OAuth2.Token;
+using Arc4u.ServiceModel;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
+using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Arc4u.OAuth2.TokenProvider
@@ -86,14 +94,14 @@ namespace Arc4u.OAuth2.TokenProvider
             {
                 try
                 {
-                    using (var content = new FormUrlEncodedContent(new Dictionary<string, string>
+                    using (var content = new FormUrlEncodedContent(new KeyValuePair<string, string>[]
                     {
-                        { "resource", serviceId },
-                        { "client_id", clientId },
-                        { "grant_type", "password" },
-                        { "username", upn.Trim() },
-                        { "password", pwd.Trim() },
-                        { "scope", "openid" }
+                        new KeyValuePair<string, string>("resource", serviceId),
+                        new KeyValuePair<string, string>("client_id", clientId),
+                        new KeyValuePair<string, string>("grant_type", "password"),
+                        new KeyValuePair<string, string>("username", upn.Trim()),
+                        new KeyValuePair<string, string>( "password", pwd.Trim()),
+                        new KeyValuePair<string, string>( "scope", "openid")
                     }))
 
                     // strictly speaking, we should obtain the Url for the token_endpoint from the /.well-known/openid-configuration endpoint, but we hard-code it here.
@@ -124,7 +132,7 @@ namespace Arc4u.OAuth2.TokenProvider
                             {
                                 // the response body was not Json (it happens)
                             }
-                            // we cannot any any more meaningful information to the log if this is not a dictionary
+                            // we cannot any any more meaningful information to the log if this is not the dictionary we expect
                             if (dictionary == null)
                                 logger.Log();
                             else
