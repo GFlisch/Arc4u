@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Arc4u.Diagnostics;
 using Microsoft.Extensions.Logging;
 
+#nullable enable
 namespace Arc4u.Network.Pooling
 {
     public class ConnectionPool<T> : IDisposable where T : PoolableItem
@@ -76,3 +77,4 @@ namespace Arc4u.Network.Pooling
         }
     }
 }
+#nullable restore

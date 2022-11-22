@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-
+#nullable enable
 namespace Arc4u.Network.Pooling
 {
     public abstract class PoolableItem : IDisposable
@@ -26,3 +26,4 @@ namespace Arc4u.Network.Pooling
         }
     }
 }
+#nullable restore
