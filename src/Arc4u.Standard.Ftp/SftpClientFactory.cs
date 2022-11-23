@@ -1,4 +1,6 @@
-﻿using Arc4u.Diagnostics;
+﻿using System;
+using System.Threading.Tasks;
+using Arc4u.Diagnostics;
 using Arc4u.Network.Pooling;
 using Microsoft.Extensions.Logging;
 using Renci.SshNet;
@@ -31,14 +33,14 @@ namespace Arc4u.Standard.Ftp
         /// <remarks>
         /// The created internally created client is using a BasicAuth (username & password) and has a keep alive interval activated. The provided client is already connected to the sftp server
         /// </remarks>
-        public SftpClientFacade CreateClient()
+        public SftpClientFacade CreateClient(Func<SftpClientFacade, Task> releaseFunc)
         {
             var c = new SftpClient(new ConnectionInfo(_ftpConfig.Host, _ftpConfig.Username, new PasswordAuthenticationMethod(_ftpConfig.Username, _ftpConfig.Password)));
             c.KeepAliveInterval = _ftpConfig.KeepAliveInterval;
             _logger.Technical().Debug("Connecting to SFTP host...").Log();
             c.Connect();
             _logger.Technical().Debug("Connected.").Log();
-            return new SftpClientFacade(c);
+            return new SftpClientFacade(c, releaseFunc);
         }
     }
 }

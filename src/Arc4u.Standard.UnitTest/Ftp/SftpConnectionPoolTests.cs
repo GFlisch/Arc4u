@@ -1,4 +1,7 @@
-﻿using Arc4u.Network.Pooling;
+﻿using System;
+using System.Reflection;
+using System.Threading.Tasks;
+using Arc4u.Network.Pooling;
 using AutoFixture;
 using AutoFixture.AutoMoq;
 using FluentAssertions;
@@ -33,7 +36,7 @@ public class SftpConnectionPoolTests
     {
         var disConnected = new TestPoolableItem(false);
         var sut = BuildConnectionPool();
-        sut.ReleaseClient(disConnected);
+        ReleaseClient(sut, disConnected);
 
         sut.ConnectionsCount.Should().Be(0);
         using var c = sut.GetClient();
@@ -76,21 +79,42 @@ public class SftpConnectionPoolTests
         sut.ConnectionsCount.Should().Be(1);
     }
 
+    private Task ReleaseClient<T>(ConnectionPool<T> pool, T item) where T : PoolableItem
+    {
+        var releaseMethod =
+            typeof(ConnectionPool<PoolableItem>).GetMethod("ReleaseClient",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+        releaseMethod.Should().NotBeNull();
+        return (Task) releaseMethod!.Invoke(pool, new object[] {item});
+    }
+
     private ConnectionPool<PoolableItem> BuildConnectionPool()
     {
-        return new ConnectionPool<PoolableItem>(Mock.Of<ILogger<ConnectionPool<PoolableItem>>>(),
-            _fixture.Create<IClientFactory<TestPoolableItem>>());
+        ConnectionPool<PoolableItem> ret = null!;
+
+        var frozenYoghurt = _fixture.Freeze<Mock<IClientFactory<TestPoolableItem>>>();
+        Func<TestPoolableItem, Task> foo = item => ReleaseClient(ret!, item);
+        frozenYoghurt.Setup(factory => factory.CreateClient(It.IsAny<Func<TestPoolableItem, Task>>()))
+           .Returns(new TestPoolableItem(foo));
+
+        var clientFactory = frozenYoghurt.Object;
+        ret = new ConnectionPool<PoolableItem>(Mock.Of<ILogger<ConnectionPool<PoolableItem>>>(),
+            clientFactory);
+        return ret;
     }
 
     // ReSharper disable once MemberCanBePrivate.Global
     public class TestPoolableItem : PoolableItem
     {
-        public TestPoolableItem()
+        
+        public TestPoolableItem(Func<TestPoolableItem, Task> releaseFunc) : base( item => releaseFunc((TestPoolableItem)item)){        IsActive = true;}
+        
+        public TestPoolableItem() : this( item => Task.CompletedTask)
         {
-            IsActive = true;
+    
         }
 
-        public TestPoolableItem(bool isActive)
+        public TestPoolableItem(bool isActive) : this()
         {
             IsActive = isActive;
         }

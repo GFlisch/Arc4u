@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Arc4u.Network.Pooling;
 using Renci.SshNet;
 
@@ -11,7 +12,7 @@ namespace Arc4u.Standard.Ftp
     {
         private readonly SftpClient _client;
 
-        public SftpClientFacade(SftpClient client)
+        public SftpClientFacade(SftpClient client, Func<SftpClientFacade, Task> releaseFunc) : base(item => releaseFunc((SftpClientFacade)item))
         {
              _client = client;
         }
