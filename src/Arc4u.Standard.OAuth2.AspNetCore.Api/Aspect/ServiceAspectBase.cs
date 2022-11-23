@@ -1,8 +1,5 @@
-﻿using Arc4u.Diagnostics;
-using Arc4u.ServiceModel;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
 using System;
@@ -19,7 +16,7 @@ namespace Arc4u.OAuth2.Aspect
     /// Handle AppException or Exception and return a Bad RequestMessage.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, Inherited = true, AllowMultiple = false)]
-    public abstract class ServiceAspectBase : ActionFilterAttribute, IAsyncAuthorizationFilter, IExceptionFilter
+    public abstract class ServiceAspectBase : ActionFilterAttribute, IAsyncAuthorizationFilter
     {
         /// <summary>
         /// The page used to render when you are unauthorized.
@@ -67,30 +64,6 @@ namespace Arc4u.OAuth2.Aspect
             context.Result = new UnauthorizedResult();
 
             return Task.CompletedTask;
-        }
-
-        public void OnException(ExceptionContext context)
-        {
-            if (context.ActionDescriptor is ControllerActionDescriptor descriptor)
-                Logger.Technical().From(descriptor.MethodInfo.DeclaringType, descriptor.MethodInfo.Name).Exception(context.Exception).Log();
-            else
-                Logger.Technical().From(typeof(ServiceAspectBase)).Exception(context.Exception).Log();
-
-            Messages messages;
-            if (context.Exception is AppException appException)
-            {
-                messages = Messages.FromEnum(appException.Messages);
-                messages.LocalizeAll();
-            }
-            else
-            {
-                messages = new Messages
-                {
-                    new Message(Arc4u.ServiceModel.MessageCategory.Technical, Arc4u.ServiceModel.MessageType.Error, "A technical error occured.")
-                };
-            }
-
-            context.Result = new BadRequestObjectResult(messages);
         }
     }
 }
