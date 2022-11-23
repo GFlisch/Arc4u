@@ -1,96 +1,100 @@
 ﻿using Arc4u.Network.Pooling;
-using Arc4u.Standard.Ftp;
+using AutoFixture;
+using AutoFixture.AutoMoq;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
-namespace Arc4u.Standard.UnitTest.Ftp
+namespace Arc4u.Standard.UnitTest.Ftp;
+
+public class SftpConnectionPoolTests
 {
-    public class SftpConnectionPoolTests
+    private readonly Fixture _fixture;
+
+    public SftpConnectionPoolTests()
     {
-        [Fact]
-        public void SftpConnection_HappyPath_GetNewClient()
+        _fixture = new Fixture();
+        _fixture.Customize(new AutoMoqCustomization());
+    }
+
+    [Fact]
+    public void SftpConnection_HappyPath_GetNewClient()
+    {
+        var sut = BuildConnectionPool();
+        var c = sut.GetClient();
+
+        c.IsActive.Should().BeTrue();
+        sut.ConnectionsCount.Should().Be(0);
+    }
+
+    [Fact]
+    public void SftpConnection_HappyPath_GetCachedClientAndRelease()
+    {
+        var disConnected = new TestPoolableItem(false);
+        var sut = BuildConnectionPool();
+        sut.ReleaseClient(disConnected);
+
+        sut.ConnectionsCount.Should().Be(0);
+        using var c = sut.GetClient();
         {
-            var connected = new Mock<SftpClientFacade>();
-            connected.Setup(c => c.IsActive).Returns(true);
-
-            var factory = new Mock<SftpClientFactoryMock>();
-            factory.Setup(f => f.CreateClient()).Returns(connected.Object);
-
-            var sut = new ConnectionPool<SftpClientFacade>(Mock.Of<ILogger<ConnectionPool<SftpClientFacade>>>(), factory.Object);
-            var c = sut.GetClient();
-
             c.IsActive.Should().BeTrue();
             sut.ConnectionsCount.Should().Be(0);
         }
+        c.Dispose();
+        sut.ConnectionsCount.Should().Be(1);
+    }
 
-        [Fact]
-        public void SftpConnection_HappyPath_GetCachedClientAndRelease()
+    [Fact]
+    public void SftpConnection_HappyPath_GetAndReleaseClient()
+    {
+        var sut = BuildConnectionPool();
+
+        sut.ConnectionsCount.Should().Be(0);
+        using var c = sut.GetClient();
         {
-            var connected = new Mock<SftpClientFacade>();
-            connected.Setup(c => c.IsActive).Returns(true);
+            c.IsActive.Should().BeTrue();
+        }
+        c.Dispose();
+        sut.ConnectionsCount.Should().Be(1);
+    }
 
-            var disConnected = new Mock<SftpClientFacade>();
-            disConnected.Setup(c => c.IsActive).Returns(false);
+    [Fact]
+    public void SftpConnection_Client_Should_AddThePoolOnlyOnce()
+    {
+        var sut = BuildConnectionPool();
 
-            var factory = new Mock<SftpClientFactoryMock>();
-            factory.Setup(f => f.CreateClient()).Returns(connected.Object);
+        sut.ConnectionsCount.Should().Be(0);
+        using var c = sut.GetClient();
+        {
+            c.IsActive.Should().BeTrue();
+        }
+        c.Dispose();
+        sut.ConnectionsCount.Should().Be(1);
+        c.Dispose();
+        c.Dispose();
+        sut.ConnectionsCount.Should().Be(1);
+    }
 
-            var sut = new ConnectionPool<SftpClientFacade>(Mock.Of<ILogger<ConnectionPool<SftpClientFacade>>>(), factory.Object);
-            sut.ReleaseClient(disConnected.Object);
+    private ConnectionPool<PoolableItem> BuildConnectionPool()
+    {
+        return new ConnectionPool<PoolableItem>(Mock.Of<ILogger<ConnectionPool<PoolableItem>>>(),
+            _fixture.Create<IClientFactory<TestPoolableItem>>());
+    }
 
-            sut.ConnectionsCount.Should().Be(0);
-            using var c = sut.GetClient();
-            {
-                c.IsActive.Should().BeTrue();
-                sut.ConnectionsCount.Should().Be(0);
-            }
-            c.Dispose();
-            sut.ConnectionsCount.Should().Be(1);
+    // ReSharper disable once MemberCanBePrivate.Global
+    public class TestPoolableItem : PoolableItem
+    {
+        public TestPoolableItem()
+        {
+            IsActive = true;
         }
 
-        [Fact]
-        public void SftpConnection_HappyPath_GetAndReleaseClient()
+        public TestPoolableItem(bool isActive)
         {
-            var connected = new Mock<SftpClientFacade>();
-            connected.Setup(c => c.IsActive).Returns(true);
-
-            var factory = new Mock<SftpClientFactoryMock>();
-            factory.Setup(f => f.CreateClient()).Returns(connected.Object);
-
-            var sut = new ConnectionPool<SftpClientFacade>(Mock.Of<ILogger<ConnectionPool<SftpClientFacade>>>(), factory.Object);
-
-            sut.ConnectionsCount.Should().Be(0);
-            using var c = sut.GetClient();
-            {
-                c.IsActive.Should().BeTrue();
-            }
-            c.Dispose();
-            sut.ConnectionsCount.Should().Be(1);
+            IsActive = isActive;
         }
 
-        [Fact]
-        public void SftpConnection_Client_Should_AddThePoolOnlyOnce()
-        {
-            var connected = new Mock<SftpClientFacade>();
-            connected.Setup(c => c.IsActive).Returns(true);
-
-            var factory = new Mock<SftpClientFactoryMock>();
-            factory.Setup(f => f.CreateClient()).Returns(connected.Object);
-
-            var sut = new ConnectionPool<SftpClientFacade>(Mock.Of<ILogger<ConnectionPool<SftpClientFacade>>>(), factory.Object);
-
-            sut.ConnectionsCount.Should().Be(0);
-            using var c = sut.GetClient();
-            {
-                c.IsActive.Should().BeTrue();
-            }
-            c.Dispose();
-            sut.ConnectionsCount.Should().Be(1);
-            c.Dispose();
-            c.Dispose();
-            sut.ConnectionsCount.Should().Be(1);
-        }
+        public override bool IsActive { get; }
     }
 }

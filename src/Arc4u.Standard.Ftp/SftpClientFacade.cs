@@ -11,17 +11,9 @@ namespace Arc4u.Standard.Ftp
     {
         private readonly SftpClient _client;
 
-#pragma warning disable CS8618
-        // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        // only for unit testing
-        public SftpClientFacade()
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        {
-        }
-
         public SftpClientFacade(SftpClient client)
         {
-            _client = client;
+             _client = client;
         }
 
         public override bool IsActive => _client.IsConnected;
