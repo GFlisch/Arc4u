@@ -7,7 +7,6 @@ namespace Arc4u.Network.Pooling
     {
         public abstract bool IsActive { get; }
 
-        public bool IsPooled { get; set; }
 
         public Func<PoolableItem, Task>? ReleaseClient { get; set; }
 
