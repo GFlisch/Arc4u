@@ -56,9 +56,15 @@ namespace Arc4u.Standard.Diagnostics.AspNetCore
 
                 if (_map.TryGetValue(error.GetType(), out var item))
                 {
-                    // a handler was found. Trigger it
-                    var task = (Task<(int StatusCode, object Value)>)item.Handler.DynamicInvoke(context.Request.Path.ToString(), error, exceptionUid);
-                    var result = await task;
+                    (int StatusCode, object Value) result;
+                    // a handler was found. Trigger either the synchronous or the asynchronous variant (we can't have both)
+                    if (item.Handler != null)
+                        result = ((int StatusCode, object Value))item.Handler.DynamicInvoke(context.Request.Path.ToString(), error, exceptionUid);
+                    else
+                    {
+                        var task = (Task<(int StatusCode, object Value)>)item.HandlerAsync.DynamicInvoke(context.Request.Path.ToString(), error, exceptionUid, context.RequestAborted);
+                        result = await task;
+                    }
                     context.Response.StatusCode = result.StatusCode;
                     if (result.Value is not null)
                         await context.Response.WriteAsJsonAsync(result.Value);

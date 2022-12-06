@@ -29,7 +29,7 @@ namespace Arc4u.Standard.Diagnostics.AspNetCore
         {
             var builder = app.ApplicationServices.GetService<IDynamicExceptionHandlerBuilder>();
             if (builder == null)
-                throw new ArgumentException($"You forgot to call {nameof(AddDynamicExceptionHandler)}", nameof(app));
+                throw new ArgumentException($"You forgot to call services.{nameof(AddDynamicExceptionHandler)}()", nameof(app));
             config(builder);
             app.UseMiddleware<DynamicExceptionHandler>();
             return app;

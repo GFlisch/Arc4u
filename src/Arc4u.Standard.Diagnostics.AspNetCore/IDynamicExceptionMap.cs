@@ -2,8 +2,8 @@
 
 namespace Arc4u.Standard.Diagnostics.AspNetCore
 {
-    public interface IDynamicExceptionMap
+    interface IDynamicExceptionMap
     {
-        bool TryGetValue(Type exceptionType, out (Type ExceptionType, Delegate Handler) value);
+        bool TryGetValue(Type exceptionType, out (Type ExceptionType, Delegate Handler, Delegate HandlerAsync) value);
     }
 }

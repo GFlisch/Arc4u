@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Threading.Tasks;
 
 namespace Arc4u.Standard.Diagnostics.AspNetCore
 {
@@ -17,12 +16,12 @@ namespace Arc4u.Standard.Diagnostics.AspNetCore
         /// <param name="appException"></param>
         /// <param name="uid"></param>
         /// <returns></returns>
-        public static Task<(int StatusCode, object Value)> AppExceptionHandlerAsync(string path, AppException appException, Guid uid)
+        public static (int StatusCode, object Value) AppExceptionHandlerAsync(string path, AppException appException, Guid uid)
         {
             // it's too bad we need to include Arc4u.Standard just for Messages... Banana -> Gorilla
             var messages = Messages.FromEnum(appException.Messages);
             messages.LocalizeAll();
-            return Task.FromResult((StatusCodes.Status400BadRequest, (object)messages));
+            return (StatusCodes.Status400BadRequest, (object)messages);
         }
 
         /// <summary>
@@ -33,10 +32,10 @@ namespace Arc4u.Standard.Diagnostics.AspNetCore
         /// <param name="exception"></param>
         /// <param name="uid"></param>
         /// <returns></returns>
-        public static Task<(int StatusCode, object Value)> GenericExceptionHandlerAsync<TException>(string path, TException exception, Guid uid) where TException : Exception
+        public static (int StatusCode, object Value) GenericExceptionHandler<TException>(string path, TException exception, Guid uid) where TException : Exception
         {
             var problemDetails = CreateProblemDetails(path, exception, uid);
-            return Task.FromResult((problemDetails.Status.Value, (object)problemDetails));
+            return (problemDetails.Status.Value, (object)problemDetails);
         }
 
         /// <summary>
@@ -47,13 +46,13 @@ namespace Arc4u.Standard.Diagnostics.AspNetCore
         /// <param name="exception"></param>
         /// <param name="uid"></param>
         /// <returns></returns>
-        public static Task<(int StatusCode, object Value)> GenericExceptionHandlerWithDetailsAsync<TException>(string path, TException exception, Guid uid) where TException : Exception
+        public static (int StatusCode, object Value) GenericExceptionHandlerWithDetails<TException>(string path, TException exception, Guid uid) where TException : Exception
         {
             var problemDetails = CreateProblemDetails(path, exception, uid);
             var serializableValue = ExceptionPropertyValues.GetSerializable(exception);
             if (serializableValue is not null)
                 problemDetails.Extensions["ExceptionInstance"] = serializableValue;
-            return Task.FromResult((problemDetails.Status.Value, (object)problemDetails));
+            return (problemDetails.Status.Value, (object)problemDetails);
         }
 
 
