@@ -85,7 +85,7 @@ namespace Arc4u.Diagnostics
         /// </summary>
         /// <param name="stackTrace"></param>
         /// <returns>the cleaned-up stack trace</returns>
-        private static string CleanupStackTrace(string stackTrace)
+        internal static string CleanupStackTrace(string stackTrace)
         {
             var traces = new StringReader(stackTrace);
             var output = new StringBuilder();
