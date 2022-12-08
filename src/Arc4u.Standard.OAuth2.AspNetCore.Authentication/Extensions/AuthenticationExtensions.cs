@@ -68,16 +68,21 @@ public static partial class AuthenticationExtensions
                 .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
                 {
                     // cookie will not be limited in time by the life time of the access token.
-                    options.UsePkce= false; // Impact on th security. It is best to do this...
+                    options.UsePkce= true; // Impact on th security. It is best to do this...
                     options.UseTokenLifetime = false;
                     options.SaveTokens = false;
                     options.Authority = oidcOptions.OpenIdSettings.Values[TokenKeys.AuthorityKey];
                     options.RequireHttpsMetadata = false; // do we force? Docker image for testing...
                     options.MetadataAddress = oidcOptions.MetadataAddress;
-                    options.ResponseType = OpenIdConnectResponseType.CodeIdTokenToken;
+                    // for the other OIDC
+                    //options.ResponseType = OpenIdConnectResponseType.CodeIdTokenToken;
+                    // for AzureAD
+                    options.ResponseType = OpenIdConnectResponseType.Code;
+
                     options.ClientId = oidcOptions.OpenIdSettings.Values[TokenKeys.ClientIdKey];
                     options.ClientSecret = oidcOptions.OpenIdSettings.Values[TokenKeys.ApplicationKey];
                     options.GetClaimsFromUserInfoEndpoint = true;
+                    
 
                     options.TokenValidationParameters.SaveSigninToken = false;
                     options.TokenValidationParameters.AuthenticationType = Constants.CookiesAuthenticationType;
