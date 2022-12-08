@@ -86,9 +86,7 @@ namespace Arc4u.Diagnostics
 
         public void LogException(Exception exception)
         {
-            var property = AddEntry(LogLevel.Error, exception.Message, exception);
-            var buildMessage = property.AddStacktrace(exception.StackTrace ?? Environment.StackTrace);
-            buildMessage.Log();
+            Exception(exception).Log();
         }
 
         internal CommonLoggerProperties System(string message, params object[] args)
