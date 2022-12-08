@@ -35,6 +35,24 @@ namespace Arc4u.Standard.UnitTest.Logging
         }
 
         [Fact]
+        public void TestAggregateException()
+        {
+            using (var container = Fixture.CreateScope())
+            {
+                var logger = container.Resolve<ILogger<LoggerExceptionTests>>();
+
+                var sink = (ExceptionSinkTest)Fixture.Sink;
+
+                logger.Technical().Exception(new AggregateException("Aggregated", new DivideByZeroException("Go back to school", new AppDomainUnloadedException("Houston, we have a problem.")))).Log();
+
+                Assert.True(sink.HasException);
+                Assert.Equal(typeof(DivideByZeroException), sink.Exception.GetType());
+                Assert.Equal(typeof(AppDomainUnloadedException), sink.InnerException.GetType());
+            }
+
+        }
+
+        [Fact]
         public void TestInException()
         {
             using (var container = Fixture.CreateScope())
