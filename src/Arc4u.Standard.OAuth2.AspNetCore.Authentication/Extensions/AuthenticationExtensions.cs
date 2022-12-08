@@ -16,6 +16,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Arc4u.OAuth2.TokenProviders;
+using System.Collections.Generic;
 
 namespace Arc4u.Standard.OAuth2.Extensions;
 
@@ -67,6 +68,7 @@ public static partial class AuthenticationExtensions
                 .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
                 {
                     // cookie will not be limited in time by the life time of the access token.
+                    options.UsePkce= false; // Impact on th security. It is best to do this...
                     options.UseTokenLifetime = false;
                     options.SaveTokens = false;
                     options.Authority = oidcOptions.OpenIdSettings.Values[TokenKeys.AuthorityKey];
@@ -83,6 +85,9 @@ public static partial class AuthenticationExtensions
                     options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                     options.SaveTokens = true;
                     options.AuthenticationMethod = OpenIdConnectRedirectBehavior.FormPost;
+                    // AzureAD
+                    options.ResponseMode = OpenIdConnectResponseMode.FormPost;
+                    
                     options.EventsType = oidcOptions.OpenIdConnectEventsType;
                 })
                 .AddJwtBearer(option =>

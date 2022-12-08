@@ -16,6 +16,18 @@ public class CustomOpenIdConnectEvents : OpenIdConnectEvents
         _logger = logger;
     }
 
+    public override Task AuthorizationCodeReceived(AuthorizationCodeReceivedContext context)
+    {
+        return base.AuthorizationCodeReceived(context);
+    }
+
+    public override Task RedirectToIdentityProvider(RedirectContext context)
+    {
+        // Has been introduced for AzureAD => is it still needed for Keycloack?
+        context.ProtocolMessage.State = Guid.NewGuid().ToString();
+        return base.RedirectToIdentityProvider(context);
+    }
+
     public override async Task AuthenticationFailed(AuthenticationFailedContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
