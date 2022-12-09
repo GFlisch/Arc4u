@@ -8,7 +8,7 @@
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
+			<TargetFrameworks>net6.0;net7.0</TargetFrameworks>
 		<RootNamespace>Arc4u.Standard.OData</RootNamespace>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<AssemblyVersion>1.0.0.0</AssemblyVersion>

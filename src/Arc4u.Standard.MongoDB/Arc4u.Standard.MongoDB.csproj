@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net6.0</TargetFrameworks>
+			<TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
 		<RootNamespace>Arc4u.MongoDB</RootNamespace>
 		<Authors>Gilles Flisch</Authors>
 		<Description>Core Framework to use MongoDB.</Description>
