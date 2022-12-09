@@ -73,7 +73,7 @@ namespace Arc4u.Diagnostics
 
             // if this was an aggregate exception (a common occurrence in async programming), we also log the individual innner exceptions, which is better than just "One or more errors occurred".
             if (Exception is AggregateException aggregateException)
-                foreach (var innerException in aggregateException.InnerExceptions)
+                foreach (var innerException in aggregateException.Flatten().InnerExceptions)
                 {
                     // we know that if we have an exception, the Text property is the message of the exception so we call the state logger with the message of the inner exception instead.
                     // we also replace the stack trace with the exception's stack trace. Strictly speaking, this changes the state of the LoggerMessage but since Log() is supposed to
