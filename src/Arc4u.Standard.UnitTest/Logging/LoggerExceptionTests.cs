@@ -6,14 +6,16 @@ using Serilog;
 using Serilog.Core;
 using Serilog.Events;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
 namespace Arc4u.Standard.UnitTest.Logging
 {
-    public class LoggerExceptionTests : BaseSinkContainerFixture<CategorySerilogTesters, ExceptionFixture>
+    public class LoggerSimpleExceptionTests : BaseSinkContainerFixture<CategorySerilogTesters, ExceptionFixture>
     {
-        public LoggerExceptionTests(ExceptionFixture containerFixture) : base(containerFixture)
+        public LoggerSimpleExceptionTests(ExceptionFixture containerFixture) : base(containerFixture)
         {
         }
 
@@ -22,33 +24,49 @@ namespace Arc4u.Standard.UnitTest.Logging
         {
             using (var container = Fixture.CreateScope())
             {
-                var logger = container.Resolve<ILogger<LoggerExceptionTests>>();
+                var logger = container.Resolve<ILogger<LoggerSimpleExceptionTests>>();
 
                 var sink = (ExceptionSinkTest)Fixture.Sink;
 
                 logger.Technical().Exception(new StackOverflowException("Overflow", new DivideByZeroException())).Log();
 
                 Assert.True(sink.HasException);
-                Assert.Equal(typeof(StackOverflowException), sink.Exception.GetType());
-                Assert.Equal(typeof(DivideByZeroException), sink.InnerException.GetType());
+                Assert.Single(sink.Exceptions);
+                Assert.IsType<StackOverflowException>(sink.Exceptions.First());
+                Assert.IsType<DivideByZeroException>(sink.Exceptions.First().InnerException);
             }
+        }
+    }
+    public class LoggerAggregateExceptionTests : BaseSinkContainerFixture<CategorySerilogTesters, ExceptionFixture>
+    {
+        public LoggerAggregateExceptionTests(ExceptionFixture containerFixture) : base(containerFixture)
+        {
         }
 
         [Fact]
-        public void TestInException()
+        public void TestAggregateException()
         {
             using (var container = Fixture.CreateScope())
             {
-                var logger = container.Resolve<ILogger<LoggerExceptionTests>>();
+                var logger = container.Resolve<ILogger<LoggerAggregateExceptionTests>>();
 
                 var sink = (ExceptionSinkTest)Fixture.Sink;
 
-                logger.Technical().Exception(new StackOverflowException("Overflow", new DivideByZeroException("Go back to school", new AppDomainUnloadedException("Houston, we have a problem.")))).Log();
+                logger.Technical().Exception(new AggregateException("Aggregated",
+                                                new DivideByZeroException("Go back to school", new OutOfMemoryException("Out of memory")),
+                                                new ArgumentNullException("null"),
+                                                new AggregateException(
+                                                    new AppDomainUnloadedException("Houston, we have a problem.")))).Log();
 
                 Assert.True(sink.HasException);
-                Assert.Equal(typeof(StackOverflowException), sink.Exception.GetType());
-                Assert.Equal(typeof(DivideByZeroException), sink.InnerException.GetType());
-                Assert.Equal(typeof(AppDomainUnloadedException), sink.InnerException.InnerException.GetType());
+                Assert.Collection(sink.Exceptions,
+                                        e => Assert.IsType<AggregateException>(e),
+                                        e => Assert.IsType<DivideByZeroException>(e),
+                                        e => Assert.IsType<ArgumentNullException>(e),
+                                        e => Assert.IsType<AppDomainUnloadedException>(e));
+
+                Assert.IsType<OutOfMemoryException>(sink.Exceptions[1].InnerException);
+
             }
 
         }
@@ -68,10 +86,13 @@ namespace Arc4u.Standard.UnitTest.Logging
 
     public sealed class ExceptionSinkTest : ILogEventSink, IDisposable
     {
+        public ExceptionSinkTest()
+        {
+            Exceptions = new List<Exception>();
+        }
         public bool HasException { get; set; }
-        public Exception InnerException { get; set; }
 
-        public Exception Exception { get; set; }
+        public List<Exception> Exceptions { get; set; }
 
         public void Dispose()
         {
@@ -80,8 +101,7 @@ namespace Arc4u.Standard.UnitTest.Logging
         public void Emit(LogEvent logEvent)
         {
             HasException = null != logEvent.Exception;
-             Exception = logEvent.Exception;
-            InnerException = logEvent.Exception?.InnerException;
+            Exceptions.Add(logEvent.Exception);
         }
     }
 

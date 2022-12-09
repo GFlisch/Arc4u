@@ -70,6 +70,20 @@ namespace Arc4u.Diagnostics
             // Add the internal Arc4u properties to whatever the TState provides already before logging
             var stateLogger = new StateLogger(Properties, _logger);
             stateLogger.Log(LogLevel, 0, Exception, Text, Args);
+
+            // if this was an aggregate exception (a common occurrence in async programming), we also log the individual innner exceptions, which is better than just "One or more errors occurred".
+            if (Exception is AggregateException aggregateException)
+                foreach (var innerException in aggregateException.Flatten().InnerExceptions)
+                {
+                    // we know that if we have an exception, the Text property is the message of the exception so we call the state logger with the message of the inner exception instead.
+                    // we also replace the stack trace with the exception's stack trace. Strictly speaking, this changes the state of the LoggerMessage but since Log() is supposed to
+                    // be the last method called, we don't mind.
+                    if (string.IsNullOrEmpty(innerException.StackTrace))
+                        Properties.Remove(LoggingConstants.Stacktrace);
+                    else
+                        Properties[LoggingConstants.Stacktrace] = CommonLoggerProperties.CleanupStackTrace(innerException.StackTrace);
+                    stateLogger.Log(LogLevel, 0, innerException, innerException.Message, Args);
+                }
         }
     }
 
