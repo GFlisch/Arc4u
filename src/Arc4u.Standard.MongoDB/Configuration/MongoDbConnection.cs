@@ -45,7 +45,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.RetryReads = c.RetryReads;
                 options.RetryWrites = c.RetryWrites;
                 options.Scheme = c.Scheme;
-                options.SdamLogFilename = c.SdamLogFilename;
                 options.Server = c.Server;
                 options.Servers = c.Servers;
                 options.ServerSelectionTimeout = c.ServerSelectionTimeout;
