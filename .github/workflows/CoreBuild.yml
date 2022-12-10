@@ -47,8 +47,9 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
         with:
-           dotnet-version: 7.0.x
-
+           dotnet-version: |
+             6.0.x
+             7.0.x
       - name: Change Arc4u.Core versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Core.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
         shell: powershell
