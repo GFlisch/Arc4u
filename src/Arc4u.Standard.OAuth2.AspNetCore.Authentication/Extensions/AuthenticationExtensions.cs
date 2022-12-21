@@ -78,12 +78,17 @@ public static partial class AuthenticationExtensions
                     //options.ResponseType = OpenIdConnectResponseType.CodeIdTokenToken;
                     // for AzureAD
                     options.ResponseType = OpenIdConnectResponseType.Code;
+                    //options.Scope = "openid profile offline_access";
+                    //OpenIdConnectScope.
+
+                    options.Scope.Clear();
+                    options.Scope.Add(OpenIdConnectScope.OpenIdProfile);
+                    options.Scope.Add(OpenIdConnectScope.OfflineAccess);
 
                     options.ClientId = oidcOptions.OpenIdSettings.Values[TokenKeys.ClientIdKey];
                     options.ClientSecret = oidcOptions.OpenIdSettings.Values[TokenKeys.ApplicationKey];
                     options.GetClaimsFromUserInfoEndpoint = true;
                     
-
                     options.TokenValidationParameters.SaveSigninToken = false;
                     options.TokenValidationParameters.AuthenticationType = Constants.CookiesAuthenticationType;
                     options.TokenValidationParameters.ValidateAudience = true;

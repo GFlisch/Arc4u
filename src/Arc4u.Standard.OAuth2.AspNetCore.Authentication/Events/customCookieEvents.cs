@@ -48,7 +48,8 @@ public class CustomCookieEvents : CookieAuthenticationEvents
         var tokensInfo = _serviceProvider.GetService<TokenRefreshInfo>();
 
         tokensInfo.AccessToken = new TokenInfo("access_token", cookieCtx.Properties.GetTokenValue("access_token"));
-        tokensInfo.RefreshToken = new TokenInfo("refresh_token", cookieCtx.Properties.GetTokenValue("refresh_token"));
+        // for AzureAD => we need to extract from the properties the expire date.
+        tokensInfo.RefreshToken = new TokenInfo("refresh_token", cookieCtx.Properties.GetTokenValue("refresh_token"), DateTime.UtcNow.AddHours(1));
 
         if (timeRemaining < refreshThreshold)
         {
