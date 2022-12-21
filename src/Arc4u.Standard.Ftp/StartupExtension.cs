@@ -1,10 +1,14 @@
 ﻿using System;
+using Arc4u.Configuration;
+using Arc4u.Diagnostics;
 using Arc4u.Extensions;
 using Arc4u.Network.Pooling;
 using Arc4u.Security.Cryptography;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Renci.SshNet;
 
 namespace Arc4u.Standard.Ftp;
 
@@ -71,9 +75,24 @@ public static class StartupExtension
     
     private static IServiceCollection RegisterServices(IServiceCollection serviceCollection)
     {
+        serviceCollection.AddTransient<Func<SftpClient>>(provider =>
+        {
+            return () =>
+            {
+                var ftpConfig = provider.GetService<IFtpConfiguration>() ?? throw new ConfigurationException($"{nameof(IFtpConfiguration)} was not found in the DI");
+                var logger = provider.GetService<ILogger<SftpClient>>()?? throw new ConfigurationException($"{nameof(ILogger<SftpClient>)} was not found in the DI");;
+                var c = new SftpClient(new ConnectionInfo(ftpConfig.Host, ftpConfig.Username,
+                    new PasswordAuthenticationMethod(ftpConfig.Username, ftpConfig.Password)));
+                c.KeepAliveInterval = ftpConfig.KeepAliveInterval;
+                logger.Technical().Debug("Connecting to SFTP host...").Log();
+                c.Connect();
+                logger.Technical().Debug("Connected.").Log();
+                return c;
+            };
+        });
+        
         serviceCollection.AddSingleton<IClientFactory<SftpClientFacade>, SftpClientFactory>();
         serviceCollection.AddSingleton<ConnectionPool<SftpClientFacade>>();
         return serviceCollection;
     }
-
 }

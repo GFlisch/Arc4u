@@ -72,12 +72,20 @@ namespace Arc4u.Extensions
             return config;
         }
         
-        private static string DetermineUsername(this string decryptedValue)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="decryptedValue"></param>
+        /// <returns></returns>
+        [MustUseReturnValue]
+        public static string DetermineUsername(this string decryptedValue)
         {
             return UserNamePasswordRegex.Match(decryptedValue).Groups["user"].Value;
         }
 
-        private static string DeterminePassword(this string decryptedValue)
+        
+        [MustUseReturnValue]
+        public static string DeterminePassword(this string decryptedValue)
         {
             return UserNamePasswordRegex.Match(decryptedValue).Groups["password"].Value;
         }

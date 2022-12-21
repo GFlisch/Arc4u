@@ -8,141 +8,117 @@ using Microsoft.Extensions.Logging;
 using Renci.SshNet;
 using Renci.SshNet.Common;
 
-namespace Arc4u.Standard.Ftp
+namespace Arc4u.Standard.Ftp;
+
+public class SftpClientFacade : PoolableItem, IMftClient
 {
-    public class SftpClientFacade : PoolableItem, IMftClient
+    private readonly SftpClient _client;
+    private readonly ILogger<SftpClientFacade> _logger;
+
+    public SftpClientFacade(SftpClient client, Func<SftpClientFacade, Task> releaseFunc,
+        ILogger<SftpClientFacade> logger) : base(item => releaseFunc((SftpClientFacade) item))
     {
-        private readonly SftpClient _client;
+        _client = client;
+        _logger = logger;
+    }
 
-        public SftpClientFacade(SftpClient client, Func<SftpClientFacade, Task> releaseFunc) : base(item => releaseFunc((SftpClientFacade)item))
-        {
-             _client = client;
-        }
+    public override bool IsActive => _client.IsConnected;
 
-        public override bool IsActive => _client.IsConnected;
+    // SFTP Client
+    public void ChangeDirectory(string path)
+    {
+        _client.ChangeDirectory(path);
+    }
 
-        // SFTP Client
-        public void ChangeDirectory(string path)
-        {
-            _client.ChangeDirectory(path);
-        }
-
-        public void UploadFile(Stream input, string path)
+    public void UploadFile(Stream input, string path)
+    {
+        try
         {
             _client.UploadFile(input, path);
         }
-
-        public void DownloadFile(string path, Stream output)
+        catch (SftpPathNotFoundException e)
         {
-            _client.DownloadFile(path, output);
-        }
-
-        public bool Exists(string path)
-        {
-            return _client.Exists(path);
-        }
-
-        public void RenameFile(string oldPath, string newPath)
-        {
-            _client.RenameFile(oldPath,newPath);
-        }
-
-        public void DeleteFile(string path)
-        {
-            _client.DeleteFile(path);
-        }
-
-        //IListDirectory
-        public ICollection<string> ListFiles(string path)
-        {
-            return _client.ListDirectory(path).Where(x => x.IsRegularFile).Select(x => x.FullName).ToList();
-        }
-
-        public ICollection<string> ListDirectories(string path)
-        {
-            return _client.ListDirectory(path).Where(x => x.IsDirectory).Select(x => x.FullName).ToList();
+            _logger.LogError(e, $"Error while uploading file >{path}<");
+            throw;
         }
     }
 
-    public abstract class SftpClientLoggingDecoratorFacade<T> : PoolableItem, IMftClient
-    where T:PoolableItem, IMftClient
+    public void DownloadFile(string path, Stream output)
     {
-        private readonly T _decoree;
-        private readonly ILogger<SftpClientLoggingDecoratorFacade<T>> _logger;
-        
-        protected abstract bool ThrowOnError { get; }
-
-        public SftpClientLoggingDecoratorFacade(T decoree, ILogger<SftpClientLoggingDecoratorFacade<T>> logger) : base(decoree.ReleaseClient)
+        try
         {
-            _decoree = decoree;
-            _logger = logger;
+            _client.DownloadFile(path, output);
         }
-
-        public override bool IsActive => _decoree.IsActive;
-        public ICollection<string> ListFiles(string path)
+        catch (SftpPathNotFoundException e)
         {
-            try
-            {
-                return _decoree.ListFiles(path);
-            }
-            catch (SftpPathNotFoundException e)
-            {
-                _logger.LogError($"");
-                if (ThrowOnError)
-                {
-                    throw;
-                }
-
-                return Array.Empty<string>();
-            }
+            _logger.LogError(e, $"Error while downloading file >{path}<");
+            throw;
         }
+    }
 
-        public ICollection<string> ListDirectories(string path)
+    public bool Exists(string path)
+    {
+        try
         {
-            try
-            {
-                return _decoree.ListDirectories(path);
-            }
-            catch (SftpPathNotFoundException e)
-            {
-                _logger.LogError($"");
-                if (ThrowOnError)
-                {
-                    throw;
-                }
-
-                return Array.Empty<string>();
-            }
+            return _client.Exists(path);
         }
-
-        public void ChangeDirectory(string path)
+        catch (SftpPathNotFoundException e)
         {
-            throw new NotImplementedException();
+            _logger.LogError(e, $"Error while checking existance of >{path}<");
+            throw;
         }
+    }
 
-        public void UploadFile(Stream input, string path)
+    public void RenameFile(string oldPath, string newPath)
+    {
+        try
         {
-            throw new NotImplementedException();
+            _client.RenameFile(oldPath, newPath);
         }
-
-        public void DownloadFile(string path, Stream output)
+        catch (SftpPathNotFoundException e)
         {
-            throw new NotImplementedException();
+            _logger.LogError(e, $"Error while renaming >{oldPath}< to >{newPath}<");
+            throw;
         }
+    }
 
-        public bool Exists(string path)
+    public void DeleteFile(string path)
+    {
+        try
         {
-            throw new NotImplementedException();
+            _client.DeleteFile(path);
         }
-
-        public void RenameFile(string oldPath, string newPath)
+        catch (SftpPathNotFoundException e)
         {
-            throw new NotImplementedException();
+            _logger.LogError(e, $"Error while downloading file >{path}<");
+            throw;
         }
+    }
 
-        public void DeleteFile(string path)
+    //IListDirectory
+    public ICollection<string> ListFiles(string path)
+    {
+        try
         {
-            
+            return _client.ListDirectory(path).Where(x => x.IsRegularFile).Select(x => x.FullName).ToList();
+        }
+        catch (SftpPathNotFoundException e)
+        {
+            _logger.LogError(e, $"Error listing files of >{path}<");
+            throw;
+        }
+    }
+
+    public ICollection<string> ListDirectories(string path)
+    {
+        try
+        {
+            return _client.ListDirectory(path).Where(x => x.IsDirectory).Select(x => x.FullName).ToList();
+        }
+        catch (SftpPathNotFoundException e)
+        {
+            _logger.LogError(e, $"Error listing directories of >{path}<");
+            throw;
         }
     }
 }

@@ -12,18 +12,18 @@ namespace Arc4u.Standard.Ftp
     /// </summary>
     public class SftpClientFactory : IClientFactory<SftpClientFacade>
     {
-        private readonly ILogger<SftpClientFactory> _logger;
-        private readonly IFtpConfiguration _ftpConfig;
-        
+        private readonly Func<SftpClient> _sftpFactory;
+        private readonly ILogger<SftpClientFacade> _clientLogger;
+
         /// <summary>
         /// Instantiates a new factory 
         /// </summary>
         /// <param name="ftpConfig">configuration to be used when creating new poolable sftp clients</param>
         /// <param name="logger">Logger for this factory</param>
-        public SftpClientFactory (IFtpConfiguration ftpConfig, ILogger<SftpClientFactory> logger)
+        public SftpClientFactory (Func<SftpClient> sftpFactory, ILogger<SftpClientFacade> clientLogger)
         {
-            _ftpConfig = ftpConfig;
-            _logger = logger;
+            _sftpFactory = sftpFactory;
+            _clientLogger = clientLogger;
         }
 
         /// <summary>
@@ -35,12 +35,7 @@ namespace Arc4u.Standard.Ftp
         /// </remarks>
         public SftpClientFacade CreateClient(Func<SftpClientFacade, Task> releaseFunc)
         {
-            var c = new SftpClient(new ConnectionInfo(_ftpConfig.Host, _ftpConfig.Username, new PasswordAuthenticationMethod(_ftpConfig.Username, _ftpConfig.Password)));
-            c.KeepAliveInterval = _ftpConfig.KeepAliveInterval;
-            _logger.Technical().Debug("Connecting to SFTP host...").Log();
-            c.Connect();
-            _logger.Technical().Debug("Connected.").Log();
-            return new SftpClientFacade(c, releaseFunc);
+            return new SftpClientFacade(_sftpFactory(), releaseFunc, _clientLogger);
         }
     }
 }
