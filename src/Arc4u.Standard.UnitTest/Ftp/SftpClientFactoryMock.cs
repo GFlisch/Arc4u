@@ -7,7 +7,6 @@ namespace Arc4u.Standard.UnitTest.Ftp
 {
     public class SftpClientFactoryMock : IClientFactory<SftpClientFacade>
     {
-        
         public virtual SftpClientFacade CreateClient(Func<SftpClientFacade, Task> releaseFunc)
         {
             return null;

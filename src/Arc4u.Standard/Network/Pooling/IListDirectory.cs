@@ -10,11 +10,11 @@ namespace Arc4u.Network.Pooling
         /// <summary>
         ///     Returns a collection of full-qualified path names which represents the files in the specified <paramref name="path" />.
         /// </summary>
-        ICollection<string> ListFiles(string path);
+        public ICollection<string> ListFiles(string path);
 
         /// <summary>
         ///     Returns a collection of full-qualified path names which represents the sub-directories in the specified <paramref name="path" />.
         /// </summary>
-        ICollection<string> ListDirectories(string path);
+        public ICollection<string> ListDirectories(string path);
     }
 }
