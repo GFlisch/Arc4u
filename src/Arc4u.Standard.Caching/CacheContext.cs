@@ -29,7 +29,7 @@ namespace Arc4u.Caching
 
         private static object _lock = new object();
 
-        private readonly IContainerResolve _dependency;
+        private readonly IServiceProvider _dependency;
         private readonly ILogger _logger;
 
         public CachingPrincipal Principal { get; set; }
@@ -37,7 +37,7 @@ namespace Arc4u.Caching
         /// <summary>
         /// Initialise the cache following the caching config section.
         /// </summary>
-        public CacheContext(IConfiguration configuration, ILogger logger, IContainerResolve dependency)
+        public CacheContext(IConfiguration configuration, ILogger logger, IServiceProvider dependency)
         {
             _logger = logger;
             _dependency = dependency;
@@ -77,7 +77,7 @@ namespace Arc4u.Caching
                         {
                             if (cacheConfig.IsAutoStart)
                             {
-                                if (_dependency.TryResolve<ICache>(cacheConfig.Kind, out var cache))
+                                if (_dependency.TryGetService<ICache>(cacheConfig.Kind, out var cache))
                                 {
                                     cache.Initialize(cacheConfig.Name);
 
@@ -125,7 +125,7 @@ namespace Arc4u.Caching
                     {
                         try
                         {
-                            var cache = _dependency.Resolve<ICache>(_uninitializedCaches[cacheName]);
+                            var cache = _dependency.GetService<ICache>(_uninitializedCaches[cacheName]);
 
                             cache.Initialize(cacheName);
 

@@ -32,7 +32,7 @@ namespace Arc4u.OAuth2.Client.Security.Principal
         private bool copyClaimsFromCache = false;
         private List<ClaimDto> cachedClaims;
 
-        public AppPrincipalFactory(INetworkInformation networkInformation, ISecureCache claimsCache, ICacheKeyGenerator cacheKeyGenerator, IContainerResolve container, IApplicationContext applicationContext, ILogger<AppPrincipalFactory> logger)
+        public AppPrincipalFactory(INetworkInformation networkInformation, ISecureCache claimsCache, ICacheKeyGenerator cacheKeyGenerator, IServiceProvider container, IApplicationContext applicationContext, ILogger<AppPrincipalFactory> logger)
         {
             NetworkInformation = networkInformation;
             ClaimsCache = claimsCache;
@@ -48,7 +48,7 @@ namespace Arc4u.OAuth2.Client.Security.Principal
 
         private ClaimsIdentity Identity { get; set; }
 
-        private IContainerResolve Container { get; set; }
+        private IServiceProvider Container { get; set; }
 
         private ICacheKeyGenerator CacheKeyGenerator { get; set; }
 
@@ -65,7 +65,7 @@ namespace Arc4u.OAuth2.Client.Security.Principal
 
         public async Task<AppPrincipal> CreatePrincipal(string settingsResolveName, Messages messages, object parameter = null)
         {
-            var settings = Container.Resolve<IKeyValueSettings>(settingsResolveName);
+            var settings = Container.GetService<IKeyValueSettings>(settingsResolveName);
 
             return await CreatePrincipal(settings, messages, parameter);
         }
@@ -105,7 +105,7 @@ namespace Arc4u.OAuth2.Client.Security.Principal
         private async Task BuildTheIdentity(IKeyValueSettings settings, Messages messages, object parameter = null)
         {
             // Check if we have a provider registered.
-            if (!Container.TryResolve(settings.Values[ProviderKey], out ITokenProvider provider))
+            if (!Container.TryGetService(settings.Values[ProviderKey], out ITokenProvider provider))
             {
                 throw new NotSupportedException($"The principal cannot be created. We are missing an account provider: {settings.Values[ProviderKey]}");
             }
@@ -160,7 +160,7 @@ namespace Arc4u.OAuth2.Client.Security.Principal
                     Identity.AddClaims(jwtToken.Claims.Where(c => !ClaimsToExclude.Any(arg => arg.Equals(c.Type))).Select(c => new Claim(c.Type, c.Value)));
                     Identity.AddClaim(expTokenClaim);
 
-                    if (Container.TryResolve(out IClaimsFiller claimFiller)) // Fill the claims with more information.
+                    if (Container.TryGetService(out IClaimsFiller claimFiller)) // Fill the claims with more information.
                     {
                         try
                         {
@@ -201,7 +201,7 @@ namespace Arc4u.OAuth2.Client.Security.Principal
         {
             var authorization = new Authorization();
             // We need to fill the authorization and user profile from the provider!
-            if (Container.TryResolve(out IClaimAuthorizationFiller claimAuthorizationFiller))
+            if (Container.TryGetService(out IClaimAuthorizationFiller claimAuthorizationFiller))
             {
                 authorization = claimAuthorizationFiller.GetAuthorization(Identity);
                 messages.Add(new Message(ServiceModel.MessageCategory.Technical, ServiceModel.MessageType.Information, $"Fill the authorization information to the principal."));
@@ -215,7 +215,7 @@ namespace Arc4u.OAuth2.Client.Security.Principal
         private UserProfile BuildProfile(IKeyValueSettings settings, Messages messages)
         {
             UserProfile profile = UserProfile.Empty;
-            if (Container.TryResolve(out IClaimProfileFiller profileFiller))
+            if (Container.TryGetService(out IClaimProfileFiller profileFiller))
             {
                 profile = profileFiller.GetProfile(Identity);
                 messages.Add(new Message(ServiceModel.MessageCategory.Technical, ServiceModel.MessageType.Information, $"Fill the profile information to the principal."));
@@ -273,10 +273,10 @@ namespace Arc4u.OAuth2.Client.Security.Principal
         {
             RemoveClaimsCache();
 
-            var settings = Container.Resolve<IKeyValueSettings>(DefaultSettingsResolveName);
+            var settings = Container.GetService<IKeyValueSettings>(DefaultSettingsResolveName);
 
 
-            if (Container.TryResolve(settings.Values[ProviderKey], out ITokenProvider provider))
+            if (Container.TryGetService(settings.Values[ProviderKey], out ITokenProvider provider))
             {
                 provider.SignOut(settings);
             }
@@ -286,7 +286,7 @@ namespace Arc4u.OAuth2.Client.Security.Principal
         {
             RemoveClaimsCache();
 
-            if (Container.TryResolve(settings.Values[ProviderKey], out ITokenProvider provider))
+            if (Container.TryGetService(settings.Values[ProviderKey], out ITokenProvider provider))
             {
                 provider.SignOut(settings);
             }

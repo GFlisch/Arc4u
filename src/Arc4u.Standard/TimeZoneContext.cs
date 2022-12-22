@@ -1,6 +1,7 @@
 ﻿using Arc4u.Configuration;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Globalization;
@@ -11,9 +12,9 @@ namespace Arc4u.Dependency
     // Initialize the TimeZoneContext.
     public static class TimeZoneContextContainerExtension
     {
-        public static void InitializeTimeZoneContext(this IContainerResolve app)
+        public static void InitializeTimeZoneContext(this IServiceProvider app)
         {
-            app.Resolve<TimeZoneContext>();
+            app.GetService<TimeZoneContext>();
         }
 
     }

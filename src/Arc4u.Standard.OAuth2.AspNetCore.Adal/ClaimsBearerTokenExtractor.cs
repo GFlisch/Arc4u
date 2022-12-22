@@ -20,7 +20,7 @@ namespace Arc4u.OAuth2.Security.Principal
     public class ClaimsBearerTokenExtractor : IClaimsFiller
     {
         
-        public ClaimsBearerTokenExtractor(IContainerResolve container, ILogger<ClaimsBearerTokenExtractor> logger)
+        public ClaimsBearerTokenExtractor(IServiceProvider container, ILogger<ClaimsBearerTokenExtractor> logger)
         {
             _container = container;
 
@@ -30,7 +30,7 @@ namespace Arc4u.OAuth2.Security.Principal
         }
 
         private readonly DataContractJsonSerializer _jsonSerializer;
-        private readonly IContainerResolve _container;
+        private readonly IServiceProvider _container;
         private readonly ILogger<ClaimsBearerTokenExtractor> _logger;
 
         public async Task<IEnumerable<ClaimDto>> GetAsync(IIdentity identity, IEnumerable<IKeyValueSettings> settings, object parameter)
@@ -73,7 +73,7 @@ namespace Arc4u.OAuth2.Security.Principal
                     // exist because tested in the constructor!
                     var providerSettings = settings.First(s => s.Values[TokenKeys.AuthenticationTypeKey].Equals(identity.AuthenticationType));
 
-                    ITokenProvider provider = _container.Resolve<ITokenProvider>(providerSettings.Values[TokenKeys.ProviderIdKey]);
+                    ITokenProvider provider = _container.GetService<ITokenProvider>(providerSettings.Values[TokenKeys.ProviderIdKey]);
 
                     _logger.Technical().System("Requesting an authentication token.").Log();
                     var tokenInfo = await provider.GetTokenAsync(providerSettings, claimsIdentity);

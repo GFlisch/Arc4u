@@ -30,17 +30,17 @@ namespace Arc4u.OAuth2.Token.Adal
         /// </summary>
         /// <param name="container">The scoped container</param>
         /// <param name="resolvingName">The name used to resolve the settings</param>
-        public JwtHttpHandler(IContainerResolve container, ILogger<JwtHttpHandler> logger, string resolvingName)
+        public JwtHttpHandler(IServiceProvider container, ILogger<JwtHttpHandler> logger, string resolvingName)
         {
             _container = container ?? throw new ArgumentNullException(nameof(container));
 
             _logger = logger;
 
-            if (!container.TryResolve(resolvingName, out _settings))
+            if (!container.TryGetService(resolvingName, out _settings))
                 _logger.Technical().Debug($"No settings for {resolvingName} is found.").Log();
 
 
-            container.TryResolve<IApplicationContext>(out _applicationContext);
+            container.TryGetService(out _applicationContext);
             _parameters = _applicationContext;
             _settingsName = null;
 
@@ -70,19 +70,19 @@ namespace Arc4u.OAuth2.Token.Adal
         /// <summary>
         /// Create a JwtHttpHandler with settings <see cref="IKeyValueSettings"/> resolved based on the name "OAuth" and the <see cref="HttpMessageHandler"/> of type <see cref="HttpClientHandler"/>.
         /// </summary>
-        public JwtHttpHandler(IContainerResolve container, IPlatformParameters parameters = null, bool skipValidateAuthenticationType = false)
+        public JwtHttpHandler(IServiceProvider container, IPlatformParameters parameters = null, bool skipValidateAuthenticationType = false)
         {
             _container = container ?? throw new ArgumentNullException(nameof(container));
 
-            _logger = container.Resolve<ILogger<JwtHttpHandler>>();
+            _logger = container.GetService<ILogger<JwtHttpHandler>>();
 
-            if (!container.TryResolve("OAuth", out _settings))
+            if (!container.TryGetService("OAuth", out _settings))
                 _logger.Technical().System("No settings for OAuth is found.").Log();
 
             _parameters = parameters;
             _settingsName = null;
 
-            container.TryResolve<IApplicationContext>(out _applicationContext);
+            container.TryGetService<IApplicationContext>(out _applicationContext);
         }
 
         /// <summary>
@@ -90,19 +90,19 @@ namespace Arc4u.OAuth2.Token.Adal
         /// customize the HttpHandler.
         /// </summary>
         /// <param name="resolvingName">The name used to resolve the instance of the <see cref="IKeyValueSettings"/> implementation.</param>
-        public JwtHttpHandler(IContainerResolve container, string resolvingName, IPlatformParameters parameters = null)
+        public JwtHttpHandler(IServiceProvider container, string resolvingName, IPlatformParameters parameters = null)
         {
             _container = container ?? throw new ArgumentNullException(nameof(container));
 
-            _logger = container.Resolve<ILogger<JwtHttpHandler>>();
+            _logger = container.GetService<ILogger<JwtHttpHandler>>();
 
-            if (!container.TryResolve(resolvingName, out _settings))
+            if (!container.TryGetService(resolvingName, out _settings))
                 _logger.Technical().System($"No settings for {resolvingName} is found.").Log();
 
             _parameters = parameters;
             _settingsName = null;
 
-            container.TryResolve<IApplicationContext>(out _applicationContext);
+            container.TryGetService(out _applicationContext);
         }
 
         /// <summary>
@@ -111,18 +111,18 @@ namespace Arc4u.OAuth2.Token.Adal
         /// </summary>
         /// <param name="settings">The settings needed for the <see cref="ITokenProvider"/>.</param>
         /// <param name="handler">The handler, can be a <see cref="DelegatingHandler"/></param>
-        public JwtHttpHandler(IContainerResolve container, IKeyValueSettings settings, IPlatformParameters parameters = null)
+        public JwtHttpHandler(IServiceProvider container, IKeyValueSettings settings, IPlatformParameters parameters = null)
         {
             _container = container ?? throw new ArgumentNullException(nameof(container));
 
-            _logger = container.Resolve<ILogger<JwtHttpHandler>>();
+            _logger = container.GetService<ILogger<JwtHttpHandler>>();
 
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
 
             _parameters = parameters;
             _settingsName = null;
 
-            container.TryResolve<IApplicationContext>(out _applicationContext);
+            container.TryGetService(out _applicationContext);
         }
 
         #endregion
@@ -130,14 +130,14 @@ namespace Arc4u.OAuth2.Token.Adal
         private IKeyValueSettings _settings;
         private readonly object _parameters;
         private readonly string _settingsName;
-        private readonly IContainerResolve _container;
+        private readonly IServiceProvider _container;
         private readonly IApplicationContext _applicationContext;
         private readonly IHttpContextAccessor _accessor;
         private readonly ILogger<JwtHttpHandler> _logger;
 
-        private IContainerResolve GetResolver() => null == _accessor?.HttpContext ? _container : _accessor.HttpContext.RequestServices.GetService<IContainerResolve>();
+        private IServiceProvider GetResolver() => null == _accessor?.HttpContext ? _container : _accessor.HttpContext.RequestServices;
 
-        private IApplicationContext GetCallContext(out object parameters, out IContainerResolve containerResolve)
+        private IApplicationContext GetCallContext(out object parameters, out IServiceProvider containerResolve)
         {
 
             containerResolve = GetResolver();
@@ -145,7 +145,7 @@ namespace Arc4u.OAuth2.Token.Adal
             // first priority to the scope one!
             if (null != _accessor?.HttpContext?.RequestServices)
             {
-                var ctx = containerResolve.Resolve<IApplicationContext>();
+                var ctx = containerResolve.GetService<IApplicationContext>();
                 parameters = ctx;
 
                 // As this is global for an handler, this can be saved at the level of the class.
@@ -153,7 +153,7 @@ namespace Arc4u.OAuth2.Token.Adal
                 // when the JwtHttpHandler is built.
                 if (null == _settings && !String.IsNullOrWhiteSpace(_settingsName))
                 {
-                    if (!containerResolve.TryResolve(_settingsName, out _settings))
+                    if (!containerResolve.TryGetService(_settingsName, out _settings))
                         _logger.Technical().Debug($"No settings for {_settingsName} is found.").Log();
                 }
 
@@ -210,7 +210,7 @@ namespace Arc4u.OAuth2.Token.Adal
 
                 _logger.Technical().System($"{this.GetType().Name} token provider is called.").Log();
 
-                ITokenProvider provider = containerResolve.Resolve<ITokenProvider>(_settings.Values[TokenKeys.ProviderIdKey]);
+                ITokenProvider provider = containerResolve.GetService<ITokenProvider>(_settings.Values[TokenKeys.ProviderIdKey]);
 
                 _logger.Technical().System("Requesting an authentication token.").Log();
                 var tokenInfo = await provider.GetTokenAsync(_settings, parameters);

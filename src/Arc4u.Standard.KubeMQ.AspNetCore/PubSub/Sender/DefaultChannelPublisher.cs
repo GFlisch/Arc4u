@@ -4,6 +4,7 @@ using Arc4u.KubeMQ.AspNetCore.Configuration;
 using Arc4u.Security.Principal;
 using Arc4u.Serializer;
 using KubeMQ.SDK.csharp.Events;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
@@ -18,7 +19,7 @@ namespace Arc4u.KubeMQ.AspNetCore.PubSub
 {
     public class DefaultChannelPublisher : IPublisher
     {
-        public DefaultChannelPublisher(IOptionsMonitor<PubSubDefinition> definitions, IContainerResolve serviceProvider, ILogger<DefaultChannelPublisher> logger, IApplicationContext applicationContext, IActivitySourceFactory activitySourceFactory)
+        public DefaultChannelPublisher(IOptionsMonitor<PubSubDefinition> definitions, IServiceProvider serviceProvider, ILogger<DefaultChannelPublisher> logger, IApplicationContext applicationContext, IActivitySourceFactory activitySourceFactory)
         {
             _definitions = definitions;
             _serviceProvider = serviceProvider;
@@ -28,7 +29,7 @@ namespace Arc4u.KubeMQ.AspNetCore.PubSub
         }
 
         private readonly IOptionsMonitor<PubSubDefinition> _definitions;
-        private readonly IContainerResolve _serviceProvider;
+        private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<DefaultChannelPublisher> _logger;
         private readonly IApplicationContext _applicationContext;
         private readonly ActivitySource _activitySource;
@@ -156,9 +157,9 @@ namespace Arc4u.KubeMQ.AspNetCore.PubSub
             if (null == definition)
                 throw new ArgumentNullException(nameof(definition));
 
-            if (null == definition.Serializer || !_serviceProvider.TryResolve<IObjectSerialization>(definition.Serializer, out var serializerFactory))
+            if (null == definition.Serializer || !_serviceProvider.TryGetService<IObjectSerialization>(definition.Serializer, out var serializerFactory))
             {
-                return _serviceProvider.Resolve<IObjectSerialization>();
+                return _serviceProvider.GetService<IObjectSerialization>();
             }
 
             return serializerFactory;

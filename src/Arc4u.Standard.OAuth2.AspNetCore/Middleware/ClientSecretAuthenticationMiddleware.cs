@@ -5,6 +5,7 @@ using Arc4u.OAuth2.Token;
 using Arc4u.Security;
 using Arc4u.Security.Cryptography;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -28,7 +29,7 @@ namespace Arc4u.Standard.OAuth2.Middleware
         private readonly X509Certificate2 _certificate;
         private readonly ActivitySource _activitySource;
 
-        public ClientSecretAuthenticationMiddleware(RequestDelegate next, IContainerResolve container, ClientSecretAuthenticationOption option)
+        public ClientSecretAuthenticationMiddleware(RequestDelegate next, IServiceProvider container, ClientSecretAuthenticationOption option)
         {
             _next = next ?? throw new ArgumentNullException(nameof(next));
 
@@ -38,7 +39,7 @@ namespace Arc4u.Standard.OAuth2.Middleware
             if (null == option)
                 throw new ArgumentNullException(nameof(option));
 
-            _logger = container.Resolve<ILogger<ClientSecretAuthenticationMiddleware>>();
+            _logger = container.GetRequiredService<ILogger<ClientSecretAuthenticationMiddleware>>();
             _option = option;
 
             if (null == option.Settings)
@@ -49,7 +50,7 @@ namespace Arc4u.Standard.OAuth2.Middleware
 
             if (option.Settings.Values.ContainsKey(TokenKeys.ProviderIdKey))
             {
-                _hasProvider = container.TryResolve(option.Settings.Values[TokenKeys.ProviderIdKey], out _provider);
+                _hasProvider = container.TryGetService(option.Settings.Values[TokenKeys.ProviderIdKey], out _provider);
             }
 
             if (!_hasProvider)
@@ -101,7 +102,7 @@ namespace Arc4u.Standard.OAuth2.Middleware
             else
                 _logger.Technical().System($"No authentication  with certificate secret.").Log();
 
-            _activitySource = container.Resolve<IActivitySourceFactory>()?.GetArc4u();
+            _activitySource = container.GetService<IActivitySourceFactory>()?.GetArc4u();
 
 
         }

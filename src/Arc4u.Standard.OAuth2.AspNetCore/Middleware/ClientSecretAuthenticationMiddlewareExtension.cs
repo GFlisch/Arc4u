@@ -1,6 +1,7 @@
 ﻿using Arc4u.Dependency;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 
 namespace Arc4u.Standard.OAuth2.Middleware
@@ -8,7 +9,7 @@ namespace Arc4u.Standard.OAuth2.Middleware
     public static class ClientSecretAuthenticationMiddlewareExtension
     {
 
-        public static IApplicationBuilder UseClientSecretAuthentication(this IApplicationBuilder app, IContainerResolve container, IKeyValueSettings settings, string settingsSectionName)
+        public static IApplicationBuilder UseClientSecretAuthentication(this IApplicationBuilder app, IServiceProvider container, IKeyValueSettings settings, string settingsSectionName)
         {
             if (null == app)
                 throw new ArgumentNullException(nameof(app));
@@ -20,13 +21,13 @@ namespace Arc4u.Standard.OAuth2.Middleware
                 throw new ArgumentNullException(nameof(settings));
 
             var option = new ClientSecretAuthenticationOption(settings);
-            container.Resolve<IConfiguration>().Bind(settingsSectionName, option);
+            container.GetRequiredService<IConfiguration>().Bind(settingsSectionName, option);
 
             return app.UseMiddleware<ClientSecretAuthenticationMiddleware>(container, option);
         }
 
 
-        public static IApplicationBuilder UseClientSecretAuthentication(this IApplicationBuilder app, IContainerResolve container, ClientSecretAuthenticationOption option)
+        public static IApplicationBuilder UseClientSecretAuthentication(this IApplicationBuilder app, IServiceProvider container, ClientSecretAuthenticationOption option)
         {
             if (null == app)
                 throw new ArgumentNullException(nameof(app));

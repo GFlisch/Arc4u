@@ -4,6 +4,7 @@ using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Token;
 using Arc4u.Security.Principal;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -42,16 +43,16 @@ namespace Arc4u.Standard.OAuth2.Middleware
                         context.Request?.Headers?.Add("culture", principal.Profile.CurrentCulture.TwoLetterISOLanguageName);
                 }
 
-                IContainerResolve container = (IContainerResolve)context.RequestServices.GetService(typeof(IContainerResolve));
+                var container = context.RequestServices;
 
                 // Not thread safe => can call activity source factory more than one but factory implementation is thread safe => so few calls on the start of the service is a possibility.
                 if (!hasAlreadyTriedToResolve)
                 {
                     hasAlreadyTriedToResolve = true;
-                    _activitySource = container.Resolve<IActivitySourceFactory>()?.GetArc4u();
+                    _activitySource = container.GetService<IActivitySourceFactory>()?.GetArc4u();
                 }
 
-                _logger ??= container.Resolve<ILogger<OpenIdBearerInjectorMiddleware>>();
+                _logger ??= container.GetService<ILogger<OpenIdBearerInjectorMiddleware>>();
 
                 using (var activity = _activitySource?.StartActivity("Inject bearer token in header", ActivityKind.Producer))
                 {
@@ -72,7 +73,7 @@ namespace Arc4u.Standard.OAuth2.Middleware
 
                         try
                         {
-                            ITokenProvider provider = container.Resolve<ITokenProvider>(_options.OboProviderKey);
+                            ITokenProvider provider = container.GetService<ITokenProvider>(_options.OboProviderKey);
 
                             tokenInfo = await provider.GetTokenAsync(oboSettings, null);
                         }
@@ -86,7 +87,7 @@ namespace Arc4u.Standard.OAuth2.Middleware
                     {
                         try
                         {
-                            ITokenProvider provider = container.Resolve<ITokenProvider>(_options.OpenIdSettings.Values[TokenKeys.ProviderIdKey]);
+                            ITokenProvider provider = container.GetService<ITokenProvider>(_options.OpenIdSettings.Values[TokenKeys.ProviderIdKey]);
 
                             tokenInfo = await provider.GetTokenAsync(_options.OpenIdSettings, null);
                         }

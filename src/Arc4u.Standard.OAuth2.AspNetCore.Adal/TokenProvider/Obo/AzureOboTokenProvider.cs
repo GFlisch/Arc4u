@@ -1,11 +1,11 @@
-﻿using Arc4u.Dependency;
-using Arc4u.Dependency.Attribute;
+﻿using Arc4u.Dependency.Attribute;
 using Arc4u.OAuth2.Configuration;
 using Arc4u.OAuth2.Token;
 using Arc4u.OAuth2.Token.Adal;
 using Arc4u.Security.Principal;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using System;
 
 namespace Arc4u.OAuth2.TokenProvider
 {
@@ -13,7 +13,7 @@ namespace Arc4u.OAuth2.TokenProvider
     public class AzureOboTokenProvider : AdalOboTokenProvider
     {
         
-        public AzureOboTokenProvider(OAuthConfig oAuthConfig, ILogger<AzureOboTokenProvider> logger, IContainerResolve container, IApplicationContext applicationContext) : base(oAuthConfig, logger, container, applicationContext) { }
+        public AzureOboTokenProvider(OAuthConfig oAuthConfig, ILogger<AzureOboTokenProvider> logger, IServiceProvider container, IApplicationContext applicationContext) : base(oAuthConfig, logger, container, applicationContext) { }
 
         protected override AuthenticationContext CreateAuthenticationContext(string authority, string cacheIdentifier)
         {

@@ -1,5 +1,4 @@
 ﻿using Arc4u.Caching;
-using Arc4u.Dependency;
 using Arc4u.Diagnostics;
 using Arc4u.IdentityModel.Claims;
 using Arc4u.OAuth2;
@@ -8,6 +7,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using System;
@@ -33,7 +33,7 @@ namespace Arc4u.Standard.OAuth2.Middleware
         private readonly ClaimsPrincipalMiddlewareOption _option;
         private readonly ActivitySource _activitySource;
 
-        public ClaimsPrincipalMiddleware(RequestDelegate next, IContainerResolve container, ClaimsPrincipalMiddlewareOption option)
+        public ClaimsPrincipalMiddleware(RequestDelegate next, IServiceProvider container, ClaimsPrincipalMiddlewareOption option)
         {
             _next = next ?? throw new ArgumentNullException(nameof(next));
 
@@ -43,22 +43,23 @@ namespace Arc4u.Standard.OAuth2.Middleware
             if (null == option)
                 throw new ArgumentNullException(nameof(option));
 
-            var logger = container.Resolve<ILogger<ClaimsPrincipalMiddleware>>();
+            var logger = container.GetRequiredService<ILogger<ClaimsPrincipalMiddleware>>();
 
-            if (!container.TryResolve<CacheContext>(out _cacheContext))
+            _cacheContext = container.GetService<CacheContext>();
+            if (_cacheContext == null)
                 logger.Technical().Information("No cache context is available.").Log();
 
             _option = option;
 
-            _activitySource = container.Resolve<IActivitySourceFactory>()?.GetArc4u();
+            _activitySource = container.GetService<IActivitySourceFactory>()?.GetArc4u();
 
         }
 
         public async Task Invoke(HttpContext context)
         {
             // Get the scoped instance of the container!
-            IContainerResolve container = (IContainerResolve)context.RequestServices.GetService(typeof(IContainerResolve));
-            var logger = container.Resolve<ILogger<ClaimsPrincipalMiddleware>>();
+            var container = context.RequestServices;
+            var logger = container.GetRequiredService<ILogger<ClaimsPrincipalMiddleware>>();
 
             try
             {
@@ -98,7 +99,8 @@ namespace Arc4u.Standard.OAuth2.Middleware
                         // As the extension point can use some ITokenProvider based on the user.
                         // A dummy Principal is created based on the context identity!
                         // Must be registered as Scoped!
-                        if (container.TryResolve<IApplicationContext>(out var applicationContext))
+                        var applicationContext = container.GetService<IApplicationContext>();
+                        if (applicationContext == null)
                         {
                             applicationContext.SetPrincipal(new AppPrincipal(new Authorization(), context.User.Identity, "S-1-0-0"));
                         }
@@ -109,8 +111,8 @@ namespace Arc4u.Standard.OAuth2.Middleware
 
                         // Build an AppPrincipal.
                         AppPrincipal principal = null;
-                        var profileFiller = container.Resolve<IClaimProfileFiller>();
-                        var authorizationFiller = container.Resolve<IClaimAuthorizationFiller>();
+                        var profileFiller = container.GetRequiredService<IClaimProfileFiller>();
+                        var authorizationFiller = container.GetRequiredService<IClaimAuthorizationFiller>();
 
                         var authorization = authorizationFiller.GetAuthorization(context.User.Identity);
                         var profile = profileFiller.GetProfile(context.User.Identity);
@@ -177,7 +179,7 @@ namespace Arc4u.Standard.OAuth2.Middleware
         ///     => we don't save the full claims identity like in a client where a disconnected scenario is possible!
         /// </summary>
         /// <param name="context"></param>
-        private async Task LoadExtraClaimsAsync(HttpContext context, IContainerResolve scope, ILogger<ClaimsPrincipalMiddleware> logger)
+        private async Task LoadExtraClaimsAsync(HttpContext context, IServiceProvider scope, ILogger<ClaimsPrincipalMiddleware> logger)
         {
             if (null == _option.ClaimsFillerOptions.Settings)
             {
@@ -185,13 +187,15 @@ namespace Arc4u.Standard.OAuth2.Middleware
                 return;
             }
 
-            if (!scope.TryResolve<ICacheKeyGenerator>(out var keyGenerator))
+            var keyGenerator = scope.GetService<ICacheKeyGenerator>();
+            if (keyGenerator == null)
             {
                 logger.Technical().System("No user based cache key generator exist! Check your dependencies.").Log();
                 return;
             }
 
-            if (scope.TryResolve(out IClaimsFiller claimFiller)) // Fill the claims with more information.
+            var claimFiller = scope.GetService<IClaimsFiller>();
+            if (claimFiller != null) // Fill the claims with more information.
             {
                 var identity = context.User.Identity as ClaimsIdentity;
                 var cacheKey = keyGenerator.GetClaimsKey(identity);

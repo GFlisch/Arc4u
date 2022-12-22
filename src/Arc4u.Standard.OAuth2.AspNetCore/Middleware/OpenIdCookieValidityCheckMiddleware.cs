@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
@@ -41,13 +42,13 @@ namespace Arc4u.Standard.OAuth2.Middleware
                 ILogger<OpenIdCookieValidityCheckMiddleware> logger = null;
                 try
                 {
-                    IContainerResolve container = (IContainerResolve)context.RequestServices.GetService(typeof(IContainerResolve));
+                    var container = context.RequestServices;
 
                     // Not thread safe => can call activity source factory more than one but factory implementation is thread safe => so few calls on the start of the service is a possibility.
                     if (!hasAlreadyTriedToResolve)
                     {
                         hasAlreadyTriedToResolve = true;
-                        _activitySource = container.Resolve<IActivitySourceFactory>()?.GetArc4u();
+                        _activitySource = container.GetService<IActivitySourceFactory>()?.GetArc4u();
                     }
 
                     TokenInfo tokenInfo = null;
@@ -56,14 +57,14 @@ namespace Arc4u.Standard.OAuth2.Middleware
                     {
                         activity?.SetTag("AuthenticationType", _options.AuthenticationType);
 
-                        if (container.TryResolve<IApplicationContext>(out var applicationContext))
+                        if (container.TryGetService<IApplicationContext>(out var applicationContext))
                         {
                             applicationContext.SetPrincipal(new AppPrincipal(new Authorization(), context.User.Identity, "S-1-0-0"));
                         }
 
-                        logger = container.Resolve<ILogger<OpenIdCookieValidityCheckMiddleware>>();
+                        logger = container.GetService<ILogger<OpenIdCookieValidityCheckMiddleware>>();
 
-                        ITokenProvider provider = container.Resolve<ITokenProvider>(_options.OpenIdSettings.Values[TokenKeys.ProviderIdKey]);
+                        ITokenProvider provider = container.GetService<ITokenProvider>(_options.OpenIdSettings.Values[TokenKeys.ProviderIdKey]);
 
                         tokenInfo = await provider.GetTokenAsync(_options.OpenIdSettings, context.User.Identity);
                     }

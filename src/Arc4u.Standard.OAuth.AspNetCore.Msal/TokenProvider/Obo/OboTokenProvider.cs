@@ -16,7 +16,7 @@ namespace Arc4u.OAuth2.TokenProvider
     {
         public const string ProviderName = "Obo";
 
-        public OboTokenProvider(CacheContext cacheContext, IContainerResolve container, ILogger<OboTokenProvider> logger, IActivitySourceFactory activitySourceFactory)
+        public OboTokenProvider(CacheContext cacheContext, IServiceProvider container, ILogger<OboTokenProvider> logger, IActivitySourceFactory activitySourceFactory)
         {
             _cacheContext = cacheContext;
             _container = container;
@@ -25,7 +25,7 @@ namespace Arc4u.OAuth2.TokenProvider
         }
 
         private readonly CacheContext _cacheContext;
-        private readonly IContainerResolve _container;
+        private readonly IServiceProvider _container;
         private readonly ILogger<OboTokenProvider> _logger;
         private readonly ActivitySource _activitySource;
 
@@ -70,7 +70,7 @@ namespace Arc4u.OAuth2.TokenProvider
                 // Get token from the identity user.
                 var settingsProviderName = settings.Values.ContainsKey("OpenIdSettingsReader") ? settings.Values["OpenIdSettingsReader"] : "OpenId";
 
-                if (_container.TryResolve<IKeyValueSettings>(settingsProviderName, out var openIdSettings))
+                if (_container.TryGetService<IKeyValueSettings>(settingsProviderName, out var openIdSettings))
                 {
                     if (!openIdSettings.Values.ContainsKey(TokenKeys.ProviderIdKey))
                         messages.Add(new Message(ServiceModel.MessageCategory.Technical, MessageType.Error, "No Provider defined in OpenId Settings."));
@@ -78,7 +78,7 @@ namespace Arc4u.OAuth2.TokenProvider
                     {
                         var tokenProviderName = openIdSettings.Values[TokenKeys.ProviderIdKey];
 
-                        if (_container.TryResolve<ITokenProvider>(tokenProviderName, out var provider))
+                        if (_container.TryGetService<ITokenProvider>(tokenProviderName, out var provider))
                         {
                             _tokenInfo = await provider.GetTokenAsync(openIdSettings, null);
                         }

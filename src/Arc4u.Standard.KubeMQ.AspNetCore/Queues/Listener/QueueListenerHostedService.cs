@@ -1,7 +1,7 @@
-﻿using Arc4u.Dependency;
-using Arc4u.KubeMQ.AspNetCore.Configuration;
+﻿using Arc4u.KubeMQ.AspNetCore.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -11,7 +11,7 @@ namespace Arc4u.KubeMQ.AspNetCore.Queues
 {
     public class QueueListenerHostedService : BackgroundService
     {
-        public QueueListenerHostedService(IContainerResolve provider,
+        public QueueListenerHostedService(IServiceProvider provider,
                                           IMessageHandlerTypes messageHandlers,
                                           IUniqueness unique,
                                           IQueueStreamManager queueStreamManager,
@@ -25,7 +25,7 @@ namespace Arc4u.KubeMQ.AspNetCore.Queues
         }
 
         private readonly IMessageHandlerTypes _messageHandlers;
-        private readonly IContainerResolve _provider;
+        private readonly IServiceProvider _provider;
         private readonly IEnumerable<QueueParameters> _queueParameters;
         private readonly ILogger<QueueListenerHostedService> _logger;
         private readonly IQueueStreamManager _queueStreamManager;

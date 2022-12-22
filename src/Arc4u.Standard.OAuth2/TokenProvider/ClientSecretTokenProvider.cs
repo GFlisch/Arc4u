@@ -6,6 +6,7 @@ using Arc4u.OAuth2.Token;
 using Arc4u.Security;
 using Arc4u.Security.Cryptography;
 using Arc4u.ServiceModel;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -23,7 +24,7 @@ namespace Arc4u.OAuth2.TokenProvider
     [Export(ClientSecretTokenProvider.ProviderName, typeof(ITokenProvider))]
     public sealed class ClientSecretTokenProvider : ITokenProvider
     {
-        public ClientSecretTokenProvider(ITokenCache tokenCache, IContainerResolve container, ILogger<ClientSecretTokenProvider> logger)
+        public ClientSecretTokenProvider(ITokenCache tokenCache, IServiceProvider container, ILogger<ClientSecretTokenProvider> logger)
         {
             _tokenCache = tokenCache;
             _container = container;
@@ -31,7 +32,7 @@ namespace Arc4u.OAuth2.TokenProvider
         }
 
         private readonly ITokenCache _tokenCache;
-        private readonly IContainerResolve _container;
+        private readonly IServiceProvider _container;
         private readonly ILogger<ClientSecretTokenProvider> _logger;
 
         public const string ProviderName = "ClientSecret";
@@ -176,7 +177,7 @@ namespace Arc4u.OAuth2.TokenProvider
         }
         private async Task<TokenInfo> CreateBasicTokenInfoAsync(IKeyValueSettings settings, CredentialsResult credential)
         {
-            var basicTokenProvider = _container.Resolve<ICredentialTokenProvider>(CredentialTokenProvider.ProviderName);
+            var basicTokenProvider = _container.GetService<ICredentialTokenProvider>(CredentialTokenProvider.ProviderName);
 
             return await basicTokenProvider.GetTokenAsync(settings, credential);
         }

@@ -1,5 +1,5 @@
-﻿using Arc4u.Dependency;
-using Arc4u.Diagnostics;
+﻿using Arc4u.Diagnostics;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using System;
@@ -19,11 +19,12 @@ namespace Arc4u.OAuth2.Token.Adal
         private String _identifier;
 
 
-        public Cache(ILogger logger, IContainerResolve container, string identifier)
+        public Cache(ILogger logger, IServiceProvider container, string identifier)
         {
             Logger = logger;
 
-            if (!container.TryResolve(out TokenCache))
+            TokenCache = container.GetService<ITokenCache>();
+            if (TokenCache == null)
             {
                 Logger.Technical().From<Cache>().Error("No implementation for an ITokenCache exists! Check your dependencies.").Log();
                 Logger.Technical().From<Cache>().System($"Token cache is skipped for the user identifier: {identifier}.").Log();

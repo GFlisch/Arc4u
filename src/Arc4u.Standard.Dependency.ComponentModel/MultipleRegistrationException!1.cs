@@ -9,6 +9,8 @@ namespace Arc4u.Dependency.ComponentModel
     {
         public MultipleRegistrationException(IEnumerable<T> instances) : base(MakeMessage(instances)) { }
 
+        public MultipleRegistrationException(IEnumerable<T> instances, Exception inner) : base(MakeMessage(instances), inner) { }
+
         private static string MakeMessage(IEnumerable<T> instances)
         {
             var content = new StringBuilder();

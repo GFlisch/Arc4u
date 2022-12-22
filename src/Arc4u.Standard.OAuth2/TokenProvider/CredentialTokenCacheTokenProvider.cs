@@ -15,10 +15,10 @@ namespace Arc4u.OAuth2.TokenProvider
     {
         public const string ProviderName = "Credential";
         private readonly ITokenCache TokenCache;
-        private readonly IContainerResolve Container;
+        private readonly IServiceProvider Container;
         private readonly ILogger<CredentialTokenCacheTokenProvider> _logger;
 
-        public CredentialTokenCacheTokenProvider(ITokenCache tokenCache, ILogger<CredentialTokenCacheTokenProvider> logger, IContainerResolve container)
+        public CredentialTokenCacheTokenProvider(ITokenCache tokenCache, ILogger<CredentialTokenCacheTokenProvider> logger, IServiceProvider container)
         {
             TokenCache = tokenCache;
             _logger = logger;
@@ -92,7 +92,7 @@ namespace Arc4u.OAuth2.TokenProvider
 
         protected async Task<TokenInfo> CreateBasicTokenInfoAsync(IKeyValueSettings settings, CredentialsResult credential)
         {
-            var basicTokenProvider = Container.Resolve<ICredentialTokenProvider>(CredentialTokenProvider.ProviderName);
+            var basicTokenProvider = Container.GetService<ICredentialTokenProvider>(CredentialTokenProvider.ProviderName);
 
             return await basicTokenProvider.GetTokenAsync(settings, credential);
         }

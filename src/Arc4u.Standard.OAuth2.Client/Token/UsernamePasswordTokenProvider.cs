@@ -16,7 +16,7 @@ namespace Arc4u.OAuth2.Token
     [Export(UsernamePasswordTokenProvider.ProviderName, typeof(ITokenProvider))]
     public class UsernamePasswordTokenProvider : ITokenProvider
     {
-        public UsernamePasswordTokenProvider(ISecureCache secureCache, INetworkInformation networkStatus, ILogger<UsernamePasswordTokenProvider> logger, IContainerResolve container)
+        public UsernamePasswordTokenProvider(ISecureCache secureCache, INetworkInformation networkStatus, ILogger<UsernamePasswordTokenProvider> logger, IServiceProvider container)
         {
             this.secureCache = secureCache;
             this.networkStatus = networkStatus;
@@ -28,7 +28,7 @@ namespace Arc4u.OAuth2.Token
 
         private readonly ICache secureCache;
         private readonly INetworkInformation networkStatus;
-        private readonly IContainerResolve Container;
+        private readonly IServiceProvider Container;
         private readonly ILogger<UsernamePasswordTokenProvider> _logger;
 
         private string userkey;
@@ -63,7 +63,7 @@ namespace Arc4u.OAuth2.Token
 
             if (String.IsNullOrWhiteSpace(upn) || String.IsNullOrWhiteSpace(pwd))
             {
-                if (!Container.TryResolve<IUserNamePasswordProvider>(out var usernamePasswordProvider))
+                if (!Container.TryGetService<IUserNamePasswordProvider>(out var usernamePasswordProvider))
                     throw new AppException("No Token provider found in the container.");
 
                 // Ask for the credentials and the await is blocked until the user has entered the information.
@@ -106,7 +106,7 @@ namespace Arc4u.OAuth2.Token
 
         protected async Task<TokenInfo> CreateBasicTokenInfoAsync(IKeyValueSettings settings, CredentialsResult credential)
         {
-            var basicTokenProvider = Container.Resolve<ICredentialTokenProvider>(CredentialTokenProvider.ProviderName);
+            var basicTokenProvider = Container.GetService<ICredentialTokenProvider>(CredentialTokenProvider.ProviderName);
 
             return await basicTokenProvider.GetTokenAsync(settings, credential);
         }

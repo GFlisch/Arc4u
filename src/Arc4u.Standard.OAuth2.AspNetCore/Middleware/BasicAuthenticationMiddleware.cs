@@ -3,6 +3,7 @@ using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Security.Principal;
 using Arc4u.OAuth2.Token;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
@@ -18,14 +19,13 @@ namespace Arc4u.Standard.OAuth2.Middleware
     {
         private readonly RequestDelegate _next;
         private readonly BasicAuthenticationContextOption _option;
-        private readonly IContainerResolve _container;
         private readonly ILogger<BasicAuthenticationMiddleware> _logger;
         private readonly ITokenCache _tokenCache;
         private readonly ICredentialTokenProvider _provider;
         private readonly bool _hasProvider;
         private readonly ActivitySource _activitySource;
 
-        public BasicAuthenticationMiddleware(RequestDelegate next, IContainerResolve container, BasicAuthenticationContextOption option)
+        public BasicAuthenticationMiddleware(RequestDelegate next, IServiceProvider container, BasicAuthenticationContextOption option)
         {
             _next = next ?? throw new ArgumentNullException(nameof(next));
 
@@ -38,7 +38,7 @@ namespace Arc4u.Standard.OAuth2.Middleware
             if (null == option.Settings)
                 throw new ArgumentNullException("Settings defined in option cannot be null.");
 
-            _logger = container.Resolve<ILogger<BasicAuthenticationMiddleware>>();
+            _logger = container.GetRequiredService<ILogger<BasicAuthenticationMiddleware>>();
 
             if (!string.IsNullOrEmpty(option.DefaultUpn))
             {
@@ -54,7 +54,7 @@ namespace Arc4u.Standard.OAuth2.Middleware
 
             if (option.Settings.Values.ContainsKey(TokenKeys.ProviderIdKey))
             {
-                _hasProvider = container.TryResolve(option.Settings.Values[TokenKeys.ProviderIdKey], out _provider);
+                _hasProvider = container.TryGetService(option.Settings.Values[TokenKeys.ProviderIdKey], out _provider);
                 if (!_hasProvider)
                     _logger.Technical().Error($"No token provider was found with resolution name equal to: {option.Settings.Values[TokenKeys.ProviderIdKey]}.").Log();
             }
@@ -66,15 +66,14 @@ namespace Arc4u.Standard.OAuth2.Middleware
                 _logger.Technical().Error($"Basic Authentication capability is deactivated!").Log();
             }
 
-            if (!container.TryResolve(out _tokenCache))
+            if (!container.TryGetService(out _tokenCache))
             {
                 _logger.Technical().Error($"No token ache are defined for Basic Authentication.").Log();
             }
 
             _option = option;
-            _container = container;
 
-            _activitySource = container.Resolve<IActivitySourceFactory>()?.GetArc4u();
+            _activitySource = container.GetService<IActivitySourceFactory>()?.GetArc4u();
         }
 
         public async Task Invoke(HttpContext context)
