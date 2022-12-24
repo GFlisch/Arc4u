@@ -12,12 +12,12 @@ using System.Threading.Tasks;
 
 namespace Arc4u.OAuth2.Events;
 
-public class CustomCookieEvents : CookieAuthenticationEvents
+public class StandardCookieEvents : CookieAuthenticationEvents
 {
-    public CustomCookieEvents(IServiceProvider serviceProvider, 
-                              ILogger<CustomCookieEvents> logger,
-                              IOptions<OidcAuthenticationOptions> oidcOptions, 
-                              ITokenRefreshProvider tokenRefreshProvider)
+    public StandardCookieEvents(IServiceProvider serviceProvider, 
+                                ILogger<StandardCookieEvents> logger,
+                                IOptions<OidcAuthenticationOptions> oidcOptions, 
+                                ITokenRefreshProvider tokenRefreshProvider)
     {
         _serviceProvider = serviceProvider;
         _logger = logger;
@@ -28,7 +28,7 @@ public class CustomCookieEvents : CookieAuthenticationEvents
     private readonly IServiceProvider _serviceProvider;
     private readonly OidcAuthenticationOptions _oidcOptions;
     private readonly ITokenRefreshProvider _tokenRefreshProvider;
-    private readonly ILogger<CustomCookieEvents> _logger;
+    private readonly ILogger<StandardCookieEvents> _logger;
 
     public override async Task ValidatePrincipal(CookieValidatePrincipalContext cookieCtx)
     {
@@ -44,12 +44,15 @@ public class CustomCookieEvents : CookieAuthenticationEvents
         var refreshThreshold = _oidcOptions.ForceRefreshTimeoutTimeSpan;
 
         _logger?.LogDebug("Extract token from the cookie cache.");
+        
         // Persist the Access and Refresh tokens.
+        // TokenRefreshInfo is registered as Scoped and we create at this moment (by request) an instance to
+        // set the information stored in the TicketStore repo based on the cookie information.
         var tokensInfo = _serviceProvider.GetService<TokenRefreshInfo>();
 
-        tokensInfo.AccessToken = new TokenInfo("access_token", cookieCtx.Properties.GetTokenValue("access_token"));
-        // for AzureAD => we need to extract from the properties the expire date.
-        tokensInfo.RefreshToken = new TokenInfo("refresh_token", cookieCtx.Properties.GetTokenValue("refresh_token"), DateTime.UtcNow.AddHours(1));
+        tokensInfo.AccessToken = new TokenInfo("access_token", cookieCtx.Properties.GetTokenValue("access_token"), accessTokenExpiration.UtcDateTime);
+        // As not all the autorities are using a jwt token for the refresh token, the expiration date is not  extracted from the token
+        tokensInfo.RefreshToken = new TokenInfo("refresh_token", cookieCtx.Properties.GetTokenValue("refresh_token"), cookieCtx.Properties.ExpiresUtc.Value.UtcDateTime);
 
         if (timeRemaining < refreshThreshold)
         {

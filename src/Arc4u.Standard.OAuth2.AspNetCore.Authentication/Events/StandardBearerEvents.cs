@@ -9,10 +9,10 @@ using System.Threading.Tasks;
 
 namespace Arc4u.OAuth2.Events;
 
-public class CustomBearerEvents : JwtBearerEvents
+public class StandardBearerEvents : JwtBearerEvents
 {
-    private readonly ILogger<CustomBearerEvents> _logger;
-    public CustomBearerEvents(ILogger<CustomBearerEvents> logger)
+    private readonly ILogger<StandardBearerEvents> _logger;
+    public StandardBearerEvents(ILogger<StandardBearerEvents> logger)
     {
         _logger = logger;
     }

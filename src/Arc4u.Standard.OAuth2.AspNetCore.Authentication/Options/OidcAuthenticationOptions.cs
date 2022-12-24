@@ -21,11 +21,11 @@ public class OidcAuthenticationOptions
 
     public IDataProtectionProvider  DataProtectionProvider { get; set; }
 
-    public Type JwtBearerEventsType { get; set; } = typeof(CustomBearerEvents);
+    public Type JwtBearerEventsType { get; set; } = typeof(StandardBearerEvents);
 
-    public Type CookieAuthenticationEventsType { get; set; } = typeof(CustomCookieEvents);
+    public Type CookieAuthenticationEventsType { get; set; } = typeof(StandardCookieEvents);
 
-    public Type OpenIdConnectEventsType { get; set; } = typeof(CustomOpenIdConnectEvents);
+    public Type OpenIdConnectEventsType { get; set; } = typeof(StandardOpenIdConnectEvents);
 
     public TimeSpan ForceRefreshTimeoutTimeSpan { get; set; } = TimeSpan.FromMinutes(15);
 }

@@ -86,7 +86,7 @@ public class RefreshTokenProvider : ITokenRefreshProvider
             using (var payload = JsonDocument.Parse(await tokenResponse.Content.ReadAsStringAsync()))
             {
                 // Persist the new acess token
-                _tokenRefreshInfo.RefreshToken = new Token.TokenInfo("refresh_token", payload!.RootElement!.GetString("refresh_token"));
+                _tokenRefreshInfo.RefreshToken = new Token.TokenInfo("refresh_token", payload!.RootElement!.GetString("refresh_token"), _tokenRefreshInfo.RefreshToken.ExpiresOnUtc);
                 if (payload.RootElement.TryGetProperty("expires_in", out var property) && property.TryGetInt32(out var seconds))
                 {
                     var expirationAt = DateTimeOffset.UtcNow + TimeSpan.FromSeconds(seconds);
@@ -104,6 +104,7 @@ public class RefreshTokenProvider : ITokenRefreshProvider
 
     public void SignOut(IKeyValueSettings settings)
     {
+        // there is no Signout on a provider for the token refresh...
         throw new NotImplementedException();
     }
 }

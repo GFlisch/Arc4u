@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace Arc4u.OAuth2.Events;
 
-public class CustomOpenIdConnectEvents : OpenIdConnectEvents
+public class StandardOpenIdConnectEvents : OpenIdConnectEvents
 {
-    private readonly ILogger<CustomOpenIdConnectEvents> _logger;
-    public CustomOpenIdConnectEvents(ILogger<CustomOpenIdConnectEvents> logger)
+    private readonly ILogger<StandardOpenIdConnectEvents> _logger;
+    public StandardOpenIdConnectEvents(ILogger<StandardOpenIdConnectEvents> logger)
     {
         _logger = logger;
     }

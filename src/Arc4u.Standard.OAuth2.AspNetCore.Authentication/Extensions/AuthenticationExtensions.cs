@@ -9,14 +9,6 @@ using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.Net.Http.Headers;
 using System;
 using System.Linq;
-using Arc4u.Standard.OAuth2;
-using Arc4u.OAuth2;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Arc4u.OAuth2.TokenProviders;
-using System.Collections.Generic;
 
 namespace Arc4u.Standard.OAuth2.Extensions;
 
@@ -25,14 +17,12 @@ public static partial class AuthenticationExtensions
     public static AuthenticationBuilder AddOidcAuthentication(this IServiceCollection services, Action<OidcAuthenticationOptions> authenticationOptions)
     {
         ArgumentNullException.ThrowIfNull(services);
-
         ArgumentNullException.ThrowIfNull(authenticationOptions);
 
         var oidcOptions = new OidcAuthenticationOptions();
         authenticationOptions(oidcOptions);
 
         ArgumentNullException.ThrowIfNull(oidcOptions.OAuth2Settings);
-
         ArgumentNullException.ThrowIfNull(oidcOptions.OpenIdSettings);
 
         // Will keep in memory the AccessToken and Refresh token for the time of the request...
@@ -43,8 +33,9 @@ public static partial class AuthenticationExtensions
         services.AddTransient(oidcOptions.CookieAuthenticationEventsType);
         services.AddTransient(oidcOptions.JwtBearerEventsType);
         services.AddTransient(oidcOptions.OpenIdConnectEventsType);
-        // OAuth.
-        var (instance, tenantId) = ExtractFromAuthority(oidcOptions.OAuth2Settings);
+        
+        // OAuth2.
+        //var (instance, tenantId) = ExtractFromAuthority(oidcOptions.OAuth2Settings);
 
         var authenticationBuilder = services
                 .AddAuthentication(auth =>
@@ -125,7 +116,7 @@ public static partial class AuthenticationExtensions
 
 
         // OpenId Connect
-        (instance, tenantId) = ExtractFromAuthority(oidcOptions.OpenIdSettings);
+        //(instance, tenantId) = ExtractFromAuthority(oidcOptions.OpenIdSettings);
 
 
 
@@ -170,19 +161,19 @@ public static partial class AuthenticationExtensions
         return authenticationBuilder;
     }
 
-    private static (string instance, string tenantId) ExtractFromAuthority(IKeyValueSettings settings)
-    {
-        var authority = new Uri(settings.Values[TokenKeys.AuthorityKey]);
+    //private static (string instance, string tenantId) ExtractFromAuthority(IKeyValueSettings settings)
+    //{
+    //    var authority = new Uri(settings.Values[TokenKeys.AuthorityKey]);
 
-        var instance = authority.GetLeftPart(UriPartial.Authority);
-        var tenantId = authority.AbsolutePath.Trim(new char[] { '/', ' ' });
+    //    var instance = authority.GetLeftPart(UriPartial.Authority);
+    //    var tenantId = authority.AbsolutePath.Trim(new char[] { '/', ' ' });
 
-        if (settings.Values.ContainsKey(TokenKeys.TenantIdKey))
-            tenantId = settings.Values[TokenKeys.TenantIdKey];
+    //    if (settings.Values.ContainsKey(TokenKeys.TenantIdKey))
+    //        tenantId = settings.Values[TokenKeys.TenantIdKey];
 
-        if (settings.Values.ContainsKey(TokenKeys.InstanceKey))
-            instance = settings.Values[TokenKeys.InstanceKey];
+    //    if (settings.Values.ContainsKey(TokenKeys.InstanceKey))
+    //        instance = settings.Values[TokenKeys.InstanceKey];
 
-        return (instance, tenantId);
-    }
+    //    return (instance, tenantId);
+    //}
 }

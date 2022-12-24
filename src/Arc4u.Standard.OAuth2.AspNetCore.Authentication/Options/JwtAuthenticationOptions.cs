@@ -11,5 +11,5 @@ public class JwtAuthenticationOptions
 
     public bool ValidateAuthority { get; set; }
 
-    public Type JwtBearerEventsType { get; set; } = typeof(CustomBearerEvents);
+    public Type JwtBearerEventsType { get; set; } = typeof(StandardBearerEvents);
 }
