@@ -17,9 +17,7 @@ public class OidcAuthenticationOptions
 
     public bool ValidateAuthority { get; set; }
 
-    public ITicketStore TicketStore { get; set; }
-
-    public IDataProtectionProvider  DataProtectionProvider { get; set; }
+    public ITicketStore? TicketStore { get; set; }
 
     public Type JwtBearerEventsType { get; set; } = typeof(StandardBearerEvents);
 

@@ -35,7 +35,6 @@ public static partial class AuthenticationExtensions
         services.AddTransient(oidcOptions.OpenIdConnectEventsType);
         
         // OAuth2.
-        //var (instance, tenantId) = ExtractFromAuthority(oidcOptions.OAuth2Settings);
 
         var authenticationBuilder = services
                 .AddAuthentication(auth =>
@@ -107,18 +106,10 @@ public static partial class AuthenticationExtensions
                 {
                     options.Cookie.Name = oidcOptions.CookieName;
                     options.SessionStore = oidcOptions.TicketStore;
-                    options.DataProtectionProvider = oidcOptions.DataProtectionProvider;
                     options.SlidingExpiration = true;
                     options.ExpireTimeSpan = TimeSpan.FromDays(7);
                     options.EventsType = oidcOptions.CookieAuthenticationEventsType;
                 });
-
-
-
-        // OpenId Connect
-        //(instance, tenantId) = ExtractFromAuthority(oidcOptions.OpenIdSettings);
-
-
 
         return authenticationBuilder;
 
@@ -160,20 +151,4 @@ public static partial class AuthenticationExtensions
 
         return authenticationBuilder;
     }
-
-    //private static (string instance, string tenantId) ExtractFromAuthority(IKeyValueSettings settings)
-    //{
-    //    var authority = new Uri(settings.Values[TokenKeys.AuthorityKey]);
-
-    //    var instance = authority.GetLeftPart(UriPartial.Authority);
-    //    var tenantId = authority.AbsolutePath.Trim(new char[] { '/', ' ' });
-
-    //    if (settings.Values.ContainsKey(TokenKeys.TenantIdKey))
-    //        tenantId = settings.Values[TokenKeys.TenantIdKey];
-
-    //    if (settings.Values.ContainsKey(TokenKeys.InstanceKey))
-    //        instance = settings.Values[TokenKeys.InstanceKey];
-
-    //    return (instance, tenantId);
-    //}
 }
