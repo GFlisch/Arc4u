@@ -12,6 +12,8 @@ namespace Arc4u.OAuth2.Configuration
     [Export, Shared]
     public class OAuthConfig
     {
+        public string UserIdentifier { get; }
+
         private readonly HashSet<string> _identityClaimNames;
         private readonly ILogger<OAuthConfig> _logger;
 
@@ -21,6 +23,8 @@ namespace Arc4u.OAuth2.Configuration
 
             var userConfig = new UserConfig();
             configuration.Bind("Application.TokenCacheConfiguration:User", userConfig);
+
+            UserIdentifier = userConfig.Identifier;
 
             _identityClaimNames = new HashSet<string>(userConfig.Claims.Select(claimName => claimName.ToLowerInvariant()).Distinct());
 

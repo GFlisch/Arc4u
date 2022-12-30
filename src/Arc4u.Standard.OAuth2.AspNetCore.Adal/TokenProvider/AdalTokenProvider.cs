@@ -76,7 +76,7 @@ namespace Arc4u.OAuth2.TokenProvider
             {
                 _logger.Technical().System("Acquire a token silently for an application identified by his application key.").Log();
 
-                if (Enum.TryParse<UserIdentifierType>(oAuthConfig.User.Identifier, out var identifier))
+                if (Enum.TryParse<UserIdentifierType>(oAuthConfig.UserIdentifier, out var identifier))
                     result = await authContext.AcquireTokenSilentAsync(serviceApplicationId, credential, new UserIdentifier(userObjectId, identifier));
             }
 
@@ -89,7 +89,6 @@ namespace Arc4u.OAuth2.TokenProvider
 
             return result;
         }
-
 
         /// <summary>
         /// Get a context for the different scenarios.
@@ -163,7 +162,7 @@ namespace Arc4u.OAuth2.TokenProvider
             }
             else
             {
-                userObjectId = oAuthConfig.UserClaimIdentifier(this.identity);
+                userObjectId = oAuthConfig.GetClaimsKey(this.identity);
                 if (String.IsNullOrWhiteSpace(userObjectId))
                 {
                     messages.Add(new Message(Arc4u.ServiceModel.MessageCategory.Technical, Arc4u.ServiceModel.MessageType.Error, "No user object identifier is found in the claims collection to identify the user."));

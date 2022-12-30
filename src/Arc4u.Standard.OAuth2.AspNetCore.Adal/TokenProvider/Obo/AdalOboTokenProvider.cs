@@ -151,7 +151,7 @@ namespace Arc4u.OAuth2.TokenProvider
                     credential = null;
                 }
 
-                var userObjectId = oAuthConfig.UserClaimIdentifier(identity);
+                var userObjectId = oAuthConfig.GetClaimsKey(identity);
                 if (String.IsNullOrWhiteSpace(userObjectId))
                 {
                     messages.Add(new Message(ServiceModel.MessageCategory.Technical, MessageType.Error, "No user object identifier is found in the claims collection to identify the user."));
