@@ -224,4 +224,21 @@ public class SftpClientFacadeTest
         sut.IsActive.Should().BeTrue();
         activeMock.Verify(client => client.IsConnected);
     }
+    
+    [Fact]
+    public void Release_Called()
+    {
+        var activeMock = new Mock<IActiveState>();
+        var mock = activeMock.As<ISftpClient>();
+        SftpClientFacade? releasedItem = null;
+        var sut = new SftpClientFacade(mock.Object, facade =>
+        {
+            releasedItem = facade;
+            return Task.CompletedTask;
+        }, new NullLogger<SftpClientFacade>());
+
+        sut.ReleaseClient?.Invoke(sut);
+
+        releasedItem.Should().BeSameAs(sut);
+    }
 }
