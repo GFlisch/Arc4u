@@ -1,32 +1,31 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Threading.Tasks;
-#nullable enable
-namespace Arc4u.Network.Pooling
+
+namespace Arc4u.Network.Pooling;
+
+public abstract class PoolableItem : IDisposable
 {
-    public abstract class PoolableItem : IDisposable
+    protected PoolableItem(Func<PoolableItem, Task>? releaseClient)
     {
-        protected PoolableItem(Func<PoolableItem, Task>? releaseClient)
-        {
-            ReleaseClient = releaseClient;
-        }
+        ReleaseClient = releaseClient;
+    }
 
-        public abstract bool IsActive { get; }
+    public abstract bool IsActive { get; }
 
-        public Func<PoolableItem, Task>? ReleaseClient { get; }
+    public Func<PoolableItem, Task>? ReleaseClient { get; }
 
-        public void Dispose()
-        {
-            Dispose(true);
+    public void Dispose()
+    {
+        Dispose(true);
 
-            ReleaseClient?.Invoke(this);
+        ReleaseClient?.Invoke(this);
 
-            GC.SuppressFinalize(this);
-        }
+        GC.SuppressFinalize(this);
+    }
 
-        protected virtual void Dispose(bool disposing)
-        {
-            
-        }
+    protected virtual void Dispose(bool disposing)
+    {
     }
 }
 #nullable restore
