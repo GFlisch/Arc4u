@@ -10,7 +10,7 @@ using Renci.SshNet.Common;
 
 namespace Arc4u.Standard.Ftp;
 
-public class SftpClientFacade : PoolableItem, IMftClient
+public class SftpClientFacade : PoolableItem, IRemoteFileSystem
 {
     private readonly SftpClient _client;
     private readonly ILogger<SftpClientFacade> _logger;
@@ -24,12 +24,13 @@ public class SftpClientFacade : PoolableItem, IMftClient
 
     public override bool IsActive => _client.IsConnected;
 
-    // SFTP Client
+    /// <inheritdoc />
     public void ChangeDirectory(string path)
     {
         _client.ChangeDirectory(path);
     }
 
+    /// <inheritdoc />
     public void UploadFile(Stream input, string path)
     {
         try
@@ -43,6 +44,7 @@ public class SftpClientFacade : PoolableItem, IMftClient
         }
     }
 
+    /// <inheritdoc />
     public void DownloadFile(string path, Stream output)
     {
         try
@@ -56,6 +58,7 @@ public class SftpClientFacade : PoolableItem, IMftClient
         }
     }
 
+    /// <inheritdoc />
     public bool Exists(string path)
     {
         try
@@ -69,6 +72,7 @@ public class SftpClientFacade : PoolableItem, IMftClient
         }
     }
 
+    /// <inheritdoc />
     public void RenameFile(string oldPath, string newPath)
     {
         try
@@ -82,6 +86,7 @@ public class SftpClientFacade : PoolableItem, IMftClient
         }
     }
 
+    /// <inheritdoc />
     public void DeleteFile(string path)
     {
         try
@@ -94,8 +99,8 @@ public class SftpClientFacade : PoolableItem, IMftClient
             throw;
         }
     }
-
-    //IListDirectory
+    
+    /// <inheritdoc />
     public ICollection<string> ListFiles(string path)
     {
         try
@@ -109,11 +114,15 @@ public class SftpClientFacade : PoolableItem, IMftClient
         }
     }
 
+    /// <inheritdoc />
     public ICollection<string> ListDirectories(string path)
     {
         try
         {
-            return _client.ListDirectory(path).Where(x => x.IsDirectory).Select(x => x.FullName).ToList();
+            return _client.ListDirectory(path)
+                .Where(x => x.IsDirectory)
+                .Select(x => x.FullName)
+                .ToList();
         }
         catch (SftpPathNotFoundException e)
         {
