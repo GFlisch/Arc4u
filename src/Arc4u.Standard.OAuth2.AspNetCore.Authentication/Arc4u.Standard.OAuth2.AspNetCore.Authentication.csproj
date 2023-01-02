@@ -1,5 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+		<PropertyGroup Label="Globals">
+				<SccProjectName>SAK</SccProjectName>
+				<SccProvider>SAK</SccProvider>
+				<SccAuxPath>SAK</SccAuxPath>
+				<SccLocalPath>SAK</SccLocalPath>
+		</PropertyGroup>
+		
 		<PropertyGroup>
 				<TargetFrameworks>net6.0;net7.0</TargetFrameworks>
 				<GeneratePackageOnBuild>true</GeneratePackageOnBuild>

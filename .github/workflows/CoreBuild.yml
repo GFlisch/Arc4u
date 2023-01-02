@@ -140,7 +140,7 @@ jobs:
       - name: Change Arc4u.Standard.OAuth2.Msal versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.OAuth2.Msal.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
         shell: powershell        
-      - name: Change Arc4u.Standard.OAuth2.Msal versions
+      - name: Change Arc4u.Standard.OAuth2.Authentication versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.OAuth2.Authentication.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
         shell: powershell        
       - name: Change Arc4u.Standard.OAuth2.AspNetCore versions
