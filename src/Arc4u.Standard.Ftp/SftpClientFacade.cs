@@ -12,17 +12,32 @@ namespace Arc4u.Standard.Ftp;
 
 public class SftpClientFacade : PoolableItem, IRemoteFileSystem
 {
-    private readonly SftpClient _client;
+    private readonly ISftpClient _client;
     private readonly ILogger<SftpClientFacade> _logger;
 
-    public SftpClientFacade(SftpClient client, Func<SftpClientFacade, Task> releaseFunc,
+    private readonly Func<bool> _isActive;
+    
+    public SftpClientFacade(ISftpClient client, Func<SftpClientFacade, Task> releaseFunc,
         ILogger<SftpClientFacade> logger) : base(item => releaseFunc((SftpClientFacade) item))
     {
         _client = client;
         _logger = logger;
+        switch (client)
+        {
+            case BaseClient baseClient:
+                _isActive = () => baseClient.IsConnected;
+                break;
+            case IActiveState activeState:
+                _isActive = () => activeState.IsConnected;
+                break;
+            default:
+                throw new ArgumentException(
+                    $"{nameof(client)} must implement {typeof(BaseClient).FullName} or {typeof(IActiveState).FullName} in order to be used as client",
+                    nameof(client));
+        }
     }
 
-    public override bool IsActive => _client.IsConnected;
+    public override bool IsActive => _isActive();
 
     /// <inheritdoc />
     public void ChangeDirectory(string path)
