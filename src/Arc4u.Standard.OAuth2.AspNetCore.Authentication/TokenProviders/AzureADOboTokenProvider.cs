@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http;
 using System.Text.Json;
@@ -24,13 +25,15 @@ public class AzureADOboTokenProvider : ITokenProvider
 
     public AzureADOboTokenProvider(TokenRefreshInfo tokenRefreshInfo,
                                    CacheContext cacheContext, 
-                                   IOptionsMonitor<OpenIdConnectOptions> openIdConnectOptions, 
+                                   IOptionsMonitor<OpenIdConnectOptions> openIdConnectOptions,
+                                   IActivitySourceFactory activitySourceFactory,
                                    ILogger<AzureADOboTokenProvider> logger)
     {
         _logger = logger;
         _openIdConnectOptions= openIdConnectOptions.Get(OpenIdConnectDefaults.AuthenticationScheme);
         _cacheContext = cacheContext;
         _tokenRefreshInfo = tokenRefreshInfo;
+        _activitySource = activitySourceFactory?.GetArc4u();
     }
 
     const string ProviderName = "Obo";
@@ -41,11 +44,15 @@ public class AzureADOboTokenProvider : ITokenProvider
     private OpenIdConnectConfiguration? _metadata;
     private readonly CacheContext _cacheContext;
     private readonly TokenRefreshInfo _tokenRefreshInfo;
+    private readonly ActivitySource _activitySource;
+    
 
     public async Task<TokenInfo> GetTokenAsync(IKeyValueSettings settings, object platformParameters)
     {
         ArgumentNullException.ThrowIfNull(_openIdConnectOptions, nameof(_openIdConnectOptions));
         ArgumentNullException.ThrowIfNull(settings, nameof(settings));
+
+        using var activity = _activitySource?.StartActivity("Get on behal of token", ActivityKind.Producer);
 
         var cache = string.IsNullOrEmpty(_cacheContext.Principal?.CacheName) ? _cacheContext.Default : _cacheContext[_cacheContext.Principal?.CacheName];
 

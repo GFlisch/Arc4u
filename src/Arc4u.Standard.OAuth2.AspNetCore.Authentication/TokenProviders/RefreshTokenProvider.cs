@@ -9,6 +9,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Logging;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading;
@@ -29,24 +30,29 @@ public class RefreshTokenProvider : ITokenRefreshProvider
     public RefreshTokenProvider(TokenRefreshInfo refreshInfo, 
                                 IOptionsMonitor<OpenIdConnectOptions> openIdConnectOptions, 
                                 IOptions<OidcAuthenticationOptions> oidcOptions,
+                                IActivitySourceFactory activitySourceFactory,
                                 ILogger<RefreshTokenProvider> logger)
     {
         _tokenRefreshInfo = refreshInfo;
         _openIdConnectOptions = openIdConnectOptions;
         _oidcOptions = oidcOptions.Value;
         _logger = logger;
+        _activitySource = activitySourceFactory?.GetArc4u();
     }
 
     private readonly TokenRefreshInfo _tokenRefreshInfo;
     private readonly IOptionsMonitor<OpenIdConnectOptions> _openIdConnectOptions;
     private readonly OidcAuthenticationOptions _oidcOptions;
     private readonly ILogger<RefreshTokenProvider> _logger;
+    private readonly ActivitySource _activitySource;
 
     public async Task<TokenInfo> GetTokenAsync(IKeyValueSettings settings, object platformParameters)
     {
         ArgumentNullException.ThrowIfNull(_tokenRefreshInfo, nameof(_tokenRefreshInfo));
         ArgumentNullException.ThrowIfNull(_openIdConnectOptions, nameof(_openIdConnectOptions));
         ArgumentNullException.ThrowIfNull(_oidcOptions, nameof(_oidcOptions));
+
+        using var activity = _activitySource?.StartActivity("Get on behal of token", ActivityKind.Producer);
 
         // Check if the token refresh is not expired. 
         // if yes => we have to log this and return a Unauthorized!
