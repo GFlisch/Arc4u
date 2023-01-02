@@ -44,7 +44,7 @@ public class AzureADOboTokenProvider : ITokenProvider
     private OpenIdConnectConfiguration? _metadata;
     private readonly CacheContext _cacheContext;
     private readonly TokenRefreshInfo _tokenRefreshInfo;
-    private readonly ActivitySource _activitySource;
+    private readonly ActivitySource? _activitySource;
     
 
     public async Task<TokenInfo> GetTokenAsync(IKeyValueSettings settings, object platformParameters)
