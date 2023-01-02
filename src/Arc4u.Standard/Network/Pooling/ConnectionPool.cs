@@ -73,9 +73,17 @@ public class ConnectionPool<T> : IDisposable where T : PoolableItem
 
     protected virtual void Dispose(bool disposing)
     {
+        foreach (var item in _standbyClients.ToList())
+        {
+            item.Dispose();
+        }
+
         while (!_standbyClients.IsEmpty)
-            if (_standbyClients.TryTake(out var client))
-                client.Dispose();
+        {
+            if (_standbyClients.TryTake(out _))
+            {
+            }
+        }
     }
 
     private T GetNextClient()

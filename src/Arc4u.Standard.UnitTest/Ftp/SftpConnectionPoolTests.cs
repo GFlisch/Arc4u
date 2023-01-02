@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
 using Arc4u.Network.Pooling;
@@ -79,6 +80,41 @@ public class SftpConnectionPoolTests
         sut.ConnectionsCount.Should().Be(1);
     }
 
+    [Fact]
+    public void SftpConnection_Client_Should_ReturnSameClient()
+    {
+        var sut = BuildConnectionPool();
+        var firstClient = sut.GetClient();
+        firstClient.Dispose();
+        var secondClient = sut.GetClient();
+        secondClient.Should().BeSameAs(firstClient);
+    }
+    
+    [Fact]
+    public void  SftpConnection_Client_Should_ReturnDifferentClient()
+    {
+        var sut = BuildConnectionPool();
+        var firstClient = sut.GetClient();
+        var secondClient = sut.GetClient();
+        secondClient.Should().NotBeSameAs(firstClient);
+    }
+    
+    
+    [Fact]
+    public void  SftpConnection_Dispose_Should_DisposeEverything()
+    {
+        List<TestPoolableItem> disposedObjects = new List<TestPoolableItem>();
+        var sut = BuildConnectionPool(item => disposedObjects.Add(item));
+        var firstClient = sut.GetClient();
+        var secondClient = sut.GetClient();
+        var thirdClient = sut.GetClient();
+        firstClient.Dispose();
+        secondClient.Dispose();
+        sut.Dispose();
+        disposedObjects.Should()
+            .OnlyContain(item => ReferenceEquals(item, firstClient) || ReferenceEquals(item, secondClient));
+    }
+    
     private Task ReleaseClient<T>(ConnectionPool<T> pool, T item) where T : PoolableItem
     {
         var releaseMethod =
@@ -88,14 +124,18 @@ public class SftpConnectionPoolTests
         return (Task) releaseMethod!.Invoke(pool, new object[] {item});
     }
 
-    private ConnectionPool<PoolableItem> BuildConnectionPool()
+    private ConnectionPool<PoolableItem> BuildConnectionPool( Action<TestPoolableItem> customRelease = null )
     {
         ConnectionPool<PoolableItem> ret = null!;
 
         var frozenYoghurt = _fixture.Freeze<Mock<IClientFactory<TestPoolableItem>>>();
-        Func<TestPoolableItem, Task> foo = item => ReleaseClient(ret!, item);
+        Func<TestPoolableItem, Task> foo = item =>
+        {
+            customRelease?.Invoke(item);
+            return ReleaseClient(ret!, item);
+        };
         frozenYoghurt.Setup(factory => factory.CreateClient(It.IsAny<Func<TestPoolableItem, Task>>()))
-           .Returns(new TestPoolableItem(foo));
+           .Returns(()=>new TestPoolableItem(foo));
 
         var clientFactory = frozenYoghurt.Object;
         ret = new ConnectionPool<PoolableItem>(Mock.Of<ILogger<ConnectionPool<PoolableItem>>>(),
@@ -117,6 +157,11 @@ public class SftpConnectionPoolTests
         public TestPoolableItem(bool isActive) : this()
         {
             IsActive = isActive;
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
         }
 
         public override bool IsActive { get; }
