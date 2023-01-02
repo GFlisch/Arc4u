@@ -16,14 +16,9 @@ public class StandardOpenIdConnectEvents : OpenIdConnectEvents
         _logger = logger;
     }
 
-    public override Task AuthorizationCodeReceived(AuthorizationCodeReceivedContext context)
-    {
-        return base.AuthorizationCodeReceived(context);
-    }
-
     public override Task RedirectToIdentityProvider(RedirectContext context)
     {
-        // Has been introduced for AzureAD => is it still needed for Keycloack?
+        // Has been introduced for AzureAD => works also for Keykloack.
         context.ProtocolMessage.State = Guid.NewGuid().ToString();
         return base.RedirectToIdentityProvider(context);
     }
@@ -37,7 +32,7 @@ public class StandardOpenIdConnectEvents : OpenIdConnectEvents
         context.Response.StatusCode = 500;
         context.Response.ContentType = "text/plain";
 
-        _logger.Technical().Exception(context.Exception);
+        _logger.Technical().LogException(context.Exception);
 
         await context.Response.WriteAsync("<html><p>You are not authenticated.</p></html>");
 

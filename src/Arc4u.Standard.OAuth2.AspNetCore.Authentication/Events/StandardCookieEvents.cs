@@ -48,6 +48,7 @@ public class StandardCookieEvents : CookieAuthenticationEvents
         // Persist the Access and Refresh tokens.
         // TokenRefreshInfo is registered as Scoped and we create at this moment (by request) an instance to
         // set the information stored in the TicketStore repo based on the cookie information.
+        
         var tokensInfo = _serviceProvider.GetService<TokenRefreshInfo>();
 
         tokensInfo.AccessToken = new TokenInfo("access_token", cookieCtx.Properties.GetTokenValue("access_token"), accessTokenExpiration.UtcDateTime);

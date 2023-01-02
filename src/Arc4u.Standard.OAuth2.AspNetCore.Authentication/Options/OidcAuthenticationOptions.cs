@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 using System;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Arc4u.OAuth2.Options;
 
@@ -26,4 +27,6 @@ public class OidcAuthenticationOptions
     public Type OpenIdConnectEventsType { get; set; } = typeof(StandardOpenIdConnectEvents);
 
     public TimeSpan ForceRefreshTimeoutTimeSpan { get; set; } = TimeSpan.FromMinutes(15);
+
+    public X509Certificate2? CertSecurityKey { get; set; }
 }

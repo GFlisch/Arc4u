@@ -9,6 +9,8 @@ using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.Net.Http.Headers;
 using System;
 using System.Linq;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Arc4u.Standard.OAuth2.Extensions;
 
@@ -33,8 +35,9 @@ public static partial class AuthenticationExtensions
         services.AddTransient(oidcOptions.CookieAuthenticationEventsType);
         services.AddTransient(oidcOptions.JwtBearerEventsType);
         services.AddTransient(oidcOptions.OpenIdConnectEventsType);
-        
+
         // OAuth2.
+        SecurityKey? securityKey = oidcOptions.CertSecurityKey is not null ? new X509SecurityKey(oidcOptions.CertSecurityKey) : null;
 
         var authenticationBuilder = services
                 .AddAuthentication(auth =>
@@ -68,20 +71,27 @@ public static partial class AuthenticationExtensions
                     //options.ResponseType = OpenIdConnectResponseType.CodeIdTokenToken;
                     // for AzureAD
                     options.ResponseType = OpenIdConnectResponseType.Code;
-                    //options.Scope = "openid profile offline_access";
-                    //OpenIdConnectScope.
+
 
                     options.Scope.Clear();
                     options.Scope.Add(OpenIdConnectScope.OpenIdProfile);
                     options.Scope.Add(OpenIdConnectScope.OfflineAccess);
+                    foreach (var scope in SplitString(oidcOptions.OpenIdSettings.Values[TokenKeys.Scopes]))
+                        options.Scope.Add(scope);
 
                     options.ClientId = oidcOptions.OpenIdSettings.Values[TokenKeys.ClientIdKey];
                     options.ClientSecret = oidcOptions.OpenIdSettings.Values[TokenKeys.ApplicationKey];
-                    options.GetClaimsFromUserInfoEndpoint = true;
+                    // we don't call the user info endpoint => On AzureAd the user.read scope is needed.
+                    options.GetClaimsFromUserInfoEndpoint = false;
                     
                     options.TokenValidationParameters.SaveSigninToken = false;
                     options.TokenValidationParameters.AuthenticationType = Constants.CookiesAuthenticationType;
                     options.TokenValidationParameters.ValidateAudience = true;
+                    // we will use the same key to generate and validate so we can use this also in the different services...
+                    if (securityKey is not null)
+                    {
+                        options.TokenValidationParameters.IssuerSigningKey = securityKey;
+                    }
                     options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                     options.SaveTokens = true;
                     options.AuthenticationMethod = OpenIdConnectRedirectBehavior.FormPost;
@@ -100,7 +110,10 @@ public static partial class AuthenticationExtensions
                     option.TokenValidationParameters.AuthenticationType = Constants.BearerAuthenticationType;
                     option.TokenValidationParameters.ValidateIssuer = false;
                     option.TokenValidationParameters.ValidateAudience = true;
-                    option.TokenValidationParameters.ValidAudiences = new[] { "account" };
+                    option.TokenValidationParameters.ValidAudiences = SplitString(oidcOptions.OAuth2Settings.Values[Audiences]);
+                    if (securityKey is not null)
+                        option.TokenValidationParameters.IssuerSigningKey = securityKey;
+
                     option.EventsType = oidcOptions.JwtBearerEventsType;
                 }).AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
                 {
@@ -137,6 +150,8 @@ public static partial class AuthenticationExtensions
         services.AddAuthentication(auth => auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(option =>
                 {
+                    SecurityKey? securityKey = options.CertSecurityKey is not null ? new X509SecurityKey(options.CertSecurityKey) : null;
+
                     option.RequireHttpsMetadata = false;
                     option.Authority = options.OAuth2Settings.Values[TokenKeys.AuthorityKey];
                     option.MetadataAddress = options.MetadataAddress;
@@ -145,10 +160,18 @@ public static partial class AuthenticationExtensions
                     option.TokenValidationParameters.AuthenticationType = Constants.BearerAuthenticationType;
                     option.TokenValidationParameters.ValidateIssuer = false;
                     option.TokenValidationParameters.ValidateAudience = true;
-                    option.TokenValidationParameters.ValidAudiences = new[] { "account" };
+                    option.TokenValidationParameters.ValidAudiences = SplitString(options.OAuth2Settings.Values[Audiences]);
+                    if (securityKey is not null)
+                        option.TokenValidationParameters.IssuerSigningKey = securityKey;
                     option.EventsType = options.JwtBearerEventsType;
                 });
 
         return authenticationBuilder;
     }
+
+    static string[] SplitString(string value) => value.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToArray();
+
+    public const string Audiences = "Audiences";
+
+
 }

@@ -1,5 +1,6 @@
 ﻿using Arc4u.OAuth2.Events;
 using System;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Arc4u.OAuth2.Options;
 
@@ -12,4 +13,6 @@ public class JwtAuthenticationOptions
     public bool ValidateAuthority { get; set; }
 
     public Type JwtBearerEventsType { get; set; } = typeof(StandardBearerEvents);
+
+    public X509Certificate2? CertSecurityKey { get; set; }
 }

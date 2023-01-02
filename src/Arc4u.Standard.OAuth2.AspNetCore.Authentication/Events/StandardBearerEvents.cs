@@ -17,6 +17,11 @@ public class StandardBearerEvents : JwtBearerEvents
         _logger = logger;
     }
 
+    public override Task MessageReceived(MessageReceivedContext context)
+    {
+        return base.MessageReceived(context);
+    }
+
     /// <summary>
     /// Log the exception, reason why the authentication is failing.
     /// </summary>
