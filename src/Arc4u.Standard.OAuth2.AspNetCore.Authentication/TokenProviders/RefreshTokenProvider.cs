@@ -44,7 +44,7 @@ public class RefreshTokenProvider : ITokenRefreshProvider
     private readonly IOptionsMonitor<OpenIdConnectOptions> _openIdConnectOptions;
     private readonly OidcAuthenticationOptions _oidcOptions;
     private readonly ILogger<RefreshTokenProvider> _logger;
-    private readonly ActivitySource _activitySource;
+    private readonly ActivitySource? _activitySource;
 
     public async Task<TokenInfo> GetTokenAsync(IKeyValueSettings settings, object platformParameters)
     {
