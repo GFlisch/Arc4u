@@ -72,15 +72,19 @@ public static class StartupExtension
         serviceCollection.AddSingleton(configuration);
         return RegisterServices(serviceCollection);
     }
-    
+
     private static IServiceCollection RegisterServices(IServiceCollection serviceCollection)
     {
         serviceCollection.AddSingleton<Func<SftpClient>>(provider =>
         {
             return () =>
             {
-                var ftpConfig = provider.GetService<IFtpConfiguration>() ?? throw new ConfigurationException($"{nameof(IFtpConfiguration)} was not found in the DI");
-                var logger = provider.GetService<ILogger<SftpClient>>()?? throw new ConfigurationException($"{nameof(ILogger<SftpClient>)} was not found in the DI");;
+                var ftpConfig = provider.GetService<IFtpConfiguration>() ??
+                                throw new ConfigurationException(
+                                    $"{nameof(IFtpConfiguration)} was not found in the DI");
+                var logger = provider.GetService<ILogger<SftpClient>>() ??
+                             throw new ConfigurationException($"{nameof(ILogger<SftpClient>)} was not found in the DI");
+                ;
                 var c = new SftpClient(new ConnectionInfo(ftpConfig.Host, ftpConfig.Username,
                     new PasswordAuthenticationMethod(ftpConfig.Username, ftpConfig.Password)));
                 c.KeepAliveInterval = ftpConfig.KeepAliveInterval;
@@ -90,7 +94,7 @@ public static class StartupExtension
                 return c;
             };
         });
-        
+
         serviceCollection.AddSingleton<IClientFactory<SftpClientFacade>, SftpClientFactory>();
         serviceCollection.AddSingleton<ConnectionPool<SftpClientFacade>>();
         return serviceCollection;

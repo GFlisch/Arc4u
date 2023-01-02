@@ -13,10 +13,10 @@ namespace Arc4u.Standard.Ftp;
 public class SftpClientFacade : PoolableItem, IRemoteFileSystem
 {
     private readonly ISftpClient _client;
-    private readonly ILogger<SftpClientFacade> _logger;
 
     private readonly Func<bool> _isActive;
-    
+    private readonly ILogger<SftpClientFacade> _logger;
+
     public SftpClientFacade(ISftpClient client, Func<SftpClientFacade, Task> releaseFunc,
         ILogger<SftpClientFacade> logger) : base(item => releaseFunc((SftpClientFacade) item))
     {
@@ -114,7 +114,7 @@ public class SftpClientFacade : PoolableItem, IRemoteFileSystem
             throw;
         }
     }
-    
+
     /// <inheritdoc />
     public ICollection<string> ListFiles(string path)
     {

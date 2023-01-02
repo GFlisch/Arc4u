@@ -7,17 +7,21 @@ namespace Arc4u.Standard.Ftp;
 internal class FtpConfiguration : IFtpConfiguration
 {
     /// <summary>
-    /// Clientsecret defined in provided configuration
+    ///     Clientsecret defined in provided configuration
     /// </summary>
-    /// <remarks>The value will be read by the <see cref="Username"/> and <see cref="Password"/> properties</remarks>
+    /// <remarks>The value will be read by the <see cref="Username" /> and <see cref="Password" /> properties</remarks>
     [Encrypted]
-    private string ClientSecret { get; set; } = string.Empty;
+    private string ClientSecret { get; } = string.Empty;
+
     /// <inheritdoc />
     public string Username => ClientSecret.DetermineUsername();
+
     /// <inheritdoc />
     public string Password => ClientSecret.DeterminePassword();
+
     /// <inheritdoc />
-    public string Host { get; set; }= String.Empty;
+    public string Host { get; set; } = string.Empty;
+
     /// <inheritdoc />
     public TimeSpan KeepAliveInterval { get; set; } = TimeSpan.FromSeconds(10);
 }
