@@ -65,7 +65,6 @@ public class AzureADOboTokenProvider : ITokenProvider
                 return tokenFromCache;
         }
             
-
         _metadata ??= await _openIdConnectOptions!.ConfigurationManager!.GetConfigurationAsync(CancellationToken.None);
 
         // We consider that the access token is still valid.
