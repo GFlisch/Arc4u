@@ -38,7 +38,7 @@ public class BootstrapContextTokenProvider : ITokenProvider
 
         ArgumentNullException.ThrowIfNull(_applicationContext.Principal, nameof(_applicationContext.Principal));
 
-        if (_applicationContext.Principal.Identity is ClaimsIdentity identity && !String.IsNullOrWhiteSpace(identity.BootstrapContext.ToString()))
+        if (_applicationContext.Principal.Identity is ClaimsIdentity identity && !String.IsNullOrWhiteSpace(identity?.BootstrapContext?.ToString()))
         {
             var token = identity.BootstrapContext.ToString();
 
