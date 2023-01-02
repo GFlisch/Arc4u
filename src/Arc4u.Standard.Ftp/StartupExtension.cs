@@ -75,7 +75,7 @@ public static class StartupExtension
     
     private static IServiceCollection RegisterServices(IServiceCollection serviceCollection)
     {
-        serviceCollection.AddTransient<Func<SftpClient>>(provider =>
+        serviceCollection.AddSingleton<Func<SftpClient>>(provider =>
         {
             return () =>
             {
