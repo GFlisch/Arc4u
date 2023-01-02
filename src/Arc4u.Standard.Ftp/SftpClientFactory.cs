@@ -17,8 +17,8 @@ public class SftpClientFactory : IClientFactory<SftpClientFacade>
     /// <summary>
     ///     Instantiates a new factory
     /// </summary>
-    /// <param name="ftpConfig">configuration to be used when creating new poolable sftp clients</param>
-    /// <param name="logger">Logger for this factory</param>
+    /// <param name="sftpFactory">factory to create new poolable sftp clients</param>
+    /// <param name="clientLogger">Logger for the poolable sftp clients</param>
     public SftpClientFactory(Func<SftpClient> sftpFactory, ILogger<SftpClientFacade> clientLogger)
     {
         _sftpFactory = sftpFactory;
