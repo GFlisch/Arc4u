@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
-using Arc4u.Network.Pooling;
 using Arc4u.Standard.Ftp;
 using AutoFixture;
 using FluentAssertions;
@@ -12,7 +11,7 @@ using Renci.SshNet.Common;
 using Xunit;
 
 namespace Arc4u.Standard.UnitTest.Ftp;
-
+#nullable enable
 public class SftpClientFacadeTest
 {
     private readonly Fixture _fixture;
@@ -224,7 +223,7 @@ public class SftpClientFacadeTest
         sut.IsActive.Should().BeTrue();
         activeMock.Verify(client => client.IsConnected);
     }
-    
+
     [Fact]
     public void Release_Called()
     {
@@ -242,3 +241,4 @@ public class SftpClientFacadeTest
         releasedItem.Should().BeSameAs(sut);
     }
 }
+#nullable restore
