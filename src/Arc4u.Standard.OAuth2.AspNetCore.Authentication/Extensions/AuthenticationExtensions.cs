@@ -25,6 +25,7 @@ public static partial class AuthenticationExtensions
 
         ArgumentNullException.ThrowIfNull(oidcOptions.OAuth2Settings);
         ArgumentNullException.ThrowIfNull(oidcOptions.OpenIdSettings);
+        ArgumentNullException.ThrowIfNull(oidcOptions.MetadataAddress);
 
         // Will keep in memory the AccessToken and Refresh token for the time of the request...
         services.Configure(authenticationOptions);
@@ -66,10 +67,7 @@ public static partial class AuthenticationExtensions
                     options.Authority = oidcOptions.OpenIdSettings.Values[TokenKeys.AuthorityKey];
                     options.RequireHttpsMetadata = false; // do we force? Docker image for testing...
                     options.MetadataAddress = oidcOptions.MetadataAddress;
-                    // for the other OIDC
-                    //options.ResponseType = OpenIdConnectResponseType.CodeIdTokenToken;
-                    // for AzureAD
-                    options.ResponseType = OpenIdConnectResponseType.Code;
+                    options.ResponseType = oidcOptions.ResponseType;
 
 
                     options.Scope.Clear();
@@ -86,6 +84,8 @@ public static partial class AuthenticationExtensions
                     options.TokenValidationParameters.SaveSigninToken = false;
                     options.TokenValidationParameters.AuthenticationType = Constants.CookiesAuthenticationType;
                     options.TokenValidationParameters.ValidateAudience = true;
+                    options.TokenValidationParameters.ValidAudiences = SplitString(oidcOptions.OAuth2Settings.Values[Audiences]);
+
                     // we will use the same key to generate and validate so we can use this also in the different services...
                     if (securityKey is not null)
                     {
@@ -127,6 +127,13 @@ public static partial class AuthenticationExtensions
 
     }
 
+    /// <summary>
+    /// This extension is used on a API only scenario.
+    /// Until the yarp is there and support the Oidc scenario. We don't use this on the Yarp project.
+    /// </summary>
+    /// <param name="services">The collection ued to define the dependencies</param>
+    /// <param name="authenticationOptions"><see cref="JwtAuthenticationOptions"/></param>
+    /// <returns></returns>
     public static AuthenticationBuilder AddJwtAuthentication(this IServiceCollection services, Action<JwtAuthenticationOptions> authenticationOptions)
     {
         ArgumentNullException.ThrowIfNull(services, nameof(services));
