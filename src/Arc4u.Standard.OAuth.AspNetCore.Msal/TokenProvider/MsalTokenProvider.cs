@@ -61,7 +61,7 @@ namespace Arc4u.OAuth2.TokenProvider
 
                     var result = await tokenAcquisition.GetAuthenticationResultForUserAsync(scopes);
 
-                    return new TokenInfo("Bearer", result.AccessToken, result.IdToken, result.ExpiresOn.UtcDateTime);
+                    return new TokenInfo("Bearer", result.AccessToken, result.ExpiresOn.UtcDateTime);
                 }
             }
             catch (Exception ex)
@@ -94,8 +94,8 @@ namespace Arc4u.OAuth2.TokenProvider
             var jwtToken = new JwtSecurityToken(token);
 
             if (jwtToken.Audiences.Any(a => a.StartsWith(audience, StringComparison.InvariantCultureIgnoreCase)))
-            {
-                return new TokenInfo("Bearer", token, String.Empty, jwtToken.ValidTo);
+            {   
+                return new TokenInfo("Bearer", token, jwtToken.ValidTo);
             }
 
             return null;

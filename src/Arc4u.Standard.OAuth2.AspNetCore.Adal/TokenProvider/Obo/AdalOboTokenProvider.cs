@@ -45,7 +45,7 @@ namespace Arc4u.OAuth2.TokenProvider
             // Have a bootstrap token?
             var identity = _applicationContext.Principal.Identity as ClaimsIdentity;
 
-            var accessToken = identity?.BootstrapContext?.ToString() ?? (await GetOpenIdTokenAsync(settings, identity)).AccessToken;
+            var accessToken = identity?.BootstrapContext?.ToString() ?? (await GetOpenIdTokenAsync(settings, identity)).Token;
 
             var authContext = GetOAuthContext(settings, identity,
                                   out string serviceApplicationId,

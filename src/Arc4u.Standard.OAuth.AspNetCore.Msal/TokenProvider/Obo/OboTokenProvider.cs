@@ -92,7 +92,7 @@ namespace Arc4u.OAuth2.TokenProvider
                 messages.LogAndThrowIfNecessary(_logger);
             }
 
-            if (null == _tokenInfo?.AccessToken)
+            if (null == _tokenInfo?.Token)
             {
                 throw new AppException("Access token is null. Cannot perform an on behalf of scenario.");
             }
@@ -114,13 +114,13 @@ namespace Arc4u.OAuth2.TokenProvider
 
             }
 
-            var builder = cca.AcquireTokenOnBehalfOf(settings.Values[TokenKeys.Scopes].Split(',', StringSplitOptions.RemoveEmptyEntries), new UserAssertion(_tokenInfo.AccessToken));
+            var builder = cca.AcquireTokenOnBehalfOf(settings.Values[TokenKeys.Scopes].Split(',', StringSplitOptions.RemoveEmptyEntries), new UserAssertion(_tokenInfo.Token));
 
             var authenticationResult = await builder.ExecuteAsync();
 
             var jwtToken = new JwtSecurityToken(authenticationResult.AccessToken);
 
-            _tokenInfo = new TokenInfo(authenticationResult.TokenType, authenticationResult.AccessToken, authenticationResult.IdToken, jwtToken.ValidTo);
+            _tokenInfo = new TokenInfo(authenticationResult.TokenType, authenticationResult.AccessToken, jwtToken.ValidTo);
 
             await cache.PutAsync(cacheKey, _tokenInfo.ExpiresOnUtc - DateTime.UtcNow, _tokenInfo);
 

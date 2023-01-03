@@ -53,7 +53,7 @@ namespace Arc4u.Standard.UnitTest.Blazor
             // Arrange
             JwtSecurityToken jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddMinutes(-10));
 
-            var tokenInfo = new TokenInfo("Bearer", jwt.EncodedPayload, jwt.EncodedHeader, DateTime.UtcNow);
+            var tokenInfo = new TokenInfo("Bearer", jwt.EncodedPayload, DateTime.UtcNow);
 
             var sut = new Arc4u.Caching.SecureCache();
             sut.Initialize("store name");
@@ -65,7 +65,7 @@ namespace Arc4u.Standard.UnitTest.Blazor
 
             // assert
             cachedToken.Should().NotBeNull();
-            cachedToken.AccessToken.Should().Be(jwt.EncodedPayload);
+            cachedToken.Token.Should().Be(jwt.EncodedPayload);
 
         }
 
@@ -75,7 +75,7 @@ namespace Arc4u.Standard.UnitTest.Blazor
             // Arrange
             JwtSecurityToken jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddMinutes(-10));
 
-            var tokenInfo = new TokenInfo("Bearer", jwt.EncodedPayload, jwt.EncodedHeader, DateTime.UtcNow);
+            var tokenInfo = new TokenInfo("Bearer", jwt.EncodedPayload, DateTime.UtcNow);
 
             var storeName = "store name";
             Dictionary<String, String> keySettings = new();
@@ -105,9 +105,8 @@ namespace Arc4u.Standard.UnitTest.Blazor
 
             // assert
             cachedToken.Should().NotBeNull();
-            cachedToken.AccessToken.Should().Be(jwt.EncodedPayload);
-            cachedToken.AccessTokenType.Should().Be(tokenInfo.AccessTokenType);
-            cachedToken.IdToken.Should().Be(tokenInfo.IdToken);
+            cachedToken.Token.Should().Be(jwt.EncodedPayload);
+            cachedToken.TokenType.Should().Be(tokenInfo.TokenType);
             cachedToken.ExpiresOnUtc.Should().Be(tokenInfo.ExpiresOnUtc);          
         }
 
@@ -117,7 +116,7 @@ namespace Arc4u.Standard.UnitTest.Blazor
             // Arrange
             JwtSecurityToken jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddMinutes(-10));
 
-            var tokenInfo = new TokenInfo("Bearer", jwt.EncodedPayload, jwt.EncodedHeader, DateTime.UtcNow);
+            var tokenInfo = new TokenInfo("Bearer", jwt.EncodedPayload, DateTime.UtcNow);
 
             var storeName = "store name";
             Dictionary<String, String> keySettings = new();
@@ -147,9 +146,8 @@ namespace Arc4u.Standard.UnitTest.Blazor
 
             // assert
             cachedToken.Should().NotBeNull();
-            cachedToken.AccessToken.Should().Be(jwt.EncodedPayload);
-            cachedToken.AccessTokenType.Should().Be(tokenInfo.AccessTokenType);
-            cachedToken.IdToken.Should().Be(tokenInfo.IdToken);
+            cachedToken.Token.Should().Be(jwt.EncodedPayload);
+            cachedToken.TokenType.Should().Be(tokenInfo.TokenType);
             cachedToken.ExpiresOnUtc.Should().Be(tokenInfo.ExpiresOnUtc);
         }
 
@@ -159,7 +157,7 @@ namespace Arc4u.Standard.UnitTest.Blazor
             // Arrange
             JwtSecurityToken jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddMinutes(-10));
 
-            var tokenInfo = new TokenInfo("Bearer", jwt.EncodedPayload, jwt.EncodedHeader, DateTime.UtcNow);
+            var tokenInfo = new TokenInfo("Bearer", jwt.EncodedPayload, DateTime.UtcNow);
 
             var storeName = "store name";
             Dictionary<String, String> keySettings = new();
@@ -189,9 +187,8 @@ namespace Arc4u.Standard.UnitTest.Blazor
 
             // assert
             cachedToken.Should().NotBeNull();
-            cachedToken.AccessToken.Should().Be(jwt.EncodedPayload);
-            cachedToken.AccessTokenType.Should().Be(tokenInfo.AccessTokenType);
-            cachedToken.IdToken.Should().Be(tokenInfo.IdToken);
+            cachedToken.Token.Should().Be(jwt.EncodedPayload);
+            cachedToken.TokenType.Should().Be(tokenInfo.TokenType);
             cachedToken.ExpiresOnUtc.Should().Be(tokenInfo.ExpiresOnUtc);
         }
     }

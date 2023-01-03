@@ -112,17 +112,17 @@ namespace Arc4u.OAuth2.Client.Security.Principal
             {
                 // The token has claims filled by the STS.
                 // We can fill the new federated identity with the claims from the token.
-                var jwtToken = new JwtSecurityToken(token.AccessToken);
+                var jwtToken = new JwtSecurityToken(token.Token);
                 var expTokenClaim = jwtToken.Claims.FirstOrDefault(c => c.Type.Equals(tokenExpirationClaimType, StringComparison.InvariantCultureIgnoreCase));
                 long expTokenTicks = 0;
                 if (null != expTokenClaim)
                     long.TryParse(expTokenClaim.Value, out expTokenTicks);
 
-                identity.BootstrapContext = token.AccessToken;
-
                 // The key for the cache is based on the claims from a ClaimsIdentity => build a dummy identity with the claim from the token.
                 var dummyIdentity = new ClaimsIdentity(jwtToken.Claims);
                 var cachedClaims = GetClaimsFromCache(dummyIdentity);
+                
+                Identity.BootstrapContext = token.Token;
 
                 // if we have a token "cached" from the system, we can take the authorization claims from the cache (if exists)...
                 // so we avoid too many backend calls for nothing.

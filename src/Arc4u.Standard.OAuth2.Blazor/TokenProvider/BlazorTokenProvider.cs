@@ -61,7 +61,7 @@ namespace Arc4u.OAuth2.TokenProvider
                 {
                     var token = new JwtSecurityToken(accessToken);
                     if (token.ValidTo > DateTime.UtcNow.AddMinutes(-5))
-                        return new TokenInfo("Bearer", accessToken, "", token.ValidTo);
+                        return new TokenInfo("Bearer", accessToken, token.ValidTo);
 
                     // ensure the token is removed before we try to have a new one.
                     await _localStorage.RemoveItemAsync("token");

@@ -91,5 +91,10 @@
         /// Scopes defined to identify the rigth(s) to a sts to access the requested resource.
         /// </summary>
         public const string Scopes = "Scopes";
+
+        /// <summary>
+        /// A string containing the audiences separated by a comma.
+        /// </summary>
+        public const string Audiences = "Audiences";
     }
 }

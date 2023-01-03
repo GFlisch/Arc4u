@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
+			<TargetFrameworks>net6.0;net7.0</TargetFrameworks>
 		<Version>0.0.0.0</Version>
 		<Authors>Gilles Flisch</Authors>
 		<Description>Package used on Façade projects to add OpenId endpoint to Blazor projects.</Description>

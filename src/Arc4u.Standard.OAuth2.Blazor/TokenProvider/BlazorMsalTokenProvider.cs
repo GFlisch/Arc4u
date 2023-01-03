@@ -37,7 +37,7 @@ namespace Arc4u.OAuth2.TokenProvider
                     JwtSecurityToken jwt = new(token);
 
                     if (jwt.ValidTo > DateTime.UtcNow)
-                        return new TokenInfo("Bearer", token, String.Empty, jwt.ValidTo);
+                        return new TokenInfo("Bearer", token, jwt.ValidTo);
                 }
 
             }
@@ -49,7 +49,7 @@ namespace Arc4u.OAuth2.TokenProvider
                 var token = accessToken.Value;
 
                 JwtSecurityToken jwt = new(token);
-                return new TokenInfo("Bearer", token, String.Empty, jwt.ValidTo);
+                return new TokenInfo("Bearer", token, jwt.ValidTo);
             }
 
             return null;

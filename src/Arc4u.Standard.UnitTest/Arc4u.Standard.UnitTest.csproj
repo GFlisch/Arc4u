@@ -1,78 +1,85 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
-		<IsPackable>false</IsPackable>
-		<LangVersion>latest</LangVersion>
-	</PropertyGroup>
+		<PropertyGroup>
+				<TargetFrameworks>net6.0;net7.0</TargetFrameworks>
+				<IsPackable>false</IsPackable>
+				<LangVersion>latest</LangVersion>
+		</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Castle.Core" Version="5.1.0" />
-    <PackageReference Include="FluentAssertions" Version="6.7.0" />
-    <PackageReference Include="KubeMQ.SDK.csharp" Version="1.5.2" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="6.0.9" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.9" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.1" />
-    <PackageReference Include="xunit" Version="2.4.2" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="coverlet.collector" Version="3.1.2">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="Serilog" Version="2.12.0" />
-    <PackageReference Include="Serilog.Enrichers.Environment" Version="2.2.0" />
-    <PackageReference Include="Serilog.Expressions" Version="3.4.0" />
-    <PackageReference Include="Serilog.Extensions.Logging" Version="3.1.0" />
-    <PackageReference Include="Serilog.Sinks.Async" Version="1.5.0" />
-    <PackageReference Include="Serilog.Sinks.Seq" Version="5.2.0" />
-    <PackageReference Include="Serilog.Exceptions" Version="8.4.0" />
-    <PackageReference Include="Serilog.AspNetCore" Version="6.0.1" />
-    <PackageReference Include="AutoFixture" Version="4.17.0" />
-    <PackageReference Include="AutoFixture.AutoMoq" Version="4.17.0" />
-    <PackageReference Include="AutoFixture.SeedExtensions" Version="4.17.0" />
-    <PackageReference Include="AutoFixture.Xunit2" Version="4.17.0" />
-  </ItemGroup>
+		<ItemGroup>
+				<PackageReference Include="Castle.Core" Version="5.1.0" />
+				<PackageReference Include="FluentAssertions" Version="6.8.0" />
+				<PackageReference Include="KubeMQ.SDK.csharp" Version="1.5.2" />
+				<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.0" />
+				<PackageReference Include="xunit" Version="2.4.2" />
+				<PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
+						<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+						<PrivateAssets>all</PrivateAssets>
+				</PackageReference>
+				<PackageReference Include="coverlet.collector" Version="3.2.0">
+						<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+						<PrivateAssets>all</PrivateAssets>
+				</PackageReference>
+				<PackageReference Include="Serilog" Version="2.12.0" />
+				<PackageReference Include="Serilog.Enrichers.Environment" Version="2.2.0" />
+				<PackageReference Include="Serilog.Expressions" Version="3.4.1" />
+				<PackageReference Include="Serilog.Extensions.Logging" Version="3.1.0" />
+				<PackageReference Include="Serilog.Sinks.Async" Version="1.5.0" />
+				<PackageReference Include="Serilog.Sinks.Seq" Version="5.2.1" />
+				<PackageReference Include="Serilog.Exceptions" Version="8.4.0" />
+				<PackageReference Include="Serilog.AspNetCore" Version="6.0.1" />
+				<PackageReference Include="AutoFixture" Version="4.17.0" />
+				<PackageReference Include="AutoFixture.AutoMoq" Version="4.17.0" />
+				<PackageReference Include="AutoFixture.SeedExtensions" Version="4.17.0" />
+				<PackageReference Include="AutoFixture.Xunit2" Version="4.17.0" />
+		</ItemGroup>
 
-  <ItemGroup>
-	  <ProjectReference Include="..\Arc4u.Standard.Caching.Memory\Arc4u.Standard.Caching.Memory.csproj" />
-	  <ProjectReference Include="..\Arc4u.Standard.Dependency.ComponentModel\Arc4u.Standard.Dependency.ComponentModel.csproj" />
-	  <ProjectReference Include="..\Arc4u.Standard.Dependency\Arc4u.Standard.Dependency.csproj" />
-	  <ProjectReference Include="..\Arc4u.Standard.Diagnostics.Serilog\Arc4u.Standard.Diagnostics.Serilog.csproj" />
-	  <ProjectReference Include="..\Arc4u.Standard.EfCore\Arc4u.Standard.EfCore.csproj" />
-	  <ProjectReference Include="..\Arc4u.Standard.KubeMQ\Arc4u.Standard.KubeMQ.csproj" />
-	  <ProjectReference Include="..\Arc4u.Standard.OAuth2.Blazor\Arc4u.Standard.OAuth2.Blazor.csproj" />
-	  <ProjectReference Include="..\Arc4u.Standard.OAuth2\Arc4u.Standard.OAuth2.csproj" />
-	  <ProjectReference Include="..\Arc4u.Standard.Serializer.JSon\Arc4u.Standard.Serializer.JSon.csproj" />
-	  <ProjectReference Include="..\Arc4u.Standard.Serializer.Protobuf\Arc4u.Standard.Serializer.Protobuf.csproj" />
-	  <ProjectReference Include="..\Arc4u.Standard\Arc4u.Standard.csproj" />
-  </ItemGroup>
+		<ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
+				<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="6.0.11" />
+				<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.11" />
+		</ItemGroup>
+		<ItemGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
+				<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="7.0.0" />
+				<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.0" />
+		</ItemGroup>		
 
-  <ItemGroup>
-    <None Update="Configs\appsettings.RejectedTypes.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Configs\Basic.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+		<ItemGroup>
+				<ProjectReference Include="..\Arc4u.Standard.Caching.Memory\Arc4u.Standard.Caching.Memory.csproj" />
+				<ProjectReference Include="..\Arc4u.Standard.Dependency.ComponentModel\Arc4u.Standard.Dependency.ComponentModel.csproj" />
+				<ProjectReference Include="..\Arc4u.Standard.Dependency\Arc4u.Standard.Dependency.csproj" />
+				<ProjectReference Include="..\Arc4u.Standard.Diagnostics.Serilog\Arc4u.Standard.Diagnostics.Serilog.csproj" />
+				<ProjectReference Include="..\Arc4u.Standard.EfCore\Arc4u.Standard.EfCore.csproj" />
+				<ProjectReference Include="..\Arc4u.Standard.KubeMQ\Arc4u.Standard.KubeMQ.csproj" />
+				<ProjectReference Include="..\Arc4u.Standard.OAuth2.Blazor\Arc4u.Standard.OAuth2.Blazor.csproj" />
+				<ProjectReference Include="..\Arc4u.Standard.OAuth2\Arc4u.Standard.OAuth2.csproj" />
+				<ProjectReference Include="..\Arc4u.Standard.Serializer.JSon\Arc4u.Standard.Serializer.JSon.csproj" />
+				<ProjectReference Include="..\Arc4u.Standard.Serializer.Protobuf\Arc4u.Standard.Serializer.Protobuf.csproj" />
+				<ProjectReference Include="..\Arc4u.Standard\Arc4u.Standard.csproj" />
+		</ItemGroup>
 
-    <None Update="Configs\EfCore.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+		<ItemGroup>
+				<None Update="Configs\appsettings.RejectedTypes.json">
+						<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+				</None>
+				<None Update="Configs\Basic.json">
+						<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+				</None>
 
-    <None Update="Configs\EmptyAssemblies.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+				<None Update="Configs\EfCore.json">
+						<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+				</None>
 
-    <None Update="Configs\TestParser.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+				<None Update="Configs\EmptyAssemblies.json">
+						<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+				</None>
 
-    <None Update="Configs\TestScopedParser.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+				<None Update="Configs\TestParser.json">
+						<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+				</None>
+
+				<None Update="Configs\TestScopedParser.json">
+						<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+				</None>
+		</ItemGroup>
 
 </Project>

@@ -198,7 +198,7 @@ namespace Arc4u.OAuth2.TokenProvider
 
             if (jwtToken.Audiences.Any(a => a.StartsWith(audience, StringComparison.InvariantCultureIgnoreCase)))
             {
-                return new TokenInfo("Bearer", token, String.Empty, jwtToken.ValidTo);
+                return new TokenInfo("Bearer", token, jwtToken.ValidTo);
             }
 
             return null;

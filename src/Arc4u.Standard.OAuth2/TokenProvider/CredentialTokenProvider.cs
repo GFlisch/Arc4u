@@ -149,7 +149,6 @@ namespace Arc4u.OAuth2.TokenProvider
                         _logger.Technical().System($"Token is received for user {upn}.").Log();
 
                         var accessToken = responseValues["access_token"];
-                        var idToken = responseValues["id_token"];
                         var tokenType = "Bearer"; //  responseValues["token_type"]; Issue on Adfs return bearer and not Bearer (ok in AzureAD).
                         var expiresIn = responseValues["expires_in"];
 
@@ -159,7 +158,7 @@ namespace Arc4u.OAuth2.TokenProvider
 
                         _logger.Technical().System($"Access token will expire at {dateUtc} utc.").Log();
 
-                        return new TokenInfo(tokenType, accessToken, idToken, dateUtc);
+                        return new TokenInfo(tokenType, accessToken, dateUtc);
                     }
                 }
                 catch (Exception ex)
