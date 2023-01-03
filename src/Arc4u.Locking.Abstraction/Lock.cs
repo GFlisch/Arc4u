@@ -18,7 +18,6 @@ public class Lock : IDisposable
     /// <param name="cancellationToken">Token that will cancel the entire locking</param>
     public Lock(Func<Task> keepAliveFunction, Action releaseFunction, CancellationToken cancellationToken)
     {
-        new CancellationTokenSource().Cancel();
         _keepAliveFunction = keepAliveFunction;
         _releaseFunction = releaseFunction;
 
