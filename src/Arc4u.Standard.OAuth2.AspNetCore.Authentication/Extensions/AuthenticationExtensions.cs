@@ -84,7 +84,7 @@ public static partial class AuthenticationExtensions
                     options.TokenValidationParameters.SaveSigninToken = false;
                     options.TokenValidationParameters.AuthenticationType = Constants.CookiesAuthenticationType;
                     options.TokenValidationParameters.ValidateAudience = true;
-                    options.TokenValidationParameters.ValidAudiences = SplitString(oidcOptions.OAuth2Settings.Values[Audiences]);
+                    options.TokenValidationParameters.ValidAudiences = SplitString(oidcOptions.OpenIdSettings.Values[Audiences]);
 
                     // we will use the same key to generate and validate so we can use this also in the different services...
                     if (securityKey is not null)
