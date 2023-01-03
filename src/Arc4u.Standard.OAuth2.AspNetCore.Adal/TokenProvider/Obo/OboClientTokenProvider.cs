@@ -54,7 +54,7 @@ namespace Arc4u.OAuth2.TokenProvider
                     // validate that is a beare token!
                     var jwtToken = new JwtSecurityToken(accessToken);
 
-                    tokenInfo = new TokenInfo("Bearer", accessToken, String.Empty, jwtToken.ValidTo);
+                    tokenInfo = new TokenInfo("Bearer", accessToken, jwtToken.ValidTo);
 
                     _tokenInfos[settings.Values["OboEndpointUrl"]] = tokenInfo;
 

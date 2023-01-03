@@ -64,7 +64,7 @@ namespace Arc4u.Blazor
                     {
                         if (containerResolve.TryResolve<ITokenProvider>(settings.Values[TokenKeys.ProviderIdKey], out var tokenProvider))
                         {
-                            accessToken = (await tokenProvider.GetTokenAsync(settings, claimsIdentity)).AccessToken;
+                            accessToken = (await tokenProvider.GetTokenAsync(settings, claimsIdentity)).Token;
                         }
                     }
                 }

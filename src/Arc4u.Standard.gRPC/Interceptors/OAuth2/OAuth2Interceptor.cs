@@ -169,7 +169,7 @@ namespace Arc4u.gRPC.Interceptors
                     return;
                 }
 
-                headers.Add("authorization", $"Bearer {tokenInfo.AccessToken}");
+                headers.Add("authorization", $"Bearer {tokenInfo.Token}");
             }
             catch (Exception ex)
             {

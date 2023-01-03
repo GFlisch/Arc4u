@@ -110,13 +110,13 @@ namespace Arc4u.OAuth2.Msal.Token
                 _logger.Technical().System("Remove any Bearer token attached.").Log();
                 request.Headers.Remove("Bearer");
 
-                var scheme = inject ? tokenInfo.AccessTokenType : "Bearer";
+                var scheme = inject ? tokenInfo.TokenType : "Bearer";
                 _logger.Technical().System($"Add the {scheme} token to provide authentication evidence.").Log();
 
                 if (new string[] { "Bearer", "Basic" }.Any(s => s.Equals(scheme, StringComparison.InvariantCultureIgnoreCase)))
-                    request.Headers.Authorization = new AuthenticationHeaderValue(scheme, tokenInfo.AccessToken);
+                    request.Headers.Authorization = new AuthenticationHeaderValue(scheme, tokenInfo.Token);
                 else
-                    request.Headers.Add(scheme, tokenInfo.AccessToken);
+                    request.Headers.Add(scheme, tokenInfo.Token);
 
                 // Add ActivityId if founded!
                 if (null != applicationContext?.Principal)

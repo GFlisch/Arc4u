@@ -29,7 +29,7 @@ namespace Arc4u.OAuth2.Adal
 
             try
             {
-                var userObjectId = keyGen.UserClaimIdentifier(principal.Identity as ClaimsIdentity);
+                var userObjectId = keyGen.GetClaimsKey(principal.Identity as ClaimsIdentity);
                 var authority = openIdSettings.Values[TokenKeys.AuthorityKey];
                 var resource = openIdSettings.Values[TokenKeys.ServiceApplicationIdKey];
 

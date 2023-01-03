@@ -44,7 +44,7 @@ namespace Arc4u.OAuth2.Msal.TokenProvider.Client
                     JwtSecurityToken jwt = new(token);
 
                     if (jwt.ValidTo > DateTime.UtcNow)
-                        return new TokenInfo("Bearer", token, String.Empty, jwt.ValidTo);
+                        return new TokenInfo("Bearer", token, jwt.ValidTo);
                 }
 
             }
@@ -61,7 +61,7 @@ namespace Arc4u.OAuth2.Msal.TokenProvider.Client
                 authResult = await _publicClientApplication.PublicClient.AcquireTokenSilent(scopes, firstAccount).ExecuteAsync();
 
                 JwtSecurityToken jwt = new(authResult.AccessToken);
-                return new TokenInfo("Bearer", authResult.AccessToken, authResult.IdToken, jwt.ValidTo);
+                return new TokenInfo("Bearer", authResult.AccessToken, jwt.ValidTo);
             }
             catch (MsalUiRequiredException ex)
             {
@@ -82,7 +82,7 @@ namespace Arc4u.OAuth2.Msal.TokenProvider.Client
                     authResult = await builder.ExecuteAsync();
 
                     JwtSecurityToken jwt = new(authResult.AccessToken);
-                    return new TokenInfo("Bearer", authResult.AccessToken, authResult.IdToken, jwt.ValidTo);
+                    return new TokenInfo("Bearer", authResult.AccessToken, jwt.ValidTo);
                 }
                 catch (MsalException msalex)
                 {

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
+		<TargetFrameworks>net6.0;net7.0</TargetFrameworks>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<Version>0.0.0.0</Version>
 		<Authors>Gilles Flisch</Authors>
@@ -20,7 +20,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Grpc.AspNetCore.Server" Version="2.48.0" />
+		<PackageReference Include="Grpc.AspNetCore.Server" Version="2.49.0" />
 	</ItemGroup>
 
 	<ItemGroup>

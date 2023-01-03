@@ -45,7 +45,7 @@ namespace Arc4u.OAuth2.TokenProvider
             // Have a bootstrap token?
             var identity = _applicationContext.Principal.Identity as ClaimsIdentity;
 
-            var accessToken = identity?.BootstrapContext?.ToString() ?? (await GetOpenIdTokenAsync(settings, identity)).AccessToken;
+            var accessToken = identity?.BootstrapContext?.ToString() ?? (await GetOpenIdTokenAsync(settings, identity)).Token;
 
             var authContext = GetOAuthContext(settings, identity,
                                   out string serviceApplicationId,
@@ -151,7 +151,7 @@ namespace Arc4u.OAuth2.TokenProvider
                     credential = null;
                 }
 
-                var userObjectId = oAuthConfig.UserClaimIdentifier(identity);
+                var userObjectId = oAuthConfig.GetClaimsKey(identity);
                 if (String.IsNullOrWhiteSpace(userObjectId))
                 {
                     messages.Add(new Message(ServiceModel.MessageCategory.Technical, MessageType.Error, "No user object identifier is found in the claims collection to identify the user."));

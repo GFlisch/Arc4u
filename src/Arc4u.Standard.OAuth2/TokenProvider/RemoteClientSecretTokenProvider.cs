@@ -29,7 +29,7 @@ namespace Arc4u.OAuth2.TokenProvider
 
             var clientSecret = settings.Values[TokenKeys.ClientSecret];
 
-            return Task.FromResult(new TokenInfo(headerKey, clientSecret, "", DateTime.UtcNow + TimeSpan.FromHours(1)));
+            return Task.FromResult(new TokenInfo(headerKey, clientSecret, DateTime.UtcNow + TimeSpan.FromHours(1)));
 
         }
 

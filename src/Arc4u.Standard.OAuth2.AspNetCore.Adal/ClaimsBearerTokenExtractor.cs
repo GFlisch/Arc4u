@@ -78,7 +78,7 @@ namespace Arc4u.OAuth2.Security.Principal
                     _logger.Technical().System("Requesting an authentication token.").Log();
                     var tokenInfo = await provider.GetTokenAsync(providerSettings, claimsIdentity);
 
-                    bearerToken = new JwtSecurityToken(tokenInfo.AccessToken);
+                    bearerToken = new JwtSecurityToken(tokenInfo.Token);
                 }
 
                 result.AddRange(bearerToken.Claims.Select(c => new ClaimDto(c.Type, c.Value)));
