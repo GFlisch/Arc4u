@@ -122,7 +122,7 @@ namespace Arc4u.OAuth2.Client.Security.Principal
                 var dummyIdentity = new ClaimsIdentity(jwtToken.Claims);
                 var cachedClaims = GetClaimsFromCache(dummyIdentity);
                 
-                Identity.BootstrapContext = token.Token;
+                identity.BootstrapContext = token.Token;
 
                 // if we have a token "cached" from the system, we can take the authorization claims from the cache (if exists)...
                 // so we avoid too many backend calls for nothing.
