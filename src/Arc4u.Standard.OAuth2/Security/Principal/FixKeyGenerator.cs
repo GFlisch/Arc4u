@@ -14,10 +14,5 @@ namespace Arc4u.OAuth2.Security.Principal
         {
             return "ClaimsVaultRef";
         }
-
-        public string UserClaimIdentifier(ClaimsIdentity claimsIdenitity)
-        {
-            throw new System.NotImplementedException();
-        }
     }
 }

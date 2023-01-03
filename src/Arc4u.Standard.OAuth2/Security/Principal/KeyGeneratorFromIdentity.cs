@@ -12,22 +12,16 @@ namespace Arc4u.OAuth2.Security.Principal
     [Export(typeof(ICacheKeyGenerator)), Shared]
     public class KeyGeneratorFromIdentity : ICacheKeyGenerator
     {
+        private readonly OAuthConfig _config;
+
         public KeyGeneratorFromIdentity(OAuthConfig oAuthConfig)
         {
-            Config = oAuthConfig;
+            _config = oAuthConfig;
         }
-
-        private OAuthConfig Config { get; set; }
-
 
         public string GetClaimsKey(ClaimsIdentity identity)
         {
-            return Config.GetClaimsKey(identity);
-        }
-
-        public string UserClaimIdentifier(ClaimsIdentity claimsIdenitity)
-        {
-            return Config.UserClaimIdentifier(claimsIdenitity);
+            return _config.GetClaimsKey(identity);
         }
     }
 }

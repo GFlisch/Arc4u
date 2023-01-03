@@ -3,65 +3,63 @@ using Arc4u.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 
 namespace Arc4u.OAuth2.Configuration
 {
-    [Export(typeof(OAuthConfig)), Shared]
+    [Export, Shared]
     public class OAuthConfig
     {
+        public string UserIdentifier { get; }
+
+        private readonly HashSet<string> _identityClaimNames;
+        private readonly ILogger<OAuthConfig> _logger;
+
         public OAuthConfig(IConfiguration configuration, ILogger<OAuthConfig> logger)
         {
             _logger = logger;
-            
-            User = new UserConfig();
 
-            configuration.Bind("Application.TokenCacheConfiguration", this);
+            var userConfig = new UserConfig();
+            configuration.Bind("Application.TokenCacheConfiguration:User", userConfig);
+
+            UserIdentifier = userConfig.Identifier;
+
+            _identityClaimNames = new HashSet<string>(userConfig.Claims.Select(claimName => claimName.ToLowerInvariant()).Distinct());
 
             // Add default claims to check for AzureAD!
-            if (User.Claims.Count == 0)
+            if (_identityClaimNames.Count == 0)
             {
-                User.Claims.Add("http://schemas.microsoft.com/identity/claims/objectidentifier");
-                User.Claims.Add("oid");
+                _identityClaimNames.Add("http://schemas.microsoft.com/identity/claims/objectidentifier");
+                _identityClaimNames.Add("oid");
             }
         }
 
-
-        public UserConfig User { get; set; }
-
-        private readonly ILogger<OAuthConfig> _logger;
-
-        public String GetClaimsKey(ClaimsIdentity identity)
+        public String GetClaimsKey(ClaimsIdentity claimsIdentity)
         {
-            var id = UserClaimIdentifier(identity);
-
-            if (null == id)
+            if (claimsIdentity == null)
             {
-                _logger.Technical().LogError($"No claim type found equal to {String.Join(",", User.Claims)} in the current identity.");
+                _logger.Technical().LogError($"Specified identity is null");
+                return null;
+            }
+
+            var id = ExtractUserClaimIdentifier(claimsIdentity);
+            if (id == null)
+            {
+                _logger.Technical().LogError($"No claim type found equal to {String.Join(",", _identityClaimNames)} in the specified identity.");
                 return null;
             }
 
             _logger.Technical().System($"Claim Type id used to identify the user is {id}.").Log();
 
-            return GetClaimsKey(id);
-        }
-
-        public static String GetClaimsKey(string id)
-        {
             return id.ToLowerInvariant() + "_ClaimsCache";
         }
 
-        public string UserClaimIdentifier(ClaimsIdentity claimsIdenitity)
+        private string ExtractUserClaimIdentifier(ClaimsIdentity claimsIdentity)
         {
-
-            if (null == claimsIdenitity) return null;
-
-            var userObjectIdClaim = claimsIdenitity.Claims.FirstOrDefault(claim => User.Claims.Any(c => claim.Type.Equals(c, StringComparison.InvariantCultureIgnoreCase)));
-
-            if (null != userObjectIdClaim) return userObjectIdClaim.Value;
-
-            return null;
+            var identityClaim = claimsIdentity.Claims.FirstOrDefault(claim => _identityClaimNames.Contains(claim.Type.ToLowerInvariant()));
+            return identityClaim?.Value;
         }
     }
 }
