@@ -68,6 +68,18 @@ namespace Arc4u.Standard.UnitTest
         }
 
         [Fact]
+        public void TestTryResolve()
+        {
+            var container = new ComponentModelContainer();
+            //container.Register<IGenerator, IdGenerator>();
+
+            container.CreateContainer();
+
+            Assert.False(container.TryResolve<IGenerator>(out var generator));
+
+        }
+
+        [Fact]
         void TestRejectedTypeRegister()
         {
             var configuration = ConfigurationHelper.GetConfigurationFromFile(@"Configs\appsettings.RejectedTypes.json");
@@ -128,6 +140,8 @@ namespace Arc4u.Standard.UnitTest
                 Assert.Equal(scopedByType.Id, scope.Resolve<TestScopedParser>().Id);
             }
         }
+
+
 
         [Fact]
         void TestCompositionRegister()

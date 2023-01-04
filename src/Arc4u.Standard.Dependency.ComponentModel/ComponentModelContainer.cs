@@ -310,9 +310,18 @@ namespace Arc4u.Dependency.ComponentModel
                     return false;
             IEnumerable<object> instances;
 
-            if (name == null)
+            if (name is null)
             {
-                value = _serviceProvider.GetService(type);
+                // On Blazor GetService<T> doesn't return null but throw a NullReferenceException...
+                try
+                {
+                    value = _serviceProvider.GetService(type);
+                }
+                catch
+                {
+                    // value is already null.            
+                }
+                
             }
             else
             {
@@ -324,6 +333,7 @@ namespace Arc4u.Dependency.ComponentModel
                         return false;
                 value = instances.FirstOrDefault();
             }
+
             return value != null;
         }
 
@@ -339,13 +349,21 @@ namespace Arc4u.Dependency.ComponentModel
 
             if (name == null)
             {
-                var instance = _serviceProvider.GetService<T>();
-                //if (instances.Count() > 1)
-                //    if (throwIfError)
-                //        throw new MultipleRegistrationException<T>(instances);
-                //    else
-                //        return false;
-                value = instance;
+                // On Blazor GetService<T> doesn't return null but throw a NullReferenceException...
+                try
+                {
+                    var instance = _serviceProvider.GetService<T>();
+                    //if (instances.Count() > 1)
+                    //    if (throwIfError)
+                    //        throw new MultipleRegistrationException<T>(instances);
+                    //    else
+                    //        return false;
+                    value = instance;
+                }
+                catch 
+                {
+                    // value is already null.            
+                }                
             }
             else
             {
@@ -357,6 +375,7 @@ namespace Arc4u.Dependency.ComponentModel
                         return false;
                 value = (T)instances.FirstOrDefault();
             }
+
             return value != null;
         }
 
