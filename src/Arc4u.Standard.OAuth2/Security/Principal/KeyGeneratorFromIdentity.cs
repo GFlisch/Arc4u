@@ -11,9 +11,9 @@ namespace Arc4u.OAuth2.Security.Principal;
 /// The claim used is define in the <see cref="ITokenUserCacheConfiguration"/> implementation.
 /// </summary>
 [Export(typeof(ICacheKeyGenerator)), Shared]
-public class KeyGeneratorFromIdentity2 : ICacheKeyGenerator
+public class KeyGeneratorFromIdentity : ICacheKeyGenerator
 {
-    public KeyGeneratorFromIdentity2(IUserObjectIdentifier userKeyIdentifier)
+    public KeyGeneratorFromIdentity(IUserObjectIdentifier userKeyIdentifier)
     {
         _userKeyIdentifier = userKeyIdentifier ?? throw new ArgumentNullException(nameof(userKeyIdentifier));
     }

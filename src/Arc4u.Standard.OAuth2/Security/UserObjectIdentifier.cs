@@ -9,16 +9,16 @@ using System.Security.Claims;
 namespace Arc4u.OAuth2.Security;
 
 [Export(typeof(IUserObjectIdentifier)), Shared]
-public class UserKeyIdentifier : IUserObjectIdentifier
+public class UserObjectIdentifier : IUserObjectIdentifier
 {
-    public UserKeyIdentifier(ITokenUserCacheConfiguration userCacheConfiguration, ILogger<UserKeyIdentifier> logger)
+    public UserObjectIdentifier(ITokenUserCacheConfiguration userCacheConfiguration, ILogger<UserObjectIdentifier> logger)
     {
         _userCacheConfiguration = userCacheConfiguration ?? throw new ArgumentNullException(nameof(userCacheConfiguration));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     private readonly ITokenUserCacheConfiguration _userCacheConfiguration;
-    private readonly ILogger<UserKeyIdentifier> _logger;
+    private readonly ILogger<UserObjectIdentifier> _logger;
 
     public string GetIdentifer(ClaimsIdentity identity)
     {

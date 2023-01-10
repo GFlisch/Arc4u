@@ -27,6 +27,6 @@ namespace Arc4u.OAuth2.Configuration
             }
         }
 
-        public UserConfig User { get; set; }
+        public UserConfig User { get; }
     }
 }

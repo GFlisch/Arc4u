@@ -25,6 +25,7 @@
 		<Description>Core Framework used to connect application with OAuth2.</Description>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<LangVersion>latest</LangVersion>
+		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
 	<ItemGroup>

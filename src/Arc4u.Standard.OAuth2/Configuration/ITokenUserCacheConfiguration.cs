@@ -2,5 +2,5 @@
 
 public interface ITokenUserCacheConfiguration
 {
-    public UserConfig User { get; set; }
+    public UserConfig User { get; }
 }

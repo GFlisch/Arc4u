@@ -217,8 +217,4 @@ public abstract class AdalTokenProvider : ITokenProvider
         throw new NotImplementedException();
     }
 
-    Task<TokenInfo> ITokenProvider.GetTokenAsync(IKeyValueSettings settings, object platformParameters)
-    {
-        throw new System.NotImplementedException();
-    }
 }

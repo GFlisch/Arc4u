@@ -26,7 +26,7 @@ public static class OpenIdConnectAuthenticationHandlers
         if (!container.TryResolve<IUserObjectIdentifier>(out var keyGen))
         {
             logger?.Technical().From(typeof(OpenIdConnectAuthenticationHandlers)).Error($"No Cache key generator is registered. Unable to uniquely identify a user.").Log();
-            throw new NullReferenceException("ICacheKeyGenerator is not regeistered in the DI container.");
+            throw new NullReferenceException("IUserObjectIdentifier is not regeistered in the DI container.");
         }
 
         try
