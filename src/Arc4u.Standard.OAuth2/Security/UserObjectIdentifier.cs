@@ -43,7 +43,7 @@ public class UserKeyIdentifier : IUserObjectIdentifier
 
         if (null != userObjectIdClaim) return userObjectIdClaim.Value;
 
-        _logger.Technical().LogError($"No claims found with one of the keys: [{String.Join(',', _userCacheConfiguration.User.Claims)}]");
+        _logger.Technical().LogError($"No claims found with one of the keys: [{String.Join(",", _userCacheConfiguration.User.Claims)}]");
 
         return null;
     }
