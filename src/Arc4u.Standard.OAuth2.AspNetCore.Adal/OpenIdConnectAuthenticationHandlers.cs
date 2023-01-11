@@ -1,6 +1,5 @@
 ﻿using Arc4u.Dependency;
 using Arc4u.Diagnostics;
-using Arc4u.OAuth2.Configuration;
 using Arc4u.OAuth2.Security;
 using Arc4u.OAuth2.Token;
 using Arc4u.OAuth2.Token.Adal;
