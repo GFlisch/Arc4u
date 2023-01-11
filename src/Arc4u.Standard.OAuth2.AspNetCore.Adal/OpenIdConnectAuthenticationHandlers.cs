@@ -10,7 +10,7 @@ using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace Arc4u.OAuth2;
+namespace Arc4u.OAuth2.Adal;
 
 public static class OpenIdConnectAuthenticationHandlers
 {
