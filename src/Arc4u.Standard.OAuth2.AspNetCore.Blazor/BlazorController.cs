@@ -78,7 +78,7 @@ namespace Arc4u.Blazor
 
             if (accessToken.Length > index * buffer)
             {
-                containerResolve.TryResolve<IKeyValueSettings>("OAuth", out var settings);
+                containerResolve.TryResolve<IKeyValueSettings>("OAuth2", out var settings);
                 var thisController = settings.Values[TokenKeys.RootServiceUrlKey].TrimEnd('/') + $"/blazor/redirectto/{redirectTo}/{index + 1}&token={accessToken.Substring((index - 1) * buffer, buffer)}";
                 return Redirect(UriHelper.Encode(new Uri($"{redirectUri}?url={thisController}")));
             }
