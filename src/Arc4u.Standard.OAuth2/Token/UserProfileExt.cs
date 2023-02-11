@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Linq;
 using System.Security.Claims;
 using System.Security.Principal;
@@ -27,7 +28,7 @@ namespace Arc4u.OAuth2.Token
                 long expTokenTicks = 0;
                 if (null != expTokenClaim)
                 {
-                    long.TryParse(expTokenClaim.Value, out expTokenTicks);
+                    long.TryParse(expTokenClaim.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out expTokenTicks);
 
                     return DateTimeOffset.FromUnixTimeSeconds(expTokenTicks);
                 }

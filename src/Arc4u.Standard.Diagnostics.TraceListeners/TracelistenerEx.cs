@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Globalization;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Threading;
@@ -196,7 +197,7 @@ namespace Arc4u.Diagnostics
             var result = 10; // default is 10 days.
             if (AttributesCopy.ContainsKey(MaxFileDaysKey))
             {
-                int.TryParse(AttributesCopy[MaxFileDaysKey], out result);
+                int.TryParse(AttributesCopy[MaxFileDaysKey], NumberStyles.Integer, CultureInfo.InvariantCulture, out result);
             }
 
             return result;
@@ -207,7 +208,7 @@ namespace Arc4u.Diagnostics
             TimeSpan result = TimeSpan.FromSeconds(10); // default is 10 seconds.
             if (AttributesCopy.ContainsKey(FrequencyKey))
             {
-                TimeSpan.TryParse(AttributesCopy[FrequencyKey], out result);
+                TimeSpan.TryParse(AttributesCopy[FrequencyKey], CultureInfo.InvariantCulture, out result);
                 if (TimeSpan.Zero == result)
                     result = TimeSpan.FromSeconds(10);
             }

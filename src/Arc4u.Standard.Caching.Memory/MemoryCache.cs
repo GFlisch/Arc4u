@@ -6,6 +6,7 @@ using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Globalization;
 
 namespace Arc4u.Caching.Memory
 {
@@ -40,13 +41,13 @@ namespace Arc4u.Caching.Memory
                 {
                     if (settings.Values.ContainsKey(CompactionPercentageKey))
                     {
-                        if (Double.TryParse(settings.Values[CompactionPercentageKey], out var percentage))
+                        if (Double.TryParse(settings.Values[CompactionPercentageKey], NumberStyles.Integer, CultureInfo.InvariantCulture, out var percentage))
                             CompactionPercentage = percentage / 100;
                     }
 
                     if (settings.Values.ContainsKey(SizeLimitKey))
                     {
-                        if (long.TryParse(settings.Values[SizeLimitKey], out var size))
+                        if (long.TryParse(settings.Values[SizeLimitKey], NumberStyles.Integer, CultureInfo.InvariantCulture, out var size))
                             SizeLimit = size * 1024 * 1024;
                     }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
@@ -63,7 +64,7 @@ namespace Arc4u.Serializer.ProtoBuf
                     throw new Exception($"Unable to parse the type's assembly qualified name: {assemblyQualifiedName}");
 
             var typeName = match.Groups["name"].Value;
-            int n = int.Parse(match.Groups["count"].Value);
+            int n = int.Parse(match.Groups["count"].Value, CultureInfo.InvariantCulture);
             //var assemblyName = match.Groups["assembly"].Value;
             var subtypes = match.Groups["subtypes"].Value;
 
