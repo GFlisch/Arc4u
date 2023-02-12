@@ -11,7 +11,7 @@ namespace Arc4u.Security
         /// <summary>
         /// Name used to search a certificate in the store based on the <see cref="X509FindType"/>.
         /// </summary>
-        public String Name { get; set; }
+        public String? Name { get; set; }
 
         /// <summary>
         /// The <see cref="X509FindType"/> of the certificate.

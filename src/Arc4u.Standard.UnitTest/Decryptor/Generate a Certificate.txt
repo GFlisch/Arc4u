@@ -1,0 +1,30 @@
+﻿The certificate generated was based on the following article: https://dotnetcoretutorials.com/2020/11/18/generating-self-signed-certificates-for-unit-testing-in-c/
+
+The certificate has avalidity of 10 years. It will then expired the 12 February 2033.
+
+The main difference between the article and the code used is the usage of the localcurrent certificate store.
+The procedure is the following:
+
+-1 Generate the certificate
+
+New-SelfSignedCertificate -certstorelocation cert:\localmachine\my -dnsname MySelfSignedCertificate -NotAfter (Get-Date).AddYears(10)
+
+The output will be the thumbprit => in this case it was C442DDA851E6BF96E6818C3160EA5D692841CF0B
+
+-2 Export it to a pfx in the Desktop folder of your pc.
+
+You have to replace the {thumbprint} by the output, in this case it was C442DDA851E6BF96E6818C3160EA5D692841CF0B
+
+$password = ConvertTo-SecureString -String "Password" -Force -AsPlainText
+Export-PfxCertificate -cert cert:\currentuser\my\{thumbprint} -FilePath $env:USERPROFILE\Desktop\MySelfSignedCertificate.pfx -Password $password
+
+-3 Get the content as a byte array in a variable
+
+$pfx_cert = get-content  $env:USERPROFILE\Desktop\MySelfSignedCertificate.pfx -Encoding Byte
+
+-4 Create a base64 string
+
+$base64 = [System.Convert]::ToBase64String($pfx_cert)
+Write-Host $base64
+
+The output will contain the base64 certificate and you have to add this to the GetCertificate2 method in the CertificateDecryptor class.
