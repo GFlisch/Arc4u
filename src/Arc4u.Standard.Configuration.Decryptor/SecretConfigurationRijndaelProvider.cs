@@ -57,7 +57,7 @@ public class SecretConfigurationRijndaelProvider : ConfigurationProvider
             }
         }
 
-        var rijndaelkeys = ConvertTo(_rijndaelConfig);
+        var rijndaelkeys = SecretConfigurationRijndaelProvider.ConvertTo(_rijndaelConfig);
 
         // Parse the temproot Data collection of each provider
         foreach (var item in tempRoot.AsEnumerable())
@@ -73,9 +73,9 @@ public class SecretConfigurationRijndaelProvider : ConfigurationProvider
         Data = data;
     }
 
-    private (byte[], byte[]) ConvertTo(RijndaelConfig rijndaelConfig)
+    private static (byte[], byte[]) ConvertTo(RijndaelConfig rijndaelConfig)
     {
-        return ( Convert.FromBase64String(rijndaelConfig.Key), Convert.FromBase64String(rijndaelConfig.IV) );
+        return (Convert.FromBase64String(rijndaelConfig.Key), Convert.FromBase64String(rijndaelConfig.IV));
     }
 }
 

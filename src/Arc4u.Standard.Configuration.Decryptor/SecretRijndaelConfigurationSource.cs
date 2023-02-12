@@ -24,7 +24,7 @@ public class SecretRijndaelConfigurationSource : IConfigurationSource
     /// <summary>
     /// A Rijndael configuration to use instead of reading this from a configuration provider.
     /// </summary>
-    public RijndaelConfig? RijndaelConfiguration { get; set; } = null;
+    public RijndaelConfig? RijndaelConfiguration { get; set; }
 
     /// <summary>
     /// Create a <see cref="IConfigurationSource"/> using the defaults.

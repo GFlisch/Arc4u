@@ -1,7 +1,7 @@
-﻿using Arc4u.Security;
+﻿using System.Security.Cryptography.X509Certificates;
+using Arc4u.Security;
 using Arc4u.Security.Cryptography;
 using Microsoft.Extensions.Configuration;
-using System.Security.Cryptography.X509Certificates;
 
 namespace Arc4u.Configuration.Decryptor;
 
@@ -74,6 +74,5 @@ public class SecretConfigurationCertificateProvider : ConfigurationProvider
 
         Data = data;
     }
-
 
 }

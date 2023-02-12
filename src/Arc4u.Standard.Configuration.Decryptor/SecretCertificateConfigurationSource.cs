@@ -1,5 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
 using System.Security.Cryptography.X509Certificates;
+using Microsoft.Extensions.Configuration;
 
 namespace Arc4u.Configuration.Decryptor;
 
@@ -24,7 +24,7 @@ public class SecretCertificateConfigurationSource : IConfigurationSource
     /// <summary>
     /// A certificate to use instead of reading this from a configuration provider.
     /// </summary>
-    public X509Certificate2? Certificate { get; set; } = null;
+    public X509Certificate2? Certificate { get; set; }
 
     /// <summary>
     /// Create a <see cref="IConfigurationSource"/> with the default prefix <see cref="PrefixDefault" and section <see cref="SecretSectionNameDefault"/>./>
@@ -59,7 +59,7 @@ public class SecretCertificateConfigurationSource : IConfigurationSource
         Certificate = certificate;
 
         // will be not used.
-        SecretSectionName = SecretSectionNameDefault;      
+        SecretSectionName = SecretSectionNameDefault;
     }
 
     /// <summary>
