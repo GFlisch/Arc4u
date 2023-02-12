@@ -62,6 +62,9 @@ jobs:
       - name: Change Arc4u.Standard.Configuration versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Configuration.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
         shell: powershell        
+      - name: Change Arc4u.Standard.Configuration.Decryptor versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Configuration.Decryptor.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
       - name: Change Arc4u.Standard.Dependency versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Dependency.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
         shell: powershell        
