@@ -1,8 +1,17 @@
 # Releases of Arc4u packages.
 
 
-
 ## 6.0
+
+### 6.0.11.2
+Update packages used by Arc4u to the latest ones but the .NET one still on the 6.0.11 and 7.0.1
+
+#### What's new.
+- Add the .editorconfig file of ASPNET Core project to give code analysis on the projects.
+- Add a new project Arc4u.Standard.Configuration.Decryptor.
+  - Applying the .editorconfig rules.
+- For the Blazor client project, fix an issue where the config settings was resolved based on OAuth and not OAuth2
+- Value converted from the appSettings are insensitive to the culture.
 
 ### 6.0.11.1
 

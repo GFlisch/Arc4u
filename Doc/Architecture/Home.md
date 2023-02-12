@@ -1,6 +1,6 @@
 # Architecture
 
-We have different concepts in the architecture and before digging into detail, the most important is to understand those key concepts.
+We have different concepts in the architecture and before digging into details, the most important is to understand those key concepts.
 
 
 
