@@ -26,27 +26,48 @@ public class SecretRijndaelConfigurationSource : IConfigurationSource
     /// </summary>
     public RijndaelConfig? RijndaelConfiguration { get; set; } = null;
 
+    /// <summary>
+    /// Create a <see cref="IConfigurationSource"/> using the defaults.
+    /// The prefix use is the default <see cref="PrefixDefault"/> and the default section <see cref="SecretSectionNameDefault"/>.
+    /// The Rijndael configuration is fetched from the previous providers.
+    /// </summary>
     public SecretRijndaelConfigurationSource()
     {
         Prefix = PrefixDefault;
         SecretSectionName = SecretSectionNameDefault;
     }
 
+    /// <summary>
+    /// Create a <see cref="IConfigurationSource"/> using the defaults.
+    /// The Rijndael configuration is fetched from the previous providers.
+    /// </summary>
+    /// <param name="prefix">The prefix to use, if null the <see cref="PrefixDefault"/> is used.</param>
+    /// <param name="secretSectionName">The section name to use, if null the <see cref="SecretSectionNameDefault"/> is used.</param>
+    /// </summary>
     public SecretRijndaelConfigurationSource(string? prefix, string? secretSectionName)
     {
         Prefix = prefix ?? PrefixDefault;
         SecretSectionName = secretSectionName ?? SecretSectionNameDefault;
     }
 
+    /// <summary>
+    /// Create a <see cref="IConfigurationSource"/> using the defaults.
+    /// The prefix use is the default <see cref="PrefixDefault"/>.
+    /// </summary>
+    /// <param name="rijndaelConfig">The <see cref="RijndaelConfig"/> to use for the key and IV parameters.</param>
     public SecretRijndaelConfigurationSource(RijndaelConfig rijndaelConfig)
     {
         Prefix = PrefixDefault;
         RijndaelConfiguration = rijndaelConfig;
 
         // not used in this case.
-        SecretSectionName = String.Empty; 
+        SecretSectionName = String.Empty;
     }
 
+    /// <summary>
+    /// Create a <see cref="IConfigurationSource"/> using the defaults.    /// </summary>
+    /// <param name="prefix">The prefix to use</param>
+    /// <param name="rijndaelConfig">The <see cref="RijndaelConfig"/> to use for the key and IV parameters.</param>
     public SecretRijndaelConfigurationSource(string prefix, RijndaelConfig rijndaelConfig)
     {
         Prefix = prefix;

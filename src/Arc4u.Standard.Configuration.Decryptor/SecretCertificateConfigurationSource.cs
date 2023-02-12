@@ -35,13 +35,24 @@ public class SecretCertificateConfigurationSource : IConfigurationSource
         SecretSectionName = SecretSectionNameDefault;
     }
 
-
+    /// <summary>
+    /// Create a <see cref="IConfigurationSource"/> using the defaults.
+    /// The certificate is fetched based on the configuration with the respect of the <see cref="CertificateInfo"/>.
+    /// </summary>
+    /// <param name="prefix">The prefix to use, if null the <see cref="PrefixDefault"/> is used.</param>
+    /// <param name="secretSectionName">The section name to use, if null the <see cref="SecretSectionNameDefault"/> is used.</param>
+    /// </summary>
     public SecretCertificateConfigurationSource(string? prefix, string? secretSectionName)
     {
         Prefix = prefix ?? PrefixDefault;
         SecretSectionName = secretSectionName ?? SecretSectionNameDefault;
     }
 
+    /// <summary>
+    /// Create a <see cref="IConfigurationSource"/> using the defaults.
+    /// The prefix use is the default <see cref="PrefixDefault"/>.
+    /// </summary>
+    /// <param name="certificate">The certificate to use for decription</param>
     public SecretCertificateConfigurationSource(X509Certificate2 certificate)
     {
         Prefix = PrefixDefault;
@@ -51,6 +62,11 @@ public class SecretCertificateConfigurationSource : IConfigurationSource
         SecretSectionName = SecretSectionNameDefault;      
     }
 
+    /// <summary>
+    /// Create a <see cref="IConfigurationSource"/> using the defaults.
+    /// </summary>
+    /// <param name="prefix">The prefix to use</param>
+    /// <param name="certificate">The certificate to use for decription</param>
     public SecretCertificateConfigurationSource(string prefix, X509Certificate2 certificate)
     {
         Prefix = prefix;
