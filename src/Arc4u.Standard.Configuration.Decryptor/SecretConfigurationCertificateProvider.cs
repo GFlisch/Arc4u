@@ -42,7 +42,7 @@ public class SecretConfigurationCertificateProvider : ConfigurationProvider
     /// </summary>
     public override void Load()
     {
-        Dictionary<string, string> data = new(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase);
 
         var tempRoot = new ConfigurationRoot(new List<IConfigurationProvider>(_configurationRoot.Providers));
 
