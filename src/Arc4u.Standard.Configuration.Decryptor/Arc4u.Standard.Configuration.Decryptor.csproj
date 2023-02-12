@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 		<PropertyGroup>
 				<TargetFrameworks>net6.0;net7.0</TargetFrameworks>
@@ -16,8 +16,8 @@
 				<RepositoryType>git</RepositoryType>
 				<PackageTags>Arc4u</PackageTags>
 				<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-				<PackageId>Arc4u.Configuration.Decryptor</PackageId>
-				<Product>Arc4u.Configuration.Decryptor</Product>
+				<PackageId>Arc4u.Standard.Configuration.Decryptor</PackageId>
+				<Product>Arc4u.Standard.Configuration.Decrypto</Product>
 				<LangVersion>latest</LangVersion>
 				<ImplicitUsings>enable</ImplicitUsings>
 				<Nullable>enable</Nullable>
