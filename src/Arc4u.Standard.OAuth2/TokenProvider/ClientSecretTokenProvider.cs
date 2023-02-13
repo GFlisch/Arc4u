@@ -1,4 +1,4 @@
-﻿using Arc4u.Dependency;
+using Arc4u.Dependency;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Security.Principal;
@@ -134,13 +134,9 @@ namespace Arc4u.OAuth2.TokenProvider
         {
             try
             {
-                var certificate = Certificate.FindCertificate(
-                                    certificateInfo.Name,
-                                    certificateInfo.FindType,
-                                    certificateInfo.Location,
-                                    certificateInfo.StoreName);
+                var certificate = Certificate.FindCertificate(certificateInfo);
 
-                string pair = Certificate.Decrypt(clientSecret, certificate);
+                string pair = certificate.Decrypt(clientSecret);
 
                 return ExtractCredential(pair);
             }

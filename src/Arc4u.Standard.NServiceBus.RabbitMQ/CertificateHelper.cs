@@ -1,4 +1,4 @@
-﻿using Arc4u.Security.Cryptography;
+using Arc4u.Security.Cryptography;
 using NServiceBus;
 
 namespace Arc4u.NServiceBus.RabbitMQ
@@ -9,7 +9,7 @@ namespace Arc4u.NServiceBus.RabbitMQ
         {
             transport.UseExternalAuthMechanism(); // to avoid username password
 
-            var certificate = Certificate.ExtractCertificate(settings);
+            var certificate = Certificate.FindCertificate(settings);
 
             transport.SetClientCertificate(certificate);
         }

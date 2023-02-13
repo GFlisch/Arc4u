@@ -1,4 +1,4 @@
-﻿using AutoFixture.AutoMoq;
+using AutoFixture.AutoMoq;
 using AutoFixture;
 using Xunit;
 using Moq;
@@ -55,7 +55,7 @@ public class CertificateDecryptor
         var certificate = GetX509Certificate2();
 
         var plainText = _fixture.Create<string>();
-        var cypherText = Certificate.Encrypt(plainText, certificate);
+        var cypherText = certificate.Encrypt(plainText);
 
 
         var config = new ConfigurationBuilder()

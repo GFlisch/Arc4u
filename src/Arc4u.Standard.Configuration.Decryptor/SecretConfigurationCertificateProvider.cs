@@ -1,5 +1,4 @@
-﻿using System.Security.Cryptography.X509Certificates;
-using Arc4u.Security;
+using System.Security.Cryptography.X509Certificates;
 using Arc4u.Security.Cryptography;
 using Microsoft.Extensions.Configuration;
 
@@ -48,17 +47,7 @@ public class SecretConfigurationCertificateProvider : ConfigurationProvider
 
         if (_certificate is null)
         {
-            var certificate = tempRoot.GetSection(_secretSectionName).Get<CertificateInfo>();
-
-            // For this configuration, no decryption exists. Simply skip this provider.
-            if (certificate is null)
-            {
-                Data = data;
-                return;
-            }
-
-            _certificate = Certificate.FindCertificate(certificate.Name, certificate.FindType, certificate.Location, certificate.StoreName);
-
+            _certificate = Certificate.FindCertificate(tempRoot, _secretSectionName);
         }
 
         // Parse the temproot Data collection of each provider
@@ -68,7 +57,7 @@ public class SecretConfigurationCertificateProvider : ConfigurationProvider
             {
                 var cypher = item.Value.Substring(_prefix.Length);
 
-                data.Add(item.Key, Certificate.Decrypt(cypher, _certificate));
+                data.Add(item.Key, _certificate.Decrypt(cypher));
             }
         }
 

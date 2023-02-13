@@ -1,4 +1,4 @@
-﻿using Arc4u.Dependency;
+using Arc4u.Dependency;
 using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Security.Principal;
 using Arc4u.OAuth2.Token;
@@ -181,7 +181,7 @@ namespace Arc4u.Standard.OAuth2.Middleware
 
         private CredentialsResult GetCertificateCredential(string clientSecret)
         {
-            string pair = Certificate.Decrypt(clientSecret, _certificate);
+            string pair = _certificate.Decrypt(clientSecret);
 
             return ExtractCredential(pair);
         }
