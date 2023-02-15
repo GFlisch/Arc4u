@@ -42,7 +42,7 @@ public class CertificateDecryptor
         var sut = new SecretConfigurationCertificateProvider("Prefix:", "EncryptionCertificate", null, mockConfigurationRoot.Object);
 
         // act
-        var exception = Record.Exception(() => sut.Load());
+        var exception = Record.Exception(sut.Load);
 
         // assert
         exception.Should().BeOfType<KeyNotFoundException>();
@@ -77,6 +77,29 @@ public class CertificateDecryptor
         sut.TryGet("ConnectionStrings:Toto", out var value).Should().BeTrue();
         value.Should().NotBeNull();
         value.Should().Be(plainText);
+    }
+
+    [Fact]
+    public void CertficateShouldNotDecrypt()
+    {
+        // arrange
+        var config = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["ConnectionStrings:Toto"] = $"Tag:Database"
+                }).Build();
+
+        var mockConfigurationRoot = _fixture.Freeze<Mock<IConfigurationRoot>>();
+        mockConfigurationRoot.Setup(p => p.Providers).Returns(config.Providers);
+
+        var sut = new SecretConfigurationCertificateProvider("Tag:", "EncryptionCertificate", null, mockConfigurationRoot.Object);
+
+        // act
+        sut.Load();
+
+        // assert
+        sut.TryGet("ConnectionStrings:Toto", out var value).Should().BeFalse();
     }
 
     [Fact]
