@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup Label="Globals">
 		<SccProjectName>SAK</SccProjectName>
@@ -8,7 +8,7 @@
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+		<TargetFrameworks>netstandard2.0;net6.0;net7.0</TargetFrameworks>
 		<RootNamespace>Arc4u.Diagnostics</RootNamespace>
 		<Product>Arc4u</Product>
 		<Description>Add Serilog logging functionality tool.</Description>
