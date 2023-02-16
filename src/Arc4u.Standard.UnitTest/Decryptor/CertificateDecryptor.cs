@@ -33,7 +33,7 @@ public class CertificateDecryptor
             .AddInMemoryCollection(
                 new Dictionary<string, string?>
                 {
-                    ["EncryptionCertificate:Name"] = "friendlyName"
+                    ["EncryptionCertificate:CertificateStore:Name"] = "friendlyName"
                 }).Build();
 
         var mockConfigurationRoot = _fixture.Freeze<Mock<IConfigurationRoot>>();
