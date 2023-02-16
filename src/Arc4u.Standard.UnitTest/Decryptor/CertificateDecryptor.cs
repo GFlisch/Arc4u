@@ -80,6 +80,39 @@ public class CertificateDecryptor
     }
 
     [Fact]
+    public void CertficateWithPemFilesShouldDecrypt()
+    {
+        // arrange
+        var certificate = GetX509Certificate2();
+
+        var plainText = _fixture.Create<string>();
+        var cypherText = certificate.Encrypt(plainText);
+
+
+        var config = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["EncryptionCertificate:File:Cert"] = @".\Configs\cert.pem",
+                    ["EncryptionCertificate:File:Key"] = @".\Configs\key.pem",
+                    ["ConnectionStrings:Toto"] = $"Tag:{cypherText}"
+                }).Build();
+
+        var mockConfigurationRoot = _fixture.Freeze<Mock<IConfigurationRoot>>();
+        mockConfigurationRoot.Setup(p => p.Providers).Returns(config.Providers);
+
+        var sut = new SecretConfigurationCertificateProvider("Tag:", "EncryptionCertificate", null, mockConfigurationRoot.Object);
+
+        // act
+        sut.Load();
+
+        // assert
+        sut.TryGet("ConnectionStrings:Toto", out var value).Should().BeTrue();
+        value.Should().NotBeNull();
+        value.Should().Be(plainText);
+    }
+
+    [Fact]
     public void CertficateShouldNotDecrypt()
     {
         // arrange

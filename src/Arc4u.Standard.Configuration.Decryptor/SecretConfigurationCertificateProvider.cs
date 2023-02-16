@@ -30,6 +30,11 @@ public class SecretConfigurationCertificateProvider : ConfigurationProvider
     private readonly string _secretSectionName;
     private X509Certificate2? _certificate;
 
+    public record CertInfoFilePath {
+        public string Cert { get; init; }
+        public string Key { get; init; }
+    }
+
     private readonly IConfigurationRoot _configurationRoot;
 
     /// <summary>
@@ -48,17 +53,37 @@ public class SecretConfigurationCertificateProvider : ConfigurationProvider
 
         if (_certificate is null)
         {
-            var certificate = tempRoot.GetSection(_secretSectionName).Get<CertificateInfo>();
+            var certSectionPath = $"{_secretSectionName}:CertificateStore";
+            var certificate = tempRoot.GetSection(certSectionPath).Get<CertificateInfo>();
 
             // For this configuration, no decryption exists. Simply skip this provider.
             if (certificate is null)
+            {
+                // Do we have pem files?
+                certSectionPath = $"{_secretSectionName}:File";
+                if (tempRoot.GetSection(certSectionPath).Exists())
+                {
+                    var cert = tempRoot.GetSection(certSectionPath).Get<CertInfoFilePath>();
+
+                    if (cert is not null)
+                    {
+                        _certificate = X509Certificate2.CreateFromPemFile(cert.Cert, cert.Key);
+                    }
+                }
+            }
+            else
+            {
+                // The FindCertificate(tempRoot, certificate) is not used because the method throws an exception if no section is defined!
+                _certificate = Certificate.FindCertificate(certificate);
+            }
+
+            if (_certificate is null)
             {
                 Data = data;
                 return;
             }
 
-            // The FindCertificate(tempRoot, certificate) is not used because the method throws an exception if no section is defined!
-            _certificate = Certificate.FindCertificate(certificate);
+
         }
 
         // Parse the temproot Data collection of each provider

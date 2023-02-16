@@ -66,6 +66,9 @@
 				<None Update="Configs\Basic.json">
 						<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 				</None>
+				<None Update="Configs\cert.pem">
+				  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+				</None>
 
 				<None Update="Configs\EfCore.json">
 						<CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -73,6 +76,10 @@
 
 				<None Update="Configs\EmptyAssemblies.json">
 						<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+				</None>
+
+				<None Update="Configs\key.pem">
+				  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 				</None>
 
 				<None Update="Configs\TestParser.json">
