@@ -1,5 +1,7 @@
 # Arc4u.Standard.Configuration.Decryptor
 
+#### Coming with the version 6.0.11.2 and greater.
+
 This package is intended to be used to secure sensitive data stored in configuration. The data stored can be encrypted via a X509 certificate or via Rijndael.
 
 Currently the .NET framework provides a way to store configuration in different sources: ini file, json or to inject them via arguments or even command line.
@@ -26,7 +28,6 @@ So when a value start with "Encrypt:xyz...", the provider will extract the cyphe
 
 As the configuration system in .NET is applying the final configuration by replacing each values based on the order of the providers. So the decrypted text will be the lates one available
 
-
 ## How to use the providers.
 
 First add the package reference.
@@ -51,7 +52,35 @@ At the level of the program.cs, we have to add the provider we want.
 
 Different possibilities exist:
 1) Define the information in the appsettings.{env}.json file (if you have a certificate by environment which I strongly advice).
+   1) To find the certificate in the store.
+   2) Via the pem files (public and private key). **Only from Arc4u 6.0.14.1 and above.**
 2) Create the certificate in code and pass it as a parameter of the AddCertificateDecryptorConfiguration extension method.
+
+> The structure of the json configuration file has changed from 6.0.14.1 to take into account the pem files certificate.
+
+> 6.0.11.2 to 6.0.13.1
+```json
+{
+    "EncryptionCertificate": {
+    "Name": "encryptorSha2dev"
+  }
+}
+```
+
+> from 6.0.14.1 
+```json
+{
+    "EncryptionCertificate": {
+      "CertificateStore": {
+        "Name": "encryptorSha2dev"
+      },
+      "File":{
+        "Cert": "certs/cert.pem",
+        "Key": "certs/key.pem"
+      }
+    }
+}
+```
 
 The [CertificateInfo](https://github.com/GFlisch/Arc4u/blob/master/src/Arc4u.Standard/Security/CertificateInfo.cs) class is used to Deserialize the information from the configuration file to retrieve it.
 
