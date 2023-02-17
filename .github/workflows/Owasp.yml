@@ -15,7 +15,7 @@ jobs:
         with:
           project: 'Arc4u'
           path: '.'
-          format: 'HTML,JSON'
+          format: 'HTML'
           out: 'reports' # this is the default, no need to specify unless you wish to override it
           args: >
             --failOnCVSS 0
