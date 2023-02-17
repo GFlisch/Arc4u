@@ -21,6 +21,7 @@ jobs:
           args: >
             --failOnCVSS 10
             --enableRetired
+            --format 'JSON'
       - name: Upload Test results
         uses: actions/upload-artifact@master
         with:
