@@ -16,7 +16,7 @@ public class X509CertificateLoader : IX509CertificateLoader
         _logger = logger;
     }
 
-    private readonly ILogger<X509CertificateLoader> _logger;
+    private readonly ILogger<X509CertificateLoader>? _logger;
     /// <summary>
     /// Find a certificate in the system: Certificate store for Windows or Keychain...
     /// </summary>
@@ -90,13 +90,13 @@ public class X509CertificateLoader : IX509CertificateLoader
                 {
                     if (!File.Exists(cert.Cert))
                     {
-                        _logger.Technical().LogError($"Public key file doesn't exist.");
+                        _logger?.Technical().LogError($"Public key file doesn't exist.");
                         return null;
                     }
 
                     if (!File.Exists(cert.Key))
                     {
-                        _logger.Technical().LogError($"Private key file doesn't exist.");
+                        _logger?.Technical().LogError($"Private key file doesn't exist.");
                         return null;
                     }
 
