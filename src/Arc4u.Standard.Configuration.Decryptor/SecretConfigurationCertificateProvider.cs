@@ -18,19 +18,19 @@ public class SecretConfigurationCertificateProvider : ConfigurationProvider
     /// <param name="secretSectionName">Is used to identify the section, coming from the previous providers defined, to read the configuration needed to identify the certificate.</param>
     /// <param name="certificate">An optional parameter, where the user of the class will inject by itself the certificate to use. In this case the secretSectionName parameter is not considered.</param>
     /// <param name="configurationRoot">The <see cref="IConfigurationRoot"/>.</param>
-    public SecretConfigurationCertificateProvider(string prefix, string secretSectionName, X509Certificate2? certificate, IConfigurationRoot configurationRoot)
+    public SecretConfigurationCertificateProvider(string prefix, string secretSectionName, X509Certificate2? certificate, IConfigurationRoot configurationRoot, IX509CertificateLoader? certificateLoader)
     {
         _configurationRoot = configurationRoot;
         _prefix = prefix;
         _secretSectionName = secretSectionName;
         _certificate = certificate;
-        _certificateLoader = new X509CertificateLoader(null);
+        _certificateLoader = certificateLoader;
     }
 
     private readonly string _prefix;
     private readonly string _secretSectionName;
     private X509Certificate2? _certificate;
-    private readonly IX509CertificateLoader _certificateLoader;
+    private readonly IX509CertificateLoader? _certificateLoader;
 
     private readonly IConfigurationRoot _configurationRoot;
 
@@ -48,7 +48,7 @@ public class SecretConfigurationCertificateProvider : ConfigurationProvider
 
         var tempRoot = new ConfigurationRoot(new List<IConfigurationProvider>(_configurationRoot.Providers));
 
-        _certificate ??= _certificateLoader.FindCertificate(tempRoot, _secretSectionName);
+        _certificate ??= _certificateLoader?.FindCertificate(tempRoot, _secretSectionName);
 
         if (_certificate is null)
         {

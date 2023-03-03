@@ -1,5 +1,6 @@
 using System.Security.Cryptography.X509Certificates;
 using Arc4u.Security;
+using Arc4u.Security.Cryptography;
 using Microsoft.Extensions.Configuration;
 
 namespace Arc4u.Configuration.Decryptor;
@@ -24,9 +25,9 @@ public static class SecretDecryptorConfiguratorExtensions
     /// <param name="prefix">Optional prefix used to detect the secret to decrypt. If null, the <see cref="SecretCertificateConfigurationSource"/> default value.</param>
     /// <param name="secretSectionName">Optional section to read the configuration from the config. If null, the <see cref="SecretCertificateConfigurationSource"/> default value.</param>
     /// <returns>The <see cref="IConfigurationBuilder"/>.</returns>
-    public static IConfigurationBuilder AddCertificateDecryptorConfiguration(this IConfigurationBuilder configurationBuilder, string? prefix, string? secretSectionName)
+    public static IConfigurationBuilder AddCertificateDecryptorConfiguration(this IConfigurationBuilder configurationBuilder, string? prefix, string? secretSectionName, IX509CertificateLoader? certificateLoader)
     {
-        configurationBuilder.Add(new SecretCertificateConfigurationSource(prefix, secretSectionName));
+        configurationBuilder.Add(new SecretCertificateConfigurationSource(prefix, secretSectionName, certificateLoader));
         return configurationBuilder;
     }
 

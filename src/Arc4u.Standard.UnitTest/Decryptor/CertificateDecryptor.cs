@@ -39,7 +39,7 @@ public class CertificateDecryptor
         var mockConfigurationRoot = _fixture.Freeze<Mock<IConfigurationRoot>>();
         mockConfigurationRoot.Setup(p => p.Providers).Returns(config.Providers);
 
-        var sut = new SecretConfigurationCertificateProvider("Prefix:", "EncryptionCertificate", null, mockConfigurationRoot.Object);
+        var sut = new SecretConfigurationCertificateProvider("Prefix:", "EncryptionCertificate", null, mockConfigurationRoot.Object, new X509CertificateLoader(null));
 
         // act
         var exception = Record.Exception(sut.Load);
@@ -68,7 +68,7 @@ public class CertificateDecryptor
         var mockConfigurationRoot = _fixture.Freeze<Mock<IConfigurationRoot>>();
         mockConfigurationRoot.Setup(p => p.Providers).Returns(config.Providers);
 
-        var sut = new SecretConfigurationCertificateProvider("Tag:", "EncryptionCertificate", certificate, mockConfigurationRoot.Object);
+        var sut = new SecretConfigurationCertificateProvider("Tag:", "EncryptionCertificate", certificate, mockConfigurationRoot.Object, new X509CertificateLoader(null));
 
         // act
         sut.Load();
@@ -100,7 +100,7 @@ public class CertificateDecryptor
         var mockConfigurationRoot = _fixture.Freeze<Mock<IConfigurationRoot>>();
         mockConfigurationRoot.Setup(p => p.Providers).Returns(config.Providers);
 
-        var sut = new SecretConfigurationCertificateProvider("Tag:", "EncryptionCertificate", null, mockConfigurationRoot.Object);
+        var sut = new SecretConfigurationCertificateProvider("Tag:", "EncryptionCertificate", null, mockConfigurationRoot.Object, new X509CertificateLoader(null));
 
         // act
         sut.Load();
@@ -125,7 +125,7 @@ public class CertificateDecryptor
         var mockConfigurationRoot = _fixture.Freeze<Mock<IConfigurationRoot>>();
         mockConfigurationRoot.Setup(p => p.Providers).Returns(config.Providers);
 
-        var sut = new SecretConfigurationCertificateProvider("Tag:", "EncryptionCertificate", null, mockConfigurationRoot.Object);
+        var sut = new SecretConfigurationCertificateProvider("Tag:", "EncryptionCertificate", null, mockConfigurationRoot.Object, new X509CertificateLoader(null));
 
         // act
         sut.Load();

@@ -1,4 +1,5 @@
 using System.Security.Cryptography.X509Certificates;
+using Arc4u.Security.Cryptography;
 using Microsoft.Extensions.Configuration;
 
 namespace Arc4u.Configuration.Decryptor;
@@ -26,6 +27,8 @@ public class SecretCertificateConfigurationSource : IConfigurationSource
     /// </summary>
     public X509Certificate2? Certificate { get; set; }
 
+    public IX509CertificateLoader? CertificateLoader { get; set; }
+
     /// <summary>
     /// Create a <see cref="IConfigurationSource"/> with the default prefix <see cref="PrefixDefault" and section <see cref="SecretSectionNameDefault"/>./>
     /// </summary>
@@ -42,10 +45,11 @@ public class SecretCertificateConfigurationSource : IConfigurationSource
     /// <param name="prefix">The prefix to use, if null the <see cref="PrefixDefault"/> is used.</param>
     /// <param name="secretSectionName">The section name to use, if null the <see cref="SecretSectionNameDefault"/> is used.</param>
     /// </summary>
-    public SecretCertificateConfigurationSource(string? prefix, string? secretSectionName)
+    public SecretCertificateConfigurationSource(string? prefix, string? secretSectionName, IX509CertificateLoader? certificateLoader)
     {
         Prefix = prefix ?? PrefixDefault;
         SecretSectionName = secretSectionName ?? SecretSectionNameDefault;
+        CertificateLoader = certificateLoader ?? new X509CertificateLoader(null);
     }
 
     /// <summary>
@@ -83,6 +87,6 @@ public class SecretCertificateConfigurationSource : IConfigurationSource
     /// <returns>A <see cref="EnvironmentVariablesConfigurationProvider"/></returns>
     public IConfigurationProvider Build(IConfigurationBuilder builder)
     {
-        return new SecretConfigurationCertificateProvider(Prefix, SecretSectionName, Certificate, builder.Build());
+        return new SecretConfigurationCertificateProvider(Prefix, SecretSectionName, Certificate, builder.Build(), CertificateLoader);
     }
 }
