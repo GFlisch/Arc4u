@@ -9,6 +9,7 @@ namespace Arc4u.Security.Cryptography;
 
 public static class Certificate
 {
+    [Obsolete("Use the X509CertificateLoader instead.")]
     public static X509Certificate2 FindCertificate(String find, X509FindType findType = X509FindType.FindBySubjectName, StoreLocation location = StoreLocation.LocalMachine, StoreName name = StoreName.My)
     {
         var certificateStore = new X509Store(name, location);
@@ -27,6 +28,7 @@ public static class Certificate
         }
     }
 
+    [Obsolete("Use the X509CertificateLoader instead.")]
     public static X509Certificate2 FindCertificate(IKeyValueSettings settings)
     {
         var certificateName = settings.Values.ContainsKey("CertificateName") ? settings.Values["CertificateName"] : string.Empty;
@@ -62,6 +64,7 @@ public static class Certificate
         }
     }
 
+    [Obsolete("Use the X509CertificateLoader instead.")]
     public static X509Certificate2 FindCertificate(CertificateInfo certificateInfo)
     {
         var certificate = Certificate.FindCertificate(
@@ -73,6 +76,7 @@ public static class Certificate
         return certificate;
     }
 
+    [Obsolete("Use the X509CertificateLoader instead.")]
     public static X509Certificate2? FindCertificate(IConfiguration configuration, string sectionName)
     {
         var certificateInfo = configuration.GetSection(sectionName).Get<CertificateInfo>();
@@ -90,12 +94,12 @@ public static class Certificate
     {
         if (null == x509)
         {
-            throw new ArgumentNullException("x509");
+            throw new ArgumentNullException(nameof(x509));
         }
 
         if (string.IsNullOrWhiteSpace(plainText))
         {
-            throw new ArgumentNullException("plainText");
+            throw new ArgumentNullException(nameof(plainText));
         }
 
         var plainBytes = Encoding.UTF8.GetBytes(plainText.Trim());
@@ -123,7 +127,7 @@ public static class Certificate
 
         if (!x509.HasPrivateKey)
         {
-            throw new CryptographicException(String.Format("The certificate {0} has no private key!", x509.FriendlyName));
+            throw new CryptographicException(string.Format("The certificate {0} has no private key!", x509.FriendlyName));
         }
 
         var cipherBytes = Convert.FromBase64String(base64CypherString);
