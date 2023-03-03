@@ -1,4 +1,4 @@
-﻿using Arc4u.Dependency;
+using Arc4u.Dependency;
 using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Security.Principal;
 using Arc4u.OAuth2.Token;
@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http.Headers;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -30,13 +31,19 @@ namespace Arc4u.Standard.OAuth2.Middleware
             _next = next ?? throw new ArgumentNullException(nameof(next));
 
             if (null == container)
+            {
                 throw new ArgumentNullException(nameof(container));
+            }
 
             if (null == option)
+            {
                 throw new ArgumentNullException(nameof(option));
+            }
 
             if (null == option.Settings)
-                throw new ArgumentNullException("Settings defined in option cannot be null.");
+            {
+                throw new ArgumentNullException(nameof(option.Settings));
+            }
 
             _logger = container.Resolve<ILogger<BasicAuthenticationMiddleware>>();
 
@@ -48,18 +55,23 @@ namespace Arc4u.Standard.OAuth2.Middleware
                     option.DefaultUpn = string.Empty;
                 }
                 else
+                {
                     _logger.Technical().Information($"Default upn: {option.DefaultUpn}.").Log();
-
+                }
             }
 
             if (option.Settings.Values.ContainsKey(TokenKeys.ProviderIdKey))
             {
                 _hasProvider = container.TryResolve(option.Settings.Values[TokenKeys.ProviderIdKey], out _provider);
                 if (!_hasProvider)
+                {
                     _logger.Technical().Error($"No token provider was found with resolution name equal to: {option.Settings.Values[TokenKeys.ProviderIdKey]}.").Log();
+                }
             }
             else
+            {
                 _logger.Technical().Error($"No token provider resolution name is defined in your settings!").Log();
+            }
 
             if (!_hasProvider)
             {
@@ -81,7 +93,7 @@ namespace Arc4u.Standard.OAuth2.Middleware
         {
             if (!_hasProvider)
             {
-                await _next(context);
+                await _next(context).ConfigureAwait(false);
                 return;
             }
 
@@ -106,7 +118,7 @@ namespace Arc4u.Standard.OAuth2.Middleware
                                 if (null != credential && credential.CredentialsEntered)
                                 {
                                     // Get an Access Token.
-                                    tokenInfo = await _provider.GetTokenAsync(_option.Settings, credential);
+                                    tokenInfo = await _provider.GetTokenAsync(_option.Settings, credential).ConfigureAwait(false);
 
                                     _tokenCache?.Put(cacheKey, tokenInfo);
                                 }
@@ -128,7 +140,7 @@ namespace Arc4u.Standard.OAuth2.Middleware
                 _logger.Technical().Exception(ex).Log();
             }
 
-            await _next(context);
+            await _next(context).ConfigureAwait(false);
         }
 
         private static string BuildKey(string authorizationValue)
@@ -146,7 +158,7 @@ namespace Arc4u.Standard.OAuth2.Middleware
             // We have a Basic authentication.
             var token = authorization.Substring("Basic ".Length).Trim();
 
-            string pair = Encoding.UTF8.GetString(Convert.FromBase64String(token));
+            var pair = Encoding.UTF8.GetString(Convert.FromBase64String(token));
             var ix = pair.IndexOf(':');
             if (ix == -1)
             {
