@@ -36,6 +36,7 @@ public class SecretCertificateConfigurationSource : IConfigurationSource
     {
         Prefix = PrefixDefault;
         SecretSectionName = SecretSectionNameDefault;
+        CertificateLoader = new X509CertificateLoader(null);
     }
 
     /// <summary>
