@@ -23,7 +23,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arc4u.Standard.Threading", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arc4u.Standard.Caching", "Arc4u.Standard.Caching\Arc4u.Standard.Caching.csproj", "{4AC131B6-9FF2-4F66-A2DE-BE66C3CA366B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arc4u.Standard.Caching.Redis", "Arc4u.Standard.Caching.Reddis\Arc4u.Standard.Caching.Redis.csproj", "{42B7DC08-23E2-4854-A5DB-71E9FB3BAF6D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arc4u.Standard.Caching.Redis", "Arc4u.Standard.Caching.Redis\Arc4u.Standard.Caching.Redis.csproj", "{42B7DC08-23E2-4854-A5DB-71E9FB3BAF6D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arc4u.Standard.Dependency", "Arc4u.Standard.Dependency\Arc4u.Standard.Dependency.csproj", "{51D25BBB-E6E5-46AF-81A1-B854F715F2C0}"
 EndProject
