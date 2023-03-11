@@ -1,4 +1,4 @@
-﻿using Arc4u.Diagnostics;
+using Arc4u.Diagnostics;
 using Arc4u.Standard.UnitTest.Infrastructure;
 using KubeMQ.Grpc;
 using KubeMQ.SDK.csharp.Events;
@@ -30,7 +30,7 @@ namespace Arc4u.Standard.UnitTest.KubeMQ
         {
             var ChannelName = "Order.Event";
             var ClientID = "Demo.Test";
-            var KubeMQServerAddress = "localhost:50300";
+            var KubeMQServerAddress = "localhost:40000";
             var subscriber = new Subscriber(KubeMQServerAddress);
 
             long counter = 0;
@@ -95,7 +95,7 @@ namespace Arc4u.Standard.UnitTest.KubeMQ
         [Fact]
         public async Task TestBasicSendAndReceive()
         {
-            QueueStream queue = new QueueStream("localhost:50300", "Demo.Test.Basic", null);
+            QueueStream queue = new QueueStream("localhost:40000", "Demo.Test.Basic", null);
 
             var messages = new List<Message>();
             var tags = new Dictionary<string, string>
@@ -157,7 +157,7 @@ namespace Arc4u.Standard.UnitTest.KubeMQ
         [Fact]
         public async Task TestBasicSendWithDelayAndReceive()
         {
-            QueueStream queue = new QueueStream("localhost:50300", "Demo.Test.Delay", null);
+            QueueStream queue = new QueueStream("localhost:40000", "Demo.Test.Delay", null);
 
             var messages = new List<Message>();
             var tags = new Dictionary<string, string>
@@ -254,7 +254,7 @@ namespace Arc4u.Standard.UnitTest.KubeMQ
 
             Assert.Equal(0, Interlocked.Read(ref touched));
 
-            QueueStream queue = new QueueStream("localhost:50300", "Demo.Test.IISHost", null);
+            QueueStream queue = new QueueStream("localhost:40000", "Demo.Test.IISHost", null);
 
             stopwatch.Start();
 
@@ -290,7 +290,7 @@ namespace Arc4u.Standard.UnitTest.KubeMQ
         {
             CancellationToken cancellationToken = (CancellationToken)parameter;
 
-            QueueStream queue = new QueueStream("localhost:50300", "Demo.Test.Listener", null);
+            QueueStream queue = new QueueStream("localhost:40000", "Demo.Test.Listener", null);
 
             PollRequest pollRequest = new()
             {

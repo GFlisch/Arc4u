@@ -1,4 +1,4 @@
-﻿using Arc4u.Caching;
+using Arc4u.Caching;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Microsoft.Extensions.Logging;
@@ -14,7 +14,7 @@ namespace Arc4u.OAuth2.Token
         /// <summary>
         /// Read the cache used to store the tokens! If nothing is identified, Default is used!
         /// </summary>
-        public ApplicationCache(CacheContext cacheContext, CacheHelper cacheHelper, ILogger logger)
+        public ApplicationCache(ICacheContext cacheContext, ICacheHelper cacheHelper, ILogger logger)
         {
             _logger = logger;
             _cacheContext = cacheContext;
@@ -22,7 +22,7 @@ namespace Arc4u.OAuth2.Token
         }
 
         private readonly ICache _cache;
-        private readonly CacheContext _cacheContext;
+        private readonly ICacheContext _cacheContext;
         private readonly ILogger _logger;
 
         /// <summary>

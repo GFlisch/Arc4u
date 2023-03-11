@@ -1,5 +1,4 @@
-﻿using Arc4u.OAuth2.Events;
-using Microsoft.AspNetCore.Authentication.Cookies;
+using Arc4u.OAuth2.Events;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System;
 using System.Security.Cryptography.X509Certificates;
@@ -18,8 +17,6 @@ public class OidcAuthenticationOptions
 
     public bool ValidateAuthority { get; set; }
 
-    public ITicketStore? TicketStore { get; set; }
-
     public Type JwtBearerEventsType { get; set; } = typeof(StandardBearerEvents);
 
     public Type CookieAuthenticationEventsType { get; set; } = typeof(StandardCookieEvents);
@@ -29,6 +26,11 @@ public class OidcAuthenticationOptions
     public TimeSpan ForceRefreshTimeoutTimeSpan { get; set; } = TimeSpan.FromMinutes(15);
 
     public X509Certificate2? CertSecurityKey { get; set; }
+
+    /// <summary>
+    /// The <see cref="IPostConfigureOptions<CookieAuthenticationOptions"/> type used to configure the <see cref="CookieAuthenticationOptions"/>.
+    /// </summary>
+    public Type CookiesconfigureOptionsType { get; set; } = typeof(ConfigureCookieAuthenticationOptions);
 
     /// <summary>
     /// For the other OIDC => ResponseType = OpenIdConnectResponseType.CodeIdTokenToken;

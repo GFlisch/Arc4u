@@ -1,4 +1,4 @@
-﻿using Arc4u.Diagnostics;
+using Arc4u.Diagnostics;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -47,7 +47,7 @@ public class StandardBearerEvents : JwtBearerEvents
     {
         if (context.SecurityToken is JwtSecurityToken accessToken)
         {
-            if (context.Principal.Identity is ClaimsIdentity identity)
+            if (context.Principal?.Identity is ClaimsIdentity identity)
             {
                 identity.BootstrapContext = accessToken.RawData;
             }

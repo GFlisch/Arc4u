@@ -1,4 +1,4 @@
-﻿using Arc4u.Caching;
+using Arc4u.Caching;
 using Arc4u.Dependency;
 using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Security;
@@ -19,7 +19,7 @@ namespace Arc4u.OAuth2.TokenProvider
     {
         public const string ProviderName = "Obo";
 
-        public OboTokenProvider(CacheContext cacheContext, IContainerResolve container, IApplicationContext applicationContext, IUserObjectIdentifier userObjectIdentifier, ILogger<OboTokenProvider> logger, IActivitySourceFactory activitySourceFactory)
+        public OboTokenProvider(ICacheContext cacheContext, IContainerResolve container, IApplicationContext applicationContext, IUserObjectIdentifier userObjectIdentifier, ILogger<OboTokenProvider> logger, IActivitySourceFactory activitySourceFactory)
         {
             _cacheContext = cacheContext;
             _container = container;
@@ -29,7 +29,7 @@ namespace Arc4u.OAuth2.TokenProvider
             _applicationContext = applicationContext;
         }
 
-        private readonly CacheContext _cacheContext;
+        private readonly ICacheContext _cacheContext;
         private readonly IContainerResolve _container;
         private readonly ILogger<OboTokenProvider> _logger;
         private readonly ActivitySource _activitySource;

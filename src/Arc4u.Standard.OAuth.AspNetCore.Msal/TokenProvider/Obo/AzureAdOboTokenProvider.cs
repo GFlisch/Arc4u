@@ -1,4 +1,4 @@
-﻿using Arc4u.Caching;
+using Arc4u.Caching;
 using Arc4u.Dependency;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
@@ -14,7 +14,7 @@ namespace Arc4u.OAuth2.TokenProvider
 
     public class AzureAdOboTokenProvider : OboTokenProvider
     {
-        public AzureAdOboTokenProvider(CacheContext cacheContext, IContainerResolve container, IApplicationContext applicationContext, IUserObjectIdentifier userObjectIdentifier, ILogger<AzureAdOboTokenProvider> logger, IActivitySourceFactory activitySourceFactory) : base(cacheContext, container, applicationContext, userObjectIdentifier, logger, activitySourceFactory)
+        public AzureAdOboTokenProvider(ICacheContext cacheContext, IContainerResolve container, IApplicationContext applicationContext, IUserObjectIdentifier userObjectIdentifier, ILogger<AzureAdOboTokenProvider> logger, IActivitySourceFactory activitySourceFactory) : base(cacheContext, container, applicationContext, userObjectIdentifier, logger, activitySourceFactory)
         { }
 
         protected override IConfidentialClientApplication CreateCca(IKeyValueSettings valueSettings)

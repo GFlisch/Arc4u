@@ -1,4 +1,4 @@
-﻿using Arc4u.Caching;
+using Arc4u.Caching;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Token;
@@ -24,7 +24,7 @@ public class AzureADOboTokenProvider : ITokenProvider
 {
 
     public AzureADOboTokenProvider(TokenRefreshInfo tokenRefreshInfo,
-                                   CacheContext cacheContext, 
+                                   ICacheContext cacheContext, 
                                    IOptionsMonitor<OpenIdConnectOptions> openIdConnectOptions,
                                    IActivitySourceFactory activitySourceFactory,
                                    ILogger<AzureADOboTokenProvider> logger)
@@ -42,7 +42,7 @@ public class AzureADOboTokenProvider : ITokenProvider
     private readonly ILogger<AzureADOboTokenProvider> _logger;
     private readonly OpenIdConnectOptions _openIdConnectOptions;
     private OpenIdConnectConfiguration? _metadata;
-    private readonly CacheContext _cacheContext;
+    private readonly ICacheContext _cacheContext;
     private readonly TokenRefreshInfo _tokenRefreshInfo;
     private readonly ActivitySource? _activitySource;
     
