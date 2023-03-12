@@ -57,7 +57,9 @@ public static partial class AuthenticationExtensions
                     {
                         var authHeader = context.Request.Headers[HeaderNames.Authorization].FirstOrDefault();
                         if (authHeader?.StartsWith("Bearer ") == true)
+                        {
                             return JwtBearerDefaults.AuthenticationScheme;
+                        }
 
                         return OpenIdConnectDefaults.AuthenticationScheme;
 

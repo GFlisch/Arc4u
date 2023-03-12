@@ -1,10 +1,10 @@
-﻿using Arc4u.Dependency.Attribute;
-using Arc4u.OAuth2.Token;
+﻿using System;
+using System.Threading.Tasks;
+using Arc4u.Dependency.Attribute;
 using Arc4u.OAuth2.Options;
+using Arc4u.OAuth2.Token;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System;
-using System.Threading.Tasks;
 
 namespace Arc4u.OAuth2.TokenProviders;
 
@@ -41,9 +41,11 @@ public class OidcTokenProvider : ITokenProvider
         var timeRemaining = _tokenRefreshInfo.AccessToken.ExpiresOnUtc.Subtract(DateTime.UtcNow);
 
         if (timeRemaining > _oidcOptions.ForceRefreshTimeoutTimeSpan)
+        {
             return _tokenRefreshInfo.AccessToken;
+        }
 
-        return await _refreshTokenProvider.GetTokenAsync(settings, null);
+        return await _refreshTokenProvider.GetTokenAsync(settings, null).ConfigureAwait(false);
     }
 
     public void SignOut(IKeyValueSettings settings)

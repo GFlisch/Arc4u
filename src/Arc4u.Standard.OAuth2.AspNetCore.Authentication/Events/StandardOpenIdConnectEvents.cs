@@ -1,10 +1,10 @@
-﻿using Arc4u.Diagnostics;
+﻿using System;
+using System.Threading.Tasks;
+using Arc4u.Diagnostics;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Threading.Tasks;
 
 namespace Arc4u.OAuth2.Events;
 
@@ -34,7 +34,7 @@ public class StandardOpenIdConnectEvents : OpenIdConnectEvents
 
         _logger.Technical().LogException(context.Exception);
 
-        await context.Response.WriteAsync("<html><p>You are not authenticated.</p></html>");
+        await context.Response.WriteAsync("<html><p>You are not authenticated.</p></html>").ConfigureAwait(false);
 
     }
 

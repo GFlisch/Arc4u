@@ -1,73 +1,25 @@
-using Arc4u.Caching;
-using Arc4u.Dependency.Attribute;
-using Arc4u.Diagnostics;
-using Arc4u.OAuth2.Token;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Logging;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http;
-using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace Arc4u.OAuth2.TokenProviders;
-
-[Export(AzureADOboTokenProvider.ProviderName, typeof(ITokenProvider))]
-public class AzureADOboTokenProvider : ITokenProvider
-{
-
-    public AzureADOboTokenProvider(TokenRefreshInfo tokenRefreshInfo,
-                                   ICacheContext cacheContext, 
-                                   IOptionsMonitor<OpenIdConnectOptions> openIdConnectOptions,
-                                   IActivitySourceFactory activitySourceFactory,
-                                   ILogger<AzureADOboTokenProvider> logger)
-    {
-        _logger = logger;
-        _openIdConnectOptions= openIdConnectOptions.Get(OpenIdConnectDefaults.AuthenticationScheme);
-        _cacheContext = cacheContext;
-        _tokenRefreshInfo = tokenRefreshInfo;
-        _activitySource = activitySourceFactory?.GetArc4u();
-    }
-
-    const string ProviderName = "Obo";
-
-
+/* Unmerged change from project 'Arc4u.Standard.OAuth2.AspNetCore.Authentication(net7.0)'
+Before:
     private readonly ILogger<AzureADOboTokenProvider> _logger;
-    private readonly OpenIdConnectOptions _openIdConnectOptions;
-    private OpenIdConnectConfiguration? _metadata;
-    private readonly ICacheContext _cacheContext;
-    private readonly TokenRefreshInfo _tokenRefreshInfo;
-    private readonly ActivitySource? _activitySource;
-    
+After:
+    private readonly ILogger<AzureADOboTokenProvider> _logger;
+*/
 
-    public async Task<TokenInfo> GetTokenAsync(IKeyValueSettings settings, object platformParameters)
-    {
-        ArgumentNullException.ThrowIfNull(_openIdConnectOptions, nameof(_openIdConnectOptions));
-        ArgumentNullException.ThrowIfNull(settings, nameof(settings));
-
-        using var activity = _activitySource?.StartActivity("Get on behal of token", ActivityKind.Producer);
-
-        var cache = string.IsNullOrEmpty(_cacheContext.Principal?.CacheName) ? _cacheContext.Default : _cacheContext[_cacheContext.Principal?.CacheName];
-
-        // the key is defined by user!
-        var cacheKey = $"_Obo_{settings.Values[TokenKeys.ClientIdKey]}_{_tokenRefreshInfo.AccessToken.Token.GetHashCode()}";
-
+/* Unmerged change from project 'Arc4u.Standard.OAuth2.AspNetCore.Authentication(net7.0)'
+Before:
         var tokenFromCache = await cache.GetAsync<TokenInfo>(cacheKey);
+After:
+        var tokenFromCache = await cache.GetAsync<TokenInfo>(cacheKey).ConfigureAwait(false);
+*/
 
-        // if the token is expired => we need to refresh it! 
-        // Not all caches have a TTl defined for a specific key.
-        if (tokenFromCache is not null)
-        {
-            JwtSecurityToken token = new(tokenFromCache.Token);
-
-            // arbitrary 1 minute to have time to perform a request => must be a variable.
+/* Unmerged change from project 'Arc4u.Standard.OAuth2.AspNetCore.Authentication(net7.0)'
+Before:
             if (token.ValidTo.Subtract(DateTime.UtcNow).TotalSeconds > 60) 
                 return tokenFromCache;
         }
@@ -88,13 +40,151 @@ public class AzureADOboTokenProvider : ITokenProvider
                                     };
         var content = new FormUrlEncodedContent(pairs);
         var tokenResponse = await _openIdConnectOptions.Backchannel.PostAsync(_metadata.TokenEndpoint, content, CancellationToken.None);
-        
+After:
+            if (token.ValidTo.Subtract(DateTime.UtcNow).TotalSeconds > 60)
+            {
+                return tokenFromCache;
+            }
+        }
+            
+        _metadata ??= await _openIdConnectOptions!.ConfigurationManager!.GetConfigurationAsync(CancellationToken.None).ConfigureAwait(false);
+
+        // We consider that the access token is still valid.
+        // In a Obo from OpenIdConnect this is always the case.
+
+        var pairs = new Dictionary<string, string>()
+                                    {
+                                            { "grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer" },
+                                            { "client_id", settings.Values[TokenKeys.ClientIdKey] },
+                                            { "client_secret", settings.Values[TokenKeys.ApplicationKey] },
+                                            { "assertion", _tokenRefreshInfo.AccessToken.Token },
+                                            { "scope", settings.Values[TokenKeys.Scopes] },
+                                            { "requested_token_use", "on_behalf_of" }
+                                    };
+        var content = new FormUrlEncodedContent(pairs);
+        var tokenResponse = await _openIdConnectOptions.Backchannel.PostAsync(_metadata.TokenEndpoint, content, CancellationToken.None).ConfigureAwait(false);
+*/
+
+/* Unmerged change from project 'Arc4u.Standard.OAuth2.AspNetCore.Authentication(net7.0)'
+Before:
+                _logger.Technical().LogError($"Getting the Access token with Obo failed. {tokenResponse.ReasonPhrase}");
+After:
+            {
+                _logger.Technical().LogError($"Getting the Access token with Obo failed. {tokenResponse.ReasonPhrase}");
+            }
+*/
+
+/* Unmerged change from project 'Arc4u.Standard.OAuth2.AspNetCore.Authentication(net7.0)'
+Before:
+                _logger.Technical().LogError("Getting the Access token with Obo failed. Enable PII to have more info.");
+After:
+            {
+                _logger.Technical().LogError("Getting the Access token with Obo failed. Enable PII to have more info.");
+            }
+*/
+
+/* Unmerged change from project 'Arc4u.Standard.OAuth2.AspNetCore.Authentication(net7.0)'
+Before:
+            using (var payload = JsonDocument.Parse(await tokenResponse.Content.ReadAsStringAsync()))
+After:
+            using (var payload = JsonDocument.Parse(await tokenResponse.Content.ReadAsStringAsync().ConfigureAwait(false)))
+*/
+using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
+using Arc4u.Caching;
+using Arc4u.Dependency.Attribute;
+using Arc4u.Diagnostics;
+using Arc4u.OAuth2.Token;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Logging;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+
+namespace Arc4u.OAuth2.TokenProviders;
+
+[Export(AzureADOboTokenProvider.ProviderName, typeof(ITokenProvider))]
+public class AzureADOboTokenProvider : ITokenProvider
+{
+
+    public AzureADOboTokenProvider(TokenRefreshInfo tokenRefreshInfo,
+                                   ICacheContext cacheContext,
+                                   IOptionsMonitor<OpenIdConnectOptions> openIdConnectOptions,
+                                   IActivitySourceFactory activitySourceFactory,
+                                   ILogger<AzureADOboTokenProvider> logger)
+    {
+        _logger = logger;
+        _openIdConnectOptions = openIdConnectOptions.Get(OpenIdConnectDefaults.AuthenticationScheme);
+        _cacheContext = cacheContext;
+        _tokenRefreshInfo = tokenRefreshInfo;
+        _activitySource = activitySourceFactory?.GetArc4u();
+    }
+
+    const string ProviderName = "Obo";
+
+    private readonly ILogger<AzureADOboTokenProvider> _logger;
+    private readonly OpenIdConnectOptions _openIdConnectOptions;
+    private OpenIdConnectConfiguration? _metadata;
+    private readonly ICacheContext _cacheContext;
+    private readonly TokenRefreshInfo _tokenRefreshInfo;
+    private readonly ActivitySource? _activitySource;
+
+    public async Task<TokenInfo> GetTokenAsync(IKeyValueSettings settings, object platformParameters)
+    {
+        ArgumentNullException.ThrowIfNull(_openIdConnectOptions, nameof(_openIdConnectOptions));
+        ArgumentNullException.ThrowIfNull(settings, nameof(settings));
+
+        using var activity = _activitySource?.StartActivity("Get on behal of token", ActivityKind.Producer);
+
+        var cache = string.IsNullOrEmpty(_cacheContext.Principal?.CacheName) ? _cacheContext.Default : _cacheContext[_cacheContext.Principal?.CacheName];
+
+        // the key is defined by user!
+        var cacheKey = $"_Obo_{settings.Values[TokenKeys.ClientIdKey]}_{_tokenRefreshInfo.AccessToken.Token.GetHashCode()}";
+
+        var tokenFromCache = await cache.GetAsync<TokenInfo>(cacheKey).ConfigureAwait(false);
+
+        // if the token is expired => we need to refresh it! 
+        // Not all caches have a TTl defined for a specific key.
+        if (tokenFromCache is not null)
+        {
+            JwtSecurityToken token = new(tokenFromCache.Token);
+
+            // arbitrary 1 minute to have time to perform a request => must be a variable.
+            if (token.ValidTo.Subtract(DateTime.UtcNow).TotalSeconds > 60)
+            {
+                return tokenFromCache;
+            }
+        }
+
+        _metadata ??= await _openIdConnectOptions!.ConfigurationManager!.GetConfigurationAsync(CancellationToken.None).ConfigureAwait(false);
+
+        // We consider that the access token is still valid.
+        // In a Obo from OpenIdConnect this is always the case.
+
+        var pairs = new Dictionary<string, string>()
+                                    {
+                                            { "grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer" },
+                                            { "client_id", settings.Values[TokenKeys.ClientIdKey] },
+                                            { "client_secret", settings.Values[TokenKeys.ApplicationKey] },
+                                            { "assertion", _tokenRefreshInfo.AccessToken.Token },
+                                            { "scope", settings.Values[TokenKeys.Scopes] },
+                                            { "requested_token_use", "on_behalf_of" }
+                                    };
+        var content = new FormUrlEncodedContent(pairs);
+        var tokenResponse = await _openIdConnectOptions.Backchannel.PostAsync(_metadata.TokenEndpoint, content, CancellationToken.None).ConfigureAwait(false);
+
         if (!tokenResponse.IsSuccessStatusCode)
         {
             if (IdentityModelEventSource.ShowPII)
+            {
                 _logger.Technical().LogError($"Getting the Access token with Obo failed. {tokenResponse.ReasonPhrase}");
+            }
             else
+            {
                 _logger.Technical().LogError("Getting the Access token with Obo failed. Enable PII to have more info.");
+            }
         }
 
         // throws an exception is not 200OK.
@@ -104,7 +194,7 @@ public class AzureADOboTokenProvider : ITokenProvider
 
         if (tokenResponse.IsSuccessStatusCode)
         {
-            using (var payload = JsonDocument.Parse(await tokenResponse.Content.ReadAsStringAsync()))
+            using (var payload = JsonDocument.Parse(await tokenResponse.Content.ReadAsStringAsync().ConfigureAwait(false)))
             {
                 // Persist the new acess token
                 if (payload.RootElement.TryGetProperty("expires_in", out var property) && property.TryGetInt32(out var seconds))
@@ -117,7 +207,7 @@ public class AzureADOboTokenProvider : ITokenProvider
                     oboToken = new Token.TokenInfo("access_token", payload!.RootElement!.GetString("access_token"));
                 }
 
-                await cache.PutAsync(cacheKey, oboToken.ExpiresOnUtc - DateTime.UtcNow, oboToken);
+                await cache.PutAsync(cacheKey, oboToken.ExpiresOnUtc - DateTime.UtcNow, oboToken).ConfigureAwait(false).ConfigureAwait(false);
             }
         }
 

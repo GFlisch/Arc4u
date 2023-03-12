@@ -7,9 +7,9 @@ using System;
 namespace Arc4u.OAuth2.Token;
 
 [Export(typeof(ICacheHelper)), Shared]
-public class CacheContext : ICacheHelper
+public class CacheHelper : ICacheHelper
 {
-    public CacheContext(ICacheContext cacheContext, ILogger<CacheContext> logger)
+    public CacheHelper(ICacheContext cacheContext, ILogger<CacheContext> logger)
     {
         _cacheContext = cacheContext;
         _logger = logger;

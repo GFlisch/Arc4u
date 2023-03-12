@@ -1,4 +1,4 @@
-﻿namespace Arc4u.OAuth2.Token;
+namespace Arc4u.OAuth2.Token;
 
 public interface ITokenRefreshProvider : ITokenProvider
 {

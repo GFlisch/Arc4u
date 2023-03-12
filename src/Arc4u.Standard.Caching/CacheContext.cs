@@ -24,6 +24,8 @@ public class CacheContext : ICacheContext
     // Constant used to resolve the ICache interface to retrieve the Redis implementation.
     public const string Redis = "Redis";
 
+    public const string Dapr = "Dapr";
+
     private readonly Dictionary<string, ICache> _caches = new();
     private readonly Dictionary<string, string> _uninitializedCaches = new();
     private string _cacheConfigName;

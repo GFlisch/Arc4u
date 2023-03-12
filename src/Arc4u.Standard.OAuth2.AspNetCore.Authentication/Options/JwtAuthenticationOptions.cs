@@ -1,6 +1,6 @@
-﻿using Arc4u.OAuth2.Events;
 using System;
 using System.Security.Cryptography.X509Certificates;
+using Arc4u.OAuth2.Events;
 
 namespace Arc4u.OAuth2.Options;
 

@@ -1,11 +1,11 @@
-﻿using Arc4u.Dependency.Attribute;
-using Arc4u.OAuth2.Token;
-using Arc4u.Security.Principal;
-using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Arc4u.Dependency.Attribute;
+using Arc4u.OAuth2.Token;
+using Arc4u.Security.Principal;
+using Microsoft.Extensions.Logging;
 
 namespace Arc4u.OAuth2.TokenProviders;
 
@@ -45,7 +45,9 @@ public class BootstrapContextTokenProvider : ITokenProvider
             JwtSecurityToken jwt = new(token);
 
             if (jwt.ValidTo > DateTime.UtcNow)
+            {
                 return Task.FromResult(new TokenInfo("Bearer", token, jwt.ValidTo));
+            }
 
             throw new TimeoutException("The token provided is expired.");
         }

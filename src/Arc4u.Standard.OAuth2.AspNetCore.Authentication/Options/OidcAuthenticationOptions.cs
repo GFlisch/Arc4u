@@ -1,7 +1,7 @@
-using Arc4u.OAuth2.Events;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System;
 using System.Security.Cryptography.X509Certificates;
+using Arc4u.OAuth2.Events;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace Arc4u.OAuth2.Options;
 

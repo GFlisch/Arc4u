@@ -1,4 +1,7 @@
-﻿using Arc4u.Diagnostics;
+﻿using System;
+using System.Globalization;
+using System.Threading.Tasks;
+using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Options;
 using Arc4u.OAuth2.Token;
 using Microsoft.AspNetCore.Authentication;
@@ -6,17 +9,14 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System;
-using System.Globalization;
-using System.Threading.Tasks;
 
 namespace Arc4u.OAuth2.Events;
 
 public class StandardCookieEvents : CookieAuthenticationEvents
 {
-    public StandardCookieEvents(IServiceProvider serviceProvider, 
+    public StandardCookieEvents(IServiceProvider serviceProvider,
                                 ILogger<StandardCookieEvents> logger,
-                                IOptions<OidcAuthenticationOptions> oidcOptions, 
+                                IOptions<OidcAuthenticationOptions> oidcOptions,
                                 ITokenRefreshProvider tokenRefreshProvider)
     {
         _serviceProvider = serviceProvider;
@@ -44,11 +44,11 @@ public class StandardCookieEvents : CookieAuthenticationEvents
         var refreshThreshold = _oidcOptions.ForceRefreshTimeoutTimeSpan;
 
         _logger?.LogDebug("Extract token from the cookie cache.");
-        
+
         // Persist the Access and Refresh tokens.
         // TokenRefreshInfo is registered as Scoped and we create at this moment (by request) an instance to
         // set the information stored in the TicketStore repo based on the cookie information.
-        
+
         var tokensInfo = _serviceProvider.GetService<TokenRefreshInfo>();
 
         tokensInfo.AccessToken = new TokenInfo("access_token", cookieCtx.Properties.GetTokenValue("access_token"), accessTokenExpiration.UtcDateTime);
@@ -61,12 +61,23 @@ public class StandardCookieEvents : CookieAuthenticationEvents
             try
             {
                 if (timeRemaining < TimeSpan.Zero)
+                {
                     _logger?.Technical().LogInformation("Refresh the access token. Expired since {TimeExpired}", timeRemaining.Multiply(-1));
+                }
                 else
+                {
                     _logger?.Technical().LogInformation("Refresh the access token. Will expire in {TimeExpired}", timeRemaining);
+                }
 
                 // throws an exception if the call failed.
+
+/* Unmerged change from project 'Arc4u.Standard.OAuth2.AspNetCore.Authentication(net7.0)'
+Before:
                 await _tokenRefreshProvider.GetTokenAsync(null, null);
+After:
+                await _tokenRefreshProvider.GetTokenAsync(null, null).ConfigureAwait(false);
+*/
+                await _tokenRefreshProvider.GetTokenAsync(null, null).ConfigureAwait(false);
 
                 cookieCtx.Properties.UpdateTokenValue("access_token", tokensInfo.AccessToken.Token);
                 cookieCtx.Properties.UpdateTokenValue("refresh_token", tokensInfo.RefreshToken.Token);
@@ -82,7 +93,7 @@ public class StandardCookieEvents : CookieAuthenticationEvents
                 _logger?.Technical().LogException(ex);
 
                 cookieCtx.RejectPrincipal();
-                await cookieCtx.HttpContext.SignOutAsync();
+                await cookieCtx.HttpContext.SignOutAsync().ConfigureAwait(false);
             }
 
         }
