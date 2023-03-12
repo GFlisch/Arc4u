@@ -207,7 +207,7 @@ public class AzureADOboTokenProvider : ITokenProvider
                     oboToken = new Token.TokenInfo("access_token", payload!.RootElement!.GetString("access_token"));
                 }
 
-                await cache.PutAsync(cacheKey, oboToken.ExpiresOnUtc - DateTime.UtcNow, oboToken).ConfigureAwait(false).ConfigureAwait(false);
+                await cache.PutAsync(cacheKey, oboToken.ExpiresOnUtc - DateTime.UtcNow, oboToken).ConfigureAwait(false);
             }
         }
 
