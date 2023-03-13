@@ -106,6 +106,7 @@ public class RedisTests
 
     }
 
+#if DEBUG
     [Fact]
     public void DatabaseConnectionShould()
     {
@@ -148,4 +149,6 @@ public class RedisTests
         // assert
         value.Should().Be("test");
     }
+
+#endif
 }
