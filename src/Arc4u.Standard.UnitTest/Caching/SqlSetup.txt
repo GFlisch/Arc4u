@@ -1,0 +1,9 @@
+// Start docker
+docker run -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=P@ssword" -p 1433:1433 -d mcr.microsoft.com/mssql/server:2022-latest
+
+Follow this doc:
+https://www.learmoreseekmore.com/2020/04/net-core-distributed-sql-server-cache.html
+
+dotnet sql-cache create "Server=localhost;Database=CacheTest;User Id=sa;Password=P@ssword" dbo SqlCache
+
+Server=localhost;Database=CacheTestDB;User Id=sa;Password=P@ssword;

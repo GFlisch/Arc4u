@@ -48,6 +48,7 @@
 		<ItemGroup>
 				<ProjectReference Include="..\Arc4u.Standard.Caching.Memory\Arc4u.Standard.Caching.Memory.csproj" />
 				<ProjectReference Include="..\Arc4u.Standard.Caching.Reddis\Arc4u.Standard.Caching.Redis.csproj" />
+				<ProjectReference Include="..\Arc4u.Standard.Caching.Sql\Arc4u.Standard.Caching.Sql.csproj" />
 				<ProjectReference Include="..\Arc4u.Standard.Configuration.Decryptor\Arc4u.Standard.Configuration.Decryptor.csproj" />
 				<ProjectReference Include="..\Arc4u.Standard.Dependency.ComponentModel\Arc4u.Standard.Dependency.ComponentModel.csproj" />
 				<ProjectReference Include="..\Arc4u.Standard.Dependency\Arc4u.Standard.Dependency.csproj" />
