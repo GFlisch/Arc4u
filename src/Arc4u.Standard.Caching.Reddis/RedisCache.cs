@@ -4,7 +4,11 @@ using Arc4u.Diagnostics;
 using Arc4u.Serializer;
 using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Microsoft.VisualBasic.FileIO;
+using StackExchange.Redis;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using StackExchangeRedis = Microsoft.Extensions.Caching.StackExchangeRedis.RedisCache;
 
 namespace Arc4u.Caching.Redis;
@@ -12,21 +16,30 @@ namespace Arc4u.Caching.Redis;
 [Export("Redis", typeof(ICache))]
 public class RedisCache : BaseDistributeCache, ICache
 {
-    public const string ConnectionStringKey = "ConnectionString";
-    public const string DatabaseNameKey = "Name";
-    private const string SerializerNameKey = "SerializerName";
-
-    private String Name { get; set; }
+     private string? Name { get; set; }
 
     private readonly ILogger<RedisCache> _logger;
 
-    public RedisCache(ILogger<RedisCache> logger, IContainerResolve container) : base(container)
+    /// <summary>
+    /// This is a named options => the configuration named instance for this instance will be taken during the intialize method. 
+    /// </summary>
+    private readonly IOptionsMonitor<RedisCacheOption> _options;
+
+    public RedisCache(ILogger<RedisCache> logger, IContainerResolve container, IOptionsMonitor<RedisCacheOption> options) : base(container)
     {
         _logger = logger;
+        _options = options;
     }
-
-    public override void Initialize(string store)
+   
+    public override void Initialize([DisallowNull] string store)
     {
+#if NET6_0
+        ArgumentNullException.ThrowIfNull(store, nameof(store));
+#endif
+#if NET7_0_OR_GREATER
+        ArgumentNullException.ThrowIfNullOrEmpty(store, nameof(store));
+#endif
+
         lock (_lock)
         {
             if (IsInitialized)
@@ -34,56 +47,33 @@ public class RedisCache : BaseDistributeCache, ICache
                 _logger.Technical().Debug($"Redis Cache {store} is already initialized.").Log();
                 return;
             }
+
             Name = store;
 
-            if (Container.TryResolve<IKeyValueSettings>(store, out var settings))
+            var config = _options.Get(store);
+
+            var redisOption = new RedisCacheOptions
             {
-                if (settings.Values.ContainsKey(ConnectionStringKey))
-                {
-                    ConnectionString = settings.Values[ConnectionStringKey];
-                }
+                InstanceName = config.InstanceName,
+                Configuration = config.ConnectionString,
+            };
 
-                if (settings.Values.ContainsKey(DatabaseNameKey))
-                {
-                    DatabaseName = settings.Values[DatabaseNameKey];
-                }
+            DistributeCache = new StackExchangeRedis(redisOption);
 
-                if (settings.Values.ContainsKey(SerializerNameKey))
-                {
-                    SerializerName = settings.Values[SerializerNameKey];
-                }
-                else
-                {
-                    SerializerName = store;
-                }
-
-                var option = new RedisCacheOptions
-                {
-                    InstanceName = DatabaseName,
-                    Configuration = ConnectionString
-                };
-
-                DistributeCache = new StackExchangeRedis(option);
-
-                if (!Container.TryResolve<IObjectSerialization>(SerializerName, out var serializerFactory))
-                {
-                    SerializerFactory = Container.Resolve<IObjectSerialization>();
-                }
-                else
-                {
-                    SerializerFactory = serializerFactory;
-                }
-
-                IsInitialized = true;
-                _logger.Technical().System($"Redis Cache {store} is initialized.").Log();
-
+            if (!Container.TryResolve<IObjectSerialization>(config.SerializerName, out var serializerFactory))
+            {
+                SerializerFactory = Container.Resolve<IObjectSerialization>();
             }
+            else
+            {
+                SerializerFactory = serializerFactory;
+            }
+
+            IsInitialized = true;
+            _logger.Technical().System($"Redis Cache {store} is initialized.").Log();
         }
     }
 
-    public override string ToString() => Name;
+    public override string ToString() => Name ?? throw new NullReferenceException();
 
-    private string ConnectionString { get; set; }
-    private string DatabaseName { get; set; } = "Default";
-    private string SerializerName { get; set; }
 }
