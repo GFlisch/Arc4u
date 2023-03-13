@@ -106,6 +106,65 @@ public class RedisTests
 
     }
 
+    [Fact]
+    public void AddOptionByCodeToServiceCollectionShould()
+    {
+        // arrange
+        var option1 = _fixture.Create<RedisCacheOption>();
+
+
+        IServiceCollection services = new ServiceCollection();
+
+        services.AddRedisCache("option1", options =>
+        {
+            options.InstanceName = option1.InstanceName;
+            options.SerializerName = option1.SerializerName;
+            options.ConnectionString = option1.ConnectionString;
+        });
+
+        var serviceProvider = services.BuildServiceProvider();
+
+        // act
+        var sut = serviceProvider.GetService<IOptionsMonitor<RedisCacheOption>>()!.Get("option1");
+
+        // assert
+        sut.ConnectionString.Should().Be(option1.ConnectionString);
+        sut.InstanceName.Should().Be(option1.InstanceName);
+        sut.SerializerName.Should().Be(option1.SerializerName);
+    }
+
+    [Fact]
+    public void AddOptionByConfigToServiceCollectionShould()
+    {
+        // arrange
+        var option1 = _fixture.Create<RedisCacheOption>();
+
+        var config = new ConfigurationBuilder()
+                     .AddInMemoryCollection(
+                         new Dictionary<string, string?>
+                         {
+                             ["Option1:ConnectionString"] = option1.ConnectionString,
+                             ["Option1:InstanceName"] = option1.InstanceName,
+                             ["Option1:SerializerName"] = option1.SerializerName,
+                         }).Build();
+
+        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+
+        IServiceCollection services = new ServiceCollection();
+
+        services.AddRedisCache("option1", configuration, "Option1");
+
+        var serviceProvider = services.BuildServiceProvider();
+
+        // act
+        var sut = serviceProvider.GetService<IOptionsMonitor<RedisCacheOption>>()!.Get("option1");
+
+        // assert
+        sut.ConnectionString.Should().Be(option1.ConnectionString);
+        sut.InstanceName.Should().Be(option1.InstanceName);
+        sut.SerializerName.Should().Be(option1.SerializerName);
+    }
+
 #if DEBUG
     [Fact]
     public void DatabaseConnectionShould()
