@@ -5,33 +5,34 @@ using Arc4u.Serializer;
 using AutoFixture;
 using AutoFixture.AutoMoq;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Moq;
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Xunit;
 
-namespace Arc4u.Standard.UnitTest.Blazor
+namespace Arc4u.Standard.UnitTest.Serialization
 {
     [Trait("Category", "CI")]
     public class TokenTests
     {
         public TokenTests()
         {
-            fixture = new Fixture();
-            fixture.Customize(new AutoMoqCustomization());
+            _fixture = new Fixture();
+            _fixture.Customize(new AutoMoqCustomization());
         }
-        
-        private readonly Fixture fixture;
+
+        private readonly Fixture _fixture;
 
 
         [Fact]
         public void AccessTokenValidityShould()
         {
             // act
-            JwtSecurityToken sut = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow, expires: DateTime.UtcNow.AddHours(1));
+            var sut = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow, expires: DateTime.UtcNow.AddHours(1));
 
             // assert
             (sut.ValidTo > DateTime.UtcNow.AddMinutes(-5)).Should().BeTrue();
@@ -41,7 +42,7 @@ namespace Arc4u.Standard.UnitTest.Blazor
         public void AccessTokenValidityShouldNot()
         {
             // act
-            JwtSecurityToken sut = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddMinutes(-10));
+            var sut = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddMinutes(-10));
 
             // assert
             (sut.ValidTo > DateTime.UtcNow.AddMinutes(-5)).Should().BeFalse();
@@ -51,7 +52,7 @@ namespace Arc4u.Standard.UnitTest.Blazor
         public void AccessTokenBlazorSerializationShouldNot()
         {
             // Arrange
-            JwtSecurityToken jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddMinutes(-10));
+            var jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddMinutes(-10));
 
             var tokenInfo = new TokenInfo("Bearer", jwt.EncodedPayload, DateTime.UtcNow);
 
@@ -69,127 +70,118 @@ namespace Arc4u.Standard.UnitTest.Blazor
 
         }
 
-        //[Fact]
-        //public void AccessTokenSerializationJsonShouldNot()
-        //{
-        //    // Arrange
-        //    JwtSecurityToken jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddMinutes(-10));
+        [Fact]
+        public void AccessTokenSerializationJsonShouldNot()
+        {
+            // Arrange
+            var jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddMinutes(-10));
 
-        //    var tokenInfo = new TokenInfo("Bearer", jwt.EncodedPayload, DateTime.UtcNow);
+            var tokenInfo = new TokenInfo("Bearer", jwt.EncodedPayload, DateTime.UtcNow);
+            var storeName = "store name";
 
-        //    var storeName = "store name";
-        //    Dictionary<String, String> keySettings = new();
-        //    keySettings.Add(MemoryCache.CompactionPercentageKey, "20");
-        //    keySettings.Add(MemoryCache.SizeLimitKey, "1");
-            
-        //    var mockKeyValueSettings = fixture.Freeze<Mock<IKeyValueSettings>>();
-        //    mockKeyValueSettings.SetupGet(p => p.Values).Returns(keySettings);
+            IServiceCollection services = new ServiceCollection();
 
-        //    IKeyValueSettings settings = mockKeyValueSettings.Object;
+            services.AddMemoryCache(storeName, options => options.SizeLimit = 10);
+            services.AddTransient<IObjectSerialization, JsonSerialization>();
 
-        //    var mockContainer = fixture.Freeze<Mock<IContainerResolve>>();
-        //    mockContainer.Setup((m) => m.TryResolve<IKeyValueSettings>(storeName, out settings)).Returns(true);
+            var serviceProvider = services.BuildServiceProvider();
 
-        //    IObjectSerialization noSerializer = null;
-        //    IObjectSerialization serializer = new JsonSerialization();
-        //    mockContainer.Setup(m => m.TryResolve<IObjectSerialization>(storeName, out noSerializer)).Returns(false);
-        //    mockContainer.Setup(m => m.Resolve<IObjectSerialization>()).Returns(serializer);
+            IObjectSerialization noSerializer = null;
+            var mockIContainer = _fixture.Freeze<Mock<IContainerResolve>>();
+            mockIContainer.Setup(m => m.Resolve<IObjectSerialization>()).Returns(serviceProvider.GetService<IObjectSerialization>()!);
+            mockIContainer.Setup(m => m.TryResolve(storeName, out noSerializer)).Returns(false);
+            var mockIOptions = _fixture.Freeze<Mock<IOptionsMonitor<MemoryCacheOption>>>();
+            mockIOptions.Setup(m => m.Get("Store")).Returns(serviceProvider.GetService<IOptionsMonitor<MemoryCacheOption>>()!.Get("Store"));
 
-        //    var sut = fixture.Create<MemoryCache>();
-        //    sut.Initialize("store name");
+            var sut = _fixture.Create<MemoryCache>();
+            sut.Initialize("store name");
 
-        //    sut.Put("key", tokenInfo);
+            sut.Put("key", tokenInfo);
 
-        //    // act
-        //    var cachedToken = sut.Get<TokenInfo>("key");
+            // act
+            var cachedToken = sut.Get<TokenInfo>("key");
 
-        //    // assert
-        //    cachedToken.Should().NotBeNull();
-        //    cachedToken.Token.Should().Be(jwt.EncodedPayload);
-        //    cachedToken.TokenType.Should().Be(tokenInfo.TokenType);
-        //    cachedToken.ExpiresOnUtc.Should().Be(tokenInfo.ExpiresOnUtc);          
-        //}
+            // assert
+            cachedToken.Should().NotBeNull();
+            cachedToken.Token.Should().Be(jwt.EncodedPayload);
+            cachedToken.TokenType.Should().Be(tokenInfo.TokenType);
+            cachedToken.ExpiresOnUtc.Should().Be(tokenInfo.ExpiresOnUtc);
+        }
 
-        //[Fact]
-        //public void AccessTokenSerializationProtobufShouldNot()
-        //{
-        //    // Arrange
-        //    JwtSecurityToken jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddMinutes(-10));
+        [Fact]
+        public void AccessTokenSerializationProtobufShouldNot()
+        {
+            // Arrange
+            var jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddMinutes(-10));
 
-        //    var tokenInfo = new TokenInfo("Bearer", jwt.EncodedPayload, DateTime.UtcNow);
+            var tokenInfo = new TokenInfo("Bearer", jwt.EncodedPayload, DateTime.UtcNow);
 
-        //    var storeName = "store name";
-        //    Dictionary<String, String> keySettings = new();
-        //    keySettings.Add(MemoryCache.CompactionPercentageKey, "20");
-        //    keySettings.Add(MemoryCache.SizeLimitKey, "1");
+            var storeName = "store name";
+            IServiceCollection services = new ServiceCollection();
 
-        //    var mockKeyValueSettings = fixture.Freeze<Mock<IKeyValueSettings>>();
-        //    mockKeyValueSettings.SetupGet(p => p.Values).Returns(keySettings);
+            services.AddMemoryCache(storeName, options => options.SizeLimit = 10);
+            services.AddTransient<IObjectSerialization, JsonSerialization>();
 
-        //    IKeyValueSettings settings = mockKeyValueSettings.Object;
+            var serviceProvider = services.BuildServiceProvider();
 
-        //    var mockContainer = fixture.Freeze<Mock<IContainerResolve>>();
-        //    mockContainer.Setup((m) => m.TryResolve<IKeyValueSettings>(storeName, out settings)).Returns(true);
+            IObjectSerialization noSerializer = null;
+            var mockIContainer = _fixture.Freeze<Mock<IContainerResolve>>();
+            mockIContainer.Setup(m => m.Resolve<IObjectSerialization>()).Returns(serviceProvider.GetService<IObjectSerialization>()!);
+            mockIContainer.Setup(m => m.TryResolve(storeName, out noSerializer)).Returns(false);
+            var mockIOptions = _fixture.Freeze<Mock<IOptionsMonitor<MemoryCacheOption>>>();
+            mockIOptions.Setup(m => m.Get("Store")).Returns(serviceProvider.GetService<IOptionsMonitor<MemoryCacheOption>>()!.Get("Store"));
 
-        //    IObjectSerialization noSerializer = null;
-        //    IObjectSerialization serializer = new ProtoBufSerialization();
-        //    mockContainer.Setup(m => m.TryResolve<IObjectSerialization>(storeName, out noSerializer)).Returns(false);
-        //    mockContainer.Setup(m => m.Resolve<IObjectSerialization>()).Returns(serializer);
+            var sut = _fixture.Create<MemoryCache>();
+            sut.Initialize("store name");
 
-        //    var sut = fixture.Create<MemoryCache>();
-        //    sut.Initialize("store name");
+            sut.Put("key", tokenInfo);
 
-        //    sut.Put("key", tokenInfo);
+            // act
+            var cachedToken = sut.Get<TokenInfo>("key");
 
-        //    // act
-        //    var cachedToken = sut.Get<TokenInfo>("key");
+            // assert
+            cachedToken.Should().NotBeNull();
+            cachedToken.Token.Should().Be(jwt.EncodedPayload);
+            cachedToken.TokenType.Should().Be(tokenInfo.TokenType);
+            cachedToken.ExpiresOnUtc.Should().Be(tokenInfo.ExpiresOnUtc);
+        }
 
-        //    // assert
-        //    cachedToken.Should().NotBeNull();
-        //    cachedToken.Token.Should().Be(jwt.EncodedPayload);
-        //    cachedToken.TokenType.Should().Be(tokenInfo.TokenType);
-        //    cachedToken.ExpiresOnUtc.Should().Be(tokenInfo.ExpiresOnUtc);
-        //}
+        [Fact]
+        public void AccessTokenSerializationProtobufZipShouldNot()
+        {
+            // Arrange
+            var jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddMinutes(-10));
 
-        //[Fact]
-        //public void AccessTokenSerializationProtobufZipShouldNot()
-        //{
-        //    // Arrange
-        //    JwtSecurityToken jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddMinutes(-10));
+            var tokenInfo = new TokenInfo("Bearer", jwt.EncodedPayload, DateTime.UtcNow);
 
-        //    var tokenInfo = new TokenInfo("Bearer", jwt.EncodedPayload, DateTime.UtcNow);
+            var storeName = "store name";
+            IServiceCollection services = new ServiceCollection();
 
-        //    var storeName = "store name";
-        //    Dictionary<String, String> keySettings = new();
-        //    keySettings.Add(MemoryCache.CompactionPercentageKey, "20");
-        //    keySettings.Add(MemoryCache.SizeLimitKey, "1");
+            services.AddMemoryCache(storeName, options => options.SizeLimit = 10);
+            services.AddTransient<IObjectSerialization, ProtoBufZipSerialization>();
 
-        //    var mockKeyValueSettings = fixture.Freeze<Mock<IKeyValueSettings>>();
-        //    mockKeyValueSettings.SetupGet(p => p.Values).Returns(keySettings);
+            var serviceProvider = services.BuildServiceProvider();
 
-        //    IKeyValueSettings settings = mockKeyValueSettings.Object;
+            IObjectSerialization noSerializer = null;
+            var mockIContainer = _fixture.Freeze<Mock<IContainerResolve>>();
+            mockIContainer.Setup(m => m.Resolve<IObjectSerialization>()).Returns(serviceProvider.GetService<IObjectSerialization>()!);
+            mockIContainer.Setup(m => m.TryResolve(storeName, out noSerializer)).Returns(false);
+            var mockIOptions = _fixture.Freeze<Mock<IOptionsMonitor<MemoryCacheOption>>>();
+            mockIOptions.Setup(m => m.Get("Store")).Returns(serviceProvider.GetService<IOptionsMonitor<MemoryCacheOption>>()!.Get("Store"));
 
-        //    var mockContainer = fixture.Freeze<Mock<IContainerResolve>>();
-        //    mockContainer.Setup((m) => m.TryResolve<IKeyValueSettings>(storeName, out settings)).Returns(true);
+            var sut = _fixture.Create<MemoryCache>();
+            sut.Initialize("store name");
 
-        //    IObjectSerialization noSerializer = null;
-        //    IObjectSerialization serializer = new ProtoBufZipSerialization();
-        //    mockContainer.Setup(m => m.TryResolve<IObjectSerialization>(storeName, out noSerializer)).Returns(false);
-        //    mockContainer.Setup(m => m.Resolve<IObjectSerialization>()).Returns(serializer);
+            sut.Put("key", tokenInfo);
 
-        //    var sut = fixture.Create<MemoryCache>();
-        //    sut.Initialize("store name");
+            // act
+            var cachedToken = sut.Get<TokenInfo>("key");
 
-        //    sut.Put("key", tokenInfo);
-
-        //    // act
-        //    var cachedToken = sut.Get<TokenInfo>("key");
-
-        //    // assert
-        //    cachedToken.Should().NotBeNull();
-        //    cachedToken.Token.Should().Be(jwt.EncodedPayload);
-        //    cachedToken.TokenType.Should().Be(tokenInfo.TokenType);
-        //    cachedToken.ExpiresOnUtc.Should().Be(tokenInfo.ExpiresOnUtc);
-        //}
+            // assert
+            cachedToken.Should().NotBeNull();
+            cachedToken.Token.Should().Be(jwt.EncodedPayload);
+            cachedToken.TokenType.Should().Be(tokenInfo.TokenType);
+            cachedToken.ExpiresOnUtc.Should().Be(tokenInfo.ExpiresOnUtc);
+        }
     }
 }

@@ -16,321 +16,321 @@ using System.Threading.Tasks;
 using Xunit;
 using Event = KubeMQ.SDK.csharp.Events.Event;
 
-namespace Arc4u.Standard.UnitTest.KubeMQ
+namespace Arc4u.Standard.UnitTest.KubeMQ;
+
+[Trait("Category", "All")]
+public class KubeMQFundamentalsTest : BaseContainerFixture<KubeMQFundamentalsTest, BasicFixture>
 {
-    public class KubeMQFundamentalsTest : BaseContainerFixture<KubeMQFundamentalsTest, BasicFixture>
+    public KubeMQFundamentalsTest(BasicFixture fixture) : base(fixture)
     {
-        public KubeMQFundamentalsTest(BasicFixture fixture) : base(fixture)
+    }
+
+
+    [Fact]
+    public async Task TestEventSendAndReceive()
+    {
+        var ChannelName = "Order.Event";
+        var ClientID = "Demo.Test";
+        var KubeMQServerAddress = "localhost:40000";
+        var subscriber = new Subscriber(KubeMQServerAddress);
+
+        long counter = 0;
+
+        var channel = new Channel(new ChannelParameters
         {
-        }
+            ChannelName = ChannelName,
+            ClientID = ClientID,
+            KubeMQAddress = KubeMQServerAddress
+        });
 
-
-        [Fact]
-        public async Task TestEventSendAndReceive()
+        try
         {
-            var ChannelName = "Order.Event";
-            var ClientID = "Demo.Test";
-            var KubeMQServerAddress = "localhost:40000";
-            var subscriber = new Subscriber(KubeMQServerAddress);
-
-            long counter = 0;
-
-            var channel = new Channel(new ChannelParameters
+            subscriber.SubscribeToEvents(new SubscribeRequest
             {
-                ChannelName = ChannelName,
-                ClientID = ClientID,
-                KubeMQAddress = KubeMQServerAddress
+                Channel = ChannelName,
+                SubscribeType = SubscribeType.Events,
+                ClientID = ClientID
+            }, (eventReceive) =>
+            {
+                Interlocked.Increment(ref counter);
+
+                Logger.Technical().Debug($"Event Received: EventID:{eventReceive.EventID} Channel:{eventReceive.Channel} Metadata:{eventReceive.Metadata} Body:{ Converter.FromByteArray(eventReceive.Body)} ").Log();
+            },
+            (errorHandler) =>
+            {
+                Logger.Technical().Error(errorHandler.Message).Log();
             });
-
-            try
-            {
-                subscriber.SubscribeToEvents(new SubscribeRequest
-                {
-                    Channel = ChannelName,
-                    SubscribeType = SubscribeType.Events,
-                    ClientID = ClientID
-                }, (eventReceive) =>
-                {
-                    Interlocked.Increment(ref counter);
-
-                    Logger.Technical().Debug($"Event Received: EventID:{eventReceive.EventID} Channel:{eventReceive.Channel} Metadata:{eventReceive.Metadata} Body:{ Converter.FromByteArray(eventReceive.Body)} ").Log();
-                },
-                (errorHandler) =>
-                {
-                    Logger.Technical().Error(errorHandler.Message).Log();
-                });
-            }
-            catch (Exception ex)
-            {
-                Logger.Technical().Exception(ex).Log();
-            }
-
-            try
-            {
-                _ = channel.StreamEvent(new Event
-                {
-                    Body = Converter.ToByteArray("hello kubemq - sending stream event")
-                });
-            }
-            catch (Exception ex)
-            {
-                Logger.Technical().Exception(ex).Log();
-            }
-
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-            do
-            {
-                await Task.Delay(10);
-            } while (stopwatch.ElapsedMilliseconds < 2000);
-
-            stopwatch.Stop();
-
-            Logger.Technical().Debug($"Number of retry = {counter}.").Log();
-
-            Assert.True(counter == 1);
+        }
+        catch (Exception ex)
+        {
+            Logger.Technical().Exception(ex).Log();
         }
 
-
-        [Fact]
-        public async Task TestBasicSendAndReceive()
+        try
         {
-            QueueStream queue = new QueueStream("localhost:40000", "Demo.Test.Basic", null);
-
-            var messages = new List<Message>();
-            var tags = new Dictionary<string, string>
+            _ = channel.StreamEvent(new Event
             {
-                { "key", "value" }
-            };
-
-            for (int i = 0; i < 1000; i++)
-                messages.Add(
-                    new Message("Order.Test.OutQ.Basic", Encoding.UTF8.GetBytes(Guid.NewGuid().ToString()), string.Empty, Guid.NewGuid().ToString(), tags)
-                );
-
-            var res = await queue.Send(new SendRequest(messages));
-
-            PollRequest pollRequest = new()
-            {
-                Queue = "Order.Test.OutQ.Basic",
-                WaitTimeout = 1000,
-                MaxItems = 100,
-                AutoAck = false
-            };
-
-            var read = 0;
-
-            while (read < 1000)
-            {
-                PollResponse response = await queue.Poll(pollRequest);
-
-                if (!response.HasMessages) continue;
-
-                Logger.Technical().Debug($"{response.Messages.Count()} message(s) received from the PollResponse.").Log();
-
-                Parallel.ForEach(response.Messages, msg =>
-                {
-                    try
-                    {
-                        Assert.Single(msg.Tags);
-
-                        Assert.True(Guid.TryParse(Encoding.UTF8.GetString(msg.Body), out var guid));
-
-                        msg.Ack();
-
-                    }
-                    catch (Exception)
-                    {
-                        msg.NAck();
-                    }
-
-                });
-
-                read += response.Messages.Count();
-            }
-
-            Assert.Equal(1000, read);
-            queue.Close();
+                Body = Converter.ToByteArray("hello kubemq - sending stream event")
+            });
+        }
+        catch (Exception ex)
+        {
+            Logger.Technical().Exception(ex).Log();
         }
 
-
-        [Fact]
-        public async Task TestBasicSendWithDelayAndReceive()
+        var stopwatch = new Stopwatch();
+        stopwatch.Start();
+        do
         {
-            QueueStream queue = new QueueStream("localhost:40000", "Demo.Test.Delay", null);
+            await Task.Delay(10);
+        } while (stopwatch.ElapsedMilliseconds < 2000);
 
-            var messages = new List<Message>();
-            var tags = new Dictionary<string, string>
+        stopwatch.Stop();
+
+        Logger.Technical().Debug($"Number of retry = {counter}.").Log();
+
+        Assert.True(counter == 1);
+    }
+
+
+    [Fact]
+    public async Task TestBasicSendAndReceive()
+    {
+        QueueStream queue = new QueueStream("localhost:40000", "Demo.Test.Basic", null);
+
+        var messages = new List<Message>();
+        var tags = new Dictionary<string, string>
+        {
+            { "key", "value" }
+        };
+
+        for (int i = 0; i < 1000; i++)
+            messages.Add(
+                new Message("Order.Test.OutQ.Basic", Encoding.UTF8.GetBytes(Guid.NewGuid().ToString()), string.Empty, Guid.NewGuid().ToString(), tags)
+            );
+
+        var res = await queue.Send(new SendRequest(messages));
+
+        PollRequest pollRequest = new()
+        {
+            Queue = "Order.Test.OutQ.Basic",
+            WaitTimeout = 1000,
+            MaxItems = 100,
+            AutoAck = false
+        };
+
+        var read = 0;
+
+        while (read < 1000)
+        {
+            PollResponse response = await queue.Poll(pollRequest);
+
+            if (!response.HasMessages) continue;
+
+            Logger.Technical().Debug($"{response.Messages.Count()} message(s) received from the PollResponse.").Log();
+
+            Parallel.ForEach(response.Messages, msg =>
             {
-                { "key", "value" }
-            };
-
-            for (int i = 0; i < 1000; i++)
-                messages.Add(
-                    new Message("Order.Test.OutQ.Delay", Encoding.UTF8.GetBytes(Guid.NewGuid().ToString()), string.Empty, Guid.NewGuid().ToString(), tags)
-                    {
-                        Policy = new QueueMessagePolicy() { DelaySeconds = 11 }
-                    }
-                );
-
-            var res = await queue.Send(new SendRequest(messages));
-
-            PollRequest pollRequest = new()
-            {
-                Queue = "Order.Test.OutQ.Delay",
-                WaitTimeout = 1000,
-                MaxItems = 100,
-                AutoAck = false
-            };
-
-            var read = 0;
-            var waitCount = 0;
-
-            while (read < 1000)
-            {
-                PollResponse response = await queue.Poll(pollRequest);
-
-                if (!response.HasMessages)
+                try
                 {
-                    waitCount++;
-                    continue;
+                    Assert.Single(msg.Tags);
+
+                    Assert.True(Guid.TryParse(Encoding.UTF8.GetString(msg.Body), out var guid));
+
+                    msg.Ack();
+
+                }
+                catch (Exception)
+                {
+                    msg.NAck();
                 }
 
-                Logger.Technical().Debug($"{response.Messages.Count()} message(s) received from the PollResponse.").Log();
+            });
 
-                Parallel.ForEach(response.Messages, msg =>
+            read += response.Messages.Count();
+        }
+
+        Assert.Equal(1000, read);
+        queue.Close();
+    }
+
+
+    [Fact]
+    public async Task TestBasicSendWithDelayAndReceive()
+    {
+        QueueStream queue = new QueueStream("localhost:40000", "Demo.Test.Delay", null);
+
+        var messages = new List<Message>();
+        var tags = new Dictionary<string, string>
+        {
+            { "key", "value" }
+        };
+
+        for (int i = 0; i < 1000; i++)
+            messages.Add(
+                new Message("Order.Test.OutQ.Delay", Encoding.UTF8.GetBytes(Guid.NewGuid().ToString()), string.Empty, Guid.NewGuid().ToString(), tags)
                 {
-                    try
-                    {
-                        Assert.Single(msg.Tags);
+                    Policy = new QueueMessagePolicy() { DelaySeconds = 11 }
+                }
+            );
 
-                        Assert.True(Guid.TryParse(Encoding.UTF8.GetString(msg.Body), out var guid));
+        var res = await queue.Send(new SendRequest(messages));
 
-                        msg.Ack();
+        PollRequest pollRequest = new()
+        {
+            Queue = "Order.Test.OutQ.Delay",
+            WaitTimeout = 1000,
+            MaxItems = 100,
+            AutoAck = false
+        };
 
-                    }
-                    catch (Exception)
-                    {
-                        msg.NAck();
-                    }
+        var read = 0;
+        var waitCount = 0;
 
-                });
+        while (read < 1000)
+        {
+            PollResponse response = await queue.Poll(pollRequest);
 
-                read += response.Messages.Count();
+            if (!response.HasMessages)
+            {
+                waitCount++;
+                continue;
             }
 
-            Assert.Equal(1000, read);
-            Assert.True(waitCount > 9, $"Counted = {waitCount}");
-            queue.Close();
-        }
+            Logger.Technical().Debug($"{response.Messages.Count()} message(s) received from the PollResponse.").Log();
 
-
-        private static long touched;
-
-        [Fact]
-        public async Task TestIisHostReceiver()
-        {
-            touched = 0;
-            CancellationTokenSource tokenSource = new CancellationTokenSource();
-
-            // Start the listener on another thread.
-            Task t = await Task.Factory.StartNew(Listener2, tokenSource.Token);
-
-            var stopwatch = new Stopwatch();
-
-            Assert.Equal(0, Interlocked.Read(ref touched));
-
-            var messages = new List<Message>();
-            var tags = new Dictionary<string, string>
+            Parallel.ForEach(response.Messages, msg =>
             {
-                { "key", "value" }
-            };
-
-            for (int i = 0; i < 1000; i++)
-                messages.Add(
-                    new Message("Order.Test.OutQ.Listener", Encoding.UTF8.GetBytes(Guid.NewGuid().ToString()), string.Empty, Guid.NewGuid().ToString(), tags)
-                );
-
-
-            Assert.Equal(0, Interlocked.Read(ref touched));
-
-            QueueStream queue = new QueueStream("localhost:40000", "Demo.Test.IISHost", null);
-
-            stopwatch.Start();
-
-            await queue.Send(new SendRequest(messages));
-
-            stopwatch.Stop();
-
-            Logger.Technical().Debug($"Messages sent in {stopwatch.ElapsedMilliseconds} ms.").Log();
-
-            stopwatch.Reset();
-            stopwatch.Start();
-
-
-            do
-            {
-                await Task.Delay(10);
-            } while (Interlocked.Read(ref touched) < 1000 && stopwatch.ElapsedMilliseconds < 10000);
-
-            stopwatch.Stop();
-
-            Logger.Technical().Debug($"Messages read in {stopwatch.ElapsedMilliseconds} ms.").Log();
-
-            tokenSource.Cancel();
-
-            await Task.Delay(150);
-
-            Assert.Equal(1000, Interlocked.Read(ref touched));
-            Task.WaitAll(t);
-            queue.Close();
-        }
-
-        private async Task Listener2(object parameter)
-        {
-            CancellationToken cancellationToken = (CancellationToken)parameter;
-
-            QueueStream queue = new QueueStream("localhost:40000", "Demo.Test.Listener", null);
-
-            PollRequest pollRequest = new()
-            {
-                Queue = "Order.Test.OutQ.Listener",
-                WaitTimeout = 1000,
-                MaxItems = 100,
-                AutoAck = false
-            };
-
-            var messagesToAck = new ConcurrentBag<Message>();
-            do
-            {
-                PollResponse response = await queue.Poll(pollRequest);
-
-                if (!response.HasMessages) continue;
-
-                Logger.Technical().Debug($"{response.Messages.Count()} message(s) received from the PollResponse.").Log();
-
-                Parallel.ForEach(response.Messages, async msg =>
+                try
                 {
-                    try
-                    {
-                        Assert.Single(msg.Tags);
+                    Assert.Single(msg.Tags);
 
-                        Assert.True(Guid.TryParse(Encoding.UTF8.GetString(msg.Body), out var guid));
-                        await Task.Delay(100);
+                    Assert.True(Guid.TryParse(Encoding.UTF8.GetString(msg.Body), out var guid));
 
-                        msg.Ack();
-                        Interlocked.Increment(ref touched);
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.Technical().Exception(ex).Log();
-                        msg.NAck();
-                    }
-                });
+                    msg.Ack();
 
-            } while (!cancellationToken.IsCancellationRequested);
+                }
+                catch (Exception)
+                {
+                    msg.NAck();
+                }
 
-            queue.Close();
+            });
+
+            read += response.Messages.Count();
         }
+
+        Assert.Equal(1000, read);
+        Assert.True(waitCount > 9, $"Counted = {waitCount}");
+        queue.Close();
+    }
+
+
+    private static long touched;
+
+    [Fact]
+    public async Task TestIisHostReceiver()
+    {
+        touched = 0;
+        CancellationTokenSource tokenSource = new CancellationTokenSource();
+
+        // Start the listener on another thread.
+        Task t = await Task.Factory.StartNew(Listener2, tokenSource.Token);
+
+        var stopwatch = new Stopwatch();
+
+        Assert.Equal(0, Interlocked.Read(ref touched));
+
+        var messages = new List<Message>();
+        var tags = new Dictionary<string, string>
+        {
+            { "key", "value" }
+        };
+
+        for (int i = 0; i < 1000; i++)
+            messages.Add(
+                new Message("Order.Test.OutQ.Listener", Encoding.UTF8.GetBytes(Guid.NewGuid().ToString()), string.Empty, Guid.NewGuid().ToString(), tags)
+            );
+
+
+        Assert.Equal(0, Interlocked.Read(ref touched));
+
+        QueueStream queue = new QueueStream("localhost:40000", "Demo.Test.IISHost", null);
+
+        stopwatch.Start();
+
+        await queue.Send(new SendRequest(messages));
+
+        stopwatch.Stop();
+
+        Logger.Technical().Debug($"Messages sent in {stopwatch.ElapsedMilliseconds} ms.").Log();
+
+        stopwatch.Reset();
+        stopwatch.Start();
+
+
+        do
+        {
+            await Task.Delay(10);
+        } while (Interlocked.Read(ref touched) < 1000 && stopwatch.ElapsedMilliseconds < 10000);
+
+        stopwatch.Stop();
+
+        Logger.Technical().Debug($"Messages read in {stopwatch.ElapsedMilliseconds} ms.").Log();
+
+        tokenSource.Cancel();
+
+        await Task.Delay(150);
+
+        Assert.Equal(1000, Interlocked.Read(ref touched));
+        Task.WaitAll(t);
+        queue.Close();
+    }
+
+    private async Task Listener2(object parameter)
+    {
+        CancellationToken cancellationToken = (CancellationToken)parameter;
+
+        QueueStream queue = new QueueStream("localhost:40000", "Demo.Test.Listener", null);
+
+        PollRequest pollRequest = new()
+        {
+            Queue = "Order.Test.OutQ.Listener",
+            WaitTimeout = 1000,
+            MaxItems = 100,
+            AutoAck = false
+        };
+
+        var messagesToAck = new ConcurrentBag<Message>();
+        do
+        {
+            PollResponse response = await queue.Poll(pollRequest);
+
+            if (!response.HasMessages) continue;
+
+            Logger.Technical().Debug($"{response.Messages.Count()} message(s) received from the PollResponse.").Log();
+
+            Parallel.ForEach(response.Messages, async msg =>
+            {
+                try
+                {
+                    Assert.Single(msg.Tags);
+
+                    Assert.True(Guid.TryParse(Encoding.UTF8.GetString(msg.Body), out var guid));
+                    await Task.Delay(100);
+
+                    msg.Ack();
+                    Interlocked.Increment(ref touched);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Technical().Exception(ex).Log();
+                    msg.NAck();
+                }
+            });
+
+        } while (!cancellationToken.IsCancellationRequested);
+
+        queue.Close();
     }
 }

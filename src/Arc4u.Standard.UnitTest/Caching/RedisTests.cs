@@ -12,6 +12,7 @@ using Arc4u.Dependency;
 using Moq;
 
 namespace Arc4u.Standard.UnitTest.Caching;
+
 public class RedisTests
 {
     public RedisTests()
@@ -23,6 +24,7 @@ public class RedisTests
     private readonly Fixture _fixture;
 
     [Fact]
+    [Trait("Category", "CI")]
     public void OptionNameConfigShould()
     {
         // arrange
@@ -66,6 +68,7 @@ public class RedisTests
     }
 
     [Fact]
+    [Trait("Category", "CI")]
     public void OptionNameConfigNoDeclaredShould()
     {
         // arrange
@@ -105,6 +108,7 @@ public class RedisTests
     }
 
     [Fact]
+    [Trait("Category", "CI")]
     public void AddOptionByCodeToServiceCollectionShould()
     {
         // arrange
@@ -131,6 +135,7 @@ public class RedisTests
     }
 
     [Fact]
+    [Trait("Category", "CI")]
     public void AddOptionByConfigToServiceCollectionShould()
     {
         // arrange
@@ -162,8 +167,8 @@ public class RedisTests
         sut.SerializerName.Should().Be(option1.SerializerName);
     }
 
-#if DEBUG
     [Fact]
+    [Trait("Category", "All")]
     public void DatabaseConnectionShould()
     {
         // arrange
@@ -205,6 +210,4 @@ public class RedisTests
         // assert
         value.Should().Be("test");
     }
-
-#endif
 }

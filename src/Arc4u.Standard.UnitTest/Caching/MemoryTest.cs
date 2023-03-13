@@ -13,6 +13,8 @@ using Arc4u.Serializer;
 using Arc4u.Dependency;
 
 namespace Arc4u.Standard.UnitTest.Caching;
+
+[Trait("Category", "CI")]
 public class MemoryTest
 {
     public MemoryTest()
@@ -82,7 +84,7 @@ public class MemoryTest
     }
 
     [Fact]
-    public void DatabaseConnectionShould()
+    public void MemoryCacheShould()
     {
         // arrange
 
