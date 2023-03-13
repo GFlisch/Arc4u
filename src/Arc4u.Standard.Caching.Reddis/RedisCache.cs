@@ -44,7 +44,7 @@ public class RedisCache : BaseDistributeCache, ICache
         {
             if (IsInitialized)
             {
-                _logger.Technical().Debug($"Redis Cache {store} is already initialized.").Log();
+                _logger.Technical().System($"Redis Cache {store} is already initialized.").Log();
                 return;
             }
 

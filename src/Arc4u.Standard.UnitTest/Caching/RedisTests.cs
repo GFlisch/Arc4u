@@ -8,10 +8,8 @@ using Microsoft.Extensions.Options;
 using FluentAssertions;
 using Xunit;
 using Arc4u.Serializer;
-using Arc4u.Caching;
 using Arc4u.Dependency;
 using Moq;
-using System;
 
 namespace Arc4u.Standard.UnitTest.Caching;
 public class RedisTests
@@ -111,7 +109,6 @@ public class RedisTests
     {
         // arrange
         var option1 = _fixture.Create<RedisCacheOption>();
-
 
         IServiceCollection services = new ServiceCollection();
 
