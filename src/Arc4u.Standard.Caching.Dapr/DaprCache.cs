@@ -4,6 +4,7 @@ using Dapr.Client;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -96,7 +97,7 @@ public class DaprCache : ICache
             throw new CacheNotInitializedException();
         }
 
-        await _daprClient.SaveStateAsync(_storeName, key, value).ConfigureAwait(false);
+        await _daprClient.SaveStateAsync(_storeName, key, value, cancellationToken: cancellation).ConfigureAwait(false);
     }
 
     public async Task PutAsync<T>(string key, TimeSpan timeout, T value, bool isSlided = false, CancellationToken cancellation = default)
@@ -110,7 +111,7 @@ public class DaprCache : ICache
             throw new CacheNotInitializedException();
         }
 
-        await _daprClient.SaveStateAsync(_storeName, key, value, metadata: new Dictionary<string, string> { { "ttlInSeconds", timeout.TotalSeconds.ToString() } }, cancellationToken: cancellation).ConfigureAwait(false);
+        await _daprClient.SaveStateAsync(_storeName, key, value, metadata: new Dictionary<string, string> { { "ttlInSeconds", timeout.TotalSeconds.ToString(CultureInfo.InvariantCulture) } }, cancellationToken: cancellation).ConfigureAwait(false);
     }
 
     public bool Remove(string key)
