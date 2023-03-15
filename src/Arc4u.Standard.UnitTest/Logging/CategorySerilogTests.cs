@@ -1,4 +1,4 @@
-﻿using Arc4u.Diagnostics;
+using Arc4u.Diagnostics;
 using Arc4u.Diagnostics.Serilog;
 using Microsoft.Extensions.Logging;
 using Serilog;
@@ -7,6 +7,7 @@ using Xunit;
 
 namespace Arc4u.Standard.UnitTest.Logging
 {
+    [Trait("Category", "CI")]
     public class CategorySerilogTesters : BaseSinkContainerFixture<CategorySerilogTesters, LoggerCategoryFixture>
     {
         public CategorySerilogTesters(LoggerCategoryFixture containerFixture) : base(containerFixture)

@@ -27,6 +27,7 @@ public class Context
     public String Value { get; set; }
 }
 
+[Trait("Category", "CI")]
 public class ScopeTest
 {
     [Fact]

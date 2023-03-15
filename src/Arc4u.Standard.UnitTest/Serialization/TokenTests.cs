@@ -91,10 +91,10 @@ namespace Arc4u.Standard.UnitTest.Serialization
             mockIContainer.Setup(m => m.Resolve<IObjectSerialization>()).Returns(serviceProvider.GetService<IObjectSerialization>()!);
             mockIContainer.Setup(m => m.TryResolve(storeName, out noSerializer)).Returns(false);
             var mockIOptions = _fixture.Freeze<Mock<IOptionsMonitor<MemoryCacheOption>>>();
-            mockIOptions.Setup(m => m.Get("Store")).Returns(serviceProvider.GetService<IOptionsMonitor<MemoryCacheOption>>()!.Get("Store"));
+            mockIOptions.Setup(m => m.Get(storeName)).Returns(serviceProvider.GetService<IOptionsMonitor<MemoryCacheOption>>()!.Get(storeName));
 
             var sut = _fixture.Create<MemoryCache>();
-            sut.Initialize("store name");
+            sut.Initialize(storeName);
 
             sut.Put("key", tokenInfo);
 
@@ -129,10 +129,10 @@ namespace Arc4u.Standard.UnitTest.Serialization
             mockIContainer.Setup(m => m.Resolve<IObjectSerialization>()).Returns(serviceProvider.GetService<IObjectSerialization>()!);
             mockIContainer.Setup(m => m.TryResolve(storeName, out noSerializer)).Returns(false);
             var mockIOptions = _fixture.Freeze<Mock<IOptionsMonitor<MemoryCacheOption>>>();
-            mockIOptions.Setup(m => m.Get("Store")).Returns(serviceProvider.GetService<IOptionsMonitor<MemoryCacheOption>>()!.Get("Store"));
+            mockIOptions.Setup(m => m.Get(storeName)).Returns(serviceProvider.GetService<IOptionsMonitor<MemoryCacheOption>>()!.Get(storeName));
 
             var sut = _fixture.Create<MemoryCache>();
-            sut.Initialize("store name");
+            sut.Initialize(storeName);
 
             sut.Put("key", tokenInfo);
 
@@ -167,10 +167,10 @@ namespace Arc4u.Standard.UnitTest.Serialization
             mockIContainer.Setup(m => m.Resolve<IObjectSerialization>()).Returns(serviceProvider.GetService<IObjectSerialization>()!);
             mockIContainer.Setup(m => m.TryResolve(storeName, out noSerializer)).Returns(false);
             var mockIOptions = _fixture.Freeze<Mock<IOptionsMonitor<MemoryCacheOption>>>();
-            mockIOptions.Setup(m => m.Get("Store")).Returns(serviceProvider.GetService<IOptionsMonitor<MemoryCacheOption>>()!.Get("Store"));
+            mockIOptions.Setup(m => m.Get(storeName)).Returns(serviceProvider.GetService<IOptionsMonitor<MemoryCacheOption>>()!.Get(storeName));
 
             var sut = _fixture.Create<MemoryCache>();
-            sut.Initialize("store name");
+            sut.Initialize(storeName);
 
             sut.Put("key", tokenInfo);
 

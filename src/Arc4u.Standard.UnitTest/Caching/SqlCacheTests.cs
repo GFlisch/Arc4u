@@ -11,6 +11,7 @@ using FluentAssertions;
 using Moq;
 using Arc4u.Serializer;
 using Arc4u.Dependency;
+using Microsoft.Data.SqlClient;
 
 namespace Arc4u.Standard.UnitTest.Caching;
 
@@ -94,10 +95,17 @@ public class SqlCacheTests
     {
         // arrange
         IServiceCollection services = new ServiceCollection();
+        var builder = new SqlConnectionStringBuilder();
+        builder.ConnectTimeout = 30;
+        builder.InitialCatalog = "CacheTestDB";
+        builder.Encrypt = false;
+        builder.Password = "P@ssword";
+        builder.UserID = "sa";
+        builder.DataSource = "localhost";
 
         services.AddSqlCache("storeName", options =>
         {
-            options.ConnectionString = "Server=localhost;Database=CacheTestDB;User Id=sa;Password=P@ssword;";
+            options.ConnectionString = builder.ConnectionString;
         });
 
         services.AddTransient<IObjectSerialization, JsonSerialization>();

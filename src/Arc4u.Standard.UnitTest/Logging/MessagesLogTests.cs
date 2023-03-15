@@ -1,4 +1,4 @@
-﻿using Arc4u.ServiceModel;
+using Arc4u.ServiceModel;
 using Arc4u.Standard.UnitTest.Infrastructure;
 using Arc4u.Standard.UnitTest.KubeMQ;
 using Microsoft.Extensions.Logging;
@@ -11,6 +11,7 @@ using Xunit;
 
 namespace Arc4u.Standard.UnitTest.Logging
 {
+    [Trait("Category", "CI")]
     public class MessagesLogTests : BaseContainerFixture<MessagesLogTests, BasicFixture>
     {
         public MessagesLogTests(BasicFixture containerFixture) : base(containerFixture)

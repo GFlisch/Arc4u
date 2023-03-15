@@ -11,6 +11,7 @@ using FluentAssertions;
 using Moq;
 using Arc4u.Serializer;
 using Arc4u.Dependency;
+using System;
 
 namespace Arc4u.Standard.UnitTest.Caching;
 
@@ -47,7 +48,7 @@ public class MemoryTest
 
         // assert
         sut.CompactionPercentage.Should().Be(option1.CompactionPercentage);
-        sut.SizeLimit.Should().Be(option1.SizeLimit);
+        sut.SizeLimit.Should().Be(option1.SizeLimit * 1024 * 1024);
         sut.SerializerName.Should().Be(option1.SerializerName);
     }
 
@@ -55,7 +56,7 @@ public class MemoryTest
     public void AddOptionByConfigToServiceCollectionShould()
     {
         // arrange
-        var option1 = _fixture.Create<MemoryCacheOption>();
+        var option1 = _fixture.Build<MemoryCacheOption>().With(m => m.CompactionPercentage, 0.8).Create(); ;
 
         var config = new ConfigurationBuilder()
                      .AddInMemoryCollection(
@@ -79,7 +80,7 @@ public class MemoryTest
 
         // assert
         sut.CompactionPercentage.Should().Be(option1.CompactionPercentage);
-        sut.SizeLimit.Should().Be(option1.SizeLimit);
+        sut.SizeLimit.Should().Be(option1.SizeLimit * 1024 * 1024);
         sut.SerializerName.Should().Be(option1.SerializerName);
     }
 
