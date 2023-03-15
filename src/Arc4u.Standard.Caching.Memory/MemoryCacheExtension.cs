@@ -8,8 +8,15 @@ public static class MemoryCacheExtension
 {
     public static IServiceCollection AddMemoryCache(this IServiceCollection services, [DisallowNull] string name, Action<MemoryCacheOption> options)
     {
-        var validate = new MemoryCacheOption();
-        new Action<MemoryCacheOption>(options).Invoke(validate);
+        var rawCacheOption = new MemoryCacheOption();
+        new Action<MemoryCacheOption>(options).Invoke(rawCacheOption);
+        var action = new Action<MemoryCacheOption>(o =>
+        {
+            o.CompactionPercentage = rawCacheOption.CompactionPercentage;
+            o.SizeLimit = rawCacheOption.SizeLimit * 1024 * 1024;
+            o.SerializerName = rawCacheOption.SerializerName;
+        });
+
 
 #if NET6_0
         ArgumentNullException.ThrowIfNull(name, nameof(name));
@@ -18,7 +25,7 @@ public static class MemoryCacheExtension
         ArgumentNullException.ThrowIfNullOrEmpty(name, nameof(name));
 #endif
 
-        services.Configure<MemoryCacheOption>(name, options);
+        services.Configure<MemoryCacheOption>(name, action);
 
         return services;
     }
