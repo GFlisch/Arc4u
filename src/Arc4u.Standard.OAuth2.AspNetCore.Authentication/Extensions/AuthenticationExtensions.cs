@@ -36,7 +36,7 @@ public static partial class AuthenticationExtensions
         services.AddTransient(oidcOptions.CookieAuthenticationEventsType);
         services.AddTransient(oidcOptions.JwtBearerEventsType);
         services.AddTransient(oidcOptions.OpenIdConnectEventsType);
-        services.AddSingleton(typeof(IPostConfigureOptions<CookieAuthenticationOptions>), oidcOptions.CookieAuthenticationEventsType);
+        services.AddSingleton(typeof(IPostConfigureOptions<CookieAuthenticationOptions>), oidcOptions.CookiesConfigureOptionsType);
 
         // store the configuration => this will be used by the AddCookies to define the ITicketStore implementation.
         services.Configure<OidcAuthenticationOptions>(authenticationOptions);

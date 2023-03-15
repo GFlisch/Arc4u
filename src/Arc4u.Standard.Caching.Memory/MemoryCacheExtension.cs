@@ -39,7 +39,7 @@ public static class MemoryCacheExtension
             void options(MemoryCacheOption o)
             {
                 o.SerializerName = option.SerializerName;
-                o.SizeLimit = option.SizeLimit;
+                o.SizeLimit = option.SizeLimit * 1024 * 1024;
                 o.CompactionPercentage = option.CompactionPercentage;
             }
 

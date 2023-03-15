@@ -6,7 +6,7 @@ namespace Arc4u.Caching;
 
 public static class CacheContextServicesExtension
 {
-    public static void AddCacheContext(this ServiceCollection services)
+    public static void AddCacheContext(this IServiceCollection services)
     {
         services.TryAddSingleton<ICacheContext, CacheContext>();
     }

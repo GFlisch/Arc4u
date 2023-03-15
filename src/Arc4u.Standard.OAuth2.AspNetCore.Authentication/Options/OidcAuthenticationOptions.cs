@@ -30,7 +30,7 @@ public class OidcAuthenticationOptions
     /// <summary>
     /// The <see cref="IPostConfigureOptions<CookieAuthenticationOptions"/> type used to configure the <see cref="CookieAuthenticationOptions"/>.
     /// </summary>
-    public Type CookiesconfigureOptionsType { get; set; } = typeof(ConfigureCookieAuthenticationOptions);
+    public Type CookiesConfigureOptionsType { get; set; } = typeof(ConfigureCookieAuthenticationOptions);
 
     /// <summary>
     /// For the other OIDC => ResponseType = OpenIdConnectResponseType.CodeIdTokenToken;
