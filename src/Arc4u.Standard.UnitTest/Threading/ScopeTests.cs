@@ -27,15 +27,16 @@ public class Context
     public String Value { get; set; }
 }
 
-[Trait("Category", "CI")]
 public class ScopeTest
 {
+    [Trait("Category", "CI")]
     [Fact]
     public void Fact1()
     {
         Assert.Null(Scope<String>.Current);
     }
 
+    [Trait("Category", "CI")]
     [Fact]
     public void Fact2()
     {
@@ -52,6 +53,7 @@ public class ScopeTest
 
     }
 
+    [Trait("Category", "CI")]
     [Fact]
     public void Fact3()
     {
@@ -67,6 +69,7 @@ public class ScopeTest
         Assert.Equal("Global", Context.Current.Value);
     }
 
+    [Trait("Category", "All")]
     [Fact]
     public async void TestCultureContinueOnCurrentThread()
     {
