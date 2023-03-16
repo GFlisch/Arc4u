@@ -37,4 +37,10 @@ public class OidcAuthenticationOptions
     /// For AzureAD, AzureB2C and Adfs => ResponseType = OpenIdConnectResponseType.Code;
     /// </summary>
     public string ResponseType { get; set; } = OpenIdConnectResponseType.Code;
+
+    /// <summary>
+    /// Time to live of the authentication ticket.
+    /// Default is 7 days.
+    /// </summary>
+    public TimeSpan AuthenticationTicketTTL { get; set; } = TimeSpan.FromDays(7);
 }

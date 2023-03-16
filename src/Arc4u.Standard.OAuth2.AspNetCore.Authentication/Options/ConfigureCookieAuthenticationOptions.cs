@@ -1,4 +1,3 @@
-using System;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.Options;
 
@@ -24,7 +23,7 @@ public class ConfigureCookieAuthenticationOptions : IPostConfigureOptions<Cookie
         options.SessionStore = _ticketStore;
         options.Cookie.Name = _options.CurrentValue.CookieName;
         options.SlidingExpiration = true;
-        options.ExpireTimeSpan = TimeSpan.FromDays(7);
+        options.ExpireTimeSpan = _options.CurrentValue.AuthenticationTicketTTL;
         options.EventsType = _options.CurrentValue.CookieAuthenticationEventsType;
     }
 }
