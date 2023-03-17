@@ -9,8 +9,6 @@ using System;
 using FluentAssertions;
 using Arc4u.Caching.Memory;
 using Microsoft.Extensions.Options;
-using Arc4u.Caching.Redis;
-using Arc4u.Caching.Sql;
 using Arc4u.Caching;
 using Arc4u.Configuration.Memory;
 using Arc4u.Configuration.Redis;
@@ -21,6 +19,8 @@ using Arc4u.Dependency;
 using Arc4u.Serializer;
 
 namespace Arc4u.Standard.UnitTest.Caching;
+
+[Trait("Category", "CI")]
 public class CacheContextTests
 {
     public CacheContextTests()

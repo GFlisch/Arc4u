@@ -1,3 +1,4 @@
+using System;
 using Arc4u.Configuration.Memory;
 using Arc4u.Configuration.Redis;
 using Arc4u.Configuration.Sql;
@@ -10,12 +11,27 @@ namespace Arc4u.Caching;
 
 public static class CacheContextServicesExtension
 {
-    public static void AddCacheContext(this IServiceCollection services, IConfiguration configuration ,string sectionName = "Caching")
+    public static void AddCacheContext(this IServiceCollection services, IConfiguration configuration, string sectionName = "Caching")
     {
-        services.TryAddSingleton<ICacheContext, CacheContext>();
+#if NET6_0_OR_GREATER
+       ArgumentNullException.ThrowIfNull(configuration, nameof(configuration));
+#endif
+#if NETSTANDARD2_0_OR_GREATER
+        if (configuration is null)
+        {
+            throw new ArgumentNullException(nameof(configuration));
+        }
+#endif
+        var section = configuration.GetSection(sectionName);
 
-        var config = new Configuration.Caching();
-        configuration.Bind("Caching", config);
+        if (!section.Exists())
+        {
+            throw new NullReferenceException($"Section {sectionName} in the configuration providers doesn't exists!");
+        }
+
+        var config = section.Get<Configuration.Caching>();
+
+        services.TryAddSingleton<ICacheContext, CacheContext>();
 
         for (var idx = 0; idx < config.Caches.Count; idx++)
         {
