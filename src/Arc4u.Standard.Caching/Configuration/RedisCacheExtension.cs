@@ -1,10 +1,11 @@
+#if NET6_0_OR_GREATER
+
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Arc4u.Caching.Redis;
+namespace Arc4u.Configuration.Redis;
 public static class RedisCacheExtension
 {
     public static IServiceCollection AddRedisCache(this IServiceCollection services, [DisallowNull] string name, Action<RedisCacheOption> options)
@@ -55,3 +56,4 @@ public static class RedisCacheExtension
     }
 
 }
+#endif

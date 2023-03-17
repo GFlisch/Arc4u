@@ -2,6 +2,7 @@ using Arc4u.Caching.Memory;
 using Arc4u.Dependency;
 using Arc4u.OAuth2.Token;
 using Arc4u.Serializer;
+using Arc4u.Configuration.Memory;
 using AutoFixture;
 using AutoFixture.AutoMoq;
 using FluentAssertions;

@@ -5,13 +5,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
-using System.Globalization;
 using Arc4u.Caching.Sql;
 using FluentAssertions;
 using Moq;
 using Arc4u.Serializer;
 using Arc4u.Dependency;
 using Microsoft.Data.SqlClient;
+using Arc4u.Configuration.Sql;
 
 namespace Arc4u.Standard.UnitTest.Caching;
 

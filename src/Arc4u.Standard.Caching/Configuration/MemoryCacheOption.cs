@@ -1,4 +1,4 @@
-namespace Arc4u.Caching.Memory;
+namespace Arc4u.Configuration.Memory;
 public class MemoryCacheOption
 {
   public double CompactionPercentage { get; set; } = 0.2;

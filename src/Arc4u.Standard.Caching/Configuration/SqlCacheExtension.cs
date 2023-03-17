@@ -1,9 +1,10 @@
+#if NET6_0_OR_GREATER
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics.CodeAnalysis;
 using System;
 
-namespace Arc4u.Caching.Sql;
+namespace Arc4u.Configuration.Sql;
 public static class SqlCacheExtension
 {
     public static IServiceCollection AddSqlCache(this IServiceCollection services, [DisallowNull] string name, Action<SqlCacheOption> options)
@@ -51,3 +52,4 @@ public static class SqlCacheExtension
     }
 
 }
+#endif

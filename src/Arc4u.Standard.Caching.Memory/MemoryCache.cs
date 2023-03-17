@@ -1,3 +1,4 @@
+using Arc4u.Configuration.Memory;
 using Arc4u.Dependency;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
@@ -7,7 +8,10 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
+
+#if NET6_0_OR_GREATER
 using System.Diagnostics.CodeAnalysis;
+#endif
 
 namespace Arc4u.Caching.Memory;
 
@@ -28,14 +32,27 @@ public class MemoryCache : BaseDistributeCache, ICache
         _options = options;
     }
 
+#if NET6_0_OR_GREATER
     public override void Initialize([DisallowNull] string store)
-    {
-#if NET6_0
-        ArgumentNullException.ThrowIfNull(store, nameof(store));
+#else
+    public override void Initialize(string store)
 #endif
+    {
+
+#if NET6_0_OR_GREATER
 #if NET7_0_OR_GREATER
         ArgumentNullException.ThrowIfNullOrEmpty(store, nameof(store));
+#else
+        ArgumentNullException.ThrowIfNull(store, nameof(store));
 #endif
+#else
+        if (store is null)
+        {
+            throw new ArgumentNullException(nameof(store));
+        }
+#endif
+
+
 
         lock (_lock)
         {

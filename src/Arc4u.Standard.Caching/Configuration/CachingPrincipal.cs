@@ -1,13 +1,12 @@
-﻿using System;
+using System;
 
-namespace Arc4u.Configuration
+namespace Arc4u.Configuration;
+
+public class CachingPrincipal
 {
-    public class CachingPrincipal
-    {
-        public bool IsEnabled { get; set; }
+    public bool IsEnabled { get; set; }
 
-        public TimeSpan Duration { get; set; } = TimeSpan.FromMinutes(20);
+    public TimeSpan Duration { get; set; } = TimeSpan.FromMinutes(20);
 
-        public String CacheName { get; set; }
-    }
+    public string CacheName { get; set; }
 }

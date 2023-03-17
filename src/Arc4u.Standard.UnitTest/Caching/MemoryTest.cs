@@ -12,6 +12,7 @@ using Moq;
 using Arc4u.Serializer;
 using Arc4u.Dependency;
 using System;
+using Arc4u.Configuration.Memory;
 
 namespace Arc4u.Standard.UnitTest.Caching;
 

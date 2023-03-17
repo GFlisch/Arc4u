@@ -1,4 +1,4 @@
-namespace Arc4u.Caching.Redis;
+namespace Arc4u.Configuration.Redis;
 public class RedisCacheOption
 {
     public string? ConnectionString { get; set; }

@@ -1,3 +1,4 @@
+using Arc4u.Configuration.Sql;
 using Arc4u.Dependency;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;

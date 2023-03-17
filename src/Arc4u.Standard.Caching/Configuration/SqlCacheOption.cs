@@ -1,6 +1,4 @@
-using System;
-
-namespace Arc4u.Caching.Sql;
+namespace Arc4u.Configuration.Sql;
 public class SqlCacheOption
 {
     public string? ConnectionString { get; set; }

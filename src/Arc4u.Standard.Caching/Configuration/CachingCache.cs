@@ -1,13 +1,10 @@
-﻿using System;
+namespace Arc4u.Configuration;
 
-namespace Arc4u.Configuration
+public class CachingCache
 {
-    public class CachingCache
-    {
-        public String Name { get; set; }
+    public string Name { get; set; }
 
-        public String Kind { get; set; }
+    public string Kind { get; set; }
 
-        public bool IsAutoStart { get; set; }
-    }
+    public bool IsAutoStart { get; set; }
 }

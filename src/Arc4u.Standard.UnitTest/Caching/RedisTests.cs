@@ -10,6 +10,7 @@ using Xunit;
 using Arc4u.Serializer;
 using Arc4u.Dependency;
 using Moq;
+using Arc4u.Configuration.Redis;
 
 namespace Arc4u.Standard.UnitTest.Caching;
 
@@ -193,7 +194,6 @@ public class RedisTests
 
         var mockIContainer = _fixture.Freeze<Mock<IContainerResolve>>();
         mockIContainer.Setup(m => m.Resolve<IObjectSerialization>()).Returns(serviceProvider.GetService<IObjectSerialization>()!);
-        //mockIContainer.Setup(m => m.Resolve<IOptionsMonitor<RedisCacheOption>>()).Returns(serviceProvider.GetService<IOptionsMonitor<RedisCacheOption>>());
 
         var mockIOptions = _fixture.Freeze<Mock<IOptionsMonitor<RedisCacheOption>>>();
         mockIOptions.Setup(m => m.Get("Store")).Returns(serviceProvider.GetService<IOptionsMonitor<RedisCacheOption>>()!.Get("Store"));

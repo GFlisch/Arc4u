@@ -1,3 +1,4 @@
+using Arc4u.Configuration.Redis;
 using Arc4u.Dependency;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
@@ -5,8 +6,6 @@ using Arc4u.Serializer;
 using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.VisualBasic.FileIO;
-using StackExchange.Redis;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using StackExchangeRedis = Microsoft.Extensions.Caching.StackExchangeRedis.RedisCache;
