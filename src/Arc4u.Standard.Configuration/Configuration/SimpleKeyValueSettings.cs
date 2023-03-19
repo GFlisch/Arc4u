@@ -1,73 +1,76 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.FileProviders;
-using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
 
-namespace Arc4u.Configuration
+namespace Arc4u.Configuration;
+
+/// <summary>
+/// Note that this implements equality, even though it is never used.
+/// </summary>
+public class SimpleKeyValueSettings : IKeyValueSettings, IEquatable<SimpleKeyValueSettings>
 {
-    /// <summary>
-    /// Note that this implements equality, even though it is never used.
-    /// </summary>
-    public class SimpleKeyValueSettings : IKeyValueSettings, IEquatable<SimpleKeyValueSettings>
+    public SimpleKeyValueSettings(Dictionary<string, string> keyValues)
     {
-        public SimpleKeyValueSettings(Dictionary<string, string> keyValues)
+        _keyValues = keyValues;
+    }
+
+    public static SimpleKeyValueSettings CreateFrom(IKeyValueSettings source)
+    {
+        var keyValues = new Dictionary<string, string>();
+
+        foreach (var keyPair in source.Values)
         {
-            _keyValues = keyValues;
+            keyValues.Add(keyPair.Key, keyPair.Value);
         }
 
-        public static SimpleKeyValueSettings CreateFrom(IKeyValueSettings source)
-        {
-            var keyValues = new Dictionary<string, string>();
+        return new SimpleKeyValueSettings(keyValues);
+    }
 
-            foreach (var keyPair in source.Values)
-                keyValues.Add(keyPair.Key, keyPair.Value);
+    public void Add(string key, string value)
+    {
+        _keyValues.Add(key, value);
+    }
 
-            return new SimpleKeyValueSettings(keyValues);
-        }
+    private readonly Dictionary<string, string> _keyValues;
 
-        public void Add(string key, string value)
-        {
-            _keyValues.Add(key, value);
-        }
+    public IReadOnlyDictionary<string, string> Values => _keyValues;
 
-        private readonly Dictionary<string, string> _keyValues;
-
-        public IReadOnlyDictionary<string, string> Values => _keyValues;
-
-        public override int GetHashCode()
-        {
+    public override int GetHashCode()
+    {
 #if NETSTANDARD2_1_OR_GREATER
-            var hashCode = new HashCode();
-            foreach (var value in Values)
-                hashCode.Add(value);
-            return hashCode.ToHashCode();
+        var hashCode = new HashCode();
+        foreach (var value in Values)
+            hashCode.Add(value);
+        return hashCode.ToHashCode();
 #else
-            int hash = 0;
-            foreach (var value in Values)
-            {
-                hash ^= value.GetHashCode();
-            }
+        int hash = 0;
+        foreach (var value in Values)
+        {
+            hash ^= value.GetHashCode();
+        }
 
-            return hash;
+        return hash;
 #endif
-        }
+    }
 
-        public bool Equals(SimpleKeyValueSettings other)
+    public bool Equals(SimpleKeyValueSettings other)
+    {
+        if (other != null && other._keyValues.Count == _keyValues.Count)
         {
-            if (other != null && other._keyValues.Count == _keyValues.Count)
+            foreach (var keyValue in _keyValues)
             {
-                foreach (var keyValue in _keyValues)
-                    if (!other._keyValues.TryGetValue(keyValue.Key, out var value) || value != keyValue.Value)
-                        return false;
-                return true;
+                if (!other._keyValues.TryGetValue(keyValue.Key, out var value) || value != keyValue.Value)
+                {
+                    return false;
+                }
             }
-            return false;
-        }
 
-        public override bool Equals(object obj)
-        {
-            return obj is SimpleKeyValueSettings other && Equals(other);
+            return true;
         }
+        return false;
+    }
+
+    public override bool Equals(object obj)
+    {
+        return obj is SimpleKeyValueSettings other && Equals(other);
     }
 }
