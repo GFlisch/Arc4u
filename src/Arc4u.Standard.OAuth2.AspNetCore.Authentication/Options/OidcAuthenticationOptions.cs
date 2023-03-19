@@ -7,9 +7,9 @@ namespace Arc4u.OAuth2.Options;
 
 public class OidcAuthenticationOptions
 {
-    public IKeyValueSettings? OAuth2Settings { get; set; }
+    public string OAuth2SettingsSectionName { get; set; } = "";
 
-    public IKeyValueSettings? OpenIdSettings { get; set; }
+    public string OpenIdSettingsSectionName { get; set; } = "";
 
     public string? MetadataAddress { get; set; }
 

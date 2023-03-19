@@ -8,6 +8,11 @@ namespace Arc4u.Configuration;
 /// </summary>
 public class SimpleKeyValueSettings : IKeyValueSettings, IEquatable<SimpleKeyValueSettings>
 {
+    public SimpleKeyValueSettings()
+    {
+        _keyValues = new();
+    }
+
     public SimpleKeyValueSettings(Dictionary<string, string> keyValues)
     {
         _keyValues = keyValues;

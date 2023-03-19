@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using FluentAssertions;
 using System.Linq;
+using Arc4u.Configuration;
 
 namespace Arc4u.Standard.UnitTest;
 
@@ -22,7 +23,7 @@ public class SettingsOptionTests
     private readonly Fixture _fixture;
 
     [Fact]
-    public void SettingsOptionShould()
+    public void SimpleKeyValueShould()
     {
         var config = new ConfigurationBuilder()
               .AddInMemoryCollection(
@@ -37,26 +38,26 @@ public class SettingsOptionTests
 
         var dic = configuration.GetSection("OAuth2.Settings").Get<Dictionary<string, string>>();
 
-        void options(Dictionary<string, string> o)
+        void options(SimpleKeyValueSettings settings)
         {
             foreach (var kv in dic)
             {
-                o.Add(kv.Key, kv.Value);
+                settings.Add(kv.Key, kv.Value);
             }
         }
 
         IServiceCollection services = new ServiceCollection();
 
-        services.Configure<Dictionary<string, string>>("OAuth2", options);
+        services.Configure<SimpleKeyValueSettings>("OAuth2", options);
 
         var serviceProvider = services.BuildServiceProvider();
 
-        var sut = serviceProvider.GetService<IOptionsMonitor<Dictionary<string, string>>>()!.Get("OAuth2");
+        var sut = serviceProvider.GetService<IOptionsMonitor<SimpleKeyValueSettings>>()!.Get("OAuth2");
 
-        sut.Count.Should().Be(3);
-        sut["ProviderId"].Should().Be("Oidc");
-        sut["AuthenticationType"].Should().Be("OAuth2Bearer");
-        sut["Object"].Should().Be("True");
+        sut.Values.Count.Should().Be(3);
+        sut.Values["ProviderId"].Should().Be("Oidc");
+        sut.Values["AuthenticationType"].Should().Be("OAuth2Bearer");
+        sut.Values["Object"].Should().Be("True");
 
     }
 }

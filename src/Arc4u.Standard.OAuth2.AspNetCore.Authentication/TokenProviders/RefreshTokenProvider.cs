@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Http;
@@ -74,31 +74,7 @@ public class RefreshTokenProvider : ITokenRefreshProvider
                                     };
         var content = new FormUrlEncodedContent(pairs);
 
-/* Unmerged change from project 'Arc4u.Standard.OAuth2.AspNetCore.Authentication(net7.0)'
-Before:
-        var tokenResponse = await options.Backchannel.PostAsync(metadata.TokenEndpoint, content, CancellationToken.None);
-After:
         var tokenResponse = await options.Backchannel.PostAsync(metadata.TokenEndpoint, content, CancellationToken.None).ConfigureAwait(false);
-*/
-        var tokenResponse = await options.Backchannel.PostAsync(metadata.TokenEndpoint, content, CancellationToken.None)
-/* Unmerged change from project 'Arc4u.Standard.OAuth2.AspNetCore.Authentication(net7.0)'
-Before:
-                _logger.Technical().LogError($"Refreshing the token is failing. {tokenResponse.ReasonPhrase}");
-After:
-            {
-                _logger.Technical().LogError($"Refreshing the token is failing. {tokenResponse.ReasonPhrase}");
-            }
-*/
-
-/* Unmerged change from project 'Arc4u.Standard.OAuth2.AspNetCore.Authentication(net7.0)'
-Before:
-                _logger.Technical().LogError("Refreshing the token is failing. Enable PII to have more info.");
-After:
-            {
-                _logger.Technical().LogError("Refreshing the token is failing. Enable PII to have more info.");
-            }
-*/
-.ConfigureAwait(false);
 
         if (!tokenResponse.IsSuccessStatusCode)
         {

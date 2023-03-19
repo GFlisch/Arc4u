@@ -1,11 +1,13 @@
 using System;
 using System.Linq;
+using Arc4u.Configuration;
 using Arc4u.OAuth2.Options;
 using Arc4u.OAuth2.Token;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
@@ -16,7 +18,7 @@ namespace Arc4u.Standard.OAuth2.Extensions;
 
 public static partial class AuthenticationExtensions
 {
-    public static AuthenticationBuilder AddOidcAuthentication(this IServiceCollection services, Action<OidcAuthenticationOptions> authenticationOptions)
+    public static AuthenticationBuilder AddOidcAuthentication(this IServiceCollection services, IConfiguration configuration, Action<OidcAuthenticationOptions> authenticationOptions)
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(authenticationOptions);
@@ -24,9 +26,18 @@ public static partial class AuthenticationExtensions
         var oidcOptions = new OidcAuthenticationOptions();
         authenticationOptions(oidcOptions);
 
-        ArgumentNullException.ThrowIfNull(oidcOptions.OAuth2Settings);
-        ArgumentNullException.ThrowIfNull(oidcOptions.OpenIdSettings);
+        if (string.IsNullOrEmpty(oidcOptions.OAuth2SettingsSectionName))
+        {
+            throw new ArgumentNullException(nameof(authenticationOptions), $"{nameof(oidcOptions.OAuth2SettingsSectionName)} is empty");
+        }
+        if (string.IsNullOrEmpty(oidcOptions.OpenIdSettingsSectionName))
+        {
+            throw new ArgumentNullException(nameof(authenticationOptions), $"{nameof(oidcOptions.OpenIdSettingsSectionName)} is empty");
+        }
         ArgumentNullException.ThrowIfNull(oidcOptions.MetadataAddress);
+
+        var oauth2Settings = services.ConfigureSettings("OAuth2", configuration, oidcOptions.OAuth2SettingsSectionName);
+        var openIdSettings = services.ConfigureSettings("OpenId", configuration, oidcOptions.OpenIdSettingsSectionName);
 
         // Will keep in memory the AccessToken and Refresh token for the time of the request...
         services.Configure(authenticationOptions);
@@ -71,7 +82,7 @@ public static partial class AuthenticationExtensions
                     options.UsePkce = true; // Impact on th security. It is best to do this...
                     options.UseTokenLifetime = false;
                     options.SaveTokens = false;
-                    options.Authority = oidcOptions.OpenIdSettings.Values[TokenKeys.AuthorityKey];
+                    options.Authority = openIdSettings.Values[TokenKeys.AuthorityKey];
                     options.RequireHttpsMetadata = false; // do we force? Docker image for testing...
                     options.MetadataAddress = oidcOptions.MetadataAddress;
                     options.ResponseType = oidcOptions.ResponseType;
@@ -79,20 +90,20 @@ public static partial class AuthenticationExtensions
                     options.Scope.Clear();
                     options.Scope.Add(OpenIdConnectScope.OpenIdProfile);
                     options.Scope.Add(OpenIdConnectScope.OfflineAccess);
-                    foreach (var scope in SplitString(oidcOptions.OpenIdSettings.Values[TokenKeys.Scopes]))
+                    foreach (var scope in SplitString(openIdSettings.Values[TokenKeys.Scopes]))
                     {
                         options.Scope.Add(scope);
                     }
 
-                    options.ClientId = oidcOptions.OpenIdSettings.Values[TokenKeys.ClientIdKey];
-                    options.ClientSecret = oidcOptions.OpenIdSettings.Values[TokenKeys.ApplicationKey];
+                    options.ClientId = openIdSettings.Values[TokenKeys.ClientIdKey];
+                    options.ClientSecret = openIdSettings.Values[TokenKeys.ApplicationKey];
                     // we don't call the user info endpoint => On AzureAd the user.read scope is needed.
                     options.GetClaimsFromUserInfoEndpoint = false;
 
                     options.TokenValidationParameters.SaveSigninToken = false;
                     options.TokenValidationParameters.AuthenticationType = Constants.CookiesAuthenticationType;
                     options.TokenValidationParameters.ValidateAudience = true;
-                    options.TokenValidationParameters.ValidAudiences = SplitString(oidcOptions.OpenIdSettings.Values[Audiences]);
+                    options.TokenValidationParameters.ValidAudiences = SplitString(openIdSettings.Values[Audiences]);
 
                     // we will use the same key to generate and validate so we can use this also in the different services...
                     if (securityKey is not null)
@@ -110,14 +121,14 @@ public static partial class AuthenticationExtensions
                 .AddJwtBearer(option =>
                 {
                     option.RequireHttpsMetadata = false;
-                    option.Authority = oidcOptions.OAuth2Settings.Values[TokenKeys.AuthorityKey];
+                    option.Authority = oauth2Settings.Values[TokenKeys.AuthorityKey];
                     option.MetadataAddress = oidcOptions.MetadataAddress;
                     option.SaveToken = true;
                     option.TokenValidationParameters.SaveSigninToken = false;
                     option.TokenValidationParameters.AuthenticationType = Constants.BearerAuthenticationType;
                     option.TokenValidationParameters.ValidateIssuer = false;
                     option.TokenValidationParameters.ValidateAudience = true;
-                    option.TokenValidationParameters.ValidAudiences = SplitString(oidcOptions.OAuth2Settings.Values[Audiences]);
+                    option.TokenValidationParameters.ValidAudiences = SplitString(oauth2Settings.Values[Audiences]);
                     if (securityKey is not null)
                     {
                         option.TokenValidationParameters.IssuerSigningKey = securityKey;
