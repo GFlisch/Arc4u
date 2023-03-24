@@ -73,6 +73,49 @@ public class CacheDataProtectionStoreTests
 
     }
 
+    [Fact]
+    public void StoreXElementWithNoCacheNameShould()
+    {
+        // arrange
+        var container = BuiltContainer();
+
+        container.CreateContainer();
+
+        var loggerFactory = container.GetRequiredService<ILoggerFactory>();
+
+        // act
+        var sut = new CacheStore(container, loggerFactory, "DataProtection");
+
+        var element = new XElement("Data", new XAttribute("CreationDate", DateTime.UtcNow),
+                            new XElement("Cert", "Begin Certficate"));
+
+        sut.StoreElement(element, "");
+
+        var result = sut.GetAllElements();
+
+        result.Count.Should().Be(1);
+        result.First().Name.LocalName.Should().Be("Data");
+
+    }
+
+    [Fact]
+    public void CacheStoreKeyShould()
+    {
+        // arrange
+        var container = BuiltContainer();
+
+        container.CreateContainer();
+
+        var loggerFactory = container.GetRequiredService<ILoggerFactory>();
+
+        // act
+        var exception = Record.Exception(() => new CacheStore(container, loggerFactory, null));
+
+        // assert
+        exception.Should().NotBeNull();
+        exception.Should().BeOfType<ArgumentNullException>();
+    }
+
 
     private static IContainer BuiltContainer()
     {
