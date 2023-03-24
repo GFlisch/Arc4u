@@ -147,7 +147,7 @@ public static partial class AuthenticationExtensions
     /// <param name="services">The collection ued to define the dependencies</param>
     /// <param name="authenticationOptions"><see cref="JwtAuthenticationOptions"/></param>
     /// <returns></returns>
-    public static AuthenticationBuilder AddJwtAuthentication(this IServiceCollection services, Action<JwtAuthenticationOptions> authenticationOptions)
+    public static AuthenticationBuilder AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration, Action<JwtAuthenticationOptions> authenticationOptions)
     {
         ArgumentNullException.ThrowIfNull(services, nameof(services));
 
@@ -156,11 +156,15 @@ public static partial class AuthenticationExtensions
         var options = new JwtAuthenticationOptions();
         authenticationOptions(options);
 
-        ArgumentNullException.ThrowIfNull(options.OAuth2Settings, nameof(options.OAuth2Settings));
+        if (string.IsNullOrEmpty(options.OAuth2SettingsSectionName))
+        {
+            throw new ArgumentNullException(nameof(authenticationOptions), $"{nameof(options.OAuth2SettingsSectionName)} is empty");
+        }
+
         ArgumentNullException.ThrowIfNull(options.JwtBearerEventsType, nameof(options.JwtBearerEventsType));
         ArgumentNullException.ThrowIfNull(options.MetadataAddress, nameof(options.MetadataAddress));
 
-        services.Configure(authenticationOptions);
+        var oauth2Settings = services.ConfigureSettings("OAuth2", configuration, options.OAuth2SettingsSectionName);
 
         services.AddTransient(options.JwtBearerEventsType);
         services.AddAuthorization();
@@ -172,14 +176,14 @@ public static partial class AuthenticationExtensions
                     SecurityKey? securityKey = options.CertSecurityKey is not null ? new X509SecurityKey(options.CertSecurityKey) : null;
 
                     option.RequireHttpsMetadata = false;
-                    option.Authority = options.OAuth2Settings.Values[TokenKeys.AuthorityKey];
+                    option.Authority = oauth2Settings.Values[TokenKeys.AuthorityKey];
                     option.MetadataAddress = options.MetadataAddress;
                     option.SaveToken = true;
                     option.TokenValidationParameters.SaveSigninToken = false;
                     option.TokenValidationParameters.AuthenticationType = Constants.BearerAuthenticationType;
                     option.TokenValidationParameters.ValidateIssuer = false;
                     option.TokenValidationParameters.ValidateAudience = true;
-                    option.TokenValidationParameters.ValidAudiences = SplitString(options.OAuth2Settings.Values[Audiences]);
+                    option.TokenValidationParameters.ValidAudiences = SplitString(oauth2Settings.Values[Audiences]);
                     if (securityKey is not null)
                     {
                         option.TokenValidationParameters.IssuerSigningKey = securityKey;

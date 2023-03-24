@@ -6,7 +6,7 @@ namespace Arc4u.OAuth2.Options;
 
 public class JwtAuthenticationOptions
 {
-    public IKeyValueSettings OAuth2Settings { get; set; }
+    public string OAuth2SettingsSectionName { get; set; } = "OAuth2.Settings";
 
     public string MetadataAddress { get; set; }
 
