@@ -15,6 +15,10 @@ using Arc4u.OAuth2.DataProtection;
 using Microsoft.Extensions.Logging;
 using System.Xml.Linq;
 using System.Linq;
+using Moq;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.DataProtection.KeyManagement;
+using Microsoft.Extensions.Options;
 
 namespace Arc4u.Standard.UnitTest.Caching;
 
@@ -33,7 +37,11 @@ public class CacheDataProtectionStoreTests
     public void CheckMemoryStoreShould()
     {
         // arrange
-        var container = BuiltContainer();
+        var (services, configuration) = BuiltContainer();
+
+        var container = new ComponentModelContainer(services);
+
+        container.Register<ICache, MemoryCache>(CacheContext.Memory);
 
         container.CreateContainer();
 
@@ -52,7 +60,11 @@ public class CacheDataProtectionStoreTests
     public void StoreXElementShould()
     {
         // arrange
-        var container = BuiltContainer();
+        var (services, configuration) = BuiltContainer();
+
+        var container = new ComponentModelContainer(services);
+
+        container.Register<ICache, MemoryCache>(CacheContext.Memory);
 
         container.CreateContainer();
 
@@ -77,7 +89,11 @@ public class CacheDataProtectionStoreTests
     public void StoreXElementWithNoCacheNameShould()
     {
         // arrange
-        var container = BuiltContainer();
+        var (services, configuration) = BuiltContainer();
+
+        var container = new ComponentModelContainer(services);
+
+        container.Register<ICache, MemoryCache>(CacheContext.Memory);
 
         container.CreateContainer();
 
@@ -102,7 +118,11 @@ public class CacheDataProtectionStoreTests
     public void CacheStoreKeyShould()
     {
         // arrange
-        var container = BuiltContainer();
+        var (services, configuration) = BuiltContainer();
+
+        var container = new ComponentModelContainer(services);
+
+        container.Register<ICache, MemoryCache>(CacheContext.Memory);
 
         container.CreateContainer();
 
@@ -116,8 +136,124 @@ public class CacheDataProtectionStoreTests
         exception.Should().BeOfType<ArgumentNullException>();
     }
 
+    /// <summary>
+    /// End to end test!
+    /// Use the complete process to store key in the CacheStore, via a MemoryCache
+    /// </summary>
+    [Fact]
+    public void CacheExtensionFromConfigShould()
+    {
+        // arrange
+        var (services, configuration) = BuiltContainer();
 
-    private static IContainer BuiltContainer()
+        var mockBuilder = _fixture.Freeze<Mock<IDataProtectionBuilder>>();
+        mockBuilder.Setup(p => p.Services).Returns(services);
+
+        mockBuilder.Object.PersistKeysToCache(configuration);
+
+        var container = new ComponentModelContainer(services);
+
+        container.Register<ICache, MemoryCache>(CacheContext.Memory);
+
+        container.CreateContainer();
+
+        var sut = container.GetService<IConfigureOptions<KeyManagementOptions>>();
+
+        sut.Should().NotBeNull();
+
+        var options = new KeyManagementOptions();
+
+        sut!.Configure(options);
+
+        options.XmlRepository.Should().NotBeNull();
+
+        var element = new XElement("Data", new XAttribute("CreationDate", DateTime.UtcNow),
+                            new XElement("Cert", "Begin Certficate"));
+
+        options.XmlRepository!.StoreElement(element, "");
+
+        var result = options.XmlRepository.GetAllElements();
+
+        result.Count.Should().Be(1);
+        result.First().Name.LocalName.Should().Be("Data");
+
+    }
+
+    [Fact]
+    public void SectionNameNotDefinedFromConfigShould()
+    {
+        IServiceCollection services = new ServiceCollection();
+
+        var config = new ConfigurationBuilder()
+        .AddInMemoryCollection(
+         new Dictionary<string, string?>
+         {
+             ["DataProtectionStore:CacheKey"] = "Key-",
+             ["DataProtectionStore:CacheName"] = "Volatile"
+
+         }).Build();
+
+        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+
+        var mockBuilder = _fixture.Freeze<Mock<IDataProtectionBuilder>>();
+        mockBuilder.Setup(p => p.Services).Returns(services);
+
+        var exception = Record.Exception(() => mockBuilder.Object.PersistKeysToCache(configuration, "NotDefined"));
+
+        exception.Should().NotBeNull();
+        exception.Should().BeOfType<KeyNotFoundException>();
+    }
+
+    [Fact]
+    public void BadValuesFromConfigShould()
+    {
+        IServiceCollection services = new ServiceCollection();
+
+        var config = new ConfigurationBuilder()
+        .AddInMemoryCollection(
+         new Dictionary<string, string?>
+         {
+             ["DataProtectionStore:Key"] = "Key-",
+             ["DataProtectionStore:Name"] = "Volatile"
+
+         }).Build();
+
+        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+
+        var mockBuilder = _fixture.Freeze<Mock<IDataProtectionBuilder>>();
+        mockBuilder.Setup(p => p.Services).Returns(services);
+
+        var exception = Record.Exception(() => mockBuilder.Object.PersistKeysToCache(configuration));
+
+        exception.Should().NotBeNull();
+        exception.Should().BeOfType<InvalidCastException>();
+    }
+
+    [Fact]
+    public void CacheKeyNotDefinedFromConfigShould()
+    {
+        IServiceCollection services = new ServiceCollection();
+
+        var config = new ConfigurationBuilder()
+        .AddInMemoryCollection(
+         new Dictionary<string, string?>
+         {
+             ["DataProtectionStore:CacheName"] = "Volatile"
+
+         }).Build();
+
+        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+
+        var mockBuilder = _fixture.Freeze<Mock<IDataProtectionBuilder>>();
+        mockBuilder.Setup(p => p.Services).Returns(services);
+
+        var exception = Record.Exception(() => mockBuilder.Object.PersistKeysToCache(configuration));
+
+        exception.Should().NotBeNull();
+        exception.Should().BeOfType<ArgumentNullException>();
+    }
+
+    private static (IServiceCollection, IConfiguration) BuiltContainer()
     {
         IServiceCollection services = new ServiceCollection();
 
@@ -133,7 +269,10 @@ public class CacheDataProtectionStoreTests
              ["Caching:Caches:0:Name"] = "Volatile",
              ["Caching:Caches:0:Kind"] = CacheContext.Memory,
              ["Caching:Caches:0:IsAutoStart"] = "True",
-             ["Caching:Caches:0:Settings:SizeLimit"] = "10"
+             ["Caching:Caches:0:Settings:SizeLimit"] = "10",
+
+             ["DataProtectionStore:CacheKey"] = "Key-",
+             ["DataProtectionStore:CacheName"] = "Volatile"
 
          }).Build();
 
@@ -144,10 +283,6 @@ public class CacheDataProtectionStoreTests
         services.AddSingleton<IConfiguration>(configuration);
         services.AddTransient<IObjectSerialization, JsonSerialization>();
 
-        var container = new ComponentModelContainer(services);
-
-        container.Register<ICache, MemoryCache>(CacheContext.Memory);
-
-        return container;
+        return (services, configuration);
     }
 }
