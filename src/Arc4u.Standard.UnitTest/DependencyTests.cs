@@ -1,7 +1,10 @@
-﻿using Arc4u.Configuration;
+using Arc4u.Configuration;
 using Arc4u.Dependency;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Dependency.ComponentModel;
+using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using System;
 using System.Linq;
 using Xunit;
@@ -17,12 +20,12 @@ namespace Arc4u.Standard.UnitTest
         public void TestCanBeScoped()
         {
             var configuration = ConfigurationHelper.GetConfigurationFromFile(@"Configs\TestParser.json");
-            var config = new Config(configuration);
 
+            var services = new ServiceCollection();
+            services.AddApplicationConfig(configuration);
 
-            var container = new ComponentModelContainer();
-            container.RegisterInstance(configuration);
-            container.RegisterInstance(config);
+            var container = new ComponentModelContainer(services);
+//            container.RegisterInstance(configuration);
             container.RegisterScoped<IGenerator, IdGenerator>();
 
             container.CreateContainer();
@@ -44,12 +47,12 @@ namespace Arc4u.Standard.UnitTest
         public void TestCanBeScopedByName()
         {
             var configuration = ConfigurationHelper.GetConfigurationFromFile(@"Configs\TestParser.json");
-            var config = new Config(configuration);
 
+            var services = new ServiceCollection();
+            services.AddApplicationConfig(configuration);
 
-            var container = new ComponentModelContainer();
+            var container = new ComponentModelContainer(services);
             container.RegisterInstance(configuration);
-            container.RegisterInstance(config);
             container.RegisterScoped<IGenerator, IdGenerator>("Named");
 
             container.CreateContainer();
@@ -71,7 +74,6 @@ namespace Arc4u.Standard.UnitTest
         public void TestTryResolve()
         {
             var container = new ComponentModelContainer();
-            //container.Register<IGenerator, IdGenerator>();
 
             container.CreateContainer();
 
@@ -83,13 +85,17 @@ namespace Arc4u.Standard.UnitTest
         void TestRejectedTypeRegister()
         {
             var configuration = ConfigurationHelper.GetConfigurationFromFile(@"Configs\appsettings.RejectedTypes.json");
-            var config = new Config(configuration);
-            var container = new ComponentModelContainer().InitializeFromConfig(configuration);
+            var services = new ServiceCollection();
+            services.AddApplicationConfig(configuration);
+
+            var container = new ComponentModelContainer(services).InitializeFromConfig(configuration);
             container.RegisterInstance(configuration);
-            container.RegisterInstance(config);
             container.CreateContainer();
 
-            Assert.NotNull(container.Resolve<Config>());
+            var config = container.Resolve<IOptions<ApplicationConfig>>();
+
+            config.Should().NotBeNull();
+            config.Value.Should().NotBeNull();
             Assert.Null(container.Resolve<IGenerator>());
         }
 
@@ -97,10 +103,11 @@ namespace Arc4u.Standard.UnitTest
         void TestParser()
         {
             var configuration = ConfigurationHelper.GetConfigurationFromFile(@"Configs\TestParser.json");
-            var config = new Config(configuration);
-            var container = new ComponentModelContainer().InitializeFromConfig(configuration);
+            var services = new ServiceCollection();
+            services.AddApplicationConfig(configuration);
+
+            var container = new ComponentModelContainer(services).InitializeFromConfig(configuration);
             container.RegisterInstance(configuration);
-            container.RegisterInstance(config);
             container.CreateContainer();
 
             var byInterface = container.Resolve<IGenerator>();
@@ -114,10 +121,11 @@ namespace Arc4u.Standard.UnitTest
         void TestScopedParser()
         {
             var configuration = ConfigurationHelper.GetConfigurationFromFile(@"Configs\TestScopedParser.json");
-            var config = new Config(configuration);
-            var container = new ComponentModelContainer().InitializeFromConfig(configuration);
+            var services = new ServiceCollection();
+            services.AddApplicationConfig(configuration);
+
+            var container = new ComponentModelContainer(services).InitializeFromConfig(configuration);
             container.RegisterInstance(configuration);
-            container.RegisterInstance(config);
             container.CreateContainer();
 
             var byInterface = container.Resolve<IGenerator>();
@@ -147,11 +155,11 @@ namespace Arc4u.Standard.UnitTest
         void TestCompositionRegister()
         {
             var configuration = ConfigurationHelper.GetConfigurationFromFile(@"Configs\EmptyAssemblies.json");
-            var config = new Config(configuration);
+            var services = new ServiceCollection();
+            services.AddApplicationConfig(configuration);
 
-            var container = new ComponentModelContainer().InitializeFromConfig(configuration);
+            var container = new ComponentModelContainer(services).InitializeFromConfig(configuration);
             container.RegisterInstance(configuration);
-            container.RegisterInstance(config);
             container.Register<IGenerator, IdGenerator>();
             container.RegisterSingleton<IGenerator, TestParser>();
             container.RegisterSingleton<IGenerator, SingletonIdGenerator>();
@@ -160,7 +168,6 @@ namespace Arc4u.Standard.UnitTest
 
             container.CreateContainer();
 
-            Assert.NotNull(container.Resolve<Config>());
             Assert.True(container.ResolveAll<IGenerator>().Count() > 1);
         }
 
@@ -168,11 +175,11 @@ namespace Arc4u.Standard.UnitTest
         void TestNullNamingRegister()
         {
             var configuration = ConfigurationHelper.GetConfigurationFromFile(@"Configs\EmptyAssemblies.json");
-            var config = new Config(configuration);
+            var services = new ServiceCollection();
+            services.AddApplicationConfig(configuration);
 
-            var container = new ComponentModelContainer().InitializeFromConfig(configuration);
+            var container = new ComponentModelContainer(services).InitializeFromConfig(configuration);
             container.RegisterInstance(configuration);
-            container.RegisterInstance(config);
             Assert.Throws<ArgumentNullException>(() => container.Register<IGenerator, IdGenerator>(null));
         }
 
@@ -180,11 +187,11 @@ namespace Arc4u.Standard.UnitTest
         void TestNullNamingResolver()
         {
             var configuration = ConfigurationHelper.GetConfigurationFromFile(@"Configs\EmptyAssemblies.json");
-            var config = new Config(configuration);
+            var services = new ServiceCollection();
+            services.AddApplicationConfig(configuration);
 
-            var container = new ComponentModelContainer();
+            var container = new ComponentModelContainer(services);
             container.RegisterInstance(configuration);
-            container.RegisterInstance(config);
             container.Register<IGenerator, IdGenerator>();
             container.Register<IGenerator, NamedSingletonIdGenerator>("name");
             container.CreateContainer();
@@ -208,11 +215,11 @@ namespace Arc4u.Standard.UnitTest
         void TestNullNamingMultiResolveException()
         {
             var configuration = ConfigurationHelper.GetConfigurationFromFile(@"Configs\EmptyAssemblies.json");
-            var config = new Config(configuration);
+            var services = new ServiceCollection();
+            services.AddApplicationConfig(configuration);
 
-            var container = new ComponentModelContainer().InitializeFromConfig(configuration);
+            var container = new ComponentModelContainer(services).InitializeFromConfig(configuration);
             container.RegisterInstance(configuration);
-            container.RegisterInstance(config);
             container.Register<IGenerator, IdGenerator>();
             container.RegisterSingleton<IGenerator, TestParser>();
             container.RegisterSingleton<IGenerator, SingletonIdGenerator>();
@@ -238,15 +245,17 @@ namespace Arc4u.Standard.UnitTest
         void TestComponentModelContainerResolveOnNonRegisteredType()
         {
             var configuration = ConfigurationHelper.GetConfigurationFromFile(@"Configs\EmptyAssemblies.json");
-            var config = new Config(configuration);
+            var services = new ServiceCollection();
+            services.AddApplicationConfig(configuration);
 
-
-            var container = new ComponentModelContainer().InitializeFromConfig(configuration);
+            var container = new ComponentModelContainer(services).InitializeFromConfig(configuration);
             container.RegisterInstance(configuration);
-            container.RegisterInstance(config);
             container.CreateContainer();
 
-            Assert.NotNull(container.Resolve<Config>());
+            var config = container.Resolve<IOptions<ApplicationConfig>>();
+
+            config.Should().NotBeNull();
+            config.Value.Should().NotBeNull();
             Assert.Null(container.Resolve<IGenerator>());
             Assert.False(container.TryResolve<IGenerator>(out var gen));
 
@@ -258,20 +267,22 @@ namespace Arc4u.Standard.UnitTest
             ContainerContext.RegisterCreateContainerFunction(() =>
             {
                 var configuration = ConfigurationHelper.GetConfigurationFromFile(@"Configs\EmptyAssemblies.json");
-                var config = new Config(configuration);
+                var services = new ServiceCollection();
+                services.AddApplicationConfig(configuration);
 
-                var container = new ComponentModelContainer().InitializeFromConfig(configuration);
+                var container = new ComponentModelContainer(services).InitializeFromConfig(configuration);
                 container.RegisterInstance(configuration);
-                container.RegisterInstance(config);
                 container.CreateContainer();
                 return container;
             });
 
-            var configuration = ConfigurationHelper.GetConfigurationFromFile(@"Configs\EmptyAssemblies.json");
-            var config = new Config(configuration);
-
             var container = ContainerContext.CreateContainer();
-            Assert.NotNull(container.Resolve<Config>());
+
+            var config = container.Resolve<IOptions<ApplicationConfig>>();
+
+            config.Should().NotBeNull();
+            config.Value.Should().NotBeNull();
+
             Assert.Null(container.Resolve<IGenerator>());
 
             Assert.False(container.TryResolve<IGenerator>(out var gen));

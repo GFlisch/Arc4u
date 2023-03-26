@@ -8,6 +8,8 @@ using Microsoft.Extensions.Options;
 using FluentAssertions;
 using System.Linq;
 using Arc4u.Configuration;
+using System.Globalization;
+using Arc4u.Security.Principal;
 
 namespace Arc4u.Standard.UnitTest;
 
@@ -59,5 +61,40 @@ public class SettingsOptionTests
         sut.Values["AuthenticationType"].Should().Be("OAuth2Bearer");
         sut.Values["Object"].Should().Be("True");
 
+    }
+
+    [Fact]
+    public void ApplicationConfigFromConfigurationShould()
+    {
+        // Arrange
+        IServiceCollection services = new ServiceCollection();
+
+        var config = new ConfigurationBuilder()
+             .AddInMemoryCollection(
+                 new Dictionary<string, string?>
+                 {
+                     ["Application.Configuration:ApplicationName"] = "Arc4u.UnitTest",
+                     ["Application.Configuration:Environment:Name"] = "Development",
+                     ["Application.Configuration:Environment:LoggingName"] = "Arc4u.UnitTest",
+                     ["Application.Configuration:Environment:TimeZone"] = "Romance Standard Time"
+
+                 }).Build();
+
+        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+
+        services.AddApplicationConfig(configuration);
+
+        var serviceProvider = services.BuildServiceProvider();
+
+        // act
+        var sut = serviceProvider.GetRequiredService<IOptionsMonitor<ApplicationConfig>>();
+
+        // assert;
+
+        sut.Should().NotBeNull();
+        sut.CurrentValue.ApplicationName.Should().Be("Arc4u.UnitTest");
+        sut.CurrentValue.Environment.Name.Should().Be("Development");
+        sut.CurrentValue.Environment.LoggingName.Should().Be("Arc4u.UnitTest");
+        sut.CurrentValue.Environment.TimeZone.Should().Be("Romance Standard Time");
     }
 }

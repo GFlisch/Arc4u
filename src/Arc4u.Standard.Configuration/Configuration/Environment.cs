@@ -1,22 +1,10 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
-using System.Runtime.Serialization;
+namespace Arc4u.Configuration;
 
-namespace Arc4u.Configuration
+public class Environment
 {
-    [DataContract]
-    public class Environment
-    {
-        [DataMember(Name = "name")]
-        public String Name { get; set; }
+    public string Name { get; set; }
 
-        [DataMember(Name = "loggingName")]
-        public String LoggingName { get; set; }
+    public string LoggingName { get; set; }
 
-        [DataMember(Name = "timeZone")]
-        public String TimeZone { get; set; }
-
-        [DataMember(Name = "loggingLevel")]
-        public LogLevel LoggingLevel { get; set; } = LogLevel.Information;
-    }
+    public string TimeZone { get; set; }
 }

@@ -17,9 +17,9 @@ namespace Arc4u.Standard.UnitTest.Infrastructure
         public ContainerFixture()
         {
             var configuration = ConfigurationHelper.GetConfigurationFromFile(ConfigFile);
-            var config = new Config(configuration);
 
             var services = new ServiceCollection();
+            services.AddApplicationConfig(configuration);
 
             _logger = BuildLogger(configuration);
 
@@ -32,7 +32,6 @@ namespace Arc4u.Standard.UnitTest.Infrastructure
 
             var container = new ComponentModelContainer(services).InitializeFromConfig(configuration);
             container.RegisterInstance(configuration);
-            container.RegisterInstance(config);
 
             AddToContainer(container, configuration);
 
