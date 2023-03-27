@@ -36,11 +36,6 @@ namespace Arc4u.NServiceBus.RabbitMQ.Routing
             channel.BasicPublish(address, String.Empty, true, properties, message.Body);
         }
 
-        public void RawSendInCaseOfFailure(IModel channel, string address, byte[] body, IBasicProperties properties)
-        {
-            channel.BasicPublish(address, String.Empty, true, properties, body);
-        }
-
         public void BindToDelayInfrastructure(IModel channel, string address, string deliveryExchange, string routingKey)
         {
             //channel.ExchangeBind(address, deliveryExchange, routingKey);
@@ -52,6 +47,7 @@ namespace Arc4u.NServiceBus.RabbitMQ.Routing
 
         public void RawSendInCaseOfFailure(IModel channel, string address, ReadOnlyMemory<byte> body, IBasicProperties properties)
         {
+            channel.BasicPublish(address, String.Empty, true, properties, body);
         }
     }
 }
