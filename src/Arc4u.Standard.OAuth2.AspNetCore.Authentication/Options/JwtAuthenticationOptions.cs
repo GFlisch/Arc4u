@@ -10,7 +10,7 @@ public class JwtAuthenticationOptions
 
     public string MetadataAddress { get; set; }
 
-    public bool ValidateAuthority { get; set; }
+    public bool ValidateAuthority { get; set; } = true;
 
     public Type JwtBearerEventsType { get; set; } = typeof(StandardBearerEvents);
 
