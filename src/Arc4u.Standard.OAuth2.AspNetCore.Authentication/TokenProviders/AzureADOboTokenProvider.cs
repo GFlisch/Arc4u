@@ -113,8 +113,8 @@ public class AzureADOboTokenProvider : ITokenProvider
                 // Persist the new acess token
                 if (payload.RootElement.TryGetProperty("expires_in", out var property) && property.TryGetInt32(out var seconds))
                 {
-                    var expirationAt = DateTimeOffset.UtcNow + TimeSpan.FromSeconds(seconds);
-                    oboToken = new Token.TokenInfo("access_token", payload!.RootElement!.GetString("access_token"), expirationAt.DateTime.ToUniversalTime());
+                    var expirationAt = DateTime.UtcNow + TimeSpan.FromSeconds(seconds);
+                    oboToken = new Token.TokenInfo("access_token", payload!.RootElement!.GetString("access_token"), expirationAt.ToUniversalTime());
                 }
                 else
                 {
