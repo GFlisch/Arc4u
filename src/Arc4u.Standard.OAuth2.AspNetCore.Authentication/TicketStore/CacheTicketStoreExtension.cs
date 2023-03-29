@@ -24,6 +24,12 @@ public static class CacheTicketStoreExtension
 
     public static void AddCacheTicketStore(this IServiceCollection services, IConfiguration configuration, string sectionName = "AuthenticationCacheTicketStore")
     {
+        AddCacheTicketStore(services, PrepareAction(configuration, sectionName));
+    }
+
+    internal static Action<CacheTicketStoreOption> PrepareAction(IConfiguration configuration, string sectionName)
+    {
+        ArgumentNullException.ThrowIfNull(sectionName);
         var section = configuration.GetSection(sectionName) as IConfigurationSection;
 
         if (section.Exists())
@@ -42,9 +48,10 @@ public static class CacheTicketStoreExtension
                 o.TicketStore = option.TicketStore;
             }
 
-            AddCacheTicketStore(services, options);
-
+            return options;
         }
+
+        throw new ApplicationException($"Section {sectionName} for configuring the TicketStore doesn't exist.");
     }
 }
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using Arc4u.Dependency.Attribute;
 using Arc4u.OAuth2.Options;
@@ -11,9 +11,9 @@ namespace Arc4u.OAuth2.TokenProviders;
 [Export(OidcTokenProvider.ProviderName, typeof(ITokenProvider))]
 public class OidcTokenProvider : ITokenProvider
 {
-    const string ProviderName = "Oidc";
+    public const string ProviderName = "Oidc";
 
-    public OidcTokenProvider(ILogger<OidcTokenProvider> logger, TokenRefreshInfo tokenRefreshInfo, IOptions<OidcAuthenticationOptions> oidcOptions, ITokenRefreshProvider refreshTokenProvider)
+    public OidcTokenProvider(ILogger<OidcTokenProvider> logger, TokenRefreshInfo tokenRefreshInfo, IOptions<OidcAuthenticationBuilderOptions> oidcOptions, ITokenRefreshProvider refreshTokenProvider)
     {
         _logger = logger;
         _tokenRefreshInfo = tokenRefreshInfo;
@@ -23,7 +23,7 @@ public class OidcTokenProvider : ITokenProvider
 
     private readonly ILogger<OidcTokenProvider> _logger;
     private readonly TokenRefreshInfo _tokenRefreshInfo;
-    private readonly OidcAuthenticationOptions _oidcOptions;
+    private readonly OidcAuthenticationBuilderOptions _oidcOptions;
     private readonly ITokenRefreshProvider _refreshTokenProvider;
 
     /// <summary>

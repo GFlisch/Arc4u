@@ -29,7 +29,7 @@ public class RefreshTokenProvider : ITokenRefreshProvider
 
     public RefreshTokenProvider(TokenRefreshInfo refreshInfo,
                                 IOptionsMonitor<OpenIdConnectOptions> openIdConnectOptions,
-                                IOptions<OidcAuthenticationOptions> oidcOptions,
+                                IOptions<OidcAuthenticationBuilderOptions> oidcOptions,
                                 IActivitySourceFactory activitySourceFactory,
                                 ILogger<RefreshTokenProvider> logger)
     {
@@ -42,7 +42,7 @@ public class RefreshTokenProvider : ITokenRefreshProvider
 
     private readonly TokenRefreshInfo _tokenRefreshInfo;
     private readonly IOptionsMonitor<OpenIdConnectOptions> _openIdConnectOptions;
-    private readonly OidcAuthenticationOptions _oidcOptions;
+    private readonly OidcAuthenticationBuilderOptions _oidcOptions;
     private readonly ILogger<RefreshTokenProvider> _logger;
     private readonly ActivitySource? _activitySource;
 

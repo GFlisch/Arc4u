@@ -5,11 +5,11 @@ using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace Arc4u.OAuth2.Options;
 
-public class OidcAuthenticationOptions
+public class OidcAuthenticationBuilderOptions
 {
-    public string OAuth2SettingsSectionName { get; set; } = "OAuth2.Settings";
+    public IKeyValueSettings OAuth2Settings { get; set; }
 
-    public string OpenIdSettingsSectionName { get; set; } = "OpenId.Settings";
+    public IKeyValueSettings OpenIdSettings { get; set; }
 
     public string? MetadataAddress { get; set; }
 
@@ -23,7 +23,7 @@ public class OidcAuthenticationOptions
 
     public Type OpenIdConnectEventsType { get; set; } = typeof(StandardOpenIdConnectEvents);
 
-    public TimeSpan ForceRefreshTimeoutTimeSpan { get; set; } = TimeSpan.FromMinutes(15);
+    public TimeSpan ForceRefreshTimeoutTimeSpan { get; set; } = TimeSpan.FromMinutes(60);
 
     public X509Certificate2? CertSecurityKey { get; set; }
 

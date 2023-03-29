@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 		<PropertyGroup>
 				<TargetFrameworks>net6.0;net7.0</TargetFrameworks>
@@ -31,18 +31,11 @@
 				<PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
 		</ItemGroup>
 
-		<ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
-				<PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
-		</ItemGroup>
-		<ItemGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
-				<PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
-		</ItemGroup>
-
-
 		<ItemGroup>
 				<ProjectReference Include="..\Arc4u.Standard.Caching\Arc4u.Standard.Caching.csproj" />
 				<ProjectReference Include="..\Arc4u.Standard.Dependency\Arc4u.Standard.Dependency.csproj" />
 				<ProjectReference Include="..\Arc4u.Standard.Diagnostics\Arc4u.Standard.Diagnostics.csproj" />
+				<ProjectReference Include="..\Arc4u.Standard.OAuth2.AspNetCore\Arc4u.Standard.OAuth2.AspNetCore.csproj" />
 				<ProjectReference Include="..\Arc4u.Standard.OAuth2\Arc4u.Standard.OAuth2.csproj" />
 				<ProjectReference Include="..\Arc4u.Standard\Arc4u.Standard.csproj" />
 		</ItemGroup>

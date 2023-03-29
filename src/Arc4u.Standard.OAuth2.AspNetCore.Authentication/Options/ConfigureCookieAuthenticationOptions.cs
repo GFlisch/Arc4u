@@ -5,14 +5,14 @@ namespace Arc4u.OAuth2.Options;
 
 /// <summary>
 /// This class is registered by default in the <see cref="AuthenticationExtensions"/>.
-/// This is possible to registe anothe one via the <see cref="OidcAuthenticationOptions"/>.
+/// This is possible to registe anothe one via the <see cref="OidcAuthenticationBuilderOptions"/>.
 /// </summary>
 public class ConfigureCookieAuthenticationOptions : IPostConfigureOptions<CookieAuthenticationOptions>
 {
     private readonly ITicketStore _ticketStore;
-    private readonly IOptionsMonitor<OidcAuthenticationOptions> _options;
+    private readonly IOptionsMonitor<OidcAuthenticationBuilderOptions> _options;
 
-    public ConfigureCookieAuthenticationOptions(ITicketStore ticketStore, IOptionsMonitor<OidcAuthenticationOptions> optionsMonitor)
+    public ConfigureCookieAuthenticationOptions(ITicketStore ticketStore, IOptionsMonitor<OidcAuthenticationBuilderOptions> optionsMonitor)
     {
         _ticketStore = ticketStore;
         _options = optionsMonitor;
