@@ -57,7 +57,7 @@ public static class OpenIdSettingsExtension
             keyOptions.Add(TokenKeys.Scopes, validate.Scopes);
         }
 
-        services.Configure<SimpleKeyValueSettings>("OAuth2", SettingsFiller);
+        services.Configure<SimpleKeyValueSettings>(sectionKey, SettingsFiller);
 
         var settings = new SimpleKeyValueSettings();
 

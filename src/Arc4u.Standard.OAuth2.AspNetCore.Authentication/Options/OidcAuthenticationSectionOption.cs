@@ -27,11 +27,11 @@ public class OidcAuthenticationSectionOption
 
     public string ApplicationNameSectionPath { get; set; } = "Application.configuration:ApplicationName";
 
-    public string JwtBearerEventsType { get; set; } = typeof(StandardBearerEvents).FullName!;
+    public string JwtBearerEventsType { get; set; } = typeof(StandardBearerEvents).AssemblyQualifiedName!;
            
-    public string CookieAuthenticationEventsType { get; set; } = typeof(StandardCookieEvents).FullName!;
+    public string CookieAuthenticationEventsType { get; set; } = typeof(StandardCookieEvents).AssemblyQualifiedName!;
 
-    public string OpenIdConnectEventsType { get; set; } = typeof(StandardOpenIdConnectEvents).FullName!;
+    public string OpenIdConnectEventsType { get; set; } = typeof(StandardOpenIdConnectEvents).AssemblyQualifiedName!;
 
     public TimeSpan ForceRefreshTimeoutTimeSpan { get; set; } = TimeSpan.FromMinutes(60);
 
@@ -40,7 +40,7 @@ public class OidcAuthenticationSectionOption
     /// <summary>
     /// The <see cref="IPostConfigureOptions<CookieAuthenticationOptions"/> type used to configure the <see cref="CookieAuthenticationOptions"/>.
     /// </summary>
-    public string CookiesConfigureOptionsType { get; set; } = typeof(ConfigureCookieAuthenticationOptions).FullName!;
+    public string CookiesConfigureOptionsType { get; set; } = typeof(ConfigureCookieAuthenticationOptions).AssemblyQualifiedName!;
 
     /// <summary>
     /// For the other OIDC => ResponseType = OpenIdConnectResponseType.CodeIdTokenToken;

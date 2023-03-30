@@ -238,7 +238,7 @@ public static partial class AuthenticationExtensions
         });
     }
 
-    public static void ConfigureOpenIdAuthentication(this IServiceCollection services, IConfiguration configuration, [DisallowNull] string authenticationSectionName)
+    public static void ConfigureOpenIdAuthentication(this IServiceCollection services, IConfiguration configuration, [DisallowNull] string authenticationSectionName = "Authentication")
     {
         ArgumentNullException.ThrowIfNull(configuration, nameof(configuration));
         ArgumentNullException.ThrowIfNull(authenticationSectionName, nameof(authenticationSectionName));
@@ -319,7 +319,7 @@ public static partial class AuthenticationExtensions
             options.MetadataAddress = settings!.MetadataAddress;
             options.CookieName = settings.CookieName;
             options.ValidateAuthority = settings.ValidateAuthority;
-            options.AuthenticationCacheTicketStoreOption = null; // use prepare of
+            options.AuthenticationCacheTicketStoreOption = CacheTicketStoreExtension.PrepareAction(configuration, settings.AuthenticationCacheTicketStorePath);
             options.OpenIdSettingsKey = settings.OpenIdSettingsKey;
             options.OpenIdSettingsOptions = OpenIdSettingsExtension.PreapreAction(configuration, settings.OpenIdSettingsSectionPath);
             options.OAuth2SettingsKey = settings.OAuth2SettingsKey;
@@ -332,7 +332,7 @@ public static partial class AuthenticationExtensions
             options.OpenIdConnectEventsType = openIdConnectEventsType;
             options.ForceRefreshTimeoutTimeSpan = settings.ForceRefreshTimeoutTimeSpan;
             options.CertSecurityKey= certSecurityKey;
-            options.CookiesConfigureOptionsType = cookieAuthenticationEventsType;
+            options.CookiesConfigureOptionsType = cookiesConfigureOptionsType;
             options.ResponseType = settings.ResponseType;
             options.AuthenticationTicketTTL = settings.AuthenticationTicketTTL;
         }
