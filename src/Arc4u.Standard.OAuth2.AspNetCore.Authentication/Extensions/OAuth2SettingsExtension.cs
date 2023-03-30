@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Arc4u.OAuth2.Extensions;
 public static class OAuth2SettingsExtension
 {
-    public static SimpleKeyValueSettings ConfigureOAuth2Settings(this IServiceCollection services, Action<OAuth2SettingsOption> option, [DisallowNull] string sectionKey)
+    public static SimpleKeyValueSettings ConfigureOAuth2Settings(this IServiceCollection services, Action<OAuth2SettingsOption> option, [DisallowNull] string sectionKey = "OAuth2")
     {
         ArgumentNullException.ThrowIfNull(sectionKey, nameof(sectionKey));
 
@@ -70,7 +70,7 @@ public static class OAuth2SettingsExtension
 
     }
 
-    public static SimpleKeyValueSettings ConfigureOAuth2Settings(this IServiceCollection services, IConfiguration configuration, [DisallowNull] string sectionName, [DisallowNull] string sectionKey)
+    public static SimpleKeyValueSettings ConfigureOAuth2Settings(this IServiceCollection services, IConfiguration configuration, [DisallowNull] string sectionName, [DisallowNull] string sectionKey = "OAuth2")
     {
         ArgumentNullException.ThrowIfNull(sectionKey, nameof(sectionKey));
 

@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Arc4u.OAuth2.Extensions;
 public static class OpenIdSettingsExtension
 {
-    public static SimpleKeyValueSettings ConfigureOpenIdSettings(this IServiceCollection services, Action<OpenIdSettingsOption> option, [DisallowNull] string sectionKey)
+    public static SimpleKeyValueSettings ConfigureOpenIdSettings(this IServiceCollection services, Action<OpenIdSettingsOption> option, [DisallowNull] string sectionKey = "OpenId")
     {
         ArgumentNullException.ThrowIfNull(sectionKey, nameof(sectionKey));
 
@@ -66,7 +66,7 @@ public static class OpenIdSettingsExtension
         return settings;
     }
 
-    public static SimpleKeyValueSettings ConfigureOpenIdSettings(this IServiceCollection services, IConfiguration configuration, [DisallowNull] string sectionName, [DisallowNull] string sectionKey)
+    public static SimpleKeyValueSettings ConfigureOpenIdSettings(this IServiceCollection services, IConfiguration configuration, [DisallowNull] string sectionName, [DisallowNull] string sectionKey = "OpenId")
     {
         ArgumentNullException.ThrowIfNull(sectionKey, nameof(sectionKey));
 
