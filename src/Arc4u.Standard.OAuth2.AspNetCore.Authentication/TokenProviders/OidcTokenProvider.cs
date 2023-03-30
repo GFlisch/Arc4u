@@ -13,7 +13,7 @@ public class OidcTokenProvider : ITokenProvider
 {
     public const string ProviderName = "Oidc";
 
-    public OidcTokenProvider(ILogger<OidcTokenProvider> logger, TokenRefreshInfo tokenRefreshInfo, IOptions<OidcAuthenticationBuilderOptions> oidcOptions, ITokenRefreshProvider refreshTokenProvider)
+    public OidcTokenProvider(ILogger<OidcTokenProvider> logger, TokenRefreshInfo tokenRefreshInfo, IOptions<OidcAuthenticationOptions> oidcOptions, ITokenRefreshProvider refreshTokenProvider)
     {
         _logger = logger;
         _tokenRefreshInfo = tokenRefreshInfo;
@@ -23,7 +23,7 @@ public class OidcTokenProvider : ITokenProvider
 
     private readonly ILogger<OidcTokenProvider> _logger;
     private readonly TokenRefreshInfo _tokenRefreshInfo;
-    private readonly OidcAuthenticationBuilderOptions _oidcOptions;
+    private readonly OidcAuthenticationOptions _oidcOptions;
     private readonly ITokenRefreshProvider _refreshTokenProvider;
 
     /// <summary>

@@ -3,8 +3,10 @@ using Arc4u.OAuth2.Events;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace Arc4u.OAuth2.Options;
-public class OidcAuthenticationSectionOption
+public class OidcAuthenticationSectionOptions
 {
+    public bool RequireHttpsMetadata { get; set; } = true;
+
     public string MetadataAddress { get; set; }
 
     public string CookieName { get; set; }

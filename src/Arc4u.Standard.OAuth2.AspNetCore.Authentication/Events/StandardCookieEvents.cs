@@ -16,7 +16,7 @@ public class StandardCookieEvents : CookieAuthenticationEvents
 {
     public StandardCookieEvents(IServiceProvider serviceProvider,
                                 ILogger<StandardCookieEvents> logger,
-                                IOptions<OidcAuthenticationBuilderOptions> oidcOptions,
+                                IOptions<OidcAuthenticationOptions> oidcOptions,
                                 ITokenRefreshProvider tokenRefreshProvider)
     {
         _serviceProvider = serviceProvider;
@@ -26,7 +26,7 @@ public class StandardCookieEvents : CookieAuthenticationEvents
     }
 
     private readonly IServiceProvider _serviceProvider;
-    private readonly OidcAuthenticationBuilderOptions _oidcOptions;
+    private readonly OidcAuthenticationOptions _oidcOptions;
     private readonly ITokenRefreshProvider _tokenRefreshProvider;
     private readonly ILogger<StandardCookieEvents> _logger;
 

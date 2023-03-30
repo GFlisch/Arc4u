@@ -10,9 +10,9 @@ namespace Arc4u.OAuth2.Options;
 public class ConfigureCookieAuthenticationOptions : IPostConfigureOptions<CookieAuthenticationOptions>
 {
     private readonly ITicketStore _ticketStore;
-    private readonly IOptionsMonitor<OidcAuthenticationBuilderOptions> _options;
+    private readonly IOptionsMonitor<OidcAuthenticationOptions> _options;
 
-    public ConfigureCookieAuthenticationOptions(ITicketStore ticketStore, IOptionsMonitor<OidcAuthenticationBuilderOptions> optionsMonitor)
+    public ConfigureCookieAuthenticationOptions(ITicketStore ticketStore, IOptionsMonitor<OidcAuthenticationOptions> optionsMonitor)
     {
         _ticketStore = ticketStore;
         _options = optionsMonitor;

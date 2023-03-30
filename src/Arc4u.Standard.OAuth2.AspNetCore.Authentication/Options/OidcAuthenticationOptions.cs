@@ -5,8 +5,10 @@ using Arc4u.OAuth2.TicketStore;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace Arc4u.OAuth2.Options;
-public class OidcAuthenticationOption
+public class OidcAuthenticationOptions
 {
+    public bool RequireHttpsMetadata { get; set; } = true;
+
     public string MetadataAddress { get; set; }
 
     public string CookieName { get; set; }
