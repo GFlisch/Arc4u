@@ -7,10 +7,10 @@ namespace Arc4u.OAuth2.TicketStore;
 
 public static class CacheTicketStoreExtension
 {
-    public static void AddCacheTicketStore(this IServiceCollection services, Action<CacheTicketStoreOption> action)
+    public static void AddCacheTicketStore(this IServiceCollection services, Action<CacheTicketStoreOptions> action)
     {
-        var validate = new CacheTicketStoreOption();
-        new Action<CacheTicketStoreOption>(action).Invoke(validate);
+        var validate = new CacheTicketStoreOptions();
+        new Action<CacheTicketStoreOptions>(action).Invoke(validate);
 
         ArgumentNullException.ThrowIfNull(validate.CacheName);
         ArgumentNullException.ThrowIfNull(validate.KeyPrefix);
@@ -18,7 +18,7 @@ public static class CacheTicketStoreExtension
 
         var type = Type.GetType(validate.TicketStore, true);
 
-        services.Configure<CacheTicketStoreOption>(action);
+        services.Configure<CacheTicketStoreOptions>(action);
         services.AddTransient(typeof(ITicketStore), type!);
     }
 
@@ -27,21 +27,21 @@ public static class CacheTicketStoreExtension
         AddCacheTicketStore(services, PrepareAction(configuration, sectionName));
     }
 
-    internal static Action<CacheTicketStoreOption> PrepareAction(IConfiguration configuration, string sectionName)
+    internal static Action<CacheTicketStoreOptions> PrepareAction(IConfiguration configuration, string sectionName)
     {
         ArgumentNullException.ThrowIfNull(sectionName);
         var section = configuration.GetSection(sectionName) as IConfigurationSection;
 
         if (section.Exists())
         {
-            var option = configuration.GetSection(sectionName).Get<CacheTicketStoreOption>();
+            var option = configuration.GetSection(sectionName).Get<CacheTicketStoreOptions>();
 
             if (option is null)
             {
                 throw new NullReferenceException(nameof(option));
             }
 
-            void options(CacheTicketStoreOption o)
+            void options(CacheTicketStoreOptions o)
             {
                 o.CacheName = option.CacheName;
                 o.KeyPrefix = option.KeyPrefix;

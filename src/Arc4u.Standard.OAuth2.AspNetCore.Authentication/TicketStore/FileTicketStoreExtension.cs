@@ -7,11 +7,11 @@ namespace Arc4u.OAuth2.TicketStore;
 
 public static class FileTicketStoreExtension
 {
-    public static void AddFileTicketStore(this IServiceCollection services, Action<FileTicketStoreOption> action)
+    public static void AddFileTicketStore(this IServiceCollection services, Action<FileTicketStoreOptions> action)
     {
 
-        var validate = new FileTicketStoreOption();
-        new Action<FileTicketStoreOption>(action).Invoke(validate);
+        var validate = new FileTicketStoreOptions();
+        new Action<FileTicketStoreOptions>(action).Invoke(validate);
 
         ArgumentNullException.ThrowIfNull(validate.StorePath);
         ArgumentNullException.ThrowIfNull(validate.TicketStore);
@@ -24,7 +24,7 @@ public static class FileTicketStoreExtension
             validate.StorePath.Create();
         }
 
-        services.Configure<FileTicketStoreOption>(action);
+        services.Configure<FileTicketStoreOptions>(action);
         services.AddTransient(typeof(ITicketStore), type);
     }
 
@@ -34,14 +34,14 @@ public static class FileTicketStoreExtension
 
         if (section.Exists())
         {
-            var option = configuration.GetSection(sectionName).Get<FileTicketStoreOption>();
+            var option = configuration.GetSection(sectionName).Get<FileTicketStoreOptions>();
 
             if (option is null)
             {
                 throw new NullReferenceException(nameof(option));
             }
 
-            void options(FileTicketStoreOption o)
+            void options(FileTicketStoreOptions o)
             {
                 o.StorePath = option.StorePath;
                 o.TicketStore = option.TicketStore;

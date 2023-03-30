@@ -1,12 +1,8 @@
-using System;
 using System.IO;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Arc4u.OAuth2.TicketStore;
 
-public class FileTicketStoreOption
+public class FileTicketStoreOptions
 {
     public DirectoryInfo? StorePath { get; set; }
 

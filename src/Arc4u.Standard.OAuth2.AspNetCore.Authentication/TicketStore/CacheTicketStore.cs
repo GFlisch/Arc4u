@@ -11,7 +11,7 @@ namespace Arc4u.OAuth2.TicketStore;
 
 public class CacheTicketStore : ITicketStore
 {
-    public CacheTicketStore(ILogger<CacheTicketStore> logger, ICacheContext cacheContext, IOptionsMonitor<CacheTicketStoreOption> options)
+    public CacheTicketStore(ILogger<CacheTicketStore> logger, ICacheContext cacheContext, IOptionsMonitor<CacheTicketStoreOptions> options)
     {
         ArgumentNullException.ThrowIfNull(options.CurrentValue.KeyPrefix, nameof(options.CurrentValue.KeyPrefix));
         ArgumentNullException.ThrowIfNull(options.CurrentValue.CacheName, nameof(options.CurrentValue.CacheName));

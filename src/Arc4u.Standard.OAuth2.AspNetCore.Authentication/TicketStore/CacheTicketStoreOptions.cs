@@ -1,6 +1,6 @@
 namespace Arc4u.OAuth2.TicketStore;
 
-public class CacheTicketStoreOption
+public class CacheTicketStoreOptions
 {
     public string CacheName { get; set; } = "Default";
 

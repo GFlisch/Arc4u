@@ -11,7 +11,7 @@ namespace Arc4u.OAuth2.TicketStore;
 
 public class FileTicketStore : ITicketStore
 {
-    public FileTicketStore(ILogger<FileTicketStore> logger, IOptionsMonitor<FileTicketStoreOption> options)
+    public FileTicketStore(ILogger<FileTicketStore> logger, IOptionsMonitor<FileTicketStoreOptions> options)
     {
         _logger = logger;
 

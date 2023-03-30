@@ -25,7 +25,7 @@ public class OidcAuthenticationOptions
 
     public X509Certificate2 Certificate { get; set; }
 
-    public Action<CacheTicketStoreOption> AuthenticationCacheTicketStoreOption { get; set; }
+    public Action<CacheTicketStoreOptions> AuthenticationCacheTicketStoreOption { get; set; }
 
     public TimeSpan DefaultKeyLifetime { get; set; } = TimeSpan.FromDays(365);
 

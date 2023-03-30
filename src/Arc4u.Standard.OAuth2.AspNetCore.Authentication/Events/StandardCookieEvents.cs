@@ -70,13 +70,6 @@ public class StandardCookieEvents : CookieAuthenticationEvents
                 }
 
                 // throws an exception if the call failed.
-
-/* Unmerged change from project 'Arc4u.Standard.OAuth2.AspNetCore.Authentication(net7.0)'
-Before:
-                await _tokenRefreshProvider.GetTokenAsync(null, null);
-After:
-                await _tokenRefreshProvider.GetTokenAsync(null, null).ConfigureAwait(false);
-*/
                 await _tokenRefreshProvider.GetTokenAsync(null, null).ConfigureAwait(false);
 
                 cookieCtx.Properties.UpdateTokenValue("access_token", tokensInfo.AccessToken.Token);
