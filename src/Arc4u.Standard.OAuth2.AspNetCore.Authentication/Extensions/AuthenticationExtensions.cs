@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Runtime.ConstrainedExecution;
 using Arc4u.Configuration;
 using Arc4u.OAuth2.DataProtection;
 using Arc4u.OAuth2.Extensions;
@@ -148,26 +149,28 @@ public static partial class AuthenticationExtensions
     /// Until the yarp is there and support the Oidc scenario. We don't use this on the Yarp project.
     /// </summary>
     /// <param name="services">The collection ued to define the dependencies</param>
-    /// <param name="authenticationOptions"><see cref="JwtAuthenticationOptions"/></param>
+    /// <param name="authenticationOptions"><see cref="JwtAuthenticationBuilderOptions"/></param>
     /// <returns></returns>
     public static AuthenticationBuilder AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration, Action<JwtAuthenticationOptions> authenticationOptions)
     {
         ArgumentNullException.ThrowIfNull(services, nameof(services));
-
         ArgumentNullException.ThrowIfNull(authenticationOptions, nameof(authenticationOptions));
 
         var options = new JwtAuthenticationOptions();
         authenticationOptions(options);
 
-        if (string.IsNullOrEmpty(options.OAuth2SettingsSectionName))
+        if (options.OAuth2SettingsOptions is null)
         {
-            throw new ArgumentNullException(nameof(authenticationOptions), $"{nameof(options.OAuth2SettingsSectionName)} is empty");
+            throw new ArgumentNullException(nameof(authenticationOptions), $"{nameof(options.OAuth2SettingsOptions)} is empty");
         }
+
+        var oauth2Options = new OAuth2SettingsOption();
+        options.OAuth2SettingsOptions(oauth2Options);
 
         ArgumentNullException.ThrowIfNull(options.JwtBearerEventsType, nameof(options.JwtBearerEventsType));
         ArgumentNullException.ThrowIfNull(options.MetadataAddress, nameof(options.MetadataAddress));
 
-        var oauth2Settings = services.ConfigureSettings("OAuth2", configuration, options.OAuth2SettingsSectionName);
+        services.ConfigureOAuth2Settings(options.OAuth2SettingsOptions, options.OAuth2SettingsKey);
 
         services.AddTransient(options.JwtBearerEventsType);
         services.AddAuthorization();
@@ -178,15 +181,15 @@ public static partial class AuthenticationExtensions
                 {
                     SecurityKey? securityKey = options.CertSecurityKey is not null ? new X509SecurityKey(options.CertSecurityKey) : null;
 
-                    option.RequireHttpsMetadata = false;
-                    option.Authority = oauth2Settings.Values[TokenKeys.AuthorityKey];
+                    option.RequireHttpsMetadata = options.RequireHttpsMetadata;
+                    option.Authority = oauth2Options.Authority;
                     option.MetadataAddress = options.MetadataAddress;
                     option.SaveToken = true;
                     option.TokenValidationParameters.SaveSigninToken = false;
                     option.TokenValidationParameters.AuthenticationType = Constants.BearerAuthenticationType;
                     option.TokenValidationParameters.ValidateIssuer = false;
                     option.TokenValidationParameters.ValidateAudience = true;
-                    option.TokenValidationParameters.ValidAudiences = SplitString(oauth2Settings.Values[TokenKeys.Audiences]);
+                    option.TokenValidationParameters.ValidAudiences = SplitString(oauth2Options.Audiences);
                     if (securityKey is not null)
                     {
                         option.TokenValidationParameters.IssuerSigningKey = securityKey;
@@ -197,7 +200,56 @@ public static partial class AuthenticationExtensions
         return authenticationBuilder;
     }
 
+    public static AuthenticationBuilder AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration, [DisallowNull] string authenticationSectionName = "Authentication")
+    {
+        ArgumentNullException.ThrowIfNull(configuration, nameof(configuration));
+        ArgumentNullException.ThrowIfNull(authenticationSectionName, nameof(authenticationSectionName));
 
+        var section = configuration.GetSection(authenticationSectionName);
+
+        if (section is null)
+        {
+            throw new NullReferenceException($"No section exists with name {authenticationSectionName} in the configuration providers for OAuth2 Connect authentication.");
+        }
+
+        var settings = section.Get<JwtAuthenticationSectionOptions>();
+
+        if (settings is null)
+        {
+            throw new NullReferenceException($"No section exists with name {authenticationSectionName} in the configuration providers for OAuth2 Connect authentication.");
+        }
+
+        if (string.IsNullOrWhiteSpace(settings.MetadataAddress))
+        {
+            throw new MissingFieldException("MetadataAddress must be filled!");
+        }
+
+        if (string.IsNullOrWhiteSpace(settings.OAuth2SettingsSectionPath))
+        {
+            throw new MissingFieldException("We need a setting section to configure OAuth2.");
+        }
+        var jwtBearerEventsType = Type.GetType(settings.JwtBearerEventsType, false);
+        if (string.IsNullOrWhiteSpace(settings.JwtBearerEventsType) || jwtBearerEventsType is null)
+        {
+            throw new MissingFieldException("The JwtBearerEventsType must be defined.");
+        }
+
+        var certSecurityKey = string.IsNullOrWhiteSpace(settings.CertSecurityKeyPath) ? null : new X509CertificateLoader(null).FindCertificate(configuration, settings.CertSecurityKeyPath) ?? throw new MissingFieldException($"No certificate was found based on the configuration section: {settings.CertSecurityKeyPath}.");
+
+        void JwtAuthenticationFiller(JwtAuthenticationOptions options)
+        {
+            options.RequireHttpsMetadata = settings.RequireHttpsMetadata;
+            options.MetadataAddress = settings!.MetadataAddress;
+            options.ValidateAuthority = settings.ValidateAuthority;
+            options.OAuth2SettingsKey = settings.OAuth2SettingsKey;
+            options.OAuth2SettingsOptions = OAuth2SettingsExtension.PrepareAction(configuration, settings.OAuth2SettingsSectionPath);
+            options.CertSecurityKey = certSecurityKey;
+            options.JwtBearerEventsType = jwtBearerEventsType!;
+        }
+
+        return services.AddJwtAuthentication(configuration, JwtAuthenticationFiller);
+
+    }
     public static void ConfigureOpenIdAuthentication(this IServiceCollection services, IConfiguration configuration, Action<OidcAuthenticationOption> options)
     {
         ArgumentNullException.ThrowIfNull(configuration, nameof(configuration));
@@ -296,7 +348,7 @@ public static partial class AuthenticationExtensions
             throw new MissingFieldException("The OpenIdConnectEventsType must be defined.");
         }
 
-        var certSecurityKey = string.IsNullOrWhiteSpace(settings.CertSecurityKeyPatch) ? null : new X509CertificateLoader(null).FindCertificate(configuration, settings.CertSecurityKeyPatch) ?? throw new MissingFieldException($"No certificate was found based on the configuration section: {settings.CertSecurityKeyPatch}.");
+        var certSecurityKey = string.IsNullOrWhiteSpace(settings.CertSecurityKeyPath) ? null : new X509CertificateLoader(null).FindCertificate(configuration, settings.CertSecurityKeyPath) ?? throw new MissingFieldException($"No certificate was found based on the configuration section: {settings.CertSecurityKeyPath}.");
 
         var cert = new X509CertificateLoader(null).FindCertificate(configuration, settings.CertificateSectionPath) ?? throw new MissingFieldException($"No certificate was found based on the configuration section: {settings.CertificateSectionPath}.");
 

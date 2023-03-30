@@ -35,7 +35,7 @@ public class OidcAuthenticationSectionOption
 
     public TimeSpan ForceRefreshTimeoutTimeSpan { get; set; } = TimeSpan.FromMinutes(60);
 
-    public string? CertSecurityKeyPatch { get; set; } = null;
+    public string? CertSecurityKeyPath { get; set; } = null;
 
     /// <summary>
     /// The <see cref="IPostConfigureOptions<CookieAuthenticationOptions"/> type used to configure the <see cref="CookieAuthenticationOptions"/>.

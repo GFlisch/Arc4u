@@ -3,12 +3,15 @@ using System.Security.Cryptography.X509Certificates;
 using Arc4u.OAuth2.Events;
 
 namespace Arc4u.OAuth2.Options;
-
 public class JwtAuthenticationOptions
 {
-    public string OAuth2SettingsSectionName { get; set; } = "OAuth2.Settings";
+    public Action<OAuth2SettingsOption> OAuth2SettingsOptions { get; set; }
+
+    public string OAuth2SettingsKey { get; set; } = "OAuth2";
 
     public string MetadataAddress { get; set; }
+
+    public bool RequireHttpsMetadata { get; set; } = true;
 
     public bool ValidateAuthority { get; set; } = true;
 
