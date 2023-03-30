@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Arc4u.OAuth2.DataProtection;
 using Arc4u.OAuth2.Extensions;
 using Arc4u.OAuth2.Options;
 using Arc4u.OAuth2.TicketStore;
@@ -10,6 +11,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -39,6 +41,15 @@ public static partial class AuthenticationExtensions
         }
 
         ArgumentNullException.ThrowIfNull(oidcOptions.MetadataAddress);
+
+        services.AddDataProtection()
+          .PersistKeysToCache(configuration)
+          .ProtectKeysWithCertificate(oidcOptions.Certificate)
+          .SetApplicationName(oidcOptions.ApplicationName)
+          .SetDefaultKeyLifetime(oidcOptions.DefaultKeyLifetime);
+
+        services.AddCacheTicketStore(oidcOptions.AuthenticationCacheTicketStoreOption);
+
 
         // Will keep in memory the AccessToken and Refresh token for the time of the request...
         services.Configure(authenticationOptions);
