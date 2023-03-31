@@ -48,6 +48,8 @@ public class CertificateDecryptor
         exception.Should().BeOfType<KeyNotFoundException>();
     }
 
+
+
     [Fact]
     public void CertficateShouldDecrypt()
     {
@@ -69,6 +71,38 @@ public class CertificateDecryptor
         mockConfigurationRoot.Setup(p => p.Providers).Returns(config.Providers);
 
         var sut = new SecretConfigurationCertificateProvider("Tag:", "EncryptionCertificate", certificate, mockConfigurationRoot.Object, new X509CertificateLoader(null));
+
+        // act
+        sut.Load();
+
+        // assert
+        sut.TryGet("ConnectionStrings:Toto", out var value).Should().BeTrue();
+        value.Should().NotBeNull();
+        value.Should().Be(plainText);
+    }
+
+    [Fact]
+    public void CertficateWithCustomPathShouldDecrypt()
+    {
+        // arrange
+        var certificate = GetX509Certificate2();
+
+        var plainText = _fixture.Create<string>();
+        var cypherText = certificate.Encrypt(plainText);
+
+        var config = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["Authentication:DataProtection:EncryptionCertificate:File:Cert"] = @".\Configs\cert.pem",
+                    ["Authentication:DataProtection:EncryptionCertificate:File:Key"] = @".\Configs\key.pem",
+                    ["ConnectionStrings:Toto"] = $"Encrypt:{cypherText}"
+                }).Build();
+
+        var mockConfigurationRoot = _fixture.Freeze<Mock<IConfigurationRoot>>();
+        mockConfigurationRoot.Setup(p => p.Providers).Returns(config.Providers);
+
+        var sut = new SecretConfigurationCertificateProvider("Encrypt:", "Authentication:DataProtection:EncryptionCertificate", null, mockConfigurationRoot.Object, new X509CertificateLoader(null));
 
         // act
         sut.Load();

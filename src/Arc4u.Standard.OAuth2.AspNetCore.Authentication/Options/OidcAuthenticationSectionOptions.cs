@@ -25,6 +25,8 @@ public class OidcAuthenticationSectionOptions
 
     public string AuthenticationCacheTicketStorePath { get; set; } = "Authentication:AuthenticationCacheTicketStore";
 
+    public string DataProtectionSectionPath { get; set; } = "Authentication:DataProtection:CacheStore";
+
     public TimeSpan DefaultKeyLifetime { get; set; } = TimeSpan.FromDays(365);
 
     public string ApplicationNameSectionPath { get; set; } = "Application.configuration:ApplicationName";

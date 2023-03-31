@@ -195,6 +195,10 @@ public static partial class AuthenticationExtensions
         {
             throw new MissingFieldException("We need a cookie name defined specifically for your services.");
         }
+        if (string.IsNullOrWhiteSpace(settings.DataProtectionSectionPath))
+        {
+            throw new MissingFieldException("We need a setting section to configure the DataProtection cache store.");
+        }
 
         var jwtBearerEventsType = Type.GetType(settings.JwtBearerEventsType, false);
         if (string.IsNullOrWhiteSpace(settings.JwtBearerEventsType) || jwtBearerEventsType is null)
@@ -254,6 +258,7 @@ public static partial class AuthenticationExtensions
             options.CookiesConfigureOptionsType = cookiesConfigureOptionsType;
             options.ResponseType = settings.ResponseType;
             options.AuthenticationTicketTTL = settings.AuthenticationTicketTTL;
+            options.DataProtectionCacheStoreOption = CacheStoreExtension.PrepareAction(configuration, settings.DataProtectionSectionPath);
         }
 
         return services.AddOidcAuthentication(configuration, OidcAuthenticationFiller);

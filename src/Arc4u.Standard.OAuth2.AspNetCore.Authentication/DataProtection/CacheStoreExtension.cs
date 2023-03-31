@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Security.AccessControl;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.Extensions.Configuration;
@@ -35,6 +36,11 @@ public static class CacheStoreExtension
     {
         ArgumentNullException.ThrowIfNull(configuration, nameof(configuration));
 
+        return PersistKeysToCache(builder, PrepareAction(configuration, configSectionName));
+    }
+
+    internal static Action<CacheStoreOption> PrepareAction(IConfiguration configuration ,string configSectionName)
+    {
         var section = configuration.GetSection(configSectionName);
         if (!section.Exists())
         {
@@ -47,12 +53,12 @@ public static class CacheStoreExtension
             throw new InvalidCastException($"Retrieving the cache data protection store info from section {configSectionName} is impossible.");
         }
 
-        void optionFiller(CacheStoreOption option)
+        void OptionsFiller(CacheStoreOption option)
         {
             option.CacheKey = storeInfo.CacheKey;
             option.CacheName = storeInfo.CacheName;
         }
 
-        return PersistKeysToCache(builder, optionFiller);
+        return OptionsFiller;
     }
 }

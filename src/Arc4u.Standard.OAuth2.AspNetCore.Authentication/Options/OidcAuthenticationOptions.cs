@@ -1,5 +1,6 @@
 using System;
 using System.Security.Cryptography.X509Certificates;
+using Arc4u.OAuth2.DataProtection;
 using Arc4u.OAuth2.Events;
 using Arc4u.OAuth2.TicketStore;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
@@ -26,6 +27,8 @@ public class OidcAuthenticationOptions
     public X509Certificate2 Certificate { get; set; }
 
     public Action<CacheTicketStoreOptions> AuthenticationCacheTicketStoreOption { get; set; }
+
+    public Action<CacheStoreOption> DataProtectionCacheStoreOption { get; set; }
 
     public TimeSpan DefaultKeyLifetime { get; set; } = TimeSpan.FromDays(365);
 
