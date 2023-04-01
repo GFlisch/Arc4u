@@ -1,4 +1,4 @@
-﻿using Arc4u.Security;
+using Arc4u.Security;
 using Arc4u.Security.Cryptography;
 using Microsoft.Extensions.Configuration;
 
@@ -8,7 +8,7 @@ namespace Arc4u.Configuration.Decryptor;
 /// Loads configuration key/values from the providers define before this one.
 /// Decrypt the value with this one if value starts with the prefix.
 /// </summary>
-public class SecretConfigurationRijndaelProvider : ConfigurationProvider
+public class SecretRijndaelConfigurationProvider : ConfigurationProvider
 {
     /// <summary>
     /// Create a <see cref="IConfigurationProvider"/> with a source based on the previous list of providers in the <see cref="IConfigurationRoot"/>.
@@ -17,18 +17,13 @@ public class SecretConfigurationRijndaelProvider : ConfigurationProvider
     /// <param name="secretSectionName">Is used to identify the section, coming from the previous providers defined, to read the configuration needed to identify the certificate.</param>
     /// <param name="RijndaelConfig">An optional parameter, where the user of the class will inject by itself the Rijndael key and IV to use. In this case the secretSectionName parameter is not considered.</param>
     /// <param name="configurationRoot">The <see cref="IConfigurationRoot"/>.</param>
-    public SecretConfigurationRijndaelProvider(string prefix, string secretSectionName, RijndaelConfig? rijndaelConfig, IConfigurationRoot configurationRoot)
+    public SecretRijndaelConfigurationProvider(SecretRijndaelOptions options, IConfigurationRoot configurationRoot)
     {
         _configurationRoot = configurationRoot;
-        _prefix = prefix;
-        _secretSectionName = secretSectionName;
-        _rijndaelConfig = rijndaelConfig;
+        _rijndaelOptions = options;
     }
 
-    private readonly string _prefix;
-    private readonly string _secretSectionName;
-    private RijndaelConfig? _rijndaelConfig;
-
+    private readonly SecretRijndaelOptions _rijndaelOptions;
     private readonly IConfigurationRoot _configurationRoot;
 
     /// <summary>
@@ -45,26 +40,26 @@ public class SecretConfigurationRijndaelProvider : ConfigurationProvider
 
         var tempRoot = new ConfigurationRoot(new List<IConfigurationProvider>(_configurationRoot.Providers));
 
-        if (_rijndaelConfig is null)
+        if (_rijndaelOptions.RijnDael is null)
         {
-            _rijndaelConfig = tempRoot.GetSection(_secretSectionName).Get<RijndaelConfig>();
+            _rijndaelOptions.RijnDael = tempRoot.GetSection(_rijndaelOptions.SecretSectionName).Get<RijndaelConfig>();
 
             // For this configuration, no decryption exists. Simply skip this provider.
-            if (_rijndaelConfig is null)
+            if (_rijndaelOptions.RijnDael is null)
             {
                 Data = data;
                 return;
             }
         }
 
-        var rijndaelkeys = SecretConfigurationRijndaelProvider.ConvertTo(_rijndaelConfig);
+        var rijndaelkeys = SecretRijndaelConfigurationProvider.ConvertTo(_rijndaelOptions.RijnDael);
 
         // Parse the temproot Data collection of each provider
         foreach (var item in tempRoot.AsEnumerable())
         {
-            if (item.Value is not null && item.Value.StartsWith(_prefix))
+            if (item.Value is not null && item.Value.StartsWith(_rijndaelOptions.Prefix))
             {
-                var cypher = item.Value.Substring(_prefix.Length);
+                var cypher = item.Value.Substring(_rijndaelOptions.Prefix.Length);
 
                 data.Add(item.Key, Rijndael.DecodeCypherString(cypher, rijndaelkeys.Item1, rijndaelkeys.Item2));
             }

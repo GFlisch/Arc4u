@@ -192,7 +192,7 @@ public class CertificateDecryptor
         var mockConfigurationRoot = _fixture.Freeze<Mock<IConfigurationRoot>>();
         mockConfigurationRoot.Setup(p => p.Providers).Returns(config.Providers);
 
-        var sut = new SecretConfigurationRijndaelProvider("Tag:", "EncryptionRijndael", rijndaelConfig, mockConfigurationRoot.Object);
+        var sut = new SecretRijndaelConfigurationProvider(new SecretRijndaelOptions { Prefix = "Tag:", RijnDael = rijndaelConfig }, mockConfigurationRoot.Object);
 
         // act
         sut.Load();
@@ -253,7 +253,7 @@ public class CertificateDecryptor
         var mockConfigurationRoot = _fixture.Freeze<Mock<IConfigurationRoot>>();
         mockConfigurationRoot.Setup(p => p.Providers).Returns(config.Providers);
 
-        var sut = new SecretConfigurationRijndaelProvider("Tag:", "EncryptionRijndael", null, mockConfigurationRoot.Object);
+        var sut = new SecretRijndaelConfigurationProvider(new SecretRijndaelOptions { Prefix = "Tag:" }, mockConfigurationRoot.Object);
 
         // act
         sut.Load();

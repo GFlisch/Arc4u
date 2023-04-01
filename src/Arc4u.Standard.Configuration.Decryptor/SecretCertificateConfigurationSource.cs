@@ -12,6 +12,10 @@ public class SecretCertificateConfigurationSource : IConfigurationSource
     public const string PrefixDefault = "Decrypt:";
     public const string SecretSectionNameDefault = "EncryptionCertificate";
 
+    /// <summary>
+    /// Configure the souce with the specific options.
+    /// </summary>
+    /// <param name="options"><see cref="SecretCertificateOptions"/></param>
     public SecretCertificateConfigurationSource(SecretCertificateOptions options)
     {
         _options = new SecretCertificateOptions

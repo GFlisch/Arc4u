@@ -23,51 +23,28 @@ public static class SecretDecryptorConfiguratorExtensions
 
 
     /// <summary>
-    /// Adds an <see cref="IConfigurationProvider"/> that reads configuration values from the previous existing providers and decrypt if needed.
+    /// Adds an <see cref="IConfigurationProvider"/> that reads configuration values based on the default values defined in the <see cref="SecretRijndaelOptions"/>.
     /// </summary>
     /// <param name="configurationBuilder">The <see cref="IConfigurationBuilder"/> to add to.</param>
     /// <returns>The <see cref="IConfigurationBuilder"/>.</returns>
     public static IConfigurationBuilder AddRijndaelDecryptorConfiguration(this IConfigurationBuilder configurationBuilder)
     {
-        configurationBuilder.Add(new SecretRijndaelConfigurationSource());
+        configurationBuilder.Add(new SecretRijndaelConfigurationSource(new SecretRijndaelOptions()));
         return configurationBuilder;
     }
 
     /// <summary>
-    /// Adds an <see cref="IConfigurationProvider"/> that reads configuration values from the previous existing providers and decrypt if needed.
+    /// Adds an <see cref="IConfigurationProvider"/> that reads configuration values based on the values defined in the <see cref="SecretRijndaelOptions"/>.
     /// </summary>
     /// <param name="configurationBuilder">The <see cref="IConfigurationBuilder"/> to add to.</param>
-    /// <param name="prefix">Optional prefix used to detect the secret to decrypt. If null, the <see cref="SecretRijndaelConfigurationSource"/> default value.</param>
-    /// <param name="secretSectionName">Optional section to read the configuration from the config. If null, the <see cref="SecretRijndaelConfigurationSource"/> default value.</param>
+    /// <param name="options">The <see cref="SecretRijndaelOptions"/> parameters.</param>
     /// <returns>The <see cref="IConfigurationBuilder"/>.</returns>
-    public static IConfigurationBuilder AddRijndaelDecryptorConfiguration(this IConfigurationBuilder configurationBuilder, string? prefix, string? secretSectionName)
+    public static IConfigurationBuilder AddRijndaelDecryptorConfiguration(this IConfigurationBuilder configurationBuilder, Action<SecretRijndaelOptions> options)
     {
-        configurationBuilder.Add(new SecretRijndaelConfigurationSource(prefix, secretSectionName));
-        return configurationBuilder;
-    }
+        var config = new SecretRijndaelOptions();
+        options(config);
 
-    /// <summary>
-    /// Adds an <see cref="IConfigurationProvider"/> that reads configuration values from the previous existing providers and decrypt if needed.
-    /// </summary>
-    /// <param name="configurationBuilder">The <see cref="IConfigurationBuilder"/> to add to.</param>
-    /// <param name="rijndaelConfig">The <see cref="RijndaelConfig"/> to use.</param>
-    /// <returns>The <see cref="IConfigurationBuilder"/>.</returns>
-    public static IConfigurationBuilder AddRijndaelDecryptorConfiguration(this IConfigurationBuilder configurationBuilder, RijndaelConfig rijndaelConfig)
-    {
-        configurationBuilder.Add(new SecretRijndaelConfigurationSource(rijndaelConfig));
-        return configurationBuilder;
-    }
-
-    /// <summary>
-    /// Adds an <see cref="IConfigurationProvider"/> that reads configuration values from the previous existing providers and decrypt if needed.
-    /// </summary>
-    /// <param name="configurationBuilder">The <see cref="IConfigurationBuilder"/> to add to.</param>
-    /// <param name="rijndaelConfig">The <see cref="rijndaelConfig"/> to use.</param>
-    /// <returns>The <see cref="IConfigurationBuilder"/>.</returns>
-    /// <returns></returns>
-    public static IConfigurationBuilder AddRijndaelDecryptorConfiguration(this IConfigurationBuilder configurationBuilder, string prefix, RijndaelConfig rijndaelConfig)
-    {
-        configurationBuilder.Add(new SecretRijndaelConfigurationSource(prefix, rijndaelConfig));
+        configurationBuilder.Add(new SecretRijndaelConfigurationSource(config));
         return configurationBuilder;
     }
 }
