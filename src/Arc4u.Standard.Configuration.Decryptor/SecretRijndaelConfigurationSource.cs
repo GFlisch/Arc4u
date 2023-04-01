@@ -1,4 +1,4 @@
-﻿using Arc4u.Security;
+using Arc4u.Security;
 using Microsoft.Extensions.Configuration;
 
 namespace Arc4u.Configuration.Decryptor;
@@ -8,7 +8,7 @@ namespace Arc4u.Configuration.Decryptor;
 /// </summary>
 public class SecretRijndaelConfigurationSource : IConfigurationSource
 {
-    public const string PrefixDefault = "Encrypt:";
+    public const string PrefixDefault = "Decrypt:";
     public const string SecretSectionNameDefault = "EncryptionRijndael";
 
     /// <summary>

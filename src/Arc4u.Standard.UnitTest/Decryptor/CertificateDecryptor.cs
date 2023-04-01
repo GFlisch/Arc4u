@@ -39,7 +39,7 @@ public class CertificateDecryptor
         var mockConfigurationRoot = _fixture.Freeze<Mock<IConfigurationRoot>>();
         mockConfigurationRoot.Setup(p => p.Providers).Returns(config.Providers);
 
-        var sut = new SecretConfigurationCertificateProvider("Prefix:", "EncryptionCertificate", null, mockConfigurationRoot.Object, new X509CertificateLoader(null));
+        var sut = new SecretConfigurationCertificateProvider(new SecretCertificateOptions { Prefix = "Prefix:", CertificateLoader = new X509CertificateLoader(null) }, mockConfigurationRoot.Object);
 
         // act
         var exception = Record.Exception(sut.Load);
@@ -70,7 +70,7 @@ public class CertificateDecryptor
         var mockConfigurationRoot = _fixture.Freeze<Mock<IConfigurationRoot>>();
         mockConfigurationRoot.Setup(p => p.Providers).Returns(config.Providers);
 
-        var sut = new SecretConfigurationCertificateProvider("Tag:", "EncryptionCertificate", certificate, mockConfigurationRoot.Object, new X509CertificateLoader(null));
+        var sut = new SecretConfigurationCertificateProvider(new SecretCertificateOptions { Prefix = "Tag:", Certificate = certificate }, mockConfigurationRoot.Object);
 
         // act
         sut.Load();
@@ -96,13 +96,13 @@ public class CertificateDecryptor
                 {
                     ["Authentication:DataProtection:EncryptionCertificate:File:Cert"] = @".\Configs\cert.pem",
                     ["Authentication:DataProtection:EncryptionCertificate:File:Key"] = @".\Configs\key.pem",
-                    ["ConnectionStrings:Toto"] = $"Encrypt:{cypherText}"
+                    ["ConnectionStrings:Toto"] = $"Decrypt:{cypherText}"
                 }).Build();
 
         var mockConfigurationRoot = _fixture.Freeze<Mock<IConfigurationRoot>>();
         mockConfigurationRoot.Setup(p => p.Providers).Returns(config.Providers);
 
-        var sut = new SecretConfigurationCertificateProvider("Encrypt:", "Authentication:DataProtection:EncryptionCertificate", null, mockConfigurationRoot.Object, new X509CertificateLoader(null));
+        var sut = new SecretConfigurationCertificateProvider(new SecretCertificateOptions { SecretSectionName = "Authentication:DataProtection:EncryptionCertificate", Certificate = certificate }, mockConfigurationRoot.Object);
 
         // act
         sut.Load();
@@ -134,7 +134,7 @@ public class CertificateDecryptor
         var mockConfigurationRoot = _fixture.Freeze<Mock<IConfigurationRoot>>();
         mockConfigurationRoot.Setup(p => p.Providers).Returns(config.Providers);
 
-        var sut = new SecretConfigurationCertificateProvider("Tag:", "EncryptionCertificate", null, mockConfigurationRoot.Object, new X509CertificateLoader(null));
+        var sut = new SecretConfigurationCertificateProvider(new SecretCertificateOptions { Prefix = "Tag:", Certificate = certificate }, mockConfigurationRoot.Object);
 
         // act
         sut.Load();
@@ -159,7 +159,7 @@ public class CertificateDecryptor
         var mockConfigurationRoot = _fixture.Freeze<Mock<IConfigurationRoot>>();
         mockConfigurationRoot.Setup(p => p.Providers).Returns(config.Providers);
 
-        var sut = new SecretConfigurationCertificateProvider("Tag:", "EncryptionCertificate", null, mockConfigurationRoot.Object, new X509CertificateLoader(null));
+        var sut = new SecretConfigurationCertificateProvider(new SecretCertificateOptions { Prefix = "Tag:" }, mockConfigurationRoot.Object);
 
         // act
         sut.Load();

@@ -1,5 +1,4 @@
-using System.Security.Cryptography.X509Certificates;
-using Arc4u.Security;
+using System.Diagnostics.CodeAnalysis;
 using Arc4u.Security.Cryptography;
 using Microsoft.Extensions.Configuration;
 
@@ -18,20 +17,15 @@ public class SecretConfigurationCertificateProvider : ConfigurationProvider
     /// <param name="secretSectionName">Is used to identify the section, coming from the previous providers defined, to read the configuration needed to identify the certificate.</param>
     /// <param name="certificate">An optional parameter, where the user of the class will inject by itself the certificate to use. In this case the secretSectionName parameter is not considered.</param>
     /// <param name="configurationRoot">The <see cref="IConfigurationRoot"/>.</param>
-    public SecretConfigurationCertificateProvider(string prefix, string secretSectionName, X509Certificate2? certificate, IConfigurationRoot configurationRoot, IX509CertificateLoader? certificateLoader)
+    public SecretConfigurationCertificateProvider([DisallowNull] SecretCertificateOptions options, IConfigurationRoot configurationRoot)
     {
+        ArgumentNullException.ThrowIfNull(options, nameof(options));
+
+        _options = options;
         _configurationRoot = configurationRoot;
-        _prefix = prefix;
-        _secretSectionName = secretSectionName;
-        _certificate = certificate;
-        _certificateLoader = certificateLoader;
     }
 
-    private readonly string _prefix;
-    private readonly string _secretSectionName;
-    private X509Certificate2? _certificate;
-    private readonly IX509CertificateLoader? _certificateLoader;
-
+    private readonly SecretCertificateOptions _options;
     private readonly IConfigurationRoot _configurationRoot;
 
     /// <summary>
@@ -48,9 +42,9 @@ public class SecretConfigurationCertificateProvider : ConfigurationProvider
 
         var tempRoot = new ConfigurationRoot(new List<IConfigurationProvider>(_configurationRoot.Providers));
 
-        _certificate ??= _certificateLoader?.FindCertificate(tempRoot, _secretSectionName);
+        _options.Certificate ??= _options.CertificateLoader?.FindCertificate(tempRoot, _options.SecretSectionName);
 
-        if (_certificate is null)
+        if (_options.Certificate is null || _options.Prefix is null)
         {
             Data = data;
             return;
@@ -59,11 +53,11 @@ public class SecretConfigurationCertificateProvider : ConfigurationProvider
         // Parse the temproot Data collection of each provider
         foreach (var item in tempRoot.AsEnumerable())
         {
-            if (item.Value is not null && item.Value.StartsWith(_prefix))
+            if (item.Value is not null && item.Value.StartsWith(_options.Prefix))
             {
-                var cypher = item.Value.Substring(_prefix.Length);
+                var cypher = item.Value.Substring(_options.Prefix.Length);
 
-                data.Add(item.Key, _certificate.Decrypt(cypher));
+                data.Add(item.Key, _options.Certificate.Decrypt(cypher));
             }
         }
 
