@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Security.AccessControl;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.Extensions.Configuration;
@@ -44,7 +43,7 @@ public static class CacheStoreExtension
         var section = configuration.GetSection(configSectionName);
         if (!section.Exists())
         {
-            throw new KeyNotFoundException($"A section with name {configuration} doesn't exist.");
+            throw new KeyNotFoundException($"A section with name {configSectionName} doesn't exist.");
         }
 
         var storeInfo = section.Get<CacheStoreOption>();

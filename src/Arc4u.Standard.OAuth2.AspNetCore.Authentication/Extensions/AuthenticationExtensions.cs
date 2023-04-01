@@ -43,7 +43,7 @@ public static partial class AuthenticationExtensions
         ArgumentNullException.ThrowIfNull(oidcOptions.MetadataAddress);
 
         services.AddDataProtection()
-          .PersistKeysToCache(configuration)
+          .PersistKeysToCache(oidcOptions.DataProtectionCacheStoreOption)
           .ProtectKeysWithCertificate(oidcOptions.Certificate)
           .SetApplicationName(oidcOptions.ApplicationName)
           .SetDefaultKeyLifetime(oidcOptions.DefaultKeyLifetime);
