@@ -3,8 +3,22 @@
 
 ## 6.0
 
+### 6.0.14.2
+
+### 6.0.14.1
+
+Add the capability to read a certificate (for the Arc4u.Standard.Configuration.Decryptor) based on pem files for the public and secret keys.
+This is to be used on K8s pods, where secret will contain the certificate using the pem format to decrypt the cypher texts.
+
+### 6.0.13.1 &  6.0.12.1
+
+Update packages to the corresponding .NET version.
+
 ### 6.0.11.2
 Update packages used by Arc4u to the latest ones but the .NET one still on the 6.0.11 and 7.0.1
+
+Introduce the new Arc4u.Standard.Configuration.Decryptor. This package ease the use of encrypted config and decrypt the content on the fly.
+See the documentation [here](./Framework/General/Configuration Decryptor.md).
 
 #### What's new.
 - Add the .editorconfig file of ASPNET Core project to give code analysis on the projects.

@@ -1,4 +1,4 @@
-﻿using Arc4u.Dependency;
+using Arc4u.Dependency;
 using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Token;
 using Arc4u.Security.Principal;
@@ -9,6 +9,8 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Security.Claims;
 using Microsoft.Extensions.DependencyInjection;
+using Arc4u.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace Arc4u.gRPC.Interceptors
 {
@@ -47,7 +49,16 @@ namespace Arc4u.gRPC.Interceptors
 
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
+        public OAuth2Interceptor(IHttpContextAccessor accessor, ILogger<OAuth2Interceptor> logger, IOptionsMonitor<SimpleKeyValueSettings> keyValuesSettingsOption, string settingsName)
+        {
+            ArgumentNullException.ThrowIfNull(keyValuesSettingsOption, nameof(keyValuesSettingsOption));
 
+            _accessor = accessor ?? throw new ArgumentNullException(nameof(accessor));
+
+            _settings = keyValuesSettingsOption.Get(settingsName);
+
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
         // Add logging.
         private OAuth2Interceptor(IContainerResolve containerResolve)
         {

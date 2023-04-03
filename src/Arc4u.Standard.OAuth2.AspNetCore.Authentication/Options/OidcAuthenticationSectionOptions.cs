@@ -37,7 +37,7 @@ public class OidcAuthenticationSectionOptions
 
     public string OpenIdConnectEventsType { get; set; } = typeof(StandardOpenIdConnectEvents).AssemblyQualifiedName!;
 
-    public TimeSpan ForceRefreshTimeoutTimeSpan { get; set; } = TimeSpan.FromMinutes(60);
+    public TimeSpan ForceRefreshTimeoutTimeSpan { get; set; } = TimeSpan.FromMinutes(5);
 
     public string? CertSecurityKeyPath { get; set; } = null;
 

@@ -12,6 +12,4 @@ public class OAuth2SettingsOption
     public string ClientId { get; set; }
 
     public string Audiences { get; set; }
-
-    public string Scopes { get; set; }
 }

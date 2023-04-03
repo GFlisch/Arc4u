@@ -41,11 +41,6 @@ public static class OAuth2SettingsExtension
             throw new MissingFieldException($"AuthenticationType field is not defined.");
         }
 
-        if (string.IsNullOrWhiteSpace(validate.Scopes))
-        {
-            throw new MissingFieldException($"Scopes field is not defined.");
-        }
-
         // We map this to a IKeyValuesSettings dictionary.
         // The TokenProviders are based on this.
 
@@ -56,7 +51,6 @@ public static class OAuth2SettingsExtension
             keyOptions.Add(TokenKeys.AuthorityKey, validate.Authority);
             keyOptions.Add(TokenKeys.ClientIdKey, validate.ClientId);
             keyOptions.Add(TokenKeys.Audiences, validate.Audiences);
-            keyOptions.Add(TokenKeys.Scopes, validate.Scopes);
         }
 
 
@@ -108,7 +102,6 @@ public static class OAuth2SettingsExtension
             option.Authority = settings.Authority;
             option.ClientId = settings.ClientId;
             option.Audiences = settings.Audiences;
-            option.Scopes = settings.Scopes;
             option.AuthenticationType = settings.AuthenticationType;
             option.ProviderId = settings.ProviderId;
         }
