@@ -51,8 +51,14 @@ namespace Arc4u.gRPC.Interceptors
         }
         public OAuth2Interceptor(IHttpContextAccessor accessor, ILogger<OAuth2Interceptor> logger, IOptionsMonitor<SimpleKeyValueSettings> keyValuesSettingsOption, string settingsName)
         {
+#if NETSTANDARD2_0
+            if (keyValuesSettingsOption is null)
+            {
+                throw new ArgumentNullException(nameof(keyValuesSettingsOption));
+            }
+#else
             ArgumentNullException.ThrowIfNull(keyValuesSettingsOption, nameof(keyValuesSettingsOption));
-
+#endif
             _accessor = accessor ?? throw new ArgumentNullException(nameof(accessor));
 
             _settings = keyValuesSettingsOption.Get(settingsName);
