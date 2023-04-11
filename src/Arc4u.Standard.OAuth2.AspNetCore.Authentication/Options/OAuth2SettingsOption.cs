@@ -12,4 +12,8 @@ public class OAuth2SettingsOption
     public string ClientId { get; set; }
 
     public string Audiences { get; set; }
+
+    // use for Obo scenario.
+    public string? Scopes { get; set; }
+
 }

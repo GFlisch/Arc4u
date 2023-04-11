@@ -51,6 +51,10 @@ public static class OAuth2SettingsExtension
             keyOptions.Add(TokenKeys.AuthorityKey, validate.Authority);
             keyOptions.Add(TokenKeys.ClientIdKey, validate.ClientId);
             keyOptions.Add(TokenKeys.Audiences, validate.Audiences);
+            if (!string.IsNullOrWhiteSpace(validate.Scopes))
+            {
+                keyOptions.Add(TokenKeys.Scopes, validate.Scopes);
+            }
         }
 
 
@@ -104,6 +108,7 @@ public static class OAuth2SettingsExtension
             option.Audiences = settings.Audiences;
             option.AuthenticationType = settings.AuthenticationType;
             option.ProviderId = settings.ProviderId;
+            option.Scopes = settings.Scopes;
         }
 
         return OptionFiller;
