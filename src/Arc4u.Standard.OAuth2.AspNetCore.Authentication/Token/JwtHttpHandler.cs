@@ -34,7 +34,7 @@ public class JwtHttpHandler : DelegatingHandler
     {
         _container = container ?? throw new ArgumentNullException(nameof(container));
 
-        ArgumentNullException.ThrowIfNull(nameof(keyValuesSettingsOption));
+        ArgumentNullException.ThrowIfNull(keyValuesSettingsOption);
 
         _logger = logger;
 
@@ -48,7 +48,7 @@ public class JwtHttpHandler : DelegatingHandler
     {
         _accessor = accessor ?? throw new ArgumentNullException(nameof(accessor));
 
-        ArgumentNullException.ThrowIfNull(nameof(keyValuesSettingsOption));
+        ArgumentNullException.ThrowIfNull(keyValuesSettingsOption);
 
         _logger = logger;
 

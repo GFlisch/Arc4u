@@ -48,9 +48,9 @@ public class RefreshTokenProvider : ITokenRefreshProvider
 
     public async Task<TokenInfo> GetTokenAsync(IKeyValueSettings settings, object platformParameters)
     {
-        ArgumentNullException.ThrowIfNull(_tokenRefreshInfo, nameof(_tokenRefreshInfo));
-        ArgumentNullException.ThrowIfNull(_openIdConnectOptions, nameof(_openIdConnectOptions));
-        ArgumentNullException.ThrowIfNull(_oidcOptions, nameof(_oidcOptions));
+        ArgumentNullException.ThrowIfNull(_tokenRefreshInfo);
+        ArgumentNullException.ThrowIfNull(_openIdConnectOptions);
+        ArgumentNullException.ThrowIfNull(_oidcOptions);
 
         using var activity = _activitySource?.StartActivity("Get on behal of token", ActivityKind.Producer);
 

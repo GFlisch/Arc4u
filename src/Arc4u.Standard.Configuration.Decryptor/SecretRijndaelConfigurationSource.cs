@@ -1,4 +1,3 @@
-using Arc4u.Security;
 using Microsoft.Extensions.Configuration;
 
 namespace Arc4u.Configuration.Decryptor;
@@ -20,9 +19,9 @@ public class SecretRijndaelConfigurationSource : IConfigurationSource
     /// </summary>
     public SecretRijndaelConfigurationSource(SecretRijndaelOptions options)
     {
-        ArgumentNullException.ThrowIfNull(options, nameof(options));
+        ArgumentNullException.ThrowIfNull(options);
 
-         _options = new SecretRijndaelOptions
+        _options = new SecretRijndaelOptions
         {
             Prefix = options.Prefix ?? PrefixDefault,
             SecretSectionName = options.SecretSectionName ?? SecretSectionNameDefault,
