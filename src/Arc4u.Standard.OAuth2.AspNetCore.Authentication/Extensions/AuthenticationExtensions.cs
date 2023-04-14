@@ -40,6 +40,11 @@ public static partial class AuthenticationExtensions
             throw new ArgumentNullException(nameof(authenticationOptions), $"{nameof(oidcOptions.OpenIdSettingsOptions)} is not defined");
         }
 
+        if (oidcOptions.AuthenticationCacheTicketStoreOption is not null)
+        {
+            services.AddCacheTicketStore(oidcOptions.AuthenticationCacheTicketStoreOption);
+        }
+
         ArgumentNullException.ThrowIfNull(oidcOptions.MetadataAddress);
 
         services.AddDataProtection()
@@ -47,8 +52,6 @@ public static partial class AuthenticationExtensions
           .ProtectKeysWithCertificate(oidcOptions.Certificate)
           .SetApplicationName(oidcOptions.ApplicationName)
           .SetDefaultKeyLifetime(oidcOptions.DefaultKeyLifetime);
-
-        services.AddCacheTicketStore(oidcOptions.AuthenticationCacheTicketStoreOption);
 
         // Will keep in memory the AccessToken and Refresh token for the time of the request...
         services.Configure(authenticationOptions);
@@ -198,7 +201,6 @@ public static partial class AuthenticationExtensions
         {
             throw new MissingFieldException("We need a setting section to configure the DataProtection cache store.");
         }
-
         if (string.IsNullOrWhiteSpace(settings.JwtBearerEventsType))
         {
             throw new MissingFieldException("The JwtBearerEventsType must be defined.");
@@ -373,45 +375,6 @@ public static partial class AuthenticationExtensions
         return services.AddJwtAuthentication(configuration, JwtAuthenticationFiller);
 
     }
-    //public static void ConfigureOpenIdAuthentication(this IServiceCollection services, IConfiguration configuration, Action<OidcAuthenticationOptions> options)
-    //{
-    //    ArgumentNullException.ThrowIfNull(configuration, nameof(configuration));
-    //    ArgumentNullException.ThrowIfNull(options, nameof(options));
-
-    //    var configData = new OidcAuthenticationOptions();
-    //    options(configData);
-
-    //    // validation.
-
-    //    // is this used by the cookieManager?
-    //    services.AddDataProtection()
-    //            .PersistKeysToCache(configuration)
-    //            .ProtectKeysWithCertificate(configData.Certificate)
-    //            .SetApplicationName(configData.ApplicationName)
-    //            .SetDefaultKeyLifetime(configData.DefaultKeyLifetime);
-
-    //    services.AddCacheTicketStore(configData.AuthenticationCacheTicketStoreOption);
-
-    //    var openIdSettings = services.ConfigureOpenIdSettings(configData.OpenIdSettingsOptions, configData.OpenIdSettingsKey);
-    //    var oauth2Settings = services.ConfigureOAuth2Settings(configData.OAuth2SettingsOptions, configData.OAuth2SettingsKey);
-
-    //    services.AddOidcAuthentication(configuration, options =>
-    //    {
-    //        options.CookieName = configData.CookieName;
-    //        options.ValidateAuthority = configData.ValidateAuthority;
-    //        options.OpenIdSettings = openIdSettings;
-    //        options.OAuth2Settings = oauth2Settings;
-    //        options.MetadataAddress = configData.MetadataAddress;
-    //        options.CertSecurityKey = configData.CertSecurityKey;
-    //        options.CookiesConfigureOptionsType = configData.CookiesConfigureOptionsType;
-    //        options.JwtBearerEventsType = configData.JwtBearerEventsType;
-    //        options.OpenIdConnectEventsType = configData.OpenIdConnectEventsType;
-    //        options.ResponseType = configData.ResponseType;
-    //        options.CookieAuthenticationEventsType = configData.CookieAuthenticationEventsType;
-    //        options.ForceRefreshTimeoutTimeSpan = configData.ForceRefreshTimeoutTimeSpan;
-    //        options.AuthenticationTicketTTL = configData.AuthenticationTicketTTL;
-    //    });
-    //}
 
     static string[] SplitString(string value) => value.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToArray();
 }
