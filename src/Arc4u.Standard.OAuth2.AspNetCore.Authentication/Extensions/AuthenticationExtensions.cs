@@ -50,7 +50,6 @@ public static partial class AuthenticationExtensions
 
         services.AddCacheTicketStore(oidcOptions.AuthenticationCacheTicketStoreOption);
 
-
         // Will keep in memory the AccessToken and Refresh token for the time of the request...
         services.Configure(authenticationOptions);
         services.AddScoped<TokenRefreshInfo>();
@@ -200,40 +199,44 @@ public static partial class AuthenticationExtensions
             throw new MissingFieldException("We need a setting section to configure the DataProtection cache store.");
         }
 
-        var jwtBearerEventsType = Type.GetType(settings.JwtBearerEventsType, false);
-        if (string.IsNullOrWhiteSpace(settings.JwtBearerEventsType) || jwtBearerEventsType is null)
+        if (string.IsNullOrWhiteSpace(settings.JwtBearerEventsType))
         {
             throw new MissingFieldException("The JwtBearerEventsType must be defined.");
         }
+        var jwtBearerEventsType = Type.GetType(settings.JwtBearerEventsType, false);
 
-        var cookieAuthenticationEventsType = Type.GetType(settings.CookieAuthenticationEventsType, false);
-        if (string.IsNullOrWhiteSpace(settings.CookieAuthenticationEventsType) || cookieAuthenticationEventsType is null)
+        if (string.IsNullOrWhiteSpace(settings.CookieAuthenticationEventsType))
         {
             throw new MissingFieldException("The CookieAuthenticationEventsType must be defined.");
         }
+        var cookieAuthenticationEventsType = Type.GetType(settings.CookieAuthenticationEventsType, true);
 
-        var openIdConnectEventsType = Type.GetType(settings.OpenIdConnectEventsType, false);
-        if (string.IsNullOrWhiteSpace(settings.OpenIdConnectEventsType) || openIdConnectEventsType is null)
+        if (string.IsNullOrWhiteSpace(settings.OpenIdConnectEventsType))
         {
             throw new MissingFieldException("The OpenIdConnectEventsType must be defined.");
         }
+        var openIdConnectEventsType = Type.GetType(settings.OpenIdConnectEventsType, false);
 
         var certSecurityKey = string.IsNullOrWhiteSpace(settings.CertSecurityKeyPath) ? null : new X509CertificateLoader(null).FindCertificate(configuration, settings.CertSecurityKeyPath) ?? throw new MissingFieldException($"No certificate was found based on the configuration section: {settings.CertSecurityKeyPath}.");
 
         var cert = new X509CertificateLoader(null).FindCertificate(configuration, settings.CertificateSectionPath) ?? throw new MissingFieldException($"No certificate was found based on the configuration section: {settings.CertificateSectionPath}.");
 
-        var cookiesConfigureOptionsType = Type.GetType(settings.CookiesConfigureOptionsType, false);
-        if (string.IsNullOrWhiteSpace(settings.CookiesConfigureOptionsType) || cookiesConfigureOptionsType is null)
+        var ticketStoreAction = CacheTicketStoreExtension.PrepareAction(configuration, settings.AuthenticationCacheTicketStorePath);
+
+        Type? cookiesConfigureOptionsType;
+        if (string.IsNullOrWhiteSpace(settings.CookiesConfigureOptionsType))
         {
-            throw new MissingFieldException("The CookiesConfigureOptionsType must be defined.");
+            cookiesConfigureOptionsType = ticketStoreAction is null ? typeof(ConfigureStandardCookieAuthenticationOptions) : typeof(ConfigureCookieWithTicketStoreAuthenticationOptions);
+        }
+        else
+        {
+            cookiesConfigureOptionsType = Type.GetType(settings.CookiesConfigureOptionsType, true);
         }
 
         if (string.IsNullOrWhiteSpace(settings.ResponseType))
         {
             throw new MissingFieldException("A ResponseType is mandatory to define the OpenId Connect protocol.");
         }
-
-
         // Call to prepare the Cache ticket store...
 
         void OidcAuthenticationFiller(OidcAuthenticationOptions options)
@@ -242,7 +245,7 @@ public static partial class AuthenticationExtensions
             options.MetadataAddress = settings!.MetadataAddress;
             options.CookieName = settings.CookieName;
             options.ValidateAuthority = settings.ValidateAuthority;
-            options.AuthenticationCacheTicketStoreOption = CacheTicketStoreExtension.PrepareAction(configuration, settings.AuthenticationCacheTicketStorePath);
+            options.AuthenticationCacheTicketStoreOption = ticketStoreAction;
             options.OpenIdSettingsKey = settings.OpenIdSettingsKey;
             options.OpenIdSettingsOptions = OpenIdSettingsExtension.PreapreAction(configuration, settings.OpenIdSettingsSectionPath);
             options.OAuth2SettingsKey = settings.OAuth2SettingsKey;
@@ -263,7 +266,6 @@ public static partial class AuthenticationExtensions
 
         return services.AddOidcAuthentication(configuration, OidcAuthenticationFiller);
     }
-
 
     /// <summary>
     /// This extension is used on a API only scenario.
