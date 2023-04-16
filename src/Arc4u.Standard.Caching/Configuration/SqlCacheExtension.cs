@@ -1,8 +1,8 @@
 #if NET6_0_OR_GREATER
+using System;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System.Diagnostics.CodeAnalysis;
-using System;
 
 namespace Arc4u.Configuration.Sql;
 public static class SqlCacheExtension
@@ -12,11 +12,13 @@ public static class SqlCacheExtension
         var validate = new SqlCacheOption();
         new Action<SqlCacheOption>(options).Invoke(validate);
 
-#if NET6_0
-        ArgumentNullException.ThrowIfNull(name, nameof(name));
-#endif
 #if NET7_0_OR_GREATER
-        ArgumentNullException.ThrowIfNullOrEmpty(name, nameof(name));
+        ArgumentException.ThrowIfNullOrEmpty(name);
+#else
+        if (string.IsNullOrEmpty(name))
+        {
+            throw new ArgumentException("The value cannot be an empty string.", nameof(name));
+        }
 #endif
 
         services.Configure<SqlCacheOption>(name, options);

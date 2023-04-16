@@ -11,7 +11,7 @@ public static class OpenIdSettingsExtension
 {
     public static SimpleKeyValueSettings ConfigureOpenIdSettings(this IServiceCollection services, Action<OpenIdSettingsOption> option, [DisallowNull] string sectionKey = "OpenId")
     {
-        ArgumentNullException.ThrowIfNull(sectionKey, nameof(sectionKey));
+        ArgumentNullException.ThrowIfNull(sectionKey);
 
         var validate = new OpenIdSettingsOption();
         option(validate);
@@ -68,12 +68,12 @@ public static class OpenIdSettingsExtension
 
     public static SimpleKeyValueSettings ConfigureOpenIdSettings(this IServiceCollection services, IConfiguration configuration, [DisallowNull] string sectionName, [DisallowNull] string sectionKey = "OpenId")
     {
-        ArgumentNullException.ThrowIfNull(sectionKey, nameof(sectionKey));
+        ArgumentNullException.ThrowIfNull(sectionKey);
 
-        return ConfigureOpenIdSettings(services, PreapreAction(configuration, sectionName), sectionKey);
+        return ConfigureOpenIdSettings(services, PrepareAction(configuration, sectionName), sectionKey);
     }
 
-    internal static Action<OpenIdSettingsOption> PreapreAction(IConfiguration configuration, [DisallowNull] string sectionName)
+    internal static Action<OpenIdSettingsOption> PrepareAction(IConfiguration configuration, [DisallowNull] string sectionName)
     {
         if (string.IsNullOrEmpty(sectionName))
         {

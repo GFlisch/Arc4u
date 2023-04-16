@@ -14,7 +14,7 @@ public static class CacheContextServicesExtension
     public static void AddCacheContext(this IServiceCollection services, IConfiguration configuration, string sectionName = "Caching")
     {
 #if NET6_0_OR_GREATER
-       ArgumentNullException.ThrowIfNull(configuration, nameof(configuration));
+        ArgumentNullException.ThrowIfNull(configuration);
 #endif
 #if NETSTANDARD2_0_OR_GREATER
         if (configuration is null)

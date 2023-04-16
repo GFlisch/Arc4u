@@ -19,7 +19,7 @@ public class SecretConfigurationCertificateProvider : ConfigurationProvider
     /// <param name="configurationRoot">The <see cref="IConfigurationRoot"/>.</param>
     public SecretConfigurationCertificateProvider([DisallowNull] SecretCertificateOptions options, IConfigurationRoot configurationRoot)
     {
-        ArgumentNullException.ThrowIfNull(options, nameof(options));
+        ArgumentNullException.ThrowIfNull(options);
 
         _options = options;
         _configurationRoot = configurationRoot;

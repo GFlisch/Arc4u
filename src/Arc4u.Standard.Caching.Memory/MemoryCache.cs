@@ -38,21 +38,14 @@ public class MemoryCache : BaseDistributeCache, ICache
     public override void Initialize(string store)
 #endif
     {
-
-#if NET6_0_OR_GREATER
 #if NET7_0_OR_GREATER
-        ArgumentNullException.ThrowIfNullOrEmpty(store, nameof(store));
+        ArgumentException.ThrowIfNullOrEmpty(store);
 #else
-        ArgumentNullException.ThrowIfNull(store, nameof(store));
-#endif
-#else
-        if (store is null)
+        if (string.IsNullOrEmpty(store))
         {
-            throw new ArgumentNullException(nameof(store));
+            throw new ArgumentException("The value cannot be an empty string.", nameof(store));
         }
 #endif
-
-
 
         lock (_lock)
         {

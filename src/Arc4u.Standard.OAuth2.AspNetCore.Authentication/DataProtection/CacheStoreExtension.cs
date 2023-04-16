@@ -17,7 +17,7 @@ public static class CacheStoreExtension
         var validate = new CacheStoreOption();
         option(validate);
 
-        ArgumentNullException.ThrowIfNull(validate.CacheKey, nameof(validate.CacheKey));
+        ArgumentNullException.ThrowIfNull(validate.CacheKey);
 
         builder.Services.AddSingleton<IConfigureOptions<KeyManagementOptions>>(services =>
         {
@@ -33,12 +33,12 @@ public static class CacheStoreExtension
 
     public static IDataProtectionBuilder PersistKeysToCache(this IDataProtectionBuilder builder, [DisallowNull] IConfiguration configuration, [DisallowNull] string configSectionName = "DataProtectionStore")
     {
-        ArgumentNullException.ThrowIfNull(configuration, nameof(configuration));
+        ArgumentNullException.ThrowIfNull(configuration);
 
         return PersistKeysToCache(builder, PrepareAction(configuration, configSectionName));
     }
 
-    internal static Action<CacheStoreOption> PrepareAction(IConfiguration configuration ,string configSectionName)
+    internal static Action<CacheStoreOption> PrepareAction(IConfiguration configuration, string configSectionName)
     {
         var section = configuration.GetSection(configSectionName);
         if (!section.Exists())

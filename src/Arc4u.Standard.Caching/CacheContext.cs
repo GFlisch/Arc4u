@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using Arc4u.Configuration;
 using Arc4u.Dependency;
 using Arc4u.Dependency.Attribute;
@@ -26,8 +27,8 @@ public class CacheContext : ICacheContext
 
     public const string Dapr = "Dapr";
 
-    private readonly Dictionary<string, ICache> _caches = new();
-    private readonly Dictionary<string, string> _uninitializedCaches = new();
+    private Dictionary<string, ICache> _caches = new();
+    private Dictionary<string, string> _uninitializedCaches = new();
     private string _cacheConfigName;
 
     private static readonly object _lock = new();
@@ -137,7 +138,18 @@ public class CacheContext : ICacheContext
                         cache.Initialize(cacheName);
 
                         _caches.Add(cacheName, cache);
-                        _uninitializedCaches.Remove(cacheName);
+
+                        // thread-safe update of the _cache and _uninitializedCaches is required because they can be accessed by other threads outside the lock
+                        // (both in calls to this[string] as in Exists(string))
+                        // To avoid locks, we use a copy+atomic exchange method. Since we are not dealing with a large number of items, this is still efficient.
+                        var caches = new Dictionary<string, ICache>(_caches);
+                        var uninitializedCaches = new Dictionary<string, string>(_uninitializedCaches);
+                        caches.Add(cacheName, cache);
+                        uninitializedCaches.Remove(cacheName);
+
+                        // atomic exchange of object state. 
+                        Interlocked.Exchange(ref _caches, caches);
+                        Interlocked.Exchange(ref _uninitializedCaches, uninitializedCaches);
 
                         return cache;
                     }

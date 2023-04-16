@@ -2,13 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Text.Json;
+using System.Xml.Linq;
+using Arc4u.Caching;
+using Arc4u.Diagnostics;
 using Microsoft.AspNetCore.DataProtection.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System.Xml.Linq;
-using Arc4u.Caching;
-using System.Text.Json;
-using Arc4u.Diagnostics;
 
 namespace Arc4u.OAuth2.DataProtection;
 
@@ -16,9 +16,9 @@ public class CacheStore : IXmlRepository
 {
     public CacheStore(IServiceProvider serviceProvider, ILoggerFactory loggerFactory, [DisallowNull] string cacheKey, string? cacheName = null)
     {
-        ArgumentNullException.ThrowIfNull(serviceProvider, nameof(serviceProvider));
-        ArgumentNullException.ThrowIfNull(loggerFactory, nameof(loggerFactory));
-        ArgumentNullException.ThrowIfNull(cacheKey, nameof(cacheKey));
+        ArgumentNullException.ThrowIfNull(serviceProvider);
+        ArgumentNullException.ThrowIfNull(loggerFactory);
+        ArgumentNullException.ThrowIfNull(cacheKey);
 
         _logger = loggerFactory.CreateLogger<CacheStore>();
         _serviceProvider = serviceProvider;

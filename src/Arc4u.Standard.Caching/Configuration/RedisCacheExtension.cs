@@ -2,6 +2,9 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+#if !NET7_0_OR_GREATER
+using System.Runtime.CompilerServices;
+#endif
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -13,21 +16,30 @@ public static class RedisCacheExtension
         var validate = new RedisCacheOption();
         new Action<RedisCacheOption>(options).Invoke(validate);
 
-#if NET6_0
-        ArgumentNullException.ThrowIfNull(name, nameof(name));
-        ArgumentNullException.ThrowIfNull(validate.ConnectionString, nameof(validate.ConnectionString));
-        ArgumentNullException.ThrowIfNull(validate.InstanceName, nameof(validate.InstanceName));
-#endif
 #if NET7_0_OR_GREATER
-        ArgumentNullException.ThrowIfNullOrEmpty(name, nameof(name));
-        ArgumentNullException.ThrowIfNullOrEmpty(validate.ConnectionString, nameof(validate.ConnectionString));
-        ArgumentNullException.ThrowIfNullOrEmpty(validate.InstanceName, nameof(validate.InstanceName));
+        ArgumentException.ThrowIfNullOrEmpty(name, nameof(name));
+        ArgumentException.ThrowIfNullOrEmpty(validate.ConnectionString, nameof(validate.ConnectionString));
+        ArgumentException.ThrowIfNullOrEmpty(validate.InstanceName, nameof(validate.InstanceName));
+#else
+        ThrowIfNullOrEmpty(name, nameof(name));
+        ThrowIfNullOrEmpty(validate.ConnectionString, nameof(validate.ConnectionString));
+        ThrowIfNullOrEmpty(validate.InstanceName, nameof(validate.InstanceName));
 #endif
 
         services.Configure<RedisCacheOption>(name, options);
 
         return services;
     }
+
+#if !NET7_0_OR_GREATER
+    private static void ThrowIfNullOrEmpty(string? s, [CallerArgumentExpression("s")] string? conditionExpression = null)
+    {
+        if (string.IsNullOrEmpty(s))
+        {
+            throw new ArgumentException("The value cannot be an empty string.", conditionExpression);
+        }
+    }
+#endif
 
     public static IServiceCollection AddRedisCache(this IServiceCollection services, [DisallowNull] string name, [DisallowNull] IConfiguration configuration, [DisallowNull] string sectionName)
     {

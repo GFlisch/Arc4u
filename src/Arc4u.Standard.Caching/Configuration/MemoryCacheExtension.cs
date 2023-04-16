@@ -24,16 +24,12 @@ public static class MemoryCacheExtension
             o.SerializerName = rawCacheOption.SerializerName;
         });
 
-#if NET6_0_OR_GREATER
 #if NET7_0_OR_GREATER
-        ArgumentNullException.ThrowIfNullOrEmpty(name, nameof(name));
+        ArgumentException.ThrowIfNullOrEmpty(name);
 #else
-        ArgumentNullException.ThrowIfNull(name, nameof(name));
-#endif
-#else
-        if (name is null)
+        if (string.IsNullOrEmpty(name))
         {
-            throw new ArgumentNullException(nameof(name));
+            throw new ArgumentException("The value cannot be an empty string.", nameof(name));
         }
 #endif
 

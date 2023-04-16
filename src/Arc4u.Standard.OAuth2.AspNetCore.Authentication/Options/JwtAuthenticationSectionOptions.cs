@@ -7,7 +7,7 @@ public class JwtAuthenticationSectionOptions
 
     public string OAuth2SettingsKey { get; set; } = "OAuth2";
 
-    public string MetadataAddress { get; set; }
+    public string MetadataAddress { get; set; } = null!;
 
     public bool RequireHttpsMetadata { get; set; } = true;
 
@@ -15,5 +15,5 @@ public class JwtAuthenticationSectionOptions
 
     public string JwtBearerEventsType { get; set; } = typeof(StandardBearerEvents).AssemblyQualifiedName!;
 
-    public string? CertSecurityKeyPath { get; set; } = null;
+    public string? CertSecurityKeyPath { get; set; }
 }

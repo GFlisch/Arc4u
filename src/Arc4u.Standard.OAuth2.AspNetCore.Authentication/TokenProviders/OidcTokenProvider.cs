@@ -36,7 +36,7 @@ public class OidcTokenProvider : ITokenProvider
     /// <returns><see cref="TokenInfo"/></returns>
     public async Task<TokenInfo> GetTokenAsync(IKeyValueSettings settings, object platformParameters)
     {
-        ArgumentNullException.ThrowIfNull(settings, nameof(settings));
+        ArgumentNullException.ThrowIfNull(settings);
 
         var timeRemaining = _tokenRefreshInfo.AccessToken.ExpiresOnUtc.Subtract(DateTime.UtcNow);
 

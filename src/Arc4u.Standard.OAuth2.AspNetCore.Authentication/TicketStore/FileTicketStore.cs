@@ -15,7 +15,7 @@ public class FileTicketStore : ITicketStore
     {
         _logger = logger;
 
-        ArgumentNullException.ThrowIfNull(options.CurrentValue.StorePath, nameof(options.CurrentValue.StorePath));
+        ArgumentNullException.ThrowIfNull(options.CurrentValue.StorePath);
 
         _directoryStore = options.CurrentValue.StorePath;
     }

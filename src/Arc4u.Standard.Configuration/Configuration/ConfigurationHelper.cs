@@ -1,10 +1,9 @@
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using System.Runtime.CompilerServices;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Arc4u.Configuration;
 
@@ -76,24 +75,33 @@ public static class ConfigurationHelper
         var validate = new ApplicationConfig();
         option(validate);
 
+        // try to detect as many configuration errors as possible instead of stopping at the first misconfigured property.
+        // since the happy flow is the norm, it's OK to use just a string to concatenate messages instead of a full-blown list or StringBuilder.
+
+        string? configErrors = null;
         if (string.IsNullOrEmpty(validate.ApplicationName))
         {
-            throw new MissingFieldException("Application name is not defined in the intialization of the application config settings");
+            configErrors += "Application name is not defined in the intialization of the application config settings" + System.Environment.NewLine;
         }
 
         if (string.IsNullOrEmpty(validate.Environment.Name))
         {
-            throw new MissingFieldException("Application environment name is not defined in the intialization of the application config settings");
+            configErrors += "Application environment name is not defined in the intialization of the application config settings" + System.Environment.NewLine;
         }
 
         if (string.IsNullOrEmpty(validate.Environment.LoggingName))
         {
-            throw new MissingFieldException("Application environment logging name is not defined in the intialization of the application config settings");
+            configErrors += "Application environment logging name is not defined in the intialization of the application config settings" + System.Environment.NewLine;
         }
 
         if (string.IsNullOrEmpty(validate.Environment.TimeZone))
         {
-            throw new MissingFieldException("Application environment time zone is not defined in the intialization of the application config settings");
+            configErrors += "Application environment time zone is not defined in the intialization of the application config settings" + System.Environment.NewLine;
+        }
+
+        if (configErrors is not null)
+        {
+            throw new ConfigurationException(configErrors);
         }
 
         services.Configure<ApplicationConfig>(option);
@@ -103,7 +111,7 @@ public static class ConfigurationHelper
     {
         if (string.IsNullOrEmpty(sectionName))
         {
-            throw new ArgumentNullException(nameof (sectionName));
+            throw new ArgumentNullException(nameof(sectionName));
         }
 
         if (configuration is null)

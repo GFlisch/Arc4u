@@ -47,8 +47,8 @@ public class AzureADOboTokenProvider : ITokenProvider
 
     public async Task<TokenInfo> GetTokenAsync(IKeyValueSettings settings, object platformParameters)
     {
-        ArgumentNullException.ThrowIfNull(_openIdConnectOptions, nameof(_openIdConnectOptions));
-        ArgumentNullException.ThrowIfNull(settings, nameof(settings));
+        ArgumentNullException.ThrowIfNull(_openIdConnectOptions);
+        ArgumentNullException.ThrowIfNull(settings);
 
         using var activity = _activitySource?.StartActivity("Get on behal of token", ActivityKind.Producer);
 

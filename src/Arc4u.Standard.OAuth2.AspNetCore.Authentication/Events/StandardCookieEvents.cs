@@ -32,8 +32,8 @@ public class StandardCookieEvents : CookieAuthenticationEvents
 
     public override async Task ValidatePrincipal(CookieValidatePrincipalContext cookieCtx)
     {
-        ArgumentNullException.ThrowIfNull(_serviceProvider, nameof(_serviceProvider));
-        ArgumentNullException.ThrowIfNull(_oidcOptions, nameof(_oidcOptions));
+        ArgumentNullException.ThrowIfNull(_serviceProvider);
+        ArgumentNullException.ThrowIfNull(_oidcOptions);
 
         var now = DateTimeOffset.UtcNow;
         var expiresAt = cookieCtx.Properties.GetTokenValue("expires_at");
@@ -57,7 +57,7 @@ public class StandardCookieEvents : CookieAuthenticationEvents
 
         if (timeRemaining < refreshThreshold)
         {
-            ArgumentNullException.ThrowIfNull(_tokenRefreshProvider, nameof(_tokenRefreshProvider));
+            ArgumentNullException.ThrowIfNull(_tokenRefreshProvider);
             try
             {
                 if (timeRemaining < TimeSpan.Zero)

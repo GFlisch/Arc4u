@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -34,9 +34,9 @@ public class BootstrapContextTokenProvider : ITokenProvider
     /// <returns><see cref="TokenInfo"/></returns>
     public Task<TokenInfo> GetTokenAsync(IKeyValueSettings settings, object platformParameters)
     {
-        ArgumentNullException.ThrowIfNull(settings, nameof(settings));
+        ArgumentNullException.ThrowIfNull(settings);
 
-        ArgumentNullException.ThrowIfNull(_applicationContext.Principal, nameof(_applicationContext.Principal));
+        ArgumentNullException.ThrowIfNull(_applicationContext.Principal);
 
         if (_applicationContext.Principal.Identity is ClaimsIdentity identity && !String.IsNullOrWhiteSpace(identity?.BootstrapContext?.ToString()))
         {

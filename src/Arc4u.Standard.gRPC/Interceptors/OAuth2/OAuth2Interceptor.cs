@@ -1,3 +1,6 @@
+using System;
+using System.Security.Claims;
+using Arc4u.Configuration;
 using Arc4u.Dependency;
 using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Token;
@@ -5,11 +8,8 @@ using Arc4u.Security.Principal;
 using Grpc.Core;
 using Grpc.Core.Interceptors;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Security.Claims;
 using Microsoft.Extensions.DependencyInjection;
-using Arc4u.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Arc4u.gRPC.Interceptors
@@ -57,7 +57,7 @@ namespace Arc4u.gRPC.Interceptors
                 throw new ArgumentNullException(nameof(keyValuesSettingsOption));
             }
 #else
-            ArgumentNullException.ThrowIfNull(keyValuesSettingsOption, nameof(keyValuesSettingsOption));
+            ArgumentNullException.ThrowIfNull(keyValuesSettingsOption);
 #endif
             _accessor = accessor ?? throw new ArgumentNullException(nameof(accessor));
 

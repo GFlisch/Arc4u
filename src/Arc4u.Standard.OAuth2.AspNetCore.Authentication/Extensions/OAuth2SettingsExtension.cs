@@ -11,34 +11,40 @@ public static class OAuth2SettingsExtension
 {
     public static SimpleKeyValueSettings ConfigureOAuth2Settings(this IServiceCollection services, Action<OAuth2SettingsOption> option, [DisallowNull] string sectionKey = "OAuth2")
     {
-        ArgumentNullException.ThrowIfNull(sectionKey, nameof(sectionKey));
+        ArgumentNullException.ThrowIfNull(sectionKey);
 
         var validate = new OAuth2SettingsOption();
         option(validate);
+        string? configErrors = null;
 
         if (string.IsNullOrWhiteSpace(validate.ProviderId))
         {
-            throw new MissingFieldException($"ProviderId field is not defined.");
+            configErrors += "ProviderId field is not defined." + System.Environment.NewLine;
         }
 
         if (string.IsNullOrWhiteSpace(validate.Audiences))
         {
-            throw new MissingFieldException($"Audiences field is not defined.");
+            configErrors += "Audiences field is not defined." + System.Environment.NewLine;
         }
 
         if (string.IsNullOrWhiteSpace(validate.Authority))
         {
-            throw new MissingFieldException($"Authorithy field is not defined.");
+            configErrors += "Authorithy field is not defined." + System.Environment.NewLine;
         }
 
         if (string.IsNullOrWhiteSpace(validate.ClientId))
         {
-            throw new MissingFieldException($"ClientId field is not defined.");
+            configErrors += "ClientId field is not defined." + System.Environment.NewLine;
         }
 
         if (string.IsNullOrWhiteSpace(validate.AuthenticationType))
         {
-            throw new MissingFieldException($"AuthenticationType field is not defined.");
+            configErrors += "AuthenticationType field is not defined." + System.Environment.NewLine;
+        }
+
+        if (configErrors is not null)
+        {
+            throw new ConfigurationException(configErrors);
         }
 
         // We map this to a IKeyValuesSettings dictionary.
@@ -70,7 +76,7 @@ public static class OAuth2SettingsExtension
 
     public static SimpleKeyValueSettings ConfigureOAuth2Settings(this IServiceCollection services, IConfiguration configuration, [DisallowNull] string sectionName, [DisallowNull] string sectionKey = "OAuth2")
     {
-        ArgumentNullException.ThrowIfNull(sectionKey, nameof(sectionKey));
+        ArgumentNullException.ThrowIfNull(sectionKey);
 
         return ConfigureOAuth2Settings(services, PrepareAction(configuration, sectionName), sectionKey);
     }

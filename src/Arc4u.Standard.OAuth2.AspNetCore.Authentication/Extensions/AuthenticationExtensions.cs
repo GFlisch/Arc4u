@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Arc4u.Configuration;
 using Arc4u.OAuth2.DataProtection;
 using Arc4u.OAuth2.Extensions;
 using Arc4u.OAuth2.Options;
@@ -165,8 +166,8 @@ public static partial class AuthenticationExtensions
 
     public static AuthenticationBuilder AddOidcAuthentication(this IServiceCollection services, IConfiguration configuration, [DisallowNull] string authenticationSectionName = "Authentication")
     {
-        ArgumentNullException.ThrowIfNull(configuration, nameof(configuration));
-        ArgumentNullException.ThrowIfNull(authenticationSectionName, nameof(authenticationSectionName));
+        ArgumentNullException.ThrowIfNull(configuration);
+        ArgumentNullException.ThrowIfNull(authenticationSectionName);
 
         var section = configuration.GetSection(authenticationSectionName);
 
@@ -177,34 +178,41 @@ public static partial class AuthenticationExtensions
 
         var settings = section.Get<OidcAuthenticationSectionOptions>() ?? throw new NullReferenceException($"No section exists with name {authenticationSectionName} in the configuration providers for OpenId Connect authentication.");
 
+        string? configErrors = null;
         if (string.IsNullOrWhiteSpace(settings.MetadataAddress))
         {
-            throw new MissingFieldException("MetadataAddress must be filled!");
+            configErrors += "MetadataAddress must be filled!" + System.Environment.NewLine;
         }
         if (string.IsNullOrWhiteSpace(settings.CookieName))
         {
-            throw new MissingFieldException("We need a cookie name defined specifically for your services.");
+            configErrors += "We need a cookie name defined specifically for your services." + System.Environment.NewLine;
         }
         if (string.IsNullOrWhiteSpace(settings.OpenIdSettingsSectionPath))
         {
-            throw new MissingFieldException("We need a setting section to configure the OpenId Connect.");
+            configErrors += "We need a setting section to configure the OpenId Connect." + System.Environment.NewLine;
         }
         if (string.IsNullOrWhiteSpace(settings.OAuth2SettingsSectionPath))
         {
-            throw new MissingFieldException("We need a setting section to configure OAuth2.");
+            configErrors += "We need a setting section to configure OAuth2." + System.Environment.NewLine;
         }
         if (string.IsNullOrWhiteSpace(settings.CertificateSectionPath))
         {
-            throw new MissingFieldException("We need a cookie name defined specifically for your services.");
+            configErrors += "We need a cookie name defined specifically for your services." + System.Environment.NewLine;
         }
         if (string.IsNullOrWhiteSpace(settings.DataProtectionSectionPath))
         {
-            throw new MissingFieldException("We need a setting section to configure the DataProtection cache store.");
+            configErrors += "We need a setting section to configure the DataProtection cache store." + System.Environment.NewLine;
         }
         if (string.IsNullOrWhiteSpace(settings.JwtBearerEventsType))
         {
-            throw new MissingFieldException("The JwtBearerEventsType must be defined.");
+            configErrors += "The JwtBearerEventsType must be defined." + System.Environment.NewLine;
         }
+
+        if (configErrors is not null)
+        {
+            throw new ConfigurationException(configErrors);
+        }
+
         var jwtBearerEventsType = Type.GetType(settings.JwtBearerEventsType, false);
 
         if (string.IsNullOrWhiteSpace(settings.CookieAuthenticationEventsType))
@@ -249,7 +257,7 @@ public static partial class AuthenticationExtensions
             options.ValidateAuthority = settings.ValidateAuthority;
             options.AuthenticationCacheTicketStoreOption = ticketStoreAction;
             options.OpenIdSettingsKey = settings.OpenIdSettingsKey;
-            options.OpenIdSettingsOptions = OpenIdSettingsExtension.PreapreAction(configuration, settings.OpenIdSettingsSectionPath);
+            options.OpenIdSettingsOptions = OpenIdSettingsExtension.PrepareAction(configuration, settings.OpenIdSettingsSectionPath);
             options.OAuth2SettingsKey = settings.OAuth2SettingsKey;
             options.OAuth2SettingsOptions = OAuth2SettingsExtension.PrepareAction(configuration, settings.OAuth2SettingsSectionPath);
             options.Certificate = cert;
@@ -278,8 +286,8 @@ public static partial class AuthenticationExtensions
     /// <returns></returns>
     public static AuthenticationBuilder AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration, Action<JwtAuthenticationOptions> authenticationOptions)
     {
-        ArgumentNullException.ThrowIfNull(services, nameof(services));
-        ArgumentNullException.ThrowIfNull(authenticationOptions, nameof(authenticationOptions));
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(authenticationOptions);
 
         var options = new JwtAuthenticationOptions();
         authenticationOptions(options);
@@ -292,8 +300,8 @@ public static partial class AuthenticationExtensions
         var oauth2Options = new OAuth2SettingsOption();
         options.OAuth2SettingsOptions(oauth2Options);
 
-        ArgumentNullException.ThrowIfNull(options.JwtBearerEventsType, nameof(options.JwtBearerEventsType));
-        ArgumentNullException.ThrowIfNull(options.MetadataAddress, nameof(options.MetadataAddress));
+        ArgumentNullException.ThrowIfNull(options.JwtBearerEventsType);
+        ArgumentNullException.ThrowIfNull(options.MetadataAddress);
 
         services.ConfigureOAuth2Settings(options.OAuth2SettingsOptions, options.OAuth2SettingsKey);
 
@@ -327,8 +335,8 @@ public static partial class AuthenticationExtensions
 
     public static AuthenticationBuilder AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration, [DisallowNull] string authenticationSectionName = "Authentication")
     {
-        ArgumentNullException.ThrowIfNull(configuration, nameof(configuration));
-        ArgumentNullException.ThrowIfNull(authenticationSectionName, nameof(authenticationSectionName));
+        ArgumentNullException.ThrowIfNull(configuration);
+        ArgumentNullException.ThrowIfNull(authenticationSectionName);
 
         var section = configuration.GetSection(authenticationSectionName);
 
