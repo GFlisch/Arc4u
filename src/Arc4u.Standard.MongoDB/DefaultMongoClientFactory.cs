@@ -13,11 +13,11 @@ namespace Arc4u.MongoDB
             _mongoContext = (TContext)serviceProvider.GetService(typeof(TContext));
         }
 
-        IMongoDatabase _database;
-        IMongoClient _client;
+        private IMongoDatabase _database;
+        private IMongoClient _client;
         private static object _locker = new object();
-        readonly IOptionsMonitor<MongoClientSettings> _clientSettings;
-        readonly TContext _mongoContext;
+        private readonly IOptionsMonitor<MongoClientSettings> _clientSettings;
+        private readonly TContext _mongoContext;
 
         public IMongoClient CreateClient()
         {
@@ -35,13 +35,24 @@ namespace Arc4u.MongoDB
                 {
                     _client = new MongoClient(settings);
                     return _client;
-
                 }
 
                 throw new NullReferenceException($"No mongo client settings defined for key {_mongoContext.DatabaseName}");
             }
+        }
 
+        public IMongoClient CreateClient(MongoClientSettings mongoClientSettings)
+        {
+            if (null == mongoClientSettings) throw new NullReferenceException($"No mongo client settings defined for key {_mongoContext.DatabaseName}");
 
+            lock (_locker)
+            {
+                if (null != _client)
+                    return _client;
+
+                _client = new MongoClient(mongoClientSettings);
+                return _client;
+            }
         }
 
         private IMongoDatabase GetDatabase()
@@ -82,7 +93,6 @@ namespace Arc4u.MongoDB
             var db = GetDatabase();
 
             return db.GetCollection<TEntity>(collectionNames[0]);
-
         }
     }
 }
