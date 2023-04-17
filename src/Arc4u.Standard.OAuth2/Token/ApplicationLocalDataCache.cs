@@ -1,4 +1,4 @@
-﻿using Arc4u.Caching;
+using Arc4u.Caching;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Microsoft.Extensions.Logging;
@@ -12,7 +12,7 @@ namespace Arc4u.OAuth2.Token
     [Export(typeof(ITokenCache)), Shared]
     public class ApplicationLocalDataCache : ITokenCache
     {
-        private object _token;
+        private object? _token;
         private readonly ICache Cache;
         private readonly ILogger Logger;
 
@@ -53,7 +53,10 @@ namespace Arc4u.OAuth2.Token
 
         public T Get<T>(string key)
         {
-            if (_token is T) return (T)_token;
+            if (_token is T token)
+            {
+                return token;
+            }
 
             Load<T>(key);
 
