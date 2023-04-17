@@ -85,7 +85,7 @@ public class CacheTicketStore : ITicketStore
 
     public async Task<string> StoreAsync(AuthenticationTicket ticket)
     {
-        var key = Guid.NewGuid().ToString();
+        var key = _keyPrefix + Guid.NewGuid().ToString();
         await RenewAsync(key, ticket).ConfigureAwait(false);
 
         return key;
