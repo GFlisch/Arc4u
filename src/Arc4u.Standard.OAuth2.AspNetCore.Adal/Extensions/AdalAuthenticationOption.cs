@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Arc4u.OAuth2.Extensions;
 
-public class AuthenticationOptions
+public class AdalAuthenticationOptions
 {
     public IKeyValueSettings OAuthSettings { get; set; }
 

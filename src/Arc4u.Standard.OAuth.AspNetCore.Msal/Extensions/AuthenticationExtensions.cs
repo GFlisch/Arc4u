@@ -1,4 +1,5 @@
 using Arc4u.OAuth2.Configuration;
+using Arc4u.OAuth2.Extensions;
 using Arc4u.OAuth2.Msal.Token;
 using Arc4u.OAuth2.Token;
 using Microsoft.AspNetCore.Authentication;
@@ -17,7 +18,7 @@ namespace Arc4u.Standard.OAuth2.Extensions;
 
 public static partial class AuthenticationExtensions
 {
-    public static AuthenticationBuilder AddMsalAuthentication(this IServiceCollection services, AuthenticationOptions authenticationOptions)
+    public static AuthenticationBuilder AddMsalAuthentication(this IServiceCollection services, MsalAuthenticationOptions authenticationOptions)
     {
         ArgumentNullException.ThrowIfNull(authenticationOptions);
 

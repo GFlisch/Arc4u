@@ -15,7 +15,7 @@ namespace Arc4u.Standard.OAuth2.Extensions;
 
 public static class AuthenticationExtensions
 {
-    public static AuthenticationBuilder AddOpenIdBearerAuthentication(this IServiceCollection services, AuthenticationOptions authenticationOptions)
+    public static AuthenticationBuilder AddOpenIdBearerAuthentication(this IServiceCollection services, AdalAuthenticationOptions authenticationOptions)
     {
         ArgumentNullException.ThrowIfNull(authenticationOptions);
 
