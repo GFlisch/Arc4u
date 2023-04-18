@@ -21,6 +21,8 @@ public class OidcAuthenticationSectionOptions
 
     public string OAuth2SettingsKey { get; set; } = "OAuth2";
 
+    public string ClaimsIdentifierSectionPath { get; set; } = "Authentication:ClaimsIdentifer";
+
     public string CertificateSectionPath { get; set; } = "Authentication:DataProtection:EncryptionCertificate";
 
     public string AuthenticationCacheTicketStorePath { get; set; } = "Authentication:AuthenticationCacheTicketStore";

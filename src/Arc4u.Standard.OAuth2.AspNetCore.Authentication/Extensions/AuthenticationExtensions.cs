@@ -19,6 +19,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
+using Arc4u.OAuth2.Configuration;
 
 namespace Arc4u.Standard.OAuth2.Extensions;
 
@@ -54,8 +55,9 @@ public static partial class AuthenticationExtensions
           .SetApplicationName(oidcOptions.ApplicationName)
           .SetDefaultKeyLifetime(oidcOptions.DefaultKeyLifetime);
 
-        // Will keep in memory the AccessToken and Refresh token for the time of the request...
         services.Configure(authenticationOptions);
+        services.AddClaimsIdentifier(oidcOptions.ClaimsIdentifierOptions);
+        // Will keep in memory the AccessToken and Refresh token for the time of the request...
         services.AddScoped<TokenRefreshInfo>();
         services.AddAuthorization();
         services.AddHttpContextAccessor(); // give access to the HttpContext if requested by an external packages.
@@ -197,7 +199,7 @@ public static partial class AuthenticationExtensions
         }
         if (string.IsNullOrWhiteSpace(settings.CertificateSectionPath))
         {
-            configErrors += "We need a cookie name defined specifically for your services." + System.Environment.NewLine;
+            configErrors += "We need a setting section to specify the certificate to protect your sensitive information." + System.Environment.NewLine;
         }
         if (string.IsNullOrWhiteSpace(settings.DataProtectionSectionPath))
         {
@@ -206,6 +208,10 @@ public static partial class AuthenticationExtensions
         if (string.IsNullOrWhiteSpace(settings.JwtBearerEventsType))
         {
             configErrors += "The JwtBearerEventsType must be defined." + System.Environment.NewLine;
+        }
+        if (string.IsNullOrWhiteSpace(settings.ClaimsIdentifierSectionPath))
+        {
+            configErrors += "We need a setting section to specify the claims used to identify a user." + System.Environment.NewLine;
         }
 
         if (configErrors is not null)
@@ -247,7 +253,7 @@ public static partial class AuthenticationExtensions
         {
             throw new MissingFieldException("A ResponseType is mandatory to define the OpenId Connect protocol.");
         }
-        // Call to prepare the Cache ticket store...
+
 
         void OidcAuthenticationFiller(OidcAuthenticationOptions options)
         {
@@ -272,6 +278,7 @@ public static partial class AuthenticationExtensions
             options.ResponseType = settings.ResponseType;
             options.AuthenticationTicketTTL = settings.AuthenticationTicketTTL;
             options.DataProtectionCacheStoreOption = CacheStoreExtension.PrepareAction(configuration, settings.DataProtectionSectionPath);
+            options.ClaimsIdentifierOptions = ClaimsIdentiferExtension.PrepareAction(configuration, settings.ClaimsIdentifierSectionPath);
         }
 
         return services.AddOidcAuthentication(configuration, OidcAuthenticationFiller);

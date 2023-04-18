@@ -1,5 +1,7 @@
 using System;
 using System.Linq;
+using Arc4u.OAuth2.Configuration;
+using Arc4u.OAuth2.Extensions;
 using Arc4u.OAuth2.Token;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -27,6 +29,18 @@ public static class AuthenticationExtensions
             throw new ArgumentNullException(nameof(authenticationOptions), $"{nameof(authenticationOptions.OpenIdSettings)} is not defined");
         }
 
+        if (authenticationOptions.UserIdentifierOptions is null)
+        {
+            throw new ArgumentNullException(nameof(authenticationOptions), $"{nameof(authenticationOptions.UserIdentifierOptions)} is not defined");
+        }
+
+        if (authenticationOptions.ClaimsIdentifierOptions is null)
+        {
+            throw new ArgumentNullException(nameof(authenticationOptions), $"{nameof(authenticationOptions.ClaimsIdentifierOptions)} is not defined");
+        }
+
+        services.AddClaimsIdentifier(authenticationOptions.ClaimsIdentifierOptions);
+        services.AddUserIdentifier(authenticationOptions.UserIdentifierOptions);
         services.AddAuthorization();
         services.AddHttpContextAccessor(); // give access to the HttpContext if requested by an external packages.
 

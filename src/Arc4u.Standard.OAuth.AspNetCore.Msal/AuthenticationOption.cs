@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Arc4u.OAuth2.Configuration;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -20,5 +21,8 @@ namespace Arc4u.Standard.OAuth2.Extensions
         public string CookieName { get; set; } = Constants.CookieName;
 
         public bool ValidateAuthority { get; set; } = false;
+
+        public Action<ClaimsIdentifierOption> ClaimsIdentifierOptions { get; set; }
+
     }
 }

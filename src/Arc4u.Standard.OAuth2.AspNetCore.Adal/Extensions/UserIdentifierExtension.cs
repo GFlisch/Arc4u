@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -12,6 +13,11 @@ public static class UserIdentifierExtension
     }
 
     public static void AddUserIdentifier(this IServiceCollection services, IConfiguration configuration, string sectionName = "Authentication:UserIdentifier")
+    {
+        AddUserIdentifier(services, PrepareAction(configuration, sectionName));
+    }
+
+    internal static Action<UserIdentifierOption> PrepareAction(IConfiguration configuration, [DisallowNull] string sectionName)
     {
         if (string.IsNullOrEmpty(sectionName))
         {
@@ -35,11 +41,11 @@ public static class UserIdentifierExtension
             result.Type = option.Type;
         }
 
-        void options(UserIdentifierOption o)
+        void Options(UserIdentifierOption o)
         {
             o.Type = result.Type;
         }
 
-        AddUserIdentifier(services, options);
+        return Options;
     }
 }
