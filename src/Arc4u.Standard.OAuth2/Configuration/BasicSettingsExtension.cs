@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using Arc4u.Configuration;
 using Arc4u.OAuth2.Token;
 using Microsoft.Extensions.Configuration;
@@ -9,8 +10,8 @@ public static class BasicSettingsExtension
 {
 #if NET6_0_OR_GREATER
     public static SimpleKeyValueSettings AddBasicSettings(IServiceCollection services, Action<BasicSettingsOptions> options, [DisallowNull] string sectionKey = "Basic")
-
-#else
+#endif
+#if NETSTANDARD2_0
     public static SimpleKeyValueSettings AddBasicSettings(IServiceCollection services, Action<BasicSettingsOptions> options, string sectionKey = "Basic")
 #endif
     {
@@ -76,7 +77,8 @@ public static class BasicSettingsExtension
 
 #if NET6_0_OR_GREATER
     public static SimpleKeyValueSettings AddBasicSettings(this IServiceCollection services, IConfiguration configuration, [DisallowNull] string sectionName = "Basic.Settings", [DisallowNull] string sectionKey = "Basic")
-#else
+#endif
+#if NETSTANDARD2_0
     public static SimpleKeyValueSettings AddBasicSettings(this IServiceCollection services, IConfiguration configuration, string sectionName = "Basic.Settings", string sectionKey = "Basic")
 #endif
     {
@@ -90,7 +92,8 @@ public static class BasicSettingsExtension
 
 #if NET6_0_OR_GREATER
     internal static Action<BasicSettingsOptions> PrepareAction(IConfiguration configuration, [DisallowNull] string sectionName)
-#else
+#endif
+#if NETSTANDARD2_0
     internal static Action<BasicSettingsOptions> PrepareAction(IConfiguration configuration, string sectionName)
 #endif
     {
