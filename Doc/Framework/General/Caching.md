@@ -22,6 +22,9 @@ The data is serialized in the caching => so no need to do this by yourself.
 Define the interface to abstract the caching.<br>
 Define the model and the class to read the configuration.
 
+Before Arc4u 6.0.14.3, the cache and the definition of the store was splitted and finally not easy to manage.
+You had to find the section for the memory cache defined and check the code to see which settings was associated to the "Volatile" definition (in the code)...
+
 ```json
 {
   "Caching": {
@@ -38,21 +41,51 @@ Define the model and the class to read the configuration.
         "IsAutoStart": "True"
       }
     ]
+  },
+  "Memory.Settings": {
+    "SizeLimitInMegaBytes": "10"
   }
 }
 ```
 
-CacheContext is the class to use to retrieve a cache.
+From 6.0.14.3, this is now consistent. The settings to configure the cache used are now part of the definition of the cache itself!
+
+So if you change to Redis, the Redis settings will be in the Settings section of the cache definition.
+
+```json
+{
+  "Caching": {
+    "Default": "Volatile",
+    "Principal": {
+      "IsEnabled": "True",
+      "CacheName": "Volatile",
+      "Duration": "10:00:00"
+    },
+    "Caches": [
+      {
+        "Name": "Volatile",
+        "Kind": "Memory",
+        "Settings": {
+          "SizeLimit": "10"
+        },
+        "IsAutoStart": "True"
+      }
+    ]
+  }
+}
+```
+
+Before 6.0.14.3, to access the caches, you had to resolve the CacheContext class directly. After, you have to resolve the ICacheContext.
 
 Any cache is using the concept of the Serialization introduces in Arc4u.<br>
 So the data stored is serialized (even for the memory caching).<br>
 The number of cache is not limited and as the configuration is defined in a config file, the store can be different following the environment. This is defined with the Kind property.
 
-
+=> JSonSerializers are the recommended ones, the Protobuf ones will disappear and will be marked as Obsolete.
 
 ### Arc4u.Standard.Caching.Memory
 
-Store the data in the memory. Kind is Volatile.
+Store the data in the memory. Kind is Memory.
 
 ### Arc4u.Standard.Caching.Redis
 
