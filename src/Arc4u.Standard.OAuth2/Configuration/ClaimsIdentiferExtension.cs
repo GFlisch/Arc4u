@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Arc4u.OAuth2.Configuration;
+namespace Arc4u.OAuth2.Configuration.Extensions;
 public static class ClaimsIdentiferExtension
 {
     public static void AddClaimsIdentifier(this IServiceCollection services, Action<ClaimsIdentifierOption> options)

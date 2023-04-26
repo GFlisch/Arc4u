@@ -5,7 +5,7 @@ using Arc4u.OAuth2.Token;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Arc4u.Standard.OAuth2;
+namespace Arc4u.Standard.OAuth2.Extensions;
 public static class BasicSettingsExtension
 {
 #if NET6_0_OR_GREATER
