@@ -1,12 +1,13 @@
 ﻿[ :back: ](../General.md)
 # Caching
 
-The abstraction introduces by the framework is not to implement what exist already in the .NET framework but to enhance it by adding more flecibility.
-But to offer the following capabilities:
+The abstraction introduces by the framework is not to implement what exist already in the .NET Core framework but to enhance it by adding more flecibility.
+
+It offers the following capabilities:
 - Setup the caching by config.
 - Allow multiple caches
 - Define the cache for the Principal.
-- Use the standards define by the .NET framework
+- Use the standards define by the .NET Core framework
     - Memory
     - Sql
     - Redis
@@ -20,7 +21,7 @@ The data is serialized in the caching => so no need to do this by yourself.
 ### Arc4u.Standard.Caching
 
 Define the interface to abstract the caching.<br>
-Define the model and the class to read the configuration.
+Define the model and the classes to read the configuration.
 
 Before Arc4u 6.0.14.3, the cache and the definition of the store was splitted and finally not easy to manage.
 You had to find the section for the memory cache defined and check the code to see which settings was associated to the "Volatile" definition (in the code)...
@@ -50,7 +51,7 @@ You had to find the section for the memory cache defined and check the code to s
 
 From 6.0.14.3, this is now consistent. The settings to configure the cache used are now part of the definition of the cache itself!
 
-So if you change to Redis, the Redis settings will be in the Settings section of the cache definition.
+Here for the Memory cache and a redis one we have this config:
 
 ```json
 {
@@ -61,12 +62,21 @@ So if you change to Redis, the Redis settings will be in the Settings section of
       "CacheName": "Volatile",
       "Duration": "10:00:00"
     },
-    "Caches": [
+   "Caches": [
       {
         "Name": "Volatile",
         "Kind": "Memory",
         "Settings": {
-          "SizeLimit": "10"
+          "SizeLimit": "100"
+        },
+        "IsAutoStart": "True"
+      },
+      {
+        "Name": "Distributed",
+        "Kind": "Redis",
+        "Settings": {
+          "ConnectionString": "localhost:6379",
+          "InstanceName": "DemoArc4u.ApiGtw.Development-"
         },
         "IsAutoStart": "True"
       }

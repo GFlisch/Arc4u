@@ -9,10 +9,10 @@ namespace Arc4u.Standard.OAuth2;
 public static class BasicSettingsExtension
 {
 #if NET6_0_OR_GREATER
-    public static SimpleKeyValueSettings AddBasicSettings(IServiceCollection services, Action<BasicSettingsOptions> options, [DisallowNull] string sectionKey = "Basic")
+    public static SimpleKeyValueSettings AddBasicSettings(this IServiceCollection services, Action<BasicSettingsOptions> options, [DisallowNull] string sectionKey = "Basic")
 #endif
 #if NETSTANDARD2_0
-    public static SimpleKeyValueSettings AddBasicSettings(IServiceCollection services, Action<BasicSettingsOptions> options, string sectionKey = "Basic")
+    public static SimpleKeyValueSettings AddBasicSettings(this IServiceCollection services, Action<BasicSettingsOptions> options, string sectionKey = "Basic")
 #endif
     {
         if (string.IsNullOrWhiteSpace(sectionKey))
