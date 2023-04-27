@@ -19,7 +19,6 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
-using Arc4u.OAuth2.Configuration;
 
 namespace Arc4u.Standard.OAuth2.Extensions;
 
@@ -254,7 +253,6 @@ public static partial class AuthenticationExtensions
             throw new MissingFieldException("A ResponseType is mandatory to define the OpenId Connect protocol.");
         }
 
-
         void OidcAuthenticationFiller(OidcAuthenticationOptions options)
         {
             options.RequireHttpsMetadata = settings.RequireHttpsMetadata;
@@ -311,10 +309,12 @@ public static partial class AuthenticationExtensions
         ArgumentNullException.ThrowIfNull(options.MetadataAddress);
 
         services.ConfigureOAuth2Settings(options.OAuth2SettingsOptions, options.OAuth2SettingsKey);
-
+        services.AddClaimsIdentifier(options.ClaimsIdentifierOptions);
         services.AddTransient(options.JwtBearerEventsType);
         services.AddAuthorization();
         services.AddHttpContextAccessor();
+
+
         var authenticationBuilder =
         services.AddAuthentication(auth => auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(option =>
@@ -385,6 +385,7 @@ public static partial class AuthenticationExtensions
             options.OAuth2SettingsOptions = OAuth2SettingsExtension.PrepareAction(configuration, settings.OAuth2SettingsSectionPath);
             options.CertSecurityKey = certSecurityKey;
             options.JwtBearerEventsType = jwtBearerEventsType!;
+            options.ClaimsIdentifierOptions = ClaimsIdentiferExtension.PrepareAction(configuration, settings.ClaimsIdentifierSectionPath);
         }
 
         return services.AddJwtAuthentication(configuration, JwtAuthenticationFiller);

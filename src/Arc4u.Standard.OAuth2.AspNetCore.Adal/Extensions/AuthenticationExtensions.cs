@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using Arc4u.OAuth2.Configuration;
 using Arc4u.OAuth2.Extensions;
 using Arc4u.OAuth2.Token;
 using Microsoft.AspNetCore.Authentication;

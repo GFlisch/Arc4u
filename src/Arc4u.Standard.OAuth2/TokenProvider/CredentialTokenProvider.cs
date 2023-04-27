@@ -72,10 +72,10 @@ public class CredentialTokenProvider : ICredentialTokenProvider
             messages.Add(new Message(ServiceModel.MessageCategory.Technical,
                      ServiceModel.MessageType.Error,
                      "ClientId is missing. Cannot process the request."));
-        if (!settings.Values.ContainsKey(TokenKeys.ServiceApplicationIdKey))
+        if (!settings.Values.ContainsKey(TokenKeys.Audiences))
             messages.Add(new Message(ServiceModel.MessageCategory.Technical,
                      ServiceModel.MessageType.Error,
-                     "ApplicationId is missing. Cannot process the request."));
+                     "Audience is missing. Cannot process the request."));
 
         _logger.Technical().System($"Creating an authentication context for the request.").Log();
         clientId = settings.Values[TokenKeys.ClientIdKey];
