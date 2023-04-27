@@ -9,6 +9,7 @@ using Arc4u.Standard.OAuth2;
 using FluentAssertions;
 using Arc4u.OAuth2.Token;
 using Arc4u.Configuration;
+using Arc4u.OAuth2.Extensions;
 
 namespace Arc4u.Standard.UnitTest;
 

@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Arc4u.OAuth2.Configuration;
 using Microsoft.Extensions.Options;
 using FluentAssertions;
+using Arc4u.OAuth2.Extensions;
 
 namespace Arc4u.Standard.UnitTest;
 
