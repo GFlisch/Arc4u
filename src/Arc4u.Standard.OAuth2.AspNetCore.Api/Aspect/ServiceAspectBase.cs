@@ -1,4 +1,4 @@
-﻿using Arc4u.Diagnostics;
+using Arc4u.Diagnostics;
 using Arc4u.ServiceModel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -64,7 +64,7 @@ namespace Arc4u.OAuth2.Aspect
                 return Task.CompletedTask;
             }
 
-            context.Result = new UnauthorizedResult();
+            context.Result = new ForbidResult();
 
             return Task.CompletedTask;
         }
