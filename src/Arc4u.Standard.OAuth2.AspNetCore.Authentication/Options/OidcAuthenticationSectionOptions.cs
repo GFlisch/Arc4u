@@ -41,6 +41,8 @@ public class OidcAuthenticationSectionOptions
 
     public TimeSpan ForceRefreshTimeoutTimeSpan { get; set; } = TimeSpan.FromMinutes(5);
 
+    public string CallbackPath { get; set; } = "/signin-oidc";
+
     public string? CertSecurityKeyPath { get; set; } = null;
 
     /// <summary>

@@ -35,6 +35,8 @@ public class OidcAuthenticationOptions
 
     public TimeSpan DefaultKeyLifetime { get; set; } = TimeSpan.FromDays(365);
 
+    public string CallbackPath { get; set; } = "/signin-oidc";
+
     public string ApplicationName { get; set; }
 
     public Type JwtBearerEventsType { get; set; } = typeof(StandardBearerEvents);

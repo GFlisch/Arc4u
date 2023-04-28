@@ -111,7 +111,7 @@ public static partial class AuthenticationExtensions
                     options.RequireHttpsMetadata = oidcOptions.RequireHttpsMetadata;
                     options.MetadataAddress = oidcOptions.MetadataAddress;
                     options.ResponseType = oidcOptions.ResponseType;
-
+                    options.CallbackPath = oidcOptions.CallbackPath;
                     options.Scope.Clear();
                     options.Scope.Add(OpenIdConnectScope.OpenIdProfile);
                     options.Scope.Add(OpenIdConnectScope.OfflineAccess);
@@ -265,6 +265,7 @@ public static partial class AuthenticationExtensions
             options.OAuth2SettingsKey = settings.OAuth2SettingsKey;
             options.OAuth2SettingsOptions = OAuth2SettingsExtension.PrepareAction(configuration, settings.OAuth2SettingsSectionPath);
             options.Certificate = cert;
+            options.CallbackPath = settings.CallbackPath;
             options.DefaultKeyLifetime = settings.DefaultKeyLifetime;
             options.ApplicationName = configuration[settings.ApplicationNameSectionPath];
             options.JwtBearerEventsType = jwtBearerEventsType;
