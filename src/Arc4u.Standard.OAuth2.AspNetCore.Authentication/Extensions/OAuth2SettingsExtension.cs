@@ -32,11 +32,6 @@ public static class OAuth2SettingsExtension
             configErrors += "Authorithy field is not defined." + System.Environment.NewLine;
         }
 
-        if (string.IsNullOrWhiteSpace(validate.ClientId))
-        {
-            configErrors += "ClientId field is not defined." + System.Environment.NewLine;
-        }
-
         if (string.IsNullOrWhiteSpace(validate.AuthenticationType))
         {
             configErrors += "AuthenticationType field is not defined." + System.Environment.NewLine;
@@ -55,7 +50,10 @@ public static class OAuth2SettingsExtension
             keyOptions.Add(TokenKeys.ProviderIdKey, validate!.ProviderId);
             keyOptions.Add(TokenKeys.AuthenticationTypeKey, validate.AuthenticationType);
             keyOptions.Add(TokenKeys.AuthorityKey, validate.Authority);
-            keyOptions.Add(TokenKeys.ClientIdKey, validate.ClientId);
+            if (!string.IsNullOrWhiteSpace(validate.ClientId))
+            {
+                keyOptions.Add(TokenKeys.ClientIdKey, validate.ClientId);
+            }
             keyOptions.Add(TokenKeys.Audiences, validate.Audiences);
             if (!string.IsNullOrWhiteSpace(validate.Scopes))
             {
