@@ -17,6 +17,6 @@ public class JwtAuthenticationSectionOptions
 
     public string? CertSecurityKeyPath { get; set; }
 
-    public string ClaimsIdentifierSectionPath { get; set; } = "Authentication:ClaimsIdentifer";
+    public string ClaimsIdentifierSectionPath { get; set; } = "Authentication:ClaimsIdentifier";
 
 }
