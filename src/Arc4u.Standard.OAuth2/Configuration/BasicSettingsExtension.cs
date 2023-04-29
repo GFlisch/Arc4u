@@ -30,7 +30,7 @@ public static class BasicSettingsExtension
             configErrors += "ProviderId field is not defined." + System.Environment.NewLine;
         }
 
-        if (string.IsNullOrWhiteSpace(validate.Audiences))
+        if (string.IsNullOrWhiteSpace(validate.Audience))
         {
             configErrors += "Audiences field is not defined." + System.Environment.NewLine;
         }
@@ -50,6 +50,11 @@ public static class BasicSettingsExtension
             configErrors += "AuthenticationType field is not defined." + System.Environment.NewLine;
         }
 
+        if (string.IsNullOrWhiteSpace(validate.Scope))
+        {
+            configErrors += "Scope field is not defined." + System.Environment.NewLine;
+        }
+
         if (!string.IsNullOrWhiteSpace(configErrors))
         {
             throw new ConfigurationException(configErrors);
@@ -64,7 +69,8 @@ public static class BasicSettingsExtension
             keyOptions.Add(TokenKeys.AuthenticationTypeKey, validate.AuthenticationType);
             keyOptions.Add(TokenKeys.AuthorityKey, validate.Authority);
             keyOptions.Add(TokenKeys.ClientIdKey, validate.ClientId);
-            keyOptions.Add(TokenKeys.Audiences, validate.Audiences);
+            keyOptions.Add(TokenKeys.Audience, validate.Audience);
+            keyOptions.Add(TokenKeys.Scope, validate.Scope);
         }
 
         services.Configure<SimpleKeyValueSettings>(sectionKey, SettingsFiller);
@@ -121,9 +127,10 @@ public static class BasicSettingsExtension
         {
             option.Authority = settings.Authority;
             option.ClientId = settings.ClientId;
-            option.Audiences = settings.Audiences;
+            option.Audience = settings.Audience;
             option.AuthenticationType = settings.AuthenticationType;
             option.ProviderId = settings.ProviderId;
+            option.Scope = settings.Scope;
         }
 
         return OptionFiller;

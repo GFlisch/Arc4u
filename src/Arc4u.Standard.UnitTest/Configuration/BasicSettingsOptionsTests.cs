@@ -35,7 +35,7 @@ public class BasicSettingsOptionsTests
                          new Dictionary<string, string?>
                          {
                              ["Basic.Settings:ClientId"] = options.ClientId,
-                             ["Basic.Settings:Audiences"] = options.Audiences,
+                             ["Basic.Settings:Audience"] = options.Audience,
                              ["Basic.Settings:Authority"] = options.Authority,
                          }).Build();
 
@@ -52,10 +52,11 @@ public class BasicSettingsOptionsTests
 
         sut.Should().NotBeNull();
         sut.Values[TokenKeys.ClientIdKey].Should().Be(options.ClientId);
-        sut.Values[TokenKeys.Audiences].Should().Be(options.Audiences);
+        sut.Values[TokenKeys.Audience].Should().Be(options.Audience);
         sut.Values[TokenKeys.AuthorityKey].Should().Be(options.Authority);
         sut.Values[TokenKeys.ProviderIdKey].Should().Be(_default.ProviderId);
         sut.Values[TokenKeys.AuthenticationTypeKey].Should().Be(_default.AuthenticationType);
+        sut.Values[TokenKeys.Scope].Should().Be(_default.Scope);
     }
 
     [Fact]
@@ -68,10 +69,11 @@ public class BasicSettingsOptionsTests
                          new Dictionary<string, string?>
                          {
                              ["Basic.Settings:ClientId"] = options.ClientId,
-                             ["Basic.Settings:Audiences"] = options.Audiences,
+                             ["Basic.Settings:Audience"] = options.Audience,
                              ["Basic.Settings:Authority"] = options.Authority,
                              ["Basic.Settings:ProviderId"] = options.ProviderId,
                              ["Basic.Settings:AuthenticationType"] = options.AuthenticationType,
+                             ["Basic.Settings:Scope"] = options.Scope,
                          }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
@@ -87,9 +89,10 @@ public class BasicSettingsOptionsTests
 
         sut.Should().NotBeNull();
         sut.Values[TokenKeys.ClientIdKey].Should().Be(options.ClientId);
-        sut.Values[TokenKeys.Audiences].Should().Be(options.Audiences);
+        sut.Values[TokenKeys.Audience].Should().Be(options.Audience);
         sut.Values[TokenKeys.AuthorityKey].Should().Be(options.Authority);
         sut.Values[TokenKeys.ProviderIdKey].Should().Be(options.ProviderId);
         sut.Values[TokenKeys.AuthenticationTypeKey].Should().Be(options.AuthenticationType);
+        sut.Values[TokenKeys.Scope].Should().Be(options.Scope);
     }
 }
