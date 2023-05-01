@@ -24,7 +24,7 @@ namespace Arc4u.Standard.OAuth2.Extensions;
 
 public static partial class AuthenticationExtensions
 {
-    public static AuthenticationBuilder AddOidcAuthentication(this IServiceCollection services, IConfiguration configuration, Action<OidcAuthenticationOptions> authenticationOptions)
+    public static AuthenticationBuilder AddOidcAuthentication(this IServiceCollection services, Action<OidcAuthenticationOptions> authenticationOptions)
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(authenticationOptions);
@@ -174,7 +174,7 @@ public static partial class AuthenticationExtensions
 
         if (section is null || !section.Exists())
         {
-            throw new NullReferenceException($"No section exists with name {authenticationSectionName} in the configuration providers for OpenId Connect authentication.");
+            throw new ConfigurationException($"No section exists with name {authenticationSectionName} in the configuration providers for OpenId Connect authentication.");
         }
 
         var settings = section.Get<OidcAuthenticationSectionOptions>() ?? throw new NullReferenceException($"No section exists with name {authenticationSectionName} in the configuration providers for OpenId Connect authentication.");
@@ -280,7 +280,7 @@ public static partial class AuthenticationExtensions
             options.ClaimsIdentifierOptions = ClaimsIdentiferExtension.PrepareAction(configuration, settings.ClaimsIdentifierSectionPath);
         }
 
-        return services.AddOidcAuthentication(configuration, OidcAuthenticationFiller);
+        return services.AddOidcAuthentication(OidcAuthenticationFiller);
     }
 
     /// <summary>

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
+using Arc4u.Configuration;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Microsoft.Extensions.Configuration;
@@ -73,41 +74,46 @@ public class X509CertificateLoader : IX509CertificateLoader
     /// <returns></returns>
     public X509Certificate2? FindCertificate(IConfiguration configuration, string sectionName)
     {
-        var certSectionPath = $"{sectionName}:CertificateStore";
-        var certificate = configuration.GetSection(certSectionPath).Get<CertificateInfo>();
+        var certificate = configuration.GetSection(sectionName).Get<CertificateStoreOrFileInfo>();
 
-#if NET6_0_OR_GREATER
         // For this configuration, no decryption exists. Simply skip this provider.
         if (certificate is null)
         {
-            // Do we have pem files?
-            certSectionPath = $"{sectionName}:File";
-            if (configuration.GetSection(certSectionPath).Exists())
-            {
-                var cert = configuration.GetSection(certSectionPath).Get<CertificateFilePathInfo>();
-
-                if (cert is not null)
-                {
-                    if (!File.Exists(cert.Cert))
-                    {
-                        _logger?.Technical().LogError($"Public key file doesn't exist.");
-                        return null;
-                    }
-
-                    if (!File.Exists(cert.Key))
-                    {
-                        _logger?.Technical().LogError($"Private key file doesn't exist.");
-                        return null;
-                    }
-
-                    return X509Certificate2.CreateFromPemFile(cert.Cert, cert.Key);
-                }
-            }
-
             return null;
         }
+
+        if (certificate.CertificateStore is not null)
+        {
+            return FindCertificate(certificate.CertificateStore);
+        }
+#if NETSTANDARD2_0
+        if (certificate.File is not null)
+        {
+            throw new ConfigurationException("Loading a certificate from pem files are not possible in NetStandard2.0");
+        }
+
+        return null;
 #endif
-        // The FindCertificate(tempRoot, certificate) is not used because the method throws an exception if no section is defined!
-        return FindCertificate(certificate);
+
+#if NET6_0_OR_GREATER
+
+        if (certificate.File is null)
+        {
+            return null;
+        }
+        if (!File.Exists(certificate.File.Cert))
+        {
+            _logger?.Technical().LogError($"Public key file doesn't exist.");
+            return null;
+        }
+
+        if (!File.Exists(certificate.File.Key))
+        {
+            _logger?.Technical().LogError($"Private key file doesn't exist.");
+            return null;
+        }
+
+        return X509Certificate2.CreateFromPemFile(certificate.File.Cert, certificate.File.Key);
+#endif
     }
 }
