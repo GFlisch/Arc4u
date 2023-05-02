@@ -14,6 +14,7 @@ namespace Arc4u.OAuth2.TokenProvider;
 public class CredentialTokenCacheTokenProvider : ICredentialTokenProvider
 {
     public const string ProviderName = "Credential";
+
     private readonly ITokenCache TokenCache;
     private readonly IContainerResolve Container;
     private readonly ILogger<CredentialTokenCacheTokenProvider> _logger;
@@ -27,13 +28,17 @@ public class CredentialTokenCacheTokenProvider : ICredentialTokenProvider
 
     public async Task<TokenInfo> GetTokenAsync(IKeyValueSettings settings, CredentialsResult credential)
     {
-        var messages = GetContext(settings, out string clientId, out string authority, out string authenticationType, out string serviceApplicationId);
+        var messages = GetContext(settings, out string authority, out string audience);
 
-        if (String.IsNullOrWhiteSpace(credential.Upn))
-            messages.Add(new Message(ServiceModel.MessageCategory.Technical, ServiceModel.MessageType.Warning, "No Username is provided."));
+        if (string.IsNullOrWhiteSpace(credential.Upn))
+        {
+            messages.Add(new Message(ServiceModel.MessageCategory.Technical, ServiceModel.MessageType.Error, "No Username is provided."));
+        }
 
-        if (String.IsNullOrWhiteSpace(credential.Password))
-            messages.Add(new Message(ServiceModel.MessageCategory.Technical, ServiceModel.MessageType.Warning, "No password is provided."));
+        if (string.IsNullOrWhiteSpace(credential.Password))
+        {
+            messages.Add(new Message(ServiceModel.MessageCategory.Technical, ServiceModel.MessageType.Error, "No password is provided."));
+        }
 
         messages.LogAndThrowIfNecessary(_logger);
         messages.Clear();
@@ -42,7 +47,7 @@ public class CredentialTokenCacheTokenProvider : ICredentialTokenProvider
         {
             // Get a HashCode from the password so a second call with the same upn but with a wrong password will not be impersonated due to
             // the lack of password check.
-            var cacheKey = BuildKey(credential, authority, serviceApplicationId);
+            var cacheKey = BuildKey(credential, authority, audience);
             _logger.Technical().System($"Check if the cache contains a token for {cacheKey}.").Log();
             var tokenInfo = TokenCache.Get<TokenInfo>(cacheKey);
             var hasChanged = false;
@@ -76,7 +81,7 @@ public class CredentialTokenCacheTokenProvider : ICredentialTokenProvider
                 }
                 catch (Exception ex)
                 {
-                    _logger.Technical().Exception(ex).Log();
+                    _logger.Technical().LogException(ex);
                 }
 
             }
@@ -97,12 +102,12 @@ public class CredentialTokenCacheTokenProvider : ICredentialTokenProvider
         return await basicTokenProvider.GetTokenAsync(settings, credential).ConfigureAwait(false);
     }
 
-    private static string BuildKey(CredentialsResult credential, string authority, string serviceApplicationId)
+    private static string BuildKey(CredentialsResult credential, string authority, string audience)
     {
-        return authority + "_" + serviceApplicationId + "_Password_" + credential.Upn + "_" + credential.Password.GetHashCode().ToString();
+        return authority + "_" + audience + "_Password_" + credential.Upn + "_" + credential.Password.GetHashCode().ToString();
     }
 
-    private Messages GetContext(IKeyValueSettings settings, out string clientId, out string authority, out string authenticationType, out string serviceApplicationId)
+    private Messages GetContext(IKeyValueSettings settings, out string authority, out string audience)
     {
         // Check the information.
         var messages = new Messages();
@@ -112,42 +117,34 @@ public class CredentialTokenCacheTokenProvider : ICredentialTokenProvider
             messages.Add(new Message(ServiceModel.MessageCategory.Technical,
                                      ServiceModel.MessageType.Error,
                                      "Settings parameter cannot be null."));
-            clientId = null;
-            authority = null;
-            authenticationType = null;
-            serviceApplicationId = null;
+            authority = string.Empty;
+            audience = string.Empty;
 
             return messages;
         }
 
         // Valdate arguments.
         if (!settings.Values.ContainsKey(TokenKeys.AuthorityKey))
+        {
             messages.Add(new Message(ServiceModel.MessageCategory.Technical,
                      ServiceModel.MessageType.Error,
                      "Authority is missing. Cannot process the request."));
-        if (!settings.Values.ContainsKey(TokenKeys.ClientIdKey))
+        }
+
+        if (!settings.Values.ContainsKey(TokenKeys.Audience))
+        {
             messages.Add(new Message(ServiceModel.MessageCategory.Technical,
                      ServiceModel.MessageType.Error,
-                     "ClientId is missing. Cannot process the request."));
-        if (!settings.Values.ContainsKey(TokenKeys.ServiceApplicationIdKey))
-            messages.Add(new Message(ServiceModel.MessageCategory.Technical,
-                     ServiceModel.MessageType.Error,
-                     "ApplicationId is missing. Cannot process the request."));
-        if (!settings.Values.ContainsKey(TokenKeys.AuthenticationTypeKey))
-            messages.Add(new Message(ServiceModel.MessageCategory.Technical,
-                     ServiceModel.MessageType.Error,
-                     "Authentication type key is missing. Cannot process the request."));
+                     "Audience is missing. Cannot process the request."));
+        }
 
         _logger.Technical().System($"Creating an authentication context for the request.").Log();
-        clientId = settings.Values[TokenKeys.ClientIdKey];
-        serviceApplicationId = settings.Values[TokenKeys.ServiceApplicationIdKey];
-        authority = settings.Values[TokenKeys.AuthorityKey];
-        authenticationType = settings.Values[TokenKeys.AuthenticationTypeKey];
 
-        _logger.Technical().System($"ClientId = {clientId}.").Log();
-        _logger.Technical().System($"ServiceApplicationId = {serviceApplicationId}.").Log();
+        audience = settings.Values[TokenKeys.Audience];
+        authority = settings.Values[TokenKeys.AuthorityKey];
+
+        _logger.Technical().System($"Audience = {audience}.").Log();
         _logger.Technical().System($"Authority = {authority}.").Log();
-        _logger.Technical().System($"Authentication type = {authenticationType}.").Log();
 
         return messages;
 

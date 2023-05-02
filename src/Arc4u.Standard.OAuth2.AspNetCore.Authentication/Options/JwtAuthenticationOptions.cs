@@ -1,11 +1,13 @@
 using System;
 using System.Security.Cryptography.X509Certificates;
+using Arc4u.OAuth2.Configuration;
 using Arc4u.OAuth2.Events;
 
 namespace Arc4u.OAuth2.Options;
 public class JwtAuthenticationOptions
 {
     public Action<OAuth2SettingsOption> OAuth2SettingsOptions { get; set; }
+    public Action<ClaimsIdentifierOption> ClaimsIdentifierOptions { get; set; }
 
     public string OAuth2SettingsKey { get; set; } = "OAuth2";
 

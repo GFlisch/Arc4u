@@ -1,7 +1,8 @@
-﻿using Arc4u.Dependency.Attribute;
+using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Linq;
 using System.Security.Claims;
@@ -11,24 +12,40 @@ namespace Arc4u.OAuth2.Security;
 [Export(typeof(IUserObjectIdentifier)), Shared]
 public class UserObjectIdentifier : IUserObjectIdentifier
 {
-    public UserObjectIdentifier(ITokenUserCacheConfiguration userCacheConfiguration, ILogger<UserObjectIdentifier> logger)
+    public UserObjectIdentifier(IOptions<ClaimsIdentifierOption> identifierOptions, ILogger<UserObjectIdentifier> logger)
     {
-        _userCacheConfiguration = userCacheConfiguration ?? throw new ArgumentNullException(nameof(userCacheConfiguration));
+#if NET6_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(identifierOptions);
+#else
+        if (identifierOptions is null)
+        {
+            throw new ArgumentNullException(nameof(identifierOptions));
+        }
+#endif
+       
+        _identifierOptions = identifierOptions.Value;
+
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    private readonly ITokenUserCacheConfiguration _userCacheConfiguration;
+    private readonly ClaimsIdentifierOption _identifierOptions;
     private readonly ILogger<UserObjectIdentifier> _logger;
 
-    public string GetIdentifer(ClaimsIdentity identity)
+    public string? GetIdentifer(ClaimsIdentity identity)
     {
-        if (identity is null) throw new ArgumentNullException(nameof(identity));
-
+#if NET6_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(identity);
+#else
+        if (identity is null)
+        {
+            throw new ArgumentNullException(nameof(identity));
+        }
+#endif
         var id = UserClaimIdentifier(identity);
 
-        if (String.IsNullOrEmpty(id))
+        if (string.IsNullOrEmpty(id))
         {
-            _logger.Technical().LogError($"No claim type found equal to {String.Join(",", _userCacheConfiguration.User.Claims)} in the current identity.");
+            _logger.Technical().LogError($"No claim type found equal to {string.Join(",", _identifierOptions)} in the current identity.");
             return null;
         }
 
@@ -37,14 +54,19 @@ public class UserObjectIdentifier : IUserObjectIdentifier
         return id;
     }
 
-    private string UserClaimIdentifier(ClaimsIdentity claimsIdenitity)
+    private string? UserClaimIdentifier(ClaimsIdentity claimsIdenitity)
     {
-        var userObjectIdClaim = claimsIdenitity.Claims.FirstOrDefault(claim => _userCacheConfiguration.User.Claims.Any(c => claim.Type.Equals(c, StringComparison.InvariantCultureIgnoreCase)));
+        var userObjectIdClaim = claimsIdenitity.Claims.FirstOrDefault(claim => _identifierOptions.Any(c => claim.Type.Equals(c, StringComparison.InvariantCultureIgnoreCase)));
 
-        if (null != userObjectIdClaim) return userObjectIdClaim.Value;
+        if (null != userObjectIdClaim)
+        {
+            return userObjectIdClaim.Value;
+        }
 
-        _logger.Technical().LogError($"No claims found with one of the keys: [{String.Join(",", _userCacheConfiguration.User.Claims)}]");
+        _logger.Technical().LogError($"No claims found with one of the keys: [{string.Join(",", _identifierOptions)}]");
 
         return null;
     }
+
+
 }

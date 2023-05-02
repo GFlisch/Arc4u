@@ -1,4 +1,4 @@
-﻿namespace Arc4u.OAuth2.Token
+namespace Arc4u.OAuth2.Token
 {
     public class TokenKeys
     {
@@ -93,8 +93,18 @@
         public const string Scopes = "Scopes";
 
         /// <summary>
+        /// Define the Scope when used as a client calling the sts.
+        /// </summary>
+        public const string Scope = "Scope";
+
+        /// <summary>
         /// A string containing the audiences separated by a comma.
         /// </summary>
         public const string Audiences = "Audiences";
+
+        /// <summary>
+        /// A string containing the audience when used as a client calling the sts.
+        /// </summary>
+        public const string Audience = "Audience";
     }
 }

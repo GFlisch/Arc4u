@@ -47,7 +47,7 @@
 
 		<ItemGroup>
 				<ProjectReference Include="..\Arc4u.Standard.Caching.Memory\Arc4u.Standard.Caching.Memory.csproj" />
-				<ProjectReference Include="..\Arc4u.Standard.Caching.Reddis\Arc4u.Standard.Caching.Redis.csproj" />
+				<ProjectReference Include="..\Arc4u.Standard.Caching.Redis\Arc4u.Standard.Caching.Redis.csproj" />
 				<ProjectReference Include="..\Arc4u.Standard.Caching.Sql\Arc4u.Standard.Caching.Sql.csproj" />
 				<ProjectReference Include="..\Arc4u.Standard.Configuration.Decryptor\Arc4u.Standard.Configuration.Decryptor.csproj" />
 				<ProjectReference Include="..\Arc4u.Standard.Dependency.ComponentModel\Arc4u.Standard.Dependency.ComponentModel.csproj" />
@@ -55,6 +55,7 @@
 				<ProjectReference Include="..\Arc4u.Standard.Diagnostics.Serilog\Arc4u.Standard.Diagnostics.Serilog.csproj" />
 				<ProjectReference Include="..\Arc4u.Standard.EfCore\Arc4u.Standard.EfCore.csproj" />
 				<ProjectReference Include="..\Arc4u.Standard.KubeMQ\Arc4u.Standard.KubeMQ.csproj" />
+				<ProjectReference Include="..\Arc4u.Standard.OAuth2.AspNetCore.Adal\Arc4u.Standard.OAuth2.AspNetCore.Adal.csproj" />
 				<ProjectReference Include="..\Arc4u.Standard.OAuth2.AspNetCore.Authentication\Arc4u.Standard.OAuth2.AspNetCore.Authentication.csproj" />
 				<ProjectReference Include="..\Arc4u.Standard.OAuth2.Blazor\Arc4u.Standard.OAuth2.Blazor.csproj" />
 				<ProjectReference Include="..\Arc4u.Standard.OAuth2\Arc4u.Standard.OAuth2.csproj" />

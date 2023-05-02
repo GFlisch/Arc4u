@@ -1,5 +1,6 @@
 using System;
 using System.Security.Cryptography.X509Certificates;
+using Arc4u.OAuth2.Configuration;
 using Arc4u.OAuth2.DataProtection;
 using Arc4u.OAuth2.Events;
 using Arc4u.OAuth2.TicketStore;
@@ -24,6 +25,8 @@ public class OidcAuthenticationOptions
 
     public Action<OAuth2SettingsOption> OAuth2SettingsOptions { get; set; }
 
+    public Action<ClaimsIdentifierOption> ClaimsIdentifierOptions { get; set; }
+
     public X509Certificate2 Certificate { get; set; }
 
     public Action<CacheTicketStoreOptions> AuthenticationCacheTicketStoreOption { get; set; }
@@ -31,6 +34,8 @@ public class OidcAuthenticationOptions
     public Action<CacheStoreOption> DataProtectionCacheStoreOption { get; set; }
 
     public TimeSpan DefaultKeyLifetime { get; set; } = TimeSpan.FromDays(365);
+
+    public string CallbackPath { get; set; } = "/signin-oidc";
 
     public string ApplicationName { get; set; }
 

@@ -1,5 +1,3 @@
-using Arc4u.Security;
-using Arc4u.Security.Cryptography;
 using Microsoft.Extensions.Configuration;
 
 namespace Arc4u.Configuration.Decryptor;

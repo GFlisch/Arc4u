@@ -21,6 +21,8 @@ public class OidcAuthenticationSectionOptions
 
     public string OAuth2SettingsKey { get; set; } = "OAuth2";
 
+    public string ClaimsIdentifierSectionPath { get; set; } = "Authentication:ClaimsIdentifier";
+
     public string CertificateSectionPath { get; set; } = "Authentication:DataProtection:EncryptionCertificate";
 
     public string AuthenticationCacheTicketStorePath { get; set; } = "Authentication:AuthenticationCacheTicketStore";
@@ -38,6 +40,8 @@ public class OidcAuthenticationSectionOptions
     public string OpenIdConnectEventsType { get; set; } = typeof(StandardOpenIdConnectEvents).AssemblyQualifiedName!;
 
     public TimeSpan ForceRefreshTimeoutTimeSpan { get; set; } = TimeSpan.FromMinutes(5);
+
+    public string CallbackPath { get; set; } = "/signin-oidc";
 
     public string? CertSecurityKeyPath { get; set; } = null;
 

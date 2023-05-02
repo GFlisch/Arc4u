@@ -9,7 +9,7 @@ public class OAuth2SettingsOption
 
     public string Authority { get; set; }
 
-    public string ClientId { get; set; }
+    public string? ClientId { get; set; }
 
     public string Audiences { get; set; }
 

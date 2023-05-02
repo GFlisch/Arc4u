@@ -24,7 +24,7 @@ namespace Arc4u.Standard.OAuth2.Extensions;
 
 public static partial class AuthenticationExtensions
 {
-    public static AuthenticationBuilder AddOidcAuthentication(this IServiceCollection services, IConfiguration configuration, Action<OidcAuthenticationOptions> authenticationOptions)
+    public static AuthenticationBuilder AddOidcAuthentication(this IServiceCollection services, Action<OidcAuthenticationOptions> authenticationOptions)
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(authenticationOptions);
@@ -54,8 +54,9 @@ public static partial class AuthenticationExtensions
           .SetApplicationName(oidcOptions.ApplicationName)
           .SetDefaultKeyLifetime(oidcOptions.DefaultKeyLifetime);
 
-        // Will keep in memory the AccessToken and Refresh token for the time of the request...
         services.Configure(authenticationOptions);
+        services.AddClaimsIdentifier(oidcOptions.ClaimsIdentifierOptions);
+        // Will keep in memory the AccessToken and Refresh token for the time of the request...
         services.AddScoped<TokenRefreshInfo>();
         services.AddAuthorization();
         services.AddHttpContextAccessor(); // give access to the HttpContext if requested by an external packages.
@@ -110,7 +111,7 @@ public static partial class AuthenticationExtensions
                     options.RequireHttpsMetadata = oidcOptions.RequireHttpsMetadata;
                     options.MetadataAddress = oidcOptions.MetadataAddress;
                     options.ResponseType = oidcOptions.ResponseType;
-
+                    options.CallbackPath = oidcOptions.CallbackPath;
                     options.Scope.Clear();
                     options.Scope.Add(OpenIdConnectScope.OpenIdProfile);
                     options.Scope.Add(OpenIdConnectScope.OfflineAccess);
@@ -173,7 +174,7 @@ public static partial class AuthenticationExtensions
 
         if (section is null || !section.Exists())
         {
-            throw new NullReferenceException($"No section exists with name {authenticationSectionName} in the configuration providers for OpenId Connect authentication.");
+            throw new ConfigurationException($"No section exists with name {authenticationSectionName} in the configuration providers for OpenId Connect authentication.");
         }
 
         var settings = section.Get<OidcAuthenticationSectionOptions>() ?? throw new NullReferenceException($"No section exists with name {authenticationSectionName} in the configuration providers for OpenId Connect authentication.");
@@ -197,7 +198,7 @@ public static partial class AuthenticationExtensions
         }
         if (string.IsNullOrWhiteSpace(settings.CertificateSectionPath))
         {
-            configErrors += "We need a cookie name defined specifically for your services." + System.Environment.NewLine;
+            configErrors += "We need a setting section to specify the certificate to protect your sensitive information." + System.Environment.NewLine;
         }
         if (string.IsNullOrWhiteSpace(settings.DataProtectionSectionPath))
         {
@@ -206,6 +207,10 @@ public static partial class AuthenticationExtensions
         if (string.IsNullOrWhiteSpace(settings.JwtBearerEventsType))
         {
             configErrors += "The JwtBearerEventsType must be defined." + System.Environment.NewLine;
+        }
+        if (string.IsNullOrWhiteSpace(settings.ClaimsIdentifierSectionPath))
+        {
+            configErrors += "We need a setting section to specify the claims used to identify a user." + System.Environment.NewLine;
         }
 
         if (configErrors is not null)
@@ -247,7 +252,6 @@ public static partial class AuthenticationExtensions
         {
             throw new MissingFieldException("A ResponseType is mandatory to define the OpenId Connect protocol.");
         }
-        // Call to prepare the Cache ticket store...
 
         void OidcAuthenticationFiller(OidcAuthenticationOptions options)
         {
@@ -261,6 +265,7 @@ public static partial class AuthenticationExtensions
             options.OAuth2SettingsKey = settings.OAuth2SettingsKey;
             options.OAuth2SettingsOptions = OAuth2SettingsExtension.PrepareAction(configuration, settings.OAuth2SettingsSectionPath);
             options.Certificate = cert;
+            options.CallbackPath = settings.CallbackPath;
             options.DefaultKeyLifetime = settings.DefaultKeyLifetime;
             options.ApplicationName = configuration[settings.ApplicationNameSectionPath];
             options.JwtBearerEventsType = jwtBearerEventsType;
@@ -272,9 +277,10 @@ public static partial class AuthenticationExtensions
             options.ResponseType = settings.ResponseType;
             options.AuthenticationTicketTTL = settings.AuthenticationTicketTTL;
             options.DataProtectionCacheStoreOption = CacheStoreExtension.PrepareAction(configuration, settings.DataProtectionSectionPath);
+            options.ClaimsIdentifierOptions = ClaimsIdentiferExtension.PrepareAction(configuration, settings.ClaimsIdentifierSectionPath);
         }
 
-        return services.AddOidcAuthentication(configuration, OidcAuthenticationFiller);
+        return services.AddOidcAuthentication(OidcAuthenticationFiller);
     }
 
     /// <summary>
@@ -304,10 +310,12 @@ public static partial class AuthenticationExtensions
         ArgumentNullException.ThrowIfNull(options.MetadataAddress);
 
         services.ConfigureOAuth2Settings(options.OAuth2SettingsOptions, options.OAuth2SettingsKey);
-
+        services.AddClaimsIdentifier(options.ClaimsIdentifierOptions);
         services.AddTransient(options.JwtBearerEventsType);
         services.AddAuthorization();
         services.AddHttpContextAccessor();
+
+
         var authenticationBuilder =
         services.AddAuthentication(auth => auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(option =>
@@ -378,6 +386,7 @@ public static partial class AuthenticationExtensions
             options.OAuth2SettingsOptions = OAuth2SettingsExtension.PrepareAction(configuration, settings.OAuth2SettingsSectionPath);
             options.CertSecurityKey = certSecurityKey;
             options.JwtBearerEventsType = jwtBearerEventsType!;
+            options.ClaimsIdentifierOptions = ClaimsIdentiferExtension.PrepareAction(configuration, settings.ClaimsIdentifierSectionPath);
         }
 
         return services.AddJwtAuthentication(configuration, JwtAuthenticationFiller);

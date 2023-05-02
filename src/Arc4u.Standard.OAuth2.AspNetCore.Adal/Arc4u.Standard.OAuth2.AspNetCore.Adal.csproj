@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 		<PropertyGroup>
-				<TargetFrameworks>net6.0;net7.0</TargetFrameworks>
+				<TargetFrameworks>net6.0</TargetFrameworks>
 				<RootNamespace>Arc4u.OAuth2</RootNamespace>
 				<AssemblyName>Arc4u.Standard.OAuth2.AspNetCore.Adal</AssemblyName>
 				<AssemblyVersion>1.0.0.0</AssemblyVersion>

@@ -22,7 +22,10 @@ The same concept can be applied independently if we use a certificate or a Rijnd
 
 Configuration in .NET is a collection of key/value.
 
-The Arc4u provider is fetching the list of providers defined (before it) and it will build a temprary configuration and will check all the value starting with a prefix. The default one is **Encrypt:**, but it is possble to change this.
+The Arc4u provider is fetching the list of providers defined (before it) and it will build a temporary configuration and will check all the value starting with a prefix. The default one is **Encrypt:**, but it is possble to change this.
+
+| From 6.0.14.3 the default key is **Decrypt:**.
+| Just because it make more sense, the action will be to decrypt and not encrypt!
 
 So when a value start with "Encrypt:xyz...", the provider will extract the cypher text xyz..., decrypt it and create a new collection of key/value with the decrypted values.
 

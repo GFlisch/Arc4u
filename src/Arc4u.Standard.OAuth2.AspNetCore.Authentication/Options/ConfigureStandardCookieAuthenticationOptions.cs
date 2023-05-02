@@ -16,7 +16,7 @@ public class ConfigureStandardCookieAuthenticationOptions : IPostConfigureOption
         _options = optionsMonitor;
     }
 
-    public void PostConfigure(string name, CookieAuthenticationOptions options)
+    public void PostConfigure(string? name, CookieAuthenticationOptions options)
     {
         options.Cookie.Name = _options.CurrentValue.CookieName;
         options.SlidingExpiration = true;
