@@ -9,7 +9,6 @@ using Arc4u.Standard.OAuth2;
 using FluentAssertions;
 using Arc4u.OAuth2.Token;
 using Arc4u.Configuration;
-using Arc4u.OAuth2.Extensions;
 using Arc4u.Standard.OAuth2.Middleware;
 using Arc4u.Standard.OAuth2.Options;
 using System.Linq;
@@ -156,13 +155,7 @@ public class BasicSettingsOptionsTests
         sut.DefaultUpn.Should().Be("@arc4u.net");
     }
 
-    /*
-     *                     ["Authentication:DataProtection:EncryptionCertificate:File:Cert"] = @".\Configs\cert.pem",
-                    ["Authentication:DataProtection:EncryptionCertificate:File:Key"] = @".\Configs\key.pem",
-
-     */
-
-    [Fact]
+      [Fact]
     public void BasicCertificateShould()
     {
         var options = _fixture.Create<BasicSettingsOptions>();

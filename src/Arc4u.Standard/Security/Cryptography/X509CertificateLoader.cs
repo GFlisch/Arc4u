@@ -87,9 +87,9 @@ public class X509CertificateLoader : IX509CertificateLoader
             return null;
         }
 
-        if (certificateInfo.CertificateStore is not null)
+        if (certificateInfo.Store is not null)
         {
-            return FindCertificate(certificateInfo.CertificateStore);
+            return FindCertificate(certificateInfo.Store);
         }
 #if NETSTANDARD2_0
         if (certificateInfo.File is not null)
