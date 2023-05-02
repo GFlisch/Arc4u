@@ -17,3 +17,43 @@ public class NotificationHandlers<T> : INotificationHandlers<T>
 
     public IEnumerable<INotificationHandler<T>> Handlers { get; }
 }
+
+public class NotificationHandlers<T1, T2> : INotificationHandlers<T1, T2>
+{
+    public NotificationHandlers(IServiceProvider serviceProvider)
+    {
+        Handlers = serviceProvider.GetServices<INotificationHandler<T1, T2>>();
+    }
+
+    public IEnumerable<INotificationHandler<T1, T2>> Handlers { get; }
+}
+
+public class NotificationHandlers<T1, T2, T3> : INotificationHandlers<T1, T2, T3>
+{
+    public NotificationHandlers(IServiceProvider serviceProvider)
+    {
+        Handlers = serviceProvider.GetServices<INotificationHandler<T1, T2, T3>>();
+    }
+
+    public IEnumerable<INotificationHandler<T1, T2, T3>> Handlers { get; }
+}
+
+public class NotificationHandlers<T1, T2, T3, T4> : INotificationHandlers<T1, T2, T3, T4>
+{
+    public NotificationHandlers(IServiceProvider serviceProvider)
+    {
+        Handlers = serviceProvider.GetServices<INotificationHandler<T1, T2, T3, T4>>();
+    }
+
+    public IEnumerable<INotificationHandler<T1, T2, T3, T4>> Handlers { get; }
+}
+
+public class NotificationHandlers<T1, T2, T3, T4, T5> : INotificationHandlers<T1, T2, T3, T4, T5>
+{
+    public NotificationHandlers(IServiceProvider serviceProvider)
+    {
+        Handlers = serviceProvider.GetServices<INotificationHandler<T1, T2, T3, T4, T5>>();
+    }
+
+    public IEnumerable<INotificationHandler<T1, T2, T3, T4, T5>> Handlers { get; }
+}
