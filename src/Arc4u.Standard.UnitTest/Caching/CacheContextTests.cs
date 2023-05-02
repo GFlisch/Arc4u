@@ -41,7 +41,6 @@ public class CacheContextTests
 
         cache.Principal.CacheName = "Volatile";
         cache.Principal.Duration = TimeSpan.FromSeconds(1);
-        cache.Principal.IsEnabled = true;
         cache.Caches.Add(new Configuration.CachingCache { IsAutoStart = true, Kind = "Memory", Name = "Volatile" });
 
         var memorySettings = _fixture.Build<MemoryCacheOption>().With(m => m.CompactionPercentage, 0.8).Create(); ;
@@ -53,7 +52,6 @@ public class CacheContextTests
                              ["Caching:Default"] = cache.Default,
                              ["Caching:Principal:CacheName"] = cache.Principal.CacheName.ToString(CultureInfo.InvariantCulture),
                              ["Caching:Principal:Duration"] = cache.Principal.Duration.ToString(),
-                             ["Caching:Principal:IsEnabled"] = cache.Principal.IsEnabled.ToString(),
                              ["Caching:Caches:0:Name"] = cache.Caches[0].Name,
                              ["Caching:Caches:0:Kind"] = cache.Caches[0].Kind,
                              ["Caching:Caches:0:IsAutoStart"] = cache.Caches[0].IsAutoStart.ToString(),
@@ -72,7 +70,6 @@ public class CacheContextTests
         bindedCaching.Default.Should().Be(cache.Default);
         bindedCaching.Principal.CacheName.Should().Be(cache.Principal.CacheName);
         bindedCaching.Principal.Duration.Should().Be(cache.Principal.Duration);
-        bindedCaching.Principal.IsEnabled.Should().Be(cache.Principal.IsEnabled);
 
         IServiceCollection services = new ServiceCollection();
 
@@ -100,7 +97,6 @@ public class CacheContextTests
 
         cache.Principal.CacheName = "Volatile";
         cache.Principal.Duration = TimeSpan.FromSeconds(1);
-        cache.Principal.IsEnabled = true;
         cache.Caches.Add(new Configuration.CachingCache { IsAutoStart = false, Kind = CacheContext.Redis, Name = "Performance" });
         cache.Caches.Add(new Configuration.CachingCache { IsAutoStart = false, Kind = CacheContext.Sql, Name = "Compromize" });
         cache.Caches.Add(new Configuration.CachingCache { IsAutoStart = true, Kind = CacheContext.Memory, Name = "Volatile" });
@@ -119,7 +115,6 @@ public class CacheContextTests
                      ["Caching:Default"] = cache.Default,
                      ["Caching:Principal:CacheName"] = cache.Principal.CacheName.ToString(CultureInfo.InvariantCulture),
                      ["Caching:Principal:Duration"] = cache.Principal.Duration.ToString(),
-                     ["Caching:Principal:IsEnabled"] = cache.Principal.IsEnabled.ToString(),
 
                      ["Caching:Caches:0:Name"] = cache.Caches[0].Name,
                      ["Caching:Caches:0:Kind"] = cache.Caches[0].Kind,
@@ -157,7 +152,7 @@ public class CacheContextTests
         var serviceProvider = services.BuildServiceProvider();
 
         // act
-        var sutRedis = serviceProvider.GetService<IOptionsMonitor<RedisCacheOption>>().Get("Performance");
+        var sutRedis = serviceProvider.GetService<IOptionsMonitor<RedisCacheOption>>()?.Get("Performance");
         var sutSql = serviceProvider.GetService<IOptionsMonitor<SqlCacheOption>>()?.Get("Compromize");
         var sutMemory = serviceProvider.GetService<IOptionsMonitor<MemoryCacheOption>>()?.Get("Volatile");
 
@@ -191,7 +186,6 @@ public class CacheContextTests
 
         cache.Principal.CacheName = "Volatile";
         cache.Principal.Duration = TimeSpan.FromSeconds(1);
-        cache.Principal.IsEnabled = true;
         cache.Caches.Add(new Configuration.CachingCache { IsAutoStart = true, Kind = CacheContext.Memory, Name = "Volatile" });
 
         var memorySettings = new MemoryCacheOption { SizeLimit = 10 };
@@ -205,7 +199,6 @@ public class CacheContextTests
                      ["Caching:Default"] = cache.Default,
                      ["Caching:Principal:CacheName"] = cache.Principal.CacheName.ToString(CultureInfo.InvariantCulture),
                      ["Caching:Principal:Duration"] = cache.Principal.Duration.ToString(),
-                     ["Caching:Principal:IsEnabled"] = cache.Principal.IsEnabled.ToString(),
 
                      ["Caching:Caches:0:Name"] = cache.Caches[0].Name,
                      ["Caching:Caches:0:Kind"] = cache.Caches[0].Kind,
