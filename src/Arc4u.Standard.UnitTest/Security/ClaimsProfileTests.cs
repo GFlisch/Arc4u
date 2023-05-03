@@ -9,9 +9,9 @@ using Arc4u.Security.Principal;
 using System.Security.Claims;
 using System;
 using FluentAssertions;
-using Google.Protobuf.WellKnownTypes;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Arc4u.OAuth2.Extensions;
 
 namespace Arc4u.Standard.UnitTest.Security;
 
@@ -34,16 +34,16 @@ public class ClaimsProfileTests
              .AddInMemoryCollection(
         new Dictionary<string, string?>
         {
-                     ["Authentication:DomainMapping:Arc4u.net"] = "arc4u.net",
-                     ["Authentication:DomainMapping:Arc4u"] = "arc4u.net",
-                     ["Authentication:DomainMapping:Arc4u-net"] = "arc4u.net",
+            ["Authentication:DomainMapping:Arc4u.net"] = "arc4u.net",
+            ["Authentication:DomainMapping:Arc4u"] = "arc4u.net",
+            ["Authentication:DomainMapping:Arc4u-net"] = "arc4u.net",
         }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
         IServiceCollection services = new ServiceCollection();
 
-        services.ConfigureSettings("DomainMapping", configuration, "Authentication:DomainMapping");
+        services.AddDomainMapping(configuration, "Authentication:DomainMapping");
 
         var serviceProvider = services.BuildServiceProvider();
 
@@ -88,7 +88,7 @@ public class ClaimsProfileTests
 
         IServiceCollection services = new ServiceCollection();
 
-        services.ConfigureSettings("DomainMapping", configuration, "Authentication:DomainMapping");
+        services.AddDomainMapping(configuration, "Authentication:DomainMapping");
 
         var serviceProvider = services.BuildServiceProvider();
 
@@ -115,5 +115,48 @@ public class ClaimsProfileTests
         sut.Should().NotBeNull();
         mockSettings.Verify(m => m.Get("DomainMapping"), Times.Once());
         sut.Domain.Should().Be(settings.Values["Arc4u.net"]);
+    }
+
+    [Fact]
+    public void ProfileWithNoDomainMappingFillerShould()
+    {
+        var config = new ConfigurationBuilder()
+             .AddInMemoryCollection(
+        new Dictionary<string, string?>
+        {
+
+        }).Build();
+
+        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+
+        IServiceCollection services = new ServiceCollection();
+
+        services.AddDomainMapping(configuration, "Authentication:DomainMapping");
+
+        var serviceProvider = services.BuildServiceProvider();
+
+        var settings = serviceProvider.GetRequiredService<IOptionsMonitor<SimpleKeyValueSettings>>().Get("DomainMapping");
+
+        var mockSettings = _fixture.Freeze<Mock<IOptionsMonitor<SimpleKeyValueSettings>>>();
+        mockSettings.Setup(m => m.Get("DomainMapping")).Returns(settings).Verifiable();
+
+        var profileFiller = _fixture.Create<ClaimsProfileFiller>();
+
+        var identity = new ClaimsIdentity(new List<Claim>()
+        {
+            new Claim(IdentityModel.Claims.ClaimTypes.Culture, "fr-BE"),
+            new Claim(IdentityModel.Claims.ClaimTypes.Name, "Flisch"),
+            new Claim(IdentityModel.Claims.ClaimTypes.GivenName, "Gilles"),
+            new Claim(IdentityModel.Claims.ClaimTypes.Email, "info@arc4u.net"),
+            new Claim(IdentityModel.Claims.ClaimTypes.Upn, "info@arc4u.net"),
+            new Claim(IdentityModel.Claims.ClaimTypes.Company, "Arc4u"),
+            new Claim(IdentityModel.Claims.ClaimTypes.Sid, Guid.NewGuid().ToS19())
+        }, "TestType");
+
+        var sut = profileFiller.GetProfile(identity);
+
+        sut.Should().NotBeNull();
+        mockSettings.Verify(m => m.Get("DomainMapping"), Times.Once());
+        sut.Domain.Should().BeEmpty();
     }
 }
