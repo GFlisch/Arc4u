@@ -1,9 +1,9 @@
-﻿using Arc4u.Diagnostics;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using Arc4u.Diagnostics;
+using Microsoft.Extensions.Logging;
 
 namespace Arc4u.ServiceModel
 {
@@ -59,12 +59,10 @@ namespace Arc4u.ServiceModel
 
         public void LogAndThrowIfNecessary<T>(ILogger<T> logger, [CallerMemberName] string methodName = "")
         {
-            if (WouldThrow())
-                throw new AppException(this);
-
             LogAll(logger, methodName);
-
+            ThrowIfNecessary();
         }
+
         /// <summary>
         /// Localized and log all messages.
         /// </summary>
@@ -108,12 +106,12 @@ namespace Arc4u.ServiceModel
 
         public void ThrowIfNecessary()
         {
-            Messages translatedMessages = new Messages();
-
-            this.ForEach((m) => translatedMessages.Add(m.LocalizeMessage()));
-
             if (WouldThrow())
+            {
+                var translatedMessages = new Messages();
+                ForEach(m => translatedMessages.Add(m.LocalizeMessage()));
                 throw new AppException(translatedMessages);
+            }
         }
 
         public void LocalizeAll()
