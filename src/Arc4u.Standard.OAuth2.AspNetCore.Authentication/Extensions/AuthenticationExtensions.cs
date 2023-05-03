@@ -280,6 +280,8 @@ public static partial class AuthenticationExtensions
             options.ClaimsIdentifierOptions = ClaimsIdentiferExtension.PrepareAction(configuration, settings.ClaimsIdentifierSectionPath);
         }
 
+        services.AddDomainMapping(configuration, "Authentication:DomainsMapping");
+
         return services.AddOidcAuthentication(OidcAuthenticationFiller);
     }
 

@@ -1,5 +1,4 @@
-﻿using Arc4u.Dependency.Attribute;
-using Arc4u.OAuth2.Configuration;
+using Arc4u.Dependency.Attribute;
 using System;
 using System.Security.Claims;
 

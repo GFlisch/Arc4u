@@ -75,7 +75,7 @@ public class CertificateLoader
             .AddInMemoryCollection(
                 new Dictionary<string, string?>
                 {
-                    ["EncryptionCertificate:CertificateStore:Name"] = "friendlyName"
+                    ["EncryptionCertificate:Store:Name"] = "friendlyName"
                 }).Build();
 
         var sut = _fixture.Create<X509CertificateLoader>();

@@ -10,3 +10,23 @@ public interface INotificationHandlers<T>
 {
     IEnumerable<INotificationHandler<T>> Handlers { get; }
 }
+
+public interface INotificationHandlers<T1, T2>
+{
+    IEnumerable<INotificationHandler<T1, T2>> Handlers { get; }
+}
+
+public interface INotificationHandlers<T1, T2, T3>
+{
+    IEnumerable<INotificationHandler<T1, T2, T3>> Handlers { get; }
+}
+
+public interface INotificationHandlers<T1, T2, T3, T4>
+{
+    IEnumerable<INotificationHandler<T1, T2, T3, T4>> Handlers { get; }
+}
+
+public interface INotificationHandlers<T1, T2, T3, T4, T5>
+{
+    IEnumerable<INotificationHandler<T1, T2, T3, T4, T5>> Handlers { get; }
+}

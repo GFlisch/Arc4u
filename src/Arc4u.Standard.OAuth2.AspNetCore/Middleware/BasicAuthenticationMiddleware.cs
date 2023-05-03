@@ -1,11 +1,18 @@
+using Arc4u.Configuration;
 using Arc4u.Dependency;
 using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Security.Principal;
 using Arc4u.OAuth2.Token;
+using Arc4u.Security.Cryptography;
+using Arc4u.Standard.OAuth2.Options;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
@@ -17,115 +24,84 @@ namespace Arc4u.Standard.OAuth2.Middleware;
 public class BasicAuthenticationMiddleware
 {
     private readonly RequestDelegate _next;
-    private readonly BasicAuthenticationContextOption _option;
-    private readonly IContainerResolve _container;
+    private readonly BasicAuthenticationSettingsOptions _options;
     private readonly ILogger<BasicAuthenticationMiddleware> _logger;
-    private readonly ITokenCache _tokenCache;
-    private readonly ICredentialTokenProvider _provider;
-    private readonly bool _hasProvider;
     private readonly ActivitySource _activitySource;
 
-    public BasicAuthenticationMiddleware(RequestDelegate next, IContainerResolve container, BasicAuthenticationContextOption option)
+    public BasicAuthenticationMiddleware(RequestDelegate next, IServiceProvider serviceProvider)
     {
         _next = next ?? throw new ArgumentNullException(nameof(next));
 
-        ArgumentNullException.ThrowIfNull(container);
+        ArgumentNullException.ThrowIfNull(serviceProvider);
 
-        ArgumentNullException.ThrowIfNull(option);
+        _logger = serviceProvider.GetRequiredService<ILogger<BasicAuthenticationMiddleware>>();
 
-        if (null == option.Settings)
+        _options = serviceProvider.GetRequiredService<IOptionsMonitor<BasicAuthenticationSettingsOptions>>().CurrentValue;
+
+        if (_options.BasicSettings is null)
         {
-            throw new ArgumentNullException(nameof(option.Settings));
+            throw new ConfigurationException("Settings collection for basic authentication cannot be null");
         }
 
-        _logger = container.Resolve<ILogger<BasicAuthenticationMiddleware>>();
+        var container = serviceProvider.GetRequiredService<IContainerResolve>();
 
-        if (!string.IsNullOrEmpty(option.DefaultUpn))
+        if (_options.BasicSettings.Values.ContainsKey(TokenKeys.ProviderIdKey))
         {
-            if (!Regex.IsMatch(option.DefaultUpn, @"^@([a-zA-Z0-9]+\.[a-zA-Z0-9]+)"))
+            if (!container.TryResolve<ICredentialTokenProvider>(_options.BasicSettings.Values[TokenKeys.ProviderIdKey], out _))
             {
-                _logger.Technical().Warning($"Bad upn format, we expect a @ and one point.").Log();
-                option.DefaultUpn = string.Empty;
-            }
-            else
-            {
-                _logger.Technical().Information($"Default upn: {option.DefaultUpn}.").Log();
-            }
-        }
-
-        if (option.Settings.Values.ContainsKey(TokenKeys.ProviderIdKey))
-        {
-            _hasProvider = container.TryResolve(option.Settings.Values[TokenKeys.ProviderIdKey], out _provider);
-            if (!_hasProvider)
-            {
-                _logger.Technical().Error($"No token provider was found with resolution name equal to: {option.Settings.Values[TokenKeys.ProviderIdKey]}.").Log();
+                throw new ConfigurationException($"No token provider ICredentialTokenProvider is defined with name {TokenKeys.ProviderIdKey}!");
             }
         }
         else
         {
-            _logger.Technical().Error($"No token provider resolution name is defined in your settings!").Log();
+            throw new ConfigurationException("No token provider resolution name is defined in your settings!");
         }
-
-        if (!_hasProvider)
+        if (!container.TryResolve<ITokenCache>(out _))
         {
-            _logger.Technical().Error($"Basic Authentication capability is deactivated!").Log();
+            _logger.Technical().Error($"No token cache is defined for Basic Authentication.").Log();
         }
 
-        if (!container.TryResolve(out _tokenCache))
-        {
-            _logger.Technical().Error($"No token ache are defined for Basic Authentication.").Log();
-        }
-
-        _option = option;
-        _container = container;
-
-        _activitySource = container.Resolve<IActivitySourceFactory>()?.GetArc4u();
+        _activitySource = container.Resolve<IActivitySourceFactory>().Get("Arc4u");
     }
 
     public async Task Invoke(HttpContext context)
     {
-        if (!_hasProvider)
-        {
-            await _next(context).ConfigureAwait(false);
-            return;
-        }
-
         try
         {
-            TokenInfo tokenInfo;
+            var credential = GetBasicCredential(context);
 
-            if (context.Request.Headers.ContainsKey("Authorization"))
+            if (!credential.CredentialsEntered)
             {
-                if (context.Request.Headers.TryGetValue("Authorization", out var authzValue) && authzValue.Any(value => value.Contains("Basic")))
-                {
-                    // Add Telemetry.
-                    using (var activity = _activitySource?.StartActivity("BasicAuthentication", ActivityKind.Producer))
-                    {
-                        var cacheKey = BuildKey(authzValue);
+                credential = GetSecretCredential(context);
+            }
 
-                        tokenInfo = _tokenCache?.Get<TokenInfo>(cacheKey);
-                        if (null == tokenInfo || tokenInfo.ExpiresOnUtc < DateTime.UtcNow.AddMinutes(1))
-                        {
-                            var credential = GetCredential(authzValue);
+            if (!credential.CredentialsEntered)
+            {
+                await _next(context).ConfigureAwait(false);
+                return;
+            }
+            var tokenCache = context.RequestServices.GetService<ITokenCache>();
 
-                            if (null != credential && credential.CredentialsEntered)
-                            {
-                                // Get an Access Token.
-                                tokenInfo = await _provider.GetTokenAsync(_option.Settings, credential).ConfigureAwait(false);
+            var cacheKey = BuildKey(credential);
+            var tokenInfo = tokenCache?.Get<TokenInfo>(cacheKey);
 
-                                _tokenCache?.Put(cacheKey, tokenInfo);
-                            }
-                        }
+            if (null == tokenInfo || tokenInfo.ExpiresOnUtc < DateTime.UtcNow.AddMinutes(1))
+            {
+                tokenInfo = await GetTokenFromCredentialAsync(credential, context.RequestServices).ConfigureAwait(false);
 
-                        if (null != tokenInfo)
-                        {
-                            // Replace the Basic Authorization by the access token in the header.
-                            var authorization = new AuthenticationHeaderValue("Bearer", tokenInfo.Token).ToString();
-                            context.Request.Headers.Remove("Authorization");
-                            context.Request.Headers.Add("Authorization", authorization);
-                        }
-                    }
-                }
+                tokenCache?.Put(cacheKey, tokenInfo);
+            }
+
+            if (tokenInfo is not null)
+            {
+                // Replace the Basic Authorization by the access token in the header.
+                var authorization = new AuthenticationHeaderValue("Bearer", tokenInfo.Token).ToString();
+                context.Request.Headers.Remove("Authorization");
+                context.Request.Headers.Add("Authorization", authorization);
+            }
+            else
+            {
+                _logger.Technical().LogError($"No token has been created for the user {credential.Upn}.");
             }
         }
         catch (Exception ex)
@@ -136,22 +112,93 @@ public class BasicAuthenticationMiddleware
         await _next(context).ConfigureAwait(false);
     }
 
-    private static string BuildKey(string authorizationValue)
+    private async Task<TokenInfo?> GetTokenFromCredentialAsync(CredentialsResult credential, IServiceProvider serviceProvider)
     {
-        return "Basic_" + authorizationValue.GetHashCode().ToString();
-    }
-
-    private CredentialsResult GetCredential(string authorization)
-    {
-        if (string.IsNullOrEmpty(authorization) || !authorization.StartsWith("Basic ", StringComparison.OrdinalIgnoreCase))
+        if (credential.CredentialsEntered)
         {
-            return null;
+            var container = serviceProvider.GetRequiredService<IContainerResolve>();
+
+            var provider = container.Resolve<ICredentialTokenProvider>(_options.BasicSettings.Values[TokenKeys.ProviderIdKey]);
+
+            // Get an Access Token.
+            return await provider.GetTokenAsync(_options.BasicSettings, credential).ConfigureAwait(false);
         }
 
-        // We have a Basic authentication.
-        var token = authorization.Substring("Basic ".Length).Trim();
+        return null;
+    }
 
-        var pair = Encoding.UTF8.GetString(Convert.FromBase64String(token));
+    private static string BuildKey([DisallowNull] CredentialsResult credentialsResult)
+    {
+        ArgumentNullException.ThrowIfNull(credentialsResult);
+
+        return "Basic-" + $"{credentialsResult.Upn}-{credentialsResult.Password}".GetHashCode().ToString(CultureInfo.InvariantCulture);
+    }
+
+    private CredentialsResult GetSecretCredential([DisallowNull] HttpContext context)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+
+        if (!_options.CertificateHeaderOptions.Any())
+        {
+            return new CredentialsResult(false);
+        }
+
+        foreach (var cert in _options.CertificateHeaderOptions)
+        {
+            var secret = GetClientSecretIfExist(context, cert.Key);
+
+            // Decrypt the content!
+            if (!string.IsNullOrWhiteSpace(secret))
+            {
+                string pair = cert.Value.Decrypt(secret);
+
+                return ExtractCredential(pair);
+            }
+        }
+
+        return new CredentialsResult(false);
+    }
+
+    private static string? GetClientSecretIfExist([DisallowNull] HttpContext context, [DisallowNull] string key)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(key);
+
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            throw new ArgumentNullException(key);
+        }
+
+        var clientSecret = context.Request.Headers.FirstOrDefault(header => header.Key.Equals(key, StringComparison.InvariantCultureIgnoreCase)).Value.FirstOrDefault();
+
+        // Check if this is in the url query string.
+        if (string.IsNullOrWhiteSpace(clientSecret))
+        {
+            clientSecret = context.Request.Query.FirstOrDefault(p => p.Key.Equals(key, StringComparison.InvariantCultureIgnoreCase)).Value.FirstOrDefault();
+        }
+
+        return clientSecret;
+    }
+
+    private CredentialsResult GetBasicCredential([DisallowNull] HttpContext context)
+    {
+        if (context.Request.Headers.TryGetValue("Authorization", out var authzValue) && authzValue.Any(value => value.Contains("Basic")))
+        {
+            var authorization = authzValue.First(basic => basic.StartsWith("Basic ", StringComparison.OrdinalIgnoreCase));
+
+            // We have a Basic authentication.
+            var token = authorization["Basic ".Length..].Trim();
+
+            var pair = Encoding.UTF8.GetString(Convert.FromBase64String(token));
+
+            return ExtractCredential(pair);
+        }
+
+        return new CredentialsResult(false);
+    }
+
+    private CredentialsResult ExtractCredential([DisallowNull] string pair)
+    {
         var ix = pair.IndexOf(':');
         if (ix == -1)
         {
@@ -162,13 +209,13 @@ public class BasicAuthenticationMiddleware
         var username = pair.Substring(0, ix);
         var pwd = pair.Substring(ix + 1);
 
-        _logger.Technical().System($@"Username receives is: {username}.").Log();
+        _logger.Technical().Debug($@"Username receives is: {username}.").Log();
 
         // is username format ok?
         if (!Regex.IsMatch(username, @"([a-zA-Z0-9]+@[a-zA-Z0-9]+\.[a-zA-Z0-9]+)|([a-zA-Z0-9]+\\[a-zA-Z0-9]+)|([a-zA-Z0-9]+/[a-zA-Z0-9]+)"))
         {
-            username = $"{username}{_option.DefaultUpn.Trim()}";
-            _logger.Technical().System($@"Username is changed to: {username}.").Log();
+            username = $"{username}{_options.DefaultUpn?.Trim()}";
+            _logger.Technical().Debug($@"Username is changed to: {username}.").Log();
         }
 
         return new CredentialsResult(true, username, pwd);

@@ -76,18 +76,23 @@ public class X509CertificateLoader : IX509CertificateLoader
     {
         var certificate = configuration.GetSection(sectionName).Get<CertificateStoreOrFileInfo>();
 
+        return FindCertificate(certificate);
+    }
+
+    public X509Certificate2? FindCertificate(CertificateStoreOrFileInfo certificateInfo)
+    {
         // For this configuration, no decryption exists. Simply skip this provider.
-        if (certificate is null)
+        if (certificateInfo is null)
         {
             return null;
         }
 
-        if (certificate.CertificateStore is not null)
+        if (certificateInfo.Store is not null)
         {
-            return FindCertificate(certificate.CertificateStore);
+            return FindCertificate(certificateInfo.Store);
         }
 #if NETSTANDARD2_0
-        if (certificate.File is not null)
+        if (certificateInfo.File is not null)
         {
             throw new ConfigurationException("Loading a certificate from pem files are not possible in NetStandard2.0");
         }
@@ -97,23 +102,24 @@ public class X509CertificateLoader : IX509CertificateLoader
 
 #if NET6_0_OR_GREATER
 
-        if (certificate.File is null)
+        if (certificateInfo.File is null)
         {
             return null;
         }
-        if (!File.Exists(certificate.File.Cert))
+        if (!File.Exists(certificateInfo.File.Cert))
         {
             _logger?.Technical().LogError($"Public key file doesn't exist.");
             return null;
         }
 
-        if (!File.Exists(certificate.File.Key))
+        if (!File.Exists(certificateInfo.File.Key))
         {
             _logger?.Technical().LogError($"Private key file doesn't exist.");
             return null;
         }
 
-        return X509Certificate2.CreateFromPemFile(certificate.File.Cert, certificate.File.Key);
+        return X509Certificate2.CreateFromPemFile(certificateInfo.File.Cert, certificateInfo.File.Key);
 #endif
     }
+
 }

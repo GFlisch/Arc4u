@@ -1,7 +1,7 @@
 namespace Arc4u.Security;
 public class CertificateStoreOrFileInfo
 {
-    public CertificateInfo? CertificateStore { get; set; }
+    public CertificateInfo? Store { get; set; }
 
     public CertificateFilePathInfo? File { get; set; }
 }
