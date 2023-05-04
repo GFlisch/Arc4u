@@ -10,7 +10,7 @@ public class SimpleKeyValueSettings : IKeyValueSettings, IEquatable<SimpleKeyVal
 {
     public SimpleKeyValueSettings()
     {
-        _keyValues = new(StringComparer.InvariantCultureIgnoreCase);
+        _keyValues = new(StringComparer.OrdinalIgnoreCase);
     }
 
     public SimpleKeyValueSettings(Dictionary<string, string> keyValues)
@@ -20,7 +20,7 @@ public class SimpleKeyValueSettings : IKeyValueSettings, IEquatable<SimpleKeyVal
 
     public static SimpleKeyValueSettings CreateFrom(IKeyValueSettings source)
     {
-        var keyValues = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+        var keyValues = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         foreach (var keyPair in source.Values)
         {

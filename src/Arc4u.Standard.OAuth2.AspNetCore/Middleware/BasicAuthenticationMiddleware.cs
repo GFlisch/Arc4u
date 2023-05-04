@@ -1,3 +1,12 @@
+using System;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using System.Linq;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Arc4u.Configuration;
 using Arc4u.Dependency;
 using Arc4u.Diagnostics;
@@ -9,15 +18,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
-using System.Linq;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Arc4u.Standard.OAuth2.Middleware;
 
@@ -49,7 +49,7 @@ public class BasicAuthenticationMiddleware
         {
             if (!container.TryResolve<ICredentialTokenProvider>(_options.BasicSettings.Values[TokenKeys.ProviderIdKey], out _))
             {
-                throw new ConfigurationException($"No token provider ICredentialTokenProvider is defined with name {TokenKeys.ProviderIdKey}!");
+                throw new ConfigurationException($"No token provider ICredentialTokenProvider is defined with ProviderId {_options.BasicSettings.Values[TokenKeys.ProviderIdKey]}!");
             }
         }
         else
