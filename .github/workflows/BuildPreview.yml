@@ -32,4 +32,4 @@ jobs:
       nugetPreviewName: ${{ github.event.inputs.nugetPreviewName }}
       publish: ${{ github.event.inputs.publish }}
     secrets:
-      NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+      NUGET_API_KEY: ${{ secrets.GITHUB_TOKEN }}
