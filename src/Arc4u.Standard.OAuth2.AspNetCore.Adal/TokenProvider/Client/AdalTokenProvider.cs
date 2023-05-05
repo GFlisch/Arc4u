@@ -124,7 +124,7 @@ namespace Arc4u.OAuth2.TokenProvider.Client
 
         public void SignOut(IKeyValueSettings settings)
         {
-            var authContext = GetContext(settings, out string serviceId, out string clientId, out string authority);
+            var authContext = GetContext(settings, out string _, out string _, out string authority);
 
             authContext.TokenCache.Clear();
         }

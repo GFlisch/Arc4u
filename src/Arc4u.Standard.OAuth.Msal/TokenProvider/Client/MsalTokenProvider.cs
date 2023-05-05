@@ -107,7 +107,7 @@ namespace Arc4u.OAuth2.Msal.TokenProvider.Client
                 {
                     try
                     {
-                        _publicClientApplication.PublicClient.RemoveAsync(accounts.FirstOrDefault()).Wait();
+                        await _publicClientApplication.PublicClient.RemoveAsync(accounts.FirstOrDefault()).Wait();
                     }
                     catch (MsalException msalex)
                     {
