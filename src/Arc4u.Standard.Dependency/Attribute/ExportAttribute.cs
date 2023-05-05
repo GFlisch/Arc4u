@@ -1,9 +1,21 @@
-﻿using System;
+using System;
 
 namespace Arc4u.Dependency.Attribute
 {
     /// <summary>
-    ///     Specifies that a type provides a particular export.
+    ///     Represents an attribute that indicates a type provides a specific export.
+    ///     This attribute can be used in combination with other attributes to define the export's lifetime:
+    ///     <list type="bullet">
+    ///         <item>
+    ///             <term><see cref="SharedAttribute"/></term>
+    ///             <description>Specifies that the export will have a singleton lifetime.</description>
+    ///         </item>
+    ///         <item>
+    ///             <term><see cref="ScopedAttribute"/></term>
+    ///             <description>Specifies that the export will have a scoped lifetime.</description>
+    ///         </item>
+    ///     </list>
+    ///     If neither <see cref="SharedAttribute"/> nor <see cref="ScopedAttribute"/> is used, the export will have a transient lifetime.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
     public class ExportAttribute : System.Attribute

@@ -1,83 +1,90 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Reflection;
 
 namespace Arc4u.Dependency.Attribute
 {
     /// <summary>
-    /// Parse the type and check if Export, Shared or Scoped attribute exist.
-    /// If Shared and Scoped are defined => Shared is used! Normally this is not allowed.
+    /// Registers in the DI container every classes decorated with the <see cref="ExportAttribute"/>.
+    /// <see cref="AttributeInspector"/> determines the lifetime of the registration
+    /// based on the presence of the <see cref="SharedAttribute"/> or <see cref="ScopedAttribute"/>.
+    /// If none of these attributes are present, the lifetime is transient.
     /// </summary>
     public class AttributeInspector
     {
         public AttributeInspector(IContainer container)
         {
-            if (null == container)
-                throw new ArgumentNullException(nameof(container));
-
-            _container = container;
+            _container = container ?? throw new ArgumentNullException(nameof(container));
         }
 
-        private IContainer _container;
+        private readonly IContainer _container;
 
         /// <summary>
-        /// Parse the attributes and register in the container.
+        /// Registers a type in the DI container if it is decorated with the <see cref="ExportAttribute"/>.
+        /// The lifetime of the registration is determined by the presence of the <see cref="SharedAttribute"/>
+        /// or <see cref="ScopedAttribute"/>.
+        /// If none of these attributes are present, the lifetime is transient.
         /// </summary>
-        /// <param name="type"></param>
+        /// <param name="type">The type to register.</param>
         public void Register(Type type)
         {
-            if (null == type)
+            if (type == null)
+            {
                 throw new ArgumentNullException(nameof(type));
+            }
 
-            if (type.CustomAttributes.Count() == 0)
+            if (!type.CustomAttributes.Any())
+            {
                 return;
+            }
 
-            var exports = type.CustomAttributes.Where(a => a.AttributeType.Name.Equals("ExportAttribute")).ToList();
+            var exports = type.GetCustomAttributes<ExportAttribute>().ToArray();
 
-            if (exports.Count == 0) return;
+            if (exports.Length == 0)
+            {
+                return;
+            }
 
-            // Check if we have a SharedAttribute.
-            var shared = type.CustomAttributes.FirstOrDefault(a => a.AttributeType.Name.Equals("SharedAttribute"));
-            var scoped = type.CustomAttributes.FirstOrDefault(a => a.AttributeType.Name.Equals("ScopedAttribute"));
-
-            bool isSingleton = null != shared;
-            bool isScoped = null != scoped;
+            // Check if we have a SharedAttribute, ScopeAttribute or nothing.
+            var isSingleton = type.CustomAttributes.Any(a => a.AttributeType == typeof(SharedAttribute));
+            var isScoped = type.CustomAttributes.Any(a => a.AttributeType == typeof(ScopedAttribute));
 
             foreach (var export in exports)
             {
-                var fromArgument = export.ConstructorArguments.FirstOrDefault(a => a.ArgumentType.Name.Equals("Type"));
-                Type from = null == fromArgument.Value ? type : (Type)fromArgument.Value;
-                Type to = type;
-                var nameArgument = export.ConstructorArguments.FirstOrDefault(a => a.ArgumentType.Name.Equals("String"));
-                var name = (string)nameArgument.Value;
+                var fromType = export.ContractType ?? type;
+                var contractName = export.ContractName;
 
                 if (isScoped)
                 {
-                    if (string.IsNullOrWhiteSpace(name))
-                        _container.RegisterScoped(from, to);
+                    if (string.IsNullOrWhiteSpace(contractName))
+                    {
+                        _container.RegisterScoped(fromType, type);
+                    }
                     else
-                        _container.RegisterScoped(from, to, name);
-
-                    continue;
+                    {
+                        _container.RegisterScoped(fromType, type, contractName);
+                    }
                 }
-
-                if (isSingleton)
+                else if (isSingleton)
                 {
-                    if (string.IsNullOrWhiteSpace(name))
-                        _container.RegisterSingleton(from, to);
+                    if (string.IsNullOrWhiteSpace(contractName))
+                    {
+                        _container.RegisterSingleton(fromType, type);
+                    }
                     else
-                        _container.RegisterSingleton(from, to, name);
-
-                    continue;
+                    {
+                        _container.RegisterSingleton(fromType, type, contractName);
+                    }
                 }
-
-                if (string.IsNullOrWhiteSpace(name))
-                    _container.Register(from, to);
+                else if (string.IsNullOrWhiteSpace(contractName))
+                {
+                    _container.Register(fromType, type);
+                }
                 else
-                    _container.Register(from, to, name);
+                {
+                    _container.Register(fromType, type, contractName);
+                }
             }
-
-
         }
 
         public void Register(Assembly assembly)
@@ -85,7 +92,9 @@ namespace Arc4u.Dependency.Attribute
             var types = assembly.GetTypes().Where(t => CanBeExported(t)).ToList();
 
             foreach (var type in types)
+            {
                 Register(type);
+            }
         }
 
         private static bool CanBeExported(Type type) => type.IsClass && !type.IsAbstract && type.CustomAttributes.Count() > 0;

@@ -698,7 +698,7 @@ namespace Arc4u.Standard.UnitTest
         public Guid Id => _id;
     }
 
-    [Export(typeof(IGenerator)), Dependency.Attribute.Scoped]
+    [Export(typeof(IGenerator)), Scoped]
     [Export]
     public class TestScopedParser : IGenerator
     {
