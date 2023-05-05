@@ -15,11 +15,11 @@ on:
         description: 'nuget preview ?'     
         required: false
         type: string
-	  nugetSource:
-	    description: 'nuget source'
-		required: false
-		type: string
-		default: 'https://api.nuget.org/v3/index.json'
+      nugetSource:
+        description: 'nuget source'
+        required: false
+        type: string
+        default: 'https://api.nuget.org/v3/index.json'
       publish:
         description: 'Publish to nuget.org?' 
         type: string
