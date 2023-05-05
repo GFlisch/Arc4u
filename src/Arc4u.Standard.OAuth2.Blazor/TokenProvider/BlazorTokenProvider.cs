@@ -1,12 +1,13 @@
-﻿using Arc4u.Blazor;
+using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
+using Arc4u.Blazor;
 using Arc4u.Dependency.Attribute;
 using Arc4u.OAuth2.Token;
 using Blazored.LocalStorage;
 using Microsoft.JSInterop;
-using System;
-using System.IdentityModel.Tokens.Jwt;
-using System.Net;
-using System.Threading.Tasks;
 
 namespace Arc4u.OAuth2.TokenProvider
 {
@@ -76,9 +77,9 @@ namespace Arc4u.OAuth2.TokenProvider
             return null;
         }
 
-        public void SignOut(IKeyValueSettings settings)
+        public ValueTask SignOutAsync(IKeyValueSettings settings, CancellationToken cancellationToken)
         {
-            _localStorage.RemoveItemAsync("token").AsTask().Wait();
+            return _localStorage.RemoveItemAsync("token", cancellationToken);
         }
     }
 }

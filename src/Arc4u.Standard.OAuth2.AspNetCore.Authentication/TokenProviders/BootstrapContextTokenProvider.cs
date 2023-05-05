@@ -1,6 +1,7 @@
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
 using Arc4u.Dependency.Attribute;
 using Arc4u.OAuth2.Token;
@@ -60,7 +61,7 @@ public class BootstrapContextTokenProvider : ITokenProvider
     /// </summary>
     /// <param name="settings"></param>
     /// <exception cref="NotImplementedException"></exception>
-    public void SignOut(IKeyValueSettings settings)
+    public ValueTask SignOutAsync(IKeyValueSettings settings, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }

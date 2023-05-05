@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Arc4u.Dependency.Attribute;
 using Arc4u.OAuth2.Options;
@@ -48,7 +49,7 @@ public class OidcTokenProvider : ITokenProvider
         return await _refreshTokenProvider.GetTokenAsync(settings, null).ConfigureAwait(false);
     }
 
-    public void SignOut(IKeyValueSettings settings)
+    public ValueTask SignOutAsync(IKeyValueSettings settings, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }

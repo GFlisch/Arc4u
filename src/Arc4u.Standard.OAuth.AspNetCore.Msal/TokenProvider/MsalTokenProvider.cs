@@ -1,15 +1,16 @@
-﻿using Arc4u.Dependency;
+using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading;
+using System.Threading.Tasks;
+using Arc4u.Dependency;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Token;
 using Arc4u.Security.Principal;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Web;
-using System;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace Arc4u.OAuth2.TokenProvider
 {
@@ -73,8 +74,13 @@ namespace Arc4u.OAuth2.TokenProvider
 
         }
 
-        public void SignOut(IKeyValueSettings settings)
+        public ValueTask SignOutAsync(IKeyValueSettings settings, CancellationToken cancellationToken)
         {
+#if NET6_0_OR_GREATER
+            return ValueTask.CompletedTask;
+#else
+            return default;
+#endif
         }
 
         static TokenInfo TokenIsValid(IKeyValueSettings settings, string token)
@@ -94,7 +100,7 @@ namespace Arc4u.OAuth2.TokenProvider
             var jwtToken = new JwtSecurityToken(token);
 
             if (jwtToken.Audiences.Any(a => a.StartsWith(audience, StringComparison.InvariantCultureIgnoreCase)))
-            {   
+            {
                 return new TokenInfo("Bearer", token, jwtToken.ValidTo);
             }
 

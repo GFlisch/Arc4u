@@ -1,13 +1,14 @@
-﻿using Arc4u.Dependency.Attribute;
-using Arc4u.Diagnostics;
-using Arc4u.OAuth2.Token;
-using Arc4u.ServiceModel;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
+using Arc4u.Dependency.Attribute;
+using Arc4u.Diagnostics;
+using Arc4u.OAuth2.Token;
+using Arc4u.ServiceModel;
+using Microsoft.Extensions.Logging;
 
 namespace Arc4u.OAuth2.TokenProvider
 {
@@ -95,7 +96,7 @@ namespace Arc4u.OAuth2.TokenProvider
 
         }
 
-        public void SignOut(IKeyValueSettings settings)
+        public ValueTask SignOutAsync(IKeyValueSettings settings, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }

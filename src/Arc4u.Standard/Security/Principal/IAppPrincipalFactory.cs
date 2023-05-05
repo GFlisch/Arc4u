@@ -1,5 +1,6 @@
-﻿using Arc4u.ServiceModel;
+using System.Threading;
 using System.Threading.Tasks;
+using Arc4u.ServiceModel;
 
 namespace Arc4u.Security.Principal
 {
@@ -9,8 +10,8 @@ namespace Arc4u.Security.Principal
         Task<AppPrincipal> CreatePrincipal(IKeyValueSettings settings, Messages messages, object parameter = null);
         Task<AppPrincipal> CreatePrincipal(string settingsResolveName, Messages messages, object parameter = null);
 
-        void SignOutUser();
+        ValueTask SignOutUserAsync(CancellationToken cancellationToken);
 
-        void SignOutUser(IKeyValueSettings settings);
+        ValueTask SignOutUserAsync(IKeyValueSettings settings, CancellationToken cancellationToken);
     }
 }

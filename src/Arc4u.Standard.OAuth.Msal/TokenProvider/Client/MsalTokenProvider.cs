@@ -1,15 +1,16 @@
-﻿using Arc4u.Dependency.Attribute;
+using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading;
+using System.Threading.Tasks;
+using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Token;
 using Arc4u.Security.Principal;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensibility;
-using System;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace Arc4u.OAuth2.Msal.TokenProvider.Client
 {
@@ -97,17 +98,17 @@ namespace Arc4u.OAuth2.Msal.TokenProvider.Client
             return null;
         }
 
-        public void SignOut(IKeyValueSettings settings)
+        public async ValueTask SignOutAsync(IKeyValueSettings settings, CancellationToken cancellationToken)
         {
             if (null != _publicClientApplication)
             {
-                var accounts = _publicClientApplication.PublicClient.GetAccountsAsync().Result;
+                var accounts = await _publicClientApplication.PublicClient.GetAccountsAsync().ConfigureAwait(false);
 
                 if (accounts.Any())
                 {
                     try
                     {
-                        _publicClientApplication.PublicClient.RemoveAsync(accounts.FirstOrDefault()).Wait();
+                        await _publicClientApplication.PublicClient.RemoveAsync(accounts.FirstOrDefault()).ConfigureAwait(false);
                     }
                     catch (MsalException msalex)
                     {

@@ -16,6 +16,6 @@ public class SecretRijndaelOptions
     /// <summary>
     /// The config used to decrypt => Key and IV.
     /// </summary>
-    public RijndaelConfig? RijnDael { get; set; }
+    public CypherCodecConfig? RijnDael { get; set; }
 
 }

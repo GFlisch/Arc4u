@@ -1,6 +1,11 @@
+using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading;
+using System.Threading.Tasks;
 using Arc4u.Dependency;
 using Arc4u.Diagnostics;
-using Arc4u.OAuth2.Configuration;
 using Arc4u.OAuth2.Extensions;
 using Arc4u.OAuth2.Security;
 using Arc4u.OAuth2.Token;
@@ -8,11 +13,6 @@ using Arc4u.Security.Principal;
 using Arc4u.ServiceModel;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
-using System;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
 using AuthenticationContext = Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContext;
 
 namespace Arc4u.OAuth2.TokenProvider;
@@ -74,7 +74,7 @@ public abstract class AdalTokenProvider : ITokenProvider
                                      out string clientId,
                                      out Uri redirectUri);
 
-        
+
         AuthenticationResult result = null;
         if (null != credential)
         {
@@ -94,7 +94,7 @@ public abstract class AdalTokenProvider : ITokenProvider
         }
 
         // we don't have a result!
-        throw new NullReferenceException(nameof(result));           
+        throw new NullReferenceException(nameof(result));
     }
 
 
@@ -214,7 +214,7 @@ public abstract class AdalTokenProvider : ITokenProvider
         return null;
     }
 
-    public void SignOut(IKeyValueSettings settings)
+    public ValueTask SignOutAsync(IKeyValueSettings settings, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }

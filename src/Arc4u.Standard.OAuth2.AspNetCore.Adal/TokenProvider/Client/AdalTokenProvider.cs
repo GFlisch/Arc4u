@@ -1,19 +1,20 @@
-﻿using Arc4u.Dependency;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using Arc4u.Dependency;
 using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Token;
 using Arc4u.ServiceModel;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using AuthenticationContext = Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContext;
 
 namespace Arc4u.OAuth2.TokenProvider.Client
 {
     public abstract class AdalTokenProvider : ITokenProvider
     {
-        private Dictionary<string, AuthenticationResult> _resultCache = new Dictionary<string, AuthenticationResult>();
+        private Dictionary<string, AuthenticationResult> _resultCache = new();
         protected readonly ILogger<AdalTokenProvider> _logger;
         protected readonly IContainerResolve Container;
 
@@ -122,11 +123,16 @@ namespace Arc4u.OAuth2.TokenProvider.Client
 
         protected abstract AuthenticationContext CreateAuthenticationContext(String authority, string cacheIdentifier);
 
-        public void SignOut(IKeyValueSettings settings)
+        public ValueTask SignOutAsync(IKeyValueSettings settings, CancellationToken cancellationToken)
         {
-            var authContext = GetContext(settings, out string serviceId, out string clientId, out string authority);
+            var authContext = GetContext(settings, out var _, out var _, out var _);
 
             authContext.TokenCache.Clear();
+#if NET6_0_OR_GREATER
+            return ValueTask.CompletedTask;
+#else
+            return default;
+#endif
         }
     }
 }
