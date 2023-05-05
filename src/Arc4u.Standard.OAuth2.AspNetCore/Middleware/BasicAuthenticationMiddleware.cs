@@ -10,9 +10,11 @@ using System.Threading.Tasks;
 using Arc4u.Configuration;
 using Arc4u.Dependency;
 using Arc4u.Diagnostics;
+using Arc4u.OAuth2.Extensions;
 using Arc4u.OAuth2.Security.Principal;
 using Arc4u.OAuth2.Token;
 using Arc4u.Security.Cryptography;
+using Arc4u.ServiceModel;
 using Arc4u.Standard.OAuth2.Options;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -150,9 +152,9 @@ public class BasicAuthenticationMiddleware
             // Decrypt the content!
             if (!string.IsNullOrWhiteSpace(secret))
             {
-                string pair = cert.Value.Decrypt(secret);
+                var pair = cert.Value.Decrypt(secret);
 
-                return ExtractCredential(pair);
+                return new CredentialsResult(false).ExtractCredential(pair, _logger, _options.DefaultUpn);
             }
         }
 
@@ -191,33 +193,9 @@ public class BasicAuthenticationMiddleware
 
             var pair = Encoding.UTF8.GetString(Convert.FromBase64String(token));
 
-            return ExtractCredential(pair);
+            return new CredentialsResult(false).ExtractCredential(pair, _logger, _options.DefaultUpn);
         }
 
         return new CredentialsResult(false);
-    }
-
-    private CredentialsResult ExtractCredential([DisallowNull] string pair)
-    {
-        var ix = pair.IndexOf(':');
-        if (ix == -1)
-        {
-            _logger.Technical().Warning($"Basic authentication is not well formed.").Log();
-            return new CredentialsResult(false);
-        }
-
-        var username = pair.Substring(0, ix);
-        var pwd = pair.Substring(ix + 1);
-
-        _logger.Technical().Debug($@"Username receives is: {username}.").Log();
-
-        // is username format ok?
-        if (!Regex.IsMatch(username, @"([a-zA-Z0-9]+@[a-zA-Z0-9]+\.[a-zA-Z0-9]+)|([a-zA-Z0-9]+\\[a-zA-Z0-9]+)|([a-zA-Z0-9]+/[a-zA-Z0-9]+)"))
-        {
-            username = $"{username}{_options.DefaultUpn?.Trim()}";
-            _logger.Technical().Debug($@"Username is changed to: {username}.").Log();
-        }
-
-        return new CredentialsResult(true, username, pwd);
     }
 }
