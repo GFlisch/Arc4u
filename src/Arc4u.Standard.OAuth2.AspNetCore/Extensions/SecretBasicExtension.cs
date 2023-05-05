@@ -13,7 +13,7 @@ public static class SecretBasicExtension
     public static void AddSecretAuthentication(this IServiceCollection services, [DisallowNull] Action<SecretBasicSettingsOptions> options, [DisallowNull] string optionKey)
     {
         ArgumentNullException.ThrowIfNull(options);
-      
+
         if (string.IsNullOrWhiteSpace(optionKey))
         {
             throw new ArgumentNullException(nameof(optionKey));
@@ -55,7 +55,7 @@ public static class SecretBasicExtension
         return BuildBasicSettings(options);
 
     }
-        private static Action<SimpleKeyValueSettings> BuildBasicSettings(SecretBasicSettingsOptions options)
+    private static Action<SimpleKeyValueSettings> BuildBasicSettings(SecretBasicSettingsOptions options)
     {
         // Check the settings!
         // options mandatory fields!
