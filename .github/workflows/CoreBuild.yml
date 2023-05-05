@@ -15,6 +15,11 @@ on:
         description: 'nuget preview ?'     
         required: false
         type: string
+	  nugetSource:
+	    description: 'nuget source'
+		required: false
+		type: string
+		default: 'https://api.nuget.org/v3/index.json'
       publish:
         description: 'Publish to nuget.org?' 
         type: string
@@ -217,4 +222,4 @@ jobs:
         
       - name: Publish packages
         if: ${{ env.PublishToNuget == 'true'  }}
-        run: dotnet nuget push ".\packages\*.nupkg" --skip-duplicate --no-symbols true --api-key ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json
+        run: dotnet nuget push ".\packages\*.nupkg" --skip-duplicate --no-symbols true --api-key ${{secrets.NUGET_API_KEY}} -s ${{ github.event.inputs.nugetSource }}
