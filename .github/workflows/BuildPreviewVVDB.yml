@@ -17,11 +17,11 @@ on:
         description: 'nuget preview ?'     
         required: true
         default: '-privatevvdb01'
-      nugetSource:
-        description: 'nuget source'
-        required: false
-        type: string
-        default: 'https://nuget.pkg.github.com/vvdb-architecture/index.json'	  
+	  nugetSource:
+	    description: 'nuget source'
+		required: false
+		type: string
+		default: 'https://nuget.pkg.github.com/vvdb-architecture/index.json'	  
       publish:
         description: 'true or false' 
         type: boolean
@@ -36,6 +36,6 @@ jobs:
       nugetVersionSpecific: ${{ github.event.inputs.nugetVersionSpecific }}
       nugetPreviewName: ${{ github.event.inputs.nugetPreviewName }}
       publish: ${{ github.event.inputs.publish }}
-      nugetSource: ${{ github.event.inputs.nugetSource }}
+	  nugetSource: ${{ github.event.inputs.nugetSource }}
     secrets:
       NUGET_API_KEY: ${{ secrets.GITHUB_TOKEN }}
