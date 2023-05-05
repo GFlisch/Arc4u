@@ -16,7 +16,7 @@ namespace Arc4u.Standard.OAuth2.Middleware;
 
 public static class BasicAuthenticationMiddlewareExtension
 {
-    public static IApplicationBuilder UseBasicAuthentication2(this IApplicationBuilder app)
+    public static IApplicationBuilder UseBasicAuthentication(this IApplicationBuilder app)
     {
         ArgumentNullException.ThrowIfNull(app);
 
@@ -92,13 +92,13 @@ public static class BasicAuthenticationMiddlewareExtension
 
         services.Configure<BasicAuthenticationSettingsOptions>(basicSettings =>
         {
-            basicSettings.BasicSettings = BuildBasics(basicOptions.BasicOptions);
+            basicSettings.BasicSettings = basicOptions.BasicOptions.BuildBasics();
             basicSettings.DefaultUpn = basicOptions.DefaultUpn;
             basicSettings.CertificateHeaderOptions = certs;
         });
     }
 
-    private static SimpleKeyValueSettings BuildBasics(Action<BasicSettingsOptions> options)
+    public static SimpleKeyValueSettings BuildBasics(this Action<BasicSettingsOptions> options)
     {
         var validate = new BasicSettingsOptions();
         options(validate);

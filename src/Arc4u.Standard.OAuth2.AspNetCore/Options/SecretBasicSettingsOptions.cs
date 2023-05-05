@@ -1,3 +1,5 @@
+using Arc4u.OAuth2.TokenProvider;
+
 namespace Arc4u.Standard.OAuth2;
 
 /// <summary>
@@ -18,7 +20,7 @@ public class SecretBasicSettingsOptions : BasicSettingsOptions
     /// <summary>
     /// The basic providerId that will be used to perform the real call.
     /// </summary>
-    public string BasicProviderId { get; set; } = "Credential";
+    public string BasicProviderId { get; set; } = CredentialTokenCacheTokenProvider.ProviderName;
 
     public string User { get; set; }
 
