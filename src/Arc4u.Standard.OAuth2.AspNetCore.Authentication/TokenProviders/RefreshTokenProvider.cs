@@ -111,7 +111,7 @@ public class RefreshTokenProvider : ITokenRefreshProvider
         return _tokenRefreshInfo.AccessToken;
     }
 
-    public void SignOut(IKeyValueSettings settings)
+    public ValueTask SignOutAsync(IKeyValueSettings settings, CancellationToken cancellationToken)
     {
         // there is no Signout on a provider for the token refresh...
         throw new NotImplementedException();

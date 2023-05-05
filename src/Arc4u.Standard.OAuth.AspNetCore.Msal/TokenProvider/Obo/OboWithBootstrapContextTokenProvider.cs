@@ -1,4 +1,10 @@
 //    internal class OboWithBootstrapContextTokenProvider
+using System;
+using System.Diagnostics;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Threading;
+using System.Threading.Tasks;
 using Arc4u.Caching;
 using Arc4u.Configuration;
 using Arc4u.Dependency;
@@ -9,11 +15,6 @@ using Arc4u.Security.Principal;
 using Arc4u.ServiceModel;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
-using System;
-using System.Diagnostics;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace Arc4u.OAuth2.TokenProvider;
 
@@ -24,7 +25,7 @@ public abstract class OboWithBootstrapContextTokenProvider : ITokenProvider
 {
     public const string ProviderName = "Obo";
 
-    public OboWithBootstrapContextTokenProvider(ICacheContext cacheContext,  IContainerResolve container, IApplicationContext applicationContext, IUserObjectIdentifier userObjectIdentifier, ILogger<OboWithBootstrapContextTokenProvider> logger, IActivitySourceFactory activitySourceFactory)
+    public OboWithBootstrapContextTokenProvider(ICacheContext cacheContext, IContainerResolve container, IApplicationContext applicationContext, IUserObjectIdentifier userObjectIdentifier, ILogger<OboWithBootstrapContextTokenProvider> logger, IActivitySourceFactory activitySourceFactory)
     {
         _cacheContext = cacheContext;
         _container = container;
@@ -126,7 +127,7 @@ public abstract class OboWithBootstrapContextTokenProvider : ITokenProvider
 
     protected abstract IConfidentialClientApplication CreateCca(IKeyValueSettings valueSettings);
 
-    public void SignOut(IKeyValueSettings settings)
+    public ValueTask SignOutAsync(IKeyValueSettings settings, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }

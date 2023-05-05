@@ -1,3 +1,6 @@
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Arc4u.Caching;
 using Arc4u.Dependency;
 using Arc4u.Dependency.Attribute;
@@ -8,8 +11,6 @@ using Arc4u.OAuth2.Security.Principal;
 using Arc4u.OAuth2.TokenProvider;
 using Arc4u.ServiceModel;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Threading.Tasks;
 
 namespace Arc4u.OAuth2.Token;
 
@@ -164,7 +165,7 @@ public class UsernamePasswordTokenProvider : ITokenProvider
 
     }
 
-    public void SignOut(IKeyValueSettings settings)
+    public ValueTask SignOutAsync(IKeyValueSettings settings, CancellationToken cancellationToken)
     {
         GetSettings(settings, out var serviceId, out _, out var passwordStoreKey);
 
@@ -188,6 +189,10 @@ public class UsernamePasswordTokenProvider : ITokenProvider
         {
             _logger.Technical().LogException(ex);
         }
-
+#if NET6_0_OR_GREATER
+        return ValueTask.CompletedTask;
+#else
+        return default;
+#endif
     }
 }

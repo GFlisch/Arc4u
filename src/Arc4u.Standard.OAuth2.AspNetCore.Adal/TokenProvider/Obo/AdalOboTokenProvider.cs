@@ -1,15 +1,15 @@
-﻿using Arc4u.Dependency;
+using System;
+using System.Security.Claims;
+using System.Threading;
+using System.Threading.Tasks;
+using Arc4u.Dependency;
 using Arc4u.Diagnostics;
-using Arc4u.OAuth2.Configuration;
 using Arc4u.OAuth2.Security;
 using Arc4u.OAuth2.Token;
 using Arc4u.Security.Principal;
 using Arc4u.ServiceModel;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
-using System;
-using System.Security.Claims;
-using System.Threading.Tasks;
 using AuthenticationContext = Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContext;
 
 namespace Arc4u.OAuth2.TokenProvider;
@@ -178,7 +178,7 @@ public abstract class AdalOboTokenProvider : ITokenProvider
     protected abstract AuthenticationContext CreateAuthenticationContext(String authority, string cacheIdentifier);
 
 
-    public void SignOut(IKeyValueSettings settings)
+    public ValueTask SignOutAsync(IKeyValueSettings settings, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }

@@ -1,4 +1,12 @@
-﻿using Arc4u.Caching;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading;
+using System.Threading.Tasks;
+using Arc4u.Caching;
 using Arc4u.Dependency;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
@@ -8,13 +16,6 @@ using Arc4u.OAuth2.Token;
 using Arc4u.Security.Principal;
 using Arc4u.ServiceModel;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace Arc4u.OAuth2.Client.Security.Principal
 {
@@ -117,12 +118,12 @@ namespace Arc4u.OAuth2.Client.Security.Principal
                 var expTokenClaim = jwtToken.Claims.FirstOrDefault(c => c.Type.Equals(tokenExpirationClaimType, StringComparison.InvariantCultureIgnoreCase));
                 long expTokenTicks = 0;
                 if (null != expTokenClaim)
-                    long.TryParse(expTokenClaim.Value, NumberStyles.Integer, CultureInfo.InvariantCulture,  out expTokenTicks);
+                    long.TryParse(expTokenClaim.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out expTokenTicks);
 
                 // The key for the cache is based on the claims from a ClaimsIdentity => build a dummy identity with the claim from the token.
                 var dummyIdentity = new ClaimsIdentity(jwtToken.Claims);
                 var cachedClaims = GetClaimsFromCache(dummyIdentity);
-                
+
                 identity.BootstrapContext = token.Token;
 
                 // if we have a token "cached" from the system, we can take the authorization claims from the cache (if exists)...
@@ -257,18 +258,18 @@ namespace Arc4u.OAuth2.Client.Security.Principal
             }
         }
 
-        public void SignOutUser()
+        public ValueTask SignOutUserAsync(CancellationToken cancellationToken)
         {
             var settings = _container.Resolve<IKeyValueSettings>(DefaultSettingsResolveName);
-            SignOutUser(settings);
+            return SignOutUserAsync(settings, cancellationToken);
         }
 
-        public void SignOutUser(IKeyValueSettings settings)
+        public async ValueTask SignOutUserAsync(IKeyValueSettings settings, CancellationToken cancellationToken)
         {
             RemoveClaimsCache();
             if (_container.TryResolve(settings.Values[ProviderKey], out ITokenProvider provider))
             {
-                provider.SignOut(settings);
+                await provider.SignOutAsync(settings, cancellationToken).ConfigureAwait(false);
             }
         }
     }

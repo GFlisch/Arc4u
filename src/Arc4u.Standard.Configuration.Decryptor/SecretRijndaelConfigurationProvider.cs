@@ -42,7 +42,7 @@ public class SecretRijndaelConfigurationProvider : ConfigurationProvider
 
         if (_rijndaelOptions.RijnDael is null)
         {
-            _rijndaelOptions.RijnDael = tempRoot.GetSection(_rijndaelOptions.SecretSectionName).Get<RijndaelConfig>();
+            _rijndaelOptions.RijnDael = tempRoot.GetSection(_rijndaelOptions.SecretSectionName).Get<CypherCodecConfig>();
 
             // For this configuration, no decryption exists. Simply skip this provider.
             if (_rijndaelOptions.RijnDael is null)
@@ -61,14 +61,14 @@ public class SecretRijndaelConfigurationProvider : ConfigurationProvider
             {
                 var cypher = item.Value.Substring(_rijndaelOptions.Prefix.Length);
 
-                data.Add(item.Key, Rijndael.DecodeCypherString(cypher, rijndaelkeys.Item1, rijndaelkeys.Item2));
+                data.Add(item.Key, CypherCodec.DecodeCypherString(cypher, rijndaelkeys.Item1, rijndaelkeys.Item2));
             }
         }
 
         Data = data;
     }
 
-    private static (byte[], byte[]) ConvertTo(RijndaelConfig rijndaelConfig)
+    private static (byte[], byte[]) ConvertTo(CypherCodecConfig rijndaelConfig)
     {
         return (Convert.FromBase64String(rijndaelConfig.Key), Convert.FromBase64String(rijndaelConfig.IV));
     }

@@ -1,7 +1,8 @@
-﻿using Arc4u.Dependency.Attribute;
+using System.Threading;
+using System.Threading.Tasks;
+using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
 
 namespace Arc4u.OAuth2.Token
 {
@@ -23,10 +24,14 @@ namespace Arc4u.OAuth2.Token
             return Task.FromResult<TokenInfo>(null);
         }
 
-        public void SignOut(IKeyValueSettings settings)
+        public ValueTask SignOutAsync(IKeyValueSettings settings, CancellationToken cancellationToken)
         {
             _logger.Technical().System("Null token provider doesn't do anything.").Log();
-            return;
+#if NET6_0_OR_GREATER
+            return ValueTask.CompletedTask;
+#else
+        return default;
+#endif
         }
     }
 }

@@ -134,7 +134,7 @@ public class AzureADOboTokenProvider : ITokenProvider
         return oboToken;
     }
 
-    public void SignOut(IKeyValueSettings settings)
+    public ValueTask SignOutAsync(IKeyValueSettings settings, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }

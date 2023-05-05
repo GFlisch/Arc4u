@@ -1,15 +1,15 @@
-using AutoFixture.AutoMoq;
-using AutoFixture;
-using Xunit;
-using Moq;
-using Microsoft.Extensions.Configuration;
-using System.Collections.Generic;
-using Arc4u.Configuration.Decryptor;
-using System.Security.Cryptography.X509Certificates;
-using FluentAssertions;
 using System;
-using Arc4u.Security.Cryptography;
+using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
+using Arc4u.Configuration.Decryptor;
 using Arc4u.Security;
+using Arc4u.Security.Cryptography;
+using AutoFixture;
+using AutoFixture.AutoMoq;
+using FluentAssertions;
+using Microsoft.Extensions.Configuration;
+using Moq;
+using Xunit;
 
 namespace Arc4u.Standard.UnitTest.Decryptor;
 
@@ -172,15 +172,15 @@ public class CertificateDecryptor
     public void RijndaelShouldDecrypt()
     {
         // arrange
-        var stringKey = Rijndael.GenerateKeyAndIV(out var stringIV);
+        var stringKey = CypherCodec.GenerateKeyAndIV(out var stringIV);
 
         var key = Convert.FromBase64String(stringKey);
         var iv = Convert.FromBase64String(stringIV);
 
-        RijndaelConfig rijndaelConfig = new() { Key = stringKey, IV = stringIV };
+        CypherCodecConfig rijndaelConfig = new() { Key = stringKey, IV = stringIV };
 
         var plainText = _fixture.Create<string>();
-        var cypherText = Rijndael.EncodeClearText(plainText, key, iv);
+        var cypherText = CypherCodec.EncodeClearText(plainText, key, iv);
 
         var config = new ConfigurationBuilder()
             .AddInMemoryCollection(
@@ -207,7 +207,7 @@ public class CertificateDecryptor
     public void RijndaelConfigShouldBe()
     {
         // arrange
-        var stringKey = Rijndael.GenerateKeyAndIV(out var stringIV);
+        var stringKey = CypherCodec.GenerateKeyAndIV(out var stringIV);
 
         var config = new ConfigurationBuilder()
                         .AddInMemoryCollection(
@@ -219,7 +219,7 @@ public class CertificateDecryptor
         var tempRoot = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
         // act
-        var rijndaelConfig = tempRoot.GetSection("EncryptionRijndael").Get<RijndaelConfig>();
+        var rijndaelConfig = tempRoot.GetSection("EncryptionRijndael").Get<CypherCodecConfig>();
 
         // assert
         rijndaelConfig.Should().NotBeNull();
@@ -233,13 +233,13 @@ public class CertificateDecryptor
     public void RijndaelWithConfigShouldDecrypt()
     {
         // arrange
-        var stringKey = Rijndael.GenerateKeyAndIV(out var stringIV);
+        var stringKey = CypherCodec.GenerateKeyAndIV(out var stringIV);
 
         var key = Convert.FromBase64String(stringKey);
         var iv = Convert.FromBase64String(stringIV);
 
         var plainText = _fixture.Create<string>();
-        var cypherText = Rijndael.EncodeClearText(plainText, key, iv);
+        var cypherText = CypherCodec.EncodeClearText(plainText, key, iv);
 
         var config = new ConfigurationBuilder()
             .AddInMemoryCollection(
