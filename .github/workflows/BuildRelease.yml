@@ -13,6 +13,11 @@ on:
         required: false
         type: string
         default: '6014.3'
+      nugetPackageIdPrefix:
+        description: 'NuGet PackageId prefix (include the period if necessary)'
+        required: false
+        type: string
+        default: ''
       publish:
         description: 'true or false' 
         type: boolean
@@ -26,6 +31,7 @@ jobs:
       nugetVersion: ${{ github.event.inputs.nugetVersion }}
       nugetVersionSpecific: ${{ github.event.inputs.nugetVersionSpecific }}
       nugetPreviewName: ''
+      nugetPackageIdPrefix: ${{ github.event.inputs.nugetPackageIdPrefix }}
       publish: ${{ github.event.inputs.publish }}
     secrets:
       NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}

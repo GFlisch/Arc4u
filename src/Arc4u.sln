@@ -30,6 +30,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Buids", "Buids", "{F1132B3C-F2DA-48A8-A79F-B188C7D668F1}"
 	ProjectSection(SolutionItems) = preProject
 		Builds\SetVersion.ps1 = Builds\SetVersion.ps1
+		Builds\SetNuGetPackageIdPrefix.ps1 = Builds\SetNuGetPackageIdPrefix.ps1
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arc4u.Standard.Dependency.ComponentModel", "Arc4u.Standard.Dependency.ComponentModel\Arc4u.Standard.Dependency.ComponentModel.csproj", "{150D036C-4B66-4A99-BAA9-28AC0A81E2D7}"
