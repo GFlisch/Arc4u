@@ -185,7 +185,7 @@ jobs:
         shell: powershell         
 
       - name: Set the NuGet PackageId in the project files
-        run: .\src\Builds\SetNuGetPackageIdPrefix.ps1 ".." ${{ github.event.inputs.nugetPackageIdPrefix }}'
+        run: .\src\Builds\SetNuGetPackageIdPrefix.ps1 ".." "${{ github.event.inputs.nugetPackageIdPrefix }}"
         shell: powershell         
 
       - name: setup nuget
