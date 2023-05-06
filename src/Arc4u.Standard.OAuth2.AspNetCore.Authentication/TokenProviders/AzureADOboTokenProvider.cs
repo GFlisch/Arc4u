@@ -52,7 +52,7 @@ public class AzureADOboTokenProvider : ITokenProvider
 
         using var activity = _activitySource?.StartActivity("Get on behal of token", ActivityKind.Producer);
 
-        var cache = string.IsNullOrEmpty(_cacheContext.Principal?.CacheName) ? _cacheContext.Default : _cacheContext[_cacheContext.Principal?.CacheName];
+        var cache = string.IsNullOrEmpty(_cacheContext.Principal?.CacheName) ? _cacheContext.Default : _cacheContext[_cacheContext.Principal!.CacheName];
 
         // the key is defined by user!
         var cacheKey = $"_Obo_{settings.Values[TokenKeys.ClientIdKey]}_{_tokenRefreshInfo.AccessToken.Token.GetHashCode()}";
