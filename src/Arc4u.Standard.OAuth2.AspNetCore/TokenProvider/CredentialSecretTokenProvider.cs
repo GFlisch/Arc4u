@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 using System.Threading.Tasks;
 using Arc4u.Configuration;
 using Arc4u.Dependency;
@@ -74,9 +75,9 @@ public class CredentialSecretTokenProvider : ITokenProvider
         return await credentialToken.GetTokenAsync(basicSettings, credential).ConfigureAwait(false);
     }
 
-    public void SignOut(IKeyValueSettings settings)
+    public ValueTask SignOutAsync(IKeyValueSettings settings, CancellationToken cancellationToken)
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     private static SimpleKeyValueSettings Transform(Action<BasicSettingsOptions> options)
