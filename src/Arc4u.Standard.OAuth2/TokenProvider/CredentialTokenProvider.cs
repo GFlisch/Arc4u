@@ -4,13 +4,10 @@ using Arc4u.OAuth2.Security.Principal;
 using Arc4u.OAuth2.Token;
 using Arc4u.ServiceModel;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Net;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Arc4u.OAuth2.TokenProvider;
@@ -113,63 +110,87 @@ public class CredentialTokenProvider : ICredentialTokenProvider
             try
             {
                 using (var content = new FormUrlEncodedContent(new Dictionary<string, string>
-                {
-                    { "resource", audience },
-                    { "client_id", clientId },
-                    { "grant_type", "password" },
-                    { "username", upn.Trim() },
-                    { "password", pwd.Trim() },
-                    { "scope", scope }
-                }))
+                    {
+                        { "resource", audience },
+                        { "client_id", clientId },
+                        { "grant_type", "password" },
+                        { "username", upn.Trim() },
+                        { "password", pwd.Trim() },
+                        { "scope", scope }
+                    }))
 
+                // strictly speaking, we should obtain the Url for the token_endpoint from the /.well-known/openid-configuration endpoint, but we hard-code it here.
 
                 using (var response = await client.PostAsync(authority + "/oauth2/token", content).ConfigureAwait(true))
                 {
                     var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
-                    if (response.StatusCode == HttpStatusCode.BadRequest)
+                    // We model this after https://www.rfc-editor.org/rfc/rfc6749#section-5.2
+                    // Identity providers usually reply with wither HttpStatusCode.BadRequest or HttpStatusCode.Unauthorized, but in practice they can also reply with other
+                    // status codes that signal failure. We want to write as much information as possible in the logs in any case, but throw exceptions with minimal information for security.
+                    if (!response.IsSuccessStatusCode)
                     {
-                        _logger.Technical().Error("A bad request was received.").Log();
-                        JObject error = JObject.Parse(responseBody);
-                        if (error.ContainsKey("error"))
+                        // To avoid overflowing the log with a large response body, we make sure that we limit its length. This should be a rare occurrence.
+                        var loggedResponseBody = responseBody;
+                        const int MaxResponseBodyLength = 256;  // arbitrary
+                        if (loggedResponseBody != null && loggedResponseBody.Length > MaxResponseBodyLength)
                         {
-                            if (error["error"].Value<String>().Equals("invalid_grant", StringComparison.InvariantCultureIgnoreCase))
-                            {
-                                var message = error.ContainsKey("error_description") ? error["error_description"].Value<String>() : "No error descrption.";
-                                throw new AppException(new Arc4u.ServiceModel.Message(Arc4u.ServiceModel.MessageCategory.Technical, Arc4u.ServiceModel.MessageType.Error, "invalid_grant", "Rejected", message));
-                            }
-                            if (error["error"].Value<String>().Equals("unauthorized_client", StringComparison.InvariantCultureIgnoreCase))
-                            {
-                                var message = error.ContainsKey("error_description") ? error["error_description"].Value<String>() : "No error descrption.";
-                                throw new AppException(new Arc4u.ServiceModel.Message(Arc4u.ServiceModel.MessageCategory.Technical, Arc4u.ServiceModel.MessageType.Error, "invalid_grant", "unauthorized_client", message));
-                            }
-
+                            loggedResponseBody = responseBody.Substring(0, MaxResponseBodyLength) + $"...(response truncated, {loggedResponseBody.Length} total characters)";
                         }
 
-                        throw new AppException(new Arc4u.ServiceModel.Message(Arc4u.ServiceModel.MessageCategory.Technical, Arc4u.ServiceModel.MessageType.Error, "Error", "Rejected", "Unknown"));
+                        var logger = _logger.Technical().Error($"Token endpoint for {upn} returned {response.StatusCode}: {loggedResponseBody}");
+
+                        // In case of error, any extra information should be in Json with string values, but we can't assume this is always the case!
+                        Dictionary<string, string>? dictionary = null;
+                        try
+                        {
+                            dictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(responseBody);
+                        }
+                        catch
+                        {
+                            // the response body was not Json (it happens)
+                        }
+                        // we cannot any any more meaningful information to the log if this is not a dictionary
+                        if (dictionary == null)
+                        {
+                            logger.Log();
+                        }
+                        else
+                        {
+                            // add the key/values are properties of the structured log
+                            foreach (var kv in dictionary)
+                            {
+                                logger.Add(kv.Key, kv.Value);
+                            }
+
+                            logger.Log();
+                            if (dictionary.TryGetValue("error", out var tokenErrorCode))
+                            {
+                                // error description is optional. So is error_uri, but we don't use it.
+                                string? error_description;
+                                if (!dictionary.TryGetValue("error_description", out error_description))
+                                {
+                                    error_description = "No error description";
+                                }
+
+                                throw new AppException(new Message(ServiceModel.MessageCategory.Technical, MessageType.Error, tokenErrorCode, response.StatusCode.ToString(), $"{error_description} ({upn})"));
+                            }
+                        }
+                        // if we can't write a better exception, issue a more general one
+                        throw new AppException(new Message(ServiceModel.MessageCategory.Technical, MessageType.Error, "TokenError", response.StatusCode.ToString(), $"{response.StatusCode} occured while requesting a token for {upn}"));
                     }
 
-                    if (response.StatusCode == HttpStatusCode.Unauthorized)
-                    {
-                        _logger.Technical().Error("You are unauthorized.").Log();
-                        JObject error = JObject.Parse(responseBody);
-
-                        var message = error.ContainsKey("error_description") ? error["error_description"].Value<String>() : "No error descrption.";
-                        throw new AppException(new Arc4u.ServiceModel.Message(Arc4u.ServiceModel.MessageCategory.Technical, Arc4u.ServiceModel.MessageType.Error, "unauthorized", "unauthorized_client", message));
-
-                    }
-
-                    var responseValues = JsonConvert.DeserializeObject<Dictionary<string, string>>(responseBody);
+                    // at this point, we *must* have a valid Json response. The values are a mixture of strings and numbers, so we deserialize the JsonElements
+                    var responseValues = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(responseBody)!;
 
                     _logger.Technical().System($"Token is received for user {upn}.").Log();
 
-                    var accessToken = responseValues["access_token"];
+                    var accessToken = responseValues["access_token"].GetString()!;
                     var tokenType = "Bearer"; //  responseValues["token_type"]; Issue on Adfs return bearer and not Bearer (ok in AzureAD).
-                    var expiresIn = responseValues["expires_in"];
+                    var expiresIn = responseValues["expires_in"].GetInt64();
 
-                    // expires in is in ms.
-                    Int64.TryParse(expiresIn, NumberStyles.Integer, CultureInfo.InvariantCulture, out var offset);
-                    var dateUtc = DateTime.UtcNow.AddSeconds(offset);
+                    // expiration lifetime in is in seconds.
+                    var dateUtc = DateTime.UtcNow.AddSeconds(expiresIn);
 
                     _logger.Technical().System($"Access token will expire at {dateUtc} utc.").Log();
 
@@ -179,9 +200,8 @@ public class CredentialTokenProvider : ICredentialTokenProvider
             catch (Exception ex)
             {
                 _logger.Technical().Exception(ex).Log();
-                throw new AppException(new Message(Arc4u.ServiceModel.MessageCategory.Technical, Arc4u.ServiceModel.MessageType.Error, "Trust", "Rejected", ex.Message));
+                throw new AppException(new Message(ServiceModel.MessageCategory.Technical, MessageType.Error, "Trust", "Rejected", ex.Message));
             }
         }
     }
-
 }
