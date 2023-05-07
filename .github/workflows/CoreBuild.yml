@@ -15,6 +15,10 @@ on:
         description: 'nuget preview ?'     
         required: false
         type: string
+      nugetPackageIdPrefix:
+        description: 'NuGet PackageId prefix (include the period if necessary)'
+        required: false
+        type: string
       publish:
         description: 'Publish to nuget.org?' 
         type: string
@@ -180,6 +184,10 @@ jobs:
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Prism.DI.Wpf.csproj" "1.0.0.0" "${{env.PrismVersion}}" "0.0.0.0" "${{env.PrismVersionNuget}}"
         shell: powershell         
 
+      - name: Set the NuGet PackageId in the project files
+        run: .\src\Builds\SetNuGetPackageIdPrefix.ps1 ".." "${{ github.event.inputs.nugetPackageIdPrefix }}"
+        shell: powershell         
+
       - name: setup nuget
         uses: nuget/setup-nuget@v1
         with:
@@ -217,4 +225,4 @@ jobs:
         
       - name: Publish packages
         if: ${{ env.PublishToNuget == 'true'  }}
-        run: dotnet nuget push ".\packages\*.nupkg" --skip-duplicate --no-symbols true --api-key ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json
+        run: dotnet nuget push ".\packages\*.nupkg" --skip-duplicate --no-symbols --api-key ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json
