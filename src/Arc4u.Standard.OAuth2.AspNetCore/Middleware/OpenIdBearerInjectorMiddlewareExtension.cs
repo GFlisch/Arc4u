@@ -1,19 +1,16 @@
-﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Builder;
 using System;
 
-namespace Arc4u.Standard.OAuth2.Middleware
+namespace Arc4u.Standard.OAuth2.Middleware;
+
+public static class OpenIdBearerInjectorMiddlewareExtension
 {
-    public static class OpenIdBearerInjectorMiddlewareExtension
+    public static IApplicationBuilder UseOpenIdBearerInjector(this IApplicationBuilder app, OpenIdBearerInjectorOptions options)
     {
-        public static IApplicationBuilder UseOpenIdBearerInjector(this IApplicationBuilder app, OpenIdBearerInjectorOptions options)
-        {
-            if (null == app)
-                throw new ArgumentNullException(nameof(app));
+        ArgumentNullException.ThrowIfNull(app);
 
-            if (null == options)
-                throw new ArgumentNullException(nameof(options));
+        ArgumentNullException.ThrowIfNull(options);
 
-            return app.UseMiddleware<OpenIdBearerInjectorMiddleware>(options);
-        }
+        return app.UseMiddleware<OpenIdBearerInjectorMiddleware>(options);
     }
 }

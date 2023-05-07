@@ -104,7 +104,7 @@ public static partial class AuthenticationExtensions
                 .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
                 {
                     // cookie will not be limited in time by the life time of the access token.
-                    options.UsePkce = true; // Impact on th security. It is best to do this...
+                    options.UsePkce = true; // Impact on the security. It is best to do this...
                     options.UseTokenLifetime = false;
                     options.SaveTokens = false;
                     options.Authority = openIdOptions.Authority;
