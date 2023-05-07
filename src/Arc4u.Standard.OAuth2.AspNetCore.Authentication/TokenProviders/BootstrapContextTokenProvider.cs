@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Arc4u.Dependency.Attribute;
 using Arc4u.OAuth2.Token;
 using Arc4u.Security.Principal;
-using Microsoft.Extensions.Logging;
 
 namespace Arc4u.OAuth2.TokenProviders;
 
@@ -15,13 +14,11 @@ public class BootstrapContextTokenProvider : ITokenProvider
 {
     const string ProviderName = "Bootstrap";
 
-    public BootstrapContextTokenProvider(ILogger<OidcTokenProvider> logger, IApplicationContext applicationContext)
+    public BootstrapContextTokenProvider(IApplicationContext applicationContext)
     {
-        _logger = logger;
         _applicationContext = applicationContext;
     }
 
-    private readonly ILogger<OidcTokenProvider> _logger;
     private readonly IApplicationContext _applicationContext;
 
     /// <summary>
@@ -39,7 +36,7 @@ public class BootstrapContextTokenProvider : ITokenProvider
 
         ArgumentNullException.ThrowIfNull(_applicationContext.Principal);
 
-        if (_applicationContext.Principal.Identity is ClaimsIdentity identity && !String.IsNullOrWhiteSpace(identity?.BootstrapContext?.ToString()))
+        if (_applicationContext.Principal.Identity is ClaimsIdentity identity && !string.IsNullOrWhiteSpace(identity?.BootstrapContext?.ToString()))
         {
             var token = identity.BootstrapContext.ToString();
 
