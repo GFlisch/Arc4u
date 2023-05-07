@@ -135,7 +135,7 @@ public class CredentialTokenProvider : ICredentialTokenProvider
                         const int MaxResponseBodyLength = 256;  // arbitrary
                         if (loggedResponseBody != null && loggedResponseBody.Length > MaxResponseBodyLength)
                         {
-                            loggedResponseBody = responseBody[..MaxResponseBodyLength] + $"...(response truncated, {loggedResponseBody.Length} total characters)";
+                            loggedResponseBody = responseBody.Substring(0, MaxResponseBodyLength) + $"...(response truncated, {loggedResponseBody.Length} total characters)";
                         }
 
                         var logger = _logger.Technical().Error($"Token endpoint for {upn} returned {response.StatusCode}: {loggedResponseBody}");
