@@ -36,9 +36,9 @@ public class BasicSettingsOptionsTests
                      .AddInMemoryCollection(
                          new Dictionary<string, string?>
                          {
-                             ["Authentication.Basic:Settings:ClientId"] = options.ClientId,
-                             ["Authentication.Basic:Settings:Audience"] = options.Audience,
-                             ["Authentication.Basic:Settings:Authority"] = options.Authority,
+                             ["Authentication:Basic:Settings:ClientId"] = options.ClientId,
+                             ["Authentication:Basic:Settings:Audience"] = options.Audience,
+                             ["Authentication:Basic:Settings:Authority"] = options.Authority,
                          }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
@@ -70,12 +70,12 @@ public class BasicSettingsOptionsTests
                      .AddInMemoryCollection(
                          new Dictionary<string, string?>
                          {
-                             ["Authentication.Basic:Settings:ClientId"] = options.ClientId,
-                             ["Authentication.Basic:Settings:Audience"] = options.Audience,
-                             ["Authentication.Basic:Settings:Authority"] = options.Authority,
-                             ["Authentication.Basic:Settings:ProviderId"] = options.ProviderId,
-                             ["Authentication.Basic:Settings:AuthenticationType"] = options.AuthenticationType,
-                             ["Authentication.Basic:Settings:Scope"] = options.Scope,
+                             ["Authentication:Basic:Settings:ClientId"] = options.ClientId,
+                             ["Authentication:Basic:Settings:Audience"] = options.Audience,
+                             ["Authentication:Basic:Settings:Authority"] = options.Authority,
+                             ["Authentication:Basic:Settings:ProviderId"] = options.ProviderId,
+                             ["Authentication:Basic:Settings:AuthenticationType"] = options.AuthenticationType,
+                             ["Authentication:Basic:Settings:Scope"] = options.Scope,
                          }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
@@ -108,8 +108,8 @@ public class BasicSettingsOptionsTests
                      .AddInMemoryCollection(
                          new Dictionary<string, string?>
                          {
-                             ["Authentication.Basic:Settings:Audience"] = options.Audience,
-                             ["Authentication.Basic:Settings:Authority"] = options.Authority,
+                             ["Authentication:Basic:Settings:Audience"] = options.Audience,
+                             ["Authentication:Basic:Settings:Authority"] = options.Authority,
                          }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
@@ -131,13 +131,13 @@ public class BasicSettingsOptionsTests
                      .AddInMemoryCollection(
                          new Dictionary<string, string?>
                          {
-                             ["Authentication.Basic:Settings:ClientId"] = options.ClientId,
-                             ["Authentication.Basic:Settings:Audience"] = options.Audience,
-                             ["Authentication.Basic:Settings:Authority"] = options.Authority,
-                             ["Authentication.Basic:Settings:ProviderId"] = options.ProviderId,
-                             ["Authentication.Basic:Settings:AuthenticationType"] = options.AuthenticationType,
-                             ["Authentication.Basic:Settings:Scope"] = options.Scope,
-                             ["Authentication.Basic:DefaultUpn"] = "@arc4u.net",
+                             ["Authentication:Basic:Settings:ClientId"] = options.ClientId,
+                             ["Authentication:Basic:Settings:Audience"] = options.Audience,
+                             ["Authentication:Basic:Settings:Authority"] = options.Authority,
+                             ["Authentication:Basic:Settings:ProviderId"] = options.ProviderId,
+                             ["Authentication:Basic:Settings:AuthenticationType"] = options.AuthenticationType,
+                             ["Authentication:Basic:Settings:Scope"] = options.Scope,
+                             ["Authentication:Basic:DefaultUpn"] = "@arc4u.net",
                          }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
@@ -164,14 +164,14 @@ public class BasicSettingsOptionsTests
                      .AddInMemoryCollection(
                          new Dictionary<string, string?>
                          {
-                             ["Authentication.Basic:Settings:ClientId"] = options.ClientId,
-                             ["Authentication.Basic:Settings:Audience"] = options.Audience,
-                             ["Authentication.Basic:Settings:Authority"] = options.Authority,
-                             ["Authentication.Basic:Settings:ProviderId"] = options.ProviderId,
-                             ["Authentication.Basic:Settings:AuthenticationType"] = options.AuthenticationType,
-                             ["Authentication.Basic:Settings:Scope"] = options.Scope,
-                             ["Authentication.Basic:Certificates:Cert1:File:Cert"] = @".\Configs\cert.pem",
-                             ["Authentication.Basic:Certificates:Cert1:File:Key"] = @".\Configs\key.pem",
+                             ["Authentication:Basic:Settings:ClientId"] = options.ClientId,
+                             ["Authentication:Basic:Settings:Audience"] = options.Audience,
+                             ["Authentication:Basic:Settings:Authority"] = options.Authority,
+                             ["Authentication:Basic:Settings:ProviderId"] = options.ProviderId,
+                             ["Authentication:Basic:Settings:AuthenticationType"] = options.AuthenticationType,
+                             ["Authentication:Basic:Settings:Scope"] = options.Scope,
+                             ["Authentication:Basic:Certificates:Cert1:File:Cert"] = @".\Configs\cert.pem",
+                             ["Authentication:Basic:Certificates:Cert1:File:Key"] = @".\Configs\key.pem",
                          }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));

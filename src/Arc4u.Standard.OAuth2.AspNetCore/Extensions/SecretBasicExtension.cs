@@ -22,7 +22,7 @@ public static class SecretBasicExtension
         services.Configure<SimpleKeyValueSettings>(optionKey, BuildBasicSettings(options));
     }
 
-    public static void AddSecretAuthentication(this IServiceCollection services, [DisallowNull] IConfiguration configuration, [DisallowNull] string sectionName = "Authentication.ClientSecrets")
+    public static void AddSecretAuthentication(this IServiceCollection services, [DisallowNull] IConfiguration configuration, [DisallowNull] string sectionName = "Authentication:ClientSecrets")
     {
         ArgumentNullException.ThrowIfNull(configuration);
         ArgumentNullException.ThrowIfNull(sectionName);

@@ -23,7 +23,7 @@ public static class BasicAuthenticationMiddlewareExtension
         return app.UseMiddleware<BasicAuthenticationMiddleware>(app.ApplicationServices);
     }
 
-    public static void AddBasicAuthenticationSettings(this IServiceCollection services, IConfiguration configuration, string sectionName = "Authentication.Basic", IX509CertificateLoader? certificateLoader = null)
+    public static void AddBasicAuthenticationSettings(this IServiceCollection services, IConfiguration configuration, string sectionName = "Authentication:Basic", IX509CertificateLoader? certificateLoader = null)
     {
         var section = configuration.GetSection(sectionName);
 

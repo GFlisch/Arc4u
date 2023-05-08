@@ -34,11 +34,11 @@ public class SecretBasicSettingsOptionsTests
                      .AddInMemoryCollection(
                          new Dictionary<string, string?>
                          {
-                             ["Authentication.ClientSecrets:Client1:ClientId"] = options.ClientId,
-                             ["Authentication.ClientSecrets:Client1:Audience"] = options.Audience,
-                             ["Authentication.ClientSecrets:Client1:Authority"] = options.Authority,
-                             ["Authentication.ClientSecrets:Client1:User"] = options.User,
-                             ["Authentication.ClientSecrets:Client1:Password"] = options.Password,
+                             ["Authentication:ClientSecrets:Client1:ClientId"] = options.ClientId,
+                             ["Authentication:ClientSecrets:Client1:Audience"] = options.Audience,
+                             ["Authentication:ClientSecrets:Client1:Authority"] = options.Authority,
+                             ["Authentication:ClientSecrets:Client1:User"] = options.User,
+                             ["Authentication:ClientSecrets:Client1:Password"] = options.Password,
                          }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
@@ -75,11 +75,11 @@ public class SecretBasicSettingsOptionsTests
                      .AddInMemoryCollection(
                          new Dictionary<string, string?>
                          {
-                             ["Authentication.ClientSecrets:Client1:ClientId"] = options.ClientId,
-                             ["Authentication.ClientSecrets:Client1:Audience"] = options.Audience,
-                             ["Authentication.ClientSecrets:Client1:Authority"] = options.Authority,
-                             ["Authentication.ClientSecrets:Client1:User"] = options.User,
-                             ["Authentication.ClientSecrets:Client1:Credential"] = options.Credential,
+                             ["Authentication:ClientSecrets:Client1:ClientId"] = options.ClientId,
+                             ["Authentication:ClientSecrets:Client1:Audience"] = options.Audience,
+                             ["Authentication:ClientSecrets:Client1:Authority"] = options.Authority,
+                             ["Authentication:ClientSecrets:Client1:User"] = options.User,
+                             ["Authentication:ClientSecrets:Client1:Credential"] = options.Credential,
                          }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
@@ -116,9 +116,9 @@ public class SecretBasicSettingsOptionsTests
                      .AddInMemoryCollection(
                          new Dictionary<string, string?>
                          {
-                             ["Authentication.ClientSecrets:Client1:ClientId"] = options.ClientId,
-                             ["Authentication.ClientSecrets:Client1:Audience"] = options.Audience,
-                             ["Authentication.ClientSecrets:Client1:Authority"] = options.Authority,
+                             ["Authentication:ClientSecrets:Client1:ClientId"] = options.ClientId,
+                             ["Authentication:ClientSecrets:Client1:Audience"] = options.Audience,
+                             ["Authentication:ClientSecrets:Client1:Authority"] = options.Authority,
                          }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
@@ -141,11 +141,11 @@ public class SecretBasicSettingsOptionsTests
                      .AddInMemoryCollection(
                          new Dictionary<string, string?>
                          {
-                             ["Authentication.ClientSecrets:Client1:ClientId"] = options.ClientId,
-                             ["Authentication.ClientSecrets:Client1:Audience"] = options.Audience,
-                             ["Authentication.ClientSecrets:Client1:Authority"] = options.Authority,
-                             ["Authentication.ClientSecrets:Client1:Password"] = options.Password,
-                             ["Authentication.ClientSecrets:Client1:Credential"] = options.Credential,
+                             ["Authentication:ClientSecrets:Client1:ClientId"] = options.ClientId,
+                             ["Authentication:ClientSecrets:Client1:Audience"] = options.Audience,
+                             ["Authentication:ClientSecrets:Client1:Authority"] = options.Authority,
+                             ["Authentication:ClientSecrets:Client1:Password"] = options.Password,
+                             ["Authentication:ClientSecrets:Client1:Credential"] = options.Credential,
                          }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
