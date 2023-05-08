@@ -1,14 +1,14 @@
+using System;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Text.Json;
+using System.Threading.Tasks;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Security.Principal;
 using Arc4u.OAuth2.Token;
 using Arc4u.ServiceModel;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace Arc4u.OAuth2.TokenProvider;
 
@@ -102,7 +102,7 @@ public class CredentialTokenProvider : ICredentialTokenProvider
         return messages;
     }
 
-    private async Task<TokenInfo> GetTokenInfoAsync(string audience, string clientId, string authority,string scope, string upn, string pwd)
+    private async Task<TokenInfo> GetTokenInfoAsync(string audience, string clientId, string authority, string scope, string upn, string pwd)
     {
         using (var handler = new HttpClientHandler { UseDefaultCredentials = true })
         using (var client = new HttpClient(handler))
@@ -121,7 +121,7 @@ public class CredentialTokenProvider : ICredentialTokenProvider
 
                 // strictly speaking, we should obtain the Url for the token_endpoint from the /.well-known/openid-configuration endpoint, but we hard-code it here.
 
-                using (var response = await client.PostAsync(authority + "/oauth2/token", content).ConfigureAwait(true))
+                using (var response = await client.PostAsync(authority + "/oauth2/token", content).ConfigureAwait(false))
                 {
                     var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
