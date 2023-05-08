@@ -26,14 +26,18 @@ foreach ($file in $files) {
             $propertyGroupNode = $packageProjectUrlNode.ParentNode
             $packageIdNode = $xml.CreateElement("PackageId") # , $projectNamespace)
             [void]$propertyGroupNode.AppendChild($packageIdNode)
+            $packageId = $file.BaseName
         }
+    }
+    else {
+        $packageId = $packageIdNode.InnerText
     }
 
     if ($packageIdNode -eq $null) {
         Write-output "$($file.FullName) does not contain a PropertyGroup with a PackageId nor a PackageProjectUrl"
     }
     else {
-        $packageId = $packageIdPrefix + $file.BaseName
+        $packageId = $packageIdPrefix + $packageId
 
         $packageIdNode.InnerText = $packageId
         Write-output "$($file.FullName) has NuGet PackageId $packageId"
