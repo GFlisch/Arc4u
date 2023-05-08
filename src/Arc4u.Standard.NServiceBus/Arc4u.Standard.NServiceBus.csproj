@@ -1,62 +1,57 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
-		<PropertyGroup Label="Globals">
-				<SccProjectName>SAK</SccProjectName>
-				<SccProvider>SAK</SccProvider>
-				<SccAuxPath>SAK</SccAuxPath>
-				<SccLocalPath>SAK</SccLocalPath>
-		</PropertyGroup>
-
-		<PropertyGroup>
-				<TargetFrameworks>net6.0;net7.0</TargetFrameworks>
-				<RootNamespace>Arc4u.NServiceBus</RootNamespace>
-				<AssemblyVersion>1.0.0.0</AssemblyVersion>
-				<FileVersion>1.0.0.0</FileVersion>
-				<Version>0.0.0.0</Version>
-				<Authors>Gilles Flisch</Authors>
-				<Company>Gilles Flisch</Company>
-				<Copyright>Gilles Flisch</Copyright>
-				<PackageProjectUrl>https://github.com/GFlisch/Arc4u</PackageProjectUrl>
-				<RepositoryUrl>https://github.com/GFlisch/Arc4u</RepositoryUrl>
-				<PackageLicenseExpression></PackageLicenseExpression>
-				<Description>Core Framework used to connect application with NServiceBus.</Description>
-				<PackageLicenseFile>LICENSE</PackageLicenseFile>
-				<RepositoryType>git</RepositoryType>
-				<PackageTags>Arc4u</PackageTags>
-				<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-				<LangVersion>latest</LangVersion>
-		</PropertyGroup>
-
-		<ItemGroup>
-				<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
-						<PrivateAssets>all</PrivateAssets>
-						<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-				</PackageReference>
-				<PackageReference Include="NServiceBus" Version="7.8.0" />
-		</ItemGroup>
-
-		<ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
-				<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.2" />
-		</ItemGroup>
-		<ItemGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
-				<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
-		</ItemGroup>
-
-
-		<ItemGroup>
-				<ProjectReference Include="..\Arc4u.Standard.Caching\Arc4u.Standard.Caching.csproj" />
-				<ProjectReference Include="..\Arc4u.Standard.Core\Arc4u.Standard.Core.csproj" />
-				<ProjectReference Include="..\Arc4u.Standard.Diagnostics\Arc4u.Standard.Diagnostics.csproj" />
-				<ProjectReference Include="..\Arc4u.Standard.Serializer\Arc4u.Standard.Serializer.csproj" />
-				<ProjectReference Include="..\Arc4u.Standard.Threading\Arc4u.Standard.Threading.csproj" />
-				<ProjectReference Include="..\Arc4u.Standard\Arc4u.Standard.csproj" />
-		</ItemGroup>
-
-		<ItemGroup>
-				<None Include="..\..\LICENSE">
-						<Pack>True</Pack>
-						<PackagePath></PackagePath>
-				</None>
-		</ItemGroup>
-
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup Label="Globals">
+    <SccProjectName>SAK</SccProjectName>
+    <SccProvider>SAK</SccProvider>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccLocalPath>SAK</SccLocalPath>
+  </PropertyGroup>
+  <PropertyGroup>
+    <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
+    <RootNamespace>Arc4u.NServiceBus</RootNamespace>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <Version>0.0.0.0</Version>
+    <Authors>Gilles Flisch</Authors>
+    <Company>Gilles Flisch</Company>
+    <Copyright>Gilles Flisch</Copyright>
+    <PackageProjectUrl>https://github.com/GFlisch/Arc4u</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/GFlisch/Arc4u</RepositoryUrl>
+    <PackageLicenseExpression>
+    </PackageLicenseExpression>
+    <Description>Core Framework used to connect application with NServiceBus.</Description>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>Arc4u</PackageTags>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <LangVersion>latest</LangVersion>
+    <PackageId>Arc4u.Standard.NServiceBus</PackageId>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="NServiceBus" Version="7.8.0" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.2" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Arc4u.Standard.Caching\Arc4u.Standard.Caching.csproj" />
+    <ProjectReference Include="..\Arc4u.Standard.Core\Arc4u.Standard.Core.csproj" />
+    <ProjectReference Include="..\Arc4u.Standard.Diagnostics\Arc4u.Standard.Diagnostics.csproj" />
+    <ProjectReference Include="..\Arc4u.Standard.Serializer\Arc4u.Standard.Serializer.csproj" />
+    <ProjectReference Include="..\Arc4u.Standard.Threading\Arc4u.Standard.Threading.csproj" />
+    <ProjectReference Include="..\Arc4u.Standard\Arc4u.Standard.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath>
+      </PackagePath>
+    </None>
+  </ItemGroup>
 </Project>
