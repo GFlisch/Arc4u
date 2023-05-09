@@ -281,6 +281,7 @@ public static partial class AuthenticationExtensions
         }
 
         services.AddDomainMapping(configuration, "Authentication:DomainsMapping");
+        services.AddOnBehalfOf(configuration);
 
         return services.AddOidcAuthentication(OidcAuthenticationFiller);
     }
