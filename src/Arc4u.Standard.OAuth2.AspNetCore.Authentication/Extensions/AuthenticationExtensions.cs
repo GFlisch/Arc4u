@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Text;
 using Arc4u.Configuration;
 using Arc4u.OAuth2.DataProtection;
 using Arc4u.OAuth2.Extensions;
@@ -185,63 +186,72 @@ public static partial class AuthenticationExtensions
 
         var settings = section.Get<OidcAuthenticationSectionOptions>() ?? throw new NullReferenceException($"No section exists with name {authenticationSectionName} in the configuration providers for OpenId Connect authentication.");
 
-        string? configErrors = null;
+        var configErrorsStringBuilder = new StringBuilder();
         if (string.IsNullOrWhiteSpace(settings.MetadataAddress))
         {
-            configErrors += "MetadataAddress must be filled!" + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("MetadataAddress must be filled!");
         }
+
         if (string.IsNullOrWhiteSpace(settings.CookieName))
         {
-            configErrors += "We need a cookie name defined specifically for your services." + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("We need a cookie name defined specifically for your services.");
         }
+
         if (string.IsNullOrWhiteSpace(settings.OpenIdSettingsSectionPath))
         {
-            configErrors += "We need a setting section to configure the OpenId Connect." + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("We need a setting section to configure the OpenId Connect.");
         }
+
         if (string.IsNullOrWhiteSpace(settings.OAuth2SettingsSectionPath))
         {
-            configErrors += "We need a setting section to configure OAuth2." + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("We need a setting section to configure OAuth2.");
         }
+
         if (string.IsNullOrWhiteSpace(settings.CertificateSectionPath))
         {
-            configErrors += "We need a setting section to specify the certificate to protect your sensitive information." + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("We need a setting section to specify the certificate to protect your sensitive information.");
         }
+
         if (string.IsNullOrWhiteSpace(settings.DataProtectionSectionPath))
         {
-            configErrors += "We need a setting section to configure the DataProtection cache store." + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("We need a setting section to configure the DataProtection cache store.");
         }
+
         if (string.IsNullOrWhiteSpace(settings.JwtBearerEventsType))
         {
-            configErrors += "The JwtBearerEventsType must be defined." + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("The JwtBearerEventsType must be defined.");
         }
+
         if (string.IsNullOrWhiteSpace(settings.ClaimsIdentifierSectionPath))
         {
-            configErrors += "We need a setting section to specify the claims used to identify a user." + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("We need a setting section to specify the claims used to identify a user.");
         }
-
-        if (configErrors is not null)
-        {
-            throw new ConfigurationException(configErrors);
-        }
-
-        var jwtBearerEventsType = Type.GetType(settings.JwtBearerEventsType, false);
 
         if (string.IsNullOrWhiteSpace(settings.CookieAuthenticationEventsType))
         {
-            throw new MissingFieldException("The CookieAuthenticationEventsType must be defined.");
+            configErrorsStringBuilder.AppendLine("The CookieAuthenticationEventsType must be defined.");
         }
-        var cookieAuthenticationEventsType = Type.GetType(settings.CookieAuthenticationEventsType, true);
 
         if (string.IsNullOrWhiteSpace(settings.OpenIdConnectEventsType))
         {
-            throw new MissingFieldException("The OpenIdConnectEventsType must be defined.");
+            configErrorsStringBuilder.AppendLine("The OpenIdConnectEventsType must be defined.");
         }
+
+        if (string.IsNullOrWhiteSpace(settings.ResponseType))
+        {
+            configErrorsStringBuilder.AppendLine("A ResponseType is mandatory to define the OpenId Connect protocol.");
+        }
+
+        if (configErrorsStringBuilder.Length > 0)
+        {
+            throw new ConfigurationException(configErrorsStringBuilder.ToString());
+        }
+
+        var jwtBearerEventsType = Type.GetType(settings.JwtBearerEventsType, false);
+        var cookieAuthenticationEventsType = Type.GetType(settings.CookieAuthenticationEventsType, true);
         var openIdConnectEventsType = Type.GetType(settings.OpenIdConnectEventsType, false);
-
         var certSecurityKey = string.IsNullOrWhiteSpace(settings.CertSecurityKeyPath) ? null : new X509CertificateLoader(null).FindCertificate(configuration, settings.CertSecurityKeyPath) ?? throw new MissingFieldException($"No certificate was found based on the configuration section: {settings.CertSecurityKeyPath}.");
-
         var cert = new X509CertificateLoader(null).FindCertificate(configuration, settings.CertificateSectionPath) ?? throw new MissingFieldException($"No certificate was found based on the configuration section: {settings.CertificateSectionPath}.");
-
         var ticketStoreAction = CacheTicketStoreExtension.PrepareAction(configuration, settings.AuthenticationCacheTicketStorePath);
 
         Type? cookiesConfigureOptionsType;
@@ -252,11 +262,6 @@ public static partial class AuthenticationExtensions
         else
         {
             cookiesConfigureOptionsType = Type.GetType(settings.CookiesConfigureOptionsType, true);
-        }
-
-        if (string.IsNullOrWhiteSpace(settings.ResponseType))
-        {
-            throw new MissingFieldException("A ResponseType is mandatory to define the OpenId Connect protocol.");
         }
 
         void OidcAuthenticationFiller(OidcAuthenticationOptions options)

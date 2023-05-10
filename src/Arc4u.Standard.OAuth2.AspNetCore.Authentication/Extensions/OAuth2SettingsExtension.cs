@@ -15,31 +15,30 @@ public static class OAuth2SettingsExtension
 
         var validate = new OAuth2SettingsOption();
         option(validate);
-        string? configErrors = null;
 
+        var configErrorsStringBuilder = new System.Text.StringBuilder();
         if (string.IsNullOrWhiteSpace(validate.ProviderId))
         {
-            configErrors += "ProviderId field is not defined." + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("ProviderId field is not defined.");
         }
 
         if (string.IsNullOrWhiteSpace(validate.Audiences))
         {
-            configErrors += "Audiences field is not defined." + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("Audiences field is not defined.");
         }
 
         if (string.IsNullOrWhiteSpace(validate.AuthenticationType))
         {
-            configErrors += "AuthenticationType field is not defined." + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("AuthenticationType field is not defined.");
         }
 
-        if (configErrors is not null)
+        if (configErrorsStringBuilder.Length > 0)
         {
-            throw new ConfigurationException(configErrors);
+            throw new ConfigurationException(configErrorsStringBuilder.ToString());
         }
 
         // We map this to a IKeyValuesSettings dictionary.
         // The TokenProviders are based on this.
-
         void SettingsFiller(SimpleKeyValueSettings keyOptions)
         {
             keyOptions.Add(TokenKeys.ProviderIdKey, validate!.ProviderId);
@@ -49,7 +48,6 @@ public static class OAuth2SettingsExtension
             if (!string.IsNullOrWhiteSpace(validate.Authority))
             {
                 keyOptions.Add(TokenKeys.AuthorityKey, validate.Authority);
-
             }
             keyOptions.Add(TokenKeys.Audiences, validate.Audiences);
             if (!string.IsNullOrWhiteSpace(validate.Scopes))
@@ -58,7 +56,6 @@ public static class OAuth2SettingsExtension
             }
         }
 
-
         services.Configure<SimpleKeyValueSettings>(sectionKey, SettingsFiller);
 
         var settings = new SimpleKeyValueSettings();
@@ -66,7 +63,6 @@ public static class OAuth2SettingsExtension
         SettingsFiller(settings);
 
         return settings;
-
     }
 
     public static SimpleKeyValueSettings ConfigureOAuth2Settings(this IServiceCollection services, IConfiguration configuration, [DisallowNull] string sectionName, [DisallowNull] string sectionKey = "OAuth2")

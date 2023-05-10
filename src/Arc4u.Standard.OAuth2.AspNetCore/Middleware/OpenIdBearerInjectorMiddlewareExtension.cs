@@ -18,24 +18,23 @@ public static class OpenIdBearerInjectorMiddlewareExtension
         var validate = new OpenIdBearerInjectorOptions();
         options(validate);
 
-        string? configErrors = null;
+        var configErrorsStringBuilder = new System.Text.StringBuilder();
         if (string.IsNullOrEmpty(validate.OnBehalfOfOpenIdSettingsKey))
         {
-            configErrors += "The on behalf of settings key must be defined." + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("The on behalf of settings key must be defined.");
         }
 
         if (string.IsNullOrEmpty(validate.OboProviderKey))
         {
-            configErrors += "The token provider key to handle the on behalf of scenario must be defined." + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("The token provider key to handle the on behalf of scenario must be defined.");
         }
 
-        if (configErrors is not null)
+        if (configErrorsStringBuilder.Length > 0)
         {
-            throw new ConfigurationException(configErrors);
+            throw new ConfigurationException(configErrorsStringBuilder.ToString());
         }
 
         services.Configure<OpenIdBearerInjectorOptions>(options);
-
     }
 
     public static void AddOpenIdBearerInjector(this IServiceCollection services)
@@ -44,20 +43,20 @@ public static class OpenIdBearerInjectorMiddlewareExtension
 
         var validate = new OpenIdBearerInjectorOptions();
 
-        string? configErrors = null;
+        var configErrorsStringBuilder = new System.Text.StringBuilder();
         if (string.IsNullOrEmpty(validate.OnBehalfOfOpenIdSettingsKey))
         {
-            configErrors += "The on behalf of settings key must be defined." + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("The on behalf of settings key must be defined.");
         }
 
         if (string.IsNullOrEmpty(validate.OboProviderKey))
         {
-            configErrors += "The token provider key to handle the on behalf of scenario must be defined." + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("The token provider key to handle the on behalf of scenario must be defined.");
         }
 
-        if (configErrors is not null)
+        if (configErrorsStringBuilder.Length > 0)
         {
-            throw new ConfigurationException(configErrors);
+            throw new ConfigurationException(configErrorsStringBuilder.ToString());
         }
 
         services.AddOpenIdBearerInjector(options =>
@@ -66,7 +65,6 @@ public static class OpenIdBearerInjectorMiddlewareExtension
             options.OnBehalfOfOpenIdSettingsKey = validate.OnBehalfOfOpenIdSettingsKey;
             options.OpenIdSettingsKey = validate.OpenIdSettingsKey;
         });
-
     }
 
     public static IApplicationBuilder UseOpenIdBearerInjector([DisallowNull] this IApplicationBuilder app)

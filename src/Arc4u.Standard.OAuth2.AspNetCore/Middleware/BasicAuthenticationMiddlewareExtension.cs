@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Arc4u.Standard.OAuth2.Middleware;
@@ -34,20 +35,20 @@ public static class BasicAuthenticationMiddlewareExtension
 
         var settings = section.Get<BasicAuthenticationConfigurationSectionOptions>() ?? throw new NullReferenceException($"No section exists with name {sectionName} in the configuration providers for Basic authentication.");
 
-        string? configErrors = null;
+        var configErrorsStringBuilder = new StringBuilder();
         if (string.IsNullOrWhiteSpace(settings.BasicSettingsPath))
         {
-            configErrors += "BasicSettingsPath must be filled!" + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("BasicSettingsPath must be filled!");
         }
 
         if (string.IsNullOrWhiteSpace(settings.CertificateHeaderPath))
         {
-            configErrors += "CertificateHeaderPath must be filled!" + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("CertificateHeaderPath must be filled!");
         }
 
-        if (configErrors is not null)
+        if (configErrorsStringBuilder.Length > 0)
         {
-            throw new ConfigurationException(configErrors);
+            throw new ConfigurationException(configErrorsStringBuilder.ToString());
         }
 
         certificateLoader ??= new X509CertificateLoader(null);
@@ -58,7 +59,6 @@ public static class BasicAuthenticationMiddlewareExtension
             options.BasicOptions = PrepareBasicAction(configuration, settings.BasicSettingsPath);
             options.CertificateHeaderOptions = PrepareCertificatesAction(configuration, settings.CertificateHeaderPath, certificateLoader);
         });
-
     }
 
     public static void AddBasicAuthenticationSettings(this IServiceCollection services, Action<BasicAuthenticationConfigurationOptions> options)
@@ -102,41 +102,42 @@ public static class BasicAuthenticationMiddlewareExtension
     {
         var validate = new BasicSettingsOptions();
         options(validate);
-        var configErrors = string.Empty;
+
+        var configErrorsStringBuilder = new StringBuilder();
 
         if (string.IsNullOrWhiteSpace(validate.ProviderId))
         {
-            configErrors += "ProviderId field is not defined." + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("ProviderId field is not defined.");
         }
 
         if (string.IsNullOrWhiteSpace(validate.Audience))
         {
-            configErrors += "Audiences field is not defined." + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("Audiences field is not defined.");
         }
 
         if (string.IsNullOrWhiteSpace(validate.Authority))
         {
-            configErrors += "Authorithy field is not defined." + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("Authorithy field is not defined.");
         }
 
         if (string.IsNullOrWhiteSpace(validate.ClientId))
         {
-            configErrors += "ClientId field is not defined." + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("ClientId field is not defined.");
         }
 
         if (string.IsNullOrWhiteSpace(validate.AuthenticationType))
         {
-            configErrors += "AuthenticationType field is not defined." + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("AuthenticationType field is not defined.");
         }
 
         if (string.IsNullOrWhiteSpace(validate.Scope))
         {
-            configErrors += "Scope field is not defined." + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("Scope field is not defined.");
         }
 
-        if (!string.IsNullOrWhiteSpace(configErrors))
+        if (configErrorsStringBuilder.Length > 0)
         {
-            throw new ConfigurationException(configErrors);
+            throw new ConfigurationException(configErrorsStringBuilder.ToString());
         }
 
         // We map this to a IKeyValuesSettings dictionary.
@@ -207,41 +208,40 @@ public static class BasicAuthenticationMiddlewareExtension
         var settings = section.Get<BasicSettingsOptions>() ?? throw new NullReferenceException($"No section exists with name {sectionName}");
 
         // Validate mandatory fields!
-        string? configErrors = null;
+        var configErrorsStringBuilder = new StringBuilder();
         if (string.IsNullOrWhiteSpace(settings.ClientId))
         {
-            configErrors += "ClientId in Basic settings must be filled!" + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("ClientId in Basic settings must be filled!");
         }
 
         if (string.IsNullOrWhiteSpace(settings.Authority))
         {
-            configErrors += "Authority in Basic settings must be filled!" + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("Authority in Basic settings must be filled!");
         }
 
         if (string.IsNullOrWhiteSpace(settings.Audience))
         {
-            configErrors += "Audience in Basic settings must be filled!" + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("Audience in Basic settings must be filled!");
         }
 
         if (string.IsNullOrWhiteSpace(settings.AuthenticationType))
         {
-            configErrors += "AuthenticationType in Basic settings must be filled!" + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("AuthenticationType in Basic settings must be filled!");
         }
 
         if (string.IsNullOrWhiteSpace(settings.ProviderId))
         {
-            configErrors += "ProviderId in Basic settings must be filled!" + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("ProviderId in Basic settings must be filled!");
         }
 
         if (string.IsNullOrWhiteSpace(settings.Scope))
         {
-            configErrors += "Scope in Basic settings must be filled!" + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("Scope in Basic settings must be filled!");
         }
 
-
-        if (configErrors is not null)
+        if (configErrorsStringBuilder.Length > 0)
         {
-            throw new ConfigurationException(configErrors);
+            throw new ConfigurationException(configErrorsStringBuilder.ToString());
         }
 
         void OptionFiller(BasicSettingsOptions option)
