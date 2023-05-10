@@ -26,11 +26,6 @@ public static class OpenIdSettingsExtension
             throw new MissingFieldException($"Audiences field is not defined.");
         }
 
-        if (string.IsNullOrWhiteSpace(validate.Authority))
-        {
-            throw new MissingFieldException($"Authorithy field is not defined.");
-        }
-
         if (string.IsNullOrWhiteSpace(validate.ClientId))
         {
             throw new MissingFieldException($"ClientId field is not defined.");
@@ -50,7 +45,11 @@ public static class OpenIdSettingsExtension
         {
             keyOptions.Add(TokenKeys.ProviderIdKey, validate!.ProviderId);
             keyOptions.Add(TokenKeys.AuthenticationTypeKey, validate.AuthenticationType);
-            keyOptions.Add(TokenKeys.AuthorityKey, validate.Authority);
+            if (!string.IsNullOrWhiteSpace(validate.Authority))
+            {
+                keyOptions.Add(TokenKeys.AuthorityKey, validate.Authority);
+
+            }
             keyOptions.Add(TokenKeys.ClientIdKey, validate.ClientId);
             keyOptions.Add(TokenKeys.ApplicationKey, validate.ApplicationKey);
             keyOptions.Add(TokenKeys.Audiences, validate.Audiences);
