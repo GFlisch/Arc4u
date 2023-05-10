@@ -52,7 +52,7 @@ public static class AuthorityOptionsExtension
 
         // v1.0 is not mandatory and should disappear.
 
-        services.Configure(options);
+        services.Configure(optionKey, options);
     }
 
     public static void AddDefaultAuthority(this IServiceCollection services, IConfiguration configuration, string sectionName = "Authentication:DefaultAuthority")
