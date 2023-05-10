@@ -7,9 +7,10 @@ public class OAuth2SettingsOption
 
     public string AuthenticationType { get; set; } = Constants.BearerAuthenticationType;
 
-    public string Authority { get; set; }
-
-    public string? ClientId { get; set; }
+    /// <summary>
+    /// If null default authority is used!
+    /// </summary>
+    public string? Authority { get; set; }
 
     public string Audiences { get; set; }
 

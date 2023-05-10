@@ -6,6 +6,7 @@ using Arc4u.OAuth2.Events;
 namespace Arc4u.OAuth2.Options;
 public class JwtAuthenticationOptions
 {
+    public AuthorityOptions DefaultAuthority { get; set; }
     public Action<OAuth2SettingsOption> OAuth2SettingsOptions { get; set; }
     public Action<ClaimsIdentifierOption> ClaimsIdentifierOptions { get; set; }
 

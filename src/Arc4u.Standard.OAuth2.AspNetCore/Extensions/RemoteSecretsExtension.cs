@@ -90,7 +90,6 @@ public static class RemoteSecretsExtension
             settings.Add(TokenKeys.ProviderIdKey, options!.ProviderId);
             settings.Add(TokenKeys.ClientSecretHeader, options.HeaderKey);
             settings.Add(TokenKeys.ClientSecret, options.ClientSecret);
- 
         }
 
         return Settings;

@@ -28,10 +28,10 @@ public class AzureADOboTokenProvider : ITokenProvider
                                    ICacheContext cacheContext,
                                    IActivitySourceFactory activitySourceFactory,
                                    IApplicationContext applicationContext,
-                                   IOptionsMonitor<OnBehalfOfAuthenticationOptions> onBehalfOfOptions,
+                                   IOptionsMonitor<AuthorityOptions> onBehalfOfOptions,
                                    ILogger<AzureADOboTokenProvider> logger)
     {
-        _onBehalfOfAuthenticationOptions = onBehalfOfOptions.CurrentValue;
+        _defaultAuthority = onBehalfOfOptions.Get("Default");
         _logger = logger;
         _cacheContext = cacheContext;
         _tokenRefreshInfo = tokenRefreshInfo;
@@ -45,7 +45,7 @@ public class AzureADOboTokenProvider : ITokenProvider
     private readonly ICacheContext _cacheContext;
     private readonly TokenRefreshInfo _tokenRefreshInfo;
     private readonly ActivitySource? _activitySource;
-    private readonly OnBehalfOfAuthenticationOptions _onBehalfOfAuthenticationOptions;
+    private readonly AuthorityOptions _defaultAuthority;
     private readonly IApplicationContext _applicationContext;
 
     public async Task<TokenInfo> GetTokenAsync(IKeyValueSettings settings, object platformParameters)
@@ -105,7 +105,7 @@ public class AzureADOboTokenProvider : ITokenProvider
         {
             var content = new FormUrlEncodedContent(pairs);
 
-            using var tokenResponse = await client.PostAsync(_onBehalfOfAuthenticationOptions.GetEndpoint(), content, CancellationToken.None).ConfigureAwait(false);
+            using var tokenResponse = await client.PostAsync(_defaultAuthority.GetEndpointV2(), content, CancellationToken.None).ConfigureAwait(false);
             {
                 if (!tokenResponse.IsSuccessStatusCode)
                 {

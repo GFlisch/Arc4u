@@ -9,6 +9,7 @@ using Microsoft.Extensions.Options;
 using FluentAssertions;
 using Arc4u.Configuration;
 using Arc4u.OAuth2.Token;
+using Arc4u.OAuth2.Extensions;
 
 namespace Arc4u.Standard.UnitTest.Security;
 
@@ -26,18 +27,15 @@ public class OnBehalfOfTests
     [Fact]
     public void OnBehalfOfAuthenticationOptionsShould()
     {
-        var option = _fixture.Create<OnBehalfOfAuthenticationOptions>();
         var settings = _fixture.Create<OnBehalfOfSettingsOptions>();
 
         var config = new ConfigurationBuilder()
             .AddInMemoryCollection(
        new Dictionary<string, string?>
        {
-           ["Authentication:OnBehalfOf:Authority"] = option.Authority,
-           ["Authentication:OnBehalfOf:TokenEndpoint"] = option.TokenEndpoint,
-           ["Authentication:OnBehalfOf:Settings:Obo1:ClientId"] = settings.ClientId,
-           ["Authentication:OnBehalfOf:Settings:Obo1:ApplicationKey"] = settings.ApplicationKey,
-           ["Authentication:OnBehalfOf:Settings:Obo1:Scope"] = settings.Scope,
+           ["Authentication:OnBehalfOf:Obo1:ClientId"] = settings.ClientId,
+           ["Authentication:OnBehalfOf:Obo1:ApplicationKey"] = settings.ApplicationKey,
+           ["Authentication:OnBehalfOf:Obo1:Scope"] = settings.Scope,
        }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
@@ -47,12 +45,6 @@ public class OnBehalfOfTests
         services.AddOnBehalfOf(configuration);
 
         var app = services.BuildServiceProvider();
-
-        var options = app.GetRequiredService<IOptions<OnBehalfOfAuthenticationOptions>>().Value;
-
-        options.Should().NotBeNull();
-        options.Authority.Should().Be(option.Authority);
-        options.TokenEndpoint.Should().Be(option.TokenEndpoint);
 
         var oboSettings = app.GetRequiredService<IOptionsMonitor<SimpleKeyValueSettings>>().Get("Obo1");
 

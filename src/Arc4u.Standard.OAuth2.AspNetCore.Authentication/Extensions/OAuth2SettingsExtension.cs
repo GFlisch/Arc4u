@@ -27,11 +27,6 @@ public static class OAuth2SettingsExtension
             configErrors += "Audiences field is not defined." + System.Environment.NewLine;
         }
 
-        if (string.IsNullOrWhiteSpace(validate.Authority))
-        {
-            configErrors += "Authorithy field is not defined." + System.Environment.NewLine;
-        }
-
         if (string.IsNullOrWhiteSpace(validate.AuthenticationType))
         {
             configErrors += "AuthenticationType field is not defined." + System.Environment.NewLine;
@@ -49,10 +44,12 @@ public static class OAuth2SettingsExtension
         {
             keyOptions.Add(TokenKeys.ProviderIdKey, validate!.ProviderId);
             keyOptions.Add(TokenKeys.AuthenticationTypeKey, validate.AuthenticationType);
-            keyOptions.Add(TokenKeys.AuthorityKey, validate.Authority);
-            if (!string.IsNullOrWhiteSpace(validate.ClientId))
+
+            //Optional => go to default.
+            if (!string.IsNullOrWhiteSpace(validate.Authority))
             {
-                keyOptions.Add(TokenKeys.ClientIdKey, validate.ClientId);
+                keyOptions.Add(TokenKeys.AuthorityKey, validate.Authority);
+
             }
             keyOptions.Add(TokenKeys.Audiences, validate.Audiences);
             if (!string.IsNullOrWhiteSpace(validate.Scopes))
@@ -108,7 +105,6 @@ public static class OAuth2SettingsExtension
         void OptionFiller(OAuth2SettingsOption option)
         {
             option.Authority = settings.Authority;
-            option.ClientId = settings.ClientId;
             option.Audiences = settings.Audiences;
             option.AuthenticationType = settings.AuthenticationType;
             option.ProviderId = settings.ProviderId;

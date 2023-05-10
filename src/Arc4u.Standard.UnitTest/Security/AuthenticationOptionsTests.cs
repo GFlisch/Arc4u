@@ -16,7 +16,7 @@ using FluentAssertions;
 using Arc4u.Configuration;
 using Arc4u.OAuth2.Token;
 
-namespace Arc4u.Standard.UnitTest.Authentication;
+namespace Arc4u.Standard.UnitTest.Security;
 
 [Trait("Category", "CI")]
 public class AuthenticationOptionsTests
@@ -38,11 +38,10 @@ public class AuthenticationOptionsTests
                      .AddInMemoryCollection(
                          new Dictionary<string, string?>
                          {
-                             ["OAuth2.Settings:ClientId"] = options.ClientId,
                              ["OAuth2.Settings:Audiences"] = options.Audiences,
                              ["OAuth2.Settings:Authority"] = options.Authority,
                              ["OAuth2.Settings:Scopes"] = options.Scopes,
-                          }).Build();
+                         }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -56,7 +55,6 @@ public class AuthenticationOptionsTests
         var sut = serviceProvider.GetService<IOptionsMonitor<SimpleKeyValueSettings>>()!.Get("OAuth2");
 
         sut.Should().NotBeNull();
-        sut.Values[TokenKeys.ClientIdKey].Should().Be(options.ClientId);
         sut.Values[TokenKeys.Audiences].Should().Be(options.Audiences);
         sut.Values[TokenKeys.AuthorityKey].Should().Be(options.Authority);
         sut.Values[TokenKeys.Scopes].Should().Be(options.Scopes);
@@ -71,7 +69,6 @@ public class AuthenticationOptionsTests
                      .AddInMemoryCollection(
                          new Dictionary<string, string?>
                          {
-                             ["OAuth2.Settings:ClientId"] = options.ClientId,
                              ["OAuth2.Settings:Audiences"] = options.Audiences,
                              ["OAuth2.Settings:Authority"] = options.Authority,
                          }).Build();
@@ -88,7 +85,6 @@ public class AuthenticationOptionsTests
         var sut = serviceProvider.GetService<IOptionsMonitor<SimpleKeyValueSettings>>()!.Get("OAuth2");
 
         sut.Should().NotBeNull();
-        sut.Values[TokenKeys.ClientIdKey].Should().Be(options.ClientId);
         sut.Values[TokenKeys.Audiences].Should().Be(options.Audiences);
         sut.Values[TokenKeys.AuthorityKey].Should().Be(options.Authority);
         sut.Values.Should().NotContainKey(TokenKeys.Scopes);

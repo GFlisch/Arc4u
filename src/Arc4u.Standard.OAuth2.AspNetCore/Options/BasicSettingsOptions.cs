@@ -5,7 +5,7 @@ public class BasicSettingsOptions
 
     public string AuthenticationType { get; set; } = "Password";
 
-    public string Authority { get; set; }
+    public string? Authority { get; set; }
 
     public string ClientId { get; set; }
 

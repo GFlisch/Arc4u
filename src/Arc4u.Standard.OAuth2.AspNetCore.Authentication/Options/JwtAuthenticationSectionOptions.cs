@@ -3,6 +3,7 @@ using Arc4u.OAuth2.Events;
 namespace Arc4u.OAuth2.Options;
 public class JwtAuthenticationSectionOptions
 {
+    public AuthorityOptions DefaultAuthority { get; set; }
     public string OAuth2SettingsSectionPath { get; set; } = "Authentication:OAuth2.Settings";
 
     public string OAuth2SettingsKey { get; set; } = "OAuth2";

@@ -21,7 +21,6 @@ using AuthenticationProperties = Microsoft.AspNetCore.Authentication.Authenticat
 
 namespace Arc4u.Standard.OAuth2.Middleware;
 
-
 public class ClaimsPrincipalMiddleware
 {
     private const string tokenExpirationClaimType = "exp";

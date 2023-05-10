@@ -2,36 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Arc4u.Configuration;
+using Arc4u.OAuth2.Options;
 using Arc4u.OAuth2.Token;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Arc4u.OAuth2.Options;
+namespace Arc4u.OAuth2.Extensions;
 
 public static class OnBehalfOfAuthenticationExtensions
 {
-    public static void AddOnBehalfOf(this IServiceCollection services, Action<OnBehalfOfAuthenticationOptions> options)
-    {
-        ArgumentNullException.ThrowIfNull(services);
-        ArgumentNullException.ThrowIfNull(options);
-
-        // validation.
-        var extract = new OnBehalfOfAuthenticationOptions();
-        options(extract);
-
-        if (string.IsNullOrWhiteSpace(extract.Authority))
-        {
-            throw new ConfigurationException("Authority field is mandatory.");
-        }
-
-        if (string.IsNullOrWhiteSpace(extract.TokenEndpoint))
-        {
-            throw new ConfigurationException("TokenEndpoint field is mandatory.");
-        }
-
-        services.Configure<OnBehalfOfAuthenticationOptions>(options);
-    }
-
     public static void AddOnBehalfOfSettings(this IServiceCollection services, Action<OnBehalfOfSettingsOptions> options, [DisallowNull] string optionKey)
     {
         ArgumentNullException.ThrowIfNull(services);
@@ -42,7 +21,7 @@ public static class OnBehalfOfAuthenticationExtensions
             throw new ArgumentNullException(optionKey);
         }
 
-        services.Configure<SimpleKeyValueSettings>(optionKey, BuildSettings(options));
+        services.Configure(optionKey, BuildSettings(options));
     }
 
     public static void AddOnBehalfOf(this IServiceCollection services, [DisallowNull] IConfiguration configuration, [DisallowNull] string sectionName = "Authentication:OnBehalfOf")
@@ -52,39 +31,21 @@ public static class OnBehalfOfAuthenticationExtensions
 
         if (string.IsNullOrWhiteSpace(sectionName))
         {
-            throw new ArgumentNullException(sectionName);
+            // No OnBehalfOf are needed into the application!
+            return;
         }
 
         var section = configuration.GetSection(sectionName);
 
         if (section is null || !section.Exists())
         {
-            throw new ConfigurationException($"Section {sectionName} doesn't exist");
-        }
-
-        var option = section.Get<OnBehalfOfAuthenticationSectionOptions>();
-
-        if (option is null)
-        {
-            throw new ConfigurationException($"Section {sectionName} doesn't correspond to the expected format.");
-        }
-
-        services.AddOnBehalfOf(oboOptions =>
-        {
-            oboOptions.Authority = option.Authority;
-            oboOptions.TokenEndpoint = option.TokenEndpoint;
-        });
-
-        section = configuration.GetSection(option.SettingsPath);
-
-        if (section is null || !section.Exists())
-        {
-            throw new ConfigurationException($"Section {option.SettingsPath} doesn't exist");
+            // No OnBehalfOf are needed into the application!
+            return;
         }
 
         var options = section.Get<Dictionary<string, OnBehalfOfSettingsOptions>>();
 
-        foreach(var settingsOptions in  options)
+        foreach (var settingsOptions in options)
         {
             services.AddOnBehalfOfSettings(oboSettings =>
             {
