@@ -78,25 +78,25 @@ public static class OnBehalfOfAuthenticationExtensions
         var extract = new OnBehalfOfSettingsOptions();
         options(extract);
 
-        var configErrors = string.Empty;
+        var configErrorsStringBuilder = new System.Text.StringBuilder();
         if (string.IsNullOrWhiteSpace(extract.ClientId))
         {
-            configErrors += "ClientId field is not defined." + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("ClientId field is not defined.");
         }
 
         if (string.IsNullOrWhiteSpace(extract.ApplicationKey))
         {
-            configErrors += "ApplicationKey field is not defined." + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("ApplicationKey field is not defined.");
         }
 
         if (string.IsNullOrWhiteSpace(extract.Scope))
         {
-            configErrors += "Scope field is not defined." + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("Scope field is not defined.");
         }
 
-        if (!string.IsNullOrWhiteSpace(configErrors))
+        if (configErrorsStringBuilder.Length > 0)
         {
-            throw new ConfigurationException(configErrors);
+            throw new ConfigurationException(configErrorsStringBuilder.ToString());
         }
 
         return extract;

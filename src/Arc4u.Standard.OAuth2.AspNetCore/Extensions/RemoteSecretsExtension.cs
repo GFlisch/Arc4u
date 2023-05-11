@@ -61,25 +61,26 @@ public static class RemoteSecretsExtension
     {
         // Check the settings!
         // options mandatory fields!
-        string? configErrors = null;
+        var configErrorsStringBuilder = new System.Text.StringBuilder();
+
         if (string.IsNullOrWhiteSpace(options.HeaderKey))
         {
-            configErrors += "HeaaderKey in Remote Secret settings must be filled!" + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("HeaderKey in Remote Secret settings must be filled!");
         }
 
         if (string.IsNullOrWhiteSpace(options.ClientSecret))
         {
-            configErrors += "ClientSecret in Remote Secret settings must be filled!" + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("ClientSecret in Remote Secret settings must be filled!");
         }
 
         if (string.IsNullOrWhiteSpace(options.ProviderId))
         {
-            configErrors += "ProviderId in Remote Secret settings must be filled!" + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("ProviderId in Remote Secret settings must be filled!");
         }
 
-        if (configErrors is not null)
+        if (configErrorsStringBuilder.Length > 0)
         {
-            throw new ConfigurationException(configErrors);
+            throw new ConfigurationException(configErrorsStringBuilder.ToString());
         }
 
         // We map this to a IKeyValuesSettings dictionary.

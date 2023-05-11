@@ -57,67 +57,72 @@ public static class SecretBasicExtension
     }
     private static Action<SimpleKeyValueSettings> BuildBasicSettings(SecretBasicSettingsOptions options)
     {
+        var configErrorsStringBuilder = new System.Text.StringBuilder();
+
         // Check the settings!
         // options mandatory fields!
-        string? configErrors = null;
+
         if (string.IsNullOrWhiteSpace(options.ClientId))
         {
-            configErrors += "ClientId in Secret Basic settings must be filled!" + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("ClientId in Secret Basic settings must be filled!");
         }
 
         if (string.IsNullOrWhiteSpace(options.Authority))
         {
-            configErrors += "Authority in Secret Basic settings must be filled!" + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("Authority in Secret Basic settings must be filled!");
         }
 
         if (string.IsNullOrWhiteSpace(options.Audience))
         {
-            configErrors += "Audience in Secret Basic settings must be filled!" + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("Audience in Secret Basic settings must be filled!");
         }
 
         if (string.IsNullOrWhiteSpace(options.AuthenticationType))
         {
-            configErrors += "AuthenticationType in Secret Basic settings must be filled!" + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("AuthenticationType in Secret Basic settings must be filled!");
         }
 
         if (string.IsNullOrWhiteSpace(options.ProviderId))
         {
-            configErrors += "ProviderId in Secret Basic settings must be filled!" + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("ProviderId in Secret Basic settings must be filled!");
         }
 
         if (string.IsNullOrWhiteSpace(options.Scope))
         {
-            configErrors += "Scope in Secret Basic settings must be filled!" + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("Scope in Secret Basic settings must be filled!");
         }
 
         if (string.IsNullOrWhiteSpace(options.BasicProviderId))
         {
-            configErrors += "BasicProviderId in Secret Basic settings must be filled!" + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine(
+                "BasicProviderId in Secret Basic settings must be filled!");
         }
 
-        if (string.IsNullOrWhiteSpace(options.User) && string.IsNullOrWhiteSpace(options.Password) && string.IsNullOrWhiteSpace(options.Credential))
+        if (string.IsNullOrWhiteSpace(options.User) &&
+            string.IsNullOrWhiteSpace(options.Password) &&
+            string.IsNullOrWhiteSpace(options.Credential))
         {
-            configErrors += "User/Password or Credential in Secret Basic settings must be filled!" + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("User/Password or Credential in Secret Basic settings must be filled!");
         }
 
         if (!string.IsNullOrWhiteSpace(options.Password) && !string.IsNullOrWhiteSpace(options.Credential))
         {
-            configErrors += "Password and Credential in Secret Basic settings cannot be filled at the same time!" + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine(
+                               "Password and Credential in Secret Basic settings cannot be filled at the same time!");
         }
 
         if (string.IsNullOrWhiteSpace(options.User) && !string.IsNullOrWhiteSpace(options.Password) && string.IsNullOrWhiteSpace(options.Credential))
         {
-            configErrors += "User in Secret Basic settings must be filled when password is used!" + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("User in Secret Basic settings must be filled when password is used!");
         }
 
-        if (configErrors is not null)
+        if (configErrorsStringBuilder.Length > 0)
         {
-            throw new ConfigurationException(configErrors);
+            throw new ApplicationException(configErrorsStringBuilder.ToString());
         }
 
         // We map this to a IKeyValuesSettings dictionary.
         // The TokenProviders are based on this.
-
         void Settings(SimpleKeyValueSettings settings)
         {
             settings.Add(TokenKeys.ProviderIdKey, options!.ProviderId);

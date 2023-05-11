@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -77,31 +78,31 @@ public static class ConfigurationHelper
 
         // try to detect as many configuration errors as possible instead of stopping at the first misconfigured property.
         // since the happy flow is the norm, it's OK to use just a string to concatenate messages instead of a full-blown list or StringBuilder.
+        var configErrorsStringBuilder = new StringBuilder();
 
-        string? configErrors = null;
         if (string.IsNullOrEmpty(validate.ApplicationName))
         {
-            configErrors += "Application name is not defined in the intialization of the application config settings" + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("Application name is not defined in the initialization of the application config settings");
         }
 
         if (string.IsNullOrEmpty(validate.Environment.Name))
         {
-            configErrors += "Application environment name is not defined in the intialization of the application config settings" + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("Application environment name is not defined in the initialization of the application config settings");
         }
 
         if (string.IsNullOrEmpty(validate.Environment.LoggingName))
         {
-            configErrors += "Application environment logging name is not defined in the intialization of the application config settings" + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("Application environment logging name is not defined in the initialization of the application config settings");
         }
 
         if (string.IsNullOrEmpty(validate.Environment.TimeZone))
         {
-            configErrors += "Application environment time zone is not defined in the intialization of the application config settings" + System.Environment.NewLine;
+            configErrorsStringBuilder.AppendLine("Application environment time zone is not defined in the initialization of the application config settings");
         }
 
-        if (configErrors is not null)
+        if (configErrorsStringBuilder.Length > 0)
         {
-            throw new ConfigurationException(configErrors);
+            throw new ConfigurationException(configErrorsStringBuilder.ToString());
         }
 
         services.Configure<ApplicationConfig>(option);
