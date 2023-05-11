@@ -95,7 +95,7 @@ public class AzureADOboTokenProvider : ITokenProvider
                                     {
                                             { "grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer" },
                                             { "client_id", settings.Values[TokenKeys.ClientIdKey] },
-                                            { "client_secret", settings.Values[TokenKeys.ApplicationKey] },
+                                            { "client_secret", settings.Values[TokenKeys.ClientSecret] },
                                             { "assertion", currentToken },
                                             { "scope", settings.Values[TokenKeys.Scope] },
                                             { "requested_token_use", "on_behalf_of" }
