@@ -51,7 +51,7 @@ public static class OpenIdSettingsExtension
 
             }
             keyOptions.Add(TokenKeys.ClientIdKey, validate.ClientId);
-            keyOptions.Add(TokenKeys.ApplicationKey, validate.ApplicationKey);
+            keyOptions.Add(TokenKeys.ClientSecret, validate.ClientSecret);
             keyOptions.Add(TokenKeys.Audiences, validate.Audiences);
             keyOptions.Add(TokenKeys.Scopes, validate.Scopes);
         }
@@ -91,7 +91,7 @@ public static class OpenIdSettingsExtension
         void OptionFiller(OpenIdSettingsOption option)
 
         {
-            option.ApplicationKey = settings.ApplicationKey;
+            option.ClientSecret = settings.ClientSecret;
             option.Authority = settings.Authority;
             option.ClientId = settings.ClientId;
             option.Audiences = settings.Audiences;

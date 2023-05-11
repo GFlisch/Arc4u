@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using Arc4u.Standard.OAuth2;
 using FluentAssertions;
 using Arc4u.OAuth2.Token;
-using Arc4u.Configuration;
 using Arc4u.Standard.OAuth2.Middleware;
 using Arc4u.Standard.OAuth2.Options;
 using System.Linq;
@@ -37,8 +36,6 @@ public class BasicSettingsOptionsTests
                          new Dictionary<string, string?>
                          {
                              ["Authentication:Basic:Settings:ClientId"] = options.ClientId,
-                             ["Authentication:Basic:Settings:Audience"] = options.Audience,
-                             ["Authentication:Basic:Settings:Authority"] = options.Authority,
                          }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
@@ -54,15 +51,13 @@ public class BasicSettingsOptionsTests
 
         sut.Should().NotBeNull();
         sut.BasicSettings.Values[TokenKeys.ClientIdKey].Should().Be(options.ClientId);
-        sut.BasicSettings.Values[TokenKeys.Audience].Should().Be(options.Audience);
-        sut.BasicSettings.Values[TokenKeys.AuthorityKey].Should().Be(options.Authority);
         sut.BasicSettings.Values[TokenKeys.ProviderIdKey].Should().Be(_default.ProviderId);
         sut.BasicSettings.Values[TokenKeys.AuthenticationTypeKey].Should().Be(_default.AuthenticationType);
         sut.BasicSettings.Values[TokenKeys.Scope].Should().Be(_default.Scope);
     }
 
     [Fact]
-    public void CustomStandardShould()
+    public void Custom_Standard_Should()
     {
         var options = _fixture.Create<BasicSettingsOptions>();
 
@@ -71,8 +66,6 @@ public class BasicSettingsOptionsTests
                          new Dictionary<string, string?>
                          {
                              ["Authentication:Basic:Settings:ClientId"] = options.ClientId,
-                             ["Authentication:Basic:Settings:Audience"] = options.Audience,
-                             ["Authentication:Basic:Settings:Authority"] = options.Authority,
                              ["Authentication:Basic:Settings:ProviderId"] = options.ProviderId,
                              ["Authentication:Basic:Settings:AuthenticationType"] = options.AuthenticationType,
                              ["Authentication:Basic:Settings:Scope"] = options.Scope,
@@ -91,39 +84,13 @@ public class BasicSettingsOptionsTests
 
         sut.Should().NotBeNull();
         sut.BasicSettings.Values[TokenKeys.ClientIdKey].Should().Be(options.ClientId);
-        sut.BasicSettings.Values[TokenKeys.Audience].Should().Be(options.Audience);
-        sut.BasicSettings.Values[TokenKeys.AuthorityKey].Should().Be(options.Authority);
         sut.BasicSettings.Values[TokenKeys.ProviderIdKey].Should().Be(options.ProviderId);
         sut.BasicSettings.Values[TokenKeys.AuthenticationTypeKey].Should().Be(options.AuthenticationType);
         sut.BasicSettings.Values[TokenKeys.Scope].Should().Be(options.Scope);
     }
 
     [Fact]
-    public void BasicStandardIncompleteShouldThrowAnException()
-    {
-        var options = _fixture.Create<BasicSettingsOptions>();
-        var _default = new BasicSettingsOptions();
-
-        var config = new ConfigurationBuilder()
-                     .AddInMemoryCollection(
-                         new Dictionary<string, string?>
-                         {
-                             ["Authentication:Basic:Settings:Audience"] = options.Audience,
-                             ["Authentication:Basic:Settings:Authority"] = options.Authority,
-                         }).Build();
-
-        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
-
-        IServiceCollection services = new ServiceCollection();
-
-        var exception = Record.Exception(() => services.AddBasicAuthenticationSettings(configuration));
-
-        exception.Should().NotBeNull();
-        exception.Should().BeOfType<ConfigurationException>();
-    }
-
-    [Fact]
-    public void BasicSettingsDefaultUpnShould()
+    public void Basic_Settings_Default_Upn_Should()
     {
         var options = _fixture.Create<BasicSettingsOptions>();
 
@@ -132,8 +99,6 @@ public class BasicSettingsOptionsTests
                          new Dictionary<string, string?>
                          {
                              ["Authentication:Basic:Settings:ClientId"] = options.ClientId,
-                             ["Authentication:Basic:Settings:Audience"] = options.Audience,
-                             ["Authentication:Basic:Settings:Authority"] = options.Authority,
                              ["Authentication:Basic:Settings:ProviderId"] = options.ProviderId,
                              ["Authentication:Basic:Settings:AuthenticationType"] = options.AuthenticationType,
                              ["Authentication:Basic:Settings:Scope"] = options.Scope,
@@ -165,8 +130,6 @@ public class BasicSettingsOptionsTests
                          new Dictionary<string, string?>
                          {
                              ["Authentication:Basic:Settings:ClientId"] = options.ClientId,
-                             ["Authentication:Basic:Settings:Audience"] = options.Audience,
-                             ["Authentication:Basic:Settings:Authority"] = options.Authority,
                              ["Authentication:Basic:Settings:ProviderId"] = options.ProviderId,
                              ["Authentication:Basic:Settings:AuthenticationType"] = options.AuthenticationType,
                              ["Authentication:Basic:Settings:Scope"] = options.Scope,

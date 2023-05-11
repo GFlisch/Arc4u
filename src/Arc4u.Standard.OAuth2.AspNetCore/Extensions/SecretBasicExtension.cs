@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Arc4u.Configuration;
+using Arc4u.OAuth2.Extensions;
 using Arc4u.OAuth2.Token;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,7 +20,7 @@ public static class SecretBasicExtension
             throw new ArgumentNullException(nameof(optionKey));
         }
 
-        services.Configure<SimpleKeyValueSettings>(optionKey, BuildBasicSettings(options));
+        Register(services, options, optionKey);
     }
 
     public static void AddSecretAuthentication(this IServiceCollection services, [DisallowNull] IConfiguration configuration, [DisallowNull] string sectionName = "Authentication:ClientSecrets")
@@ -43,19 +44,21 @@ public static class SecretBasicExtension
 
         foreach (var secret in basicSecrets)
         {
-            services.Configure<SimpleKeyValueSettings>(secret.Key, BuildBasicSettings(secret.Value));
+            Register(services, secret.Value, secret.Key);
         }
     }
 
-    private static Action<SimpleKeyValueSettings> BuildBasicSettings(Action<SecretBasicSettingsOptions> action)
+    private static void Register(IServiceCollection services, Action<SecretBasicSettingsOptions> action, [DisallowNull] string optionKey)
     {
         var options = new SecretBasicSettingsOptions();
         action(options);
 
-        return BuildBasicSettings(options);
+        Register(services, options, optionKey);
 
     }
-    private static Action<SimpleKeyValueSettings> BuildBasicSettings(SecretBasicSettingsOptions options)
+
+
+    private static void Register(IServiceCollection services, SecretBasicSettingsOptions options, [DisallowNull] string optionKey)
     {
         // Check the settings!
         // options mandatory fields!
@@ -64,17 +67,6 @@ public static class SecretBasicExtension
         {
             configErrors += "ClientId in Secret Basic settings must be filled!" + System.Environment.NewLine;
         }
-
-        if (string.IsNullOrWhiteSpace(options.Authority))
-        {
-            configErrors += "Authority in Secret Basic settings must be filled!" + System.Environment.NewLine;
-        }
-
-        if (string.IsNullOrWhiteSpace(options.Audience))
-        {
-            configErrors += "Audience in Secret Basic settings must be filled!" + System.Environment.NewLine;
-        }
-
         if (string.IsNullOrWhiteSpace(options.AuthenticationType))
         {
             configErrors += "AuthenticationType in Secret Basic settings must be filled!" + System.Environment.NewLine;
@@ -115,6 +107,15 @@ public static class SecretBasicExtension
             throw new ConfigurationException(configErrors);
         }
 
+        if (options.Authority is not null)
+        {
+            services.AddAuthority(authOptions =>
+            {
+                authOptions.Url = options.Authority.Url;
+                authOptions.TokenEndpoint = options.Authority.TokenEndpoint;
+            }, optionKey);
+        }
+
         // We map this to a IKeyValuesSettings dictionary.
         // The TokenProviders are based on this.
 
@@ -122,17 +123,20 @@ public static class SecretBasicExtension
         {
             settings.Add(TokenKeys.ProviderIdKey, options!.ProviderId);
             settings.Add(TokenKeys.AuthenticationTypeKey, options.AuthenticationType);
-            settings.Add(TokenKeys.AuthorityKey, options.Authority);
             settings.Add(TokenKeys.ClientIdKey, options.ClientId);
-            settings.Add(TokenKeys.Audience, options.Audience);
             settings.Add(TokenKeys.Scope, options.Scope);
+            if (options.Authority is not null)
+            {
+                // info to retrieve the authority!
+                settings.Add(TokenKeys.AuthorityKey, optionKey);
+            }
             settings.Add("User", options.User);
             settings.Add("Password", options.Password);
             settings.Add("Credential", options.Credential);
             settings.Add("BasicProviderId", options.BasicProviderId);
         }
 
-        return Settings;
+        services.Configure<SimpleKeyValueSettings>(optionKey, Settings);
     }
 
 

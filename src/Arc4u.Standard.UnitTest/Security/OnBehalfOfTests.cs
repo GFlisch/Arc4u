@@ -34,7 +34,7 @@ public class OnBehalfOfTests
        new Dictionary<string, string?>
        {
            ["Authentication:OnBehalfOf:Obo1:ClientId"] = settings.ClientId,
-           ["Authentication:OnBehalfOf:Obo1:ApplicationKey"] = settings.ApplicationKey,
+           ["Authentication:OnBehalfOf:Obo1:ClientSecret"] = settings.ClientSecret,
            ["Authentication:OnBehalfOf:Obo1:Scope"] = settings.Scope,
        }).Build();
 
@@ -50,7 +50,7 @@ public class OnBehalfOfTests
 
         oboSettings.Should().NotBeNull();
         oboSettings.Values[TokenKeys.ClientIdKey].Should().Be(settings.ClientId);
-        oboSettings.Values[TokenKeys.ApplicationKey].Should().Be(settings.ApplicationKey);
+        oboSettings.Values[TokenKeys.ClientSecret].Should().Be(settings.ClientSecret);
         oboSettings.Values[TokenKeys.Scope].Should().Be(settings.Scope);
 
     }

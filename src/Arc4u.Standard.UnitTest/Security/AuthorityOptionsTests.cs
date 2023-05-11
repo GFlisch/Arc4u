@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using Arc4u.OAuth2.Options;
 using Arc4u.OAuth2.Extensions;
 using FluentAssertions;
+using System;
 
 namespace Arc4u.Standard.UnitTest.Security;
 
@@ -27,15 +28,14 @@ public class AuthorityOptionsTests
     [Fact]
     public void AuthorityOptionsShould()
     {
-        var option = _fixture.Create<AuthorityOptions>();
+        var option = _fixture.Build<AuthorityOptions>().With(p => p.TokenEndpoint, _fixture.Create<Uri>().AbsoluteUri).Create();
 
         var config = new ConfigurationBuilder()
             .AddInMemoryCollection(
        new Dictionary<string, string?>
        {
            ["Authentication:DefaultAuthority:Url"] = option.Url,
-           ["Authentication:DefaultAuthority:TokenEndpointV2"] = option.TokenEndpointV2,
-           ["Authentication:DefaultAuthority:TokenEndpointV1"] = option.TokenEndpointV1,
+           ["Authentication:DefaultAuthority:TokenEndpoint"] = option.TokenEndpoint,
        }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
@@ -46,18 +46,17 @@ public class AuthorityOptionsTests
 
         var app = services.BuildServiceProvider();
 
-        var options = app.GetRequiredService<IOptions<AuthorityOptions>>().Value;
+        var options = app.GetRequiredService<IOptionsMonitor<AuthorityOptions>>().Get("Default");
 
         options.Should().NotBeNull();
         options.Url.Should().Be(option.Url);
-        options.TokenEndpointV1.Should().Be(option.TokenEndpointV1);
-        options.TokenEndpointV2.Should().Be(option.TokenEndpointV2);
+        options.TokenEndpoint.Should().Be(option.TokenEndpoint);
     }
 
     [Fact]
     public void Authority_With_Only_Url_OptionsShould()
     {
-        var option = _fixture.Create<AuthorityOptions>();
+        var option = _fixture.Build<AuthorityOptions>().With(p => p.TokenEndpoint, _fixture.Create<Uri>().AbsoluteUri).Create();
         var _default = new AuthorityOptions();
 
         var config = new ConfigurationBuilder()
@@ -75,12 +74,11 @@ public class AuthorityOptionsTests
 
         var app = services.BuildServiceProvider();
 
-        var options = app.GetRequiredService<IOptions<AuthorityOptions>>().Value;
+        var options = app.GetRequiredService<IOptionsMonitor<AuthorityOptions>>().Get("Default");
 
         options.Should().NotBeNull();
         options.Url.Should().Be(option.Url);
-        options.TokenEndpointV1.Should().Be(_default.TokenEndpointV1);
-        options.TokenEndpointV2.Should().Be(_default.TokenEndpointV2);
+        options.TokenEndpoint.Should().Be(_default.TokenEndpoint);
     }
 
 }

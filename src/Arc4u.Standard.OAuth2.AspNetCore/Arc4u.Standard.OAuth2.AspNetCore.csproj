@@ -17,6 +17,7 @@
     <RootNamespace>Arc4u.OAuth2</RootNamespace>
     <LangVersion>latest</LangVersion>
     <PackageId>Arc4u.Standard.OAuth2.AspNetCore</PackageId>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

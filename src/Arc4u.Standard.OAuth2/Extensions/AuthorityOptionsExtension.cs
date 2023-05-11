@@ -45,9 +45,9 @@ public static class AuthorityOptionsExtension
             throw new ConfigurationException("Url authority field is mandatory.");
         }
 
-        if (string.IsNullOrWhiteSpace(extract.TokenEndpointV2))
+        if (string.IsNullOrWhiteSpace(extract.TokenEndpoint))
         {
-            throw new ConfigurationException("TokenEndpoint v2.0 field is mandatory.");
+            throw new ConfigurationException("TokenEndpoint field is mandatory.");
         }
 
         // v1.0 is not mandatory and should disappear.
@@ -94,8 +94,7 @@ public static class AuthorityOptionsExtension
         services.AddDefaultAuthority(options =>
         {
             options.Url = option.Url;
-            options.TokenEndpointV1 = option.TokenEndpointV1;
-            options.TokenEndpointV2 = option.TokenEndpointV2;
+            options.TokenEndpoint = option.TokenEndpoint;
         });
     }
 }

@@ -15,7 +15,7 @@ public class OpenIdSettingsOption
 
     public string ClientId { get; set; }
 
-    public string ApplicationKey { get; set; }
+    public string ClientSecret { get; set; }
 
     public string Audiences { get; set; }
 

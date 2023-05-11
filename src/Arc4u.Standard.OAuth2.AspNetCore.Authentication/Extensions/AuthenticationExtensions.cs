@@ -68,8 +68,7 @@ public static partial class AuthenticationExtensions
         services.AddDefaultAuthority(options =>
         {
             options.Url = oidcOptions.DefaultAuthority.Url;
-            options.TokenEndpointV1 = oidcOptions.DefaultAuthority.TokenEndpointV1;
-            options.TokenEndpointV2 = oidcOptions.DefaultAuthority.TokenEndpointV2;
+            options.TokenEndpoint = oidcOptions.DefaultAuthority.TokenEndpoint;
         });
         // store the configuration => this will be used by the AddCookies to define the ITicketStore implementation.
         services.Configure<OidcAuthenticationOptions>(authenticationOptions);
@@ -127,7 +126,7 @@ public static partial class AuthenticationExtensions
                     }
 
                     options.ClientId = openIdOptions.ClientId;
-                    options.ClientSecret = openIdOptions.ApplicationKey;
+                    options.ClientSecret = openIdOptions.ClientSecret;
                     // we don't call the user info endpoint => On AzureAd the user.read scope is needed.
                     options.GetClaimsFromUserInfoEndpoint = false;
 
@@ -327,8 +326,7 @@ public static partial class AuthenticationExtensions
         services.AddDefaultAuthority(auth =>
         {
             auth.Url = options.DefaultAuthority.Url;
-            auth.TokenEndpointV1 = options.DefaultAuthority.TokenEndpointV1;
-            auth.TokenEndpointV2 = options.DefaultAuthority.TokenEndpointV2;
+            auth.TokenEndpoint = options.DefaultAuthority.TokenEndpoint;
         });
 
         var authenticationBuilder =

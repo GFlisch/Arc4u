@@ -50,7 +50,7 @@ public static class OnBehalfOfAuthenticationExtensions
             services.AddOnBehalfOfSettings(oboSettings =>
             {
                 oboSettings.ClientId = settingsOptions.Value.ClientId;
-                oboSettings.ApplicationKey = settingsOptions.Value.ApplicationKey;
+                oboSettings.ClientSecret = settingsOptions.Value.ClientSecret;
                 oboSettings.Scope = settingsOptions.Value.Scope;
 
             }, settingsOptions.Key);
@@ -66,7 +66,7 @@ public static class OnBehalfOfAuthenticationExtensions
         {
             settings.Add(TokenKeys.ClientIdKey, validated.ClientId);
             settings.Add(TokenKeys.Scope, validated.Scope);
-            settings.Add(TokenKeys.ApplicationKey, validated.ApplicationKey);
+            settings.Add(TokenKeys.ClientSecret, validated.ClientSecret);
         }
 
         return Settings;
@@ -84,9 +84,9 @@ public static class OnBehalfOfAuthenticationExtensions
             configErrors += "ClientId field is not defined." + System.Environment.NewLine;
         }
 
-        if (string.IsNullOrWhiteSpace(extract.ApplicationKey))
+        if (string.IsNullOrWhiteSpace(extract.ClientSecret))
         {
-            configErrors += "ApplicationKey field is not defined." + System.Environment.NewLine;
+            configErrors += "ClientSecret field is not defined." + System.Environment.NewLine;
         }
 
         if (string.IsNullOrWhiteSpace(extract.Scope))
