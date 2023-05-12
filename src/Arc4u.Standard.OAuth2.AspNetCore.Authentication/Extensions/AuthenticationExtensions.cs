@@ -112,7 +112,7 @@ public static partial class AuthenticationExtensions
                     options.UsePkce = true; // Impact on the security. It is best to do this...
                     options.UseTokenLifetime = false;
                     options.SaveTokens = false;
-                    options.Authority = openIdOptions.Authority ?? oidcOptions.DefaultAuthority.Url;
+                    options.Authority = openIdOptions.Authority is null ? oidcOptions.DefaultAuthority.Url : openIdOptions.Authority.Url;
                     options.RequireHttpsMetadata = oidcOptions.RequireHttpsMetadata;
                     options.MetadataAddress = oidcOptions.MetadataAddress;
                     options.ResponseType = oidcOptions.ResponseType;

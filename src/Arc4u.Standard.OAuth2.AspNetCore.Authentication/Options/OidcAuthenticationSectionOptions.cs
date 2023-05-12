@@ -1,5 +1,6 @@
 using System;
 using Arc4u.OAuth2.Events;
+using Arc4u.Standard.OAuth2;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace Arc4u.OAuth2.Options;
@@ -16,11 +17,11 @@ public class OidcAuthenticationSectionOptions
 
     public string OpenIdSettingsSectionPath { get; set; } = "Authentication:OpenId.Settings";
 
-    public string OpenIdSettingsKey { get; set; } = "OpenId";
+    public string OpenIdSettingsKey { get; set; } = Constants.OpenIdOptionsName;
 
     public string OAuth2SettingsSectionPath { get; set; } = "Authentication:OAuth2.Settings";
 
-    public string OAuth2SettingsKey { get; set; } = "OAuth2";
+    public string OAuth2SettingsKey { get; set; } = Constants.OAuth2OptionsName;
 
     public string ClaimsIdentifierSectionPath { get; set; } = "Authentication:ClaimsIdentifier";
 

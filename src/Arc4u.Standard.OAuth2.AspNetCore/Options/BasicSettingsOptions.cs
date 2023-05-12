@@ -11,5 +11,5 @@ public class BasicSettingsOptions
 
     public string ClientId { get; set; }
 
-    public string Scope { get; set; } = "openid";
+    public string Scope { get; set; } = string.Empty;
 }

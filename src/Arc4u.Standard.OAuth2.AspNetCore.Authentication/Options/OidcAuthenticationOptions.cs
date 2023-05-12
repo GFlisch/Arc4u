@@ -4,6 +4,7 @@ using Arc4u.OAuth2.Configuration;
 using Arc4u.OAuth2.DataProtection;
 using Arc4u.OAuth2.Events;
 using Arc4u.OAuth2.TicketStore;
+using Arc4u.Standard.OAuth2;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace Arc4u.OAuth2.Options;
@@ -18,11 +19,11 @@ public class OidcAuthenticationOptions
 
     public bool ValidateAuthority { get; set; } = true;
 
-    public string OpenIdSettingsKey { get; set; } = "OpenId";
+    public string OpenIdSettingsKey { get; set; } = Constants.OpenIdOptionsName;
 
     public Action<OpenIdSettingsOption> OpenIdSettingsOptions { get; set; }
 
-    public string OAuth2SettingsKey { get; set; } = "OAuth2";
+    public string OAuth2SettingsKey { get; set; } = Constants.OAuth2OptionsName;
 
     public Action<OAuth2SettingsOption> OAuth2SettingsOptions { get; set; }
 
