@@ -81,6 +81,7 @@ public class BasicAuthenticationTests
 
         sut.BasicSettings.Values[TokenKeys.ClientIdKey].Should().Be(basicSettings.ClientId);
         sut.BasicSettings.Values[TokenKeys.Scope].Should().Be(basicSettings.Scope);
+        sut.BasicSettings.Values.ContainsKey(TokenKeys.AuthorityKey).Should().BeFalse();
 
         var sutAuthority = app.GetRequiredService<IOptionsMonitor<AuthorityOptions>>().Get("Basic");
 
@@ -116,6 +117,7 @@ public class BasicAuthenticationTests
 
         sut.BasicSettings.Values[TokenKeys.ClientIdKey].Should().Be(basicSettings.ClientId);
         sut.BasicSettings.Values[TokenKeys.Scope].Should().Be(basicSettings.Scope);
+        sut.BasicSettings.Values[TokenKeys.AuthorityKey].Should().Be("Basic");
 
         var sutAuthority = app.GetRequiredService<IOptionsMonitor<AuthorityOptions>>().Get("Basic");
 

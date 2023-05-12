@@ -35,7 +35,7 @@ public class OidcAuthenticationSectionOptions
     public string ApplicationNameSectionPath { get; set; } = "Application.configuration:ApplicationName";
 
     public string JwtBearerEventsType { get; set; } = typeof(StandardBearerEvents).AssemblyQualifiedName!;
-           
+
     public string CookieAuthenticationEventsType { get; set; } = typeof(StandardCookieEvents).AssemblyQualifiedName!;
 
     public string OpenIdConnectEventsType { get; set; } = typeof(StandardOpenIdConnectEvents).AssemblyQualifiedName!;
@@ -49,7 +49,7 @@ public class OidcAuthenticationSectionOptions
     /// <summary>
     /// The <see cref="IPostConfigureOptions<CookieAuthenticationOptions"/> type used to configure the <see cref="CookieAuthenticationOptions"/>.
     /// </summary>
-    public string? CookiesConfigureOptionsType { get; set; } 
+    public string? CookiesConfigureOptionsType { get; set; }
 
     /// <summary>
     /// For the other OIDC => ResponseType = OpenIdConnectResponseType.CodeIdTokenToken;

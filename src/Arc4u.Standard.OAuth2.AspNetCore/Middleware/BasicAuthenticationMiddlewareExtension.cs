@@ -91,29 +91,39 @@ public static class BasicAuthenticationMiddlewareExtension
             }
         }
 
+        var hasSpecificAuthority = RegisterBasicAuthority(services, basicOptions.BasicOptions);
+
+        var settings = basicOptions.BasicOptions.BuildBasics();
+
+        // The Authority will be used to retrieve the AuthorityOption.
+        if (hasSpecificAuthority)
+        {
+            settings.Add(TokenKeys.AuthorityKey, "Basic");
+        }
+
         services.Configure<BasicAuthenticationSettingsOptions>(basicSettings =>
         {
-            basicSettings.BasicSettings = basicOptions.BasicOptions.BuildBasics();
+            basicSettings.BasicSettings = settings;
             basicSettings.DefaultUpn = basicOptions.DefaultUpn;
             basicSettings.CertificateHeaderOptions = certs;
         });
 
-        RegisterBasicAuthority(services, basicOptions.BasicOptions);
+        
     }
 
-    public static void RegisterBasicAuthority(IServiceCollection services, Action<BasicSettingsOptions> options)
+    public static bool RegisterBasicAuthority(IServiceCollection services, Action<BasicSettingsOptions> options)
     {
         var validate = new BasicSettingsOptions();
         options(validate);
 
         if (validate.Authority is null)
         {
-            return;
+            return false;
         }
 
         if (string.IsNullOrWhiteSpace(validate.Authority.Url))
         {
-            return;
+            return false;
         }
 
         services.AddAuthority(authOptions =>
@@ -122,6 +132,7 @@ public static class BasicAuthenticationMiddlewareExtension
             authOptions.TokenEndpoint = validate.Authority.TokenEndpoint;
         }, "Basic");
 
+        return true;
     }
 
     public static SimpleKeyValueSettings BuildBasics(this Action<BasicSettingsOptions> options)

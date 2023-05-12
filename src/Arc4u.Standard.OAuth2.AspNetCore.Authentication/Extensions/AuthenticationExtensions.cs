@@ -151,7 +151,7 @@ public static partial class AuthenticationExtensions
                 .AddJwtBearer(option =>
                 {
                     option.RequireHttpsMetadata = oidcOptions.RequireHttpsMetadata;
-                    option.Authority = oauth2Options.Authority ?? oidcOptions.DefaultAuthority.Url;
+                    option.Authority = oauth2Options.Authority is null ? oidcOptions.DefaultAuthority.Url : oauth2Options.Authority.Url;
                     option.MetadataAddress = oidcOptions.MetadataAddress;
                     option.SaveToken = true;
                     option.TokenValidationParameters.SaveSigninToken = false;
@@ -336,7 +336,7 @@ public static partial class AuthenticationExtensions
                     SecurityKey? securityKey = options.CertSecurityKey is not null ? new X509SecurityKey(options.CertSecurityKey) : null;
 
                     option.RequireHttpsMetadata = options.RequireHttpsMetadata;
-                    option.Authority = oauth2Options.Authority;
+                    option.Authority = oauth2Options.Authority is null ? options.DefaultAuthority.Url : oauth2Options.Authority.Url;
                     option.MetadataAddress = options.MetadataAddress;
                     option.SaveToken = true;
                     option.TokenValidationParameters.SaveSigninToken = false;

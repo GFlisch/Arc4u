@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using Arc4u.Configuration;
 using Arc4u.OAuth2.Options;
 using Arc4u.OAuth2.Token;
+using Arc4u.Standard.OAuth2;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -46,11 +47,16 @@ public static class OAuth2SettingsExtension
             keyOptions.Add(TokenKeys.AuthenticationTypeKey, validate.AuthenticationType);
 
             //Optional => go to default.
-            if (!string.IsNullOrWhiteSpace(validate.Authority))
+            if (validate.Authority is not null)
             {
-                keyOptions.Add(TokenKeys.AuthorityKey, validate.Authority);
-
+                keyOptions.Add(TokenKeys.AuthorityKey, Constants.OAuth2OptionsName);
+                services.Configure<AuthorityOptions>(Constants.OAuth2OptionsName, options =>
+                {
+                    options.Url = validate.Authority.Url;
+                    options.TokenEndpoint = validate.Authority.TokenEndpoint;
+                });
             }
+
             keyOptions.Add(TokenKeys.Audiences, validate.Audiences);
             if (!string.IsNullOrWhiteSpace(validate.Scopes))
             {
