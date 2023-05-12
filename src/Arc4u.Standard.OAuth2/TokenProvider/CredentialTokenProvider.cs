@@ -6,10 +6,12 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
+using Arc4u.OAuth2.Options;
 using Arc4u.OAuth2.Security.Principal;
 using Arc4u.OAuth2.Token;
 using Arc4u.ServiceModel;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Arc4u.OAuth2.TokenProvider;
 
@@ -19,15 +21,17 @@ public class CredentialTokenProvider : ICredentialTokenProvider
     public const string ProviderName = "CredentialDirect";
 
     private readonly ILogger<CredentialTokenProvider> _logger;
+    private readonly IOptionsMonitor<AuthorityOptions> _authorityOptions;
 
-    public CredentialTokenProvider(ILogger<CredentialTokenProvider> logger)
+    public CredentialTokenProvider(ILogger<CredentialTokenProvider> logger, IOptionsMonitor<AuthorityOptions> authorityOptions)
     {
         _logger = logger;
+        _authorityOptions = authorityOptions;
     }
 
     public async Task<TokenInfo> GetTokenAsync(IKeyValueSettings settings, CredentialsResult credential)
     {
-        var messages = GetContext(settings, out var clientId, out var authority, out var audience, out var scope);
+        var messages = GetContext(settings, out var clientId, out var authority, out var scope, out var clientSecret);
 
         if (string.IsNullOrWhiteSpace(credential.Upn))
         {
@@ -44,11 +48,11 @@ public class CredentialTokenProvider : ICredentialTokenProvider
 
         // no cache, do a direct call on every calls.
         _logger.Technical().Debug($"Call STS: {authority} for user: {credential.Upn}").Log();
-        return await GetTokenInfoAsync(audience, clientId, authority, scope, credential.Upn, credential.Password).ConfigureAwait(false);
+        return await GetTokenInfoAsync(clientSecret, clientId, authority, scope, credential.Upn, credential.Password).ConfigureAwait(false);
 
     }
 
-    private Messages GetContext(IKeyValueSettings settings, out string clientId, out string authority, out string audience, out string scope)
+    private Messages GetContext(IKeyValueSettings settings, out string clientId, out AuthorityOptions authority, out string scope, out string clientSecret)
     {
         // Check the information.
         var messages = new Messages();
@@ -59,9 +63,9 @@ public class CredentialTokenProvider : ICredentialTokenProvider
                                      Arc4u.ServiceModel.MessageType.Error,
                                      "Settings parameter cannot be null."));
             clientId = string.Empty;
-            authority = string.Empty;
-            audience = string.Empty;
+            authority = null;
             scope = string.Empty;
+            clientSecret = string.Empty;
 
             return messages;
         }
@@ -69,9 +73,11 @@ public class CredentialTokenProvider : ICredentialTokenProvider
         // Valdate arguments.
         if (!settings.Values.ContainsKey(TokenKeys.AuthorityKey))
         {
-            messages.Add(new Message(Arc4u.ServiceModel.MessageCategory.Technical,
-                     Arc4u.ServiceModel.MessageType.Error,
-                     "Authority is missing. Cannot process the request."));
+            authority = _authorityOptions.Get("Default");
+        }
+        else
+        {
+            authority = _authorityOptions.Get(settings.Values[TokenKeys.AuthorityKey]);
         }
 
         if (!settings.Values.ContainsKey(TokenKeys.ClientIdKey))
@@ -90,38 +96,40 @@ public class CredentialTokenProvider : ICredentialTokenProvider
 
         _logger.Technical().Debug($"Creating an authentication context for the request.").Log();
         clientId = settings.Values[TokenKeys.ClientIdKey];
-        audience = settings.Values[TokenKeys.Audience];
-        authority = settings.Values[TokenKeys.AuthorityKey];
+        clientSecret = settings.Values.ContainsKey(TokenKeys.ClientSecret) ? settings.Values[TokenKeys.ClientSecret] : string.Empty;
         // More for backward compatibility! We should throw an error message if scope is not defined...
         scope = !settings.Values.ContainsKey(TokenKeys.Scope) ? "openid" : settings.Values[TokenKeys.Scope];
 
         _logger.Technical().Debug($"ClientId = {clientId}.").Log();
-        _logger.Technical().Debug($"Audience = {audience}.").Log();
-        _logger.Technical().Debug($"Authority = {authority}.").Log();
+        _logger.Technical().Debug($"Authority = {authority.GetEndpoint()}.").Log();
         _logger.Technical().Debug($"Scope = {scope}.").Log();
 
         return messages;
     }
 
-    private async Task<TokenInfo> GetTokenInfoAsync(string audience, string clientId, string authority, string scope, string upn, string pwd)
+    private async Task<TokenInfo> GetTokenInfoAsync(string? clientSecret, string clientId, AuthorityOptions authority, string scope, string upn, string pwd)
     {
         using var handler = new HttpClientHandler { UseDefaultCredentials = true };
         using var client = new HttpClient(handler);
         try
         {
-            using var content = new FormUrlEncodedContent(new Dictionary<string, string>
+            var parameters = new Dictionary<string, string>
                     {
-                        { "resource", audience },
                         { "client_id", clientId },
                         { "grant_type", "password" },
                         { "username", upn.Trim() },
                         { "password", pwd.Trim() },
                         { "scope", scope }
-                    });
+                    };
+            if (!string.IsNullOrWhiteSpace(clientSecret))
+            {
+                parameters.Add("client_secret", clientSecret);
+            }
+            using var content = new FormUrlEncodedContent(parameters);
 
             // strictly speaking, we should obtain the Url for the token_endpoint from the /.well-known/openid-configuration endpoint, but we hard-code it here.
 
-            using var response = await client.PostAsync(authority + "/oauth2/token", content).ConfigureAwait(false);
+            using var response = await client.PostAsync(authority.GetEndpoint(), content).ConfigureAwait(false);
             var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
             // We model this after https://www.rfc-editor.org/rfc/rfc6749#section-5.2
@@ -187,7 +195,7 @@ public class CredentialTokenProvider : ICredentialTokenProvider
             var accessToken = responseValues["access_token"].GetString()!;
             var tokenType = "Bearer"; //  responseValues["token_type"]; Issue on Adfs return bearer and not Bearer (ok in AzureAD).
                                       // expires in is in ms.
-            long.TryParse(responseValues["expires_in"].GetString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var offset);
+            var offset = responseValues["expires_in"].GetInt64();
 
             // expiration lifetime in is in seconds.
             var dateUtc = DateTime.UtcNow.AddSeconds(offset);

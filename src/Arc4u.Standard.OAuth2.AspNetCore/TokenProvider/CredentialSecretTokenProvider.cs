@@ -66,7 +66,6 @@ public class CredentialSecretTokenProvider : ITokenProvider
         var basicSettings = new SimpleKeyValueSettings();
         basicSettings.Add(TokenKeys.ProviderIdKey, settings.Values[BasicProviderId]);
         basicSettings.Add(TokenKeys.ClientIdKey, settings.Values[TokenKeys.ClientIdKey]);
-        basicSettings.Add(TokenKeys.Audience, settings.Values[TokenKeys.Audience]);
         basicSettings.Add(TokenKeys.Scope, settings.Values[TokenKeys.Scope]);
         basicSettings.Add(TokenKeys.AuthenticationTypeKey, settings.Values[TokenKeys.AuthenticationTypeKey]);
         basicSettings.Add(TokenKeys.AuthorityKey, settings.Values[TokenKeys.AuthorityKey]);
