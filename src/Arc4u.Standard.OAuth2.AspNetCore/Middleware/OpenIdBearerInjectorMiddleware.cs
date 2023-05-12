@@ -30,7 +30,7 @@ public class OpenIdBearerInjectorMiddleware
 
     public async Task Invoke([DisallowNull] HttpContext context)
     {
-        if (context.User.Identity.IsAuthenticated && context.User.Identity.AuthenticationType.Equals(_options.OpenIdSettings.Values[TokenKeys.AuthenticationTypeKey], StringComparison.InvariantCultureIgnoreCase))
+        if (context.User is not null && context.User.Identity is not null && context.User.Identity.IsAuthenticated && context.User.Identity.AuthenticationType!.Equals(_options.OpenIdSettings.Values[TokenKeys.AuthenticationTypeKey], StringComparison.InvariantCultureIgnoreCase))
         {
             if (context.User is AppPrincipal principal)
             {
@@ -43,7 +43,7 @@ public class OpenIdBearerInjectorMiddleware
 
             var container = context.RequestServices.GetRequiredService<IContainerResolve>();
 
-            _activitySource ??= container.Resolve<IActivitySourceFactory>()?.Get("Arc4u");
+            _activitySource ??= container.Resolve<IActivitySourceFactory>()?.GetArc4u();
             _logger ??= container.Resolve<ILogger<OpenIdBearerInjectorMiddleware>>();
 
 
@@ -79,9 +79,12 @@ public class OpenIdBearerInjectorMiddleware
                     }
                 }
 
-                var authorization = new AuthenticationHeaderValue("Bearer", tokenInfo.Token).ToString();
-                context.Request.Headers.Remove("Authorization");
-                context.Request.Headers.Add("Authorization", authorization);
+                if (tokenInfo is not null)
+                {
+                    var authorization = new AuthenticationHeaderValue("Bearer", tokenInfo.Token).ToString();
+                    context.Request!.Headers.Remove("Authorization");
+                    context.Request.Headers.Add("Authorization", authorization);
+                }
             }
         }
 

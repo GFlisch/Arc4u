@@ -9,7 +9,6 @@ namespace Arc4u.Standard.OAuth2.Middleware;
 
 public static class OpenIdBearerInjectorMiddlewareExtension
 {
-
     public static void AddOpenIdBearerInjector(this IServiceCollection services, Action<OpenIdBearerInjectorOptions> options)
     {
         ArgumentNullException.ThrowIfNull(services);
@@ -68,7 +67,6 @@ public static class OpenIdBearerInjectorMiddlewareExtension
         });
 
     }
-
     public static IApplicationBuilder UseOpenIdBearerInjector([DisallowNull] this IApplicationBuilder app)
     {
         ArgumentNullException.ThrowIfNull(app);

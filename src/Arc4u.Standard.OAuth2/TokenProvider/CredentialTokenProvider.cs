@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -86,14 +85,6 @@ public class CredentialTokenProvider : ICredentialTokenProvider
                      Arc4u.ServiceModel.MessageType.Error,
                      "ClientId is missing. Cannot process the request."));
         }
-
-        if (!settings.Values.ContainsKey(TokenKeys.Audience))
-        {
-            messages.Add(new Message(Arc4u.ServiceModel.MessageCategory.Technical,
-                     Arc4u.ServiceModel.MessageType.Error,
-                     "Audience is missing. Cannot process the request."));
-        }
-
         _logger.Technical().Debug($"Creating an authentication context for the request.").Log();
         clientId = settings.Values[TokenKeys.ClientIdKey];
         clientSecret = settings.Values.ContainsKey(TokenKeys.ClientSecret) ? settings.Values[TokenKeys.ClientSecret] : string.Empty;

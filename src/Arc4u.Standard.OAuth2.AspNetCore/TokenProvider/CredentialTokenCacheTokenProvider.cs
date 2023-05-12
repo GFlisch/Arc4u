@@ -28,7 +28,7 @@ public class CredentialTokenCacheTokenProvider : ICredentialTokenProvider
 
     public async Task<TokenInfo> GetTokenAsync(IKeyValueSettings settings, CredentialsResult credential)
     {
-        var messages = GetContext(settings, out string authority, out string audience);
+        var messages = GetContext(settings, out string authority, out string scope);
 
         if (string.IsNullOrWhiteSpace(credential.Upn))
         {
@@ -47,7 +47,7 @@ public class CredentialTokenCacheTokenProvider : ICredentialTokenProvider
         {
             // Get a HashCode from the password so a second call with the same upn but with a wrong password will not be impersonated due to
             // the lack of password check.
-            var cacheKey = BuildKey(credential, authority, audience);
+            var cacheKey = BuildKey(credential, authority, scope);
             _logger.Technical().System($"Check if the cache contains a token for {cacheKey}.").Log();
             var tokenInfo = TokenCache.Get<TokenInfo>(cacheKey);
             var hasChanged = false;
@@ -107,7 +107,7 @@ public class CredentialTokenCacheTokenProvider : ICredentialTokenProvider
         return authority + "_" + audience + "_Password_" + credential.Upn + "_" + credential.Password.GetHashCode().ToString();
     }
 
-    private Messages GetContext(IKeyValueSettings settings, out string authority, out string audience)
+    private Messages GetContext(IKeyValueSettings settings, out string authority, out string scope)
     {
         // Check the information.
         var messages = new Messages();
@@ -118,33 +118,23 @@ public class CredentialTokenCacheTokenProvider : ICredentialTokenProvider
                                      ServiceModel.MessageType.Error,
                                      "Settings parameter cannot be null."));
             authority = string.Empty;
-            audience = string.Empty;
+            scope = string.Empty;
 
             return messages;
         }
 
         // Valdate arguments.
-        if (!settings.Values.ContainsKey(TokenKeys.AuthorityKey))
+        if (!settings.Values.ContainsKey(TokenKeys.Scope))
         {
             messages.Add(new Message(ServiceModel.MessageCategory.Technical,
                      ServiceModel.MessageType.Error,
-                     "Authority is missing. Cannot process the request."));
-        }
-
-        if (!settings.Values.ContainsKey(TokenKeys.Audience))
-        {
-            messages.Add(new Message(ServiceModel.MessageCategory.Technical,
-                     ServiceModel.MessageType.Error,
-                     "Audience is missing. Cannot process the request."));
+                     "Scope is missing. Cannot process the request."));
         }
 
         _logger.Technical().System($"Creating an authentication context for the request.").Log();
 
-        audience = settings.Values[TokenKeys.Audience];
-        authority = settings.Values[TokenKeys.AuthorityKey];
-
-        _logger.Technical().System($"Audience = {audience}.").Log();
-        _logger.Technical().System($"Authority = {authority}.").Log();
+        authority = settings.Values.ContainsKey(TokenKeys.AuthorityKey) ? settings.Values[TokenKeys.AuthorityKey] : string.Empty;
+        scope = settings.Values[TokenKeys.Scope];
 
         return messages;
 
