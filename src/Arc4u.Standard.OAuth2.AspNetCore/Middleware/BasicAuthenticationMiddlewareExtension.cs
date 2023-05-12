@@ -175,6 +175,10 @@ public static class BasicAuthenticationMiddlewareExtension
         settings.Add(TokenKeys.AuthenticationTypeKey, validate.AuthenticationType);
         settings.Add(TokenKeys.ClientIdKey, validate.ClientId);
         settings.Add(TokenKeys.Scope, validate.Scope);
+        if (!string.IsNullOrWhiteSpace(validate.ClientSecret))
+        {
+            settings.Add(TokenKeys.ClientSecret, validate.ClientSecret!);
+        }
 
         return settings;
     }
@@ -266,6 +270,7 @@ public static class BasicAuthenticationMiddlewareExtension
             option.AuthenticationType = settings.AuthenticationType;
             option.ProviderId = settings.ProviderId;
             option.Scope = settings.Scope;
+            option.ClientSecret = settings.ClientSecret;
         }
 
         return OptionFiller;

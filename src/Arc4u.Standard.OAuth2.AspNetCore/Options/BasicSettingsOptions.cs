@@ -11,5 +11,8 @@ public class BasicSettingsOptions
 
     public string ClientId { get; set; }
 
-    public string Scope { get; set; } = string.Empty;
+    public string Scope { get; set; } = "openid";
+
+    // Some STS are using user name - password in combination with a client secret (kind of 2 factor authentication).
+    public string? ClientSecret { get; set; }
 }

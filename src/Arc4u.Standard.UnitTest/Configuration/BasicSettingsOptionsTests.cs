@@ -26,7 +26,7 @@ public class BasicSettingsOptionsTests
     private readonly Fixture _fixture;
 
     [Fact]
-    public void BasicStandardShould()
+    public void Basic_Standard_Should()
     {
         var options = _fixture.Create<BasicSettingsOptions>();
         var _default = new BasicSettingsOptions();
@@ -54,6 +54,7 @@ public class BasicSettingsOptionsTests
         sut.BasicSettings.Values[TokenKeys.ProviderIdKey].Should().Be(_default.ProviderId);
         sut.BasicSettings.Values[TokenKeys.AuthenticationTypeKey].Should().Be(_default.AuthenticationType);
         sut.BasicSettings.Values[TokenKeys.Scope].Should().Be(_default.Scope);
+        sut.BasicSettings.Values.ContainsKey(TokenKeys.ClientSecret).Should().BeFalse();
     }
 
     [Fact]
@@ -69,6 +70,7 @@ public class BasicSettingsOptionsTests
                              ["Authentication:Basic:Settings:ProviderId"] = options.ProviderId,
                              ["Authentication:Basic:Settings:AuthenticationType"] = options.AuthenticationType,
                              ["Authentication:Basic:Settings:Scope"] = options.Scope,
+                             ["Authentication:Basic:Settings:ClientSecret"] = options.ClientSecret,
                          }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
@@ -87,6 +89,7 @@ public class BasicSettingsOptionsTests
         sut.BasicSettings.Values[TokenKeys.ProviderIdKey].Should().Be(options.ProviderId);
         sut.BasicSettings.Values[TokenKeys.AuthenticationTypeKey].Should().Be(options.AuthenticationType);
         sut.BasicSettings.Values[TokenKeys.Scope].Should().Be(options.Scope);
+        sut.BasicSettings.Values[TokenKeys.ClientSecret].Should().Be(options.ClientSecret);
     }
 
     [Fact]
@@ -118,6 +121,7 @@ public class BasicSettingsOptionsTests
 
         sut.Should().NotBeNull();
         sut.DefaultUpn.Should().Be("@arc4u.net");
+        sut.BasicSettings.Values.ContainsKey(TokenKeys.ClientSecret).Should().BeFalse();
     }
 
       [Fact]
