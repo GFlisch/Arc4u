@@ -101,7 +101,7 @@ public class AuthenticationOptionsTests
     }
 
     [Fact]
-    public void TestOauth2WithNoScopesKeyValuesShould()
+    public void Test_Oauth2_With_No_Scopes_Key_Values_Should()
     {
         var options = _fixture.Create<OAuth2SettingsOption>();
 
