@@ -57,7 +57,7 @@ public class AuthorityOptions
                 openIdConfiguration = await client.GetFromJsonAsync<OpenIdConfiguration>(GetMetaDataAddress(), cancellationToken).ConfigureAwait(false);
 #else
                 using var stream = await client.GetStreamAsync(GetMetaDataAddress()).ConfigureAwait(false);
-                openIdConfiguration = (await JsonSerializer.DeserializeAsync<OpenIdConfiguration>(stream, cancellationToken: cancellationToken).ConfigureAwait(false))!;
+                openIdConfiguration = await JsonSerializer.DeserializeAsync<OpenIdConfiguration>(stream, cancellationToken: cancellationToken).ConfigureAwait(false);
 #endif
                 _tokenEndpoint = openIdConfiguration!.token_endpoint;
             }
