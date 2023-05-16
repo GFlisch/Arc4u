@@ -73,7 +73,7 @@ public abstract class AdalTokenProvider : ITokenProvider
                                      out string clientId,
                                      out Uri redirectUri);
 
-        
+
         AuthenticationResult result = null;
         if (null != credential)
         {
@@ -92,7 +92,7 @@ public abstract class AdalTokenProvider : ITokenProvider
         }
 
         // we don't have a result!
-        throw new NullReferenceException(nameof(result));           
+        throw new NullReferenceException(nameof(result));
     }
 
 
@@ -166,17 +166,15 @@ public abstract class AdalTokenProvider : ITokenProvider
 
             throw new NullReferenceException(nameof(credential));
         }
-        else
-        {
-            var objectId = _userCacheKeyIdentifier.GetIdentifer(identity);
-            if (String.IsNullOrWhiteSpace(objectId))
-            {
-                messages.Add(new Message(Arc4u.ServiceModel.MessageCategory.Technical, Arc4u.ServiceModel.MessageType.Error, "No user object identifier is found in the claims collection to identify the user."));
-                messages.LogAndThrowIfNecessary(_logger);
-            }
 
-            userObjectId = objectId!;
+        var objectId = _userCacheKeyIdentifier.GetIdentifer(identity);
+        if (String.IsNullOrWhiteSpace(objectId))
+        {
+            messages.Add(new Message(Arc4u.ServiceModel.MessageCategory.Technical, Arc4u.ServiceModel.MessageType.Error, "No user object identifier is found in the claims collection to identify the user."));
+            messages.LogAndThrowIfNecessary(_logger);
         }
+
+        userObjectId = objectId!;
 
         var authContext = CreateAuthenticationContext(authority, serviceApplicationId + settings.Values[TokenKeys.AuthenticationTypeKey] + userObjectId);
         _logger.Technical().System("Created the authentication context.").Log();

@@ -310,10 +310,8 @@ namespace Arc4u.Utils
             {
                 return result.Value;
             }
-            else
-            {
-                throw e;
-            }
+
+            throw e;
         }
 
         public static T? TryParse<T>(object value)

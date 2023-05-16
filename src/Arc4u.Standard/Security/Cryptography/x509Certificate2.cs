@@ -40,28 +40,26 @@ public static class Certificate
         {
             throw new AppException("No CertificateName key found in the settings provided.");
         }
-        else
+
+        var certificateInfo = new CertificateInfo
         {
-            var certificateInfo = new CertificateInfo
-            {
-                Name = certificateName
-            };
+            Name = certificateName
+        };
 
-            if (Enum.TryParse(findType, out X509FindType x509FindType))
-            {
-                certificateInfo.FindType = x509FindType;
-            }
-            if (Enum.TryParse(storeLocation, out StoreLocation storeLocation_))
-            {
-                certificateInfo.Location = storeLocation_;
-            }
-            if (Enum.TryParse(storeName, out StoreName storeName_))
-            {
-                certificateInfo.StoreName = storeName_;
-            }
-
-            return FindCertificate(certificateInfo);
+        if (Enum.TryParse(findType, out X509FindType x509FindType))
+        {
+            certificateInfo.FindType = x509FindType;
         }
+        if (Enum.TryParse(storeLocation, out StoreLocation storeLocation_))
+        {
+            certificateInfo.Location = storeLocation_;
+        }
+        if (Enum.TryParse(storeName, out StoreName storeName_))
+        {
+            certificateInfo.StoreName = storeName_;
+        }
+
+        return FindCertificate(certificateInfo);
     }
 
     [Obsolete("Use the X509CertificateLoader instead.")]

@@ -67,15 +67,15 @@ namespace Arc4u
         /// <typeparam name="T">The value type of the intervals.</typeparam>
         /// <returns>An <see cref="Interval&lt;T&gt;"/> containing no element.</returns>
         /// <remarks>
-        /// An empty <see cref="Interval&lt;T&gt;"/> is composed of one element 
-        /// (usually <c>default(T)</c> but not exclusively) 
+        /// An empty <see cref="Interval&lt;T&gt;"/> is composed of one element
+        /// (usually <c>default(T)</c> but not exclusively)
         /// with <see cref="BoundDirection.Opened"/> boundaries.
-        /// Except when <typeparamref name="T"/> represents a reference type, 
+        /// Except when <typeparamref name="T"/> represents a reference type,
         /// the default empty interval is composed of <see cref="BoundDirection.Closed"/> boundaries.
-        /// It enables the distinction between the default <see cref="Empty"/> interval and 
+        /// It enables the distinction between the default <see cref="Empty"/> interval and
         /// the <see cref="Universe"/> interval.
         /// </remarks>
-        /// <seealso cref="Interval&lt;T&gt;.IsEmpty"/>        
+        /// <seealso cref="Interval&lt;T&gt;.IsEmpty"/>
         /// <seealso href="http://en.wikipedia.org/wiki/Empty_set">Empty Set (set theory)</seealso>
         public static Interval<T> Empty<T>()
         {
@@ -165,13 +165,11 @@ namespace Arc4u
                     && Bound.IsInfinity(lowerBound.Value)
                     && lowerBound.Direction != upperBound.Direction)
                     return false;
-                else
-                    return (lowerBound.Direction == BoundDirection.Closed && Comparer<T>.Default.Compare(lowerBound.Value, value) == 0) || (upperBound.Direction == BoundDirection.Closed && Comparer<T>.Default.Compare(upperBound.Value, value) == 0);
+
+                return (lowerBound.Direction == BoundDirection.Closed && Comparer<T>.Default.Compare(lowerBound.Value, value) == 0) || (upperBound.Direction == BoundDirection.Closed && Comparer<T>.Default.Compare(upperBound.Value, value) == 0);
             }
-            else
-            {
-                return lowerBound.Contains(value) && upperBound.Contains(value);
-            }
+
+            return lowerBound.Contains(value) && upperBound.Contains(value);
         }
 
         #region Complement
@@ -363,8 +361,8 @@ namespace Arc4u
         /// <typeparam name="T">The value type of the intervals.</typeparam>
         /// <param name="a">The first interval.</param>
         /// <param name="b">The second interval.</param>
-        /// <param name="intersection">When this method returns, contains the <see cref="Interval&lt;T&gt;"/> 
-        /// that contains all elements of <paramref name="a"/> that also belong to <paramref name="b"/>; 
+        /// <param name="intersection">When this method returns, contains the <see cref="Interval&lt;T&gt;"/>
+        /// that contains all elements of <paramref name="a"/> that also belong to <paramref name="b"/>;
         /// otherwise, an empty interval.</param>
         /// <returns><b>true</b> if the intersection is not empty; otherwise, <b>false</b>.</returns>
         public static bool TryIntersectionOf<T>(Interval<T> a, Interval<T> b, out Interval<T> intersection)
@@ -396,8 +394,8 @@ namespace Arc4u
         /// <typeparam name="T">The value type of the intervals.</typeparam>
         /// <param name="a">The first interval.</param>
         /// <param name="b">The second interval.</param>
-        /// <returns>An <see cref="Interval&lt;T&gt;"/> that contains all elements of <paramref name="a"/> 
-        /// that also belong to <paramref name="b"/> (or equivalently, all elements of <paramref name="b"/> 
+        /// <returns>An <see cref="Interval&lt;T&gt;"/> that contains all elements of <paramref name="a"/>
+        /// that also belong to <paramref name="b"/> (or equivalently, all elements of <paramref name="b"/>
         /// that also belong to <paramref name="a"/>), but no other elements.</returns>
         /// <seealso href="http://en.wikipedia.org/wiki/Intersection_(set_theory)">Intersection (set theory)</seealso>
         private static Interval<T> IntersectionOf<T>(Interval<T> a, Interval<T> b)
@@ -472,7 +470,7 @@ namespace Arc4u
             }
 
             //        a
-            //  -------------            
+            //  -------------
             //    b
             //---------
             else if (object.Equals(lowestBound, b.LowerBound)
@@ -707,7 +705,7 @@ namespace Arc4u
             }
 
             //        a
-            //  -------------            
+            //  -------------
             //    b
             //---------
             else if (object.Equals(lowestBound, b.LowerBound) &&

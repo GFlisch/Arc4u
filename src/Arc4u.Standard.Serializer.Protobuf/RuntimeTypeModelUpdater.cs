@@ -288,12 +288,12 @@ namespace Arc4u.Serializer.ProtoBuf
 
         private static Type GetMemberType(MemberInfo memberInfo)
         {
-            if (memberInfo is PropertyInfo propertyInfo)
-                return propertyInfo.PropertyType;
-            else if (memberInfo is FieldInfo fieldInfo)
-                return fieldInfo.FieldType;
-            else
-                throw new ArgumentException($"Unknown MemberInfo type {memberInfo?.GetType().Name}", nameof(memberInfo));
+            return memberInfo switch
+            {
+                PropertyInfo propertyInfo => propertyInfo.PropertyType,
+                FieldInfo fieldInfo => fieldInfo.FieldType,
+                _ => throw new ArgumentException($"Unknown MemberInfo type {memberInfo?.GetType().Name}", nameof(memberInfo))
+            };
         }
 
 

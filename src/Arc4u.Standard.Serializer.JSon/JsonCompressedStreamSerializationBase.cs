@@ -59,18 +59,16 @@ namespace Arc4u.Serializer
 
         protected T InternalDeserialize<T>(Stream utf8json)
         {
-            if (_context != null)
-                return (T)JsonSerializer.Deserialize(utf8json, typeof(T), _context);
-            else
-                return JsonSerializer.Deserialize<T>(utf8json, _options);
+            return _context != null
+                ? (T)JsonSerializer.Deserialize(utf8json, typeof(T), _context)
+                : JsonSerializer.Deserialize<T>(utf8json, _options);
         }
 
         protected object InternalDeserialize(Stream utf8json, Type returnType)
         {
-            if (_context != null)
-                return JsonSerializer.Deserialize(utf8json, returnType, _context);
-            else
-                return JsonSerializer.Deserialize(utf8json, returnType, _options);
+            return _context != null
+                ? JsonSerializer.Deserialize(utf8json, returnType, _context)
+                : JsonSerializer.Deserialize(utf8json, returnType, _options);
         }
     }
 }

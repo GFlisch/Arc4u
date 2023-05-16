@@ -21,12 +21,10 @@ namespace Arc4u.Threading
                     --m_currentCount;
                     return s_completed;
                 }
-                else
-                {
-                    var waiter = new TaskCompletionSource<bool>();
-                    m_waiters.Enqueue(waiter);
-                    return waiter.Task;
-                }
+
+                var waiter = new TaskCompletionSource<bool>();
+                m_waiters.Enqueue(waiter);
+                return waiter.Task;
             }
         }
         public void Release()

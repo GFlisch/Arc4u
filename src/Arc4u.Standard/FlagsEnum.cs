@@ -39,7 +39,7 @@ namespace Arc4u
         /// </summary>
         /// <typeparam name="TEnum">An enumeration type.</typeparam>
         /// <param name="power">The raising power of two.</param>
-        /// <param name="result">When this methods returns, contains the matching value of <typeparamref name="TEnum"/>. This parameter is passed uninitialized.</param>        
+        /// <param name="result">When this methods returns, contains the matching value of <typeparamref name="TEnum"/>. This parameter is passed uninitialized.</param>
         /// <returns><b>true</b> if a matching value of <typeparamref name="TEnum"/> is found; otherwise, <b>false</b>.</returns>
         public static bool TryPowerOfTwo<TEnum>(object power, out TEnum result)
             where TEnum : struct
@@ -74,19 +74,19 @@ namespace Arc4u
 
             if (underlyingType == typeof(sbyte))
                 return Convert.ToSByte(value);
-            else if (underlyingType == typeof(short))
+            if (underlyingType == typeof(short))
                 return Convert.ToInt16(value);
-            else if (underlyingType == typeof(int))
+            if (underlyingType == typeof(int))
                 return Convert.ToInt32(value);
-            else if (underlyingType == typeof(long))
+            if (underlyingType == typeof(long))
                 return Convert.ToInt64(value);
-            else if (underlyingType == typeof(byte))
+            if (underlyingType == typeof(byte))
                 return Convert.ToByte(value);
-            else if (underlyingType == typeof(ushort))
+            if (underlyingType == typeof(ushort))
                 return Convert.ToUInt16(value);
-            else if (underlyingType == typeof(uint))
+            if (underlyingType == typeof(uint))
                 return Convert.ToUInt32(value);
-            else if (underlyingType == typeof(ulong))
+            if (underlyingType == typeof(ulong))
                 return Convert.ToUInt64(value);
 
             throw new NotSupportedException("Underlying type of provided type is not supported.");
@@ -94,7 +94,7 @@ namespace Arc4u
 
         /// <summary>
         /// Gets the power of two exponent from the specified <paramref name="value"/>.
-        /// </summary>       
+        /// </summary>
         /// <param name="value">A value.</param>
         /// <returns>The power of two exponent from the specified <paramref name="value"/>.</returns>
         /// <exception cref="ArgumentException"><paramref name="value"/> is not a power of two exponent.</exception>
@@ -109,7 +109,7 @@ namespace Arc4u
 
         /// <summary>
         /// Tries to get the power of two exponent from the specified <paramref name="value"/>.
-        /// </summary>        
+        /// </summary>
         /// <param name="value">A value.</param>
         /// <param name="result">When this methods returns, contains the power of two exponent from the specified <paramref name="value"/>. This parameter is passed uninitialized.</param>
         /// <returns><b>true</b> if the <paramref name="value"/> parameter is a power of two exponent; otherwise, <b>false</b>.</returns>
@@ -240,7 +240,7 @@ namespace Arc4u
 
             var modulo = FlagValues<TEnum>(type).Count();
             //for each flag value consider continuity with the ones following cyclically (modulo)
-            //for example Sunday|Monday|Tuesday|Friday|Saturday is continuous 
+            //for example Sunday|Monday|Tuesday|Friday|Saturday is continuous
             //when considering Friday with the flag values following: Saturday, Sunday, Monday, Tuesday
             for (int i = 0; i < array.Length; i++)
             {
