@@ -8,11 +8,14 @@ public class OpenIdSettingsOption
 
     public string AuthenticationType { get; set; } = Constants.CookiesAuthenticationType;
 
-    public string Authority { get; set; }
+    /// <summary>
+    /// If null default authority is used!
+    /// </summary>
+    public AuthorityOptions? Authority { get; set; }
 
     public string ClientId { get; set; }
 
-    public string ApplicationKey { get; set; }
+    public string ClientSecret { get; set; }
 
     public string Audiences { get; set; }
 

@@ -20,6 +20,7 @@ namespace Arc4u.OAuth2.TokenProvider;
 public class CredentialSecretTokenProvider : ITokenProvider
 {
     public const string ProviderName = "ClientSecret";
+
     private const string User = "User";
     private const string Password = "Password";
     private const string Credential = "Credential";
@@ -39,7 +40,6 @@ public class CredentialSecretTokenProvider : ITokenProvider
     {
         ArgumentNullException.ThrowIfNull(settings);
 
-        var messages = new Messages();
         var credential = new CredentialsResult(false);
 
         if (settings.Values.ContainsKey(Password) && settings.Values.ContainsKey(Credential))
@@ -62,22 +62,15 @@ public class CredentialSecretTokenProvider : ITokenProvider
         }
 
         // Switch to BasicToken provider.
-        var basicSettings = CredentialSecretTokenProvider.Transform(options =>
-        {
-            options.ProviderId = settings.Values[BasicProviderId];
-            options.ClientId = settings.Values[TokenKeys.ClientIdKey];
-            options.Audience = settings.Values[TokenKeys.Audience];
-            options.Authority = settings.Values[TokenKeys.AuthorityKey];
-            options.Scope = settings.Values[TokenKeys.Scope];
-            options.AuthenticationType = settings.Values[TokenKeys.AuthenticationTypeKey];
-        });
+        // AuthorityKey is the key used to retrieve the IOptionsMonitor<AuthorityOptions>()!
+        var basicSettings = new SimpleKeyValueSettings();
+        basicSettings.Add(TokenKeys.ProviderIdKey, settings.Values[BasicProviderId]);
+        basicSettings.Add(TokenKeys.ClientIdKey, settings.Values[TokenKeys.ClientIdKey]);
+        basicSettings.Add(TokenKeys.Scope, settings.Values[TokenKeys.Scope]);
+        basicSettings.Add(TokenKeys.AuthenticationTypeKey, settings.Values[TokenKeys.AuthenticationTypeKey]);
+        basicSettings.Add(TokenKeys.AuthorityKey, settings.Values[TokenKeys.AuthorityKey]);
 
         return await credentialToken.GetTokenAsync(basicSettings, credential).ConfigureAwait(false);
-    }
-
-    private static SimpleKeyValueSettings Transform(Action<BasicSettingsOptions> options)
-    {
-        return options.BuildBasics();
     }
 
     public ValueTask SignOutAsync(IKeyValueSettings settings, CancellationToken cancellationToken)

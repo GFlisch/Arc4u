@@ -23,7 +23,7 @@ public static class RemoteSecretsExtension
         services.Configure<SimpleKeyValueSettings>(optionKey, BuildRemoteSecretsSettings(options));
     }
 
-    public static void AddRemoteSecretsAuthentication(this IServiceCollection services, [DisallowNull] IConfiguration configuration, [DisallowNull] string sectionName = "Authentication.RemoteSecrets")
+    public static void AddRemoteSecretsAuthentication(this IServiceCollection services, [DisallowNull] IConfiguration configuration, [DisallowNull] string sectionName = "Authentication:RemoteSecrets")
     {
         ArgumentNullException.ThrowIfNull(configuration);
         ArgumentNullException.ThrowIfNull(sectionName);
@@ -90,7 +90,6 @@ public static class RemoteSecretsExtension
             settings.Add(TokenKeys.ProviderIdKey, options!.ProviderId);
             settings.Add(TokenKeys.ClientSecretHeader, options.HeaderKey);
             settings.Add(TokenKeys.ClientSecret, options.ClientSecret);
- 
         }
 
         return Settings;

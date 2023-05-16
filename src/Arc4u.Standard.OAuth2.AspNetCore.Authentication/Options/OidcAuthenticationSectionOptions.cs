@@ -1,10 +1,12 @@
 using System;
 using Arc4u.OAuth2.Events;
+using Arc4u.Standard.OAuth2;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace Arc4u.OAuth2.Options;
 public class OidcAuthenticationSectionOptions
 {
+    public AuthorityOptions DefaultAuthority { get; set; }
     public bool RequireHttpsMetadata { get; set; } = true;
 
     public string MetadataAddress { get; set; }
@@ -15,11 +17,11 @@ public class OidcAuthenticationSectionOptions
 
     public string OpenIdSettingsSectionPath { get; set; } = "Authentication:OpenId.Settings";
 
-    public string OpenIdSettingsKey { get; set; } = "OpenId";
+    public string OpenIdSettingsKey { get; set; } = Constants.OpenIdOptionsName;
 
     public string OAuth2SettingsSectionPath { get; set; } = "Authentication:OAuth2.Settings";
 
-    public string OAuth2SettingsKey { get; set; } = "OAuth2";
+    public string OAuth2SettingsKey { get; set; } = Constants.OAuth2OptionsName;
 
     public string ClaimsIdentifierSectionPath { get; set; } = "Authentication:ClaimsIdentifier";
 
@@ -34,7 +36,7 @@ public class OidcAuthenticationSectionOptions
     public string ApplicationNameSectionPath { get; set; } = "Application.configuration:ApplicationName";
 
     public string JwtBearerEventsType { get; set; } = typeof(StandardBearerEvents).AssemblyQualifiedName!;
-           
+
     public string CookieAuthenticationEventsType { get; set; } = typeof(StandardCookieEvents).AssemblyQualifiedName!;
 
     public string OpenIdConnectEventsType { get; set; } = typeof(StandardOpenIdConnectEvents).AssemblyQualifiedName!;
@@ -48,7 +50,7 @@ public class OidcAuthenticationSectionOptions
     /// <summary>
     /// The <see cref="IPostConfigureOptions<CookieAuthenticationOptions"/> type used to configure the <see cref="CookieAuthenticationOptions"/>.
     /// </summary>
-    public string? CookiesConfigureOptionsType { get; set; } 
+    public string? CookiesConfigureOptionsType { get; set; }
 
     /// <summary>
     /// For the other OIDC => ResponseType = OpenIdConnectResponseType.CodeIdTokenToken;

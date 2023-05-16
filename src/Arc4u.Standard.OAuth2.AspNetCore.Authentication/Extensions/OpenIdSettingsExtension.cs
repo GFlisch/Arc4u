@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using Arc4u.Configuration;
 using Arc4u.OAuth2.Options;
 using Arc4u.OAuth2.Token;
+using Arc4u.Standard.OAuth2;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -26,11 +27,6 @@ public static class OpenIdSettingsExtension
             throw new MissingFieldException($"Audiences field is not defined.");
         }
 
-        if (string.IsNullOrWhiteSpace(validate.Authority))
-        {
-            throw new MissingFieldException($"Authorithy field is not defined.");
-        }
-
         if (string.IsNullOrWhiteSpace(validate.ClientId))
         {
             throw new MissingFieldException($"ClientId field is not defined.");
@@ -50,9 +46,20 @@ public static class OpenIdSettingsExtension
         {
             keyOptions.Add(TokenKeys.ProviderIdKey, validate!.ProviderId);
             keyOptions.Add(TokenKeys.AuthenticationTypeKey, validate.AuthenticationType);
-            keyOptions.Add(TokenKeys.AuthorityKey, validate.Authority);
+
+            //Optional => go to default.
+            if (validate.Authority is not null)
+            {
+                keyOptions.Add(TokenKeys.AuthorityKey, Constants.OpenIdOptionsName);
+                services.Configure<AuthorityOptions>(Constants.OpenIdOptionsName, options =>
+                {
+                    options.Url = validate.Authority.Url;
+                    options.TokenEndpoint = validate.Authority.TokenEndpoint;
+                });
+            }
+
             keyOptions.Add(TokenKeys.ClientIdKey, validate.ClientId);
-            keyOptions.Add(TokenKeys.ApplicationKey, validate.ApplicationKey);
+            keyOptions.Add(TokenKeys.ClientSecret, validate.ClientSecret);
             keyOptions.Add(TokenKeys.Audiences, validate.Audiences);
             keyOptions.Add(TokenKeys.Scopes, validate.Scopes);
         }
@@ -66,7 +73,7 @@ public static class OpenIdSettingsExtension
         return settings;
     }
 
-    public static SimpleKeyValueSettings ConfigureOpenIdSettings(this IServiceCollection services, IConfiguration configuration, [DisallowNull] string sectionName, [DisallowNull] string sectionKey = "OpenId")
+    public static SimpleKeyValueSettings ConfigureOpenIdSettings(this IServiceCollection services, IConfiguration configuration, [DisallowNull] string sectionName, [DisallowNull] string sectionKey = Constants.OpenIdOptionsName)
     {
         ArgumentNullException.ThrowIfNull(sectionKey);
 
@@ -90,9 +97,8 @@ public static class OpenIdSettingsExtension
         var settings = section.Get<OpenIdSettingsOption>() ?? throw new NullReferenceException($"No section exists with name {sectionName}");
 
         void OptionFiller(OpenIdSettingsOption option)
-
         {
-            option.ApplicationKey = settings.ApplicationKey;
+            option.ClientSecret = settings.ClientSecret;
             option.Authority = settings.Authority;
             option.ClientId = settings.ClientId;
             option.Audiences = settings.Audiences;

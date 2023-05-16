@@ -65,6 +65,11 @@ public static partial class AuthenticationExtensions
         services.AddTransient(oidcOptions.OpenIdConnectEventsType);
         services.AddSingleton(typeof(IPostConfigureOptions<CookieAuthenticationOptions>), oidcOptions.CookiesConfigureOptionsType);
 
+        services.AddDefaultAuthority(options =>
+        {
+            options.Url = oidcOptions.DefaultAuthority.Url;
+            options.TokenEndpoint = oidcOptions.DefaultAuthority.TokenEndpoint;
+        });
         // store the configuration => this will be used by the AddCookies to define the ITicketStore implementation.
         services.Configure<OidcAuthenticationOptions>(authenticationOptions);
 
@@ -107,7 +112,7 @@ public static partial class AuthenticationExtensions
                     options.UsePkce = true; // Impact on the security. It is best to do this...
                     options.UseTokenLifetime = false;
                     options.SaveTokens = false;
-                    options.Authority = openIdOptions.Authority;
+                    options.Authority = openIdOptions.Authority is null ? oidcOptions.DefaultAuthority.Url : openIdOptions.Authority.Url;
                     options.RequireHttpsMetadata = oidcOptions.RequireHttpsMetadata;
                     options.MetadataAddress = oidcOptions.MetadataAddress;
                     options.ResponseType = oidcOptions.ResponseType;
@@ -121,7 +126,7 @@ public static partial class AuthenticationExtensions
                     }
 
                     options.ClientId = openIdOptions.ClientId;
-                    options.ClientSecret = openIdOptions.ApplicationKey;
+                    options.ClientSecret = openIdOptions.ClientSecret;
                     // we don't call the user info endpoint => On AzureAd the user.read scope is needed.
                     options.GetClaimsFromUserInfoEndpoint = false;
 
@@ -146,7 +151,7 @@ public static partial class AuthenticationExtensions
                 .AddJwtBearer(option =>
                 {
                     option.RequireHttpsMetadata = oidcOptions.RequireHttpsMetadata;
-                    option.Authority = oauth2Options.Authority;
+                    option.Authority = oauth2Options.Authority is null ? oidcOptions.DefaultAuthority.Url : oauth2Options.Authority.Url;
                     option.MetadataAddress = oidcOptions.MetadataAddress;
                     option.SaveToken = true;
                     option.TokenValidationParameters.SaveSigninToken = false;
@@ -255,6 +260,7 @@ public static partial class AuthenticationExtensions
 
         void OidcAuthenticationFiller(OidcAuthenticationOptions options)
         {
+            options.DefaultAuthority = settings.DefaultAuthority;
             options.RequireHttpsMetadata = settings.RequireHttpsMetadata;
             options.MetadataAddress = settings!.MetadataAddress;
             options.CookieName = settings.CookieName;
@@ -281,6 +287,7 @@ public static partial class AuthenticationExtensions
         }
 
         services.AddDomainMapping(configuration, "Authentication:DomainsMapping");
+        services.AddOnBehalfOf(configuration);
 
         return services.AddOidcAuthentication(OidcAuthenticationFiller);
     }
@@ -316,7 +323,11 @@ public static partial class AuthenticationExtensions
         services.AddTransient(options.JwtBearerEventsType);
         services.AddAuthorization();
         services.AddHttpContextAccessor();
-
+        services.AddDefaultAuthority(auth =>
+        {
+            auth.Url = options.DefaultAuthority.Url;
+            auth.TokenEndpoint = options.DefaultAuthority.TokenEndpoint;
+        });
 
         var authenticationBuilder =
         services.AddAuthentication(auth => auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme)
@@ -325,7 +336,7 @@ public static partial class AuthenticationExtensions
                     SecurityKey? securityKey = options.CertSecurityKey is not null ? new X509SecurityKey(options.CertSecurityKey) : null;
 
                     option.RequireHttpsMetadata = options.RequireHttpsMetadata;
-                    option.Authority = oauth2Options.Authority;
+                    option.Authority = oauth2Options.Authority is null ? options.DefaultAuthority.Url : oauth2Options.Authority.Url;
                     option.MetadataAddress = options.MetadataAddress;
                     option.SaveToken = true;
                     option.TokenValidationParameters.SaveSigninToken = false;
@@ -381,6 +392,7 @@ public static partial class AuthenticationExtensions
 
         void JwtAuthenticationFiller(JwtAuthenticationOptions options)
         {
+            options.DefaultAuthority = settings.DefaultAuthority;
             options.RequireHttpsMetadata = settings.RequireHttpsMetadata;
             options.MetadataAddress = settings!.MetadataAddress;
             options.ValidateAuthority = settings.ValidateAuthority;

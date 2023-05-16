@@ -35,7 +35,7 @@ public class RemoteSecretsOptionTests
                      .AddInMemoryCollection(
                          new Dictionary<string, string?>
                          {
-                             ["Authentication.RemoteSecrets:Remote1:ClientSecret"] = options.ClientSecret,
+                             ["Authentication:RemoteSecrets:Remote1:ClientSecret"] = options.ClientSecret,
                          }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
@@ -66,7 +66,7 @@ public class RemoteSecretsOptionTests
                      .AddInMemoryCollection(
                          new Dictionary<string, string?>
                          {
-                             ["Authentication.RemoteSecrets:Remote1:HeaderKey"] = options.HeaderKey,
+                             ["Authentication:RemoteSecrets:Remote1:HeaderKey"] = options.HeaderKey,
                          }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
@@ -92,7 +92,7 @@ public class RemoteSecretsOptionTests
                      .AddInMemoryCollection(
                          new Dictionary<string, string?>
                          {
-                             ["Authentication.RemoteSecrets:Remote1:HeaderKey"] = null,
+                             ["Authentication:RemoteSecrets:Remote1:HeaderKey"] = null,
                          }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));

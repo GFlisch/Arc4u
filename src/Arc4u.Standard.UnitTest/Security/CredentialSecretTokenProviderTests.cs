@@ -118,8 +118,7 @@ public class CredentialSecretTokenProviderTests
         return new SimpleKeyValueSettings(new Dictionary<string, string>
         {
             { TokenKeys.ClientIdKey, CredentialSecretTokenProvider.ProviderName },
-            { TokenKeys.Audience, options.Audience },
-            { TokenKeys.AuthorityKey, options.Authority },
+            { TokenKeys.AuthorityKey, "Basic" },
             { TokenKeys.ProviderIdKey, options.ProviderId },
             { TokenKeys.Scope, options.Scope },
             { TokenKeys.AuthenticationTypeKey, options.AuthenticationType },
@@ -135,8 +134,7 @@ public class CredentialSecretTokenProviderTests
         return new SimpleKeyValueSettings(new Dictionary<string, string>
         {
             { TokenKeys.ClientIdKey, CredentialSecretTokenProvider.ProviderName },
-            { TokenKeys.Audience, options.Audience },
-            { TokenKeys.AuthorityKey, options.Authority },
+            { TokenKeys.AuthorityKey, "Basic" },
             { TokenKeys.ProviderIdKey, options.ProviderId },
             { TokenKeys.Scope, options.Scope },
             { TokenKeys.AuthenticationTypeKey, options.AuthenticationType },

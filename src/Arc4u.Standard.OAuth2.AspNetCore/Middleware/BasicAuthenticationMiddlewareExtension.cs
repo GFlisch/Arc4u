@@ -1,4 +1,5 @@
 using Arc4u.Configuration;
+using Arc4u.OAuth2.Extensions;
 using Arc4u.OAuth2.Token;
 using Arc4u.Security;
 using Arc4u.Security.Cryptography;
@@ -23,7 +24,7 @@ public static class BasicAuthenticationMiddlewareExtension
         return app.UseMiddleware<BasicAuthenticationMiddleware>(app.ApplicationServices);
     }
 
-    public static void AddBasicAuthenticationSettings(this IServiceCollection services, IConfiguration configuration, string sectionName = "Authentication.Basic", IX509CertificateLoader? certificateLoader = null)
+    public static void AddBasicAuthenticationSettings(this IServiceCollection services, IConfiguration configuration, string sectionName = "Authentication:Basic", IX509CertificateLoader? certificateLoader = null)
     {
         var section = configuration.GetSection(sectionName);
 
@@ -90,12 +91,48 @@ public static class BasicAuthenticationMiddlewareExtension
             }
         }
 
+        var hasSpecificAuthority = RegisterBasicAuthority(services, basicOptions.BasicOptions);
+
+        var settings = basicOptions.BasicOptions.BuildBasics();
+
+        // The Authority will be used to retrieve the AuthorityOption.
+        if (hasSpecificAuthority)
+        {
+            settings.Add(TokenKeys.AuthorityKey, "Basic");
+        }
+
         services.Configure<BasicAuthenticationSettingsOptions>(basicSettings =>
         {
-            basicSettings.BasicSettings = basicOptions.BasicOptions.BuildBasics();
+            basicSettings.BasicSettings = settings;
             basicSettings.DefaultUpn = basicOptions.DefaultUpn;
             basicSettings.CertificateHeaderOptions = certs;
         });
+
+        
+    }
+
+    public static bool RegisterBasicAuthority(IServiceCollection services, Action<BasicSettingsOptions> options)
+    {
+        var validate = new BasicSettingsOptions();
+        options(validate);
+
+        if (validate.Authority is null)
+        {
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(validate.Authority.Url))
+        {
+            return false;
+        }
+
+        services.AddAuthority(authOptions =>
+        {
+            authOptions.Url = validate.Authority.Url;
+            authOptions.TokenEndpoint = validate.Authority.TokenEndpoint;
+        }, "Basic");
+
+        return true;
     }
 
     public static SimpleKeyValueSettings BuildBasics(this Action<BasicSettingsOptions> options)
@@ -107,16 +144,6 @@ public static class BasicAuthenticationMiddlewareExtension
         if (string.IsNullOrWhiteSpace(validate.ProviderId))
         {
             configErrors += "ProviderId field is not defined." + System.Environment.NewLine;
-        }
-
-        if (string.IsNullOrWhiteSpace(validate.Audience))
-        {
-            configErrors += "Audiences field is not defined." + System.Environment.NewLine;
-        }
-
-        if (string.IsNullOrWhiteSpace(validate.Authority))
-        {
-            configErrors += "Authorithy field is not defined." + System.Environment.NewLine;
         }
 
         if (string.IsNullOrWhiteSpace(validate.ClientId))
@@ -146,10 +173,12 @@ public static class BasicAuthenticationMiddlewareExtension
 
         settings.Add(TokenKeys.ProviderIdKey, validate!.ProviderId);
         settings.Add(TokenKeys.AuthenticationTypeKey, validate.AuthenticationType);
-        settings.Add(TokenKeys.AuthorityKey, validate.Authority);
         settings.Add(TokenKeys.ClientIdKey, validate.ClientId);
-        settings.Add(TokenKeys.Audience, validate.Audience);
         settings.Add(TokenKeys.Scope, validate.Scope);
+        if (!string.IsNullOrWhiteSpace(validate.ClientSecret))
+        {
+            settings.Add(TokenKeys.ClientSecret, validate.ClientSecret!);
+        }
 
         return settings;
     }
@@ -213,16 +242,6 @@ public static class BasicAuthenticationMiddlewareExtension
             configErrors += "ClientId in Basic settings must be filled!" + System.Environment.NewLine;
         }
 
-        if (string.IsNullOrWhiteSpace(settings.Authority))
-        {
-            configErrors += "Authority in Basic settings must be filled!" + System.Environment.NewLine;
-        }
-
-        if (string.IsNullOrWhiteSpace(settings.Audience))
-        {
-            configErrors += "Audience in Basic settings must be filled!" + System.Environment.NewLine;
-        }
-
         if (string.IsNullOrWhiteSpace(settings.AuthenticationType))
         {
             configErrors += "AuthenticationType in Basic settings must be filled!" + System.Environment.NewLine;
@@ -248,10 +267,10 @@ public static class BasicAuthenticationMiddlewareExtension
         {
             option.Authority = settings.Authority;
             option.ClientId = settings.ClientId;
-            option.Audience = settings.Audience;
             option.AuthenticationType = settings.AuthenticationType;
             option.ProviderId = settings.ProviderId;
             option.Scope = settings.Scope;
+            option.ClientSecret = settings.ClientSecret;
         }
 
         return OptionFiller;
