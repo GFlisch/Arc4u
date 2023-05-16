@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
@@ -32,6 +33,12 @@ public class CredentialTokenProvider : ICredentialTokenProvider
     {
         var messages = GetContext(settings, out var clientId, out var authority, out var scope, out var clientSecret);
 
+        var tokenEndpoint = await authority.GetEndpointAsync(CancellationToken.None).ConfigureAwait(false);
+
+        _logger.Technical().Debug($"ClientId = {clientId}.").Log();
+        _logger.Technical().Debug($"Scope = {scope}.").Log();
+        _logger.Technical().Debug($"Authority = {tokenEndpoint}.").Log();   // this should be called TokenEndpoint in the logs...
+
         if (string.IsNullOrWhiteSpace(credential.Upn))
         {
             messages.Add(new Message(Arc4u.ServiceModel.MessageCategory.Technical, Arc4u.ServiceModel.MessageType.Error, "No Username is provided."));
@@ -47,7 +54,7 @@ public class CredentialTokenProvider : ICredentialTokenProvider
 
         // no cache, do a direct call on every calls.
         _logger.Technical().Debug($"Call STS: {authority} for user: {credential.Upn}").Log();
-        return await GetTokenInfoAsync(clientSecret, clientId, authority, scope, credential.Upn, credential.Password).ConfigureAwait(false);
+        return await GetTokenInfoAsync(clientSecret, clientId, tokenEndpoint, scope, credential.Upn, credential.Password).ConfigureAwait(false);
 
     }
 
@@ -90,15 +97,10 @@ public class CredentialTokenProvider : ICredentialTokenProvider
         clientSecret = settings.Values.ContainsKey(TokenKeys.ClientSecret) ? settings.Values[TokenKeys.ClientSecret] : string.Empty;
         // More for backward compatibility! We should throw an error message if scope is not defined...
         scope = !settings.Values.ContainsKey(TokenKeys.Scope) ? "openid" : settings.Values[TokenKeys.Scope];
-
-        _logger.Technical().Debug($"ClientId = {clientId}.").Log();
-        _logger.Technical().Debug($"Authority = {authority.GetEndpoint()}.").Log();
-        _logger.Technical().Debug($"Scope = {scope}.").Log();
-
         return messages;
     }
 
-    private async Task<TokenInfo> GetTokenInfoAsync(string? clientSecret, string clientId, AuthorityOptions authority, string scope, string upn, string pwd)
+    private async Task<TokenInfo> GetTokenInfoAsync(string? clientSecret, string clientId, Uri tokenEndpoint, string scope, string upn, string pwd)
     {
         using var handler = new HttpClientHandler { UseDefaultCredentials = true };
         using var client = new HttpClient(handler);
@@ -118,9 +120,7 @@ public class CredentialTokenProvider : ICredentialTokenProvider
             }
             using var content = new FormUrlEncodedContent(parameters);
 
-            // strictly speaking, we should obtain the Url for the token_endpoint from the /.well-known/openid-configuration endpoint, but we hard-code it here.
-
-            using var response = await client.PostAsync(authority.GetEndpoint(), content).ConfigureAwait(false);
+            using var response = await client.PostAsync(tokenEndpoint, content).ConfigureAwait(false);
             var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
             // We model this after https://www.rfc-editor.org/rfc/rfc6749#section-5.2
