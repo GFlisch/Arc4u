@@ -9,11 +9,19 @@ using System.Threading.Tasks;
 
 namespace Arc4u.OAuth2.TokenProvider
 {
+    /// <summary>
+    /// Provides an implementation of <see cref="ITokenProvider"/> for Blazor applications using MSAL.
+    /// </summary>
     [Export(ProviderName, typeof(ITokenProvider))]
     public class BlazorMsalTokenProvider : ITokenProvider
     {
         public const string ProviderName = "blazor";
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BlazorMsalTokenProvider"/> class with the specified access token provider accessor and application context.
+        /// </summary>
+        /// <param name="accessor">The access token provider accessor to use for obtaining access tokens.</param>
+        /// <param name="applicationContext">The application context to use for getting the principal.</param>
         public BlazorMsalTokenProvider(IAccessTokenProviderAccessor accessor, IApplicationContext applicationContext)
         {
             _accessor = accessor;
@@ -22,6 +30,14 @@ namespace Arc4u.OAuth2.TokenProvider
 
         private readonly IAccessTokenProviderAccessor _accessor;
         private readonly IApplicationContext _applicationContext;
+
+        /// <summary>
+        /// Asynchronously retrieves an OAuth2 token.
+        /// </summary>
+        /// <param name="settings">The settings to be used for getting the token.</param>
+        /// <param name="platformParameters">The platform-specific parameters, if any (not used in this implementation).</param>
+        /// <returns>A task representing the asynchronous operation, containing the requested <see cref="TokenInfo"/> if successful.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when the settings parameter is null.</exception>
         public async Task<TokenInfo> GetTokenAsync(IKeyValueSettings settings, object platformParameters)
         {
             if (null == settings) throw new ArgumentNullException(nameof(settings));
@@ -55,9 +71,10 @@ namespace Arc4u.OAuth2.TokenProvider
             return null;
         }
 
-
-
-
+        /// <summary>
+        /// Signs out the user by clearing the token.
+        /// </summary>
+        /// <param name="settings">The settings to be used for signing out (not used in this implementation).</param>
         public void SignOut(IKeyValueSettings settings)
         {
         }

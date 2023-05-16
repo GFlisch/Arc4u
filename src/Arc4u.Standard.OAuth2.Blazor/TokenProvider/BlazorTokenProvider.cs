@@ -10,11 +10,20 @@ using System.Threading.Tasks;
 
 namespace Arc4u.OAuth2.TokenProvider
 {
+    /// <summary>
+    /// Provides an implementation of <see cref="ITokenProvider"/> for Blazor applications.
+    /// </summary>
     [Export(ProviderName, typeof(ITokenProvider))]
     public class BlazorTokenProvider : ITokenProvider
     {
         public const string ProviderName = "blazor";
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BlazorTokenProvider"/> class with the specified local storage service, JS runtime, and token window interop.
+        /// </summary>
+        /// <param name="localStorageService">The local storage service to use for storing and retrieving tokens.</param>
+        /// <param name="jsRuntime">The JS runtime to use for interop calls.</param>
+        /// <param name="windowInterop">The token window interop to use for opening a window.</param>
         public BlazorTokenProvider(ILocalStorageService localStorageService, IJSRuntime jsRuntime, ITokenWindowInterop windowInterop)
         {
             _localStorage = localStorageService;
@@ -26,6 +35,15 @@ namespace Arc4u.OAuth2.TokenProvider
         private readonly IJSRuntime _jsRuntime;
         private readonly ITokenWindowInterop _windowInterop;
 
+        /// <summary>
+        /// Asynchronously retrieves an OAuth2 token.
+        /// </summary>
+        /// <param name="settings">The settings to be used for getting the token.</param>
+        /// <param name="platformParameters">The platform-specific parameters, if any (not used in this implementation).</param>
+        /// <returns>A task representing the asynchronous operation, containing the requested <see cref="TokenInfo"/> if successful.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when the settings parameter or its Values property is null.</exception>
+        /// <exception cref="UriFormatException">Thrown when the RedirectUrl from settings is not a valid URL.</exception>
+        /// <exception cref="Exception">Thrown when no token is found after the window operation.</exception>
         public async Task<TokenInfo> GetTokenAsync(IKeyValueSettings settings, object platformParameters)
         {
             if (null == settings) throw new ArgumentNullException(nameof(settings));
@@ -50,7 +68,10 @@ namespace Arc4u.OAuth2.TokenProvider
             return await GetToken() ?? throw new Exception("No token found!");
         }
 
-
+        /// <summary>
+        /// Asynchronously retrieves a stored OAuth2 token from local storage.
+        /// </summary>
+        /// <returns>A task representing the asynchronous operation, containing the requested <see cref="TokenInfo"/> if successful, null otherwise.</returns>
         private async Task<TokenInfo> GetToken()
         {
             var accessToken = await _localStorage.GetItemAsStringAsync("token");
@@ -76,6 +97,10 @@ namespace Arc4u.OAuth2.TokenProvider
             return null;
         }
 
+        /// <summary>
+        /// Signs out the user by clearing the token.
+        /// </summary>
+        /// <param name="settings">The settings to be used for signing out (not used in this implementation).</param>
         public void SignOut(IKeyValueSettings settings)
         {
             _localStorage.RemoveItemAsync("token").AsTask().Wait();
