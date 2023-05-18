@@ -12,7 +12,7 @@ using System.Linq;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
-namespace Arc4u.Standard.OAuth2.Middleware;
+namespace Arc4u.OAuth2.Middleware;
 
 public class OpenIdBearerInjectorMiddleware
 {

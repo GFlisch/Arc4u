@@ -13,7 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Arc4u.OAuth2.Extensions;
 
-namespace Arc4u.Standard.UnitTest.Security;
+namespace Arc4u.UnitTest.Security;
 
 [Trait("Category", "CI")]
 

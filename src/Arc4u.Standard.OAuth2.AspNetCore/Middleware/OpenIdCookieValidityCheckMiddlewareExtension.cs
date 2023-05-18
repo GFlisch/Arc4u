@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using System;
 
-namespace Arc4u.Standard.OAuth2.Middleware
+namespace Arc4u.OAuth2.Middleware
 {
     public static class OpenIdCookieValidityCheckMiddlewareExtension
     {

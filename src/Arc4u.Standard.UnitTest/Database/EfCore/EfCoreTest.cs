@@ -1,6 +1,6 @@
 using Arc4u.EfCore;
-using Arc4u.Standard.UnitTest.Database.EfCore.Model;
-using Arc4u.Standard.UnitTest.Infrastructure;
+using Arc4u.UnitTest.Database.EfCore.Model;
+using Arc4u.UnitTest.Infrastructure;
 using AutoFixture;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Arc4u.Standard.UnitTest.Database.EfCore;
+namespace Arc4u.UnitTest.Database.EfCore;
 
 [TestCaseOrderer("Arc4u.Standard.UnitTest.Infrastructure.PriorityOrderer", "Arc4u.Standard.UnitTest")]
 [Trait("Category", "CI")]

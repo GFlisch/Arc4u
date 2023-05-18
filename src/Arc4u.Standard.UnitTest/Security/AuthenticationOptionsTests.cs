@@ -11,9 +11,9 @@ using FluentAssertions;
 using Arc4u.Configuration;
 using Arc4u.OAuth2.Token;
 using System;
-using Arc4u.Standard.OAuth2;
+using Arc4u.OAuth2;
 
-namespace Arc4u.Standard.UnitTest.Security;
+namespace Arc4u.UnitTest.Security;
 
 [Trait("Category", "CI")]
 public class AuthenticationOptionsTests

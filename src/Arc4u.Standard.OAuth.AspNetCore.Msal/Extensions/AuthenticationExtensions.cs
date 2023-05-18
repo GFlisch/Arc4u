@@ -14,7 +14,7 @@ using Microsoft.Net.Http.Headers;
 using System;
 using System.Linq;
 
-namespace Arc4u.Standard.OAuth2.Extensions;
+namespace Arc4u.OAuth2.Extensions;
 
 public static partial class AuthenticationExtensions
 {

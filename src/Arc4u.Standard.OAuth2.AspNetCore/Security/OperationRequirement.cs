@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 
-namespace Arc4u.Standard.Security
+namespace Arc4u.Security
 {
     public class OperationRequirement : IAuthorizationRequirement
     {

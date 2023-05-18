@@ -1,7 +1,7 @@
-﻿using Arc4u.Standard.UnitTest.Database.EfCore.Model;
+﻿using Arc4u.UnitTest.Database.EfCore.Model;
 using Microsoft.EntityFrameworkCore;
 
-namespace Arc4u.Standard.UnitTest.Database.EfCore
+namespace Arc4u.UnitTest.Database.EfCore
 {
     public partial class DatabaseContext : DbContext
     {

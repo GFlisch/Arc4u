@@ -7,7 +7,7 @@ using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
-namespace Arc4u.Standard.AspNetCore.Middleware
+namespace Arc4u.AspNetCore.Middleware
 {
 
     public class LogGrpcMonitoringTimeElapsedMiddleware

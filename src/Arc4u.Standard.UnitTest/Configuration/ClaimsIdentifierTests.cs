@@ -9,7 +9,7 @@ using Microsoft.Extensions.Options;
 using FluentAssertions;
 using Arc4u.OAuth2.Extensions;
 
-namespace Arc4u.Standard.UnitTest;
+namespace Arc4u.UnitTest;
 
 [Trait("Category", "CI")]
 public class ClaimsIdentifierTests

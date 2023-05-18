@@ -38,7 +38,7 @@ namespace Arc4u.OAuth2.TokenProvider
 
                 if (authenticationType == null) return null;
 
-                if (authenticationType.Equals(Standard.OAuth2.Constants.BearerAuthenticationType))
+                if (authenticationType.Equals(Constants.BearerAuthenticationType))
                 {
                     var identity = _applicationContext.Principal?.Identity as ClaimsIdentity;
 
@@ -51,7 +51,7 @@ namespace Arc4u.OAuth2.TokenProvider
                     }
                 }
 
-                if (authenticationType.Equals(Standard.OAuth2.Constants.CookiesAuthenticationType))
+                if (authenticationType.Equals(Constants.CookiesAuthenticationType))
                 {
                     if (!settings.Values.ContainsKey(TokenKeys.Scopes))
                         throw new ArgumentException("Scopes field is missing. Cannot process the request.");
@@ -60,7 +60,7 @@ namespace Arc4u.OAuth2.TokenProvider
 
                     var tokenAcquisition = _container.Resolve<ITokenAcquisition>();
 
-                    var result = await tokenAcquisition.GetAuthenticationResultForUserAsync(scopes);
+                    var result = await tokenAcquisition.GetAuthenticationResultForUserAsync(scopes).ConfigureAwait(false);
 
                     return new TokenInfo("Bearer", result.AccessToken, result.ExpiresOn.UtcDateTime);
                 }

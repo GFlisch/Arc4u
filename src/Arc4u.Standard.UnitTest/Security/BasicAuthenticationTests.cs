@@ -9,12 +9,12 @@ using Arc4u.OAuth2.Extensions;
 using System;
 using Microsoft.Extensions.Options;
 using FluentAssertions;
-using Arc4u.Standard.OAuth2.Options;
-using Arc4u.Standard.OAuth2;
-using Arc4u.Standard.OAuth2.Middleware;
+using Arc4u.OAuth2.Options;
+using Arc4u.OAuth2;
+using Arc4u.OAuth2.Middleware;
 using Arc4u.OAuth2.Token;
 
-namespace Arc4u.Standard.UnitTest.Security;
+namespace Arc4u.UnitTest.Security;
 
 [Trait("Category", "CI")]
 public class BasicAuthenticationTests

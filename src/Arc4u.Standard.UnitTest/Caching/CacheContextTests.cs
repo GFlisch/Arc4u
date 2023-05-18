@@ -18,7 +18,7 @@ using Moq;
 using Arc4u.Dependency;
 using Arc4u.Serializer;
 
-namespace Arc4u.Standard.UnitTest.Caching;
+namespace Arc4u.UnitTest.Caching;
 
 [Trait("Category", "CI")]
 public class CacheContextTests

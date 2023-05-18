@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.Net.Http.Headers;
 
-namespace Arc4u.Standard.OAuth2.Extensions;
+namespace Arc4u.OAuth2.Extensions;
 
 public static class AuthenticationExtensions
 {

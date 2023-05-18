@@ -1,9 +1,9 @@
 using Arc4u.Dependency;
-using Arc4u.Standard.UnitTest.Infrastructure;
+using Arc4u.UnitTest.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
-namespace Arc4u.Standard.UnitTest.Database.EfCore
+namespace Arc4u.UnitTest.Database.EfCore
 {
     public class EfCoreFixture : ContainerFixture
     {

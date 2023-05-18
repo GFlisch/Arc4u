@@ -1,5 +1,5 @@
 using Arc4u.OAuth2.Configuration;
-using Arc4u.Standard.OAuth2;
+using Arc4u.OAuth2;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System;
 using System.Security.Claims;

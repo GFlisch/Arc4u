@@ -12,7 +12,7 @@ using Arc4u.Dependency;
 using Moq;
 using Arc4u.Configuration.Redis;
 
-namespace Arc4u.Standard.UnitTest.Caching;
+namespace Arc4u.UnitTest.Caching;
 
 public class RedisTests
 {

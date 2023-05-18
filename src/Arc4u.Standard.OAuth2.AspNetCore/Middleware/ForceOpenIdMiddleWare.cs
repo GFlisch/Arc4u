@@ -10,7 +10,7 @@ using AuthenticationProperties = Microsoft.AspNetCore.Authentication.Authenticat
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
 
-namespace Arc4u.Standard.OAuth2.Middleware;
+namespace Arc4u.OAuth2.Middleware;
 
 public class ForceOpenIdMiddleWare
 {

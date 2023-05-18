@@ -13,13 +13,13 @@ using Arc4u.OAuth2.Extensions;
 using Arc4u.OAuth2.Security.Principal;
 using Arc4u.OAuth2.Token;
 using Arc4u.Security.Cryptography;
-using Arc4u.Standard.OAuth2.Options;
+using Arc4u.OAuth2.Options;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Arc4u.Standard.OAuth2.Middleware;
+namespace Arc4u.OAuth2.Middleware;
 
 public class BasicAuthenticationMiddleware
 {

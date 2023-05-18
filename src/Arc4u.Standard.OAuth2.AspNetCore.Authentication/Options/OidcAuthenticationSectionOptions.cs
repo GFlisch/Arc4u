@@ -1,6 +1,6 @@
 using System;
 using Arc4u.OAuth2.Events;
-using Arc4u.Standard.OAuth2;
+using Arc4u.OAuth2;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace Arc4u.OAuth2.Options;

@@ -19,7 +19,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Arc4u.Standard.UnitTest.Blazor
+namespace Arc4u.UnitTest.Blazor
 {
     [Trait("Category", "CI")]
     public class BlazorTokenProviderTests

@@ -12,7 +12,7 @@
     "Assemblies": [
     ],
     "RegisterTypes": [
-      "Arc4u.Standard.UnitTest.TestScopedParser, Arc4u.Standard.UnitTest"
+      "Arc4u.UnitTest.TestScopedParser, Arc4u.Standard.UnitTest"
     ]
   }
 }

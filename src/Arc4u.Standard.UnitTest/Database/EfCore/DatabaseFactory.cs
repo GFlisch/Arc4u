@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace Arc4u.Standard.UnitTest.Database.EfCore
+namespace Arc4u.UnitTest.Database.EfCore
 {
     public class DatabaseFactory : IDesignTimeDbContextFactory<DatabaseContext>
     {

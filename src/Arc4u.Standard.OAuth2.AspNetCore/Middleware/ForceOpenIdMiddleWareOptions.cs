@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Arc4u.Standard.OAuth2.Middleware;
+namespace Arc4u.OAuth2.Middleware;
 
 public class ForceOpenIdMiddleWareOptions
 {

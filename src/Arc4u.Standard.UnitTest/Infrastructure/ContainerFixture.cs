@@ -10,7 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Security.Principal;
 
-namespace Arc4u.Standard.UnitTest.Infrastructure
+namespace Arc4u.UnitTest.Infrastructure
 {
     public abstract class ContainerFixture : IDisposable, IContainerFixture
     {

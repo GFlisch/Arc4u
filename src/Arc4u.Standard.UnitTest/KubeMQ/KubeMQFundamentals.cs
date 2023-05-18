@@ -1,5 +1,5 @@
 using Arc4u.Diagnostics;
-using Arc4u.Standard.UnitTest.Infrastructure;
+using Arc4u.UnitTest.Infrastructure;
 using KubeMQ.Grpc;
 using KubeMQ.SDK.csharp.Events;
 using KubeMQ.SDK.csharp.QueueStream;
@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 using Xunit;
 using Event = KubeMQ.SDK.csharp.Events.Event;
 
-namespace Arc4u.Standard.UnitTest.KubeMQ;
+namespace Arc4u.UnitTest.KubeMQ;
 
 [Trait("Category", "All")]
 public class KubeMQFundamentalsTest : BaseContainerFixture<KubeMQFundamentalsTest, BasicFixture>

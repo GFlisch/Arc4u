@@ -6,7 +6,7 @@ using FluentAssertions;
 using System.Security.Cryptography.X509Certificates;
 using System.Net.WebSockets;
 
-namespace Arc4u.Standard.UnitTest.Security;
+namespace Arc4u.UnitTest.Security;
 
 [Trait("Category", "CI")]
 public class CertificateTests

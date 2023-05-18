@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Arc4u.Standard.OAuth2.Middleware;
+namespace Arc4u.OAuth2.Middleware;
 public static class ForceOpenIdMiddleWareOptionsExtension
 {
     public static IApplicationBuilder UseForceOfOpenId(this IApplicationBuilder app, Action<ForceOpenIdMiddleWareOptions> options)

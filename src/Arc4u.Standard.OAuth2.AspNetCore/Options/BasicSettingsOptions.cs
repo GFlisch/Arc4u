@@ -1,6 +1,6 @@
 using Arc4u.OAuth2.Options;
 
-namespace Arc4u.Standard.OAuth2;
+namespace Arc4u.OAuth2;
 public class BasicSettingsOptions
 {
     public string ProviderId { get; set; } = "Credential";

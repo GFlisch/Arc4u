@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using System;
 
-namespace Arc4u.Standard.AspNetCore.Middleware
+namespace Arc4u.AspNetCore.Middleware
 {
     public static class GrpcAuthenticationStatusCodeMiddlewareExtension
     {

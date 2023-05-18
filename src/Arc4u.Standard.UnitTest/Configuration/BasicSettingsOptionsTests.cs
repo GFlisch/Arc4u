@@ -5,14 +5,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
-using Arc4u.Standard.OAuth2;
+using Arc4u.OAuth2;
 using FluentAssertions;
 using Arc4u.OAuth2.Token;
-using Arc4u.Standard.OAuth2.Middleware;
-using Arc4u.Standard.OAuth2.Options;
+using Arc4u.OAuth2.Middleware;
+using Arc4u.OAuth2.Options;
 using System.Linq;
 
-namespace Arc4u.Standard.UnitTest;
+namespace Arc4u.UnitTest;
 
 [Trait("Category", "CI")]
 public class BasicSettingsOptionsTests

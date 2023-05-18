@@ -15,7 +15,7 @@ using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace Arc4u.Standard.OAuth2.Extensions;
+namespace Arc4u.OAuth2.Extensions;
 
 public static partial class AuthenticationExtensions
 {

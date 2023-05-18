@@ -10,7 +10,7 @@ using System.Security.Claims;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Arc4u.Standard.UnitTest.Serialization;
+namespace Arc4u.UnitTest.Serialization;
 
 [Trait("Category", "CI")]
 public class CompressionAndSpeedTests

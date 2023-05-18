@@ -9,7 +9,7 @@ using System;
 using System.Linq;
 using Xunit;
 
-namespace Arc4u.Standard.UnitTest
+namespace Arc4u.UnitTest
 {
     [Trait("Category", "CI")]
     public class DependencyTests

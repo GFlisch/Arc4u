@@ -1,4 +1,4 @@
-﻿using Arc4u.Standard.Security;
+﻿using Arc4u.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 using System;

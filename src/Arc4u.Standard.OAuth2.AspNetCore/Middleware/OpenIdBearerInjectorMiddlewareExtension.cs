@@ -5,7 +5,7 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Arc4u.Standard.OAuth2.Middleware;
+namespace Arc4u.OAuth2.Middleware;
 
 public static class OpenIdBearerInjectorMiddlewareExtension
 {

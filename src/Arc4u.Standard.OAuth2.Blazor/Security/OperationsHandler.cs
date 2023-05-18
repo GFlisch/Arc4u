@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
-namespace Arc4u.Standard.Security
+namespace Arc4u.Security
 {
     public class OperationsHandler : AuthorizationHandler<OperationRequirement>
     {

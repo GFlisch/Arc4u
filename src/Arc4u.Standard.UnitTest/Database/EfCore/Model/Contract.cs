@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
-namespace Arc4u.Standard.UnitTest.Database.EfCore.Model
+namespace Arc4u.UnitTest.Database.EfCore.Model
 {
     public class Contract : IPersistEntity, IComparer<Contract>, IEqualityComparer<Contract>
     {

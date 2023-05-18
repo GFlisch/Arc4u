@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
 using Arc4u.Configuration;
 
-namespace Arc4u.Standard.OAuth2.Options;
+namespace Arc4u.OAuth2.Options;
 public class BasicAuthenticationSettingsOptions
 {
     public SimpleKeyValueSettings BasicSettings { get; set; }

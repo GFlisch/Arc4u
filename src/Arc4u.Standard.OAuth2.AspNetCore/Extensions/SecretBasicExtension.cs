@@ -8,7 +8,7 @@ using Arc4u.OAuth2.Token;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Arc4u.Standard.OAuth2.Extensions;
+namespace Arc4u.OAuth2.Extensions;
 public static class SecretBasicExtension
 {
     public static void AddSecretAuthentication(this IServiceCollection services, [DisallowNull] Action<SecretBasicSettingsOptions> options, [DisallowNull] string optionKey)

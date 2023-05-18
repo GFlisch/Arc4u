@@ -4,7 +4,7 @@ using Arc4u.Dependency;
 using Arc4u.OAuth2.Security.Principal;
 using Arc4u.OAuth2.Token;
 using Arc4u.OAuth2.TokenProvider;
-using Arc4u.Standard.OAuth2;
+using Arc4u.OAuth2;
 using AutoFixture;
 using AutoFixture.AutoMoq;
 using Moq;
@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using System;
 
-namespace Arc4u.Standard.UnitTest.Security;
+namespace Arc4u.UnitTest.Security;
 
 [Trait("Category", "CI")]
 

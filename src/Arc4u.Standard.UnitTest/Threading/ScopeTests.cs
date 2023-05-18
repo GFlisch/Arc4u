@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Arc4u.Standard.UnitTest.Threading;
+namespace Arc4u.UnitTest.Threading;
 
 public class Context
 {

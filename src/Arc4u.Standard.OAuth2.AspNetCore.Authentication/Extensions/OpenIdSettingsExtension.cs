@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using Arc4u.Configuration;
 using Arc4u.OAuth2.Options;
 using Arc4u.OAuth2.Token;
-using Arc4u.Standard.OAuth2;
+using Arc4u.OAuth2;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
