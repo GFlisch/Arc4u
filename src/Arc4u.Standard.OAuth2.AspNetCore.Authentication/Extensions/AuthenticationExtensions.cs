@@ -3,7 +3,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Arc4u.Configuration;
 using Arc4u.OAuth2.DataProtection;
-using Arc4u.OAuth2.Extensions;
 using Arc4u.OAuth2.Options;
 using Arc4u.OAuth2.TicketStore;
 using Arc4u.OAuth2.Token;
@@ -209,6 +208,10 @@ public static partial class AuthenticationExtensions
         {
             configErrors += "We need a setting section to configure the DataProtection cache store." + System.Environment.NewLine;
         }
+        if (string.IsNullOrWhiteSpace(settings.TokenCacheSectionPath))
+        {
+            configErrors += "We need a setting section to configure the TokenCacheOptions." + System.Environment.NewLine;
+        }
         if (string.IsNullOrWhiteSpace(settings.JwtBearerEventsType))
         {
             configErrors += "The JwtBearerEventsType must be defined." + System.Environment.NewLine;
@@ -286,8 +289,9 @@ public static partial class AuthenticationExtensions
             options.ClaimsIdentifierOptions = ClaimsIdentiferExtension.PrepareAction(configuration, settings.ClaimsIdentifierSectionPath);
         }
 
-        services.AddDomainMapping(configuration, "Authentication:DomainsMapping");
+        services.AddDomainMapping(configuration, settings.DomainMappingsSectionPath);
         services.AddOnBehalfOf(configuration);
+        services.AddTokenCache(configuration, settings.TokenCacheSectionPath);
 
         return services.AddOidcAuthentication(OidcAuthenticationFiller);
     }
