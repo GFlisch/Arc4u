@@ -9,7 +9,7 @@ namespace Arc4u.OAuth2.Token;
 [Export(typeof(ICacheHelper)), Shared]
 public class CacheHelper : ICacheHelper
 {
-    public CacheHelper(ICacheContext cacheContext, ILogger<CacheContext> logger)
+    public CacheHelper(ICacheContext cacheContext, ILogger<CacheHelper> logger)
     {
         _cacheContext = cacheContext;
         _logger = logger;
@@ -29,7 +29,7 @@ public class CacheHelper : ICacheHelper
     }
 
     private readonly ICacheContext _cacheContext;
-    private readonly ILogger<CacheContext> _logger;
+    private readonly ILogger<CacheHelper> _logger;
     /// return the cache based on:
     /// 1) a cache exists with the Principal.CacheName
     /// 2) default.

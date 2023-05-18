@@ -17,20 +17,12 @@ public static class ClaimsIdentiferExtension
         services.Configure<ClaimsIdentifierOption>(options);
     }
 
-#if NET6_0_OR_GREATER
     public static void AddClaimsIdentifier(this IServiceCollection services, IConfiguration configuration, [DisallowNull] string sectionName = "Authentication:ClaimsIdentifer")
-#else
-    public static void AddClaimsIdentifier(this IServiceCollection services, IConfiguration configuration, string sectionName = "Authentication:ClaimsIdentifer")
-#endif
     {
         AddClaimsIdentifier(services, PrepareAction(configuration, sectionName));
     }
 
-#if NET6_0_OR_GREATER
     public static Action<ClaimsIdentifierOption> PrepareAction(IConfiguration configuration, [DisallowNull] string sectionName)
-#else
-    public static Action<ClaimsIdentifierOption> PrepareAction(IConfiguration configuration, string sectionName)
-#endif
     {
         if (string.IsNullOrEmpty(sectionName))
         {
