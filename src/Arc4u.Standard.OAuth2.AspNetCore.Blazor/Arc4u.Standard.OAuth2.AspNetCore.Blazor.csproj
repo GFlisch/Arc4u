@@ -15,6 +15,7 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RootNamespace>Arc4u.Blazor</RootNamespace>
     <LangVersion>latest</LangVersion>
+    <RootNamespace>$(MSBuildProjectName.Replace(" ", "_").Replace(".Standard", ""))</RootNamespace>
     <PackageId>Arc4u.Standard.OAuth2.AspNetCore.Blazor</PackageId>
   </PropertyGroup>
   <ItemGroup>

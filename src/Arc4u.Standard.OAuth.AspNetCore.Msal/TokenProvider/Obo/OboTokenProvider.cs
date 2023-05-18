@@ -4,7 +4,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using Arc4u.Caching;
 using Arc4u.Dependency;
 using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Security;
@@ -20,9 +19,9 @@ namespace Arc4u.OAuth2.TokenProvider
     {
         public const string ProviderName = "Obo";
 
-        public OboTokenProvider(ICacheContext cacheContext, IContainerResolve container, IApplicationContext applicationContext, IUserObjectIdentifier userObjectIdentifier, ILogger<OboTokenProvider> logger, IActivitySourceFactory activitySourceFactory)
+        public OboTokenProvider(ICacheHelper cacheHelper, IContainerResolve container, IApplicationContext applicationContext, IUserObjectIdentifier userObjectIdentifier, ILogger<OboTokenProvider> logger, IActivitySourceFactory activitySourceFactory)
         {
-            _cacheContext = cacheContext;
+            _cacheHelper = cacheHelper;
             _container = container;
             _logger = logger;
             _activitySource = activitySourceFactory?.Get("Arc4u");
@@ -30,7 +29,7 @@ namespace Arc4u.OAuth2.TokenProvider
             _applicationContext = applicationContext;
         }
 
-        private readonly ICacheContext _cacheContext;
+        private readonly ICacheHelper _cacheHelper;
         private readonly IContainerResolve _container;
         private readonly ILogger<OboTokenProvider> _logger;
         private readonly ActivitySource _activitySource;
@@ -59,7 +58,7 @@ namespace Arc4u.OAuth2.TokenProvider
 
             using var activity = _activitySource?.StartActivity("Get on behal of token", ActivityKind.Producer);
 
-            var cache = string.IsNullOrEmpty(_cacheContext.Principal?.CacheName) ? _cacheContext.Default : _cacheContext[_cacheContext.Principal?.CacheName];
+            var cache = _cacheHelper.GetCache();
 
             // The key must be based on the user and the client one! We can have more than one different backend to reach.
             var identity = _applicationContext?.Principal?.Identity as ClaimsIdentity;
@@ -70,10 +69,12 @@ namespace Arc4u.OAuth2.TokenProvider
             {
                 cacheKey = $"_Obo_{settings.Values[TokenKeys.ClientIdKey]}_{userKey}";
 
-                var tokenFromCache = await cache.GetAsync<TokenInfo>(cacheKey);
+                var tokenFromCache = await cache.GetAsync<TokenInfo>(cacheKey).ConfigureAwait(false);
 
                 if (null != tokenFromCache)
+                {
                     return tokenFromCache;
+                }
             }
 
             // retrieve the token and do an On behal-of scenario.

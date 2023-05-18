@@ -17,6 +17,7 @@
     <PackageTags>Arc4u</PackageTags>
     <LangVersion>latest</LangVersion>
     <PackageId>Arc4u.Standard.OAuth2.Blazor</PackageId>
+    <RootNamespace>$(MSBuildProjectName.Replace(" ", "_").Replace(".Standard", ""))</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Blazored.LocalStorage" Version="4.3.0" />

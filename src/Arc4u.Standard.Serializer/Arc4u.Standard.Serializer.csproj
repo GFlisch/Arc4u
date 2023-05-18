@@ -20,6 +20,7 @@
     <PackageTags>Arc4u</PackageTags>
     <LangVersion>latest</LangVersion>
     <PackageId>Arc4u.Standard.Serializer</PackageId>
+    <RootNamespace>$(MSBuildProjectName.Replace(" ", "_").Replace(".Standard", ""))</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">

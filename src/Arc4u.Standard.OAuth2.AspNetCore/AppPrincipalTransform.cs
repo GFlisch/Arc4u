@@ -17,6 +17,7 @@ using System;
 using Arc4u.OAuth2.Options;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
+using Arc4u.OAuth2.Token;
 
 namespace Arc4u.OAuth2;
 
@@ -29,7 +30,7 @@ public class AppPrincipalTransform : IClaimsTransformation
 {
     private readonly IClaimProfileFiller _claimProfileFiller;
     private readonly IClaimAuthorizationFiller _claimAuthorizationFiller;
-    private readonly ICacheContext _cacheContext;
+    private readonly ICacheHelper _cacheHelper;
     private readonly ActivitySource? _activitySource;
     private readonly IApplicationContext _applicationContext;
     private readonly ClaimsFillerOptions _options;
@@ -37,6 +38,7 @@ public class AppPrincipalTransform : IClaimsTransformation
     private readonly IClaimsFiller? _claimsFiller;
     private readonly IOptionsMonitor<SimpleKeyValueSettings> _settings;
     private readonly ILogger<AppPrincipalTransform> _logger;
+    private readonly TokenCacheOptions _cacheOptions;
 
     public AppPrincipalTransform(
         IApplicationContext applicationContext,
@@ -45,8 +47,9 @@ public class AppPrincipalTransform : IClaimsTransformation
         IServiceProvider serviceProvider,
         IOptionsMonitor<SimpleKeyValueSettings> settings,
         IOptions<ClaimsFillerOptions> options,
-        ICacheContext cacheContext,
+        ICacheHelper cacheHelper,
         IActivitySourceFactory activitySourceFactory,
+        IOptions<TokenCacheOptions> tokenCacheOptions,
         ILogger<AppPrincipalTransform> logger)
     {
         _claimProfileFiller = claimProfileFiller;
@@ -56,7 +59,8 @@ public class AppPrincipalTransform : IClaimsTransformation
         _activitySource = activitySourceFactory.Get("Arc4u");
         _settings = settings;
         _logger = logger;
-        _cacheContext = cacheContext;
+        _cacheHelper = cacheHelper;
+        _cacheOptions = tokenCacheOptions.Value;
 
         if (_options.LoadClaimsFromClaimsFillerProvider)
         {
@@ -175,9 +179,7 @@ public class AppPrincipalTransform : IClaimsTransformation
 
         try
         {
-            var claimsCache = _cacheContext[_cacheContext.Principal.CacheName];
-
-            claims = claimsCache?.Get<List<ClaimDto>>(cacheKey) ?? new List<ClaimDto>();
+            claims = _cacheHelper.GetCache().Get<List<ClaimDto>>(cacheKey) ?? new List<ClaimDto>();
         }
         catch (Exception ex)
         {
@@ -198,18 +200,16 @@ public class AppPrincipalTransform : IClaimsTransformation
 
         try
         {
-            var claimsCache = _cacheContext[_cacheContext.Principal.CacheName];
-
             var cachedExpiredClaim = claims.FirstOrDefault(c => c.ClaimType.Equals(tokenExpirationClaimType, StringComparison.OrdinalIgnoreCase));
 
             // if no expiration claim exist we assume the lifetime of the extra claims is defined by the cache context for the principal.
             if (cachedExpiredClaim is null)
             {
-                cachedExpiredClaim = new ClaimDto(tokenExpirationClaimType, DateTimeOffset.UtcNow.Add(_cacheContext.Principal.Duration).ToUnixTimeSeconds().ToString(CultureInfo.InvariantCulture));
+                cachedExpiredClaim = new ClaimDto(tokenExpirationClaimType, DateTimeOffset.UtcNow.Add(_cacheOptions.MaxTime).ToUnixTimeSeconds().ToString(CultureInfo.InvariantCulture));
                 claims = new List<ClaimDto>(claims) { cachedExpiredClaim };
             }
 
-            claimsCache?.Put(cacheKey, claims);
+            _cacheHelper.GetCache().Put(cacheKey, claims);
         }
         catch (Exception ex)
         {

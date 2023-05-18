@@ -25,6 +25,7 @@
     <PackageTags>Arc4u</PackageTags>
     <LangVersion>latest</LangVersion>
     <PackageId>Arc4u.Standard.Diagnostics</PackageId>
+    <RootNamespace>$(MSBuildProjectName.Replace(" ", "_").Replace(".Standard", ""))</RootNamespace>
   </PropertyGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />

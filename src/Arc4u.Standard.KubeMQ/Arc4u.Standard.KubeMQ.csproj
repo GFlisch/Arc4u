@@ -14,6 +14,7 @@
     <Version>0.0.0.0</Version>
     <LangVersion>latest</LangVersion>
     <PackageId>Arc4u.Standard.KubeMQ</PackageId>
+    <RootNamespace>$(MSBuildProjectName.Replace(" ", "_").Replace(".Standard", ""))</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\..\LICENSE">

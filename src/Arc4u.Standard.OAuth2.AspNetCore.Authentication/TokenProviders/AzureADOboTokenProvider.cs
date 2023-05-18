@@ -7,7 +7,6 @@ using System.Security.Claims;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Arc4u.Caching;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Options;
@@ -25,7 +24,7 @@ public class AzureADOboTokenProvider : ITokenProvider
 {
 
     public AzureADOboTokenProvider(TokenRefreshInfo tokenRefreshInfo,
-                                   ICacheContext cacheContext,
+                                   ICacheHelper cacheHelper,
                                    IActivitySourceFactory activitySourceFactory,
                                    IApplicationContext applicationContext,
                                    IOptionsMonitor<AuthorityOptions> onBehalfOfOptions,
@@ -33,7 +32,7 @@ public class AzureADOboTokenProvider : ITokenProvider
     {
         _defaultAuthority = onBehalfOfOptions.Get("Default");
         _logger = logger;
-        _cacheContext = cacheContext;
+        _cacheHelper = cacheHelper;
         _tokenRefreshInfo = tokenRefreshInfo;
         _activitySource = activitySourceFactory?.Get("Arc4u");
         _applicationContext = applicationContext;
@@ -42,7 +41,7 @@ public class AzureADOboTokenProvider : ITokenProvider
     const string ProviderName = "Obo";
 
     private readonly ILogger<AzureADOboTokenProvider> _logger;
-    private readonly ICacheContext _cacheContext;
+    private readonly ICacheHelper _cacheHelper;
     private readonly TokenRefreshInfo _tokenRefreshInfo;
     private readonly ActivitySource? _activitySource;
     private readonly AuthorityOptions _defaultAuthority;
@@ -69,7 +68,7 @@ public class AzureADOboTokenProvider : ITokenProvider
             throw new NullReferenceException($"Token cannot be retrieved for the AuthenticationType: {identity.AuthenticationType}");
         }
 
-        var cache = string.IsNullOrEmpty(_cacheContext.Principal?.CacheName) ? _cacheContext.Default : _cacheContext[_cacheContext.Principal!.CacheName];
+        var cache = _cacheHelper.GetCache();
 
         // the key is defined by user!
         var cacheKey = $"_Obo_{settings.Values[TokenKeys.ClientIdKey]}_{currentToken.GetHashCode()}_{settings.Values[TokenKeys.Scope]}";

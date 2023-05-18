@@ -25,6 +25,7 @@
     <PackageTags>Arc4u</PackageTags>
     <LangVersion>latest</LangVersion>
     <PackageId>Arc4u.Standard.OData</PackageId>
+    <RootNamespace>$(MSBuildProjectName.Replace(" ", "_").Replace(".Standard", ""))</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

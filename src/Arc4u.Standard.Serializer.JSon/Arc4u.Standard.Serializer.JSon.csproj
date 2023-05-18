@@ -20,6 +20,7 @@
     <UserSecretsId>3ecd0e40-959a-4d12-9006-ea8e522d4025</UserSecretsId>
     <LangVersion>latest</LangVersion>
     <PackageId>Arc4u.Standard.Serializer.JSon</PackageId>
+    <RootNamespace>$(MSBuildProjectName.Replace(" ", "_").Replace(".Standard", ""))</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\..\LICENSE">

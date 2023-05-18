@@ -1,4 +1,6 @@
 using Arc4u.Caching;
+using Arc4u.OAuth2.Options;
+using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web.TokenCacheProviders;
 using System.Threading.Tasks;
 
@@ -6,9 +8,10 @@ namespace Arc4u.OAuth2.Msal.Token;
 
 public class Cache : MsalAbstractTokenCacheProvider
 {
-    public Cache(ICacheContext cacheContext)
+    public Cache(ICacheContext cacheContext, IOptions<TokenCacheOptions> options)
     {
-        _tokenCache = string.IsNullOrWhiteSpace(cacheContext.Principal?.CacheName) ? cacheContext.Default : cacheContext[cacheContext.Principal?.CacheName];
+        var tokenCacheOptions = options.Value;
+        _tokenCache = string.IsNullOrWhiteSpace(tokenCacheOptions.CacheName) ? cacheContext.Default : cacheContext[tokenCacheOptions.CacheName];
     }
 
     private readonly ICache _tokenCache;

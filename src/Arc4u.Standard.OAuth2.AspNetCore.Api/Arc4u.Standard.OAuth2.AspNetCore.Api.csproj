@@ -16,6 +16,7 @@
     <RootNamespace>Arc4u.OAuth2</RootNamespace>
     <LangVersion>latest</LangVersion>
     <PackageId>Arc4u.Standard.OAuth2.AspNetCore.Api</PackageId>
+    <RootNamespace>$(MSBuildProjectName.Replace(" ", "_").Replace(".Standard", ""))</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Arc4u.Standard.Diagnostics\Arc4u.Standard.Diagnostics.csproj" />

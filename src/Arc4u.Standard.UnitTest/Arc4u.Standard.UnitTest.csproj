@@ -5,6 +5,7 @@
 				<IsPackable>false</IsPackable>
 				<LangVersion>latest</LangVersion>
       <Nullable>enable</Nullable>
+      <RootNamespace>$(MSBuildProjectName.Replace(" ", "_").Replace(".Standard", ""))</RootNamespace>
 		</PropertyGroup>
 
 		<ItemGroup>
