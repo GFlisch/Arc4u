@@ -24,7 +24,7 @@ namespace Arc4u.OAuth2.TokenProvider
             _cacheHelper = cacheHelper;
             _container = container;
             _logger = logger;
-            _activitySource = activitySourceFactory?.Get("Arc4u");
+            _activitySource = activitySourceFactory?.GetArc4u();
             _userObjectIdentifier = userObjectIdentifier;
             _applicationContext = applicationContext;
         }

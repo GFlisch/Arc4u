@@ -34,7 +34,7 @@ public class AzureADOboTokenProvider : ITokenProvider
         _logger = logger;
         _cacheHelper = cacheHelper;
         _tokenRefreshInfo = tokenRefreshInfo;
-        _activitySource = activitySourceFactory?.Get("Arc4u");
+        _activitySource = activitySourceFactory?.GetArc4u();
         _applicationContext = applicationContext;
     }
 

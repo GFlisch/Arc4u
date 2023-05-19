@@ -38,6 +38,8 @@ public class OidcAuthenticationSectionOptions
 
     public string DomainMappingsSectionPath { get; set; } = "Authentication:DomainsMapping";
 
+    public string ClaimsFillerSectionPath { get; set; } = "Authentication:ClaimsMiddleWare:ClaimsFiller";
+
     public string JwtBearerEventsType { get; set; } = typeof(StandardBearerEvents).AssemblyQualifiedName!;
 
     public string CookieAuthenticationEventsType { get; set; } = typeof(StandardCookieEvents).AssemblyQualifiedName!;

@@ -34,7 +34,7 @@ namespace Arc4u.Diagnostics
     {
         public static ActivitySource GetArc4u(this IActivitySourceFactory activitySourceFactory)
         {
-            return activitySourceFactory.Get("Arc4u");
+            return activitySourceFactory.GetArc4u();
         }
     }
         

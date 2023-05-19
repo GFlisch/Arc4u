@@ -61,7 +61,7 @@ public class BasicAuthenticationMiddleware
             _logger.Technical().Error($"No token cache is defined for Basic Authentication.").Log();
         }
 
-        _activitySource = container.Resolve<IActivitySourceFactory>().Get("Arc4u");
+        _activitySource = container.Resolve<IActivitySourceFactory>().GetArc4u();
     }
 
     public async Task Invoke(HttpContext context)

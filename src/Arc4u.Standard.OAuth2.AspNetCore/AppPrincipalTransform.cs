@@ -56,7 +56,7 @@ public class AppPrincipalTransform : IClaimsTransformation
         _claimAuthorizationFiller = claimAuthorizationFiller;
         _applicationContext = applicationContext;
         _options = options.Value;
-        _activitySource = activitySourceFactory.Get("Arc4u");
+        _activitySource = activitySourceFactory.GetArc4u();
         _settings = settings;
         _logger = logger;
         _cacheHelper = cacheHelper;

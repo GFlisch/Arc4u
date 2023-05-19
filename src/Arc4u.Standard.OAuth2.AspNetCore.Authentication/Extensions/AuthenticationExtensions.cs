@@ -220,7 +220,10 @@ public static partial class AuthenticationExtensions
         {
             configErrors += "We need a setting section to specify the claims used to identify a user." + System.Environment.NewLine;
         }
-
+        if (string.IsNullOrWhiteSpace(settings.ClaimsFillerSectionPath))
+        {
+            configErrors += "We need a setting section to configure the ClaimsFillerOptions." + System.Environment.NewLine;
+        }
         if (configErrors is not null)
         {
             throw new ConfigurationException(configErrors);
@@ -292,6 +295,7 @@ public static partial class AuthenticationExtensions
         services.AddDomainMapping(configuration, settings.DomainMappingsSectionPath);
         services.AddOnBehalfOf(configuration);
         services.AddTokenCache(configuration, settings.TokenCacheSectionPath);
+        services.AddClaimsFiller(configuration, settings.ClaimsFillerSectionPath);
 
         return services.AddOidcAuthentication(OidcAuthenticationFiller);
     }
