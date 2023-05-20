@@ -1,4 +1,7 @@
-﻿using Arc4u.Dependency;
+﻿using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
+using Arc4u.Dependency;
 using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Token;
 using Arc4u.Security.Principal;
@@ -7,9 +10,6 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Diagnostics;
-using System.Threading.Tasks;
 
 namespace Arc4u.OAuth2.Middleware
 {
@@ -75,7 +75,7 @@ namespace Arc4u.OAuth2.Middleware
                 }
                 catch (Exception)
                 {
-                    _options.CookieManager.DeleteCookie(context, _options.CookieName, new CookieOptions() { Secure = true, SameSite = SameSiteMode.Strict, HttpOnly = true});
+                    _options.CookieManager.DeleteCookie(context, _options.CookieName, new CookieOptions() { Secure = true, SameSite = SameSiteMode.Strict, HttpOnly = true });
 
                     logger?.Technical().System("Force an OpenId connection.").Log();
                     var cleanUri = new Uri(new Uri(context.Request.GetEncodedUrl()).GetLeftPart(UriPartial.Path));

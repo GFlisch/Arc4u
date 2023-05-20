@@ -1,14 +1,14 @@
-using System.Threading.Tasks;
 using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Arc4u.Diagnostics;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using AuthenticationProperties = Microsoft.AspNetCore.Authentication.AuthenticationProperties;
-using Microsoft.Extensions.DependencyInjection;
-using System.Linq;
 
 namespace Arc4u.OAuth2.Middleware;
 

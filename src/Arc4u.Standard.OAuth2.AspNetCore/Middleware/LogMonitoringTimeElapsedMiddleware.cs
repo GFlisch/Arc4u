@@ -1,11 +1,11 @@
-﻿using Arc4u.Dependency;
+﻿using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
+using Arc4u.Dependency;
 using Arc4u.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Diagnostics;
-using System.Threading.Tasks;
 
 namespace Arc4u.OAuth2.Middleware
 {

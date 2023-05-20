@@ -1,17 +1,17 @@
-using Arc4u.Configuration;
-using Arc4u.OAuth2.Extensions;
-using Arc4u.OAuth2.Token;
-using Arc4u.Security;
-using Arc4u.Security.Cryptography;
-using Arc4u.OAuth2.Options;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
+using Arc4u.Configuration;
+using Arc4u.OAuth2.Extensions;
+using Arc4u.OAuth2.Options;
+using Arc4u.OAuth2.Token;
+using Arc4u.Security;
+using Arc4u.Security.Cryptography;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Arc4u.OAuth2.Middleware;
 
@@ -108,7 +108,7 @@ public static class BasicAuthenticationMiddlewareExtension
             basicSettings.CertificateHeaderOptions = certs;
         });
 
-        
+
     }
 
     public static bool RegisterBasicAuthority(IServiceCollection services, Action<BasicSettingsOptions> options)

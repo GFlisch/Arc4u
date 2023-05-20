@@ -1,9 +1,9 @@
+using System;
+using System.Diagnostics.CodeAnalysis;
 using Arc4u.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using System;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Arc4u.OAuth2.Middleware;
 

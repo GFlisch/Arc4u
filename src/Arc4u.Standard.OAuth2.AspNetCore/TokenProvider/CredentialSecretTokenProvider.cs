@@ -8,9 +8,6 @@ using Arc4u.Dependency.Attribute;
 using Arc4u.OAuth2.Extensions;
 using Arc4u.OAuth2.Security.Principal;
 using Arc4u.OAuth2.Token;
-using Arc4u.ServiceModel;
-using Arc4u.OAuth2;
-using Arc4u.OAuth2.Middleware;
 using Microsoft.Extensions.Logging;
 
 namespace Arc4u.OAuth2.TokenProvider;

@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
-using System;
+﻿using System;
+using Microsoft.AspNetCore.Builder;
 
 namespace Arc4u.OAuth2.Middleware
 {

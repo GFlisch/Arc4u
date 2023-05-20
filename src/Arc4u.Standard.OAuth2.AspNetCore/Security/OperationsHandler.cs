@@ -1,6 +1,6 @@
-﻿using Arc4u.Security.Principal;
+﻿using System.Threading.Tasks;
+using Arc4u.Security.Principal;
 using Microsoft.AspNetCore.Authorization;
-using System.Threading.Tasks;
 
 namespace Arc4u.Security
 {

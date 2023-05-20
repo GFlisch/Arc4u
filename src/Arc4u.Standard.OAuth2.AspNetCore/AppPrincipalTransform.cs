@@ -1,23 +1,22 @@
-using Arc4u.Caching;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using Arc4u.Configuration;
+using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Arc4u.IdentityModel.Claims;
+using Arc4u.OAuth2.Options;
+using Arc4u.OAuth2.Token;
 using Arc4u.Security.Principal;
 using Microsoft.AspNetCore.Authentication;
-using System.Diagnostics;
-using System.Security.Claims;
-using Microsoft.Extensions.Options;
-using Arc4u.Configuration;
-using System.Diagnostics.CodeAnalysis;
-using Arc4u.Dependency.Attribute;
-using System.Globalization;
-using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using System;
-using Arc4u.OAuth2.Options;
 using Microsoft.Extensions.DependencyInjection;
-using System.Linq;
-using Arc4u.OAuth2.Token;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Arc4u.OAuth2;
 
@@ -74,7 +73,7 @@ public class AppPrincipalTransform : IClaimsTransformation
     {
         AppPrincipal appPrincipal;
 
-        _logger.Technical().Debug  /*System*/("Create the principal.").Log();
+        _logger.Technical().System("Create the principal.").Log();
 
         // Add Telemetry.
         using (var activity = _activitySource?.StartActivity("Create Arc4u Principal", ActivityKind.Producer))

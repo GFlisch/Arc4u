@@ -1,6 +1,6 @@
+using System;
 using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
-using System;
 
 namespace Arc4u.OAuth2.Options;
 public class BasicAuthenticationConfigurationOptions
