@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Text;
 
@@ -93,7 +93,7 @@ namespace Arc4u.Diagnostics
             while (null != (trace = traces.ReadLine()))
             {
                 bool skip = trace.Contains("System.Environment")
-                    || trace.Contains("Arc4u.Standard.Logging")
+                    || trace.Contains("Arc4u.Logging")
                     || trace.Contains("System.Diagnostics");
                 if (!skip)
                     output.AppendLine(trace);
