@@ -170,12 +170,6 @@ public class JwtHttpHandler : DelegatingHandler
             // Add ActivityId if founded!
             if (applicationContext?.Principal is not null)
             {
-                if (applicationContext!.Principal?.ActivityID is not null)
-                {
-                    _logger.Technical().System($"Add the activity id to the request for tracing purpose: {applicationContext.Principal.ActivityID}.").Log();
-                    request.Headers.Add("activityid", applicationContext.Principal.ActivityID.ToString());
-                }
-
                 var culture = applicationContext!.Principal?.Profile?.CurrentCulture?.TwoLetterISOLanguageName;
                 if (culture is not null)
                 {

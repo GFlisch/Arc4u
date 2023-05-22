@@ -40,25 +40,7 @@ public class AddContextToPrincipalMiddleware
                 context.Request.Headers.Add("traceparent", Activity.Current!.Id);
             }
 
-            // Check if we have an ActivityID.
-            var activityId = Guid.NewGuid();
-
-            if (context.Request.Headers.TryGetValue("activityid", out var activityIdHeaders))
-            {
-                var message = $"The activity id given by the caller is not a valid Guid. A new one has been assigned.";
-                if (Guid.TryParse(activityIdHeaders.First(), out activityId) && activityId != Guid.Empty)
-                {
-                    message = $"Set the activity to the principal based on the caller information: {activityId}.";
-                }
-                else
-                {
-                    activityId = Guid.NewGuid();
-                }
-
-                _logger.Technical().System(message).Log();
-
-            }
-            principal.ActivityID = activityId;
+            principal.ActivityID = Activity.Current!.Id;
 
             activity?.SetTag(LoggingConstants.ActivityId, principal.ActivityID);
 
