@@ -29,7 +29,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Arc4u.Standard.Diagnostics\Arc4u.Standard.Diagnostics.csproj" />
-    <ProjectReference Include="..\Arc4u.Standard.KubeMQ\Arc4u.Standard.KubeMQ.csproj" />
     <ProjectReference Include="..\Arc4u.Standard.Serializer\Arc4u.Standard.Serializer.csproj" />
     <ProjectReference Include="..\Arc4u.Standard\Arc4u.Standard.csproj" />
   </ItemGroup>

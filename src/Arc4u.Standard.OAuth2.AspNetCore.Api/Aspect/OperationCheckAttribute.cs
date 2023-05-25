@@ -1,4 +1,4 @@
-﻿using Arc4u.Diagnostics;
+using Arc4u.Diagnostics;
 using Arc4u.Security.Principal;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Controllers;
@@ -9,6 +9,7 @@ using System.Threading;
 
 namespace Arc4u.OAuth2.Aspect
 {
+    [Obsolete("Use ManageExceptionsFilter and SetCultureActionFilter instead.")]
     public class OperationCheckAttribute : ServiceAspectBase
     {
         public OperationCheckAttribute(ILogger logger, IHttpContextAccessor httpContextAccessor, String scope, params int[] operations) : base(logger, httpContextAccessor, scope, operations)
