@@ -34,7 +34,6 @@ public class OpenIdBearerInjectorMiddleware
         {
             if (context.User is AppPrincipal principal)
             {
-                context.Request?.Headers?.Add("activityid", principal?.ActivityID.ToString() ?? Guid.NewGuid().ToString());
                 if (null != principal?.Profile?.CurrentCulture)
                 {
                     context.Request?.Headers?.Add("culture", principal.Profile.CurrentCulture.TwoLetterISOLanguageName);

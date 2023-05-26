@@ -26,21 +26,20 @@ public static class AddClaimsFillerExtension
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
 
-        if (string.IsNullOrWhiteSpace(sectionName))
-        {
-            throw new ArgumentNullException(sectionName);
-        }
-
-        var section = configuration.GetSection(sectionName);
-
+        // Get the default values.
         var options = new ClaimsFillerOptions();
 
-        if (section is not null && section.Exists())
+        if (!string.IsNullOrWhiteSpace(sectionName))
         {
-            options = section.Get<ClaimsFillerOptions>();
+            var section = configuration.GetSection(sectionName);
+
+            if (section is not null && section.Exists())
+            {
+                options = section.Get<ClaimsFillerOptions>();
+            }
         }
 
-        AddClaimsFiller(services, o =>
+       AddClaimsFiller(services, o =>
         {
             o.LoadClaimsFromClaimsFillerProvider = options.LoadClaimsFromClaimsFillerProvider;
             o.SettingsKeys = options.SettingsKeys;

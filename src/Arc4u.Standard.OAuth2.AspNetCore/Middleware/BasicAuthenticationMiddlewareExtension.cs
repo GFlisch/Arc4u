@@ -24,13 +24,18 @@ public static class BasicAuthenticationMiddlewareExtension
         return app.UseMiddleware<BasicAuthenticationMiddleware>(app.ApplicationServices);
     }
 
-    public static void AddBasicAuthenticationSettings(this IServiceCollection services, IConfiguration configuration, string sectionName = "Authentication:Basic", IX509CertificateLoader? certificateLoader = null)
+    public static void AddBasicAuthenticationSettings(this IServiceCollection services, IConfiguration configuration, string sectionName = "Authentication:Basic", IX509CertificateLoader? certificateLoader = null, bool throwExceptionIfSectionDoesntExist = true)
     {
         var section = configuration.GetSection(sectionName);
 
         if (section is null || !section.Exists())
         {
-            throw new ConfigurationException($"No section exists with name {sectionName} in the configuration providers for Basic authentication.");
+            if (throwExceptionIfSectionDoesntExist)
+            {
+                throw new ConfigurationException($"No section exists with name {sectionName} in the configuration providers for Basic authentication.");
+            }
+
+            return;
         }
 
         var settings = section.Get<BasicAuthenticationConfigurationSectionOptions>() ?? throw new NullReferenceException($"No section exists with name {sectionName} in the configuration providers for Basic authentication.");

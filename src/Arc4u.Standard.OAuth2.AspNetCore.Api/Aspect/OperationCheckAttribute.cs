@@ -1,5 +1,4 @@
 using Arc4u.Diagnostics;
-using Arc4u.Security.Principal;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;

@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using Arc4u.Configuration;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
@@ -42,22 +43,6 @@ public static class OpenIdBearerInjectorMiddlewareExtension
         ArgumentNullException.ThrowIfNull(services);
 
         var validate = new OpenIdBearerInjectorOptions();
-
-        string? configErrors = null;
-        if (string.IsNullOrEmpty(validate.OnBehalfOfOpenIdSettingsKey))
-        {
-            configErrors += "The on behalf of settings key must be defined." + System.Environment.NewLine;
-        }
-
-        if (string.IsNullOrEmpty(validate.OboProviderKey))
-        {
-            configErrors += "The token provider key to handle the on behalf of scenario must be defined." + System.Environment.NewLine;
-        }
-
-        if (configErrors is not null)
-        {
-            throw new ConfigurationException(configErrors);
-        }
 
         services.AddOpenIdBearerInjector(options =>
         {

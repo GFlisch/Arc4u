@@ -1,12 +1,6 @@
 using Arc4u.ServiceModel;
 using Arc4u.UnitTest.Infrastructure;
-using Arc4u.UnitTest.KubeMQ;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace Arc4u.UnitTest.Logging

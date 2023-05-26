@@ -11,7 +11,8 @@ public class ClaimsFillerOptions
 
     /// <summary>
     /// The settings key to load the claims from. => registered as a named <see cref="SimpleKeyValueSettings>"/>
+    /// By default no on behalf of scenario is defined => AOauth2 must be added to perform the on behalf of scenario.
     /// </summary>
-    public List<string> SettingsKeys { get; set; } = new() { Constants.OpenIdOptionsName, Constants.OAuth2OptionsName };
+    public List<string> SettingsKeys { get; set; } = new() { Constants.OpenIdOptionsName };
 }
 
