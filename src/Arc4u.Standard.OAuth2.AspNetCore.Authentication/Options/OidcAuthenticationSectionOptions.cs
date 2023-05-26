@@ -40,6 +40,8 @@ public class OidcAuthenticationSectionOptions
 
     public string ClaimsFillerSectionPath { get; set; } = "Authentication:ClaimsMiddleWare:ClaimsFiller";
 
+    public string BasicAuthenticationSectionPath { get; set; } = "Authentication:Basic";
+
     public string JwtBearerEventsType { get; set; } = typeof(StandardBearerEvents).AssemblyQualifiedName!;
 
     public string CookieAuthenticationEventsType { get; set; } = typeof(StandardCookieEvents).AssemblyQualifiedName!;

@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Arc4u.Configuration;
 using Arc4u.OAuth2.DataProtection;
+using Arc4u.OAuth2.Middleware;
 using Arc4u.OAuth2.Options;
 using Arc4u.OAuth2.TicketStore;
 using Arc4u.OAuth2.Token;
@@ -296,6 +297,8 @@ public static partial class AuthenticationExtensions
         services.AddOnBehalfOf(configuration);
         services.AddTokenCache(configuration, settings.TokenCacheSectionPath);
         services.AddClaimsFiller(configuration, settings.ClaimsFillerSectionPath);
+        services.AddBasicAuthenticationSettings(configuration, settings.BasicAuthenticationSectionPath, throwExceptionIfSectionDoesntExist: false);
+        services.AddOpenIdBearerInjector();
 
         return services.AddOidcAuthentication(OidcAuthenticationFiller);
     }
