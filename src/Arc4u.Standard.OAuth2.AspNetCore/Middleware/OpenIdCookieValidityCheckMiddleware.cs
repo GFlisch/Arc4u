@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Arc4u.Dependency;
@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Arc4u.OAuth2.Middleware
 {
+    [Obsolete("Not necessary with the new Authentication model. Migrate to the new one.")]
     public class OpenIdCookieValidityCheckMiddleware
     {
         private readonly RequestDelegate _next;
