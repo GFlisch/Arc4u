@@ -10,7 +10,7 @@ namespace Arc4u.Blazor
     {
         public static void RegisterOperationsPolicy(this IServiceCollection services, IEnumerable<KeyValuePair<int, string>> operations, Action<AuthorizationOptions> authorizationOptions = null)
         {
-            services.AddSingleton<IAuthorizationHandler, OperationsHandler>();
+            services.AddSingleton<IAuthorizationHandler, ScopedOperationsHandler>();
 
             if (null != authorizationOptions)
                 services.Configure(authorizationOptions);
@@ -20,7 +20,7 @@ namespace Arc4u.Blazor
                 foreach (var operation in operations)
                 {
                     options.AddPolicy(operation.Value, policy =>
-                    policy.Requirements.Add(new OperationRequirement(operation.Key)));
+                    policy.Requirements.Add(new ScopedOperationsRequirement(operation.Key)));
                 }
             });
         }
