@@ -4,7 +4,6 @@ using Arc4u.OAuth2.Configuration;
 using Arc4u.OAuth2.DataProtection;
 using Arc4u.OAuth2.Events;
 using Arc4u.OAuth2.TicketStore;
-using Arc4u.OAuth2;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace Arc4u.OAuth2.Options;

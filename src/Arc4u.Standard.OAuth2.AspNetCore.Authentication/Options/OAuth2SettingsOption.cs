@@ -1,5 +1,3 @@
-using Arc4u.OAuth2;
-
 namespace Arc4u.OAuth2.Options;
 public class OAuth2SettingsOption
 {

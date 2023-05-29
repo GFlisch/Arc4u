@@ -414,6 +414,9 @@ public static partial class AuthenticationExtensions
             options.ClaimsIdentifierOptions = ClaimsIdentiferExtension.PrepareAction(configuration, settings.ClaimsIdentifierSectionPath);
         }
 
+        services.AddTokenCache(configuration, settings.TokenCacheSectionPath);
+        services.AddClaimsFiller(configuration, settings.ClaimsFillerSectionPath);
+
         return services.AddJwtAuthentication(configuration, JwtAuthenticationFiller);
 
     }
