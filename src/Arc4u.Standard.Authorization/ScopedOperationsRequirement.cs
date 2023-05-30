@@ -1,12 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
-using System;
 using Microsoft.AspNetCore.Authorization;
 
-namespace Arc4u.Security;
+namespace Arc4u.Authorization;
 
-/// <summary>
-/// This requirement is used to check if the user has the right to access a resource based on the operations and or the scope.
-/// </summary>
 public class ScopedOperationsRequirement : IAuthorizationRequirement
 {
     public ScopedOperationsRequirement(params int[] operations)

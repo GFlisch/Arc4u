@@ -96,6 +96,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arc4u.Standard.OAuth2.AspNe
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arc4u.Standard.Configuration.Decryptor", "Arc4u.Standard.Configuration.Decryptor\Arc4u.Standard.Configuration.Decryptor.csproj", "{EB7B7062-7366-4262-8686-3DDAA19141B4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arc4u.Standard.Authorization", "Arc4u.Standard.Authorization\Arc4u.Standard.Authorization.csproj", "{B16F1734-B286-4898-8B15-EFA0D17DA912}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -930,6 +932,26 @@ Global
 		{EB7B7062-7366-4262-8686-3DDAA19141B4}.Release|x64.Build.0 = Release|Any CPU
 		{EB7B7062-7366-4262-8686-3DDAA19141B4}.Release|x86.ActiveCfg = Release|Any CPU
 		{EB7B7062-7366-4262-8686-3DDAA19141B4}.Release|x86.Build.0 = Release|Any CPU
+		{B16F1734-B286-4898-8B15-EFA0D17DA912}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B16F1734-B286-4898-8B15-EFA0D17DA912}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B16F1734-B286-4898-8B15-EFA0D17DA912}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{B16F1734-B286-4898-8B15-EFA0D17DA912}.Debug|ARM.Build.0 = Debug|Any CPU
+		{B16F1734-B286-4898-8B15-EFA0D17DA912}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{B16F1734-B286-4898-8B15-EFA0D17DA912}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{B16F1734-B286-4898-8B15-EFA0D17DA912}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B16F1734-B286-4898-8B15-EFA0D17DA912}.Debug|x64.Build.0 = Debug|Any CPU
+		{B16F1734-B286-4898-8B15-EFA0D17DA912}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B16F1734-B286-4898-8B15-EFA0D17DA912}.Debug|x86.Build.0 = Debug|Any CPU
+		{B16F1734-B286-4898-8B15-EFA0D17DA912}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B16F1734-B286-4898-8B15-EFA0D17DA912}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B16F1734-B286-4898-8B15-EFA0D17DA912}.Release|ARM.ActiveCfg = Release|Any CPU
+		{B16F1734-B286-4898-8B15-EFA0D17DA912}.Release|ARM.Build.0 = Release|Any CPU
+		{B16F1734-B286-4898-8B15-EFA0D17DA912}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{B16F1734-B286-4898-8B15-EFA0D17DA912}.Release|ARM64.Build.0 = Release|Any CPU
+		{B16F1734-B286-4898-8B15-EFA0D17DA912}.Release|x64.ActiveCfg = Release|Any CPU
+		{B16F1734-B286-4898-8B15-EFA0D17DA912}.Release|x64.Build.0 = Release|Any CPU
+		{B16F1734-B286-4898-8B15-EFA0D17DA912}.Release|x86.ActiveCfg = Release|Any CPU
+		{B16F1734-B286-4898-8B15-EFA0D17DA912}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

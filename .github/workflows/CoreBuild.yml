@@ -114,6 +114,9 @@ jobs:
       - name: Change Arc4u.Standard.NServiceBus.RabbitMQ versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.NServiceBus.RabbitMQ.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
         shell: powershell        
+      - name: Change Arc4u.Standard.Authorization versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Authorization.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell    
       - name: Change Arc4u.Standard.Serializer versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Serializer.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
         shell: powershell        

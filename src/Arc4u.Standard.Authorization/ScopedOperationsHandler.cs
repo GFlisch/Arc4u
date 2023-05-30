@@ -1,8 +1,12 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Arc4u.Security.Principal;
 using Microsoft.AspNetCore.Authorization;
 
-namespace Arc4u.Security;
+namespace Arc4u.Authorization;
 
 public class ScopedOperationsHandler : AuthorizationHandler<ScopedOperationsRequirement>
 {
