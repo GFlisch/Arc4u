@@ -1,9 +1,10 @@
-﻿using System;
+using System;
 using System.IO;
 using System.IO.Compression;
 
 namespace Arc4u.Serializer.Protobuf
 {
+    [Obsolete("Use Arc4u.Serializer.JSon instead.")]
     public class ProtoBufZipSerialization : ProtoBufSerialization
     {
         private const string EntryName = "content";
