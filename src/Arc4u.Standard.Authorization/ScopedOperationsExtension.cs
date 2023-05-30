@@ -1,3 +1,4 @@
+using Arc4u.Security.Principal;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 
