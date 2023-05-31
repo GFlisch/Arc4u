@@ -1,7 +1,4 @@
-using System.Threading.Tasks;
-using System.Threading;
-
-namespace Arc4u.Dependency.Notification;
+namespace Arc4u.Dispatcher.Notification;
 
 /// <summary>
 /// Will be used to implement a notification.

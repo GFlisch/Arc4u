@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Arc4u.Dependency.Notification;
+namespace Arc4u.Dispatcher.Notification;
 public static class NotificationHandlersExtension
 {
     /// <summary>

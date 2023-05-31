@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
+using Arc4u.Dispatcher.Notification;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Arc4u.Dependency.Notification;
+namespace Arc4u.Dispatcher.Notification;
 
 /// <summary>
 /// Implement <see cref="INotificationHandlers{T}"/> and fetch from the DI the <see cref="INotificationHandler{T}"/>.

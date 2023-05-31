@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Arc4u.Dependency.Notification;
+namespace Arc4u.Dispatcher.Notification;
 
 /// <summary>
 /// Interface to return the registered <see cref="INotificationHandler{T}"/> in the DI.
