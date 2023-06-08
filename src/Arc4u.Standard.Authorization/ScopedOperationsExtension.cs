@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Arc4u.Security.Principal;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
@@ -5,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Arc4u.Authorization;
 public static class ScopedOperationsExtension
 {
-    public static void AddScopedOperationsPolicy(this IServiceCollection services, IEnumerable<string> scopes, IEnumerable<Operation> operations, Action<AuthorizationOptions> authorizationOptions = null)
+    public static void AddScopedOperationsPolicy(this IServiceCollection services, IEnumerable<string> scopes, IEnumerable<Operation> operations, [AllowNull] Action<AuthorizationOptions> authorizationOptions = null)
     {
         services.AddScoped<IAuthorizationHandler, ScopedOperationsHandler>();
 
