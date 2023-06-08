@@ -63,7 +63,7 @@ public class SecretBasicSettingsOptionsTests
         sut.Values[TokenKeys.Scope].Should().Be(_default.Scope);
         sut.Values["User"].Should().Be(options.User);
         sut.Values["Password"].Should().Be(options.Password);
-        sut.Values["Credential"].Should().BeNull();
+        sut.Values.ContainsKey("Credential").Should().BeFalse();
 
         var sutAuthority = serviceProvider.GetService<IOptionsMonitor<AuthorityOptions>>()!.Get("Client1");
         sutAuthority.Should().NotBeNull();
@@ -107,7 +107,7 @@ public class SecretBasicSettingsOptionsTests
         sut.Values[TokenKeys.AuthorityKey].Should().Be("Client1");
         sut.Values["User"].Should().Be(options.User);
         sut.Values["Credential"].Should().Be(options.Credential);
-        sut.Values["Password"].Should().BeNull();
+        sut.Values.ContainsKey("Password").Should().BeFalse();
 
         var sutAuthority = serviceProvider.GetService<IOptionsMonitor<AuthorityOptions>>()!.Get("Client1");
         sutAuthority.Should().NotBeNull();
@@ -150,7 +150,7 @@ public class SecretBasicSettingsOptionsTests
         sut.Values.ContainsKey(TokenKeys.AuthorityKey).Should().BeFalse();
         sut.Values["User"].Should().Be(options.User);
         sut.Values["Credential"].Should().Be(options.Credential);
-        sut.Values["Password"].Should().BeNull();
+        sut.Values.ContainsKey("Password").Should().BeFalse();
 
         var sutAuthority = serviceProvider.GetService<IOptionsMonitor<AuthorityOptions>>()!.Get("Client1");
         sutAuthority.Should().NotBeNull();
