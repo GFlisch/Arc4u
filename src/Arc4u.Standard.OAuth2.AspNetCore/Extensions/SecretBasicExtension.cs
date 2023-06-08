@@ -129,9 +129,10 @@ public static class SecretBasicExtension
                 // info to retrieve the authority!
                 settings.Add(TokenKeys.AuthorityKey, optionKey);
             }
-            settings.Add("User", options.User);
-            settings.Add("Password", options.Password);
-            settings.Add("Credential", options.Credential);
+
+            settings.AddifNotNullOrEmpty("User", options.User);
+            settings.AddifNotNullOrEmpty("Password", options.Password);
+            settings.AddifNotNullOrEmpty("Credential", options.Credential);
             settings.Add("BasicProviderId", options.BasicProviderId);
         }
 

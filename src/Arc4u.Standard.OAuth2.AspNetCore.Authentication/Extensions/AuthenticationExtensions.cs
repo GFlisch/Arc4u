@@ -341,7 +341,11 @@ public static partial class AuthenticationExtensions
         });
 
         var authenticationBuilder =
-        services.AddAuthentication(auth => auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme)
+        services.AddAuthentication(auth =>
+        {
+            auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            auth.DefaultForbidScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
                 .AddJwtBearer(option =>
                 {
                     SecurityKey? securityKey = options.CertSecurityKey is not null ? new X509SecurityKey(options.CertSecurityKey) : null;

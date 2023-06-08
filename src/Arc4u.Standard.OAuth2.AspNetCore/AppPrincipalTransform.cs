@@ -157,10 +157,10 @@ public class AppPrincipalTransform : IClaimsTransformation
             var claims = (await _claimsFiller.GetAsync(identity, settings, null).ConfigureAwait(false)).Where(c => !ClaimsToExclude.Any(arg => arg.Equals(c.ClaimType))).ToList();
 
             // Load the claims into the identity but exclude the exp claim and the one already present.
-            identity.AddClaims(cachedClaims.Where(c => c.ClaimType != tokenExpirationClaimType)
-                                           .Where(c => !ClaimsToExclude.Any(arg => arg.Equals(c.ClaimType)))
-                                           .Where(c => !identity.Claims.Any(c1 => c1.Type == c.ClaimType))
-                                           .Select(c => new Claim(c.ClaimType, c.Value)));
+            identity.AddClaims(claims.Where(c => c.ClaimType != tokenExpirationClaimType)
+                                     .Where(c => !ClaimsToExclude.Any(arg => arg.Equals(c.ClaimType)))
+                                     .Where(c => !identity.Claims.Any(c1 => c1.Type == c.ClaimType))
+                                     .Select(c => new Claim(c.ClaimType, c.Value)));
 
             SaveClaimsToCache(claims, cacheKey);
         }

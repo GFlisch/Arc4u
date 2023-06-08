@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Arc4u.Security.Principal;
 using Microsoft.AspNetCore.Authorization;
 
@@ -19,7 +14,7 @@ public class ScopedOperationsHandler : AuthorizationHandler<ScopedOperationsRequ
 
     protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, ScopedOperationsRequirement requirement)
     {
-        if (_applicationContext is null)
+        if (_applicationContext is null || _applicationContext.Principal is null)
         {
             context.Fail();
             return Task.CompletedTask;
