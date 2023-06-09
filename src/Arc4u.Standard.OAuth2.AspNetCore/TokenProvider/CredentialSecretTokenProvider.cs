@@ -65,7 +65,7 @@ public class CredentialSecretTokenProvider : ITokenProvider
         basicSettings.Add(TokenKeys.ClientIdKey, settings.Values[TokenKeys.ClientIdKey]);
         basicSettings.Add(TokenKeys.Scope, settings.Values[TokenKeys.Scope]);
         basicSettings.Add(TokenKeys.AuthenticationTypeKey, settings.Values[TokenKeys.AuthenticationTypeKey]);
-        basicSettings.Add(TokenKeys.AuthorityKey, settings.Values[TokenKeys.AuthorityKey]);
+        basicSettings.AddifNotNullOrEmpty(TokenKeys.AuthorityKey, settings.Values.ContainsKey(TokenKeys.AuthorityKey) ? settings.Values[TokenKeys.AuthorityKey] : string.Empty);
 
         return await credentialToken.GetTokenAsync(basicSettings, credential).ConfigureAwait(false);
     }

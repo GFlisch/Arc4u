@@ -106,6 +106,7 @@ public static class SecretBasicExtension
             throw new ConfigurationException(configErrors);
         }
 
+        var authorityKey = string.Empty;
         if (options.Authority is not null)
         {
             services.AddAuthority(authOptions =>
@@ -113,6 +114,7 @@ public static class SecretBasicExtension
                 authOptions.Url = options.Authority.Url;
                 authOptions.TokenEndpoint = options.Authority.TokenEndpoint;
             }, optionKey);
+            authorityKey = optionKey;
         }
 
         // We map this to a IKeyValuesSettings dictionary.
@@ -124,15 +126,10 @@ public static class SecretBasicExtension
             settings.Add(TokenKeys.AuthenticationTypeKey, options.AuthenticationType);
             settings.Add(TokenKeys.ClientIdKey, options.ClientId);
             settings.Add(TokenKeys.Scope, options.Scope);
-            if (options.Authority is not null)
-            {
-                // info to retrieve the authority!
-                settings.Add(TokenKeys.AuthorityKey, optionKey);
-            }
-
             settings.AddifNotNullOrEmpty("User", options.User);
             settings.AddifNotNullOrEmpty("Password", options.Password);
             settings.AddifNotNullOrEmpty("Credential", options.Credential);
+            settings.AddifNotNullOrEmpty(TokenKeys.AuthorityKey, authorityKey);
             settings.Add("BasicProviderId", options.BasicProviderId);
         }
 

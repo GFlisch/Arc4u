@@ -23,7 +23,7 @@ namespace Arc4u.OAuth2.Client.Security.Principal
     public class AppPrincipalFactory : IAppPrincipalFactory
     {
         public const string ProviderKey = "ProviderId";
-        public const string DefaultSettingsResolveName = "OAuth";
+        public const string DefaultSettingsResolveName = "OAuth2";
         public const string PlatformParameters = "platformParameters";
 
         public static readonly string tokenExpirationClaimType = "exp";
