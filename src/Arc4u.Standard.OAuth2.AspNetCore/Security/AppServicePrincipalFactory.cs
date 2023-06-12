@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
@@ -15,7 +16,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Arc4u.OAuth2.Client.Security.Principal;
+namespace Arc4u.OAuth2.Security.Principal;
 
 [Export(typeof(IAppPrincipalFactory))]
 public class AppServicePrincipalFactory : IAppPrincipalFactory
@@ -29,18 +30,21 @@ public class AppServicePrincipalFactory : IAppPrincipalFactory
     private readonly ILogger<AppServicePrincipalFactory> _logger;
     private readonly IOptionsMonitor<SimpleKeyValueSettings> _settings;
     private readonly IClaimsTransformation _claimsTransformation;
+    private readonly ActivitySource? _activitySource;
+
 
     public Task<AppPrincipal> CreatePrincipal(Messages messages, object parameter = null)
     {
         throw new NotImplementedException();
     }
 
-    public AppServicePrincipalFactory(IContainerResolve container, ILogger<AppServicePrincipalFactory> logger, IOptionsMonitor<SimpleKeyValueSettings> settings, IClaimsTransformation claimsTransformation)
+    public AppServicePrincipalFactory(IContainerResolve container, ILogger<AppServicePrincipalFactory> logger, IOptionsMonitor<SimpleKeyValueSettings> settings, IClaimsTransformation claimsTransformation, IActivitySourceFactory activitySourceFactory)
     {
         _container = container;
         _logger = logger;
         _settings = settings;
         _claimsTransformation = claimsTransformation;
+        _activitySource = activitySourceFactory.GetArc4u();
     }
 
     public async Task<AppPrincipal> CreatePrincipal(string settingsResolveName, Messages messages, object parameter = null)
@@ -49,20 +53,49 @@ public class AppServicePrincipalFactory : IAppPrincipalFactory
         return await CreatePrincipal(settings, messages, parameter).ConfigureAwait(false);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="settings">The settings used to create the token.</param>
+    /// <param name="messages">Information about the steps to create a token.</param>
+    /// <param name="parameter">unused.</param>
+    /// <returns></returns>
+    /// <exception cref="AppPrincipalException">Thrown when a principal cannot be created.</exception>
     public async Task<AppPrincipal> CreatePrincipal(IKeyValueSettings settings, Messages messages, object? parameter = null)
     {
         ArgumentNullException.ThrowIfNull(settings);
         ArgumentNullException.ThrowIfNull(messages);
 
+        using var activity = _activitySource?.StartActivity("Prepare the creation of the Arc4u Principal", ActivityKind.Producer);
+
         var identity = new ClaimsIdentity("OAuth2Bearer", "upn", ClaimsIdentity.DefaultRoleClaimType);
 
         await BuildTheIdentity(identity, settings, messages, parameter).ConfigureAwait(false);
 
-        var principal = new ClaimsPrincipal(identity);
+        var principal = await _claimsTransformation.TransformAsync(new ClaimsPrincipal(identity)).ConfigureAwait(false);
 
-        return (AppPrincipal)await _claimsTransformation.TransformAsync(principal).ConfigureAwait(false);
+        if (principal is AppPrincipal appPrincipal)
+        {
+            appPrincipal.ActivityID = Activity.Current!.Id;
+
+            activity?.SetTag(LoggingConstants.ActivityId, appPrincipal.ActivityID);
+
+            return appPrincipal;
+        }
+
+        throw new AppPrincipalException("No principal can be created.");
+        
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="identity"></param>
+    /// <param name="settings"></param>
+    /// <param name="messages"></param>
+    /// <param name="parameter"></param>
+    /// <returns></returns>
+    /// <exception cref="NotSupportedException">When the provider doesn't exists.</exception>
     private async Task BuildTheIdentity(ClaimsIdentity identity, IKeyValueSettings settings, Messages messages, object? parameter = null)
     {
         // Check if we have a provider registered.

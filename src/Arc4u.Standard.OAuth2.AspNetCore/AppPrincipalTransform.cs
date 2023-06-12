@@ -81,7 +81,7 @@ public class AppPrincipalTransform : IClaimsTransformation
             // As the extension point can use some ITokenProvider based on the user.
             // A dummy Principal is created based on the context identity!
             // Must be registered as Scoped!
-            _applicationContext.SetPrincipal(new AppPrincipal(new Arc4u.Security.Principal.Authorization(), principal.Identity, "S-1-0-0"));
+            _applicationContext.SetPrincipal(new AppPrincipal(new Authorization(), principal.Identity, "S-1-0-0"));
 
             // Load Claims from an external source if necessary!
             if (_options.LoadClaimsFromClaimsFillerProvider && principal.Identity is not null)
