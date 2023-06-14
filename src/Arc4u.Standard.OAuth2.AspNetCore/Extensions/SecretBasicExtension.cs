@@ -31,14 +31,14 @@ public static class SecretBasicExtension
 
         if (section is null || !section.Exists())
         {
-            throw new ConfigurationException($"No section in settings file with name {sectionName}.");
+            return;
         }
 
         var basicSecrets = section.Get<Dictionary<string, SecretBasicSettingsOptions>>();
 
         if (basicSecrets is null || !basicSecrets.Any())
         {
-            throw new ConfigurationException($"No Basic Secrets are defined in section in settings file with name {sectionName}.");
+            return;
         }
 
         foreach (var secret in basicSecrets)

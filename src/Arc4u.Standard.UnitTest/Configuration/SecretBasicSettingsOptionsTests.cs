@@ -156,6 +156,30 @@ public class SecretBasicSettingsOptionsTests
         sutAuthority.Should().NotBeNull();
         sutAuthority.Url.Should().BeNullOrEmpty();
     }
+
+    [Fact]
+    public void No_Secret_Should()
+    {
+        var config = new ConfigurationBuilder()
+                     .AddInMemoryCollection(
+                         new Dictionary<string, string?>
+                         {
+                         }).Build();
+
+        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+
+        IServiceCollection services = new ServiceCollection();
+
+        services.AddSecretAuthentication(configuration);
+
+        var serviceProvider = services.BuildServiceProvider();
+
+        // act
+        var sut = serviceProvider.GetService<IOptionsMonitor<SimpleKeyValueSettings>>();
+
+        sut.Should().BeNull();
+    }
+
     [Fact]
     public void Secret_Not_Filled_Exception_Should()
     {

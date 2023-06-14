@@ -420,9 +420,9 @@ public static partial class AuthenticationExtensions
 
         services.AddTokenCache(configuration, settings.TokenCacheSectionPath);
         services.AddClaimsFiller(configuration, settings.ClaimsFillerSectionPath);
+        services.AddSecretAuthentication(configuration, settings.ClientSecretSectionPath);
 
         return services.AddJwtAuthentication(configuration, JwtAuthenticationFiller);
-
     }
 
     static string[] SplitString(string value) => value.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToArray();
