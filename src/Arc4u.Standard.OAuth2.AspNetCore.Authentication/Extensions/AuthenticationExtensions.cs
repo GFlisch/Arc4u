@@ -421,6 +421,7 @@ public static partial class AuthenticationExtensions
         services.AddTokenCache(configuration, settings.TokenCacheSectionPath);
         services.AddClaimsFiller(configuration, settings.ClaimsFillerSectionPath);
         services.AddSecretAuthentication(configuration, settings.ClientSecretSectionPath);
+        services.AddRemoteSecretsAuthentication(configuration, settings.RemoteSecretSectionPath);
 
         return services.AddJwtAuthentication(configuration, JwtAuthenticationFiller);
     }

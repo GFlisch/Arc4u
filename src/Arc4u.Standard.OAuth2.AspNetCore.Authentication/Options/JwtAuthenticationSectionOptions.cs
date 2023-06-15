@@ -25,4 +25,6 @@ public class JwtAuthenticationSectionOptions
     public string TokenCacheSectionPath { get; set; } = "Authentication:TokenCache";
 
     public string ClientSecretSectionPath { get; set; } = "Authentication:ClientSecrets";
+
+    public string RemoteSecretSectionPath { get; set; } = "Authentication:RemoteSecrets";
 }

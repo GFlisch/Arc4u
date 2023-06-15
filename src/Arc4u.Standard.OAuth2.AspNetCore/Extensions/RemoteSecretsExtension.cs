@@ -32,14 +32,14 @@ public static class RemoteSecretsExtension
 
         if (section is null || !section.Exists())
         {
-            throw new ConfigurationException($"No section in settings file with name {sectionName}.");
+            return;
         }
 
         var remoteSecrets = section.Get<Dictionary<string, RemoteSecretSettingsOptions>>();
 
         if (remoteSecrets is null || !remoteSecrets.Any())
         {
-            throw new ConfigurationException($"No Remote Secrets are defined in section in settings file with name {sectionName}.");
+            return;
         }
 
         foreach (var secret in remoteSecrets)
