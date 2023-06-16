@@ -14,5 +14,7 @@ namespace Arc4u.OAuth2
 
         public const string OpenIdOptionsName = "OpenId";
 
+        public const string InjectAuthenticationType = "Inject";
+
     }
 }

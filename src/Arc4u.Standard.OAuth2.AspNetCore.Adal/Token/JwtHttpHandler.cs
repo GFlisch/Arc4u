@@ -202,6 +202,7 @@ namespace Arc4u.OAuth2.Token.Adal
                 }
 
                 // if we inject more than one bearer token do it only if no one exist already.
+                // because handler is a chain and a previous one has may be already add an authorization.
                 if (null != request.Headers.Authorization)
                 {
                     _logger.Technical().System($"An authorization header already exist for handler {this.GetType().Name}, Check next Delegate Handler").Log();

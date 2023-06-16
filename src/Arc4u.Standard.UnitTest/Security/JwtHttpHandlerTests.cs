@@ -46,7 +46,7 @@ public class JwtHttpHandlerTests
     private readonly Fixture _fixture;
 
     [Fact]
-    public async Task Jwt_With_Identity_And_BootStrap_Should()
+    public async Task Jwt_With_RemoteSecrets_Should()
     {
         var options = _fixture.Create<SecretBasicSettingsOptions>();
         var config = new ConfigurationBuilder()
@@ -102,5 +102,6 @@ public class JwtHttpHandlerTests
         
         response.Should().NotBeNull();
         response.StatusCode.Should().Be(HttpStatusCode.OK);
+        httpRequestMessage.Headers.Authorization.Parameter.Should().Be(accessToken);
     }
 }
