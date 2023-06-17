@@ -26,7 +26,6 @@ using Microsoft.Extensions.Options;
 using Moq;
 using Moq.Protected;
 using Xunit;
-using ILoggerFactory = Microsoft.Extensions.Logging.ILoggerFactory;
 
 namespace Arc4u.UnitTest.Security;
 
