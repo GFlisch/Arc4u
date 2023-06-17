@@ -77,6 +77,11 @@ public static class RemoteSecretsExtension
             configErrors += "ProviderId in Remote Secret settings must be filled!" + System.Environment.NewLine;
         }
 
+        if (string.IsNullOrWhiteSpace(options.AuthenticationType))
+        {
+            configErrors += "AuthenticationType in Remote Secret settings must be filled!" + System.Environment.NewLine;
+        }
+
         if (configErrors is not null)
         {
             throw new ConfigurationException(configErrors);
@@ -90,6 +95,7 @@ public static class RemoteSecretsExtension
             settings.Add(TokenKeys.ProviderIdKey, options!.ProviderId);
             settings.Add(TokenKeys.ClientSecretHeader, options.HeaderKey);
             settings.Add(TokenKeys.ClientSecret, options.ClientSecret);
+            settings.Add(TokenKeys.AuthenticationTypeKey, options.AuthenticationType);
         }
 
         return Settings;
