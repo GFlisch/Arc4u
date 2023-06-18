@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net;
@@ -7,9 +8,11 @@ using System.Net.Http;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using Arc4u.Caching;
 using Arc4u.Configuration;
 using Arc4u.Dependency;
 using Arc4u.Dependency.ComponentModel;
+using Arc4u.Diagnostics;
 using Arc4u.OAuth2;
 using Arc4u.OAuth2.Extensions;
 using Arc4u.OAuth2.Options;
@@ -23,6 +26,7 @@ using AutoFixture.AutoMoq;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
@@ -302,71 +306,6 @@ public class JwtHttpHandlerTests
     }
 
     [Fact]
-    // Scenario 5
-    // When we inject. There is no need to have a principal!
-    public async Task Jwt_With_RemoteSecreInjected_Should()
-    {
-        // arrange
-        // arrange the configuration to setup the Client secret.
-        var options = _fixture.Create<RemoteSecretSettingsOptions>();
-        var config = new ConfigurationBuilder()
-                     .AddInMemoryCollection(
-                         new Dictionary<string, string?>
-                         {
-                             ["Authentication:RemoteSecrets:Remote1:ClientSecret"] = options.ClientSecret,
-                             ["Authentication:RemoteSecrets:Remote1:HeaderKey"] = options.HeaderKey,
-                         }).Build();
-
-        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
-
-        // Register the different services.
-        IServiceCollection services = new ServiceCollection();
-
-        services.AddRemoteSecretsAuthentication(configuration);
-        services.AddScoped<IApplicationContext, ApplicationInstanceContext>();
-        services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
-
-        // Register the different TokenProvider and CredentialTokenProviders.
-        var container = new ComponentModelContainer(services);
-        container.Register<ITokenProvider, RemoteClientSecretTokenProvider>(RemoteClientSecretTokenProvider.ProviderName);
-
-        container.CreateContainer();
-
-        // Create a scope to be in the context majority of the time a business code is.
-        using var scopedContainer = container.CreateScope();
-
-        // Define a Principal with no OAuth2Bearer token here => we test the injection.
-        var appContext = scopedContainer.Resolve<IApplicationContext>();
-        appContext.SetPrincipal(new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType), "S-1-0-0"));
-        var setingsOptions = scopedContainer.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
-
-        // Define the end handler that will simulate the call to the endpoint.
-        var innerHandler = new Mock<HttpMessageHandler>();
-        innerHandler
-            .Protected()
-            .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
-            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK))
-            .Verifiable();
-
-        // Act
-        var sut = new JwtHandlerToTest(scopedContainer, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>(), setingsOptions, "Remote1")
-        {
-            InnerHandler = innerHandler.Object
-        };
-
-        var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://example.com/");
-        var invoker = new HttpMessageInvoker(sut);
-        var response = await invoker.SendAsync(httpRequestMessage, new CancellationToken()).ConfigureAwait(false);
-
-        // Assert
-        response.Should().NotBeNull();
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        httpRequestMessage.Headers.Authorization.Should().BeNull();
-        httpRequestMessage.Headers.Contains(options.HeaderKey).Should().BeTrue();
-        httpRequestMessage.Headers.GetValues(options.HeaderKey).FirstOrDefault().Should().Be(options.ClientSecret);
-    }
-
-    [Fact]
     // Scenario 4
     // When we inject. There is no need to have a principal!
     public async Task Jwt_With_RemoteSecreInjected_With_Basic_Authorization_Should()
@@ -431,4 +370,159 @@ public class JwtHttpHandlerTests
         httpRequestMessage.Headers.Authorization!.Scheme.Should().Be("Basic");
         httpRequestMessage.Headers.Authorization!.Parameter.Should().Be(options.ClientSecret);
     }
+
+    [Fact]
+    // Scenario 5
+    // When we inject. There is no need to have a principal!
+    public async Task Jwt_With_RemoteSecreInjected_Should()
+    {
+        // arrange
+        // arrange the configuration to setup the Client secret.
+        var options = _fixture.Create<RemoteSecretSettingsOptions>();
+        var config = new ConfigurationBuilder()
+                     .AddInMemoryCollection(
+                         new Dictionary<string, string?>
+                         {
+                             ["Authentication:RemoteSecrets:Remote1:ClientSecret"] = options.ClientSecret,
+                             ["Authentication:RemoteSecrets:Remote1:HeaderKey"] = options.HeaderKey,
+                         }).Build();
+
+        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+
+        // Register the different services.
+        IServiceCollection services = new ServiceCollection();
+
+        services.AddRemoteSecretsAuthentication(configuration);
+        services.AddScoped<IApplicationContext, ApplicationInstanceContext>();
+        services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
+
+        // Register the different TokenProvider and CredentialTokenProviders.
+        var container = new ComponentModelContainer(services);
+        container.Register<ITokenProvider, RemoteClientSecretTokenProvider>(RemoteClientSecretTokenProvider.ProviderName);
+
+        container.CreateContainer();
+
+        // Create a scope to be in the context majority of the time a business code is.
+        using var scopedContainer = container.CreateScope();
+
+        // Define a Principal with no OAuth2Bearer token here => we test the injection.
+        var appContext = scopedContainer.Resolve<IApplicationContext>();
+        appContext.SetPrincipal(new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType), "S-1-0-0"));
+        var setingsOptions = scopedContainer.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
+
+        // Define the end handler that will simulate the call to the endpoint.
+        var innerHandler = new Mock<HttpMessageHandler>();
+        innerHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK))
+            .Verifiable();
+
+        // Act
+        var sut = new JwtHandlerToTest(scopedContainer, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>(), setingsOptions, "Remote1")
+        {
+            InnerHandler = innerHandler.Object
+        };
+
+        var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://example.com/");
+        var invoker = new HttpMessageInvoker(sut);
+        var response = await invoker.SendAsync(httpRequestMessage, new CancellationToken()).ConfigureAwait(false);
+
+        // Assert
+        response.Should().NotBeNull();
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        httpRequestMessage.Headers.Authorization.Should().BeNull();
+        httpRequestMessage.Headers.Contains(options.HeaderKey).Should().BeTrue();
+        httpRequestMessage.Headers.GetValues(options.HeaderKey).FirstOrDefault().Should().Be(options.ClientSecret);
+    }
+
+
+    [Fact]
+    // Scenario 6
+    public async Task Jwt_With_OAuth2_And_Principal_With_Bearer_Token_And_On_Behalf_of_Should()
+    {
+        // arrange
+        // arrange the configuration to setup the Client secret.
+        var options = _fixture.Create<SecretBasicSettingsOptions>();
+
+        var config = new ConfigurationBuilder()
+                     .AddInMemoryCollection(
+                         new Dictionary<string, string?>
+                         {
+                             ["Authentication:OnBehalfOf:Obo:ClientId"] = "aa17786b-e33c-41ec-81cc-6063610aedeb",
+                             ["Authentication:OnBehalfOf:Obo:ClientSecret"] = "This is a secret",
+                             ["Authentication:OnBehalfOf:Obo:Scope"] = "user.read user.write",
+                             ["Authentication:DefaultAuthority:Url"] = "https://login.microsoft.com"
+                         }).Build();
+
+        // Define an access token that will be used as the return of the call to the CredentialDirect token credential provider.
+        var jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
+        var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
+
+        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+
+        // Register the different services.
+        IServiceCollection services = new ServiceCollection();
+
+        services.AddDefaultAuthority(configuration);
+        services.AddOnBehalfOf(configuration);
+        services.AddScoped<IApplicationContext, ApplicationInstanceContext>();
+        services.AddScoped<TokenRefreshInfo>();
+        services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
+
+
+        var mockActivitySourceFactory = new Mock<IActivitySourceFactory>();
+        mockActivitySourceFactory.Setup(m => m.Get("Arc4u", null)).Returns((ActivitySource)null);
+        services.AddSingleton<IActivitySourceFactory>(mockActivitySourceFactory.Object);
+
+        // Used the cache to return the access token in the Obo provider => avoid any call to the Authority!
+        var mockCache = _fixture.Freeze<Mock<ICache>>();
+        mockCache.Setup(m => m.GetAsync<TokenInfo>(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(new TokenInfo("Bearer", accessToken));
+
+        var mockCacheHelper = _fixture.Freeze<Mock<ICacheHelper>>();
+        mockCacheHelper.Setup(m => m.GetCache()).Returns(mockCache.Object);
+
+        services.AddSingleton<ICacheHelper>(mockCacheHelper.Object);
+
+        // Register the different TokenProvider and CredentialTokenProviders.
+        var container = new ComponentModelContainer(services);
+        container.Register<ITokenProvider, AzureADOboTokenProvider>(AzureADOboTokenProvider.ProviderName);
+        container.CreateContainer();
+
+        // Create a scope to be in the context majority of the time a business code is.
+        using var scopedContainer = container.CreateScope();
+
+        // Define a Principal with no OAuth2Bearer token here => we test the injection.
+        var appContext = scopedContainer.Resolve<IApplicationContext>();
+        appContext.SetPrincipal(new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0"));
+
+        var setingsOptions = scopedContainer.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
+
+        // Define the end handler that will simulate the call to the endpoint.
+        var innerHandler = new Mock<HttpMessageHandler>();
+        innerHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK))
+            .Verifiable();
+
+        // Act
+        var sut = new JwtHandlerToTest(scopedContainer, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>(), setingsOptions, "Obo")
+        {
+            InnerHandler = innerHandler.Object
+        };
+
+        var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://example.com/");
+        var invoker = new HttpMessageInvoker(sut);
+        var response = await invoker.SendAsync(httpRequestMessage, new CancellationToken()).ConfigureAwait(false);
+
+        // Assert
+        response.Should().NotBeNull();
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        httpRequestMessage.Headers.Authorization.Should().NotBeNull();
+        // The request must have a Bearer token injected in the authohirzation header.
+        httpRequestMessage.Headers.Authorization!.Scheme.Should().Be("Bearer");
+        httpRequestMessage.Headers.Authorization!.Parameter.Should().Be(accessToken);
+    }
+
 }
