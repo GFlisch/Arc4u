@@ -16,6 +16,7 @@ using Arc4u.OAuth2.Options;
 using Arc4u.OAuth2.Security.Principal;
 using Arc4u.OAuth2.Token;
 using Arc4u.OAuth2.TokenProvider;
+using Arc4u.OAuth2.TokenProviders;
 using Arc4u.Security.Principal;
 using AutoFixture;
 using AutoFixture.AutoMoq;
@@ -56,6 +57,77 @@ public class JwtHttpHandlerTests
     }
 
     private readonly Fixture _fixture;
+    [Fact]
+    // Scenario 2
+    public async Task Jwt_With_OAuth2_And_Principal_With_Bearer_Token_Should()
+    {
+        // arrange
+        // arrange the configuration to setup the Client secret.
+        var options = _fixture.Create<SecretBasicSettingsOptions>();
+
+        var config = new ConfigurationBuilder()
+                     .AddInMemoryCollection(
+                         new Dictionary<string, string?>
+                         {
+                             ["Authentication:OAuth2.Settings:Audiences"] = "urn://audience.com",
+                             ["Authentication:OAuth2.Settings:Scopes"] = "user.read user.write",
+                             ["Authentication:DefaultAuthority:Url"] = "https://login.microsoft.com"
+                         }).Build();
+
+        // Define an access token that will be used as the return of the call to the CredentialDirect token credential provider.
+        var jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
+        var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
+
+        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+
+        // Register the different services.
+        IServiceCollection services = new ServiceCollection();
+
+        services.AddDefaultAuthority(configuration);
+        services.ConfigureOAuth2Settings(configuration, "Authentication:OAuth2.Settings");
+        services.AddScoped<IApplicationContext, ApplicationInstanceContext>();
+        services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
+
+        // Register the different TokenProvider and CredentialTokenProviders.
+        var container = new ComponentModelContainer(services);
+        container.Register<ITokenProvider, BootstrapContextTokenProvider>("Bootstrap");
+        container.CreateContainer();
+
+        // Create a scope to be in the context majority of the time a business code is.
+        using var scopedContainer = container.CreateScope();
+
+        // Define a Principal with no OAuth2Bearer token here => we test the injection.
+        var appContext = scopedContainer.Resolve<IApplicationContext>();
+        appContext.SetPrincipal(new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessToken}, "S-1-0-0"));
+
+        var setingsOptions = scopedContainer.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
+
+        // Define the end handler that will simulate the call to the endpoint.
+        var innerHandler = new Mock<HttpMessageHandler>();
+        innerHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK))
+            .Verifiable();
+
+        // Act
+        var sut = new JwtHandlerToTest(scopedContainer, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>(), setingsOptions, "OAuth2")
+        {
+            InnerHandler = innerHandler.Object
+        };
+
+        var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://example.com/");
+        var invoker = new HttpMessageInvoker(sut);
+        var response = await invoker.SendAsync(httpRequestMessage, new CancellationToken()).ConfigureAwait(false);
+
+        // Assert
+        response.Should().NotBeNull();
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        httpRequestMessage.Headers.Authorization.Should().NotBeNull();
+        // The request must have a Bearer token injected in the authohirzation header.
+        httpRequestMessage.Headers.Authorization!.Scheme.Should().Be("Bearer");
+        httpRequestMessage.Headers.Authorization!.Parameter.Should().Be(accessToken);
+    }
 
     [Fact]
     // Scenario 3
