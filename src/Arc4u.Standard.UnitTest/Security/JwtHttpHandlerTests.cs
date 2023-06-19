@@ -231,6 +231,7 @@ public class JwtHttpHandlerTests
                          new Dictionary<string, string?>
                          {
                              ["Authentication:ClientSecrets:Client1:ClientId"] = options.ClientId,
+                             ["Authentication:ClientSecrets:Client1:Scope"] = options.Scope,
                              ["Authentication:ClientSecrets:Client1:User"] = options.User,
                              ["Authentication:ClientSecrets:Client1:Credential"] = $"{options.User}:password",
                              ["Authentication:DefaultAuthority:Url"] = "https://login.microsoft.com"
