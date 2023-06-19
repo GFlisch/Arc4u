@@ -1,4 +1,6 @@
 using System;
+using System.Linq;
+using System.Net.Http.Headers;
 using System.Security.Claims;
 using Arc4u.Configuration;
 using Arc4u.Dependency;
@@ -11,6 +13,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using static Google.Rpc.Context.AttributeContext.Types;
 
 namespace Arc4u.gRPC.Interceptors;
 
@@ -209,7 +212,17 @@ public class OAuth2Interceptor : Interceptor
                 return;
             }
 
-            headers.Add("authorization", $"Bearer {tokenInfo.Token}");
+            var scheme = inject ? tokenInfo.TokenType : "Bearer";
+            _logger.Technical().System($"Add the {scheme} token to provide authentication evidence.").Log();
+
+            if (new string[] { "Bearer", "Basic" }.Any(s => s.Equals(scheme, StringComparison.InvariantCultureIgnoreCase)))
+            {
+                headers.Add("authorization", $"{scheme} {tokenInfo.Token}");
+            }
+            else
+            {
+                headers.Add(scheme, tokenInfo.Token);
+            }
         }
         catch (Exception ex)
         {

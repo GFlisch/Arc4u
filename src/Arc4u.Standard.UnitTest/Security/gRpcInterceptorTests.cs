@@ -2,12 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Security.Claims;
 using System.Threading;
-using System.Threading.Tasks;
 using Arc4u.Caching;
 using Arc4u.Configuration;
 using Arc4u.Dependency;
@@ -16,7 +12,6 @@ using Arc4u.Diagnostics;
 using Arc4u.gRPC.Interceptors;
 using Arc4u.OAuth2;
 using Arc4u.OAuth2.Extensions;
-using Arc4u.OAuth2.Options;
 using Arc4u.OAuth2.Security.Principal;
 using Arc4u.OAuth2.Token;
 using Arc4u.OAuth2.TokenProvider;
@@ -26,18 +21,17 @@ using AutoFixture;
 using AutoFixture.AutoMoq;
 using FluentAssertions;
 using Grpc.Core.Interceptors;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
-using Moq.Protected;
 using Xunit;
-using Grpc.Core.Interceptors;
 using static Grpc.Core.Interceptors.Interceptor;
 using Grpc.Core;
+using System.Threading.Tasks;
+using Arc4u.OAuth2.Options;
 
 namespace Arc4u.UnitTest.Security;
 
@@ -47,9 +41,8 @@ namespace Arc4u.UnitTest.Security;
 /// 1) Retrieve the bearer token when used with a user principal authenticated via an OpenId Connect scenario): AuthenticationType is OpenId.
 /// 2) Retrieve the bearer token when used with a user principal authenticated in an Api call: AuthenticationType is OAuth2Bearer.
 /// 3) By using a CLientSecret definition (username:password) and injecting the bearer token retrieve from a call to the authority provider: Authentication type is Inject.
-
-/// 4 and 5 => Check if this is implemented client side.
-
+/// 4) By injecting an encrypted username:password in the header of the http request : RemoteSecret token provider and AuthenticationType is Inject.
+/// 5) By injecting a Basic authorization header during the http request: RemoteSecret, header key is Basic and AuthenticationType is Inject.
 /// 6) Have an on behalf of scenario based on the scenario 1 or 2.
 /// </summary>
 ///
@@ -278,6 +271,116 @@ public class GRpcInterceptorTests
         // Assert
         mockClientInterceptorContext.Options.Headers.Should().NotBeNull();
         mockClientInterceptorContext.Options.Headers!.GetValue("authorization").Should().Be($"Bearer {accessToken}");
+    }
+
+    [Fact]
+    // Scenario 4
+    // When we inject. There is no need to have a principal!
+    public void Jwt_With_RemoteSecreInjected_With_Basic_Authorization_Should()
+    {
+        // arrange
+        // arrange the configuration to setup the Client secret.
+        var options = _fixture.Create<RemoteSecretSettingsOptions>();
+        var config = new ConfigurationBuilder()
+                     .AddInMemoryCollection(
+                         new Dictionary<string, string?>
+                         {
+                             ["Authentication:RemoteSecrets:Remote1:ClientSecret"] = options.ClientSecret,
+                             ["Authentication:RemoteSecrets:Remote1:HeaderKey"] = "Basic",
+                         }).Build();
+
+        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+
+        // Register the different services.
+        IServiceCollection services = new ServiceCollection();
+
+        services.AddRemoteSecretsAuthentication(configuration);
+        services.AddScoped<IApplicationContext, ApplicationInstanceContext>();
+        services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
+
+        // Register the different TokenProvider and CredentialTokenProviders.
+        var container = new ComponentModelContainer(services);
+        container.Register<ITokenProvider, RemoteClientSecretTokenProvider>(RemoteClientSecretTokenProvider.ProviderName);
+
+        container.CreateContainer();
+
+        // Create a scope to be in the context majority of the time a business code is.
+        using var scopedContainer = container.CreateScope();
+
+        // Define a Principal with no OAuth2Bearer token here => we test the injection.
+        var appContext = scopedContainer.Resolve<IApplicationContext>();
+        appContext.SetPrincipal(new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType), "S-1-0-0"));
+
+        var setingsOptions = scopedContainer.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
+
+        var mockMethod = _fixture.Freeze<Mock<Method<string, string>>>();
+
+        var mockClientInterceptorContext = new ClientInterceptorContext<string, string>(mockMethod.Object, "host", new CallOptions(new Metadata()));
+        var mock = _fixture.Freeze<Mock<BlockingUnaryCallContinuation<string, string>>>();
+
+        // Act
+        var sut = new InterceptorTest(scopedContainer, scopedContainer.Resolve<ILogger<InterceptorTest>>(), setingsOptions, "Remote1");
+
+        sut.BlockingUnaryCall<string, string>("Test", mockClientInterceptorContext, mock.Object);
+
+        // Assert
+        mockClientInterceptorContext.Options.Headers.Should().NotBeNull();
+        mockClientInterceptorContext.Options.Headers!.GetValue("authorization").Should().Be($"Basic {options.ClientSecret}");
+    }
+
+    [Fact]
+    // Scenario 5
+    // When we inject. There is no need to have a principal!
+    public void Jwt_With_RemoteSecreInjected_Should()
+    {
+        // arrange
+        // arrange the configuration to setup the Client secret.
+        var options = _fixture.Create<RemoteSecretSettingsOptions>();
+        var config = new ConfigurationBuilder()
+                     .AddInMemoryCollection(
+                         new Dictionary<string, string?>
+                         {
+                             ["Authentication:RemoteSecrets:Remote1:ClientSecret"] = options.ClientSecret,
+                             ["Authentication:RemoteSecrets:Remote1:HeaderKey"] = options.HeaderKey,
+                         }).Build();
+
+        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+
+        // Register the different services.
+        IServiceCollection services = new ServiceCollection();
+
+        services.AddRemoteSecretsAuthentication(configuration);
+        services.AddScoped<IApplicationContext, ApplicationInstanceContext>();
+        services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
+
+        // Register the different TokenProvider and CredentialTokenProviders.
+        var container = new ComponentModelContainer(services);
+        container.Register<ITokenProvider, RemoteClientSecretTokenProvider>(RemoteClientSecretTokenProvider.ProviderName);
+
+        container.CreateContainer();
+
+        // Create a scope to be in the context majority of the time a business code is.
+        using var scopedContainer = container.CreateScope();
+
+        // Define a Principal with no OAuth2Bearer token here => we test the injection.
+        var appContext = scopedContainer.Resolve<IApplicationContext>();
+        appContext.SetPrincipal(new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType), "S-1-0-0"));
+
+        var setingsOptions = scopedContainer.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
+
+        var mockMethod = _fixture.Freeze<Mock<Method<string, string>>>();
+
+        var mockClientInterceptorContext = new ClientInterceptorContext<string, string>(mockMethod.Object, "host", new CallOptions(new Metadata()));
+        var mock = _fixture.Freeze<Mock<BlockingUnaryCallContinuation<string, string>>>();
+
+        // Act
+        var sut = new InterceptorTest(scopedContainer, scopedContainer.Resolve<ILogger<InterceptorTest>>(), setingsOptions, "Remote1");
+
+        sut.BlockingUnaryCall<string, string>("Test", mockClientInterceptorContext, mock.Object);
+
+        // Assert
+        mockClientInterceptorContext.Options.Headers.Should().NotBeNull();
+        mockClientInterceptorContext.Options.Headers!.GetValue(options.HeaderKey).Should().Be(options.ClientSecret);
     }
 
     [Fact]
