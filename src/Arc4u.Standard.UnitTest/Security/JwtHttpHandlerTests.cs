@@ -37,7 +37,7 @@ namespace Arc4u.UnitTest.Security;
 
 public class JwtHandlerToTest : JwtHttpHandler
 {
-    public JwtHandlerToTest(IContainerResolve containerResolve, ILogger<JwtHandlerToTest> logger, IOptionsMonitor<SimpleKeyValueSettings> keyValuesSettingsOption, string resolvingName) : base(containerResolve, logger, keyValuesSettingsOption, resolvingName)
+    public JwtHandlerToTest(IContainerResolve containerResolve, ILogger<JwtHandlerToTest> logger, IOptionsMonitor<SimpleKeyValueSettings> keyValuesSettingsOption, string resolvingName) : base(containerResolve, logger, keyValuesSettingsOption.Get(resolvingName))
     {
             
     }

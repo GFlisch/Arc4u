@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -30,29 +31,25 @@ public class JwtHttpHandler : DelegatingHandler
     /// </summary>
     /// <param name="container">The scoped container</param>
     /// <param name="resolvingName">The name used to resolve the settings</param>
-    public JwtHttpHandler(IContainerResolve container, ILogger<JwtHttpHandler> logger, IOptionsMonitor<SimpleKeyValueSettings> keyValuesSettingsOption, string resolvingName)
+    public JwtHttpHandler(IContainerResolve container, ILogger<JwtHttpHandler> logger, [DisallowNull] IKeyValueSettings keyValuesSettings)
     {
         _container = container ?? throw new ArgumentNullException(nameof(container));
 
-        ArgumentNullException.ThrowIfNull(keyValuesSettingsOption);
-
         _logger = logger;
 
-        _settings = keyValuesSettingsOption.Get(resolvingName);
+        _settings = keyValuesSettings ?? throw new ArgumentNullException(nameof(keyValuesSettings));
 
         container.TryResolve(out _applicationContext);
         _parameters = _applicationContext;
     }
 
-    public JwtHttpHandler(IHttpContextAccessor accessor, ILogger<JwtHttpHandler> logger, IOptionsMonitor<SimpleKeyValueSettings> keyValuesSettingsOption, string? resolvingName)
+    public JwtHttpHandler(IHttpContextAccessor accessor, ILogger<JwtHttpHandler> logger, IKeyValueSettings keyValuesSettings)
     {
         _accessor = accessor ?? throw new ArgumentNullException(nameof(accessor));
 
-        ArgumentNullException.ThrowIfNull(keyValuesSettingsOption);
-
         _logger = logger;
 
-        _settings = keyValuesSettingsOption.Get(resolvingName);
+        _settings = keyValuesSettings ?? throw new ArgumentNullException(nameof(keyValuesSettings));
 
         _parameters = null; // will be assigned in the context of the user (scoped).
         _container = null;
