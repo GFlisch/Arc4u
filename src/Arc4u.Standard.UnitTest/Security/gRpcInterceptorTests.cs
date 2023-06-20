@@ -30,7 +30,6 @@ using Moq;
 using Xunit;
 using static Grpc.Core.Interceptors.Interceptor;
 using Grpc.Core;
-using System.Threading.Tasks;
 using Arc4u.OAuth2.Options;
 
 namespace Arc4u.UnitTest.Security;
@@ -49,19 +48,9 @@ namespace Arc4u.UnitTest.Security;
 
 public class InterceptorTest : OAuth2Interceptor
 {
-    public InterceptorTest(IContainerResolve containerResolve, ILogger<OAuth2Interceptor> logger, IOptionsMonitor<SimpleKeyValueSettings> keyValuesSettingsOption, string settingsName) : base(containerResolve, logger, keyValuesSettingsOption, settingsName)
+    public InterceptorTest(IContainerResolve containerResolve, ILogger<OAuth2Interceptor> logger, IOptionsMonitor<SimpleKeyValueSettings> keyValuesSettingsOption, string settingsName) : base(containerResolve, logger, keyValuesSettingsOption.Get(settingsName))
     {
     }
-}
-
-public class RequestMessage
-{
-    public Guid Id { get; set; }
-}
-
-public class ResponseMessage
-{
-    public string Content { get; set; }
 }
 
 public class GRpcInterceptorTests

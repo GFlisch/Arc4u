@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Net.Http.Headers;
 using System.Security.Claims;
 using Arc4u.Configuration;
 using Arc4u.Dependency;
@@ -13,7 +12,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using static Google.Rpc.Context.AttributeContext.Types;
 
 namespace Arc4u.gRPC.Interceptors;
 
@@ -22,74 +20,38 @@ namespace Arc4u.gRPC.Interceptors;
 /// </summary>
 public class OAuth2Interceptor : Interceptor
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="containerResolve"></param>
-    /// <param name="settingsName"></param>
-    /// <param name="platformParameter"></param>
-    [Obsolete("Use the constructor with IOptionsMonitor<SimpleKeyValueSettings>.")]
-    public OAuth2Interceptor(IContainerResolve containerResolve, string settingsName, object platformParameter) : this(containerResolve)
-    {
-        _container = containerResolve ?? throw new ArgumentNullException(nameof(containerResolve));
-
-        _settings = containerResolve.Resolve<IKeyValueSettings>(settingsName);
-
-        // can be null.
-        _platformParameter = platformParameter;
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="accessor"></param>
-    /// <param name="logger"></param>
-    /// <param name="settingsName"></param>
-    public OAuth2Interceptor(IHttpContextAccessor accessor, ILogger<OAuth2Interceptor> logger, string settingsName)
-    {
-        _accessor = accessor ?? throw new ArgumentNullException(nameof(accessor));
-
-        _settingsName = settingsName ?? throw new ArgumentNullException(nameof(settingsName));
-
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
-    public OAuth2Interceptor(IHttpContextAccessor accessor, ILogger<OAuth2Interceptor> logger, IOptionsMonitor<SimpleKeyValueSettings> keyValuesSettingsOption, string settingsName)
+    public OAuth2Interceptor(IHttpContextAccessor accessor, ILogger<OAuth2Interceptor> logger, IKeyValueSettings keyValuesSettings)
     {
 #if NETSTANDARD2_0
-        if (keyValuesSettingsOption is null)
+        if (keyValuesSettings is null)
         {
-            throw new ArgumentNullException(nameof(keyValuesSettingsOption));
+            throw new ArgumentNullException(nameof(keyValuesSettings));
         }
 #else
-        ArgumentNullException.ThrowIfNull(keyValuesSettingsOption);
+        ArgumentNullException.ThrowIfNull(keyValuesSettings);
 #endif
         _accessor = accessor ?? throw new ArgumentNullException(nameof(accessor));
 
-        _settings = keyValuesSettingsOption.Get(settingsName);
+        _settings = keyValuesSettings;
 
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public OAuth2Interceptor(IContainerResolve containerResolve, ILogger<OAuth2Interceptor> logger, IOptionsMonitor<SimpleKeyValueSettings> keyValuesSettingsOption, string settingsName)
+    public OAuth2Interceptor(IContainerResolve containerResolve, ILogger<OAuth2Interceptor> logger, IKeyValueSettings keyValuesSettings)
     {
 #if NETSTANDARD2_0
-        if (keyValuesSettingsOption is null)
+        if (keyValuesSettings is null)
         {
-            throw new ArgumentNullException(nameof(keyValuesSettingsOption));
+            throw new ArgumentNullException(nameof(keyValuesSettings));
         }
 #else
-        ArgumentNullException.ThrowIfNull(keyValuesSettingsOption);
+        ArgumentNullException.ThrowIfNull(keyValuesSettings);
 #endif
         _container = containerResolve;
 
-        _settings = keyValuesSettingsOption.Get(settingsName);
+        _settings = keyValuesSettings;
 
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
-    // Add logging.
-    private OAuth2Interceptor(IContainerResolve containerResolve)
-    {
-        _logger = containerResolve.Resolve<ILogger<OAuth2Interceptor>>();
     }
 
 
