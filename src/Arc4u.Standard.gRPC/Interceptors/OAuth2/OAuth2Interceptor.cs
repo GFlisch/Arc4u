@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using System.Security.Claims;
-using Arc4u.Configuration;
 using Arc4u.Dependency;
 using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Token;
@@ -11,7 +10,6 @@ using Grpc.Core.Interceptors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace Arc4u.gRPC.Interceptors;
 
@@ -22,45 +20,26 @@ public class OAuth2Interceptor : Interceptor
 {
     public OAuth2Interceptor(IHttpContextAccessor accessor, ILogger<OAuth2Interceptor> logger, IKeyValueSettings keyValuesSettings)
     {
-#if NETSTANDARD2_0
-        if (keyValuesSettings is null)
-        {
-            throw new ArgumentNullException(nameof(keyValuesSettings));
-        }
-#else
-        ArgumentNullException.ThrowIfNull(keyValuesSettings);
-#endif
         _accessor = accessor ?? throw new ArgumentNullException(nameof(accessor));
 
-        _settings = keyValuesSettings;
+        _settings = keyValuesSettings ?? throw new ArgumentNullException(nameof(keyValuesSettings));
 
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     public OAuth2Interceptor(IContainerResolve containerResolve, ILogger<OAuth2Interceptor> logger, IKeyValueSettings keyValuesSettings)
     {
-#if NETSTANDARD2_0
-        if (keyValuesSettings is null)
-        {
-            throw new ArgumentNullException(nameof(keyValuesSettings));
-        }
-#else
-        ArgumentNullException.ThrowIfNull(keyValuesSettings);
-#endif
         _container = containerResolve;
 
-        _settings = keyValuesSettings;
+        _settings = keyValuesSettings ?? throw new ArgumentNullException(nameof(keyValuesSettings));
 
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-
     private IContainerResolve _container;
-    private object _platformParameter;
-    private IKeyValueSettings _settings;
+    private readonly IKeyValueSettings _settings;
     private readonly ILogger<OAuth2Interceptor> _logger;
     private readonly IHttpContextAccessor _accessor;
-    private readonly string _settingsName;
 
     public override AsyncUnaryCall<TResponse> AsyncUnaryCall<TRequest, TResponse>(TRequest request, ClientInterceptorContext<TRequest, TResponse> context, AsyncUnaryCallContinuation<TRequest, TResponse> continuation)
     {
@@ -123,20 +102,11 @@ public class OAuth2Interceptor : Interceptor
             _container = _accessor.HttpContext.RequestServices.GetService<IContainerResolve>();
         }
 
-        // As this is global for an handler, this can be saved at the level of the class.
-        // We do this here only when using an accessor => the IContainerResolve is only available in the context of a call not
-        // when the JwtHttpHandler is built.
-        if (null == _settings && !String.IsNullOrWhiteSpace(_settingsName))
-        {
-            if (!_container.TryResolve(_settingsName, out _settings))
-            {
-                _logger.Technical().Debug($"No settings for {_settingsName} is found.").Log();
-            }
-        }
 
-        if (_container.TryResolve<IApplicationContext>(out var applicationContext))
+        if (!_container.TryResolve<IApplicationContext>(out var applicationContext))
         {
-            _platformParameter = _platformParameter ?? applicationContext?.Principal?.Identity as ClaimsIdentity;
+            _logger.Technical().LogError("No application context is registered in the DI.");
+            return;
         }
 
         if (!_settings.Values.TryGetValue(TokenKeys.AuthenticationTypeKey, out var authenticationType))
@@ -148,17 +118,19 @@ public class OAuth2Interceptor : Interceptor
         var inject = authenticationType.Equals("inject", StringComparison.InvariantCultureIgnoreCase);
 
         // Skip (BE scenario) if the parameter is an identity and the settings doesn't correspond to the identity's type.
-        if (_platformParameter is ClaimsIdentity claimsIdentity
+        if (!inject
             &&
-            !inject
+            applicationContext.Principal.Identity is ClaimsIdentity claimsIdentity
             &&
             !claimsIdentity.AuthenticationType.Equals(_settings.Values[TokenKeys.AuthenticationTypeKey], StringComparison.InvariantCultureIgnoreCase))
         {
             return;
         }
 
-        // But in case we inject we need something in the platformParameter!
-        if (null == _platformParameter && !inject)
+        claimsIdentity = applicationContext.Principal?.Identity as ClaimsIdentity;
+
+        // But in case we inject we need something in the identity!
+        if (claimsIdentity is null && !inject)
         {
             return;
         }
@@ -166,7 +138,7 @@ public class OAuth2Interceptor : Interceptor
         try
         {
             var provider = _container.Resolve<ITokenProvider>(_settings.Values[TokenKeys.ProviderIdKey]);
-            var tokenInfo = provider.GetTokenAsync(_settings, _platformParameter).Result;
+            var tokenInfo = provider.GetTokenAsync(_settings, claimsIdentity).Result;
 
             if (tokenInfo.ExpiresOnUtc < DateTime.UtcNow)
             {

@@ -331,9 +331,6 @@ public class JwtHttpHandlerTests
         // Create a scope to be in the context majority of the time a business code is.
         using var scopedContainer = container.CreateScope();
 
-        // Define a Principal with no OAuth2Bearer token here => we test the injection.
-        var appContext = scopedContainer.Resolve<IApplicationContext>();
-        appContext.SetPrincipal(new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType), "S-1-0-0"));
         var setingsOptions = scopedContainer.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
 
         // Define the end handler that will simulate the call to the endpoint.
@@ -397,9 +394,6 @@ public class JwtHttpHandlerTests
         // Create a scope to be in the context majority of the time a business code is.
         using var scopedContainer = container.CreateScope();
 
-        // Define a Principal with no OAuth2Bearer token here => we test the injection.
-        var appContext = scopedContainer.Resolve<IApplicationContext>();
-        appContext.SetPrincipal(new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType), "S-1-0-0"));
         var setingsOptions = scopedContainer.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
 
         // Define the end handler that will simulate the call to the endpoint.
