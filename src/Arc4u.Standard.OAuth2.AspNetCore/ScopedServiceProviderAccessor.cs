@@ -30,6 +30,16 @@ public class ScopedServiceProviderAccessor : IScopedServiceProviderAccessor
         _httpContextAccessor = httpContextAccessor;
     }
 
+    public void InvalidateServiceProvider()
+    {
+        var holder = _serviceProviderCurrent.Value;
+        // Clear current service provider trapped in the AsyncLocals, as it's done.
+        if (holder != null)
+        {
+            holder.ServiceProvider = null;
+        }
+    }
+
     /// <inheritdoc/>
     public IServiceProvider ServiceProvider
     {
@@ -56,17 +66,9 @@ public class ScopedServiceProviderAccessor : IScopedServiceProviderAccessor
                 throw new ArgumentException("The ServiceProvider must be a scoped one!");
             }
 
-            var holder = _serviceProviderCurrent.Value;
-            // Clear current service provider trapped in the AsyncLocals, as it's done.
-            if (holder != null)
-            {
-                holder.ServiceProvider = null;
-            }
-            // Use an object indirection to hold the ServiceProvider in the AsyncLocal, so it can be cleared in all ExecutionContexts when its cleared.
-            if (value != null)
-            {
-                _serviceProviderCurrent.Value = new ServiceProviderHolder { ServiceProvider = value };
-            }
+            InvalidateServiceProvider();
+
+            _serviceProviderCurrent.Value = new ServiceProviderHolder { ServiceProvider = value };
         }
     }
 }

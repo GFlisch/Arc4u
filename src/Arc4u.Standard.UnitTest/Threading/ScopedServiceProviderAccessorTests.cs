@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Http;
 using Moq;
 using FluentAssertions;
 using System;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Arc4u.UnitTest.Threading;
 
@@ -65,9 +67,10 @@ public class ScopedServiceProviderAccessorTests
         var mockHttpContextAccessor = _fixture.Freeze<Mock<IHttpContextAccessor>>();
         mockHttpContextAccessor.SetupGet(x => x.HttpContext).Returns(() => mockHttpContext.Object);
 
-        var sut = new ScopedServiceProviderAccessor(mockHttpContextAccessor.Object);
-        sut.ServiceProvider = serviceScopedProvider;
-
+        var sut = new ScopedServiceProviderAccessor(mockHttpContextAccessor.Object)
+        {
+            ServiceProvider = serviceScopedProvider
+        };
 
         sut.ServiceProvider.Should().NotBeNull();
         sut.ServiceProvider.Should().BeSameAs(serviceScopedProvider);
@@ -96,7 +99,7 @@ public class ScopedServiceProviderAccessorTests
     }
 
     [Fact]
-    public void Scoped_Service_Accessor_When_HttpContextAccessor_And_ServiceProvider_Exists_With_Different_Threads_Should()
+    public async void Scoped_Service_Accessor_When_HttpContextAccessor_And_ServiceProvider_Exists_In_A_Task_Should()
     {
         IServiceCollection services = new ServiceCollection();
 
@@ -110,14 +113,61 @@ public class ScopedServiceProviderAccessorTests
         mockHttpContextAccessor.SetupGet(x => x.HttpContext).Returns(() => mockHttpContext.Object);
 
         var sut = new ScopedServiceProviderAccessor(mockHttpContextAccessor.Object);
-        var serviceScopedProvider2 = serviceProvider.CreateScope().ServiceProvider;
-        sut.ServiceProvider = serviceScopedProvider2;
+
 
         sut.ServiceProvider.Should().NotBeNull();
-        sut.ServiceProvider.Should().BeSameAs(serviceScopedProvider2);
+        sut.ServiceProvider.Should().BeSameAs(serviceScopedProvider1);
+
+        await Task.Run(() =>
+        {
+            sut.ServiceProvider.Should().NotBeNull();
+            sut.ServiceProvider.Should().BeSameAs(serviceScopedProvider1);
+
+            using var serviceScope = serviceProvider.CreateScope();
+            var serviceProvider1 = serviceScope.ServiceProvider;
+            sut.ServiceProvider = serviceProvider1;
+
+            sut.ServiceProvider.Should().NotBeNull();
+            sut.ServiceProvider.Should().BeSameAs(serviceProvider1);
+        }).ConfigureAwait(false);
+
+        sut.ServiceProvider.Should().NotBeNull();
+        sut.ServiceProvider.Should().BeSameAs(serviceScopedProvider1);
+        
     }
 
+    [Fact]
+    public async void Scoped_Service_Accessor_When_HttpContextAccessor_Is_Null_And_ServiceProvider_Exists_In_A_Task_Should()
+    {
+        IServiceCollection services = new ServiceCollection();
 
+        var serviceProvider = services.BuildServiceProvider();
+
+        var mockHttpContextAccessor = _fixture.Freeze<Mock<IHttpContextAccessor>>();
+        mockHttpContextAccessor.SetupGet(x => x.HttpContext).Returns(() => null);
+
+        var sut = new ScopedServiceProviderAccessor(mockHttpContextAccessor.Object);
+
+        var exception = Record.Exception(() => sut.ServiceProvider);
+        exception.Should().BeOfType<NullReferenceException>();
+
+        await Task.Run(() =>
+        {
+            exception = Record.Exception(() => sut.ServiceProvider);
+            exception.Should().BeOfType<NullReferenceException>();
+
+            using var serviceScope = serviceProvider.CreateScope();
+            var serviceProvider1 = serviceScope.ServiceProvider;
+            sut.ServiceProvider = serviceProvider1;
+
+            sut.ServiceProvider.Should().NotBeNull();
+            sut.ServiceProvider.Should().BeSameAs(serviceProvider1);
+        }).ConfigureAwait(false);
+
+        exception = Record.Exception(() => sut.ServiceProvider);
+        exception.Should().BeOfType<NullReferenceException>();
+
+    }
 
     [Fact]
     public void Scoped_Service_Accessor_When_ServiceProvider_Is_Not_Scoped_Should()
