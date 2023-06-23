@@ -1,15 +1,17 @@
 using System;
 using System.Linq;
 using System.Security.Claims;
+using System.Threading;
 using Arc4u.Dependency;
 using Arc4u.Diagnostics;
+using Arc4u.OAuth2;
 using Arc4u.OAuth2.Token;
 using Arc4u.Security.Principal;
 using Grpc.Core;
 using Grpc.Core.Interceptors;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using static Google.Rpc.Context.AttributeContext.Types;
 
 namespace Arc4u.gRPC.Interceptors;
 
@@ -18,28 +20,21 @@ namespace Arc4u.gRPC.Interceptors;
 /// </summary>
 public class OAuth2Interceptor : Interceptor
 {
-    public OAuth2Interceptor(IHttpContextAccessor accessor, ILogger<OAuth2Interceptor> logger, IKeyValueSettings keyValuesSettings)
+    public OAuth2Interceptor(IScopedServiceProviderAccessor serviceProviderAccessor, ILogger<OAuth2Interceptor> logger, IKeyValueSettings keyValuesSettings)
     {
-        _accessor = accessor ?? throw new ArgumentNullException(nameof(accessor));
+        _serviceProviderAccessor = serviceProviderAccessor;
+
+        _logger = logger;
 
         _settings = keyValuesSettings ?? throw new ArgumentNullException(nameof(keyValuesSettings));
-
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public OAuth2Interceptor(IContainerResolve containerResolve, ILogger<OAuth2Interceptor> logger, IKeyValueSettings keyValuesSettings)
-    {
-        _container = containerResolve;
-
-        _settings = keyValuesSettings ?? throw new ArgumentNullException(nameof(keyValuesSettings));
-
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
-
-    private IContainerResolve _container;
     private readonly IKeyValueSettings _settings;
     private readonly ILogger<OAuth2Interceptor> _logger;
-    private readonly IHttpContextAccessor _accessor;
+    private readonly IScopedServiceProviderAccessor _serviceProviderAccessor;
+
+    private IContainerResolve? GetResolver() => _serviceProviderAccessor.ServiceProvider.GetService<IContainerResolve>();
+
 
     public override AsyncUnaryCall<TResponse> AsyncUnaryCall<TRequest, TResponse>(TRequest request, ClientInterceptorContext<TRequest, TResponse> context, AsyncUnaryCallContinuation<TRequest, TResponse> continuation)
     {
@@ -97,15 +92,11 @@ public class OAuth2Interceptor : Interceptor
             return;
         }
 
-        if (null != _accessor)
-        {
-            _container = _accessor.HttpContext.RequestServices.GetService<IContainerResolve>();
-        }
+        var applicationContext = GetCallContext(out var containerResolve);
 
-
-        if (!_container.TryResolve<IApplicationContext>(out var applicationContext))
+        if (_settings is null || applicationContext is null || containerResolve is null)
         {
-            _logger.Technical().LogError("No application context is registered in the DI.");
+            _logger.Technical().System($"No settings or application context is defined with {GetType().Name}, Check next Delegate Handler").Log();
             return;
         }
 
@@ -137,7 +128,7 @@ public class OAuth2Interceptor : Interceptor
 
         try
         {
-            var provider = _container.Resolve<ITokenProvider>(_settings.Values[TokenKeys.ProviderIdKey]);
+            var provider = containerResolve.Resolve<ITokenProvider>(_settings.Values[TokenKeys.ProviderIdKey]);
             var tokenInfo = provider.GetTokenAsync(_settings, claimsIdentity).Result;
 
             if (tokenInfo.ExpiresOnUtc < DateTime.UtcNow)
@@ -174,5 +165,12 @@ public class OAuth2Interceptor : Interceptor
                 headers.Add("culture", culture);
             }
         }
+    }
+
+    private IApplicationContext? GetCallContext(out IContainerResolve? containerResolve)
+    {
+        containerResolve = GetResolver();
+
+        return containerResolve?.Resolve<IApplicationContext>();
     }
 }

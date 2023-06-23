@@ -31,6 +31,8 @@ using Xunit;
 using static Grpc.Core.Interceptors.Interceptor;
 using Grpc.Core;
 using Arc4u.OAuth2.Options;
+using Microsoft.AspNetCore.Http;
+using Arc4u.OAuth2.AspNetCore;
 
 namespace Arc4u.UnitTest.Security;
 
@@ -48,7 +50,7 @@ namespace Arc4u.UnitTest.Security;
 
 public class InterceptorTest : OAuth2Interceptor
 {
-    public InterceptorTest(IContainerResolve containerResolve, ILogger<OAuth2Interceptor> logger, IOptionsMonitor<SimpleKeyValueSettings> keyValuesSettingsOption, string settingsName) : base(containerResolve, logger, keyValuesSettingsOption.Get(settingsName))
+    public InterceptorTest(IScopedServiceProviderAccessor scopedServiceProviderAccessor, ILogger<OAuth2Interceptor> logger, IOptionsMonitor<SimpleKeyValueSettings> keyValuesSettingsOption, string settingsName) : base(scopedServiceProviderAccessor, logger, keyValuesSettingsOption.Get(settingsName))
     {
     }
 }
@@ -91,21 +93,30 @@ public class GRpcInterceptorTests
         // Register the different services.
         IServiceCollection services = new ServiceCollection();
 
+        services.AddSingleton<IScopedServiceProviderAccessor, ScopedServiceProviderAccessor>();
         services.AddDefaultAuthority(configuration);
         services.ConfigureOpenIdSettings(configuration, "Authentication:OpenId.Settings");
         services.AddScoped<IApplicationContext, ApplicationInstanceContext>();
         services.AddScoped<TokenRefreshInfo>();
         services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
 
+        var mockHttpContextAccessor = _fixture.Freeze<Mock<IHttpContextAccessor>>();
+        mockHttpContextAccessor.SetupGet(x => x.HttpContext).Returns(() => null);
+
         var mockTokenRefresh = _fixture.Freeze<Mock<ITokenRefreshProvider>>();
         // Register the different TokenProvider and CredentialTokenProviders.
         var container = new ComponentModelContainer(services);
         container.Register<ITokenProvider, OidcTokenProvider>(OidcTokenProvider.ProviderName);
         container.RegisterInstance<ITokenRefreshProvider>(mockTokenRefresh.Object);
+        container.RegisterInstance<IHttpContextAccessor>(mockHttpContextAccessor.Object);
         container.CreateContainer();
+
+        var scopedServiceAccessor = container.Resolve<IScopedServiceProviderAccessor>();
 
         // Create a scope to be in the context majority of the time a business code is.
         using var scopedContainer = container.CreateScope();
+
+        scopedServiceAccessor.ServiceProvider = scopedContainer.ServiceProvider;
 
         var tokenRefresh = scopedContainer.Resolve<TokenRefreshInfo>();
         tokenRefresh.RefreshToken = new TokenInfo("refresh_token", Guid.NewGuid().ToString(), DateTime.UtcNow.AddHours(1));
@@ -123,7 +134,7 @@ public class GRpcInterceptorTests
         var mock = _fixture.Freeze<Mock<BlockingUnaryCallContinuation<string, string>>>();
 
         // Act
-        var sut = new InterceptorTest(scopedContainer, scopedContainer.Resolve<ILogger<InterceptorTest>>(), setingsOptions, Constants.OpenIdOptionsName);
+        var sut = new InterceptorTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<InterceptorTest>>(), setingsOptions, Constants.OpenIdOptionsName);
 
         sut.BlockingUnaryCall<string, string>("Test", mockClientInterceptorContext, mock.Object);
 
@@ -156,18 +167,27 @@ public class GRpcInterceptorTests
         // Register the different services.
         IServiceCollection services = new ServiceCollection();
 
+        services.AddSingleton<IScopedServiceProviderAccessor, ScopedServiceProviderAccessor>();
         services.AddDefaultAuthority(configuration);
         services.ConfigureOAuth2Settings(configuration, "Authentication:OAuth2.Settings");
         services.AddScoped<IApplicationContext, ApplicationInstanceContext>();
         services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
 
+        var mockHttpContextAccessor = _fixture.Freeze<Mock<IHttpContextAccessor>>();
+        mockHttpContextAccessor.SetupGet(x => x.HttpContext).Returns(() => null);
+
         // Register the different TokenProvider and CredentialTokenProviders.
         var container = new ComponentModelContainer(services);
         container.Register<ITokenProvider, BootstrapContextTokenProvider>("Bootstrap");
+        container.RegisterInstance<IHttpContextAccessor>(mockHttpContextAccessor.Object);
         container.CreateContainer();
+
+        var scopedServiceAccessor = container.Resolve<IScopedServiceProviderAccessor>();
 
         // Create a scope to be in the context majority of the time a business code is.
         using var scopedContainer = container.CreateScope();
+
+        scopedServiceAccessor.ServiceProvider = scopedContainer.ServiceProvider;
 
         // Define a Principal with no OAuth2Bearer token here => we test the injection.
         var appContext = scopedContainer.Resolve<IApplicationContext>();
@@ -181,7 +201,7 @@ public class GRpcInterceptorTests
         var mock = _fixture.Freeze<Mock<BlockingUnaryCallContinuation<string, string>>>();
 
         // Act
-        var sut = new InterceptorTest(scopedContainer, scopedContainer.Resolve<ILogger<InterceptorTest>>(), setingsOptions, "OAuth2");
+        var sut = new InterceptorTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<InterceptorTest>>(), setingsOptions, "OAuth2");
 
         sut.BlockingUnaryCall<string, string>("Test", mockClientInterceptorContext, mock.Object);
 
@@ -218,10 +238,14 @@ public class GRpcInterceptorTests
         // Register the different services.
         IServiceCollection services = new ServiceCollection();
 
+        services.AddSingleton<IScopedServiceProviderAccessor, ScopedServiceProviderAccessor>();
         services.AddSecretAuthentication(configuration);
         services.AddScoped<IApplicationContext, ApplicationInstanceContext>();
         services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
         services.AddDefaultAuthority(configuration);
+
+        var mockHttpContextAccessor = _fixture.Freeze<Mock<IHttpContextAccessor>>();
+        mockHttpContextAccessor.SetupGet(x => x.HttpContext).Returns(() => null);
 
         // Mock the CredentialDiect (Calling the authorize endpoint based on a user and password!)
         var mockSecretTokenProvider = _fixture.Freeze<Mock<ICredentialTokenProvider>>();
@@ -239,11 +263,16 @@ public class GRpcInterceptorTests
         container.Register<ITokenProvider, CredentialSecretTokenProvider>("ClientSecret");
         container.Register<ICredentialTokenProvider, CredentialTokenCacheTokenProvider>("Credential");
         container.RegisterInstance<ITokenCache>(mockTokenCache.Object);
+        container.RegisterInstance<IHttpContextAccessor>(mockHttpContextAccessor.Object);
 
         container.CreateContainer();
 
+        var scopedServiceAccessor = container.Resolve<IScopedServiceProviderAccessor>();
+
         // Create a scope to be in the context majority of the time a business code is.
         using var scopedContainer = container.CreateScope();
+
+        scopedServiceAccessor.ServiceProvider = scopedContainer.ServiceProvider;
 
         var setingsOptions = scopedContainer.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
 
@@ -253,7 +282,7 @@ public class GRpcInterceptorTests
         var mock = _fixture.Freeze<Mock<BlockingUnaryCallContinuation<string, string>>>();
 
         // Act
-        var sut = new InterceptorTest(scopedContainer, scopedContainer.Resolve<ILogger<InterceptorTest>>(), setingsOptions, "Client1");
+        var sut = new InterceptorTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<InterceptorTest>>(), setingsOptions, "Client1");
 
         sut.BlockingUnaryCall<string, string>("Test", mockClientInterceptorContext, mock.Object);
 
@@ -283,6 +312,10 @@ public class GRpcInterceptorTests
         // Register the different services.
         IServiceCollection services = new ServiceCollection();
 
+        var mockHttpContextAccessor = _fixture.Freeze<Mock<IHttpContextAccessor>>();
+        mockHttpContextAccessor.SetupGet(x => x.HttpContext).Returns(() => null);
+
+        services.AddSingleton<IScopedServiceProviderAccessor, ScopedServiceProviderAccessor>();
         services.AddRemoteSecretsAuthentication(configuration);
         services.AddScoped<IApplicationContext, ApplicationInstanceContext>();
         services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
@@ -290,11 +323,16 @@ public class GRpcInterceptorTests
         // Register the different TokenProvider and CredentialTokenProviders.
         var container = new ComponentModelContainer(services);
         container.Register<ITokenProvider, RemoteClientSecretTokenProvider>(RemoteClientSecretTokenProvider.ProviderName);
+        container.RegisterInstance<IHttpContextAccessor>(mockHttpContextAccessor.Object);
 
         container.CreateContainer();
 
+        var scopedServiceAccessor = container.Resolve<IScopedServiceProviderAccessor>();
+
         // Create a scope to be in the context majority of the time a business code is.
         using var scopedContainer = container.CreateScope();
+
+        scopedServiceAccessor.ServiceProvider = scopedContainer.ServiceProvider;
 
         var setingsOptions = scopedContainer.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
 
@@ -304,7 +342,7 @@ public class GRpcInterceptorTests
         var mock = _fixture.Freeze<Mock<BlockingUnaryCallContinuation<string, string>>>();
 
         // Act
-        var sut = new InterceptorTest(scopedContainer, scopedContainer.Resolve<ILogger<InterceptorTest>>(), setingsOptions, "Remote1");
+        var sut = new InterceptorTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<InterceptorTest>>(), setingsOptions, "Remote1");
 
         sut.BlockingUnaryCall<string, string>("Test", mockClientInterceptorContext, mock.Object);
 
@@ -334,6 +372,10 @@ public class GRpcInterceptorTests
         // Register the different services.
         IServiceCollection services = new ServiceCollection();
 
+        var mockHttpContextAccessor = _fixture.Freeze<Mock<IHttpContextAccessor>>();
+        mockHttpContextAccessor.SetupGet(x => x.HttpContext).Returns(() => null);
+
+        services.AddSingleton<IScopedServiceProviderAccessor, ScopedServiceProviderAccessor>();
         services.AddRemoteSecretsAuthentication(configuration);
         services.AddScoped<IApplicationContext, ApplicationInstanceContext>();
         services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
@@ -341,11 +383,16 @@ public class GRpcInterceptorTests
         // Register the different TokenProvider and CredentialTokenProviders.
         var container = new ComponentModelContainer(services);
         container.Register<ITokenProvider, RemoteClientSecretTokenProvider>(RemoteClientSecretTokenProvider.ProviderName);
+        container.RegisterInstance<IHttpContextAccessor>(mockHttpContextAccessor.Object);
 
         container.CreateContainer();
 
+        var scopedServiceAccessor = container.Resolve<IScopedServiceProviderAccessor>();
+
         // Create a scope to be in the context majority of the time a business code is.
         using var scopedContainer = container.CreateScope();
+
+        scopedServiceAccessor.ServiceProvider = scopedContainer.ServiceProvider;
 
         var setingsOptions = scopedContainer.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
 
@@ -355,7 +402,7 @@ public class GRpcInterceptorTests
         var mock = _fixture.Freeze<Mock<BlockingUnaryCallContinuation<string, string>>>();
 
         // Act
-        var sut = new InterceptorTest(scopedContainer, scopedContainer.Resolve<ILogger<InterceptorTest>>(), setingsOptions, "Remote1");
+        var sut = new InterceptorTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<InterceptorTest>>(), setingsOptions, "Remote1");
 
         sut.BlockingUnaryCall<string, string>("Test", mockClientInterceptorContext, mock.Object);
 
@@ -391,6 +438,10 @@ public class GRpcInterceptorTests
         // Register the different services.
         IServiceCollection services = new ServiceCollection();
 
+        var mockHttpContextAccessor = _fixture.Freeze<Mock<IHttpContextAccessor>>();
+        mockHttpContextAccessor.SetupGet(x => x.HttpContext).Returns(() => null);
+
+        services.AddSingleton<IScopedServiceProviderAccessor, ScopedServiceProviderAccessor>();
         services.AddDefaultAuthority(configuration);
         services.AddOnBehalfOf(configuration);
         services.AddScoped<IApplicationContext, ApplicationInstanceContext>();
@@ -414,10 +465,16 @@ public class GRpcInterceptorTests
         // Register the different TokenProvider and CredentialTokenProviders.
         var container = new ComponentModelContainer(services);
         container.Register<ITokenProvider, AzureADOboTokenProvider>(AzureADOboTokenProvider.ProviderName);
+        container.RegisterInstance<IHttpContextAccessor>(mockHttpContextAccessor.Object);
+
         container.CreateContainer();
+
+        var scopedServiceAccessor = container.Resolve<IScopedServiceProviderAccessor>();
 
         // Create a scope to be in the context majority of the time a business code is.
         using var scopedContainer = container.CreateScope();
+
+        scopedServiceAccessor.ServiceProvider = scopedContainer.ServiceProvider;
 
         // Define a Principal with no OAuth2Bearer token here => we test the injection.
         var appContext = scopedContainer.Resolve<IApplicationContext>();
@@ -431,7 +488,7 @@ public class GRpcInterceptorTests
         var mock = _fixture.Freeze<Mock<BlockingUnaryCallContinuation<string, string>>>();
 
         // Act
-        var sut = new InterceptorTest(scopedContainer, scopedContainer.Resolve<ILogger<InterceptorTest>>(), setingsOptions, "Obo");
+        var sut = new InterceptorTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<InterceptorTest>>(), setingsOptions, "Obo");
 
         sut.BlockingUnaryCall<string, string>("Test", mockClientInterceptorContext, mock.Object);
 

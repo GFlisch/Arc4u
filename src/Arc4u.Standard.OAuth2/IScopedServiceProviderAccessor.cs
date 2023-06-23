@@ -1,6 +1,6 @@
 using System;
 
-namespace Arc4u.OAuth2.AspNetCore;
+namespace Arc4u.OAuth2;
 
 /// <summary>
 /// </summary>

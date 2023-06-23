@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Arc4u.Dependency;
 using Arc4u.Diagnostics;
-using Arc4u.OAuth2.AspNetCore;
 using Arc4u.Security.Principal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -38,7 +37,6 @@ public class JwtHttpHandler : DelegatingHandler
     }
 
     private readonly IKeyValueSettings? _settings;
-    private readonly IApplicationContext? _applicationContext;
     private readonly IScopedServiceProviderAccessor _serviceProviderAccessor;
     private readonly ILogger<JwtHttpHandler> _logger;
 
