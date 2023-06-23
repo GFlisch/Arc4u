@@ -74,7 +74,7 @@ public static class BasicAuthenticationMiddlewareExtension
 
         if (!string.IsNullOrEmpty(basicOptions.DefaultUpn))
         {
-            if (!Regex.IsMatch(basicOptions.DefaultUpn, @"^@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))"))
+            if (!Regex.IsMatch(basicOptions.DefaultUpn, @"^@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))", RegexOptions.None, TimeSpan.FromMilliseconds(100)))
             {
                 throw new ConfigurationException("Bad upn format, we expect a @ and one point.");
             }
