@@ -683,6 +683,7 @@ public class JwtHttpHandlerTests
         services.AddSingleton<IScopedServiceProviderAccessor, ScopedServiceProviderAccessor>();
         services.AddDefaultAuthority(configuration);
         services.ConfigureOAuth2Settings(configuration, "Authentication:OAuth2.Settings");
+        services.ConfigureOpenIdSettings(configuration, "Authentication:OpenId.Settings");
         services.AddScoped<IApplicationContext, ApplicationInstanceContext>();
         services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
         services.AddScoped<TokenRefreshInfo>();
@@ -694,7 +695,8 @@ public class JwtHttpHandlerTests
 
         // Register the different TokenProvider and CredentialTokenProviders.
         var container = new ComponentModelContainer(services);
-        container.Register<ITokenProvider, BootstrapContextTokenProvider>("Bootstrap");
+        container.Register<ITokenProvider, OidcTokenProvider>(OidcTokenProvider.ProviderName);
+        container.Register<ITokenProvider, BootstrapContextTokenProvider>(BootstrapContextTokenProvider.ProviderName);
         container.RegisterInstance<IHttpContextAccessor>(mockHttpContextAccessor.Object);
         container.RegisterInstance<ITokenRefreshProvider>(mockTokenRefresh.Object);
         container.CreateContainer();
