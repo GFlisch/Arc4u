@@ -1,4 +1,4 @@
-﻿using Arc4u.Dependency.Attribute;
+using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Microsoft.Extensions.Logging;
 using System;
@@ -23,7 +23,7 @@ namespace Arc4u.gRPC.ChannelCertificate
 
         readonly IRootCertificateExtractor _certificateExtractor;
         readonly ILogger<RootPemCertificates> _logger;
-        static object _lock = new object();
+        static readonly object _lock = new object();
 
         public IReadOnlyDictionary<string, string> Pems { get => new ReadOnlyDictionary<string, string>(PemsCollections); }
 

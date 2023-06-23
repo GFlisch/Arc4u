@@ -1,15 +1,14 @@
-﻿using Serilog;
+using Serilog;
 using Serilog.Core;
 using System;
-using ILogger = Serilog.ILogger;
 
 namespace Arc4u.Diagnostics.Serilog
 {
     public abstract class SerilogWriter : ILogWriter
     {
         private bool _isInitialized;
-        private bool _disposed = false;
-        private static object _locker = new object();
+        private bool _disposed;
+        private static readonly object _locker = new object();
         private Logger _logger;
 
         public abstract void Configure(LoggerConfiguration configurator);
@@ -20,7 +19,10 @@ namespace Arc4u.Diagnostics.Serilog
         {
             lock (_locker)
             {
-                if (_isInitialized) return;
+                if (_isInitialized)
+                {
+                    return;
+                }
 
                 var configurator = new LoggerConfiguration()
                                              .MinimumLevel.Verbose()
@@ -45,11 +47,16 @@ namespace Arc4u.Diagnostics.Serilog
         protected virtual void Dispose(bool disposing)
         {
             if (!_disposed)
-                if (disposing)
+            {
+                if (!disposing)
                 {
-                    ((IDisposable)_logger)?.Dispose();
-                    _disposed = true;
+                    return;
                 }
+
+                ((IDisposable)_logger)?.Dispose();
+
+                _disposed = true;
+            }
         }
     }
 }
