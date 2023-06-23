@@ -24,7 +24,7 @@ using Arc4u.Security.Principal;
 using AutoFixture;
 using AutoFixture.AutoMoq;
 using FluentAssertions;
-using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
+using Google.Protobuf.WellKnownTypes;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -55,6 +55,7 @@ public class JwtHandlerToTest : JwtHttpHandler
 /// 6) Have an on behalf of scenario based on the scenario 1 or 2.
 /// 7) Chain 2 Handlers: OAuth2Bearer + Cookies and the access token returned is the OAuth2 one
 /// 8) Chain 2 Handlers: OAuth2Bearer + Cookies and the access token returned is the Cookies one
+/// 9) Chain 3 Handlers: Oauth2Bearer + Cookies + Inject but inject is not occuring because a OAuth2Bearer is already available.
 /// </summary>
 public class JwtHttpHandlerTests
 {
@@ -591,6 +592,7 @@ public class JwtHttpHandlerTests
         services.AddSingleton<IScopedServiceProviderAccessor, ScopedServiceProviderAccessor>();
         services.AddDefaultAuthority(configuration);
         services.ConfigureOAuth2Settings(configuration, "Authentication:OAuth2.Settings");
+        services.ConfigureOpenIdSettings(configuration, "Authentication:OpenId.Settings");
         services.AddScoped<IApplicationContext, ApplicationInstanceContext>();
         services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
         services.AddScoped<TokenRefreshInfo>();
@@ -600,7 +602,8 @@ public class JwtHttpHandlerTests
 
         // Register the different TokenProvider and CredentialTokenProviders.
         var container = new ComponentModelContainer(services);
-        container.Register<ITokenProvider, BootstrapContextTokenProvider>("Bootstrap");
+        container.Register<ITokenProvider, OidcTokenProvider>(OidcTokenProvider.ProviderName);
+        container.Register<ITokenProvider, BootstrapContextTokenProvider>(BootstrapContextTokenProvider.ProviderName);
         container.RegisterInstance<IHttpContextAccessor>(mockHttpContextAccessor.Object);
         container.CreateContainer();
 
@@ -744,5 +747,109 @@ public class JwtHttpHandlerTests
         // The request must have a Bearer token injected in the authohirzation header.
         httpRequestMessage.Headers.Authorization!.Scheme.Should().Be("Bearer");
         httpRequestMessage.Headers.Authorization!.Parameter.Should().Be(accessTokenCookies);
+    }
+
+    [Fact]
+    // Scenario 9
+    public async Task Jwt_With_OAuth2_And_OIDC_And_Inject_With_OAuth2_As_The_Winner_Should()
+    {
+        // arrange
+        // arrange the configuration to setup the Client secret.
+        var options = _fixture.Create<RemoteSecretSettingsOptions>();
+
+        var config = new ConfigurationBuilder()
+                     .AddInMemoryCollection(
+                         new Dictionary<string, string?>
+                         {
+                             ["Authentication:RemoteSecrets:Remote1:ClientSecret"] = options.ClientSecret,
+                             ["Authentication:RemoteSecrets:Remote1:HeaderKey"] = "Basic",
+                             ["Authentication:OAuth2.Settings:Audiences"] = "urn://audience.com",
+                             ["Authentication:OAuth2.Settings:Scopes"] = "user.read user.write",
+                             ["Authentication:OpenId.Settings:ClientId"] = "aa17786b-e33c-41ec-81cc-6063610aedeb",
+                             ["Authentication:OpenId.Settings:ClientSecret"] = "This is a secret",
+                             ["Authentication:OpenId.Settings:Audiences"] = "urn://audience.com",
+                             ["Authentication:OpenId.Settings:Scopes"] = "user.read user.write",
+                             ["Authentication:DefaultAuthority:Url"] = "https://login.microsoft.com"
+                         }).Build();
+
+        // Define an access token that will be used as the return of the call to the CredentialDirect token credential provider.
+        var jwtOAuth2 = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
+        var accessTokenOAuth2 = new JwtSecurityTokenHandler().WriteToken(jwtOAuth2);
+
+        var jwtCookies = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
+        var accessTokenCookies = new JwtSecurityTokenHandler().WriteToken(jwtCookies);
+
+        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+
+        // Register the different services.
+        IServiceCollection services = new ServiceCollection();
+
+        services.AddSingleton<IScopedServiceProviderAccessor, ScopedServiceProviderAccessor>();
+        services.AddDefaultAuthority(configuration);
+        services.AddRemoteSecretsAuthentication(configuration);
+        services.ConfigureOAuth2Settings(configuration, "Authentication:OAuth2.Settings");
+        services.ConfigureOpenIdSettings(configuration, "Authentication:OpenId.Settings");
+        services.AddScoped<IApplicationContext, ApplicationInstanceContext>();
+        services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
+        services.AddScoped<TokenRefreshInfo>();
+
+        var mockHttpContextAccessor = _fixture.Freeze<Mock<IHttpContextAccessor>>();
+        mockHttpContextAccessor.SetupGet(x => x.HttpContext).Returns(() => null);
+
+        // Register the different TokenProvider and CredentialTokenProviders.
+        var container = new ComponentModelContainer(services);
+        container.Register<ITokenProvider, OidcTokenProvider>(OidcTokenProvider.ProviderName);
+        container.Register<ITokenProvider, BootstrapContextTokenProvider>(BootstrapContextTokenProvider.ProviderName);
+        container.RegisterInstance<IHttpContextAccessor>(mockHttpContextAccessor.Object);
+        container.Register<ITokenProvider, RemoteClientSecretTokenProvider>(RemoteClientSecretTokenProvider.ProviderName);
+
+        container.CreateContainer();
+
+        // Create a scope to be in the context majority of the time a business code is.
+        using var scopedContainer = container.CreateScope();
+        var scopedServiceAccessor = container.Resolve<IScopedServiceProviderAccessor>();
+        scopedServiceAccessor.ServiceProvider = scopedContainer.ServiceProvider;
+
+        var tokenRefresh = scopedContainer.Resolve<TokenRefreshInfo>();
+        tokenRefresh.RefreshToken = new TokenInfo("refresh_token", Guid.NewGuid().ToString(), DateTime.UtcNow.AddHours(1));
+        tokenRefresh.AccessToken = new TokenInfo("access_token", accessTokenCookies);
+
+        // Define a Principal with no OAuth2Bearer token here => we test the injection.
+        var appContext = scopedContainer.Resolve<IApplicationContext>();
+        appContext.SetPrincipal(new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessTokenOAuth2 }, "S-1-0-0"));
+
+        var setingsOptions = scopedContainer.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
+
+        // Define the end handler that will simulate the call to the endpoint.
+        var innerHandler = new Mock<HttpMessageHandler>();
+        innerHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK))
+            .Verifiable();
+
+        // Act
+        var sut = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>(), setingsOptions, Constants.OAuth2OptionsName)
+        {
+            InnerHandler = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>(), setingsOptions, Constants.OpenIdOptionsName)
+            {
+                InnerHandler = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>(), setingsOptions, "Remote1")
+                {
+                    InnerHandler = innerHandler.Object
+                }
+            }
+        };
+
+        var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://example.com/");
+        var invoker = new HttpMessageInvoker(sut);
+        var response = await invoker.SendAsync(httpRequestMessage, new CancellationToken()).ConfigureAwait(false);
+
+        // Assert
+        response.Should().NotBeNull();
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        httpRequestMessage.Headers.Authorization.Should().NotBeNull();
+        // The request must have a Bearer token injected in the authohirzation header.
+        httpRequestMessage.Headers.Authorization!.Scheme.Should().Be("Bearer");
+        httpRequestMessage.Headers.Authorization!.Parameter.Should().Be(accessTokenOAuth2);
     }
 }
