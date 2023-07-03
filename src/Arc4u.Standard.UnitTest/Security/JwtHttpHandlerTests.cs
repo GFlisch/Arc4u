@@ -24,7 +24,6 @@ using Arc4u.Security.Principal;
 using AutoFixture;
 using AutoFixture.AutoMoq;
 using FluentAssertions;
-using Google.Protobuf.WellKnownTypes;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
