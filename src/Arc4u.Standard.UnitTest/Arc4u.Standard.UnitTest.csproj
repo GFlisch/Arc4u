@@ -55,6 +55,7 @@
 				<ProjectReference Include="..\Arc4u.Standard.Dependency\Arc4u.Standard.Dependency.csproj" />
 				<ProjectReference Include="..\Arc4u.Standard.Diagnostics.Serilog\Arc4u.Standard.Diagnostics.Serilog.csproj" />
 				<ProjectReference Include="..\Arc4u.Standard.EfCore\Arc4u.Standard.EfCore.csproj" />
+				<ProjectReference Include="..\Arc4u.Standard.gRPC\Arc4u.Standard.gRPC.csproj" />
 				<ProjectReference Include="..\Arc4u.Standard.OAuth2.AspNetCore.Adal\Arc4u.Standard.OAuth2.AspNetCore.Adal.csproj" />
 				<ProjectReference Include="..\Arc4u.Standard.OAuth2.AspNetCore.Authentication\Arc4u.Standard.OAuth2.AspNetCore.Authentication.csproj" />
 				<ProjectReference Include="..\Arc4u.Standard.OAuth2.Blazor\Arc4u.Standard.OAuth2.Blazor.csproj" />

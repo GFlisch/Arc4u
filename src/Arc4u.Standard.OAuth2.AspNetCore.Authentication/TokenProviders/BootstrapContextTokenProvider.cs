@@ -12,7 +12,7 @@ namespace Arc4u.OAuth2.TokenProviders;
 [Export(BootstrapContextTokenProvider.ProviderName, typeof(ITokenProvider))]
 public class BootstrapContextTokenProvider : ITokenProvider
 {
-    const string ProviderName = "Bootstrap";
+    public const string ProviderName = "Bootstrap";
 
     public BootstrapContextTokenProvider(IApplicationContext applicationContext)
     {

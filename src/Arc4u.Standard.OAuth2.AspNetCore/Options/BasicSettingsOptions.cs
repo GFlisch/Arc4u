@@ -5,7 +5,7 @@ public class BasicSettingsOptions
 {
     public string ProviderId { get; set; } = "Credential";
 
-    public string AuthenticationType { get; set; } = "Password";
+    public string AuthenticationType { get; set; } = Constants.InjectAuthenticationType;
 
     public AuthorityOptions? Authority { get; set; }
 

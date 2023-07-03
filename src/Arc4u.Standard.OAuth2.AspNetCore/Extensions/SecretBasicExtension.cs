@@ -31,14 +31,14 @@ public static class SecretBasicExtension
 
         if (section is null || !section.Exists())
         {
-            throw new ConfigurationException($"No section in settings file with name {sectionName}.");
+            return;
         }
 
         var basicSecrets = section.Get<Dictionary<string, SecretBasicSettingsOptions>>();
 
         if (basicSecrets is null || !basicSecrets.Any())
         {
-            throw new ConfigurationException($"No Basic Secrets are defined in section in settings file with name {sectionName}.");
+            return;
         }
 
         foreach (var secret in basicSecrets)
@@ -106,6 +106,7 @@ public static class SecretBasicExtension
             throw new ConfigurationException(configErrors);
         }
 
+        var authorityKey = string.Empty;
         if (options.Authority is not null)
         {
             services.AddAuthority(authOptions =>
@@ -113,6 +114,7 @@ public static class SecretBasicExtension
                 authOptions.Url = options.Authority.Url;
                 authOptions.TokenEndpoint = options.Authority.TokenEndpoint;
             }, optionKey);
+            authorityKey = optionKey;
         }
 
         // We map this to a IKeyValuesSettings dictionary.
@@ -124,14 +126,10 @@ public static class SecretBasicExtension
             settings.Add(TokenKeys.AuthenticationTypeKey, options.AuthenticationType);
             settings.Add(TokenKeys.ClientIdKey, options.ClientId);
             settings.Add(TokenKeys.Scope, options.Scope);
-            if (options.Authority is not null)
-            {
-                // info to retrieve the authority!
-                settings.Add(TokenKeys.AuthorityKey, optionKey);
-            }
-            settings.Add("User", options.User);
-            settings.Add("Password", options.Password);
-            settings.Add("Credential", options.Credential);
+            settings.AddifNotNullOrEmpty("User", options.User);
+            settings.AddifNotNullOrEmpty("Password", options.Password);
+            settings.AddifNotNullOrEmpty("Credential", options.Credential);
+            settings.AddifNotNullOrEmpty(TokenKeys.AuthorityKey, authorityKey);
             settings.Add("BasicProviderId", options.BasicProviderId);
         }
 

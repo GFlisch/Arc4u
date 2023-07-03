@@ -23,4 +23,8 @@ public class JwtAuthenticationSectionOptions
     public string ClaimsFillerSectionPath { get; set; } = "Authentication:ClaimsMiddleWare:ClaimsFiller";
 
     public string TokenCacheSectionPath { get; set; } = "Authentication:TokenCache";
+
+    public string ClientSecretSectionPath { get; set; } = "Authentication:ClientSecrets";
+
+    public string RemoteSecretSectionPath { get; set; } = "Authentication:RemoteSecrets";
 }

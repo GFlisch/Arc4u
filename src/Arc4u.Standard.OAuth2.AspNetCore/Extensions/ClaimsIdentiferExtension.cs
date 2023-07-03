@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
+using Arc4u.IdentityModel.Claims;
 using Arc4u.OAuth2.Configuration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,7 +34,7 @@ public static class ClaimsIdentiferExtension
 
         // Standard values used to identify a user.
         var values = new ClaimsIdentifierOption();
-        values.AddRange(new[] { "http://schemas.microsoft.com/identity/claims/objectidentifier", "oid" });
+        values.AddRange(new[] { ClaimTypes.ObjectIdentifier, ClaimTypes.OID});
 
         if (section.Exists())
         {

@@ -27,10 +27,10 @@ public class AzureADOboTokenProvider : ITokenProvider
                                    ICacheHelper cacheHelper,
                                    IActivitySourceFactory activitySourceFactory,
                                    IApplicationContext applicationContext,
-                                   IOptionsMonitor<AuthorityOptions> onBehalfOfOptions,
+                                   IOptionsMonitor<AuthorityOptions> authorities,
                                    ILogger<AzureADOboTokenProvider> logger)
     {
-        _defaultAuthority = onBehalfOfOptions.Get("Default");
+        _defaultAuthority = authorities.Get("Default");
         _logger = logger;
         _cacheHelper = cacheHelper;
         _tokenRefreshInfo = tokenRefreshInfo;
@@ -38,7 +38,7 @@ public class AzureADOboTokenProvider : ITokenProvider
         _applicationContext = applicationContext;
     }
 
-    const string ProviderName = "Obo";
+    public const string ProviderName = "Obo";
 
     private readonly ILogger<AzureADOboTokenProvider> _logger;
     private readonly ICacheHelper _cacheHelper;
@@ -47,7 +47,7 @@ public class AzureADOboTokenProvider : ITokenProvider
     private readonly AuthorityOptions _defaultAuthority;
     private readonly IApplicationContext _applicationContext;
 
-    public async Task<TokenInfo> GetTokenAsync(IKeyValueSettings settings, object platformParameters)
+    public async Task<TokenInfo> GetTokenAsync(IKeyValueSettings settings, object _)
     {
         ArgumentNullException.ThrowIfNull(settings);
 

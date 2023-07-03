@@ -341,7 +341,11 @@ public static partial class AuthenticationExtensions
         });
 
         var authenticationBuilder =
-        services.AddAuthentication(auth => auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme)
+        services.AddAuthentication(auth =>
+        {
+            auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            auth.DefaultForbidScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
                 .AddJwtBearer(option =>
                 {
                     SecurityKey? securityKey = options.CertSecurityKey is not null ? new X509SecurityKey(options.CertSecurityKey) : null;
@@ -416,9 +420,10 @@ public static partial class AuthenticationExtensions
 
         services.AddTokenCache(configuration, settings.TokenCacheSectionPath);
         services.AddClaimsFiller(configuration, settings.ClaimsFillerSectionPath);
+        services.AddSecretAuthentication(configuration, settings.ClientSecretSectionPath);
+        services.AddRemoteSecretsAuthentication(configuration, settings.RemoteSecretSectionPath);
 
         return services.AddJwtAuthentication(configuration, JwtAuthenticationFiller);
-
     }
 
     static string[] SplitString(string value) => value.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToArray();

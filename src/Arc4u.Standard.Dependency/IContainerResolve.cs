@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace Arc4u.Dependency
@@ -24,6 +24,8 @@ namespace Arc4u.Dependency
         IEnumerable<object> ResolveAll(Type type, string name);
 
         IContainerResolve CreateScope();
+
+        IServiceProvider ServiceProvider { get; }
 
         bool CanCreateScope { get; }
     }

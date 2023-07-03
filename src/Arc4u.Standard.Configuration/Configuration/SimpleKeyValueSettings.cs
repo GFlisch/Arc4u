@@ -35,6 +35,13 @@ public class SimpleKeyValueSettings : IKeyValueSettings, IEquatable<SimpleKeyVal
         _keyValues.Add(key, value);
     }
 
+    public void AddifNotNullOrEmpty(string key, string? value)
+    {
+        if (!string.IsNullOrWhiteSpace(value))
+        {
+            _keyValues.Add(key, value);
+        }
+    }
     private readonly Dictionary<string, string> _keyValues;
 
     public IReadOnlyDictionary<string, string> Values => _keyValues;

@@ -1,23 +1,20 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
-using Arc4u.Configuration;
 using Arc4u.Dependency;
 using Arc4u.Diagnostics;
 using Arc4u.Security.Principal;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace Arc4u.OAuth2.Token;
 
 public class JwtHttpHandler : DelegatingHandler
 {
-    #region Backend usage
 
     // on the backend, we have to retrieve the user context based on his scoped context when we do a request to another
     // service if this was done in the context of a user (via rest api or gRPC service).
@@ -30,67 +27,26 @@ public class JwtHttpHandler : DelegatingHandler
     /// </summary>
     /// <param name="container">The scoped container</param>
     /// <param name="resolvingName">The name used to resolve the settings</param>
-    public JwtHttpHandler(IContainerResolve container, ILogger<JwtHttpHandler> logger, IOptionsMonitor<SimpleKeyValueSettings> keyValuesSettingsOption, string resolvingName)
+    public JwtHttpHandler(IScopedServiceProviderAccessor serviceProviderAccessor, ILogger<JwtHttpHandler> logger, [DisallowNull] IKeyValueSettings keyValuesSettings)
     {
-        _container = container ?? throw new ArgumentNullException(nameof(container));
-
-        ArgumentNullException.ThrowIfNull(keyValuesSettingsOption);
+        _serviceProviderAccessor = serviceProviderAccessor;
 
         _logger = logger;
 
-        _settings = keyValuesSettingsOption.Get(resolvingName);
-
-        container.TryResolve(out _applicationContext);
-        _parameters = _applicationContext;
+        _settings = keyValuesSettings ?? throw new ArgumentNullException(nameof(keyValuesSettings));
     }
-
-    public JwtHttpHandler(IHttpContextAccessor accessor, ILogger<JwtHttpHandler> logger, IOptionsMonitor<SimpleKeyValueSettings> keyValuesSettingsOption, string? resolvingName)
-    {
-        _accessor = accessor ?? throw new ArgumentNullException(nameof(accessor));
-
-        ArgumentNullException.ThrowIfNull(keyValuesSettingsOption);
-
-        _logger = logger;
-
-        _settings = keyValuesSettingsOption.Get(resolvingName);
-
-        _parameters = null; // will be assigned in the context of the user (scoped).
-        _container = null;
-    }
-
-    #endregion
 
     private readonly IKeyValueSettings? _settings;
-    private readonly object? _parameters;
-    private readonly IContainerResolve? _container;
-    private readonly IApplicationContext? _applicationContext;
-    private readonly IHttpContextAccessor? _accessor;
+    private readonly IScopedServiceProviderAccessor _serviceProviderAccessor;
     private readonly ILogger<JwtHttpHandler> _logger;
 
-    private IContainerResolve? GetResolver() => _accessor is null ? _container : _accessor.HttpContext?.RequestServices.GetService<IContainerResolve>();
+    private IContainerResolve? GetResolver() => _serviceProviderAccessor.ServiceProvider.GetService<IContainerResolve>();
 
-    private IApplicationContext? GetCallContext(out object? parameters, out IContainerResolve? containerResolve)
+    private IApplicationContext? GetCallContext(out IContainerResolve? containerResolve)
     {
         containerResolve = GetResolver();
 
-        if (containerResolve is null)
-        {
-            parameters = null;
-            return null;
-        }
-
-        // first priority to the scope one!
-        if (_accessor?.HttpContext?.RequestServices is not null)
-        {
-            var ctx = containerResolve.Resolve<IApplicationContext>();
-            parameters = ctx;
-
-            return ctx;
-        }
-
-        parameters = _parameters;
-
-        return _applicationContext;
+        return containerResolve?.Resolve<IApplicationContext>();
     }
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
@@ -99,7 +55,7 @@ public class JwtHttpHandler : DelegatingHandler
         {
             _logger.Technical().System($"{GetType().Name} delegate handler is called.").Log();
 
-            var applicationContext = GetCallContext(out var parameters, out var containerResolve);
+            var applicationContext = GetCallContext(out var containerResolve);
 
             if (_settings is null || applicationContext is null || containerResolve is null)
             {
@@ -141,7 +97,7 @@ public class JwtHttpHandler : DelegatingHandler
             ITokenProvider provider = containerResolve.Resolve<ITokenProvider>(_settings.Values[TokenKeys.ProviderIdKey]);
 
             _logger.Technical().System("Requesting an authentication token.").Log();
-            var tokenInfo = await provider.GetTokenAsync(_settings, parameters).ConfigureAwait(false);
+            var tokenInfo = await provider.GetTokenAsync(_settings, null).ConfigureAwait(false);
 
             // check if the token is still valid.
             // This is due to gRPC. It is possible that a gRPC streaming call is not closed and the token in the HttpContext is expired.

@@ -1,4 +1,4 @@
-﻿using Arc4u.MongoDB.Exceptions;
+using Arc4u.MongoDB.Exceptions;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using System;
@@ -15,20 +15,24 @@ namespace Arc4u.MongoDB
 
         IMongoDatabase _database;
         IMongoClient _client;
-        private static object _locker = new object();
+        private static readonly object _locker = new object();
         readonly IOptionsMonitor<MongoClientSettings> _clientSettings;
         readonly TContext _mongoContext;
 
         public IMongoClient CreateClient()
         {
             if (null != _client)
+            {
                 return _client;
+            }
 
             // one creation at a time => block here only. Few calls will arrive here.
             lock (_locker)
             {
                 if (null != _client)
+                {
                     return _client;
+                }
 
                 var settings = _clientSettings.Get(_mongoContext.DatabaseName.ToLowerInvariant());
                 if (null != settings)
@@ -37,7 +41,6 @@ namespace Arc4u.MongoDB
                     return _client;
 
                 }
-
                 throw new NullReferenceException($"No mongo client settings defined for key {_mongoContext.DatabaseName}");
             }
 

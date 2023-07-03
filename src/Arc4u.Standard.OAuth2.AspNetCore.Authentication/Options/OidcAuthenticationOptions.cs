@@ -46,7 +46,7 @@ public class OidcAuthenticationOptions
 
     public Type OpenIdConnectEventsType { get; set; } = typeof(StandardOpenIdConnectEvents);
 
-    public TimeSpan ForceRefreshTimeoutTimeSpan { get; set; } = TimeSpan.FromMinutes(60);
+    public TimeSpan ForceRefreshTimeoutTimeSpan { get; set; } = TimeSpan.FromMinutes(5);
 
     public X509Certificate2? CertSecurityKey { get; set; }
 
