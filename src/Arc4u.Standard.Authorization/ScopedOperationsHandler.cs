@@ -14,7 +14,8 @@ public class ScopedOperationsHandler : AuthorizationHandler<ScopedOperationsRequ
 
     protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, ScopedOperationsRequirement requirement)
     {
-        if (_applicationContext is null || _applicationContext.Principal is null)
+        // on Blazor WASM, IApplicationContext.Principal can be null
+        if (_applicationContext?.Principal is null)
         {
             context.Fail();
             return Task.CompletedTask;
