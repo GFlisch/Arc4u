@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using System.Security.Claims;
-using System.Threading;
 using Arc4u.Dependency;
 using Arc4u.Diagnostics;
 using Arc4u.OAuth2;
@@ -11,7 +10,6 @@ using Grpc.Core;
 using Grpc.Core.Interceptors;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using static Google.Rpc.Context.AttributeContext.Types;
 
 namespace Arc4u.gRPC.Interceptors;
 
@@ -29,11 +27,29 @@ public class OAuth2Interceptor : Interceptor
         _settings = keyValuesSettings ?? throw new ArgumentNullException(nameof(keyValuesSettings));
     }
 
+    /// <summary>
+    /// This is the constructor to use in a Client scenario like a Wpf or a MAUI or a console.
+    /// The <see cref="IApplicationContext"/> and the <see cref="ITokenProvider"/> are not scoped to an httpRequest or a job, etc...
+    /// </summary>
+    /// <param name="containerResolve"><see cref="IContainerResolve"/></param>
+    /// <param name="logger"><see cref="ILogger"/></param>
+    /// <param name="keyValuesSettings">Property bag for the token povider.</param>
+    /// <exception cref="ArgumentNullException"></exception>
+    public OAuth2Interceptor(IContainerResolve containerResolve, ILogger<OAuth2Interceptor> logger, IKeyValueSettings keyValuesSettings)
+    {
+        _containerResolve = containerResolve ?? throw new ArgumentNullException(nameof(containerResolve));
+
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
+        _settings = keyValuesSettings ?? throw new ArgumentNullException(nameof(keyValuesSettings));
+    }
+
     private readonly IKeyValueSettings _settings;
     private readonly ILogger<OAuth2Interceptor> _logger;
-    private readonly IScopedServiceProviderAccessor _serviceProviderAccessor;
+    private readonly IScopedServiceProviderAccessor? _serviceProviderAccessor = null;
+    private readonly IContainerResolve? _containerResolve = null;
 
-    private IContainerResolve? GetResolver() => _serviceProviderAccessor.ServiceProvider.GetService<IContainerResolve>();
+    private IContainerResolve? GetResolver() => _containerResolve ?? _serviceProviderAccessor?.ServiceProvider?.GetService<IContainerResolve>();
 
 
     public override AsyncUnaryCall<TResponse> AsyncUnaryCall<TRequest, TResponse>(TRequest request, ClientInterceptorContext<TRequest, TResponse> context, AsyncUnaryCallContinuation<TRequest, TResponse> continuation)

@@ -55,6 +55,13 @@ public class InterceptorTest : OAuth2Interceptor
     }
 }
 
+public class InterceptorClientTest : OAuth2Interceptor
+{
+    public InterceptorClientTest(IContainerResolve containerResolve, ILogger<OAuth2Interceptor> logger, IOptionsMonitor<SimpleKeyValueSettings> keyValuesSettingsOption, string settingsName) : base(containerResolve, logger, keyValuesSettingsOption.Get(settingsName))
+    {
+    }
+}
+
 public class GRpcInterceptorTests
 {
     public GRpcInterceptorTests()
@@ -489,6 +496,62 @@ public class GRpcInterceptorTests
 
         // Act
         var sut = new InterceptorTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<InterceptorTest>>(), setingsOptions, "Obo");
+
+        sut.BlockingUnaryCall<string, string>("Test", mockClientInterceptorContext, mock.Object);
+
+        // Assert
+        mockClientInterceptorContext.Options.Headers.Should().NotBeNull();
+        mockClientInterceptorContext.Options.Headers!.GetValue("authorization").Should().Be($"Bearer {accessToken}");
+    }
+
+    [Fact]
+    // Scenario 7
+    public void Jwt_With_Principal_With_OAuth2_Token_For_Client_Scenario_Should()
+    {
+        // arrange
+        // arrange the configuration to setup the Client secret.
+        var config = new ConfigurationBuilder()
+                     .AddInMemoryCollection(
+                         new Dictionary<string, string?>
+                         {
+                             ["Authentication:OAuth2.Settings:Audiences"] = "urn://audience.com",
+                             ["Authentication:OAuth2.Settings:Scopes"] = "user.read user.write",
+                             ["Authentication:DefaultAuthority:Url"] = "https://login.microsoft.com"
+                         }).Build();
+
+        // Define an access token that will be used as the return of the call to the CredentialDirect token credential provider.
+        var jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
+        var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
+
+        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+
+        // Register the different services.
+        IServiceCollection services = new ServiceCollection();
+
+        services.AddSingleton<IScopedServiceProviderAccessor, ScopedServiceProviderAccessor>();
+        services.AddDefaultAuthority(configuration);
+        services.ConfigureOAuth2Settings(configuration, "Authentication:OAuth2.Settings");
+        services.AddScoped<IApplicationContext, ApplicationInstanceContext>();
+        services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
+
+                // Register the different TokenProvider and CredentialTokenProviders.
+        var container = new ComponentModelContainer(services);
+        container.Register<ITokenProvider, BootstrapContextTokenProvider>("Bootstrap");
+        container.CreateContainer();
+
+        // Define a Principal with no OAuth2Bearer token here => we test the injection.
+        var appContext = container.Resolve<IApplicationContext>();
+        appContext.SetPrincipal(new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0"));
+
+        var setingsOptions = container.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
+
+        var mockMethod = _fixture.Freeze<Mock<Method<string, string>>>();
+
+        var mockClientInterceptorContext = new ClientInterceptorContext<string, string>(mockMethod.Object, "host", new CallOptions(new Metadata()));
+        var mock = _fixture.Freeze<Mock<BlockingUnaryCallContinuation<string, string>>>();
+
+        // Act
+        var sut = new InterceptorClientTest(container, container.Resolve<ILogger<InterceptorTest>>(), setingsOptions, "OAuth2");
 
         sut.BlockingUnaryCall<string, string>("Test", mockClientInterceptorContext, mock.Object);
 
