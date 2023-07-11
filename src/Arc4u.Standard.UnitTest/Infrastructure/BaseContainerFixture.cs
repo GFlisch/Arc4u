@@ -1,10 +1,10 @@
 using Arc4u.Diagnostics;
-using Arc4u.Standard.UnitTest.Infrastructure;
+using Arc4u.UnitTest.Infrastructure;
 using Microsoft.Extensions.Logging;
 using System.Runtime.CompilerServices;
 using Xunit;
 
-namespace Arc4u.Standard.UnitTest.Infrastructure
+namespace Arc4u.UnitTest.Infrastructure
 {
     public abstract class BaseContainerFixture<T, TFixture> : IClassFixture<TFixture> where TFixture : class, IContainerFixture
     {

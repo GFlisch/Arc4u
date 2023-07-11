@@ -10,7 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Security.Principal;
 
-namespace Arc4u.Standard.UnitTest.Infrastructure
+namespace Arc4u.UnitTest.Infrastructure
 {
     public abstract class ContainerFixture : IDisposable, IContainerFixture
     {
@@ -67,7 +67,7 @@ namespace Arc4u.Standard.UnitTest.Infrastructure
 
             authorization.AllOperations.Add(new Operation { ID = 1, Name = "AccessApplication" });
 
-            return new AppPrincipal(authorization, new GenericIdentity("TestUser"), "S-1-9-5-100") { ActivityID = Guid.NewGuid() };
+            return new AppPrincipal(authorization, new GenericIdentity("TestUser"), "S-1-9-5-100") { ActivityID = Guid.NewGuid().ToString() };
 
         }
 

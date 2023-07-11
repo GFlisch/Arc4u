@@ -10,16 +10,16 @@ using Arc4u.Configuration;
 using Arc4u.Dependency;
 using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Extensions;
+using Arc4u.OAuth2.Options;
 using Arc4u.OAuth2.Security.Principal;
 using Arc4u.OAuth2.Token;
 using Arc4u.Security.Cryptography;
-using Arc4u.Standard.OAuth2.Options;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Arc4u.Standard.OAuth2.Middleware;
+namespace Arc4u.OAuth2.Middleware;
 
 public class BasicAuthenticationMiddleware
 {
@@ -61,7 +61,7 @@ public class BasicAuthenticationMiddleware
             _logger.Technical().Error($"No token cache is defined for Basic Authentication.").Log();
         }
 
-        _activitySource = container.Resolve<IActivitySourceFactory>().Get("Arc4u");
+        _activitySource = container.Resolve<IActivitySourceFactory>().GetArc4u();
     }
 
     public async Task Invoke(HttpContext context)

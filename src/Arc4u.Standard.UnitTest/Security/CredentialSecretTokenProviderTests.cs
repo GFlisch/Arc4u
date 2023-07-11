@@ -4,7 +4,7 @@ using Arc4u.Dependency;
 using Arc4u.OAuth2.Security.Principal;
 using Arc4u.OAuth2.Token;
 using Arc4u.OAuth2.TokenProvider;
-using Arc4u.Standard.OAuth2;
+using Arc4u.OAuth2;
 using AutoFixture;
 using AutoFixture.AutoMoq;
 using Moq;
@@ -12,8 +12,12 @@ using Xunit;
 using System.Threading.Tasks;
 using FluentAssertions;
 using System;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using Arc4u.OAuth2.Extensions;
 
-namespace Arc4u.Standard.UnitTest.Security;
+namespace Arc4u.UnitTest.Security;
 
 [Trait("Category", "CI")]
 
@@ -108,6 +112,37 @@ public class CredentialSecretTokenProviderTests
         exception.Should().NotBeNull();
         exception.Should().BeOfType<ArgumentNullException>();
         mockCredentialTokenProvider.Verify(m => m.GetTokenAsync(It.IsAny<SimpleKeyValueSettings>(), It.IsAny<CredentialsResult>()), Times.Never);
+
+    }
+
+    [Fact]
+    public void Read_Secret_From_Config_With_Credential_Should()
+    {
+        var config = new ConfigurationBuilder()
+                     .AddInMemoryCollection(
+                         new Dictionary<string, string?>
+                         {
+                             ["Authentication:ClientSecrets:Service:ClientId"] = "ClientId",
+                             ["Authentication:ClientSecrets:Service:Scope"] = "A scope",
+                             ["Authentication:ClientSecrets:Service:Credential"] = "user:passw0rd",
+                         }).Build();
+
+        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+
+        IServiceCollection services = new ServiceCollection();
+
+        services.AddSecretAuthentication(configuration);
+
+        var serviceProvider = services.BuildServiceProvider();
+
+        // act
+        var sut = serviceProvider.GetService<IOptionsMonitor<SimpleKeyValueSettings>>()!.Get("Service");
+
+        sut.Should().NotBeNull();
+        sut.Values[TokenKeys.Scope].Should().Be("A scope");
+        sut.Values.ContainsKey("User").Should().BeFalse();
+        sut.Values.ContainsKey("Password").Should().BeFalse();
+        sut.Values.ContainsKey("Credential").Should().BeTrue();
 
     }
 

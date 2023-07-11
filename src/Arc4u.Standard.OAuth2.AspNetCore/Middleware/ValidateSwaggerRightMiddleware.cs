@@ -1,9 +1,9 @@
-﻿using Arc4u.Security.Principal;
-using Microsoft.AspNetCore.Http;
-using System;
+﻿using System;
 using System.Threading.Tasks;
+using Arc4u.Security.Principal;
+using Microsoft.AspNetCore.Http;
 
-namespace Arc4u.Standard.OAuth2.Middleware
+namespace Arc4u.OAuth2.Middleware
 {
 
     public class ValidateSwaggerRightMiddleware

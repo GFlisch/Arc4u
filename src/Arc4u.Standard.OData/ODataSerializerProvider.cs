@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.OData.Extensions;
 using Microsoft.AspNetCore.OData.Formatter.Serialization;
 using System;
 
-namespace Arc4u.Standard.OData
+namespace Arc4u.OData
 {
     internal class ODataSerializerProvider: Microsoft.AspNetCore.OData.Formatter.Serialization.ODataSerializerProvider
     {

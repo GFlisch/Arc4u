@@ -1,12 +1,15 @@
+using System;
+using System.Threading.Tasks;
+using Arc4u.Configuration;
 using Arc4u.Dependency;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
+using Arc4u.OAuth2.Options;
 using Arc4u.OAuth2.Security.Principal;
 using Arc4u.OAuth2.Token;
 using Arc4u.ServiceModel;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 
 namespace Arc4u.OAuth2.TokenProvider;
 
@@ -18,17 +21,19 @@ public class CredentialTokenCacheTokenProvider : ICredentialTokenProvider
     private readonly ITokenCache TokenCache;
     private readonly IContainerResolve Container;
     private readonly ILogger<CredentialTokenCacheTokenProvider> _logger;
+    private readonly IOptionsMonitor<AuthorityOptions> _authorities;
 
-    public CredentialTokenCacheTokenProvider(ITokenCache tokenCache, ILogger<CredentialTokenCacheTokenProvider> logger, IContainerResolve container)
+    public CredentialTokenCacheTokenProvider(ITokenCache tokenCache, ILogger<CredentialTokenCacheTokenProvider> logger, IContainerResolve container, IOptionsMonitor<AuthorityOptions> authorities)
     {
         TokenCache = tokenCache;
         _logger = logger;
         Container = container;
+        _authorities = authorities;
     }
 
     public async Task<TokenInfo> GetTokenAsync(IKeyValueSettings settings, CredentialsResult credential)
     {
-        var messages = GetContext(settings, out string authority, out string scope);
+        var messages = GetContext(settings, out AuthorityOptions? authority, out string scope);
 
         if (string.IsNullOrWhiteSpace(credential.Upn))
         {
@@ -47,7 +52,9 @@ public class CredentialTokenCacheTokenProvider : ICredentialTokenProvider
         {
             // Get a HashCode from the password so a second call with the same upn but with a wrong password will not be impersonated due to
             // the lack of password check.
-            var cacheKey = BuildKey(credential, authority, scope);
+            // authority is not null here => messages log and throw will throw an exception if null.
+            var cacheKey = BuildKey(credential, authority!, scope);
+
             _logger.Technical().System($"Check if the cache contains a token for {cacheKey}.").Log();
             var tokenInfo = TokenCache.Get<TokenInfo>(cacheKey);
             var hasChanged = false;
@@ -102,12 +109,12 @@ public class CredentialTokenCacheTokenProvider : ICredentialTokenProvider
         return await basicTokenProvider.GetTokenAsync(settings, credential).ConfigureAwait(false);
     }
 
-    private static string BuildKey(CredentialsResult credential, string authority, string audience)
+    private static string BuildKey(CredentialsResult credential, AuthorityOptions authority, string audience)
     {
-        return authority + "_" + audience + "_Password_" + credential.Upn + "_" + credential.Password.GetHashCode().ToString();
+        return authority.Url + "_" + audience + "_Password_" + credential.Upn + "_" + credential.Password.GetHashCode().ToString();
     }
 
-    private Messages GetContext(IKeyValueSettings settings, out string authority, out string scope)
+    private Messages GetContext(IKeyValueSettings settings, out AuthorityOptions? authority, out string scope)
     {
         // Check the information.
         var messages = new Messages();
@@ -117,7 +124,7 @@ public class CredentialTokenCacheTokenProvider : ICredentialTokenProvider
             messages.Add(new Message(ServiceModel.MessageCategory.Technical,
                                      ServiceModel.MessageType.Error,
                                      "Settings parameter cannot be null."));
-            authority = string.Empty;
+            authority = null;
             scope = string.Empty;
 
             return messages;
@@ -133,7 +140,14 @@ public class CredentialTokenCacheTokenProvider : ICredentialTokenProvider
 
         _logger.Technical().System($"Creating an authentication context for the request.").Log();
 
-        authority = settings.Values.ContainsKey(TokenKeys.AuthorityKey) ? settings.Values[TokenKeys.AuthorityKey] : string.Empty;
+        if (!settings.Values.ContainsKey(TokenKeys.AuthorityKey))
+        {
+            authority = _authorities.Get("Default");
+        }
+        else
+        {
+            authority = _authorities.Get(settings.Values[TokenKeys.AuthorityKey]);
+        }
         scope = settings.Values[TokenKeys.Scope];
 
         return messages;

@@ -2,7 +2,7 @@ using Arc4u.Caching.Memory;
 using Arc4u.Configuration;
 using System.Collections.Generic;
 
-namespace Arc4u.Standard.UnitTest.Infrastructure
+namespace Arc4u.UnitTest.Infrastructure
 {
     //class MemorySettings : SimpleKeyValueSettings
     //{

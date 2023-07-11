@@ -1,4 +1,4 @@
-﻿using Arc4u.Dependency.Attribute;
+using Arc4u.Dependency.Attribute;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System;
@@ -15,6 +15,8 @@ namespace Arc4u.Dependency.ComponentModel
         public Object Instance => _serviceProvider;
 
         public bool CanCreateScope => true;
+
+        public IServiceProvider ServiceProvider => _serviceProvider;
 
         private IServiceCollection _collection = null;
         private IServiceScope _serviceScope = null;

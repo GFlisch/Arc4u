@@ -1,6 +1,6 @@
-using Arc4u.Dependency.Attribute;
 using System;
 using System.Security.Claims;
+using Arc4u.Dependency.Attribute;
 
 namespace Arc4u.OAuth2.Security.Principal;
 
@@ -19,16 +19,15 @@ public class KeyGeneratorFromIdentity : ICacheKeyGenerator
 
     private readonly IUserObjectIdentifier _userKeyIdentifier;
 
-
     public string GetClaimsKey(ClaimsIdentity identity)
     {
         var id = _userKeyIdentifier.GetIdentifer(identity);
 
-        if (String.IsNullOrEmpty(id))
+        if (string.IsNullOrEmpty(id))
         {
             throw new NullReferenceException($"No distinguish key found for the identity {identity.Name}");
         }
 
-        return _userKeyIdentifier.GetIdentifer(identity) + "_ClaimsCache";
+        return id + "_ClaimsCache";
     }
 }

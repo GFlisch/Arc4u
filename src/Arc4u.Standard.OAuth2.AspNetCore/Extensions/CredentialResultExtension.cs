@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 using Arc4u.Diagnostics;
@@ -23,7 +24,7 @@ public static class CredentialResultExtension
         logger.Technical().LogDebug($@"Username receives is: {username}.");
 
         // is username format ok?
-        if (!Regex.IsMatch(username, @"([a-zA-Z0-9]+@[a-zA-Z0-9]+\.[a-zA-Z0-9]+)|([a-zA-Z0-9]+\\[a-zA-Z0-9]+)|([a-zA-Z0-9]+/[a-zA-Z0-9]+)"))
+        if (!Regex.IsMatch(username, @"([a-zA-Z0-9]+@[a-zA-Z0-9]+\.[a-zA-Z0-9]+)|([a-zA-Z0-9]+\\[a-zA-Z0-9]+)|([a-zA-Z0-9]+/[a-zA-Z0-9]+)", RegexOptions.None, TimeSpan.FromMilliseconds(100)))
         {
             username = $"{username}{defaultUpn?.Trim()}";
             logger.Technical().LogDebug($@"Username is changed to: {username}.");

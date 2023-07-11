@@ -25,6 +25,7 @@
     <Description>Arc4u Diagnostics Serilog Sink to RealmDB</Description>
     <LangVersion>latest</LangVersion>
     <PackageId>Arc4u.Standard.Diagnostics.Serilog.Sinks.RealmDb</PackageId>
+    <RootNamespace>$(MSBuildProjectName.Replace(" ", "_").Replace(".Standard", ""))</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="12.0.1" />

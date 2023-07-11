@@ -1,4 +1,4 @@
-﻿namespace Arc4u.Standard.UnitTest.Infrastructure
+﻿namespace Arc4u.UnitTest.Infrastructure
 {
 
     public class BasicFixture : ContainerFixture

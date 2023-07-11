@@ -5,14 +5,15 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
-using Arc4u.Standard.OAuth2;
+using Arc4u.OAuth2;
 using FluentAssertions;
 using Arc4u.OAuth2.Token;
-using Arc4u.Standard.OAuth2.Middleware;
-using Arc4u.Standard.OAuth2.Options;
+using Arc4u.OAuth2.Middleware;
+using Arc4u.OAuth2.Options;
 using System.Linq;
+using Arc4u.Configuration;
 
-namespace Arc4u.Standard.UnitTest;
+namespace Arc4u.UnitTest;
 
 [Trait("Category", "CI")]
 public class BasicSettingsOptionsTests
@@ -55,6 +56,48 @@ public class BasicSettingsOptionsTests
         sut.BasicSettings.Values[TokenKeys.AuthenticationTypeKey].Should().Be(_default.AuthenticationType);
         sut.BasicSettings.Values[TokenKeys.Scope].Should().Be(_default.Scope);
         sut.BasicSettings.Values.ContainsKey(TokenKeys.ClientSecret).Should().BeFalse();
+    }
+
+    [Fact]
+    public void Basic_Standard_No_Section_Should_Throw_An_Exception()
+    {
+        var config = new ConfigurationBuilder()
+                     .AddInMemoryCollection(
+                         new Dictionary<string, string?>
+                         {
+                         }).Build();
+
+        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+
+        IServiceCollection services = new ServiceCollection();
+
+        var exception = Record.Exception(() => services.AddBasicAuthenticationSettings(configuration));
+
+        exception.Should().NotBeNull();
+        exception.Should().BeOfType<ConfigurationException>();
+    }
+
+    [Fact]
+    public void Basic_Standard_No_Section_Should()
+    {
+        var config = new ConfigurationBuilder()
+                     .AddInMemoryCollection(
+                         new Dictionary<string, string?>
+                         {
+                         }).Build();
+
+        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+
+        IServiceCollection services = new ServiceCollection();
+
+        services.AddBasicAuthenticationSettings(configuration, throwExceptionIfSectionDoesntExist: false);
+
+        var serviceProvider = services.BuildServiceProvider();
+
+        // act
+        var sut = serviceProvider.GetService<IOptions<BasicAuthenticationSettingsOptions>>();
+
+        sut.Should().BeNull();
     }
 
     [Fact]

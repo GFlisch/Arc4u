@@ -25,6 +25,7 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <LangVersion>latest</LangVersion>
     <PackageId>Arc4u.Standard</PackageId>
+    <RootNamespace>$(MSBuildProjectName.Replace(" ", "_").Replace(".Standard", ""))</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Properties\**" />

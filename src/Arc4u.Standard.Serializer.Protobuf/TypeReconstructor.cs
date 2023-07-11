@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
@@ -52,7 +52,7 @@ namespace Arc4u.Serializer.ProtoBuf
                 return null;
         }
 
-        private static readonly Regex _nameDecompositionRegex = new Regex(@"^(?<name>\w+(\.\w+)*)`(?<count>\d)\[(?<subtypes>\[.*\])\](, (?<assembly>\w+(\.\w+)*)[\w\s,=\.]+)$?", RegexOptions.Singleline | RegexOptions.ExplicitCapture);
+        private static readonly Regex _nameDecompositionRegex = new Regex(@"^(?<name>\w+(\.\w+)*)`(?<count>\d)\[(?<subtypes>\[.*\])\](, (?<assembly>\w+(\.\w+)*)[\w\s,=\.]+)$?", RegexOptions.Singleline | RegexOptions.ExplicitCapture, TimeSpan.FromMilliseconds(100));
 
         private static Type ConstructGenericType(string assemblyQualifiedName, bool throwOnError = true)
         {

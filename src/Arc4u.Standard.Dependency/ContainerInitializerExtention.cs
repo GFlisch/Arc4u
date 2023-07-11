@@ -1,4 +1,4 @@
-﻿using Arc4u.Dependency.Configuration;
+using Arc4u.Dependency.Configuration;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -9,7 +9,7 @@ namespace Arc4u.Dependency
 {
     public static class ContainerInitializerExtention
     {
-        private static object locker = new object();
+        private static readonly object locker = new object();
 
         public static IContainer InitializeFromConfig(this IContainer container, IConfiguration configuration)
         {
@@ -23,12 +23,14 @@ namespace Arc4u.Dependency
 
         private static void LoadFromConfig(Dependencies dependencies, IContainer container)
         {
+            // Assert is not null.
+            if (null == dependencies)
+            {
+                throw new ArgumentNullException(nameof(dependencies));
+            }
+
             lock (locker)
             {
-                // Assert is not null.
-                if (null == dependencies)
-                    throw new ArgumentNullException(nameof(Dependencies));
-
                 // if the assembly contains rejected types => we have to extract all types from the assembly, register the good one only!.
                 var assemblies = GetAssembliesFromConfig(dependencies.Assemblies, out var types);
                 types.AddRange(GetRegisterTypesFromConfig(dependencies.RegisterTypes));

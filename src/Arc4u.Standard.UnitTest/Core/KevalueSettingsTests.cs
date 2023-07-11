@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Xunit;
 
-namespace Arc4u.Standard.UnitTest.Core
+namespace Arc4u.UnitTest.Core
 {
 
     [Trait("Category", "CI")]

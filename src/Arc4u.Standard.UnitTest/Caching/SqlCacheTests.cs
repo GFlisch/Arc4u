@@ -13,7 +13,7 @@ using Arc4u.Dependency;
 using Microsoft.Data.SqlClient;
 using Arc4u.Configuration.Sql;
 
-namespace Arc4u.Standard.UnitTest.Caching;
+namespace Arc4u.UnitTest.Caching;
 
 public class SqlCacheTests
 {

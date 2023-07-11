@@ -11,7 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Moq;
 using Xunit;
 
-namespace Arc4u.Standard.UnitTest.Decryptor;
+namespace Arc4u.UnitTest.Decryptor;
 
 [Trait("Category", "CI")]
 

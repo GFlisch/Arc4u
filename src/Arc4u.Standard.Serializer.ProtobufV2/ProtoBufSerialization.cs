@@ -1,4 +1,4 @@
-﻿using Arc4u.Serializer.ProtoBuf;
+using Arc4u.Serializer.ProtoBuf;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -11,6 +11,7 @@ namespace Arc4u.Serializer
     /// - The underlying type model is updated automatically, without the need to decorate with <see cref="System.Runtime.Serialization.DataContractAttribute"/>
     /// - The fully qualified type name is added to the serialization information to allow unserializing even when the type doesn't match (but is compatible).
     /// </summary>
+    [Obsolete("Use Arc4u.Serializer.JSon instead.")]
     public class ProtoBufSerialization : IObjectSerialization
     {
         private static class TypedSerialize<T>

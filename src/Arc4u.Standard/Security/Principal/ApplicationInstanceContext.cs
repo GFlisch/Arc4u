@@ -1,4 +1,4 @@
-﻿namespace Arc4u.Security.Principal
+namespace Arc4u.Security.Principal
 {
     /// <summary>
     /// This class must be registered manually in your DI container.

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using Arc4u.Configuration;
 using Arc4u.OAuth2.Options;
@@ -52,7 +53,8 @@ public static class OnBehalfOfAuthenticationExtensions
                 oboSettings.ClientId = settingsOptions.Value.ClientId;
                 oboSettings.ClientSecret = settingsOptions.Value.ClientSecret;
                 oboSettings.Scope = settingsOptions.Value.Scope;
-
+                oboSettings.AuthenticationType = settingsOptions.Value.AuthenticationType;
+                oboSettings.ProviderId = settingsOptions.Value.ProviderId;
             }, settingsOptions.Key);
         }
 
@@ -67,6 +69,8 @@ public static class OnBehalfOfAuthenticationExtensions
             settings.Add(TokenKeys.ClientIdKey, validated.ClientId);
             settings.Add(TokenKeys.Scope, validated.Scope);
             settings.Add(TokenKeys.ClientSecret, validated.ClientSecret);
+            settings.Add(TokenKeys.AuthenticationTypeKey, validated.AuthenticationType);
+            settings.Add(TokenKeys.ProviderIdKey, validated.ProviderId);
         }
 
         return Settings;
@@ -92,6 +96,11 @@ public static class OnBehalfOfAuthenticationExtensions
         if (string.IsNullOrWhiteSpace(extract.Scope))
         {
             configErrors += "Scope field is not defined." + System.Environment.NewLine;
+        }
+
+        if (string.IsNullOrWhiteSpace(extract.AuthenticationType))
+        {
+            configErrors += "AuthenticationType field is not defined." + System.Environment.NewLine;
         }
 
         if (!string.IsNullOrWhiteSpace(configErrors))

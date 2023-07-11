@@ -20,7 +20,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.Extensions.Options;
 
-namespace Arc4u.Standard.UnitTest.Caching;
+namespace Arc4u.UnitTest.Caching;
 
 [Trait("Category", "CI")]
 public class CacheDataProtectionStoreTests

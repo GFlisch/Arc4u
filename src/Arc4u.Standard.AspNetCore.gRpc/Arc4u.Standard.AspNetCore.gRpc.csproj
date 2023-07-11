@@ -17,6 +17,7 @@
     <RootNamespace>Arc4u.Standard.AspNetCore</RootNamespace>
     <LangVersion>latest</LangVersion>
     <PackageId>Arc4u.Standard.AspNetCore.gRpc</PackageId>
+    <RootNamespace>$(MSBuildProjectName.Replace(" ", "_").Replace(".Standard", ""))</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Grpc.AspNetCore.Server" Version="2.51.0" />

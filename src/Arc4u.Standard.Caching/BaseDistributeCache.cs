@@ -15,7 +15,7 @@ public abstract class BaseDistributeCache : ICache
 
     protected IDistributedCache DistributeCache { get; set; }
 
-    protected object _lock = new object();
+    protected readonly object _lock = new object();
     protected bool IsInitialized { get; set; }
 
     protected readonly IContainerResolve _container;
@@ -48,15 +48,16 @@ public abstract class BaseDistributeCache : ICache
     {
         if (!disposed)
         {
-            if (disposing)
+            if (!disposing)
             {
-                if (null != DistributeCache && DistributeCache is IDisposable)
-                {
-                    ((IDisposable)DistributeCache).Dispose();
-                }
-
-                disposed = true;
+                return;
             }
+            if (DistributeCache is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
+
+            disposed = true;
         }
     }
 
@@ -216,69 +217,66 @@ public abstract class BaseDistributeCache : ICache
             throw new ArgumentNullException(nameof(value));
         }
 
-        byte[] blob = null;
+        byte[]? blob = null;
 
-        using (var activity = _activitySource?.StartActivity("Put to cache.", ActivityKind.Producer))
+        using var activity = _activitySource?.StartActivity("Put to cache.", ActivityKind.Producer);
+
+        using (var serializerActivity = _activitySource?.StartActivity("Serialize.", ActivityKind.Producer))
         {
-            using (var serializerActivity = _activitySource?.StartActivity("Serialize.", ActivityKind.Producer))
-            {
-                blob = SerializerFactory.Serialize<T>(value);
-            }
-
-            var dceo = new DistributedCacheEntryOptions();
-            if (isSlided)
-            {
-                dceo.SetSlidingExpiration(timeout);
-            }
-            else
-            {
-                dceo.SetAbsoluteExpiration(timeout);
-            }
-
-            activity?.SetTag("cacheKey", key);
-
-
-            await DistributeCache.SetAsync(key, blob, dceo, cancellation).ConfigureAwait(false);
+            blob = SerializerFactory.Serialize<T>(value);
         }
+
+        var dceo = new DistributedCacheEntryOptions();
+        if (isSlided)
+        {
+            dceo.SetSlidingExpiration(timeout);
+        }
+        else
+        {
+            dceo.SetAbsoluteExpiration(timeout);
+        }
+
+        activity?.SetTag("cacheKey", key);
+
+
+        await DistributeCache.SetAsync(key, blob, dceo, cancellation).ConfigureAwait(false);
     }
 
 
     public bool Remove(string key)
     {
-        using (var activity = _activitySource?.StartActivity("Remove from cache.", ActivityKind.Producer))
+        using var activity = _activitySource?.StartActivity("Remove from cache.", ActivityKind.Producer);
+
+        activity?.SetTag("cacheKey", key);
+
+        CheckIfInitialized();
+
+        try
         {
-            activity?.SetTag("cacheKey", key);
-
-            CheckIfInitialized();
-
-            try
-            {
-                DistributeCache.Remove(key);
-                return true;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
+            DistributeCache.Remove(key);
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
         }
 
     }
     public async Task<bool> RemoveAsync(string key, CancellationToken cancellation = default(CancellationToken))
     {
-        using (var activity = _activitySource?.StartActivity("Remove from cache.", ActivityKind.Producer))
-        {
-            activity?.SetTag("cacheKey", key);
-            CheckIfInitialized();
+        using var activity = _activitySource?.StartActivity("Remove from cache.", ActivityKind.Producer);
 
-            try
-            {
-                await DistributeCache.RemoveAsync(key, cancellation).ConfigureAwait(false);
-                return true;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
+        activity?.SetTag("cacheKey", key);
+        CheckIfInitialized();
+
+        try
+        {
+            await DistributeCache.RemoveAsync(key, cancellation).ConfigureAwait(false);
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
         }
     }
 

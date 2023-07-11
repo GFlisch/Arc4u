@@ -5,15 +5,15 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
-using Arc4u.Standard.OAuth2;
-using Arc4u.Standard.OAuth2.Extensions;
+using Arc4u.OAuth2;
+using Arc4u.OAuth2.Extensions;
 using FluentAssertions;
 using Arc4u.Configuration;
 using Arc4u.OAuth2.Token;
 using System;
 using Arc4u.OAuth2.Options;
 
-namespace Arc4u.Standard.UnitTest;
+namespace Arc4u.UnitTest;
 
 [Trait("Category", "CI")]
 public class SecretBasicSettingsOptionsTests
@@ -63,7 +63,7 @@ public class SecretBasicSettingsOptionsTests
         sut.Values[TokenKeys.Scope].Should().Be(_default.Scope);
         sut.Values["User"].Should().Be(options.User);
         sut.Values["Password"].Should().Be(options.Password);
-        sut.Values["Credential"].Should().BeNull();
+        sut.Values.ContainsKey("Credential").Should().BeFalse();
 
         var sutAuthority = serviceProvider.GetService<IOptionsMonitor<AuthorityOptions>>()!.Get("Client1");
         sutAuthority.Should().NotBeNull();
@@ -107,7 +107,7 @@ public class SecretBasicSettingsOptionsTests
         sut.Values[TokenKeys.AuthorityKey].Should().Be("Client1");
         sut.Values["User"].Should().Be(options.User);
         sut.Values["Credential"].Should().Be(options.Credential);
-        sut.Values["Password"].Should().BeNull();
+        sut.Values.ContainsKey("Password").Should().BeFalse();
 
         var sutAuthority = serviceProvider.GetService<IOptionsMonitor<AuthorityOptions>>()!.Get("Client1");
         sutAuthority.Should().NotBeNull();
@@ -150,12 +150,36 @@ public class SecretBasicSettingsOptionsTests
         sut.Values.ContainsKey(TokenKeys.AuthorityKey).Should().BeFalse();
         sut.Values["User"].Should().Be(options.User);
         sut.Values["Credential"].Should().Be(options.Credential);
-        sut.Values["Password"].Should().BeNull();
+        sut.Values.ContainsKey("Password").Should().BeFalse();
 
         var sutAuthority = serviceProvider.GetService<IOptionsMonitor<AuthorityOptions>>()!.Get("Client1");
         sutAuthority.Should().NotBeNull();
         sutAuthority.Url.Should().BeNullOrEmpty();
     }
+
+    [Fact]
+    public void No_Secret_Should()
+    {
+        var config = new ConfigurationBuilder()
+                     .AddInMemoryCollection(
+                         new Dictionary<string, string?>
+                         {
+                         }).Build();
+
+        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+
+        IServiceCollection services = new ServiceCollection();
+
+        services.AddSecretAuthentication(configuration);
+
+        var serviceProvider = services.BuildServiceProvider();
+
+        // act
+        var sut = serviceProvider.GetService<IOptionsMonitor<SimpleKeyValueSettings>>();
+
+        sut.Should().BeNull();
+    }
+
     [Fact]
     public void Secret_Not_Filled_Exception_Should()
     {

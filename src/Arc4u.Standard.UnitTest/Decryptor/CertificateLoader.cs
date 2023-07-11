@@ -8,7 +8,7 @@ using FluentAssertions;
 using System.Security.Cryptography.X509Certificates;
 using Moq;
 
-namespace Arc4u.Standard.UnitTest.Decryptor;
+namespace Arc4u.UnitTest.Decryptor;
 
 [Trait("Category", "CI")]
 public class CertificateLoader

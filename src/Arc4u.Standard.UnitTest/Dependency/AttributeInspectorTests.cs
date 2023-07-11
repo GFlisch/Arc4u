@@ -5,7 +5,7 @@ using Arc4u.Dependency.ComponentModel;
 using FluentAssertions;
 using Xunit;
 
-namespace Arc4u.Standard.UnitTest.Dependency;
+namespace Arc4u.UnitTest.Dependency;
 public class AttributeInspectorTests
 {
     [Fact]

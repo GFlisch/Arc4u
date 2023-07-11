@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Arc4u.Standard.UnitTest.Infrastructure
+namespace Arc4u.UnitTest.Infrastructure
 {
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     public class TestPriorityAttribute : Attribute

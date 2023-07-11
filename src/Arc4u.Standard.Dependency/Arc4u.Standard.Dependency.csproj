@@ -25,6 +25,7 @@
     <Description>DI abstraction</Description>
     <LangVersion>latest</LangVersion>
     <PackageId>Arc4u.Standard.Dependency</PackageId>
+    <RootNamespace>$(MSBuildProjectName.Replace(" ", "_").Replace(".Standard", ""))</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Builder\**" />

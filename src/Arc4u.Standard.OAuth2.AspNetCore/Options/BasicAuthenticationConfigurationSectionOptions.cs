@@ -1,4 +1,4 @@
-namespace Arc4u.Standard.OAuth2.Options;
+namespace Arc4u.OAuth2.Options;
 public class BasicAuthenticationConfigurationSectionOptions
 {
     public string BasicSettingsPath { get; set; } = "Authentication:Basic:Settings";

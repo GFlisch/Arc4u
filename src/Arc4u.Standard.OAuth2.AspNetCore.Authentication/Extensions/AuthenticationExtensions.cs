@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Arc4u.Configuration;
 using Arc4u.OAuth2.DataProtection;
-using Arc4u.OAuth2.Extensions;
+using Arc4u.OAuth2.Middleware;
 using Arc4u.OAuth2.Options;
 using Arc4u.OAuth2.TicketStore;
 using Arc4u.OAuth2.Token;
@@ -20,7 +20,7 @@ using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
 
-namespace Arc4u.Standard.OAuth2.Extensions;
+namespace Arc4u.OAuth2.Extensions;
 
 public static partial class AuthenticationExtensions
 {
@@ -210,6 +210,10 @@ public static partial class AuthenticationExtensions
         {
             configErrors += "We need a setting section to configure the DataProtection cache store." + System.Environment.NewLine;
         }
+        if (string.IsNullOrWhiteSpace(settings.TokenCacheSectionPath))
+        {
+            configErrors += "We need a setting section to configure the TokenCacheOptions." + System.Environment.NewLine;
+        }
         if (string.IsNullOrWhiteSpace(settings.JwtBearerEventsType))
         {
             configErrors += "The JwtBearerEventsType must be defined." + System.Environment.NewLine;
@@ -218,7 +222,10 @@ public static partial class AuthenticationExtensions
         {
             configErrors += "We need a setting section to specify the claims used to identify a user." + System.Environment.NewLine;
         }
-
+        if (string.IsNullOrWhiteSpace(settings.ClaimsFillerSectionPath))
+        {
+            configErrors += "We need a setting section to configure the ClaimsFillerOptions." + System.Environment.NewLine;
+        }
         if (configErrors is not null)
         {
             throw new ConfigurationException(configErrors);
@@ -287,8 +294,12 @@ public static partial class AuthenticationExtensions
             options.ClaimsIdentifierOptions = ClaimsIdentiferExtension.PrepareAction(configuration, settings.ClaimsIdentifierSectionPath);
         }
 
-        services.AddDomainMapping(configuration, "Authentication:DomainsMapping");
+        services.AddDomainMapping(configuration, settings.DomainMappingsSectionPath);
         services.AddOnBehalfOf(configuration);
+        services.AddTokenCache(configuration, settings.TokenCacheSectionPath);
+        services.AddClaimsFiller(configuration, settings.ClaimsFillerSectionPath);
+        services.AddBasicAuthenticationSettings(configuration, settings.BasicAuthenticationSectionPath, throwExceptionIfSectionDoesntExist: false);
+        services.AddOpenIdBearerInjector();
 
         return services.AddOidcAuthentication(OidcAuthenticationFiller);
     }
@@ -332,7 +343,11 @@ public static partial class AuthenticationExtensions
         });
 
         var authenticationBuilder =
-        services.AddAuthentication(auth => auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme)
+        services.AddAuthentication(auth =>
+        {
+            auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            auth.DefaultForbidScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
                 .AddJwtBearer(option =>
                 {
                     SecurityKey? securityKey = options.CertSecurityKey is not null ? new X509SecurityKey(options.CertSecurityKey) : null;
@@ -405,8 +420,12 @@ public static partial class AuthenticationExtensions
             options.ClaimsIdentifierOptions = ClaimsIdentiferExtension.PrepareAction(configuration, settings.ClaimsIdentifierSectionPath);
         }
 
-        return services.AddJwtAuthentication(configuration, JwtAuthenticationFiller);
+        services.AddTokenCache(configuration, settings.TokenCacheSectionPath);
+        services.AddClaimsFiller(configuration, settings.ClaimsFillerSectionPath);
+        services.AddSecretAuthentication(configuration, settings.ClientSecretSectionPath);
+        services.AddRemoteSecretsAuthentication(configuration, settings.RemoteSecretSectionPath);
 
+        return services.AddJwtAuthentication(configuration, JwtAuthenticationFiller);
     }
 
     static string[] SplitString(string value) => value.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToArray();

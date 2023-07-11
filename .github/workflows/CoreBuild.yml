@@ -81,12 +81,6 @@ jobs:
       - name: Change Arc4u.Standard.gRPC versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.gRPC.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
         shell: powershell        
-      - name: Change Arc4u.Standard.KubeMQ versions
-        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.KubeMQ.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
-        shell: powershell        
-      - name: Change Arc4u.Standard.KubeMQ.AspNetCore versions
-        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.KubeMQ.AspNetCore.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
-        shell: powershell        
       - name: Change Arc4u.Standard.MongoDB versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.MongoDB.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
         shell: powershell        
@@ -120,6 +114,12 @@ jobs:
       - name: Change Arc4u.Standard.NServiceBus.RabbitMQ versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.NServiceBus.RabbitMQ.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
         shell: powershell        
+      - name: Change Arc4u.Standard.Authorization versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Authorization.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell 
+      - name: Change Arc4u.Standard.Dispatcher versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Dispatcher.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell
       - name: Change Arc4u.Standard.Serializer versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Serializer.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
         shell: powershell        
@@ -155,9 +155,6 @@ jobs:
         shell: powershell        
       - name: Change Arc4u.Standard.OAuth2.AspNetCore.Api versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.OAuth2.AspNetCore.Api.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
-        shell: powershell        
-      - name: Change Arc4u.Standard.OAuth2.AspNetCore.Msal versions
-        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.OAuth2.AspNetCore.Msal.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
         shell: powershell        
       - name: Change Arc4u.Standard.OAuth2.AspNetCore.Adal versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.OAuth2.AspNetCore.Adal.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"

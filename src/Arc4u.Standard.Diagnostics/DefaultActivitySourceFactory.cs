@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+using System;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 
 namespace Arc4u.Diagnostics
@@ -24,7 +25,12 @@ namespace Arc4u.Diagnostics
         /// <returns>A specific instance of an <see cref="ActivitySource"/>.</returns>
         public ActivitySource Get(string name, string version = null)
         {
-            var key = $"{name}_{version}";
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentNullException(name);
+            }
+
+            var key = string.IsNullOrWhiteSpace(version) ? name.Trim() : $"{name.Trim()}_{version.Trim()}";
 
             return _activitySources.GetOrAdd(key, _ => new ActivitySource(name, version));
         }

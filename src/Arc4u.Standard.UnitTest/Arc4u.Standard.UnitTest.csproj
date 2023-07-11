@@ -5,12 +5,12 @@
 				<IsPackable>false</IsPackable>
 				<LangVersion>latest</LangVersion>
       <Nullable>enable</Nullable>
+      <RootNamespace>$(MSBuildProjectName.Replace(" ", "_").Replace(".Standard", ""))</RootNamespace>
 		</PropertyGroup>
 
 		<ItemGroup>
 				<PackageReference Include="Castle.Core" Version="5.1.1" />
 				<PackageReference Include="FluentAssertions" Version="6.10.0" />
-				<PackageReference Include="KubeMQ.SDK.csharp" Version="1.6.0" />
 				<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.1" />
 				<PackageReference Include="xunit" Version="2.4.2" />
 				<PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
@@ -54,7 +54,7 @@
 				<ProjectReference Include="..\Arc4u.Standard.Dependency\Arc4u.Standard.Dependency.csproj" />
 				<ProjectReference Include="..\Arc4u.Standard.Diagnostics.Serilog\Arc4u.Standard.Diagnostics.Serilog.csproj" />
 				<ProjectReference Include="..\Arc4u.Standard.EfCore\Arc4u.Standard.EfCore.csproj" />
-				<ProjectReference Include="..\Arc4u.Standard.KubeMQ\Arc4u.Standard.KubeMQ.csproj" />
+				<ProjectReference Include="..\Arc4u.Standard.gRPC\Arc4u.Standard.gRPC.csproj" />
 				<ProjectReference Include="..\Arc4u.Standard.OAuth2.AspNetCore.Adal\Arc4u.Standard.OAuth2.AspNetCore.Adal.csproj" />
 				<ProjectReference Include="..\Arc4u.Standard.OAuth2.AspNetCore.Authentication\Arc4u.Standard.OAuth2.AspNetCore.Authentication.csproj" />
 				<ProjectReference Include="..\Arc4u.Standard.OAuth2.Blazor\Arc4u.Standard.OAuth2.Blazor.csproj" />

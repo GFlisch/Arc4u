@@ -1,10 +1,8 @@
-﻿using System;
 using System.Security.Claims;
 
-namespace Arc4u.OAuth2
+namespace Arc4u.OAuth2;
+
+public interface ICacheKeyGenerator
 {
-    public interface ICacheKeyGenerator
-    {
-        String GetClaimsKey(ClaimsIdentity identity);
-    }
+    string GetClaimsKey(ClaimsIdentity identity);
 }

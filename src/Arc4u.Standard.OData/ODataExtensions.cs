@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
 
-namespace Arc4u.Standard.OData
+namespace Arc4u.OData
 {
     /// <summary>
     /// These extensions are required to make sure all URI's that our OData replies expose are relative to Yarp's address, not the address of our local service.

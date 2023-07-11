@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using System;
 
 namespace Arc4u.OAuth2.Aspect
 {
     [AttributeUsage(AttributeTargets.Method, Inherited = true, AllowMultiple = false)]
+    [Obsolete("Use ManageExceptionsFilter and SetCultureActionFilter instead.")]
 
     public class ServiceAspectAttribute : TypeFilterAttribute
     {

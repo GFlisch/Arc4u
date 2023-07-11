@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 using Arc4u.OAuth2.Extensions;
 using FluentAssertions;
 
-namespace Arc4u.Standard.UnitTest;
+namespace Arc4u.UnitTest;
 
 [Trait("Category", "CI")]
 public class UserIdentifierTests

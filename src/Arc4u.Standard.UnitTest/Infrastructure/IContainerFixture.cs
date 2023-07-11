@@ -1,7 +1,7 @@
 using Arc4u.Dependency;
 using Arc4u.Security.Principal;
 
-namespace Arc4u.Standard.UnitTest.Infrastructure
+namespace Arc4u.UnitTest.Infrastructure
 {
     public interface IContainerFixture
     {

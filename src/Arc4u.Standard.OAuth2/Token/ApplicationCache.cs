@@ -1,7 +1,9 @@
 using Arc4u.Caching;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
+using Arc4u.OAuth2.Options;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 
@@ -14,16 +16,18 @@ namespace Arc4u.OAuth2.Token
         /// <summary>
         /// Read the cache used to store the tokens! If nothing is identified, Default is used!
         /// </summary>
-        public ApplicationCache(ICacheContext cacheContext, ICacheHelper cacheHelper, ILogger logger)
+        public ApplicationCache(ICacheContext cacheContext, ICacheHelper cacheHelper, ILogger logger, IOptions<TokenCacheOptions> options)
         {
             _logger = logger;
             _cacheContext = cacheContext;
             _cache = cacheHelper.GetCache();
+            _tokenCacheOptions = options.Value;
         }
 
         private readonly ICache _cache;
         private readonly ICacheContext _cacheContext;
         private readonly ILogger _logger;
+        private readonly TokenCacheOptions _tokenCacheOptions;
 
         /// <summary>
         /// Remove at the same time the token and the extra claims added to the cache via a call to an implementation of the IClaimsFiller...
@@ -45,7 +49,7 @@ namespace Arc4u.OAuth2.Token
             }
 
             _logger.Technical().From<ApplicationCache>().System($"Adding token data information to the cache: {key}.").Log();
-            _cache.Put(GetKey(key), _cacheContext.Principal.Duration, data);
+            _cache.Put(GetKey(key), _tokenCacheOptions.MaxTime, data);
             _logger.Technical().From<ApplicationCache>().System($"Added token data information to the cache: {key}.").Log();
         }
 

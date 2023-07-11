@@ -1,5 +1,4 @@
 using Arc4u.OAuth2.Events;
-using Arc4u.Standard.OAuth2;
 
 namespace Arc4u.OAuth2.Options;
 public class JwtAuthenticationSectionOptions
@@ -21,4 +20,11 @@ public class JwtAuthenticationSectionOptions
 
     public string ClaimsIdentifierSectionPath { get; set; } = "Authentication:ClaimsIdentifier";
 
+    public string ClaimsFillerSectionPath { get; set; } = "Authentication:ClaimsMiddleWare:ClaimsFiller";
+
+    public string TokenCacheSectionPath { get; set; } = "Authentication:TokenCache";
+
+    public string ClientSecretSectionPath { get; set; } = "Authentication:ClientSecrets";
+
+    public string RemoteSecretSectionPath { get; set; } = "Authentication:RemoteSecrets";
 }

@@ -1,4 +1,4 @@
-﻿using Arc4u.Threading;
+using Arc4u.Threading;
 using System;
 using System.Collections.Generic;
 
@@ -17,7 +17,7 @@ namespace Arc4u.Dependency
             Resolver = container ?? throw new ArgumentNullException(nameof(container));
         }
 
-        private static object _lock = new object();
+        private static readonly object _lock = new object();
 
         /// <summary>
         /// Register the <see cref="IContainer"/> if no one is already register.
@@ -27,7 +27,9 @@ namespace Arc4u.Dependency
         public static void CreateContext(IContainer container)
         {
             if (null == container)
+            {
                 throw new ArgumentNullException(nameof(container));
+            }
 
             // Do not replace once created.
             lock (_lock)

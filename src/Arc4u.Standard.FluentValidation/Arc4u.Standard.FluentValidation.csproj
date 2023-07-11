@@ -17,6 +17,7 @@
     <PackageTags>Arc4u</PackageTags>
     <LangVersion>latest</LangVersion>
     <PackageId>Arc4u.Standard.FluentValidation</PackageId>
+    <RootNamespace>$(MSBuildProjectName.Replace(" ", "_").Replace(".Standard", ""))</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\..\LICENSE">

@@ -1,7 +1,7 @@
-﻿using Arc4u.Standard.UnitTest.Infrastructure;
+﻿using Arc4u.UnitTest.Infrastructure;
 using Serilog.Core;
 
-namespace Arc4u.Standard.UnitTest.Logging
+namespace Arc4u.UnitTest.Logging
 {
     public abstract class SinkContainerFixture : ContainerFixture, ISinkContainerFixture
     {

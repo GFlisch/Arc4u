@@ -5,7 +5,7 @@ using Serilog;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Arc4u.Standard.UnitTest.Logging
+namespace Arc4u.UnitTest.Logging
 {
     [Trait("Category", "CI")]
     public class CategorySerilogTesters : BaseSinkContainerFixture<CategorySerilogTesters, LoggerCategoryFixture>

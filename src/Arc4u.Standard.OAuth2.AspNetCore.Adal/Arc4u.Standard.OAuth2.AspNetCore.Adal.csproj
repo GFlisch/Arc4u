@@ -19,6 +19,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>Arc4u</PackageTags>
     <PackageId>Arc4u.Standard.OAuth2.AspNetCore.Adal</PackageId>
+    <RootNamespace>$(MSBuildProjectName.Replace(" ", "_").Replace(".Standard", ""))</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.IdentityModel.Clients.ActiveDirectory" Version="5.3.0" />

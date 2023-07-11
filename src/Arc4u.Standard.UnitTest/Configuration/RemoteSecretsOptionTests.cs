@@ -11,7 +11,7 @@ using Arc4u.Configuration;
 using FluentAssertions;
 using Arc4u.OAuth2.Token;
 
-namespace Arc4u.Standard.UnitTest;
+namespace Arc4u.UnitTest;
 
 [Trait("Category", "CI")]
 

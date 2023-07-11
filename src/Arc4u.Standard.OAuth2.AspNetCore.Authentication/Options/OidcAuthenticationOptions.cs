@@ -4,7 +4,6 @@ using Arc4u.OAuth2.Configuration;
 using Arc4u.OAuth2.DataProtection;
 using Arc4u.OAuth2.Events;
 using Arc4u.OAuth2.TicketStore;
-using Arc4u.Standard.OAuth2;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace Arc4u.OAuth2.Options;
@@ -47,7 +46,7 @@ public class OidcAuthenticationOptions
 
     public Type OpenIdConnectEventsType { get; set; } = typeof(StandardOpenIdConnectEvents);
 
-    public TimeSpan ForceRefreshTimeoutTimeSpan { get; set; } = TimeSpan.FromMinutes(60);
+    public TimeSpan ForceRefreshTimeoutTimeSpan { get; set; } = TimeSpan.FromMinutes(5);
 
     public X509Certificate2? CertSecurityKey { get; set; }
 

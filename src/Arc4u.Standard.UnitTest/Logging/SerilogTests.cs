@@ -1,6 +1,6 @@
 using Arc4u.Diagnostics;
 using Arc4u.Diagnostics.Serilog;
-using Arc4u.Standard.UnitTest.Infrastructure;
+using Arc4u.UnitTest.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Core;
@@ -11,7 +11,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Arc4u.Standard.UnitTest.Logging;
+namespace Arc4u.UnitTest.Logging;
 
 [Trait("Category", "CI")]
 public class SerilogTests : BaseContainerFixture<SerilogTests, BasicFixture>

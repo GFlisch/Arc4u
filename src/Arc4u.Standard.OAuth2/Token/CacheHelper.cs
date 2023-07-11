@@ -1,7 +1,9 @@
 using Arc4u.Caching;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
+using Arc4u.OAuth2.Options;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 
 namespace Arc4u.OAuth2.Token;
@@ -9,10 +11,11 @@ namespace Arc4u.OAuth2.Token;
 [Export(typeof(ICacheHelper)), Shared]
 public class CacheHelper : ICacheHelper
 {
-    public CacheHelper(ICacheContext cacheContext, ILogger<CacheContext> logger)
+    public CacheHelper(ICacheContext cacheContext, ILogger<CacheHelper> logger, IOptions<TokenCacheOptions> options)
     {
         _cacheContext = cacheContext;
         _logger = logger;
+        _tokenCacheOptions = options.Value;
 
         try
         {
@@ -29,13 +32,15 @@ public class CacheHelper : ICacheHelper
     }
 
     private readonly ICacheContext _cacheContext;
-    private readonly ILogger<CacheContext> _logger;
+    private readonly ILogger<CacheHelper> _logger;
+    private readonly TokenCacheOptions _tokenCacheOptions;
+
     /// return the cache based on:
     /// 1) a cache exists with the Principal.CacheName
     /// 2) default.
     private ICache GetCacheFromConfig()
     {
-        var cacheName = _cacheContext.Principal?.CacheName;
+        var cacheName = _tokenCacheOptions.CacheName;
 
         if (!string.IsNullOrWhiteSpace(cacheName) && _cacheContext.Exist(cacheName))
         {

@@ -18,7 +18,7 @@ using Moq;
 using Arc4u.Dependency;
 using Arc4u.Serializer;
 
-namespace Arc4u.Standard.UnitTest.Caching;
+namespace Arc4u.UnitTest.Caching;
 
 [Trait("Category", "CI")]
 public class CacheContextTests
@@ -39,8 +39,6 @@ public class CacheContextTests
             Default = "Volatile"
         };
 
-        cache.Principal.CacheName = "Volatile";
-        cache.Principal.Duration = TimeSpan.FromSeconds(1);
         cache.Caches.Add(new Configuration.CachingCache { IsAutoStart = true, Kind = "Memory", Name = "Volatile" });
 
         var memorySettings = _fixture.Build<MemoryCacheOption>().With(m => m.CompactionPercentage, 0.8).Create(); ;
@@ -50,8 +48,6 @@ public class CacheContextTests
                          new Dictionary<string, string?>
                          {
                              ["Caching:Default"] = cache.Default,
-                             ["Caching:Principal:CacheName"] = cache.Principal.CacheName.ToString(CultureInfo.InvariantCulture),
-                             ["Caching:Principal:Duration"] = cache.Principal.Duration.ToString(),
                              ["Caching:Caches:0:Name"] = cache.Caches[0].Name,
                              ["Caching:Caches:0:Kind"] = cache.Caches[0].Kind,
                              ["Caching:Caches:0:IsAutoStart"] = cache.Caches[0].IsAutoStart.ToString(),
@@ -68,8 +64,6 @@ public class CacheContextTests
 
         bindedCaching.Should().NotBeNull();
         bindedCaching.Default.Should().Be(cache.Default);
-        bindedCaching.Principal.CacheName.Should().Be(cache.Principal.CacheName);
-        bindedCaching.Principal.Duration.Should().Be(cache.Principal.Duration);
 
         IServiceCollection services = new ServiceCollection();
 
@@ -95,8 +89,6 @@ public class CacheContextTests
             Default = "Volatile"
         };
 
-        cache.Principal.CacheName = "Volatile";
-        cache.Principal.Duration = TimeSpan.FromSeconds(1);
         cache.Caches.Add(new Configuration.CachingCache { IsAutoStart = false, Kind = CacheContext.Redis, Name = "Performance" });
         cache.Caches.Add(new Configuration.CachingCache { IsAutoStart = false, Kind = CacheContext.Sql, Name = "Compromize" });
         cache.Caches.Add(new Configuration.CachingCache { IsAutoStart = true, Kind = CacheContext.Memory, Name = "Volatile" });
@@ -113,8 +105,6 @@ public class CacheContextTests
                  new Dictionary<string, string?>
                  {
                      ["Caching:Default"] = cache.Default,
-                     ["Caching:Principal:CacheName"] = cache.Principal.CacheName.ToString(CultureInfo.InvariantCulture),
-                     ["Caching:Principal:Duration"] = cache.Principal.Duration.ToString(),
 
                      ["Caching:Caches:0:Name"] = cache.Caches[0].Name,
                      ["Caching:Caches:0:Kind"] = cache.Caches[0].Kind,
@@ -184,8 +174,6 @@ public class CacheContextTests
             Default = "Volatile"
         };
 
-        cache.Principal.CacheName = "Volatile";
-        cache.Principal.Duration = TimeSpan.FromSeconds(1);
         cache.Caches.Add(new Configuration.CachingCache { IsAutoStart = true, Kind = CacheContext.Memory, Name = "Volatile" });
 
         var memorySettings = new MemoryCacheOption { SizeLimit = 10 };
@@ -197,8 +185,6 @@ public class CacheContextTests
                  new Dictionary<string, string?>
                  {
                      ["Caching:Default"] = cache.Default,
-                     ["Caching:Principal:CacheName"] = cache.Principal.CacheName.ToString(CultureInfo.InvariantCulture),
-                     ["Caching:Principal:Duration"] = cache.Principal.Duration.ToString(),
 
                      ["Caching:Caches:0:Name"] = cache.Caches[0].Name,
                      ["Caching:Caches:0:Kind"] = cache.Caches[0].Kind,

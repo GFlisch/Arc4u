@@ -14,7 +14,7 @@ using Arc4u.Dependency;
 using System;
 using Arc4u.Configuration.Memory;
 
-namespace Arc4u.Standard.UnitTest.Caching;
+namespace Arc4u.UnitTest.Caching;
 
 [Trait("Category", "CI")]
 public class MemoryTest

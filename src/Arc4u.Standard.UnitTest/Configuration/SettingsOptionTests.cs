@@ -11,7 +11,7 @@ using Arc4u.Configuration;
 using System.Globalization;
 using Arc4u.Security.Principal;
 
-namespace Arc4u.Standard.UnitTest;
+namespace Arc4u.UnitTest;
 
 [Trait("Category", "CI")]
 public class SettingsOptionTests

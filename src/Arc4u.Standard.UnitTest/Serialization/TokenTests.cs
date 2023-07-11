@@ -15,7 +15,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Xunit;
 
-namespace Arc4u.Standard.UnitTest.Serialization
+namespace Arc4u.UnitTest.Serialization
 {
     [Trait("Category", "CI")]
     public class TokenTests

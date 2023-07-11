@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Serilog.Core;
 
-namespace Arc4u.Standard.UnitTest.Logging
+namespace Arc4u.UnitTest.Logging
 {
     public class LoggerCategoryFixture : SinkContainerFixture
     {

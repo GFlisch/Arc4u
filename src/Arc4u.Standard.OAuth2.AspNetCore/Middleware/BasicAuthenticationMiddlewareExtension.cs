@@ -5,15 +5,15 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
 using Arc4u.Configuration;
 using Arc4u.OAuth2.Extensions;
+using Arc4u.OAuth2.Options;
 using Arc4u.OAuth2.Token;
 using Arc4u.Security;
 using Arc4u.Security.Cryptography;
-using Arc4u.Standard.OAuth2.Options;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Arc4u.Standard.OAuth2.Middleware;
+namespace Arc4u.OAuth2.Middleware;
 
 public static class BasicAuthenticationMiddlewareExtension
 {
@@ -24,13 +24,18 @@ public static class BasicAuthenticationMiddlewareExtension
         return app.UseMiddleware<BasicAuthenticationMiddleware>(app.ApplicationServices);
     }
 
-    public static void AddBasicAuthenticationSettings(this IServiceCollection services, IConfiguration configuration, string sectionName = "Authentication:Basic", IX509CertificateLoader? certificateLoader = null)
+    public static void AddBasicAuthenticationSettings(this IServiceCollection services, IConfiguration configuration, string sectionName = "Authentication:Basic", IX509CertificateLoader? certificateLoader = null, bool throwExceptionIfSectionDoesntExist = true)
     {
         var section = configuration.GetSection(sectionName);
 
         if (section is null || !section.Exists())
         {
-            throw new ConfigurationException($"No section exists with name {sectionName} in the configuration providers for Basic authentication.");
+            if (throwExceptionIfSectionDoesntExist)
+            {
+                throw new ConfigurationException($"No section exists with name {sectionName} in the configuration providers for Basic authentication.");
+            }
+
+            return;
         }
 
         var settings = section.Get<BasicAuthenticationConfigurationSectionOptions>() ?? throw new NullReferenceException($"No section exists with name {sectionName} in the configuration providers for Basic authentication.");
@@ -69,7 +74,7 @@ public static class BasicAuthenticationMiddlewareExtension
 
         if (!string.IsNullOrEmpty(basicOptions.DefaultUpn))
         {
-            if (!Regex.IsMatch(basicOptions.DefaultUpn, @"^@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))"))
+            if (!Regex.IsMatch(basicOptions.DefaultUpn, @"^@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))", RegexOptions.None, TimeSpan.FromMilliseconds(100)))
             {
                 throw new ConfigurationException("Bad upn format, we expect a @ and one point.");
             }

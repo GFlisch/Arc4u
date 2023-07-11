@@ -1,11 +1,11 @@
+using System;
+using System.Linq;
+using System.Security.Claims;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System;
-using System.Linq;
-using System.Security.Claims;
 
 namespace Arc4u.OAuth2.Security;
 
@@ -22,7 +22,7 @@ public class UserObjectIdentifier : IUserObjectIdentifier
             throw new ArgumentNullException(nameof(identifierOptions));
         }
 #endif
-       
+
         _identifierOptions = identifierOptions.Value;
 
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));

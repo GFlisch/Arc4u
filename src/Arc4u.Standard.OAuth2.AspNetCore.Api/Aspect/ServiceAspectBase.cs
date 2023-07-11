@@ -19,6 +19,7 @@ namespace Arc4u.OAuth2.Aspect
     /// Handle AppException or Exception and return a Bad RequestMessage.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, Inherited = true, AllowMultiple = false)]
+    [Obsolete("Use ManageExceptionsFilter and SetCultureActionFilter instead.")]
     public abstract class ServiceAspectBase : ActionFilterAttribute, IAsyncAuthorizationFilter, IExceptionFilter
     {
         /// <summary>

@@ -10,7 +10,7 @@ using Arc4u.OAuth2.Extensions;
 using FluentAssertions;
 using System;
 
-namespace Arc4u.Standard.UnitTest.Security;
+namespace Arc4u.UnitTest.Security;
 
 
 [Trait("Category", "CI")]

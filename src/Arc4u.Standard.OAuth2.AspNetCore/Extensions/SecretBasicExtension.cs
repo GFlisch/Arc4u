@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Arc4u.Configuration;
-using Arc4u.OAuth2.Extensions;
 using Arc4u.OAuth2.Token;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Arc4u.Standard.OAuth2.Extensions;
+namespace Arc4u.OAuth2.Extensions;
 public static class SecretBasicExtension
 {
     public static void AddSecretAuthentication(this IServiceCollection services, [DisallowNull] Action<SecretBasicSettingsOptions> options, [DisallowNull] string optionKey)
@@ -32,14 +31,14 @@ public static class SecretBasicExtension
 
         if (section is null || !section.Exists())
         {
-            throw new ConfigurationException($"No section in settings file with name {sectionName}.");
+            return;
         }
 
         var basicSecrets = section.Get<Dictionary<string, SecretBasicSettingsOptions>>();
 
         if (basicSecrets is null || !basicSecrets.Any())
         {
-            throw new ConfigurationException($"No Basic Secrets are defined in section in settings file with name {sectionName}.");
+            return;
         }
 
         foreach (var secret in basicSecrets)
@@ -107,6 +106,7 @@ public static class SecretBasicExtension
             throw new ConfigurationException(configErrors);
         }
 
+        var authorityKey = string.Empty;
         if (options.Authority is not null)
         {
             services.AddAuthority(authOptions =>
@@ -115,6 +115,7 @@ public static class SecretBasicExtension
                 authOptions.TokenEndpoint = options.Authority.TokenEndpoint;
                 authOptions.MetaDataAddress = options.Authority.MetaDataAddress;
             }, optionKey);
+            authorityKey = optionKey;
         }
 
         // We map this to a IKeyValuesSettings dictionary.
@@ -126,14 +127,10 @@ public static class SecretBasicExtension
             settings.Add(TokenKeys.AuthenticationTypeKey, options.AuthenticationType);
             settings.Add(TokenKeys.ClientIdKey, options.ClientId);
             settings.Add(TokenKeys.Scope, options.Scope);
-            if (options.Authority is not null)
-            {
-                // info to retrieve the authority!
-                settings.Add(TokenKeys.AuthorityKey, optionKey);
-            }
-            settings.Add("User", options.User);
-            settings.Add("Password", options.Password);
-            settings.Add("Credential", options.Credential);
+            settings.AddifNotNullOrEmpty("User", options.User);
+            settings.AddifNotNullOrEmpty("Password", options.Password);
+            settings.AddifNotNullOrEmpty("Credential", options.Credential);
+            settings.AddifNotNullOrEmpty(TokenKeys.AuthorityKey, authorityKey);
             settings.Add("BasicProviderId", options.BasicProviderId);
         }
 

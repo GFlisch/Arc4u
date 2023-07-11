@@ -1,4 +1,4 @@
-﻿using Arc4u.Serializer.ProtoBuf;
+using Arc4u.Serializer.ProtoBuf;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -13,6 +13,7 @@ namespace Arc4u.Serializer
     /// - The fully qualified type name is added to the serialization information to allow unserializing even when the type doesn't match (but is compatible).
     /// </summary>
     /// <typeparam name="T"></typeparam>
+    [Obsolete("Use Arc4u.Serializer.JSon instead.")]
     public class ProtoBufSerialization : IObjectSerialization
     {
         private static class TypedSerialize<T>

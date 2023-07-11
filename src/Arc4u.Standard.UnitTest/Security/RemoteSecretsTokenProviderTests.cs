@@ -10,7 +10,7 @@ using AutoFixture.AutoMoq;
 using FluentAssertions;
 using Xunit;
 
-namespace Arc4u.Standard.UnitTest.Security;
+namespace Arc4u.UnitTest.Security;
 
 [Trait("Category", "CI")]
 

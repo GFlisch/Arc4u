@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Security.Claims;
 using System.Security.Principal;
 
@@ -121,7 +121,7 @@ namespace Arc4u.Security.Principal
         /// Gets or sets the activity ID.
         /// </summary>
         /// <value>The activity ID.</value>
-        public Guid ActivityID { get; set; } = Guid.Empty;
+        public string ActivityID { get; set; } = string.Empty;
 
         // If user profile is 
         private UserProfile profile;

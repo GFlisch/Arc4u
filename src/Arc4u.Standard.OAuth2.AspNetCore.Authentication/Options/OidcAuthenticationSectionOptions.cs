@@ -1,6 +1,5 @@
 using System;
 using Arc4u.OAuth2.Events;
-using Arc4u.Standard.OAuth2;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace Arc4u.OAuth2.Options;
@@ -34,6 +33,14 @@ public class OidcAuthenticationSectionOptions
     public TimeSpan DefaultKeyLifetime { get; set; } = TimeSpan.FromDays(365);
 
     public string ApplicationNameSectionPath { get; set; } = "Application.configuration:ApplicationName";
+
+    public string TokenCacheSectionPath { get; set; } = "Authentication:TokenCache";
+
+    public string DomainMappingsSectionPath { get; set; } = "Authentication:DomainsMapping";
+
+    public string ClaimsFillerSectionPath { get; set; } = "Authentication:ClaimsMiddleWare:ClaimsFiller";
+
+    public string BasicAuthenticationSectionPath { get; set; } = "Authentication:Basic";
 
     public string JwtBearerEventsType { get; set; } = typeof(StandardBearerEvents).AssemblyQualifiedName!;
 

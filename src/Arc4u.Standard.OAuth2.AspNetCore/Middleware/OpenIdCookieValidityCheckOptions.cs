@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using System;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
-namespace Arc4u.Standard.OAuth2.Middleware
+namespace Arc4u.OAuth2.Middleware
 {
+    [Obsolete("Not necessary with the new Authentication model. Migrate to the new one.")]
     public class OpenIdCookieValidityCheckOptions
     {
         public ICookieManager CookieManager { get; set; }

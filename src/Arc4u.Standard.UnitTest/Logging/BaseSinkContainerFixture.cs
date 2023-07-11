@@ -4,7 +4,7 @@ using Serilog.Core;
 using System.Runtime.CompilerServices;
 using Xunit;
 
-namespace Arc4u.Standard.UnitTest.Logging
+namespace Arc4u.UnitTest.Logging
 {
     public abstract class BaseSinkContainerFixture<T, TFixture> : IClassFixture<TFixture> where TFixture : class, ISinkContainerFixture
     {
