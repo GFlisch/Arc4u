@@ -76,6 +76,8 @@ namespace Arc4u.OAuth2.TokenProvider
         /// Signs out the user by clearing the token.
         /// </summary>
         /// <param name="settings">The settings to be used for signing out (not used in this implementation).</param>
+        /// <param name="cancellationToken">The Cancellation token <see cref="CancellationToken"/></param>
+        /// <returns><see cref="ValueTask"/></returns>
         public ValueTask SignOutAsync(IKeyValueSettings settings, CancellationToken cancellationToken)
         {
 #if NET6_0_OR_GREATER

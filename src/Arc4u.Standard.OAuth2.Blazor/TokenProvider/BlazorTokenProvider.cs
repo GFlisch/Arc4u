@@ -83,7 +83,9 @@ namespace Arc4u.OAuth2.TokenProvider
                 {
                     var token = new JwtSecurityToken(accessToken);
                     if (token.ValidTo > DateTime.UtcNow.AddMinutes(-5))
+                    {
                         return new TokenInfo("Bearer", accessToken, token.ValidTo);
+                    }
 
                     // ensure the token is removed before we try to have a new one.
                     await _localStorage.RemoveItemAsync("token");
@@ -98,10 +100,12 @@ namespace Arc4u.OAuth2.TokenProvider
             return null;
         }
 
-                /// <summary>
+        /// <summary>
         /// Signs out the user by clearing the token.
         /// </summary>
         /// <param name="settings">The settings to be used for signing out (not used in this implementation).</param>
+        /// <param name="cancellationToken">The Cancellation token <see cref="CancellationToken"/></param>
+        /// <returns><see cref="ValueTask"/></returns>
         public ValueTask SignOutAsync(IKeyValueSettings settings, CancellationToken cancellationToken)
         {
             return _localStorage.RemoveItemAsync("token", cancellationToken);
