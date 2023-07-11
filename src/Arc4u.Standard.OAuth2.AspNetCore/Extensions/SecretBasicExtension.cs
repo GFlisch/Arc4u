@@ -113,6 +113,7 @@ public static class SecretBasicExtension
             {
                 authOptions.Url = options.Authority.Url;
                 authOptions.TokenEndpoint = options.Authority.TokenEndpoint;
+                authOptions.MetaDataAddress = options.Authority.MetaDataAddress;
             }, optionKey);
             authorityKey = optionKey;
         }

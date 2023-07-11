@@ -54,6 +54,7 @@ public static class OpenIdSettingsExtension
                 {
                     options.Url = validate.Authority.Url;
                     options.TokenEndpoint = validate.Authority.TokenEndpoint;
+                    options.MetaDataAddress = validate.Authority.MetaDataAddress;
                 });
             }
 

@@ -69,6 +69,7 @@ public static partial class AuthenticationExtensions
         {
             options.Url = oidcOptions.DefaultAuthority.Url;
             options.TokenEndpoint = oidcOptions.DefaultAuthority.TokenEndpoint;
+            options.MetaDataAddress = oidcOptions.DefaultAuthority.MetaDataAddress;
         });
         // store the configuration => this will be used by the AddCookies to define the ITicketStore implementation.
         services.Configure<OidcAuthenticationOptions>(authenticationOptions);
@@ -338,6 +339,7 @@ public static partial class AuthenticationExtensions
         {
             auth.Url = options.DefaultAuthority.Url;
             auth.TokenEndpoint = options.DefaultAuthority.TokenEndpoint;
+            auth.MetaDataAddress = options.DefaultAuthority.MetaDataAddress;
         });
 
         var authenticationBuilder =

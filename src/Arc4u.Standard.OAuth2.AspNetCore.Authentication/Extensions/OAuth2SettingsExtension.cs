@@ -53,6 +53,7 @@ public static class OAuth2SettingsExtension
                 {
                     options.Url = validate.Authority.Url;
                     options.TokenEndpoint = validate.Authority.TokenEndpoint;
+                    options.MetaDataAddress = validate.Authority.MetaDataAddress;
                 });
             }
 

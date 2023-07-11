@@ -103,8 +103,8 @@ public class AzureADOboTokenProvider : ITokenProvider
         using (var client = new HttpClient(handler))
         {
             var content = new FormUrlEncodedContent(pairs);
-
-            using var tokenResponse = await client.PostAsync(_defaultAuthority.GetEndpoint(), content, CancellationToken.None).ConfigureAwait(false);
+            var endPoint = await _defaultAuthority.GetEndpointAsync(CancellationToken.None).ConfigureAwait(false);
+            using var tokenResponse = await client.PostAsync(endPoint, content, CancellationToken.None).ConfigureAwait(false);
             {
                 if (!tokenResponse.IsSuccessStatusCode)
                 {

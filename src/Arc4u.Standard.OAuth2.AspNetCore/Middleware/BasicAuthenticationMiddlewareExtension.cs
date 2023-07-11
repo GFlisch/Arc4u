@@ -135,6 +135,7 @@ public static class BasicAuthenticationMiddlewareExtension
         {
             authOptions.Url = validate.Authority.Url;
             authOptions.TokenEndpoint = validate.Authority.TokenEndpoint;
+            authOptions.MetaDataAddress = validate.Authority.MetaDataAddress;
         }, "Basic");
 
         return true;
