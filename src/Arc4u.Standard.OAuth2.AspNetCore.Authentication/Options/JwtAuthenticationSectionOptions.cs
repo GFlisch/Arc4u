@@ -8,10 +8,6 @@ public class JwtAuthenticationSectionOptions
 
     public string OAuth2SettingsKey { get; set; } = Constants.OAuth2OptionsName;
 
-    public string MetadataAddress { get; set; } = null!;
-
-    public bool RequireHttpsMetadata { get; set; } = true;
-
     public bool ValidateAuthority { get; set; } = true;
 
     public string JwtBearerEventsType { get; set; } = typeof(StandardBearerEvents).AssemblyQualifiedName!;

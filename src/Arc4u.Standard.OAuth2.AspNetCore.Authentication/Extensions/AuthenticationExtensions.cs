@@ -46,7 +46,9 @@ public static partial class AuthenticationExtensions
             services.AddCacheTicketStore(oidcOptions.AuthenticationCacheTicketStoreOption);
         }
 
-        ArgumentNullException.ThrowIfNull(oidcOptions.MetadataAddress);
+        // The Metadata address is retrieved from the DefaultAuthority!
+        ArgumentNullException.ThrowIfNull(oidcOptions.DefaultAuthority.GetMetaDataAddress());
+        ArgumentNullException.ThrowIfNull(oidcOptions.DefaultAuthority.MetaDataAddress); // should never be the case!
 
         services.AddDataProtection()
           .PersistKeysToCache(oidcOptions.DataProtectionCacheStoreOption)
@@ -112,8 +114,8 @@ public static partial class AuthenticationExtensions
                     options.UseTokenLifetime = false;
                     options.SaveTokens = false;
                     options.Authority = openIdOptions.Authority is null ? oidcOptions.DefaultAuthority.Url.ToString() : openIdOptions.Authority.Url.ToString();
-                    options.RequireHttpsMetadata = oidcOptions.RequireHttpsMetadata;
-                    options.MetadataAddress = oidcOptions.MetadataAddress;
+                    options.RequireHttpsMetadata = oidcOptions.DefaultAuthority.MetaDataAddress.Scheme.Equals(Uri.UriSchemeHttps, StringComparison.InvariantCultureIgnoreCase);
+                    options.MetadataAddress = oidcOptions.DefaultAuthority.MetaDataAddress.ToString();
                     options.ResponseType = oidcOptions.ResponseType;
                     options.CallbackPath = oidcOptions.CallbackPath;
                     options.Scope.Clear();
@@ -149,9 +151,9 @@ public static partial class AuthenticationExtensions
                 })
                 .AddJwtBearer(option =>
                 {
-                    option.RequireHttpsMetadata = oidcOptions.RequireHttpsMetadata;
+                    option.RequireHttpsMetadata = oidcOptions.DefaultAuthority.MetaDataAddress.Scheme.Equals(Uri.UriSchemeHttps, StringComparison.InvariantCultureIgnoreCase);
                     option.Authority = oauth2Options.Authority is null ? oidcOptions.DefaultAuthority.Url.ToString() : oauth2Options.Authority.Url.ToString();
-                    option.MetadataAddress = oidcOptions.MetadataAddress;
+                    option.MetadataAddress = oidcOptions.DefaultAuthority.MetaDataAddress.ToString();
                     option.SaveToken = true;
                     option.TokenValidationParameters.SaveSigninToken = false;
                     option.TokenValidationParameters.AuthenticationType = oauth2Options.AuthenticationType;
@@ -184,9 +186,9 @@ public static partial class AuthenticationExtensions
         var settings = section.Get<OidcAuthenticationSectionOptions>() ?? throw new NullReferenceException($"No section exists with name {authenticationSectionName} in the configuration providers for OpenId Connect authentication.");
 
         string? configErrors = null;
-        if (string.IsNullOrWhiteSpace(settings.MetadataAddress))
+        if (settings.DefaultAuthority is null)
         {
-            configErrors += "MetadataAddress must be filled!" + System.Environment.NewLine;
+            configErrors += "DefaultAuthority must be filled!" + System.Environment.NewLine;
         }
         if (string.IsNullOrWhiteSpace(settings.CookieName))
         {
@@ -266,9 +268,7 @@ public static partial class AuthenticationExtensions
 
         void OidcAuthenticationFiller(OidcAuthenticationOptions options)
         {
-            options.DefaultAuthority = settings.DefaultAuthority;
-            options.RequireHttpsMetadata = settings.RequireHttpsMetadata;
-            options.MetadataAddress = settings!.MetadataAddress;
+            options.DefaultAuthority = settings.DefaultAuthority!;
             options.CookieName = settings.CookieName;
             options.ValidateAuthority = settings.ValidateAuthority;
             options.AuthenticationCacheTicketStoreOption = ticketStoreAction;
@@ -326,7 +326,8 @@ public static partial class AuthenticationExtensions
         options.OAuth2SettingsOptions(oauth2Options);
 
         ArgumentNullException.ThrowIfNull(options.JwtBearerEventsType);
-        ArgumentNullException.ThrowIfNull(options.MetadataAddress);
+        ArgumentNullException.ThrowIfNull(options.DefaultAuthority.GetMetaDataAddress());
+        ArgumentNullException.ThrowIfNull(options.DefaultAuthority.MetaDataAddress);
 
         services.ConfigureOAuth2Settings(options.OAuth2SettingsOptions, options.OAuth2SettingsKey);
         services.AddClaimsIdentifier(options.ClaimsIdentifierOptions);
@@ -348,9 +349,9 @@ public static partial class AuthenticationExtensions
                 {
                     SecurityKey? securityKey = options.CertSecurityKey is not null ? new X509SecurityKey(options.CertSecurityKey) : null;
 
-                    option.RequireHttpsMetadata = options.RequireHttpsMetadata;
+                    option.RequireHttpsMetadata = options.DefaultAuthority.MetaDataAddress.Scheme.Equals(Uri.UriSchemeHttps, StringComparison.InvariantCultureIgnoreCase);
                     option.Authority = oauth2Options.Authority is null ? options.DefaultAuthority.Url.ToString() : oauth2Options.Authority.Url.ToString();
-                    option.MetadataAddress = options.MetadataAddress;
+                    option.MetadataAddress = options.DefaultAuthority.MetaDataAddress.ToString();
                     option.SaveToken = true;
                     option.TokenValidationParameters.SaveSigninToken = false;
                     option.TokenValidationParameters.AuthenticationType = Constants.BearerAuthenticationType;
@@ -386,9 +387,9 @@ public static partial class AuthenticationExtensions
             throw new NullReferenceException($"No section exists with name {authenticationSectionName} in the configuration providers for OAuth2 Connect authentication.");
         }
 
-        if (string.IsNullOrWhiteSpace(settings.MetadataAddress))
+        if (settings.DefaultAuthority is null)
         {
-            throw new MissingFieldException("MetadataAddress must be filled!");
+            throw new MissingFieldException("DefaultAuthority must be filled!");
         }
 
         if (string.IsNullOrWhiteSpace(settings.OAuth2SettingsSectionPath))
@@ -406,8 +407,6 @@ public static partial class AuthenticationExtensions
         void JwtAuthenticationFiller(JwtAuthenticationOptions options)
         {
             options.DefaultAuthority = settings.DefaultAuthority;
-            options.RequireHttpsMetadata = settings.RequireHttpsMetadata;
-            options.MetadataAddress = settings!.MetadataAddress;
             options.ValidateAuthority = settings.ValidateAuthority;
             options.OAuth2SettingsKey = settings.OAuth2SettingsKey;
             options.OAuth2SettingsOptions = OAuth2SettingsExtension.PrepareAction(configuration, settings.OAuth2SettingsSectionPath);

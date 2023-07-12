@@ -12,11 +12,7 @@ public class JwtAuthenticationOptions
 
     public string OAuth2SettingsKey { get; set; } = Constants.OAuth2OptionsName;
 
-    public string MetadataAddress { get; set; }
-
-    public bool RequireHttpsMetadata { get; set; } = true;
-
-    public bool ValidateAuthority { get; set; } = true;
+     public bool ValidateAuthority { get; set; } = true;
 
     public Type JwtBearerEventsType { get; set; } = typeof(StandardBearerEvents);
 

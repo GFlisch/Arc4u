@@ -6,9 +6,6 @@ namespace Arc4u.OAuth2.Options;
 public class OidcAuthenticationSectionOptions
 {
     public AuthorityOptions DefaultAuthority { get; set; }
-    public bool RequireHttpsMetadata { get; set; } = true;
-
-    public string MetadataAddress { get; set; }
 
     public string CookieName { get; set; }
 
