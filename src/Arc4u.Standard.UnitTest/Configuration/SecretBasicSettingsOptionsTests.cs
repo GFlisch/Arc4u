@@ -154,7 +154,7 @@ public class SecretBasicSettingsOptionsTests
 
         var sutAuthority = serviceProvider.GetService<IOptionsMonitor<AuthorityOptions>>()!.Get("Client1");
         sutAuthority.Should().NotBeNull();
-        sutAuthority.Url.Should().BeNullOrEmpty();
+        sutAuthority.Url.Should().BeNull();
     }
 
     [Fact]

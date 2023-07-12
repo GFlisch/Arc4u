@@ -30,14 +30,14 @@ public class AuthenticationOptionsTests
     public void Oauth2_Key_Values_With_Authority_Should()
     {
         var options = _fixture.Create<OAuth2SettingsOption>();
-        var authority = _fixture.Build<AuthorityOptions>().With(p => p.Url, _fixture.Create<Uri>().ToString()).Create();
+        var authority = _fixture.Build<AuthorityOptions>().With(p => p.Url, _fixture.Create<Uri>()).Create();
 
         var config = new ConfigurationBuilder()
                      .AddInMemoryCollection(
                          new Dictionary<string, string?>
                          {
                              ["OAuth2.Settings:Audiences"] = options.Audiences,
-                             ["OAuth2.Settings:Authority:Url"] = authority.Url,
+                             ["OAuth2.Settings:Authority:Url"] = authority.Url.ToString(),
                              ["OAuth2.Settings:Scopes"] = options.Scopes,
                          }).Build();
 
@@ -59,7 +59,7 @@ public class AuthenticationOptionsTests
 
         var sutAuthority = serviceProvider.GetService<IOptionsMonitor<AuthorityOptions>>()!.Get(Constants.OAuth2OptionsName);
 
-        sutAuthority.Url.Should().NotBeNullOrWhiteSpace();
+        sutAuthority.Url.Should().NotBeNull();
         sutAuthority.Url.Should().Be(authority.Url);
 
     }
@@ -95,7 +95,7 @@ public class AuthenticationOptionsTests
 
         var sutAuthority = serviceProvider.GetService<IOptionsMonitor<AuthorityOptions>>()!.Get(Constants.OAuth2OptionsName);
 
-        sutAuthority.Url.Should().BeNullOrWhiteSpace();
+        sutAuthority.Url.Should().BeNull();
 
 
     }

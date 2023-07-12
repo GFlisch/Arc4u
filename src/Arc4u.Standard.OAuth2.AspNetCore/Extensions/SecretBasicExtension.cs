@@ -111,9 +111,7 @@ public static class SecretBasicExtension
         {
             services.AddAuthority(authOptions =>
             {
-                authOptions.Url = options.Authority.Url;
-                authOptions.TokenEndpoint = options.Authority.TokenEndpoint;
-                authOptions.MetaDataAddress = options.Authority.MetaDataAddress;
+                authOptions.SetData(options.Authority.Url, options.Authority.TokenEndpoint, options.Authority.MetaDataAddress);
             }, optionKey);
             authorityKey = optionKey;
         }

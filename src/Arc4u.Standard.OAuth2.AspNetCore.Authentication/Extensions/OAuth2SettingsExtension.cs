@@ -51,9 +51,7 @@ public static class OAuth2SettingsExtension
                 keyOptions.Add(TokenKeys.AuthorityKey, Constants.OAuth2OptionsName);
                 services.Configure<AuthorityOptions>(Constants.OAuth2OptionsName, options =>
                 {
-                    options.Url = validate.Authority.Url;
-                    options.TokenEndpoint = validate.Authority.TokenEndpoint;
-                    options.MetaDataAddress = validate.Authority.MetaDataAddress;
+                    options.SetData(validate.Authority.Url, validate.Authority.TokenEndpoint, validate.Authority.MetaDataAddress);
                 });
             }
 
@@ -63,7 +61,6 @@ public static class OAuth2SettingsExtension
                 keyOptions.Add(TokenKeys.Scopes, validate.Scopes);
             }
         }
-
 
         services.Configure<SimpleKeyValueSettings>(sectionKey, SettingsFiller);
 

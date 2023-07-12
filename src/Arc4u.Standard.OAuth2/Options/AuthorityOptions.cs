@@ -12,63 +12,74 @@ namespace Arc4u.OAuth2.Options;
 
 public class AuthorityOptions
 {
-    private Uri? _metaDataUri;
-    private Uri? _tokenEndpoint;
+    /// <summary>
+    /// For Serialization.
+    /// </summary>
+    public AuthorityOptions()
+    {
+    }
+
+    public AuthorityOptions(Uri url, Uri? tokenEndpoint, Uri? metadataAddress)
+    {
+        Url = url;
+        TokenEndpoint = tokenEndpoint;
+        MetaDataAddress = metadataAddress;
+    }
+
+    public void SetData(Uri url, Uri? tokenEndpoint, Uri? metadataAddress)
+    {
+        Url = url;
+        TokenEndpoint = tokenEndpoint;
+        MetaDataAddress = metadataAddress;
+    }
 
     /// <summary>
     /// Only define the properties that are being used when calling the well-known Oidc endpoint.
     /// </summary>
-    private class OpenIdConfiguration
+    private sealed class OpenIdConfiguration
     {
         public /*required*/ Uri token_endpoint { get; set; } = default!;
     }
 
+    public /*required*/ Uri Url { get; set; } = default!;
 
-    public string Url { get; set; } = string.Empty;
+    public Uri? TokenEndpoint { get; set; }
 
-    public string? TokenEndpoint { get; set; }
+    public Uri? MetaDataAddress { get; set; }
 
-    public string? MetaDataAddress { get; set; }
-
-
+    /// <summary>
+    /// Will retrieve the v2.0 openid connect discovery.
+    /// If you want another one, just provide the full metadata address!
+    /// </summary>
+    /// <returns>Thetoken_endpoint to use!</returns>
     public Uri GetMetaDataAddress()
     {
-        if (_metaDataUri == null)
+        if (MetaDataAddress == null)
         {
             var uriBuilder = new UriBuilder(Url);
             // See section 4 of https://openid.net/specs/openid-connect-discovery-1_0.html
-            uriBuilder.Path += "/.well-known/openid-configuration";
+            uriBuilder.Path += "/v2.0/.well-known/openid-configuration";
             uriBuilder.Path = uriBuilder.Path.Replace("//", "/");
-            _metaDataUri = uriBuilder.Uri;
+            MetaDataAddress = uriBuilder.Uri;
         }
-        return _metaDataUri;
+        return MetaDataAddress;
     }
 
 
     public async Task<Uri> GetEndpointAsync(CancellationToken cancellationToken)
     {
-        if (_tokenEndpoint == null)
+        if (TokenEndpoint is null)
         {
-            if (string.IsNullOrEmpty(TokenEndpoint))
-            {
-                using var client = new HttpClient();
-                OpenIdConfiguration? openIdConfiguration;
+            using var client = new HttpClient();
+            OpenIdConfiguration? openIdConfiguration;
 #if NET6_0_OR_GREATER
-                openIdConfiguration = await client.GetFromJsonAsync<OpenIdConfiguration>(GetMetaDataAddress(), cancellationToken).ConfigureAwait(false);
+            openIdConfiguration = await client.GetFromJsonAsync<OpenIdConfiguration>(GetMetaDataAddress(), cancellationToken).ConfigureAwait(false);
 #else
-                using var stream = await client.GetStreamAsync(GetMetaDataAddress()).ConfigureAwait(false);
-                openIdConfiguration = await JsonSerializer.DeserializeAsync<OpenIdConfiguration>(stream, cancellationToken: cancellationToken).ConfigureAwait(false);
+            using var stream = await client.GetStreamAsync(GetMetaDataAddress()).ConfigureAwait(false);
+            openIdConfiguration = await JsonSerializer.DeserializeAsync<OpenIdConfiguration>(stream, cancellationToken: cancellationToken).ConfigureAwait(false);
 #endif
-                _tokenEndpoint = openIdConfiguration!.token_endpoint;
-            }
-            else
-            {
-                var uriBuilder = new UriBuilder(Url);
-                uriBuilder.Path += TokenEndpoint;
-                uriBuilder.Path = uriBuilder.Path.Replace("//", "/");
-                _tokenEndpoint = uriBuilder.Uri;
-            }
+            TokenEndpoint = openIdConfiguration!.token_endpoint;
         }
-        return _tokenEndpoint;
+        return TokenEndpoint;
     }
 }

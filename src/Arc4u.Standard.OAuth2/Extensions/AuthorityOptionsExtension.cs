@@ -13,43 +13,6 @@ public static class AuthorityOptionsExtension
         services.AddAuthority(options, "Default");
     }
 
-
-    public static void AddAuthority(this IServiceCollection services, Action<AuthorityOptions> options, string optionKey)
-    {
-#if NET6_0_OR_GREATER
-        ArgumentNullException.ThrowIfNull(services);
-        ArgumentNullException.ThrowIfNull(options);
-
-#endif
-#if NETSTANDARD2_0
-        if (services is null)
-        {
-            throw new ArgumentNullException(nameof(services));
-        }
-        if (options is null)
-        {
-            throw new ArgumentNullException(nameof(options));
-        }
-#endif
-        if (string.IsNullOrWhiteSpace(optionKey))
-        {
-            throw new ArgumentNullException(optionKey);
-        }
-
-        // validation.
-        var extract = new AuthorityOptions();
-        options(extract);
-
-        if (string.IsNullOrWhiteSpace(extract.Url))
-        {
-            throw new ConfigurationException("Url authority field is mandatory.");
-        }
-
-        // v1.0 is not mandatory and should disappear.
-
-        services.Configure(optionKey, options);
-    }
-
     public static void AddDefaultAuthority(this IServiceCollection services, IConfiguration configuration, string sectionName = "Authentication:DefaultAuthority")
     {
 #if NET6_0_OR_GREATER
@@ -88,9 +51,44 @@ public static class AuthorityOptionsExtension
 
         services.AddDefaultAuthority(options =>
         {
-            options.Url = option.Url;
-            options.TokenEndpoint = option.TokenEndpoint;
-            options.MetaDataAddress = option.MetaDataAddress;
+            options.SetData(option.Url, option.TokenEndpoint, option.MetaDataAddress);
         });
     }
+
+    public static void AddAuthority(this IServiceCollection services, Action<AuthorityOptions> options, string optionKey)
+    {
+#if NET6_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(options);
+
+#endif
+#if NETSTANDARD2_0
+        if (services is null)
+        {
+            throw new ArgumentNullException(nameof(services));
+        }
+        if (options is null)
+        {
+            throw new ArgumentNullException(nameof(options));
+        }
+#endif
+        if (string.IsNullOrWhiteSpace(optionKey))
+        {
+            throw new ArgumentNullException(optionKey);
+        }
+
+        // validation.
+        var extract = new AuthorityOptions();
+        options(extract);
+
+        if (extract.Url is null)
+        {
+            throw new ConfigurationException("Url authority field is mandatory.");
+        }
+
+        // v1.0 is not mandatory and should disappear.
+
+        services.Configure(optionKey, options);
+    }
+
 }

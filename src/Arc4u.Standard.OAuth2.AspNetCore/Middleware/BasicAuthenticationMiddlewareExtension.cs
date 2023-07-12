@@ -126,16 +126,9 @@ public static class BasicAuthenticationMiddlewareExtension
             return false;
         }
 
-        if (string.IsNullOrWhiteSpace(validate.Authority.Url))
-        {
-            return false;
-        }
-
         services.AddAuthority(authOptions =>
         {
-            authOptions.Url = validate.Authority.Url;
-            authOptions.TokenEndpoint = validate.Authority.TokenEndpoint;
-            authOptions.MetaDataAddress = validate.Authority.MetaDataAddress;
+            authOptions.SetData(validate.Authority.Url, validate.Authority.TokenEndpoint, validate.Authority.MetaDataAddress);
         }, "Basic");
 
         return true;
