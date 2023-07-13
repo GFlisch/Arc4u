@@ -21,7 +21,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Arc4u.Standard.Diagnostics\Arc4u.Standard.Diagnostics.csproj" />
     <ProjectReference Include="..\Arc4u.Standard\Arc4u.Standard.csproj" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\LICENSE">
