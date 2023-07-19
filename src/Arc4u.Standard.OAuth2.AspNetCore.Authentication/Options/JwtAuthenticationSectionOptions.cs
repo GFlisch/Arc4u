@@ -23,4 +23,7 @@ public class JwtAuthenticationSectionOptions
     public string ClientSecretSectionPath { get; set; } = "Authentication:ClientSecrets";
 
     public string RemoteSecretSectionPath { get; set; } = "Authentication:RemoteSecrets";
+
+    public string DomainMappingsSectionPath { get; set; } = "Authentication:DomainsMapping";
+
 }

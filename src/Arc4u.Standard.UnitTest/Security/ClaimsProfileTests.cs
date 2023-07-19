@@ -34,9 +34,9 @@ public class ClaimsProfileTests
              .AddInMemoryCollection(
         new Dictionary<string, string?>
         {
-            ["Authentication:DomainMapping:Arc4u.net"] = "arc4u.net",
-            ["Authentication:DomainMapping:Arc4u"] = "arc4u.net",
-            ["Authentication:DomainMapping:Arc4u-net"] = "arc4u.net",
+            ["Authentication:DomainsMapping:Arc4u.net"] = "arc4u.net",
+            ["Authentication:DomainsMapping:Arc4u"] = "arc4u.net",
+            ["Authentication:DomainsMapping:Arc4u-net"] = "arc4u.net",
         }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
@@ -79,9 +79,9 @@ public class ClaimsProfileTests
              .AddInMemoryCollection(
         new Dictionary<string, string?>
         {
-            ["Authentication:DomainMapping:Arc4u.net"] = "arc4u.net",
-            ["Authentication:DomainMapping:arc4u"] = "arc4u.net",
-            ["Authentication:DomainMapping:Arc4u-net"] = "arc4u.net",
+            ["Authentication:DomainsMapping:Arc4u.net"] = "arc4u.net",
+            ["Authentication:DomainsMapping:arc4u"] = "arc4u.net",
+            ["Authentication:DomainsMapping:Arc4u-net"] = "arc4u.net",
         }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));

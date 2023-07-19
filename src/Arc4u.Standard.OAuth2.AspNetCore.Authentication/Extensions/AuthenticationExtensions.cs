@@ -226,6 +226,11 @@ public static partial class AuthenticationExtensions
         {
             configErrors += "We need a setting section to configure the ClaimsFillerOptions." + System.Environment.NewLine;
         }
+        if (string.IsNullOrWhiteSpace(settings.DomainMappingsSectionPath))
+        {
+            configErrors += "We need a setting section to configure the DomainsMapping." + System.Environment.NewLine;
+        }
+
         if (configErrors is not null)
         {
             throw new ConfigurationException(configErrors);
@@ -415,6 +420,7 @@ public static partial class AuthenticationExtensions
             options.ClaimsIdentifierOptions = ClaimsIdentiferExtension.PrepareAction(configuration, settings.ClaimsIdentifierSectionPath);
         }
 
+        services.AddDomainMapping(configuration, settings.DomainMappingsSectionPath);
         services.AddTokenCache(configuration, settings.TokenCacheSectionPath);
         services.AddClaimsFiller(configuration, settings.ClaimsFillerSectionPath);
         services.AddSecretAuthentication(configuration, settings.ClientSecretSectionPath);
