@@ -21,7 +21,7 @@ public static class DomainMappingExtensions
         services.Configure<SimpleKeyValueSettings>(sectionKey, options);
     }
 
-    public static void AddDomainMapping(this IServiceCollection services, IConfiguration configuration, string sectionName = "DomainMapping", string sectionKey = "DomainMapping")
+    public static void AddDomainMapping(this IServiceCollection services, IConfiguration configuration, string sectionName = "Authentication:DomainMapping", string sectionKey = "DomainMapping")
     {
         if (string.IsNullOrWhiteSpace(sectionName))
         {

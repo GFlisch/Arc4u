@@ -59,7 +59,7 @@ public class ClaimsProfileFiller : IClaimProfileFiller
         // transform the upn in domain\user.
         if (!string.IsNullOrWhiteSpace(upn))
         {
-            if (upn.Contains("@"))
+            if (upn.Contains('@'))
             {
                 var array = upn.Split('@');
                 if (array.Length == 2)
@@ -69,10 +69,18 @@ public class ClaimsProfileFiller : IClaimProfileFiller
                     {
                         domain = _domainMapping[array[1]];
                     }
+                    else
+                    {
+                        domain = array[1];
+                        if (domain.Contains('.'))
+                        {
+                            domain = domain.Split('.')[0];
+                        }
+                    }
                 }
             }
             else
-            if (upn.Contains("\\"))
+            if (upn.Contains('\\'))
             {
                 var array = upn.Split('\\');
                 if (array.Length == 2)
@@ -81,6 +89,10 @@ public class ClaimsProfileFiller : IClaimProfileFiller
                     if (_domainMapping.ContainsKey(array[0]))
                     {
                         domain = _domainMapping[array[0]];
+                    }
+                    else
+                    {
+                        domain = array[0];
                     }
                 }
             }

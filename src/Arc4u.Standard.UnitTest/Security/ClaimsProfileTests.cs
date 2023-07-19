@@ -43,7 +43,7 @@ public class ClaimsProfileTests
 
         IServiceCollection services = new ServiceCollection();
 
-        services.AddDomainMapping(configuration, "Authentication:DomainMapping");
+        services.AddDomainMapping(configuration);
 
         var serviceProvider = services.BuildServiceProvider();
 
@@ -88,7 +88,7 @@ public class ClaimsProfileTests
 
         IServiceCollection services = new ServiceCollection();
 
-        services.AddDomainMapping(configuration, "Authentication:DomainMapping");
+        services.AddDomainMapping(configuration);
 
         var serviceProvider = services.BuildServiceProvider();
 
@@ -131,7 +131,7 @@ public class ClaimsProfileTests
 
         IServiceCollection services = new ServiceCollection();
 
-        services.AddDomainMapping(configuration, "Authentication:DomainMapping");
+        services.AddDomainMapping(configuration);
 
         var serviceProvider = services.BuildServiceProvider();
 
@@ -157,6 +157,6 @@ public class ClaimsProfileTests
 
         sut.Should().NotBeNull();
         mockSettings.Verify(m => m.Get("DomainMapping"), Times.Once());
-        sut.Domain.Should().BeEmpty();
+        sut.Domain.Should().Be("arc4u");
     }
 }
