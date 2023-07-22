@@ -1,5 +1,47 @@
 # Releases of Arc4u packages.
 
+## 6.1
+
+The number of changes introduced in this version is so huge and some breaking changes are part of this version, the major version 
+number is then logically changed.
+
+The main driver of this update is the capability to work with standard identity providers by removing the dependencies to ADAL (which is deprecated)
+but also MSAL which is linked too to Entra ID.
+
+The start of the story was to support a customer still using ADFS and having the problem that ADAL is deprecated and MSAL is not supporting ADFS!
+With this in mind I started to implement with the standard Microsoft libraries of aspnet core a new Authentication libraries and by adopting the 
+standards, other identity providers were supported. I have personaly done tests with AzureAD, Azure B2C, ADFS, Keycloak and Forgerock.
+
+The current refactoring is only done for the backend part, front end are still using MSAL and will be part of a second refactring in the future.
+I will do this with the .NET 8.0 integration with .NET MAUI, Blazor, and probably Wpf for customers having still this technology (heavily used in the industry).
+
+The changes will not ne explaind here (too much) but link to the different documentation will be provided here!
+
+During the refactoring, simplification regarding configuration and usage of this was done and the organisation of the settings was also done.
+
+The pluggable idea of the Arc4u framework is still there and you can always change behaviors by injecting your code if needed!
+
+Some libraries are removed like:
+- Arc4u.Standard.OAuth.AspNetCore.Msal
+- Arc4u.Standard.KubeMQ.AspNetCore
+- Arc4u.Standard.KubeMQ
+
+Msal because this is replaced by the new Authentication one.
+KubeMQ because the idea is to use this via Dapr. You can have more information regarding this:
+- [Dapr](https://dapr.io).
+- [Dapr Community call 79](https://www.youtube.com/watch?v=bxpknTbH800)
+
+Some libraries are now tagged as obsolete like:
+- Arc4u.Standard.OAuth2.AspNetCore.Adal 
+- Arc4u.Standard.Serializer.Protobuf
+- Arc4u.Standard.Serializer.ProtobufV2
+
+It is recommended to stop to use the Protobuf. This package is now significantly faster than the Json one but it is more complext to maintain.
+
+The package will not exist anymore when the version targeting .NET 8 will be released.
+
+
+
 
 ## 6.0
 
