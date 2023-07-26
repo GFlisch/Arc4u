@@ -7,7 +7,8 @@ namespace Arc4u.OAuth2.Options;
 /// </summary>
 public class ClaimsFillerOptions
 {
-    public bool LoadClaimsFromClaimsFillerProvider { get; set; }
+    // By default, a specific claims filler is needed to manage the right.
+    public bool LoadClaimsFromClaimsFillerProvider { get; set; } = true;
 
     /// <summary>
     /// The settings key to load the claims from. => registered as a named <see cref="SimpleKeyValueSettings>"/>
