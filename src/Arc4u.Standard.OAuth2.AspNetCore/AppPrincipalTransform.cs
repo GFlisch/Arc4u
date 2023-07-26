@@ -208,7 +208,7 @@ public class AppPrincipalTransform : IClaimsTransformation
                 claims = new List<ClaimDto>(claims) { cachedExpiredClaim };
             }
 
-            _cacheHelper.GetCache().Put(cacheKey, claims);
+            _cacheHelper.GetCache().Put(cacheKey, _cacheOptions.MaxTime, claims);
         }
         catch (Exception ex)
         {
