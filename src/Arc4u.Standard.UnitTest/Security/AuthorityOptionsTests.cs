@@ -63,7 +63,7 @@ public class AuthorityOptionsTests
             .AddInMemoryCollection(
        new Dictionary<string, string?>
        {
-           ["Authentication:DefaultAuthority:Url"] = "https://login.microsoftonline.com/e564e8c4-2da9-4f0b-8e3d-c1a065b60501",
+           ["Authentication:DefaultAuthority:Url"] = "https://login.microsoftonline.com/e564e8c4-2da9-4f0b-8e3d-c1a065b60501/v2.0",
        }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
@@ -77,7 +77,7 @@ public class AuthorityOptionsTests
         var options = app.GetRequiredService<IOptionsMonitor<AuthorityOptions>>().Get("Default");
 
         options.Should().NotBeNull();
-        options.Url.Should().Be("https://login.microsoftonline.com/e564e8c4-2da9-4f0b-8e3d-c1a065b60501");
+        options.Url.Should().Be("https://login.microsoftonline.com/e564e8c4-2da9-4f0b-8e3d-c1a065b60501/v2.0");
         options.TokenEndpoint.Should().BeNull();
         (await options.GetEndpointAsync(CancellationToken.None).ConfigureAwait(false)).Should().Be("https://login.microsoftonline.com/e564e8c4-2da9-4f0b-8e3d-c1a065b60501/oauth2/v2.0/token");
         options.TokenEndpoint.Should().Be("https://login.microsoftonline.com/e564e8c4-2da9-4f0b-8e3d-c1a065b60501/oauth2/v2.0/token");
