@@ -58,7 +58,7 @@ public class AuthorityOptions
         {
             var uriBuilder = new UriBuilder(Url);
             // See section 4 of https://openid.net/specs/openid-connect-discovery-1_0.html
-            uriBuilder.Path += "/v2.0/.well-known/openid-configuration";
+            uriBuilder.Path += "/.well-known/openid-configuration";
             uriBuilder.Path = uriBuilder.Path.Replace("//", "/");
             MetaDataAddress = uriBuilder.Uri;
         }
