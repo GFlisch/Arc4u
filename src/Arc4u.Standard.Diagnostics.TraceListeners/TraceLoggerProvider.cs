@@ -1,8 +1,10 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Concurrent;
 
 namespace Arc4u.Diagnostics
 {
+    [Obsolete("Use Serilog")]
     public sealed class TraceLoggerProvider : ILoggerProvider
     {
         private readonly ConcurrentDictionary<string, TraceLogger> _loggers = new ConcurrentDictionary<string, TraceLogger>();

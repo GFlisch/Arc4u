@@ -1,9 +1,10 @@
-﻿using System;
+using System;
 using System.Runtime.Serialization;
 using System.Text;
 
 namespace Arc4u.Diagnostics
 {
+    [Obsolete("Use Serilog")]
     [DataContract]
     public abstract class MessageBase
     {

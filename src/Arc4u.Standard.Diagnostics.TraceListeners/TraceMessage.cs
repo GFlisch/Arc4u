@@ -1,10 +1,10 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Runtime.Serialization;
 
 namespace Arc4u.Diagnostics
 {
-
+    [Obsolete("Use Serilog")]
     [DataContract(Namespace = "http://arc4u.net/2010/11/tracemessage")]
     public sealed class TraceMessage : MessageBase
     {

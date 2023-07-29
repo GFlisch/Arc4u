@@ -1,10 +1,11 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace Arc4u.Diagnostics
 {
+    [Obsolete("Use Serilog")]
     public class TraceLogger : ILogger
     {
         public TraceLogger(string name)

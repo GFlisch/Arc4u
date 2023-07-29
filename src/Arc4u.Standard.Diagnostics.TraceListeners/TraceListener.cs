@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Threading;
 
 namespace Arc4u.Diagnostics
 {
-
+    [Obsolete("Use Serilog")]
     public class MessageBufferListenerStateInfo
     {
         public object Locker { get; set; }

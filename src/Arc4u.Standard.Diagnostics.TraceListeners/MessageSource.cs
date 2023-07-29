@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Security.Principal;
@@ -7,6 +7,7 @@ using System.Xml.Serialization;
 
 namespace Arc4u.Diagnostics
 {
+    [Obsolete("Use Serilog")]
     [DataContract(Namespace = "http://arc4u.net/2010/11/messagesource")]
     [Serializable, XmlRoot("MessageBase", Namespace = "http://arc4u.net/2010/11/messagesource", IsNullable = true)]
     public class MessageSource : ICloneable

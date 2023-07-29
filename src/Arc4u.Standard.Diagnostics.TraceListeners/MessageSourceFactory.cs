@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
@@ -12,6 +12,7 @@ using System.Linq;
 
 namespace Arc4u.Diagnostics
 {
+    [Obsolete("Use Serilog")]
     public class MessageSourceFactory : IMessageSourceFactory
     {
         static int _processId;

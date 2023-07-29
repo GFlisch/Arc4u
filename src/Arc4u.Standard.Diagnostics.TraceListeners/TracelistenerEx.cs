@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Globalization;
@@ -8,7 +8,7 @@ using System.Threading;
 
 namespace Arc4u.Diagnostics
 {
-
+    [Obsolete("Use Serilog")]
     public abstract class TracelistenerEx : TraceListener
     {
         /// <summary>

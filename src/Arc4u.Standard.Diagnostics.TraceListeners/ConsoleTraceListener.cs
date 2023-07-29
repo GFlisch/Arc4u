@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -7,6 +7,7 @@ using System.Threading;
 
 namespace Arc4u.Diagnostics
 {
+    [Obsolete("Use Serilog")]
     public class ConsoleTraceListener : TraceListener
     {
         protected override void Initialize()

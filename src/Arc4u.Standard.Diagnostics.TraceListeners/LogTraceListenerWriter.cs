@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 
 namespace Arc4u.Diagnostics.Tracelistener
 {
+    [Obsolete("Use Serilog")]
     public class LogTraceListenerWriter : ILogWriter
     {
         public void Initialize()
