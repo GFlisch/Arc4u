@@ -76,7 +76,7 @@ public class AppServicePrincipalFactory : IAppPrincipalFactory
 
         if (principal is AppPrincipal appPrincipal)
         {
-            appPrincipal.ActivityID = Activity.Current!.Id;
+            appPrincipal.ActivityID = Activity.Current?.Id ?? Guid.NewGuid().ToString();
 
             activity?.SetTag(LoggingConstants.ActivityId, appPrincipal.ActivityID);
 
