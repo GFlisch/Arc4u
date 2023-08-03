@@ -134,7 +134,7 @@ public static partial class AuthenticationExtensions
                     options.TokenValidationParameters.SaveSigninToken = false;
                     options.TokenValidationParameters.AuthenticationType = openIdOptions.AuthenticationType;
                     options.TokenValidationParameters.ValidateAudience = true;
-                    options.TokenValidationParameters.ValidAudiences = SplitString(openIdOptions.Audiences);
+                    options.TokenValidationParameters.ValidAudiences = openIdOptions.Audiences;
 
                     // we will use the same key to generate and validate so we can use this also in the different services...
                     if (securityKey is not null)
@@ -159,7 +159,7 @@ public static partial class AuthenticationExtensions
                     option.TokenValidationParameters.AuthenticationType = oauth2Options.AuthenticationType;
                     option.TokenValidationParameters.ValidateIssuer = false;
                     option.TokenValidationParameters.ValidateAudience = true;
-                    option.TokenValidationParameters.ValidAudiences = SplitString(oauth2Options.Audiences);
+                    option.TokenValidationParameters.ValidAudiences = oauth2Options.Audiences;
                     if (securityKey is not null)
                     {
                         option.TokenValidationParameters.IssuerSigningKey = securityKey;
@@ -362,7 +362,7 @@ public static partial class AuthenticationExtensions
                     option.TokenValidationParameters.AuthenticationType = Constants.BearerAuthenticationType;
                     option.TokenValidationParameters.ValidateIssuer = false;
                     option.TokenValidationParameters.ValidateAudience = true;
-                    option.TokenValidationParameters.ValidAudiences = SplitString(oauth2Options.Audiences);
+                    option.TokenValidationParameters.ValidAudiences = oauth2Options.Audiences;
                     if (securityKey is not null)
                     {
                         option.TokenValidationParameters.IssuerSigningKey = securityKey;

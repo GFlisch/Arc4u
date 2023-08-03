@@ -60,14 +60,16 @@ public class BasicAuthenticationTests
     {
         var basicSettings = _fixture.Create<BasicSettingsOptions>();
 
+        var configDic = new Dictionary<string, string?>
+        {
+            ["Authentication:Basic:Settings:ClientId"] = basicSettings.ClientId,
+        };
+        foreach(var scope in basicSettings.Scopes)
+        {
+            configDic.Add($"Authentication:Basic:Settings:Scopes:{basicSettings.Scopes.IndexOf(scope)}", scope);
+        }
         var config = new ConfigurationBuilder()
-                        .AddInMemoryCollection(
-                               new Dictionary<string, string?>
-                               {
-                                   ["Authentication:Basic:Settings:ClientId"] = basicSettings.ClientId,
-                                   ["Authentication:Basic:Settings:Scope"] = basicSettings.Scope,
-
-                               }).Build();
+                        .AddInMemoryCollection(configDic).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -80,12 +82,10 @@ public class BasicAuthenticationTests
         var sut = app.GetRequiredService<IOptionsMonitor<BasicAuthenticationSettingsOptions>>().CurrentValue;
 
         sut.BasicSettings.Values[TokenKeys.ClientIdKey].Should().Be(basicSettings.ClientId);
-        sut.BasicSettings.Values[TokenKeys.Scope].Should().Be(basicSettings.Scope);
+        sut.BasicSettings.Values[TokenKeys.Scope].Should().Be(string.Join(' ', basicSettings.Scopes));
         sut.BasicSettings.Values.ContainsKey(TokenKeys.AuthorityKey).Should().BeFalse();
 
         var sutAuthority = app.GetRequiredService<IOptionsMonitor<AuthorityOptions>>().Get("Basic");
-
-        //sutAuthority.Url.Should().BeNullOrWhiteSpace();
     }
 
     [Fact]
@@ -94,16 +94,19 @@ public class BasicAuthenticationTests
         var authority = BuildAuthority();
         var basicSettings = _fixture.Create<BasicSettingsOptions>();
 
-        var config = new ConfigurationBuilder()
-                        .AddInMemoryCollection(
-                               new Dictionary<string, string?>
-                               {
-                                   ["Authentication:Basic:Settings:ClientId"] = basicSettings.ClientId,
-                                   ["Authentication:Basic:Settings:Scope"] = basicSettings.Scope,
-                                   ["Authentication:Basic:Settings:Authority:url"] = authority.Url.ToString(),
-                                   ["Authentication:Basic:Settings:Authority:TokenEndpoint"] = authority.TokenEndpoint!.ToString(),
+        var configDic = new Dictionary<string, string?>
+        {
+            ["Authentication:Basic:Settings:ClientId"] = basicSettings.ClientId,
+            ["Authentication:Basic:Settings:Authority:url"] = authority.Url.ToString(),
+            ["Authentication:Basic:Settings:Authority:TokenEndpoint"] = authority.TokenEndpoint!.ToString(),
 
-                               }).Build();
+        };
+        foreach (var scope in basicSettings.Scopes)
+        {
+            configDic.Add($"Authentication:Basic:Settings:Scopes:{basicSettings.Scopes.IndexOf(scope)}", scope);
+        }
+        var config = new ConfigurationBuilder()
+                        .AddInMemoryCollection(configDic).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -116,7 +119,7 @@ public class BasicAuthenticationTests
         var sut = app.GetRequiredService<IOptionsMonitor<BasicAuthenticationSettingsOptions>>().CurrentValue;
 
         sut.BasicSettings.Values[TokenKeys.ClientIdKey].Should().Be(basicSettings.ClientId);
-        sut.BasicSettings.Values[TokenKeys.Scope].Should().Be(basicSettings.Scope);
+        sut.BasicSettings.Values[TokenKeys.Scope].Should().Be(string.Join(' ', basicSettings.Scopes));
         sut.BasicSettings.Values[TokenKeys.AuthorityKey].Should().Be("Basic");
 
         var sutAuthority = app.GetRequiredService<IOptionsMonitor<AuthorityOptions>>().Get("Basic");

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Arc4u.OAuth2.TokenProviders;
 
 namespace Arc4u.OAuth2.Options;
@@ -16,7 +17,7 @@ public class OpenIdSettingsOption
 
     public string ClientSecret { get; set; }
 
-    public string Audiences { get; set; }
+    public List<string> Audiences { get; set; } = new List<string>();
 
     public string Scopes { get; set; }
 }

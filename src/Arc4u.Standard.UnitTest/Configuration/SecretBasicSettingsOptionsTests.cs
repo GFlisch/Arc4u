@@ -60,7 +60,7 @@ public class SecretBasicSettingsOptionsTests
         sut.Values[TokenKeys.AuthorityKey].Should().Be("Client1");
         sut.Values[TokenKeys.ProviderIdKey].Should().Be(_default.ProviderId);
         sut.Values[TokenKeys.AuthenticationTypeKey].Should().Be(_default.AuthenticationType);
-        sut.Values[TokenKeys.Scope].Should().Be(_default.Scope);
+        sut.Values[TokenKeys.Scope].Should().Be("openid");
         sut.Values["User"].Should().Be(options.User);
         sut.Values["Password"].Should().Be(options.Password);
         sut.Values.ContainsKey("Credential").Should().BeFalse();
@@ -103,7 +103,7 @@ public class SecretBasicSettingsOptionsTests
         sut.Values[TokenKeys.ClientIdKey].Should().Be(options.ClientId);
         sut.Values[TokenKeys.ProviderIdKey].Should().Be(_default.ProviderId);
         sut.Values[TokenKeys.AuthenticationTypeKey].Should().Be(_default.AuthenticationType);
-        sut.Values[TokenKeys.Scope].Should().Be(_default.Scope);
+        sut.Values[TokenKeys.Scope].Should().Be("openid");
         sut.Values[TokenKeys.AuthorityKey].Should().Be("Client1");
         sut.Values["User"].Should().Be(options.User);
         sut.Values["Credential"].Should().Be(options.Credential);
@@ -146,7 +146,7 @@ public class SecretBasicSettingsOptionsTests
         sut.Values[TokenKeys.ClientIdKey].Should().Be(options.ClientId);
         sut.Values[TokenKeys.ProviderIdKey].Should().Be(_default.ProviderId);
         sut.Values[TokenKeys.AuthenticationTypeKey].Should().Be(_default.AuthenticationType);
-        sut.Values[TokenKeys.Scope].Should().Be(_default.Scope);
+        sut.Values[TokenKeys.Scope].Should().Be("openid");
         sut.Values.ContainsKey(TokenKeys.AuthorityKey).Should().BeFalse();
         sut.Values["User"].Should().Be(options.User);
         sut.Values["Credential"].Should().Be(options.Credential);

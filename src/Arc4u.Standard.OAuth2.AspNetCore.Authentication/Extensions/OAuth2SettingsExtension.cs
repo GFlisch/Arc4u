@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Arc4u.Configuration;
 using Arc4u.OAuth2.Options;
 using Arc4u.OAuth2.Token;
@@ -22,7 +23,7 @@ public static class OAuth2SettingsExtension
             configErrors += "ProviderId field is not defined." + System.Environment.NewLine;
         }
 
-        if (string.IsNullOrWhiteSpace(validate.Audiences))
+        if (!validate.Audiences.Any())
         {
             configErrors += "Audiences field is not defined." + System.Environment.NewLine;
         }
@@ -54,12 +55,10 @@ public static class OAuth2SettingsExtension
                     options.SetData(validate.Authority.Url, validate.Authority.TokenEndpoint, validate.Authority.MetaDataAddress);
                 });
             }
-
-            keyOptions.Add(TokenKeys.Audiences, validate.Audiences);
-            if (!string.IsNullOrWhiteSpace(validate.Scopes))
-            {
-                keyOptions.Add(TokenKeys.Scopes, validate.Scopes);
-            }
+            // Build the list of Audiences as a string.
+            keyOptions.Add(TokenKeys.Audiences, string.Join(' ', validate.Audiences));
+            keyOptions.Add(TokenKeys.Scope, string.Join(' ', validate.Scopes));
+            
         }
 
         services.Configure<SimpleKeyValueSettings>(sectionKey, SettingsFiller);

@@ -43,19 +43,10 @@ public class BasicSettingsOptionsTests
 
         IServiceCollection services = new ServiceCollection();
 
-        services.AddBasicAuthenticationSettings(configuration);
+        var exception = Record.Exception(() => services.AddBasicAuthenticationSettings(configuration));
 
-        var serviceProvider = services.BuildServiceProvider();
-
-        // act
-        var sut = serviceProvider.GetService<IOptions<BasicAuthenticationSettingsOptions>>()!.Value;
-
-        sut.Should().NotBeNull();
-        sut.BasicSettings.Values[TokenKeys.ClientIdKey].Should().Be(options.ClientId);
-        sut.BasicSettings.Values[TokenKeys.ProviderIdKey].Should().Be(_default.ProviderId);
-        sut.BasicSettings.Values[TokenKeys.AuthenticationTypeKey].Should().Be(_default.AuthenticationType);
-        sut.BasicSettings.Values[TokenKeys.Scope].Should().Be(_default.Scope);
-        sut.BasicSettings.Values.ContainsKey(TokenKeys.ClientSecret).Should().BeFalse();
+        exception.Should().NotBeNull();
+        exception.Should().BeOfType<ConfigurationException>();
     }
 
     [Fact]
@@ -105,16 +96,19 @@ public class BasicSettingsOptionsTests
     {
         var options = _fixture.Create<BasicSettingsOptions>();
 
+        var configDic = new Dictionary<string, string?>
+        {
+            ["Authentication:Basic:Settings:ClientId"] = options.ClientId,
+            ["Authentication:Basic:Settings:ProviderId"] = options.ProviderId,
+            ["Authentication:Basic:Settings:AuthenticationType"] = options.AuthenticationType,
+            ["Authentication:Basic:Settings:ClientSecret"] = options.ClientSecret,
+        };
+        foreach (var scope in options.Scopes)
+        {
+            configDic.Add($"Authentication:Basic:Settings:Scopes:{options.Scopes.IndexOf(scope)}", scope);
+        }
         var config = new ConfigurationBuilder()
-                     .AddInMemoryCollection(
-                         new Dictionary<string, string?>
-                         {
-                             ["Authentication:Basic:Settings:ClientId"] = options.ClientId,
-                             ["Authentication:Basic:Settings:ProviderId"] = options.ProviderId,
-                             ["Authentication:Basic:Settings:AuthenticationType"] = options.AuthenticationType,
-                             ["Authentication:Basic:Settings:Scope"] = options.Scope,
-                             ["Authentication:Basic:Settings:ClientSecret"] = options.ClientSecret,
-                         }).Build();
+                     .AddInMemoryCollection(configDic).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -131,7 +125,7 @@ public class BasicSettingsOptionsTests
         sut.BasicSettings.Values[TokenKeys.ClientIdKey].Should().Be(options.ClientId);
         sut.BasicSettings.Values[TokenKeys.ProviderIdKey].Should().Be(options.ProviderId);
         sut.BasicSettings.Values[TokenKeys.AuthenticationTypeKey].Should().Be(options.AuthenticationType);
-        sut.BasicSettings.Values[TokenKeys.Scope].Should().Be(options.Scope);
+        sut.BasicSettings.Values[TokenKeys.Scope].Should().Be(string.Join(' ', options.Scopes));
         sut.BasicSettings.Values[TokenKeys.ClientSecret].Should().Be(options.ClientSecret);
     }
 
@@ -140,16 +134,19 @@ public class BasicSettingsOptionsTests
     {
         var options = _fixture.Create<BasicSettingsOptions>();
 
+        var configDic = new Dictionary<string, string?>
+        {
+            ["Authentication:Basic:Settings:ClientId"] = options.ClientId,
+            ["Authentication:Basic:Settings:ProviderId"] = options.ProviderId,
+            ["Authentication:Basic:Settings:AuthenticationType"] = options.AuthenticationType,
+            ["Authentication:Basic:DefaultUpn"] = "@arc4u.net",
+        };
+        foreach(var scope in options.Scopes)
+        {
+            configDic.Add($"Authentication:Basic:Settings:Scopes:{options.Scopes.IndexOf(scope)}", scope);
+        }
         var config = new ConfigurationBuilder()
-                     .AddInMemoryCollection(
-                         new Dictionary<string, string?>
-                         {
-                             ["Authentication:Basic:Settings:ClientId"] = options.ClientId,
-                             ["Authentication:Basic:Settings:ProviderId"] = options.ProviderId,
-                             ["Authentication:Basic:Settings:AuthenticationType"] = options.AuthenticationType,
-                             ["Authentication:Basic:Settings:Scope"] = options.Scope,
-                             ["Authentication:Basic:DefaultUpn"] = "@arc4u.net",
-                         }).Build();
+                     .AddInMemoryCollection(configDic).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -167,22 +164,25 @@ public class BasicSettingsOptionsTests
         sut.BasicSettings.Values.ContainsKey(TokenKeys.ClientSecret).Should().BeFalse();
     }
 
-      [Fact]
+    [Fact]
     public void BasicCertificateShould()
     {
         var options = _fixture.Create<BasicSettingsOptions>();
 
+        var configDic = new Dictionary<string, string?>
+        {
+            ["Authentication:Basic:Settings:ClientId"] = options.ClientId,
+            ["Authentication:Basic:Settings:ProviderId"] = options.ProviderId,
+            ["Authentication:Basic:Settings:AuthenticationType"] = options.AuthenticationType,
+            ["Authentication:Basic:Certificates:Cert1:File:Cert"] = @".\Configs\cert.pem",
+            ["Authentication:Basic:Certificates:Cert1:File:Key"] = @".\Configs\key.pem",
+        };
+        foreach(var scope in options.Scopes)
+        {
+            configDic.Add($"Authentication:Basic:Settings:Scopes:{options.Scopes.IndexOf(scope)}", scope);
+        }
         var config = new ConfigurationBuilder()
-                     .AddInMemoryCollection(
-                         new Dictionary<string, string?>
-                         {
-                             ["Authentication:Basic:Settings:ClientId"] = options.ClientId,
-                             ["Authentication:Basic:Settings:ProviderId"] = options.ProviderId,
-                             ["Authentication:Basic:Settings:AuthenticationType"] = options.AuthenticationType,
-                             ["Authentication:Basic:Settings:Scope"] = options.Scope,
-                             ["Authentication:Basic:Certificates:Cert1:File:Cert"] = @".\Configs\cert.pem",
-                             ["Authentication:Basic:Certificates:Cert1:File:Key"] = @".\Configs\key.pem",
-                         }).Build();
+                     .AddInMemoryCollection(configDic).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 

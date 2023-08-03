@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Arc4u.OAuth2.Options;
 
 namespace Arc4u.OAuth2;
@@ -11,7 +12,7 @@ public class BasicSettingsOptions
 
     public string ClientId { get; set; }
 
-    public string Scope { get; set; } = "openid";
+    public List<string> Scopes { get; set; } = new List<string>();
 
     // Some STS are using user name - password in combination with a client secret (kind of 2 factor authentication).
     public string? ClientSecret { get; set; }

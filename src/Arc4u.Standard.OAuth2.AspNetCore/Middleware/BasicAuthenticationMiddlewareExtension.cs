@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
 using Arc4u.Configuration;
@@ -155,7 +156,7 @@ public static class BasicAuthenticationMiddlewareExtension
             configErrors += "AuthenticationType field is not defined." + System.Environment.NewLine;
         }
 
-        if (string.IsNullOrWhiteSpace(validate.Scope))
+        if (!validate.Scopes.Any())
         {
             configErrors += "Scope field is not defined." + System.Environment.NewLine;
         }
@@ -173,7 +174,7 @@ public static class BasicAuthenticationMiddlewareExtension
         settings.Add(TokenKeys.ProviderIdKey, validate!.ProviderId);
         settings.Add(TokenKeys.AuthenticationTypeKey, validate.AuthenticationType);
         settings.Add(TokenKeys.ClientIdKey, validate.ClientId);
-        settings.Add(TokenKeys.Scope, validate.Scope);
+        settings.Add(TokenKeys.Scope, string.Join(' ',validate.Scopes));
         if (!string.IsNullOrWhiteSpace(validate.ClientSecret))
         {
             settings.Add(TokenKeys.ClientSecret, validate.ClientSecret!);
@@ -251,7 +252,7 @@ public static class BasicAuthenticationMiddlewareExtension
             configErrors += "ProviderId in Basic settings must be filled!" + System.Environment.NewLine;
         }
 
-        if (string.IsNullOrWhiteSpace(settings.Scope))
+        if (!settings.Scopes.Any())
         {
             configErrors += "Scope in Basic settings must be filled!" + System.Environment.NewLine;
         }
@@ -268,7 +269,7 @@ public static class BasicAuthenticationMiddlewareExtension
             option.ClientId = settings.ClientId;
             option.AuthenticationType = settings.AuthenticationType;
             option.ProviderId = settings.ProviderId;
-            option.Scope = settings.Scope;
+            option.Scopes = settings.Scopes;
             option.ClientSecret = settings.ClientSecret;
         }
 

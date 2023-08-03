@@ -76,9 +76,10 @@ public static class SecretBasicExtension
             configErrors += "ProviderId in Secret Basic settings must be filled!" + System.Environment.NewLine;
         }
 
-        if (string.IsNullOrWhiteSpace(options.Scope))
+        // Add default value only for Basic Authentication scenario.
+        if (!options.Scopes.Any())
         {
-            configErrors += "Scope in Secret Basic settings must be filled!" + System.Environment.NewLine;
+            options.Scopes.Add("openid");
         }
 
         if (string.IsNullOrWhiteSpace(options.BasicProviderId))
@@ -124,7 +125,7 @@ public static class SecretBasicExtension
             settings.Add(TokenKeys.ProviderIdKey, options!.ProviderId);
             settings.Add(TokenKeys.AuthenticationTypeKey, options.AuthenticationType);
             settings.Add(TokenKeys.ClientIdKey, options.ClientId);
-            settings.Add(TokenKeys.Scope, options.Scope);
+            settings.Add(TokenKeys.Scope, string.Join(' ', options.Scopes));
             settings.AddifNotNullOrEmpty("User", options.User);
             settings.AddifNotNullOrEmpty("Password", options.Password);
             settings.AddifNotNullOrEmpty("Credential", options.Credential);

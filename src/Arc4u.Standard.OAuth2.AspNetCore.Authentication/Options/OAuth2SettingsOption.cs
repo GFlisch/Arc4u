@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Arc4u.OAuth2.Options;
 public class OAuth2SettingsOption
 {
@@ -7,9 +9,9 @@ public class OAuth2SettingsOption
 
     public AuthorityOptions? Authority { get; set; }
 
-    public string Audiences { get; set; }
+    public List<string> Audiences { get; set; } = new List<string>();
 
     // use for Obo scenario.
-    public string? Scopes { get; set; }
+    public List<string> Scopes { get; set; } = new List<string>();
 
 }

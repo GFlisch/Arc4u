@@ -78,7 +78,7 @@ public class JwtHttpHandlerTests
                          {
                              ["Authentication:OpenId.Settings:ClientId"] = "aa17786b-e33c-41ec-81cc-6063610aedeb",
                              ["Authentication:OpenId.Settings:ClientSecret"] = "This is a secret",
-                             ["Authentication:OpenId.Settings:Audiences"] = "urn://audience.com",
+                             ["Authentication:OpenId.Settings:Audiences:0"] = "urn://audience.com",
                              ["Authentication:OpenId.Settings:Scopes"] = "user.read user.write",
                              ["Authentication:DefaultAuthority:Url"] = "https://login.microsoft.com"
                          }).Build();
@@ -164,7 +164,7 @@ public class JwtHttpHandlerTests
                      .AddInMemoryCollection(
                          new Dictionary<string, string?>
                          {
-                             ["Authentication:OAuth2.Settings:Audiences"] = "urn://audience.com",
+                             ["Authentication:OAuth2.Settings:Audiences:0"] = "urn://audience.com",
                              ["Authentication:OAuth2.Settings:Scopes"] = "user.read user.write",
                              ["Authentication:DefaultAuthority:Url"] = "https://login.microsoft.com"
                          }).Build();
@@ -239,16 +239,19 @@ public class JwtHttpHandlerTests
         // arrange
         // arrange the configuration to setup the Client secret.
         var options = _fixture.Create<SecretBasicSettingsOptions>();
+        var configDic = new Dictionary<string, string?>
+        {
+            ["Authentication:ClientSecrets:Client1:ClientId"] = options.ClientId,
+            ["Authentication:ClientSecrets:Client1:User"] = options.User,
+            ["Authentication:ClientSecrets:Client1:Credential"] = $"{options.User}:password",
+            ["Authentication:DefaultAuthority:Url"] = "https://login.microsoft.com"
+        };
+        foreach(var scope in options.Scopes)
+        {
+            configDic.Add($"Authentication:ClientSecrets:Client1:Scopes:{options.Scopes.IndexOf(scope)}", scope);
+        }
         var config = new ConfigurationBuilder()
-                     .AddInMemoryCollection(
-                         new Dictionary<string, string?>
-                         {
-                             ["Authentication:ClientSecrets:Client1:ClientId"] = options.ClientId,
-                             ["Authentication:ClientSecrets:Client1:Scope"] = options.Scope,
-                             ["Authentication:ClientSecrets:Client1:User"] = options.User,
-                             ["Authentication:ClientSecrets:Client1:Credential"] = $"{options.User}:password",
-                             ["Authentication:DefaultAuthority:Url"] = "https://login.microsoft.com"
-                         }).Build();
+                     .AddInMemoryCollection(configDic).Build();
 
         // Define an access token that will be used as the return of the call to the CredentialDirect token credential provider.
         var jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
@@ -567,11 +570,11 @@ public class JwtHttpHandlerTests
                      .AddInMemoryCollection(
                          new Dictionary<string, string?>
                          {
-                             ["Authentication:OAuth2.Settings:Audiences"] = "urn://audience.com",
+                             ["Authentication:OAuth2.Settings:Audiences:0"] = "urn://audience.com",
                              ["Authentication:OAuth2.Settings:Scopes"] = "user.read user.write",
                              ["Authentication:OpenId.Settings:ClientId"] = "aa17786b-e33c-41ec-81cc-6063610aedeb",
                              ["Authentication:OpenId.Settings:ClientSecret"] = "This is a secret",
-                             ["Authentication:OpenId.Settings:Audiences"] = "urn://audience.com",
+                             ["Authentication:OpenId.Settings:Audiences:0"] = "urn://audience.com",
                              ["Authentication:OpenId.Settings:Scopes"] = "user.read user.write",
                              ["Authentication:DefaultAuthority:Url"] = "https://login.microsoft.com"
                          }).Build();
@@ -661,11 +664,11 @@ public class JwtHttpHandlerTests
                      .AddInMemoryCollection(
                          new Dictionary<string, string?>
                          {
-                             ["Authentication:OAuth2.Settings:Audiences"] = "urn://audience.com",
+                             ["Authentication:OAuth2.Settings:Audiences:0"] = "urn://audience.com",
                              ["Authentication:OAuth2.Settings:Scopes"] = "user.read user.write",
                              ["Authentication:OpenId.Settings:ClientId"] = "aa17786b-e33c-41ec-81cc-6063610aedeb",
                              ["Authentication:OpenId.Settings:ClientSecret"] = "This is a secret",
-                             ["Authentication:OpenId.Settings:Audiences"] = "urn://audience.com",
+                             ["Authentication:OpenId.Settings:Audiences:0"] = "urn://audience.com",
                              ["Authentication:OpenId.Settings:Scopes"] = "user.read user.write",
                              ["Authentication:DefaultAuthority:Url"] = "https://login.microsoft.com"
                          }).Build();
@@ -762,11 +765,11 @@ public class JwtHttpHandlerTests
                          {
                              ["Authentication:RemoteSecrets:Remote1:ClientSecret"] = options.ClientSecret,
                              ["Authentication:RemoteSecrets:Remote1:HeaderKey"] = "Basic",
-                             ["Authentication:OAuth2.Settings:Audiences"] = "urn://audience.com",
+                             ["Authentication:OAuth2.Settings:Audiences:0"] = "urn://audience.com",
                              ["Authentication:OAuth2.Settings:Scopes"] = "user.read user.write",
                              ["Authentication:OpenId.Settings:ClientId"] = "aa17786b-e33c-41ec-81cc-6063610aedeb",
                              ["Authentication:OpenId.Settings:ClientSecret"] = "This is a secret",
-                             ["Authentication:OpenId.Settings:Audiences"] = "urn://audience.com",
+                             ["Authentication:OpenId.Settings:Audiences:0"] = "urn://audience.com",
                              ["Authentication:OpenId.Settings:Scopes"] = "user.read user.write",
                              ["Authentication:DefaultAuthority:Url"] = "https://login.microsoft.com"
                          }).Build();

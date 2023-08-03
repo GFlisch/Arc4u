@@ -123,7 +123,7 @@ public class CredentialSecretTokenProviderTests
                          new Dictionary<string, string?>
                          {
                              ["Authentication:ClientSecrets:Service:ClientId"] = "ClientId",
-                             ["Authentication:ClientSecrets:Service:Scope"] = "A scope",
+                             ["Authentication:ClientSecrets:Service:Scopes:0"] = "A scope",
                              ["Authentication:ClientSecrets:Service:Credential"] = "user:passw0rd",
                          }).Build();
 
@@ -155,7 +155,7 @@ public class CredentialSecretTokenProviderTests
             { TokenKeys.ClientIdKey, CredentialSecretTokenProvider.ProviderName },
             { TokenKeys.AuthorityKey, "Basic" },
             { TokenKeys.ProviderIdKey, options.ProviderId },
-            { TokenKeys.Scope, options.Scope },
+            { TokenKeys.Scope, string.Join(' ', options.Scopes) },
             { TokenKeys.AuthenticationTypeKey, options.AuthenticationType },
             { "Password", options.Password },
             { "User", options.User },
@@ -171,7 +171,7 @@ public class CredentialSecretTokenProviderTests
             { TokenKeys.ClientIdKey, CredentialSecretTokenProvider.ProviderName },
             { TokenKeys.AuthorityKey, "Basic" },
             { TokenKeys.ProviderIdKey, options.ProviderId },
-            { TokenKeys.Scope, options.Scope },
+            { TokenKeys.Scope, string.Join(' ', options.Scopes) },
             { TokenKeys.AuthenticationTypeKey, options.AuthenticationType },
             { "Password", options.Password },
             { "Credential", $"{options.User}:{options.Credential}" },

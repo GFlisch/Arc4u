@@ -32,14 +32,20 @@ public class AuthenticationOptionsTests
         var options = _fixture.Create<OAuth2SettingsOption>();
         var authority = _fixture.Build<AuthorityOptions>().With(p => p.Url, _fixture.Create<Uri>()).Create();
 
+        var configDic = new Dictionary<string, string?>
+        {
+            ["OAuth2.Settings:Authority:Url"] = authority.Url.ToString(),
+        };
+        foreach(var audience in options.Audiences)
+        {
+            configDic.Add($"OAuth2.Settings:Audiences:{options.Audiences.IndexOf(audience)}", audience);
+        }
+        foreach(var scope in options.Scopes)
+        {
+            configDic.Add($"OAuth2.Settings:Scopes:{options.Scopes.IndexOf(scope)}", scope);
+        } 
         var config = new ConfigurationBuilder()
-                     .AddInMemoryCollection(
-                         new Dictionary<string, string?>
-                         {
-                             ["OAuth2.Settings:Audiences"] = options.Audiences,
-                             ["OAuth2.Settings:Authority:Url"] = authority.Url.ToString(),
-                             ["OAuth2.Settings:Scopes"] = options.Scopes,
-                         }).Build();
+                     .AddInMemoryCollection(configDic).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -53,9 +59,9 @@ public class AuthenticationOptionsTests
         var sut = serviceProvider.GetService<IOptionsMonitor<SimpleKeyValueSettings>>()!.Get(Constants.OAuth2OptionsName);
 
         sut.Should().NotBeNull();
-        sut.Values[TokenKeys.Audiences].Should().Be(options.Audiences);
+        sut.Values[TokenKeys.Audiences].Should().Be(string.Join(' ', options.Audiences));
         sut.Values[TokenKeys.AuthorityKey].Should().Be(Constants.OAuth2OptionsName);
-        sut.Values[TokenKeys.Scopes].Should().Be(options.Scopes);
+        sut.Values[TokenKeys.Scope].Should().Be(string.Join(' ', options.Scopes));
 
         var sutAuthority = serviceProvider.GetService<IOptionsMonitor<AuthorityOptions>>()!.Get(Constants.OAuth2OptionsName);
 
@@ -69,13 +75,17 @@ public class AuthenticationOptionsTests
     {
         var options = _fixture.Create<OAuth2SettingsOption>();
 
+        var configDic = new Dictionary<string, string?>();
+        foreach (var audience in options.Audiences)
+        {
+            configDic.Add($"OAuth2.Settings:Audiences:{options.Audiences.IndexOf(audience)}", audience);
+        }
+        foreach(var scope in options.Scopes)
+        {
+            configDic.Add($"OAuth2.Settings:Scopes:{options.Scopes.IndexOf(scope)}", scope);
+        }
         var config = new ConfigurationBuilder()
-                     .AddInMemoryCollection(
-                         new Dictionary<string, string?>
-                         {
-                             ["OAuth2.Settings:Audiences"] = options.Audiences,
-                             ["OAuth2.Settings:Scopes"] = options.Scopes,
-                         }).Build();
+                     .AddInMemoryCollection(configDic).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -89,9 +99,9 @@ public class AuthenticationOptionsTests
         var sut = serviceProvider.GetService<IOptionsMonitor<SimpleKeyValueSettings>>()!.Get(Constants.OAuth2OptionsName);
 
         sut.Should().NotBeNull();
-        sut.Values[TokenKeys.Audiences].Should().Be(options.Audiences);
+        sut.Values[TokenKeys.Audiences].Should().Be(string.Join(' ', options.Audiences));
         sut.Values.ContainsKey(TokenKeys.AuthorityKey).Should().BeFalse();
-        sut.Values[TokenKeys.Scopes].Should().Be(options.Scopes);
+        sut.Values[TokenKeys.Scope].Should().Be(string.Join(' ', options.Scopes));
 
         var sutAuthority = serviceProvider.GetService<IOptionsMonitor<AuthorityOptions>>()!.Get(Constants.OAuth2OptionsName);
 
@@ -105,12 +115,14 @@ public class AuthenticationOptionsTests
     {
         var options = _fixture.Create<OAuth2SettingsOption>();
 
+        var configDic = new Dictionary<string, string?>();
+        foreach (var audience in options.Audiences)
+        {
+            configDic.Add($"OAuth2.Settings:Audiences:{options.Audiences.IndexOf(audience)}", audience);
+        }
+
         var config = new ConfigurationBuilder()
-                     .AddInMemoryCollection(
-                         new Dictionary<string, string?>
-                         {
-                             ["OAuth2.Settings:Audiences"] = options.Audiences,
-                         }).Build();
+                     .AddInMemoryCollection(configDic).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -124,7 +136,7 @@ public class AuthenticationOptionsTests
         var sut = serviceProvider.GetService<IOptionsMonitor<SimpleKeyValueSettings>>()!.Get("OAuth2");
 
         sut.Should().NotBeNull();
-        sut.Values[TokenKeys.Audiences].Should().Be(options.Audiences);
+        sut.Values[TokenKeys.Audiences].Should().Be(string.Join(' ', options.Audiences));
         sut.Values.Should().NotContainKey(TokenKeys.Scopes);
     }
 }

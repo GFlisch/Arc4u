@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Arc4u.Configuration;
 using Arc4u.OAuth2.Options;
 using Arc4u.OAuth2.Token;
@@ -21,7 +22,7 @@ public static class OpenIdSettingsExtension
             throw new MissingFieldException($"ProviderId field is not defined.");
         }
 
-        if (string.IsNullOrWhiteSpace(validate.Audiences))
+        if (!validate.Audiences.Any())
         {
             throw new MissingFieldException($"Audiences field is not defined.");
         }
@@ -58,7 +59,7 @@ public static class OpenIdSettingsExtension
 
             keyOptions.Add(TokenKeys.ClientIdKey, validate.ClientId);
             keyOptions.Add(TokenKeys.ClientSecret, validate.ClientSecret);
-            keyOptions.Add(TokenKeys.Audiences, validate.Audiences);
+            keyOptions.Add(TokenKeys.Audiences, string.Join(' ', validate.Audiences));
             keyOptions.Add(TokenKeys.Scopes, validate.Scopes);
         }
 
