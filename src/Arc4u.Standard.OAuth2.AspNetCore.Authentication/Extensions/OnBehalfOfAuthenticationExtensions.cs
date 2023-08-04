@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Arc4u.Configuration;
 using Arc4u.OAuth2.Options;
 using Arc4u.OAuth2.Token;
@@ -52,7 +53,7 @@ public static class OnBehalfOfAuthenticationExtensions
             {
                 oboSettings.ClientId = settingsOptions.Value.ClientId;
                 oboSettings.ClientSecret = settingsOptions.Value.ClientSecret;
-                oboSettings.Scope = settingsOptions.Value.Scope;
+                oboSettings.Scopes = settingsOptions.Value.Scopes;
                 oboSettings.AuthenticationType = settingsOptions.Value.AuthenticationType;
                 oboSettings.ProviderId = settingsOptions.Value.ProviderId;
             }, settingsOptions.Key);
@@ -67,7 +68,7 @@ public static class OnBehalfOfAuthenticationExtensions
         void Settings(SimpleKeyValueSettings settings)
         {
             settings.Add(TokenKeys.ClientIdKey, validated.ClientId);
-            settings.Add(TokenKeys.Scope, validated.Scope);
+            settings.Add(TokenKeys.Scope, string.Join(' ', validated.Scopes));
             settings.Add(TokenKeys.ClientSecret, validated.ClientSecret);
             settings.Add(TokenKeys.AuthenticationTypeKey, validated.AuthenticationType);
             settings.Add(TokenKeys.ProviderIdKey, validated.ProviderId);
@@ -93,7 +94,7 @@ public static class OnBehalfOfAuthenticationExtensions
             configErrors += "ClientSecret field is not defined." + System.Environment.NewLine;
         }
 
-        if (string.IsNullOrWhiteSpace(extract.Scope))
+        if (!extract.Scopes.Any())
         {
             configErrors += "Scope field is not defined." + System.Environment.NewLine;
         }

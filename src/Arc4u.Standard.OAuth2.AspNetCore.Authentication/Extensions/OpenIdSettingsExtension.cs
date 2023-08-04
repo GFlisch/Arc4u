@@ -37,7 +37,7 @@ public static class OpenIdSettingsExtension
             throw new MissingFieldException($"AuthenticationType field is not defined.");
         }
 
-        if (string.IsNullOrWhiteSpace(validate.Scopes))
+        if (!validate.Scopes.Any())
         {
             throw new MissingFieldException($"Scopes field is not defined.");
         }
@@ -60,7 +60,7 @@ public static class OpenIdSettingsExtension
             keyOptions.Add(TokenKeys.ClientIdKey, validate.ClientId);
             keyOptions.Add(TokenKeys.ClientSecret, validate.ClientSecret);
             keyOptions.Add(TokenKeys.Audiences, string.Join(' ', validate.Audiences));
-            keyOptions.Add(TokenKeys.Scopes, validate.Scopes);
+            keyOptions.Add(TokenKeys.Scope, string.Join(' ',validate.Scopes));
         }
 
         services.Configure<SimpleKeyValueSettings>(sectionKey, SettingsFiller);

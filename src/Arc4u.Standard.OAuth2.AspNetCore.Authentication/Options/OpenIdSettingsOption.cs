@@ -19,5 +19,5 @@ public class OpenIdSettingsOption
 
     public List<string> Audiences { get; set; } = new List<string>();
 
-    public string Scopes { get; set; }
+    public List<string> Scopes { get; set; } = new List<string>();
 }

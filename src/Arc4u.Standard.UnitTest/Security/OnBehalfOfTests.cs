@@ -29,14 +29,14 @@ public class OnBehalfOfTests
     {
         var settings = _fixture.Create<OnBehalfOfSettingsOptions>();
 
+        var configDic = new Dictionary<string, string?>
+        {
+            ["Authentication:OnBehalfOf:Obo1:ClientId"] = settings.ClientId,
+            ["Authentication:OnBehalfOf:Obo1:ClientSecret"] = settings.ClientSecret,
+        };
+        settings.Scopes.ForEach(scope => configDic.Add($"Authentication:OnBehalfOf:Obo1:Scopes:{settings.Scopes.IndexOf(scope)}", scope));
         var config = new ConfigurationBuilder()
-            .AddInMemoryCollection(
-       new Dictionary<string, string?>
-       {
-           ["Authentication:OnBehalfOf:Obo1:ClientId"] = settings.ClientId,
-           ["Authentication:OnBehalfOf:Obo1:ClientSecret"] = settings.ClientSecret,
-           ["Authentication:OnBehalfOf:Obo1:Scope"] = settings.Scope,
-       }).Build();
+            .AddInMemoryCollection(configDic).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -51,7 +51,7 @@ public class OnBehalfOfTests
         oboSettings.Should().NotBeNull();
         oboSettings.Values[TokenKeys.ClientIdKey].Should().Be(settings.ClientId);
         oboSettings.Values[TokenKeys.ClientSecret].Should().Be(settings.ClientSecret);
-        oboSettings.Values[TokenKeys.Scope].Should().Be(settings.Scope);
+        oboSettings.Values[TokenKeys.Scope].Should().Be(string.Join(' ', settings.Scopes));
 
     }
 }

@@ -121,10 +121,7 @@ public static partial class AuthenticationExtensions
                     options.Scope.Clear();
                     options.Scope.Add(OpenIdConnectScope.OpenIdProfile);
                     options.Scope.Add(OpenIdConnectScope.OfflineAccess);
-                    foreach (var scope in SplitString(openIdOptions.Scopes))
-                    {
-                        options.Scope.Add(scope);
-                    }
+                    openIdOptions.Scopes.ForEach((scope) => options.Scope.Add(scope));
 
                     options.ClientId = openIdOptions.ClientId;
                     options.ClientSecret = openIdOptions.ClientSecret;
