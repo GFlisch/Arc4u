@@ -62,7 +62,7 @@ public class MemoryCache : BaseDistributeCache, ICache
             var option = new DistriOption(new MemoryDistributedCacheOptions
             {
                 CompactionPercentage = config.CompactionPercentage,
-                SizeLimit = config.SizeLimit
+                SizeLimit = config.SizeLimitInMB
             });
 
             DistributeCache = new MemoryDistributedCache(option);

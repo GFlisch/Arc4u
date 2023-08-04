@@ -20,7 +20,7 @@ public static class MemoryCacheExtension
         var action = new Action<MemoryCacheOption>(o =>
         {
             o.CompactionPercentage = rawCacheOption.CompactionPercentage;
-            o.SizeLimit = rawCacheOption.SizeLimit * 1024 * 1024;
+            o.SizeLimitInMB = rawCacheOption.SizeLimitInMB * 1024 * 1024;
             o.SerializerName = rawCacheOption.SerializerName;
         });
 
@@ -59,7 +59,7 @@ public static class MemoryCacheExtension
             void options(MemoryCacheOption o)
             {
                 o.SerializerName = option.SerializerName;
-                o.SizeLimit = option.SizeLimit;
+                o.SizeLimitInMB = option.SizeLimitInMB;
                 o.CompactionPercentage = option.CompactionPercentage;
             }
 

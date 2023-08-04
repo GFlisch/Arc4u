@@ -52,7 +52,7 @@ public class CacheContextTests
                              ["Caching:Caches:0:Kind"] = cache.Caches[0].Kind,
                              ["Caching:Caches:0:IsAutoStart"] = cache.Caches[0].IsAutoStart.ToString(),
                              ["Caching:Caches:0:Settings"] = cache.Caches[0].IsAutoStart.ToString(),
-                             ["Caching:Caches:0:Settings:SizeLimit"] = memorySettings.SizeLimit.ToString(CultureInfo.InvariantCulture),
+                             ["Caching:Caches:0:Settings:SizeLimitInMB"] = memorySettings.SizeLimitInMB.ToString(CultureInfo.InvariantCulture),
                              ["Caching:Caches:0:Settings:CompactionPercentage"] = memorySettings.CompactionPercentage.ToString(CultureInfo.InvariantCulture),
                              ["Caching:Caches:0:Settings:SerializerName"] = memorySettings.SerializerName,
                          }).Build();
@@ -76,7 +76,7 @@ public class CacheContextTests
 
         // assert
         sut.CompactionPercentage.Should().Be(memorySettings.CompactionPercentage);
-        sut.SizeLimit.Should().Be(memorySettings.SizeLimit * 1024 * 1024);
+        sut.SizeLimitInMB.Should().Be(memorySettings.SizeLimitInMB * 1024 * 1024);
         sut.SerializerName.Should().Be(memorySettings.SerializerName);
     }
 
@@ -124,7 +124,7 @@ public class CacheContextTests
                      ["Caching:Caches:2:Name"] = cache.Caches[2].Name,
                      ["Caching:Caches:2:Kind"] = cache.Caches[2].Kind,
                      ["Caching:Caches:2:IsAutoStart"] = cache.Caches[2].IsAutoStart.ToString(),
-                     ["Caching:Caches:2:Settings:SizeLimit"] = memorySettings.SizeLimit.ToString(CultureInfo.InvariantCulture),
+                     ["Caching:Caches:2:Settings:SizeLimitInMB"] = memorySettings.SizeLimitInMB.ToString(CultureInfo.InvariantCulture),
                      ["Caching:Caches:2:Settings:CompactionPercentage"] = memorySettings.CompactionPercentage.ToString(CultureInfo.InvariantCulture),
                      ["Caching:Caches:2:Settings:SerializerName"] = memorySettings.SerializerName,
 
@@ -161,7 +161,7 @@ public class CacheContextTests
         // memory
         sutMemory.Should().NotBeNull();
         sutMemory.SerializerName.Should().Be(memorySettings.SerializerName);
-        sutMemory.SizeLimit.Should().Be(memorySettings.SizeLimit * 1024 * 1024);
+        sutMemory.SizeLimitInMB.Should().Be(memorySettings.SizeLimitInMB * 1024 * 1024);
         sutMemory.CompactionPercentage.Should().Be(memorySettings.CompactionPercentage);
 
     }
@@ -176,7 +176,7 @@ public class CacheContextTests
 
         cache.Caches.Add(new Configuration.CachingCache { IsAutoStart = true, Kind = CacheContext.Memory, Name = "Volatile" });
 
-        var memorySettings = new MemoryCacheOption { SizeLimit = 10 };
+        var memorySettings = new MemoryCacheOption { SizeLimitInMB = 10 };
 
         IServiceCollection services = new ServiceCollection();
 
@@ -189,7 +189,7 @@ public class CacheContextTests
                      ["Caching:Caches:0:Name"] = cache.Caches[0].Name,
                      ["Caching:Caches:0:Kind"] = cache.Caches[0].Kind,
                      ["Caching:Caches:0:IsAutoStart"] = cache.Caches[0].IsAutoStart.ToString(),
-                     ["Caching:Caches:0:Settings:SizeLimit"] = memorySettings.SizeLimit.ToString(CultureInfo.InvariantCulture),
+                     ["Caching:Caches:0:Settings:SizeLimitInMB"] = memorySettings.SizeLimitInMB.ToString(CultureInfo.InvariantCulture),
                      ["Caching:Caches:0:Settings:CompactionPercentage"] = memorySettings.CompactionPercentage.ToString(CultureInfo.InvariantCulture),
 
                  }).Build();

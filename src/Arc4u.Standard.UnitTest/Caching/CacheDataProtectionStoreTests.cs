@@ -269,7 +269,7 @@ public class CacheDataProtectionStoreTests
              ["Caching:Caches:0:Name"] = "Volatile",
              ["Caching:Caches:0:Kind"] = CacheContext.Memory,
              ["Caching:Caches:0:IsAutoStart"] = "True",
-             ["Caching:Caches:0:Settings:SizeLimit"] = "10",
+             ["Caching:Caches:0:Settings:SizeLimitInMB"] = "10",
 
              ["DataProtectionStore:CacheKey"] = "Key-",
              ["DataProtectionStore:CacheName"] = "Volatile"

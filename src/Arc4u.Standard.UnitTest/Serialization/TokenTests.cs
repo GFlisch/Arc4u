@@ -82,7 +82,7 @@ namespace Arc4u.UnitTest.Serialization
 
             IServiceCollection services = new ServiceCollection();
 
-            services.AddMemoryCache(storeName, options => options.SizeLimit = 10);
+            services.AddMemoryCache(storeName, options => options.SizeLimitInMB = 10);
             services.AddTransient<IObjectSerialization, JsonSerialization>();
 
             var serviceProvider = services.BuildServiceProvider();
@@ -120,7 +120,7 @@ namespace Arc4u.UnitTest.Serialization
             var storeName = "store name";
             IServiceCollection services = new ServiceCollection();
 
-            services.AddMemoryCache(storeName, options => options.SizeLimit = 10);
+            services.AddMemoryCache(storeName, options => options.SizeLimitInMB = 10);
             services.AddTransient<IObjectSerialization, JsonSerialization>();
 
             var serviceProvider = services.BuildServiceProvider();
@@ -158,7 +158,7 @@ namespace Arc4u.UnitTest.Serialization
             var storeName = "store name";
             IServiceCollection services = new ServiceCollection();
 
-            services.AddMemoryCache(storeName, options => options.SizeLimit = 10);
+            services.AddMemoryCache(storeName, options => options.SizeLimitInMB = 10);
             services.AddTransient<IObjectSerialization, ProtoBufZipSerialization>();
 
             var serviceProvider = services.BuildServiceProvider();

@@ -37,7 +37,7 @@ public class MemoryTest
 
         services.AddMemoryCache("option1", options =>
         {
-            options.SizeLimit = option1.SizeLimit;
+            options.SizeLimitInMB = option1.SizeLimitInMB;
             options.SerializerName = option1.SerializerName;
             options.CompactionPercentage = option1.CompactionPercentage;
         });
@@ -49,7 +49,7 @@ public class MemoryTest
 
         // assert
         sut.CompactionPercentage.Should().Be(option1.CompactionPercentage);
-        sut.SizeLimit.Should().Be(option1.SizeLimit * 1024 * 1024);
+        sut.SizeLimitInMB.Should().Be(option1.SizeLimitInMB * 1024 * 1024);
         sut.SerializerName.Should().Be(option1.SerializerName);
     }
 
@@ -63,7 +63,7 @@ public class MemoryTest
                      .AddInMemoryCollection(
                          new Dictionary<string, string?>
                          {
-                             ["Option1:SizeLimit"] = option1.SizeLimit.ToString(CultureInfo.InvariantCulture),
+                             ["Option1:SizeLimitInMB"] = option1.SizeLimitInMB.ToString(CultureInfo.InvariantCulture),
                              ["Option1:CompactionPercentage"] = option1.CompactionPercentage.ToString(CultureInfo.InvariantCulture),
                              ["Option1:SerializerName"] = option1.SerializerName,
                          }).Build();
@@ -81,7 +81,7 @@ public class MemoryTest
 
         // assert
         sut.CompactionPercentage.Should().Be(option1.CompactionPercentage);
-        sut.SizeLimit.Should().Be(option1.SizeLimit * 1024 * 1024);
+        sut.SizeLimitInMB.Should().Be(option1.SizeLimitInMB * 1024 * 1024);
         sut.SerializerName.Should().Be(option1.SerializerName);
     }
 
@@ -94,7 +94,7 @@ public class MemoryTest
                              .AddInMemoryCollection(
                                  new Dictionary<string, string?>
                                  {
-                                     ["Store:SizeLimit"] = "10"
+                                     ["Store:SizeLimitInMB"] = "10"
                                  }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
