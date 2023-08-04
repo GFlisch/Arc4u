@@ -79,7 +79,8 @@ public class JwtHttpHandlerTests
                              ["Authentication:OpenId.Settings:ClientId"] = "aa17786b-e33c-41ec-81cc-6063610aedeb",
                              ["Authentication:OpenId.Settings:ClientSecret"] = "This is a secret",
                              ["Authentication:OpenId.Settings:Audiences:0"] = "urn://audience.com",
-                             ["Authentication:OpenId.Settings:Scopes"] = "user.read user.write",
+                             ["Authentication:OpenId.Settings:Scopes:0"] = "user.read",
+                             ["Authentication:OpenId.Settings:Scopes:1"] = "user.write",
                              ["Authentication:DefaultAuthority:Url"] = "https://login.microsoft.com"
                          }).Build();
 
@@ -480,7 +481,8 @@ public class JwtHttpHandlerTests
                          {
                              ["Authentication:OnBehalfOf:Obo:ClientId"] = "aa17786b-e33c-41ec-81cc-6063610aedeb",
                              ["Authentication:OnBehalfOf:Obo:ClientSecret"] = "This is a secret",
-                             ["Authentication:OnBehalfOf:Obo:Scope"] = "user.read user.write",
+                             ["Authentication:OnBehalfOf:Obo:Scopes:0"] = "user.read",
+                             ["Authentication:OnBehalfOf:Obo:Scopes:1"] = "user.write",
                              ["Authentication:DefaultAuthority:Url"] = "https://login.microsoft.com"
                          }).Build();
 
@@ -575,7 +577,8 @@ public class JwtHttpHandlerTests
                              ["Authentication:OpenId.Settings:ClientId"] = "aa17786b-e33c-41ec-81cc-6063610aedeb",
                              ["Authentication:OpenId.Settings:ClientSecret"] = "This is a secret",
                              ["Authentication:OpenId.Settings:Audiences:0"] = "urn://audience.com",
-                             ["Authentication:OpenId.Settings:Scopes"] = "user.read user.write",
+                             ["Authentication:OpenId.Settings:Scopes:0"] = "user.read",
+                             ["Authentication:OpenId.Settings:Scopes:1"] = "user.write",
                              ["Authentication:DefaultAuthority:Url"] = "https://login.microsoft.com"
                          }).Build();
 
@@ -669,7 +672,8 @@ public class JwtHttpHandlerTests
                              ["Authentication:OpenId.Settings:ClientId"] = "aa17786b-e33c-41ec-81cc-6063610aedeb",
                              ["Authentication:OpenId.Settings:ClientSecret"] = "This is a secret",
                              ["Authentication:OpenId.Settings:Audiences:0"] = "urn://audience.com",
-                             ["Authentication:OpenId.Settings:Scopes"] = "user.read user.write",
+                             ["Authentication:OpenId.Settings:Scopes:0"] = "user.read",
+                             ["Authentication:OpenId.Settings:Scopes:1"] = "user.write",
                              ["Authentication:DefaultAuthority:Url"] = "https://login.microsoft.com"
                          }).Build();
 
@@ -770,7 +774,8 @@ public class JwtHttpHandlerTests
                              ["Authentication:OpenId.Settings:ClientId"] = "aa17786b-e33c-41ec-81cc-6063610aedeb",
                              ["Authentication:OpenId.Settings:ClientSecret"] = "This is a secret",
                              ["Authentication:OpenId.Settings:Audiences:0"] = "urn://audience.com",
-                             ["Authentication:OpenId.Settings:Scopes"] = "user.read user.write",
+                             ["Authentication:OpenId.Settings:Scopes:0"] = "user.read",
+                             ["Authentication:OpenId.Settings:Scopes:1"] = "user.write",
                              ["Authentication:DefaultAuthority:Url"] = "https://login.microsoft.com"
                          }).Build();
 
