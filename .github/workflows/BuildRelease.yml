@@ -7,12 +7,12 @@ on:
         description: 'nuget version number x.y.z.w'     
         required: false
         type: string
-        default: '6.0.14.3'
+        default: '6.1.20.1'
       nugetVersionSpecific:
         description: 'nuget version number z.w for specific packages'     
         required: false
         type: string
-        default: '6014.3'
+        default: '6120.1'
       nugetPackageIdPrefix:
         description: 'NuGet PackageId prefix (include the period if necessary)'
         required: false
