@@ -41,5 +41,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Arc4u.Standard.Diagnostics\Arc4u.Standard.Diagnostics.csproj" />
     <ProjectReference Include="..\Arc4u.Standard.OAuth2\Arc4u.Standard.OAuth2.csproj" />
+    <ProjectReference Include="..\Arc4u.Standard.Results\Arc4u.Standard.Results.csproj" />
   </ItemGroup>
 </Project>
