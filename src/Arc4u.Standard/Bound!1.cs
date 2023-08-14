@@ -19,8 +19,8 @@ namespace Arc4u
 
         /// <summary>
         /// Gets the bound type.
-        /// </summary>        
-        /// <remarks>The set operation is not private to let the Silverlight runtime 
+        /// </summary>
+        /// <remarks>The set operation is not private to let the Silverlight runtime
         /// accessing the property during serializing/deserializing operations.</remarks>
         [DataMember(EmitDefaultValue = false)]
         public BoundType Type { get; internal set; }
@@ -28,15 +28,15 @@ namespace Arc4u
         /// <summary>
         /// Gets the bound direction.
         /// </summary>
-        /// <remarks>The set operation is not private to let the Silverlight runtime 
+        /// <remarks>The set operation is not private to let the Silverlight runtime
         /// accessing the property during serializing/deserializing operations.</remarks>
         [DataMember(EmitDefaultValue = false)]
         public BoundDirection Direction { get; internal set; }
 
         /// <summary>
         /// Gets the bound value.
-        /// </summary>        
-        /// <remarks>The set operation is not private to let the Silverlight runtime 
+        /// </summary>
+        /// <remarks>The set operation is not private to let the Silverlight runtime
         /// accessing the property during serializing/deserializing operations.</remarks>
         [DataMember(EmitDefaultValue = false)]
         public T Value { get; internal set; }
@@ -165,7 +165,7 @@ namespace Arc4u
         }
 
         /// <summary>
-        /// Returns the hash code for this instance. 
+        /// Returns the hash code for this instance.
         /// </summary>
         /// <returns>A 32-bit signed integer hash code.</returns>
         public override int GetHashCode()
@@ -185,7 +185,7 @@ namespace Arc4u
         /// Returns a value indicating whether this instance is equal to a specified object.
         /// </summary>
         /// <param name="obj">An object to compare to this instance.</param>
-        /// <returns>        
+        /// <returns>
         ///     <b>true</b> if this instance equals the <paramref name="obj"/>; otherwise, <b>false</b>.
         /// </returns>
         public override bool Equals(object obj)
@@ -237,11 +237,11 @@ namespace Arc4u
         /// <item>
         ///     <term>Zero</term>
         ///     <description>This instance is equal to the <paramref name="other"/>.</description>
-        /// </item>        
+        /// </item>
         /// <item>
         ///     <term>Greater than zero</term>
         ///     <description>This instance is greater than the <paramref name="other"/>.</description>
-        /// </item>        
+        /// </item>
         ///</list>
         /// </returns>
         /// <exception cref="ArgumentNullException"><paramref name="other"/> is null.</exception>
@@ -258,20 +258,16 @@ namespace Arc4u
             //consider value comparaison
             if (vCompare != 0)
                 return vCompare;
-            else
-            {
-                //perform type comparaison
-                var tCompare = Type.CompareTo(other.Type);
-                if (tCompare != 0)
-                    return tCompare;
-                else
-                {
-                    //perform direction comparaison
-                    return (Type == BoundType.Upper)
-                        ? Direction.CompareTo(other.Direction)
-                        : other.Direction.CompareTo(Direction);
-                }
-            }
+
+            //perform type comparaison
+            var tCompare = Type.CompareTo(other.Type);
+            if (tCompare != 0)
+                return tCompare;
+
+            //perform direction comparaison
+            return (Type == BoundType.Upper)
+                ? Direction.CompareTo(other.Direction)
+                : other.Direction.CompareTo(Direction);
         }
 
         internal int UnionCompareTo(Bound<T> other)

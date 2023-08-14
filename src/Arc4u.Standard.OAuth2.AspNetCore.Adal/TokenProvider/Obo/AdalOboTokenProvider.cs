@@ -86,8 +86,8 @@ public abstract class AdalOboTokenProvider : ITokenProvider
                 {
                     return await openIdTokenProvider.GetTokenAsync(openIdSettings, identity);
                 }
-                else
-                    messages.Add(new Message(ServiceModel.MessageCategory.Technical, MessageType.Error, $"Cannot resolve a token provider with name {tokenProviderName}."));
+
+                messages.Add(new Message(ServiceModel.MessageCategory.Technical, MessageType.Error, $"Cannot resolve a token provider with name {tokenProviderName}."));
             }
         }
         else

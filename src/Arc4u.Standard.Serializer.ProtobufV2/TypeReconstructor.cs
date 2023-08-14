@@ -48,8 +48,8 @@ namespace Arc4u.Serializer.ProtoBuf
 
             if (throwOnError)
                 throw new Exception($"The type \"{assemblyQualifiedName}\" cannot be found in referenced assemblies.");
-            else
-                return null;
+
+            return null;
         }
 
         private static readonly Regex _nameDecompositionRegex = new Regex(@"^(?<name>\w+(\.\w+)*)`(?<count>\d)\[(?<subtypes>\[.*\])\](, (?<assembly>\w+(\.\w+)*)[\w\s,=\.]+)$?", RegexOptions.Singleline | RegexOptions.ExplicitCapture, TimeSpan.FromMilliseconds(100));

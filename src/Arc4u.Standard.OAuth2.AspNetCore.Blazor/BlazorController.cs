@@ -82,10 +82,8 @@ namespace Arc4u.Blazor
                 var thisController = settings.Values[TokenKeys.RootServiceUrlKey].TrimEnd('/') + $"/blazor/redirectto/{redirectTo}/{index + 1}&token={accessToken.Substring((index - 1) * buffer, buffer)}";
                 return Redirect(UriHelper.Encode(new Uri($"{redirectUri}?url={thisController}")));
             }
-            else
-            {
-                return Redirect($"{redirectUri}?token={accessToken.Substring((index - 1) * buffer, accessToken.Length - (index - 1) * buffer)}");
-            }
+
+            return Redirect($"{redirectUri}?token={accessToken.Substring((index - 1) * buffer, accessToken.Length - (index - 1) * buffer)}");
         }
     }
 }
