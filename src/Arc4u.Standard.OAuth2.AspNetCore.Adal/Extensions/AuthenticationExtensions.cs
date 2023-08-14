@@ -40,7 +40,7 @@ public static class AuthenticationExtensions
 
         services.AddClaimsIdentifier(authenticationOptions.ClaimsIdentifierOptions);
         services.AddUserIdentifier(authenticationOptions.UserIdentifierOptions);
-        services.AddAuthorization();
+        services.AddAuthorizationCore();
         services.AddHttpContextAccessor(); // give access to the HttpContext if requested by an external packages.
 
         return services.AddAuthentication(auth =>
