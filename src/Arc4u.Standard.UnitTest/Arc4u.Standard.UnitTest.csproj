@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 		<PropertyGroup>
-				<TargetFrameworks>net6.0;net7.0</TargetFrameworks>
+				<TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
 				<IsPackable>false</IsPackable>
 				<LangVersion>latest</LangVersion>
       <Nullable>enable</Nullable>
@@ -43,9 +43,12 @@
 		<ItemGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
 				<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="7.0.10" />
 				<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.10" />
-		</ItemGroup>		
-
-		<ItemGroup>
+		</ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.0-preview.7.23375.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0-preview.7.23375.4" />
+  </ItemGroup>
+  <ItemGroup>
 				<ProjectReference Include="..\Arc4u.Standard.Caching.Memory\Arc4u.Standard.Caching.Memory.csproj" />
 				<ProjectReference Include="..\Arc4u.Standard.Caching.Redis\Arc4u.Standard.Caching.Redis.csproj" />
 				<ProjectReference Include="..\Arc4u.Standard.Caching.Sql\Arc4u.Standard.Caching.Sql.csproj" />
