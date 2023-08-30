@@ -13,7 +13,7 @@ public abstract class ValueObject
             return false;
         }
 
-        return null == left ? ReferenceEquals(left, right) : ReferenceEquals(left, right) || left.Equals(right);
+        return ReferenceEquals(left, null) ? ReferenceEquals(left, right) : ReferenceEquals(left, right) || left.Equals(right);
     }
 
     protected static bool NotEqualOperator(ValueObject? left, ValueObject? right)
@@ -43,7 +43,7 @@ public abstract class ValueObject
     }
     public static bool operator ==(ValueObject? one, ValueObject? two)
     {
-        return EqualOperator(one, two);
+         return EqualOperator(one, two);
     }
 
     public static bool operator !=(ValueObject? one, ValueObject? two)
