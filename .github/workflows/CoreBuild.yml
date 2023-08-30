@@ -194,7 +194,7 @@ jobs:
         with:
           nuget-version: latest
       - name: msbuild
-        uses: microsoft/setup-msbuild@v1.0.3
+        uses: microsoft/setup-msbuild@v1.1
         with:
           vs-version: '[17.3, 18.0)'
  
