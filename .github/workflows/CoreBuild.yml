@@ -47,14 +47,14 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@v3
         with:
            dotnet-version: |
              6.0.x
              7.0.x
-             8.0.x
+             8.0.100-preview.7.23376.3
       - name: Change Arc4u.Core versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Core.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
         shell: powershell
