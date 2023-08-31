@@ -193,17 +193,18 @@ jobs:
         uses: nuget/setup-nuget@v1
         with:
           nuget-version: latest
-      - name: msbuild
-        uses: microsoft/setup-msbuild@v1.1
-        with:
-          vs-prerelease: true
+      # - name: msbuild
+      #   uses: microsoft/setup-msbuild@v1.1
+      #   with:
+      #     vs-prerelease: true
           # vs-version: '[17.3, 18.0)'
  
       - name: nuget restore
         run: nuget restore .\src\arc4u.sln
  
       - name: build
-        run: msbuild .\src\arc4u.sln /p:configuration=${{env.buildConfiguration}}
+        # run: msbuild .\src\arc4u.sln /p:configuration=${{env.buildConfiguration}}
+        run: dotnet build .\src\arc4u.sln --configuration ${{env.buildConfiguration}}
  
       - name: Run Test projects matching *UnitTest.csproj with filter Category = CI
         run: |
