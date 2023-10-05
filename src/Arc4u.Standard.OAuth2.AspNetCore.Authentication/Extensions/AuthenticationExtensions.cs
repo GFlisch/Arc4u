@@ -291,7 +291,7 @@ public static partial class AuthenticationExtensions
             options.ResponseType = settings.ResponseType;
             options.AuthenticationTicketTTL = settings.AuthenticationTicketTTL;
             options.DataProtectionCacheStoreOption = CacheStoreExtension.PrepareAction(configuration, settings.DataProtectionSectionPath);
-            options.ClaimsIdentifierOptions = ClaimsIdentiferExtension.PrepareAction(configuration, settings.ClaimsIdentifierSectionPath);
+            options.ClaimsIdentifierOptions = ClaimsidentifierExtension.PrepareAction(configuration, settings.ClaimsIdentifierSectionPath);
         }
 
         services.AddDomainMapping(configuration, settings.DomainMappingsSectionPath);
@@ -414,7 +414,7 @@ public static partial class AuthenticationExtensions
             options.OAuth2SettingsOptions = OAuth2SettingsExtension.PrepareAction(configuration, settings.OAuth2SettingsSectionPath);
             options.CertSecurityKey = certSecurityKey;
             options.JwtBearerEventsType = jwtBearerEventsType!;
-            options.ClaimsIdentifierOptions = ClaimsIdentiferExtension.PrepareAction(configuration, settings.ClaimsIdentifierSectionPath);
+            options.ClaimsIdentifierOptions = ClaimsidentifierExtension.PrepareAction(configuration, settings.ClaimsIdentifierSectionPath);
         }
 
         services.AddDomainMapping(configuration, settings.DomainMappingsSectionPath);

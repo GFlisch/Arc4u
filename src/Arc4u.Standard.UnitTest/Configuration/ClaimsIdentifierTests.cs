@@ -32,8 +32,8 @@ public class ClaimsIdentifierTests
                         .AddInMemoryCollection(
           new Dictionary<string, string?>
           {
-              ["Authentication:ClaimsIdentifer:0"] = i1,
-              ["Authentication:ClaimsIdentifer:1"] = i2,
+              ["Authentication:ClaimsIdentifier:0"] = i1,
+              ["Authentication:ClaimsIdentifier:1"] = i2,
           }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));

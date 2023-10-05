@@ -6,7 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Arc4u.OAuth2.Extensions;
-public static class ClaimsIdentiferExtension
+public static class ClaimsidentifierExtension
 {
     public static void AddClaimsIdentifier(this IServiceCollection services, Action<ClaimsIdentifierOption> options)
     {
@@ -18,7 +18,7 @@ public static class ClaimsIdentiferExtension
         services.Configure<ClaimsIdentifierOption>(options);
     }
 
-    public static void AddClaimsIdentifier(this IServiceCollection services, IConfiguration configuration, [DisallowNull] string sectionName = "Authentication:ClaimsIdentifer")
+    public static void AddClaimsIdentifier(this IServiceCollection services, IConfiguration configuration, [DisallowNull] string sectionName = "Authentication:ClaimsIdentifier")
     {
         AddClaimsIdentifier(services, PrepareAction(configuration, sectionName));
     }

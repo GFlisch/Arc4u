@@ -152,7 +152,7 @@ public abstract class AdalOboTokenProvider : ITokenProvider
                 credential = null;
             }
 
-            var userObjectId = _userCacheKeyIdentifier.GetIdentifer(identity);
+            var userObjectId = _userCacheKeyIdentifier.Getidentifier(identity);
             if (String.IsNullOrWhiteSpace(userObjectId))
             {
                 messages.Add(new Message(ServiceModel.MessageCategory.Technical, MessageType.Error, "No user object identifier is found in the claims collection to identify the user."));
