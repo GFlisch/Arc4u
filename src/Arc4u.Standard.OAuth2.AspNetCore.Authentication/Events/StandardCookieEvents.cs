@@ -36,9 +36,16 @@ public class StandardCookieEvents : CookieAuthenticationEvents
         ArgumentNullException.ThrowIfNull(_oidcOptions);
 
         var now = DateTimeOffset.UtcNow;
-        var expiresAt = cookieCtx.Properties.GetTokenValue("expires_at");
-        var accessTokenExpiration = DateTimeOffset.Parse(expiresAt);
-        var timeRemaining = accessTokenExpiration.Subtract(now);
+        //var expiresAt = cookieCtx.Properties.ExpiresUtc //.GetTokenValue("expires_at");
+        var accessTokenExpiration = cookieCtx.Properties.ExpiresUtc;
+        if (!accessTokenExpiration.HasValue)
+        {
+            _logger?.Technical().LogError("No expiration date found in the cookie cache.");
+            cookieCtx.RejectPrincipal();
+            await cookieCtx.HttpContext.SignOutAsync().ConfigureAwait(false);
+            return;
+        }
+        var timeRemaining = accessTokenExpiration.Value - DateTime.UtcNow;
 
         // => must be defined in the options
         var refreshThreshold = _oidcOptions.ForceRefreshTimeoutTimeSpan;
@@ -51,7 +58,7 @@ public class StandardCookieEvents : CookieAuthenticationEvents
 
         var tokensInfo = _serviceProvider.GetService<TokenRefreshInfo>();
 
-        tokensInfo.AccessToken = new TokenInfo("access_token", cookieCtx.Properties.GetTokenValue("access_token"), accessTokenExpiration.UtcDateTime);
+        tokensInfo.AccessToken = new TokenInfo("access_token", cookieCtx.Properties.GetTokenValue("access_token"), accessTokenExpiration.Value.UtcDateTime);
         // As not all the autorities are using a jwt token for the refresh token, the expiration date is not  extracted from the token
         tokensInfo.RefreshToken = new TokenInfo("refresh_token", cookieCtx.Properties.GetTokenValue("refresh_token"), cookieCtx.Properties.ExpiresUtc.Value.UtcDateTime);
 
