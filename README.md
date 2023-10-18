@@ -1,11 +1,12 @@
 # Arc4u
 
-SonarCloud info </br>
+SonarCloud info
 
-> [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=GFlisch_Arc4u&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=GFlisch_Arc4u) </br>
-> [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=GFlisch_Arc4u&metric=bugs)](https://sonarcloud.io/summary/new_code?id=GFlisch_Arc4u) </br>
->[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=GFlisch_Arc4u&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=GFlisch_Arc4u)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=GFlisch_Arc4u&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=GFlisch_Arc4u)
 
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=GFlisch_Arc4u&metric=bugs)](https://sonarcloud.io/summary/new_code?id=GFlisch_Arc4u)
+
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=GFlisch_Arc4u&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=GFlisch_Arc4u)
 
 ## Arc4u is a framework to ease the development of applications. 
   
