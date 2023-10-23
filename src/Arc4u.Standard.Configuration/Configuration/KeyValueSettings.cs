@@ -1,18 +1,19 @@
-﻿using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using Microsoft.Extensions.Configuration;
 
 namespace Arc4u.Configuration
 {
     public abstract class KeyValueSettings : IKeyValueSettings
     {
+        private readonly Dictionary<string, string> _properties;
+
         public KeyValueSettings(string sectionName, IConfiguration configuration)
         {
-            Properties = configuration.GetSection(sectionName).Get<Dictionary<String, String>>();
+            _properties = configuration.GetSection(sectionName)?.GetChildren()?.ToDictionary(x => x.Key, x => x.Value!) ?? throw new ArgumentException($"Section {sectionName} does not exist or doesn't contain a usable value", nameof(sectionName));
         }
 
-        private Dictionary<String, String> Properties { get; }
-
-        public IReadOnlyDictionary<string, string> Values => Properties;
+        public IReadOnlyDictionary<string, string> Values => _properties;
     }
 }

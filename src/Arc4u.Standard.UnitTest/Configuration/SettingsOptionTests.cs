@@ -1,15 +1,15 @@
 using System.Collections.Generic;
-using AutoFixture.AutoMoq;
+using System.IO;
+using System.Linq;
+using System.Text;
+using Arc4u.Configuration;
 using AutoFixture;
-using Xunit;
+using AutoFixture.AutoMoq;
+using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using FluentAssertions;
-using System.Linq;
-using Arc4u.Configuration;
-using System.Globalization;
-using Arc4u.Security.Principal;
+using Xunit;
 
 namespace Arc4u.UnitTest;
 
@@ -24,25 +24,33 @@ public class SettingsOptionTests
 
     private readonly Fixture _fixture;
 
+    /// <summary>
+    /// This simulates a configuration section with some non-string values
+    /// </summary>
+    private static readonly string _json = @"{
+    ""OAuth2.Settings"": {
+        ""ProviderId"": ""Oidc"",
+        ""AuthenticationType"": ""OAuth2Bearer"",
+        ""Object"": ""True"",
+        ""Complex"": [1, 2, 3]
+        }
+}";
+
     [Fact]
     public void SimpleKeyValueShould()
     {
-        var config = new ConfigurationBuilder()
-              .AddInMemoryCollection(
-                  new Dictionary<string, string?>
-                  {
-                      ["OAuth2.Settings:ProviderId"] = "Oidc",
-                      ["OAuth2.Settings:AuthenticationType"] = "OAuth2Bearer",
-                      ["OAuth2.Settings:Object"] = "True",
-                  }).Build();
+        var configuration = new ConfigurationBuilder()
+            .AddJsonStream(new MemoryStream(Encoding.UTF8.GetBytes(_json)))
+            .Build();
 
-        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+        var section = configuration.GetSection("OAuth2.Settings");
+        section.Exists().Should().BeTrue();
 
-        var dic = configuration.GetSection("OAuth2.Settings").Get<Dictionary<string, string>>();
+        var dic = section.GetChildren().ToDictionary(x => x.Key, x => x.Value);
 
         void options(SimpleKeyValueSettings settings)
         {
-            foreach (var kv in dic)
+            foreach (var kv in dic!)
             {
                 settings.Add(kv.Key, kv.Value);
             }
@@ -56,10 +64,11 @@ public class SettingsOptionTests
 
         var sut = serviceProvider.GetService<IOptionsMonitor<SimpleKeyValueSettings>>()!.Get("OAuth2");
 
-        sut.Values.Count.Should().Be(3);
+        sut.Values.Count.Should().Be(4);
         sut.Values["ProviderId"].Should().Be("Oidc");
         sut.Values["AuthenticationType"].Should().Be("OAuth2Bearer");
         sut.Values["Object"].Should().Be("True");
+        sut.Values["Complex"].Should().BeNull();
 
     }
 
