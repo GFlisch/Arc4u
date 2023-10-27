@@ -35,8 +35,6 @@ public class StandardCookieEvents : CookieAuthenticationEvents
         ArgumentNullException.ThrowIfNull(_serviceProvider);
         ArgumentNullException.ThrowIfNull(_oidcOptions);
 
-        var now = DateTimeOffset.UtcNow;
-        //var expiresAt = cookieCtx.Properties.ExpiresUtc //.GetTokenValue("expires_at");
         var accessTokenExpiration = cookieCtx.Properties.ExpiresUtc;
         if (!accessTokenExpiration.HasValue)
         {
