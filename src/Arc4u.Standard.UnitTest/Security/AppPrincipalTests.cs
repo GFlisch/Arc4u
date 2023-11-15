@@ -5,7 +5,6 @@ using Arc4u.Security.Principal;
 using System.Collections.Generic;
 using System.Linq;
 using Arc4u.Extensions;
-using Arc4u.OAuth2.AspNetCore.Options;
 using FluentAssertions;
 
 namespace Arc4u.UnitTest.Security;

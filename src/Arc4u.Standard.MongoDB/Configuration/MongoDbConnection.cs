@@ -1,4 +1,4 @@
-﻿using Arc4u.MongoDB;
+using Arc4u.MongoDB;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using MongoDB.Driver;
@@ -45,7 +45,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.RetryReads = c.RetryReads;
                 options.RetryWrites = c.RetryWrites;
                 options.Scheme = c.Scheme;
-                options.Server = c.Server;
                 options.Servers = c.Servers;
                 options.ServerSelectionTimeout = c.ServerSelectionTimeout;
                 options.SocketTimeout = c.SocketTimeout;
