@@ -1,16 +1,17 @@
 using AutoFixture.AutoMoq;
 using AutoFixture;
 using Xunit;
-using Arc4u.Security.Principal;
 using System.Collections.Generic;
 using System.Linq;
-using Arc4u.Extensions;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Arc4u.MongoDB;
+using Arc4u.MongoDB.Configuration;
+using System;
+using Arc4u.MongoDB.Exceptions;
 
-namespace Arc4u.UnitTest.Security;
+namespace Arc4u.UnitTest.Database.MongoDB;
 
 [Trait("Category", "CI")]
 public class MongoDBTests
@@ -23,10 +24,31 @@ public class MongoDBTests
 
     private readonly Fixture _fixture;
 
+    private class Contract
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; }
+    };
+
+    private class Company
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; }
+    };
+
+    private class NotMapped
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; }
+    };
+
     private class DatabaseDbContext : DbContext
     {
         protected override void OnConfiguring(DbContextBuilder context)
         {
+            context.MapCollection("Contracts").With<Contract>();
+            context.MapCollection("Contracts").With<Company>();
+            context.MapCollection("Companies").With<Contract>();
         }
     }
 
@@ -85,4 +107,76 @@ public class MongoDBTests
         client.Settings.Servers.Last().Port.Should().Be(26000);
     }
 
+    [Fact]
+    public void Test_MongoDB_ContextBuilder_For_A_Specific_Collection_Should()
+    {
+        var config = new ConfigurationBuilder()
+        .AddInMemoryCollection(
+               new Dictionary<string, string?>
+               {
+                   ["ConnectionStrings:mongo"] = "mongodb://localhost:27017/DB1",
+
+               }).Build();
+
+        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+        IServiceCollection services = new ServiceCollection();
+
+        services.AddMongoDatabase<DatabaseDbContext>(configuration, "mongo");
+
+        var app = services.BuildServiceProvider();
+
+        var factory = app.GetService<IMongoClientFactory<DatabaseDbContext>>();
+        var client = factory.GetCollection<Contract>("Contracts");
+        client.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void Test_MongoDB_ContextBuilder_For_A_Non_Specific_Collection_Should_Fail()
+    {
+        var config = new ConfigurationBuilder()
+        .AddInMemoryCollection(
+               new Dictionary<string, string?>
+               {
+                   ["ConnectionStrings:mongo"] = "mongodb://localhost:27017/DB1",
+
+               }).Build();
+
+        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+        IServiceCollection services = new ServiceCollection();
+
+        services.AddMongoDatabase<DatabaseDbContext>(configuration, "mongo");
+
+        var app = services.BuildServiceProvider();
+
+        var factory = app.GetService<IMongoClientFactory<DatabaseDbContext>>();
+
+        var exception = Record.Exception(() => factory!.GetCollection<Contract>());
+
+        exception.Should().BeOfType<TypeMappedToMoreThanOneCollectionException<Contract>>();
+    }
+
+    [Fact]
+    public void Test_MongoDB_ContextBuilder_For_A_Non_Mapped_Type_Should_Fail()
+    {
+        var config = new ConfigurationBuilder()
+        .AddInMemoryCollection(
+               new Dictionary<string, string?>
+               {
+                   ["ConnectionStrings:mongo"] = "mongodb://localhost:27017/DB1",
+
+               }).Build();
+
+        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+        IServiceCollection services = new ServiceCollection();
+
+        services.AddMongoDatabase<DatabaseDbContext>(configuration, "mongo");
+
+        var app = services.BuildServiceProvider();
+
+        var factory = app.GetService<IMongoClientFactory<DatabaseDbContext>>();
+
+        var exception = Record.Exception(() => factory!.GetCollection<NotMapped>());
+
+        exception.Should().BeOfType<TypeNotMappedToCollectionException>();
+    }
 }
