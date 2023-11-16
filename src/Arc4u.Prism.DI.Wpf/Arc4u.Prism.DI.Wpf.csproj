@@ -3,7 +3,7 @@
     <Nullable>enable</Nullable>
     <RootNamespace>Prism.DI.Wpf</RootNamespace>
     <AssemblyName>Arc4u.Prism.DI.Wpf</AssemblyName>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFrameworks>net6.0-windows;net8.0-windows</TargetFrameworks>
     <LangVersion>10.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup Label="Globals">
