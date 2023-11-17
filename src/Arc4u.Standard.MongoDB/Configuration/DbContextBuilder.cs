@@ -40,7 +40,7 @@ public class WithType
     private readonly DbContextBuilder _contextBuilder;
     private readonly string _collectionName;
 
-    public WithType With<TEntity>() where TEntity : class, new()
+    public WithType With<TEntity>() where TEntity : class
     {
         var type = typeof(TEntity);
 
