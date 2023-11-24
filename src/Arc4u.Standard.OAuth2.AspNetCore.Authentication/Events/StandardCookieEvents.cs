@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace Arc4u.OAuth2.Events;
 
@@ -35,20 +36,20 @@ public class StandardCookieEvents : CookieAuthenticationEvents
         ArgumentNullException.ThrowIfNull(_serviceProvider);
         ArgumentNullException.ThrowIfNull(_oidcOptions);
 
-        var accessTokenExpiration = cookieCtx.Properties.ExpiresUtc;
-        if (!accessTokenExpiration.HasValue)
+
+        var cookieTokenExpiration = cookieCtx.Properties.ExpiresUtc;
+        if (!cookieTokenExpiration.HasValue || cookieTokenExpiration.Value < DateTime.UtcNow)
         {
             _logger?.Technical().LogError("No expiration date found in the cookie cache.");
             cookieCtx.RejectPrincipal();
             await cookieCtx.HttpContext.SignOutAsync().ConfigureAwait(false);
             return;
         }
-        var timeRemaining = accessTokenExpiration.Value - DateTime.UtcNow;
 
         // => must be defined in the options
         var refreshThreshold = _oidcOptions.ForceRefreshTimeoutTimeSpan;
 
-        _logger?.LogDebug("Extract token from the cookie cache.");
+        _logger.Technical().LogDebug("Extract token from the cookie cache.");
 
         // Persist the Access and Refresh tokens.
         // TokenRefreshInfo is registered as Scoped and we create at this moment (by request) an instance to
@@ -56,10 +57,15 @@ public class StandardCookieEvents : CookieAuthenticationEvents
 
         var tokensInfo = _serviceProvider.GetService<TokenRefreshInfo>();
 
-        tokensInfo.AccessToken = new TokenInfo("access_token", cookieCtx.Properties.GetTokenValue("access_token"), accessTokenExpiration.Value.UtcDateTime);
-        // As not all the autorities are using a jwt token for the refresh token, the expiration date is not  extracted from the token
-        tokensInfo.RefreshToken = new TokenInfo("refresh_token", cookieCtx.Properties.GetTokenValue("refresh_token"), cookieCtx.Properties.ExpiresUtc.Value.UtcDateTime);
+        var accessToken = cookieCtx.Properties.GetTokenValue("access_token");
+        var jwtToken = new JsonWebToken(accessToken);
+        var refreshToken = cookieCtx.Properties.GetTokenValue("refresh_token");
 
+        tokensInfo.AccessToken = new TokenInfo("access_token", accessToken, jwtToken.ValidTo);
+        // As not all the autorities are using a jwt token for the refresh token, the expiration date is not  extracted from the token
+        tokensInfo.RefreshToken = new TokenInfo("refresh_token", refreshToken, cookieTokenExpiration.Value.DateTime);
+
+        var timeRemaining = jwtToken.ValidTo - DateTime.UtcNow;
         if (timeRemaining < refreshThreshold)
         {
             ArgumentNullException.ThrowIfNull(_tokenRefreshProvider);
