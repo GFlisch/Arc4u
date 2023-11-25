@@ -40,13 +40,13 @@
     </None>
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
-    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="6.0.22" />
+    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="6.0.*" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
-    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="7.0.14" />
+    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="7.0.*" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
-    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="8.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="8.0.*" />
   </ItemGroup>  
   <ItemGroup>
     <ProjectReference Include="..\Arc4u.Standard\Arc4u.Standard.csproj" />

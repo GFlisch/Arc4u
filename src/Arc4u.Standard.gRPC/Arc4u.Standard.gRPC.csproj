@@ -17,7 +17,7 @@
     <RootNamespace>$(MSBuildProjectName.Replace(" ", "_").Replace(".Standard", ""))</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Grpc.Core.Api" Version="2.59.0" />
+    <PackageReference Include="Grpc.Core.Api" Version="2.*" />
     <PackageReference Include="GrpcRichError" Version="0.1.5" />
   </ItemGroup>
   <ItemGroup>
