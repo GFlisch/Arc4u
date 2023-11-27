@@ -17,8 +17,7 @@ sealed class SectionStoreConfigurationProvider : ConfigurationProvider
         {
         }
 
-
-        public void Transform(IDictionary<string, string> output, string key, string json)
+        public void Transform(IDictionary<string, string?> output, string key, string json)
         {
             using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
             Load(stream);
@@ -67,9 +66,9 @@ sealed class SectionStoreConfigurationProvider : ConfigurationProvider
             sectionStore.Add(newSections);
     }
 
-    private IDictionary<string, string> GetData()
+    private IDictionary<string, string?> GetData()
     {
-        var data = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        var data = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase);
         var transformer = new Transformer();
 
         if (_serviceScopeFactory is null)
@@ -89,7 +88,7 @@ sealed class SectionStoreConfigurationProvider : ConfigurationProvider
         return data;
     }
 
-    private static bool Equals(IDictionary<string, string> data1, IDictionary<string, string> data2)
+    private static bool Equals(IDictionary<string, string?> data1, IDictionary<string, string?> data2)
     {
         if (data1.Count != data2.Count)
             return false;
