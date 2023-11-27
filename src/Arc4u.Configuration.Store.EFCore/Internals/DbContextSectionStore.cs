@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Arc4u.Configuration.Store.EFCore.Internals;
 
@@ -11,18 +12,27 @@ sealed class DbContextSectionStore<TDbContext> : ISectionStore
     where TDbContext : DbContext
 {
     private readonly TDbContext _dbContext;
+    private readonly ILogger<DbContextSectionStore<TDbContext>> _logger;
 
-    public DbContextSectionStore(TDbContext dbContext)
+    public DbContextSectionStore(TDbContext dbContext, ILogger<DbContextSectionStore<TDbContext>> logger)
     {
         _dbContext = dbContext;
+        _logger = logger;
     }
 
     private DbSet<SectionEntity> SectionEntitySet => _dbContext.Set<SectionEntity>();
 
     public void Add(IEnumerable<SectionEntity> entities)
     {
-        SectionEntitySet.AddRange(entities);
-        _dbContext.SaveChanges();
+        try
+        {
+            SectionEntitySet.AddRange(entities);
+            _dbContext.SaveChanges();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Adding the initial SectionEntities failed");
+        }
     }
 
     public Task<SectionEntity?> GetAsync(string key, CancellationToken cancellationToken)
