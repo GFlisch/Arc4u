@@ -4,15 +4,10 @@ on:
   workflow_dispatch:
     inputs:
       nugetVersion:
-        description: 'nuget version number x.y.z.w'     
+        description: 'nuget version number x.y.z'     
         required: false
         type: string
-        default: '6.1.22.1'
-      nugetVersionSpecific:
-        description: 'nuget version number z.w for specific packages'     
-        required: false
-        type: string
-        default: '6122.1'
+        default: '8.0.0'
       nugetPackageIdPrefix:
         description: 'NuGet PackageId prefix (include the period if necessary)'
         required: false
@@ -29,7 +24,6 @@ jobs:
     uses: ./.github/workflows/CoreBuild.yml
     with:
       nugetVersion: ${{ github.event.inputs.nugetVersion }}
-      nugetVersionSpecific: ${{ github.event.inputs.nugetVersionSpecific }}
       nugetPreviewName: ''
       nugetPackageIdPrefix: ${{ github.event.inputs.nugetPackageIdPrefix }}
       publish: ${{ github.event.inputs.publish }}

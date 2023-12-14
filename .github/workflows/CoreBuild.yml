@@ -33,8 +33,6 @@ env:
   buildConfiguration: 'Release'  
   netStandardVersion: '${{ github.event.inputs.nugetVersion }}'
   netStandardVersionNuget: '${{ github.event.inputs.nugetVersion }}${{ github.event.inputs.nugetPreviewName }}'
-  PrismVersion: '7.2.${{ github.event.inputs.nugetVersionSpecific }}'
-  PrismVersionNuget: '7.2.${{ github.event.inputs.nugetVersionSpecific }}${{ github.event.inputs.nugetPreviewName }}'
   PublishToNuget: ${{ github.event.inputs.publish }}
 
 jobs:
@@ -174,7 +172,7 @@ jobs:
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Diagnostics.Serilog.Sinks.RealmDb.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
         shell: powershell        
       - name: Change Arc4u.Prism.DI.Wpf versions
-        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Prism.DI.Wpf.csproj" "1.0.0.0" "${{env.PrismVersion}}" "0.0.0.0" "${{env.PrismVersionNuget}}"
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Prism.DI.Wpf.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
         shell: powershell         
 
       - name: Set the NuGet PackageId in the project files
