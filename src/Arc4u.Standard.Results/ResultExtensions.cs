@@ -130,6 +130,15 @@ public static class ResultExtension
         return result;
     }
 
+    public static Result<TValue> OnFailed<TValue>(this Result<TValue> result, Result globalResult)
+    {
+        if (result.IsFailed)
+        {
+            globalResult.WithErrors(result.Errors);
+        }
+        return result;
+    }
+
     public static async Task<Result> OnFailed(this Task<Result> result, Result globalResult)
     {
         var r = await result.ConfigureAwait(false);
