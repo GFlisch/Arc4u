@@ -4,6 +4,8 @@ using Microsoft.Extensions.Logging;
 namespace Arc4u.Results;
 public static class ResultExtension
 {
+    #region OnSuccess
+
     public static Result OnSuccess(this Result result, Action action)
     {
         if (result.IsSuccess)
@@ -22,20 +24,53 @@ public static class ResultExtension
         return result;
     }
 
-    public static ValueTask<Result<TValue>> OnSuccess<TValue>(this ValueTask<Result<TValue>> result, Action<TValue> action)
+    public static Result<TValue> OnSuccess<TValue>(this Result<TValue> result, Action action)
     {
-        if (result.IsCompleted && result!.Result.IsSuccess)
+        if (result.IsSuccess)
         {
-            action(result.Result.Value);
+            action();
         }
         return result;
     }
+
+    public static async Task<Result> OnSuccess(this Task<Result> result, Action action)
+    {
+        var r = await result.ConfigureAwait(false);
+
+        if (r.IsSuccess)
+        {
+            action();
+        }
+        return r;
+    }
+
+    public static async ValueTask<Result<TValue>> OnSuccess<TValue>(this ValueTask<Result<TValue>> result, Action<TValue> action)
+    {
+        var r = await result.ConfigureAwait(false);
+
+        if (r.IsSuccess)
+        {
+            action(r.Value);
+        }
+        return r;
+    }
+
+
 
     public static async Task<Result> OnSuccessAsync(this Task<Result> result, Func<Task> action)
     {
         if (result.Result.IsSuccess)
         {
             await action().ConfigureAwait(false);
+        }
+
+        return result.Result;
+    }
+    public static async Task<Result> OnSuccessAsync(this Task<Result> result, Func<Task<Result>> action)
+    {
+        if (result.Result.IsSuccess)
+        {
+            return await action().ConfigureAwait(false);
         }
 
         return result.Result;
@@ -52,16 +87,20 @@ public static class ResultExtension
         return r;
     }
 
-    public static async ValueTask<Result<TValue>> OnSuccessAsync<TValue>(this ValueTask<Result<TValue>> result, Action<TValue> action)
+    public static async ValueTask<Result<TValue>> OnSuccessAsync<TValue>(this ValueTask<Result<TValue>> result, Func<TValue, Task> action)
     {
         var r = await result.ConfigureAwait(false);
         if (r.IsSuccess)
         {
-            action(r.Value);
+            await action(r.Value).ConfigureAwait(false);
         }
 
         return r;
     }
+
+    #endregion
+
+    #region OnFailed
 
     public static Result OnFailed(this Result result, Action<List<IError>> action)
     {
@@ -178,6 +217,9 @@ public static class ResultExtension
         }
         return r;
     }
+
+
+    #endregion
 
     public static Task<Result> LogIfFailedAsync(this Task<Result> result, LogLevel logLevel = LogLevel.Information)
     {
