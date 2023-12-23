@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using FluentResults;
 using Microsoft.Extensions.Logging;
 
@@ -121,6 +122,17 @@ public static class ResultExtension
         return result;
     }
 
+    public static Result<TValue> OnFailed<TValue>(this Result<TValue> result, [DisallowNull] Result<TValue> globalResult)
+    {
+        ArgumentNullException.ThrowIfNull(globalResult);
+
+        if (result.IsFailed)
+        {
+            globalResult.WithErrors(result.Errors);
+        }
+
+        return result;
+    }
     public static Result<TValue> OnFailed<TValue>(this Result<TValue> result, Action<List<IError>> action)
     {
         if (result.IsFailed)
@@ -139,8 +151,11 @@ public static class ResultExtension
         return result;
     }
 
-    public static async Task<Result> OnFailed(this Task<Result> result, Result globalResult)
+    public static async Task<Result> OnFailed(this Task<Result> result, [DisallowNull] Result globalResult)
     {
+        ArgumentNullException.ThrowIfNull(globalResult);
+        ArgumentNullException.ThrowIfNull(result);
+
         var r = await result.ConfigureAwait(false);
 
         if (r.IsFailed)
@@ -150,7 +165,6 @@ public static class ResultExtension
 
         return r;
     }
-
     public static async Task<Result> OnFailed<TReturnValue>(this Task<Result> result, Result<TReturnValue> globalResult)
     {
         var r = await result.ConfigureAwait(false);
