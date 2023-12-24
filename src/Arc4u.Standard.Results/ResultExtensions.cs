@@ -56,8 +56,6 @@ public static class ResultExtension
         return r;
     }
 
-
-
     public static async Task<Result> OnSuccessAsync(this Task<Result> result, Func<Task> action)
     {
         if (result.Result.IsSuccess)
@@ -98,7 +96,53 @@ public static class ResultExtension
 
         return r;
     }
+    public static async ValueTask<Result<T?>> OnSuccessNullAsync<T>(this ValueTask<Result<T?>> result, Func<Task> func)
+    {
+        var r = await result.ConfigureAwait(false);
 
+        if (r.IsSuccess && r.Value is null)
+        {
+            await func().ConfigureAwait(false);
+        }
+
+        return r;
+    }
+
+    public static async ValueTask<Result<T?>> OnSuccessNull<T>(this ValueTask<Result<T?>> result, Action func)
+    {
+        var r = await result.ConfigureAwait(false);
+
+        if (r.IsSuccess && r.Value is null)
+        {
+            func();
+        }
+
+        return r;
+    }
+
+    public static async ValueTask<Result<T?>> OnSuccessNotNullAsync<T>(this ValueTask<Result<T?>> result, Func<T, Task> func)
+    {
+        var r = await result.ConfigureAwait(false);
+
+        if (r.IsSuccess && r.Value is not null)
+        {
+            await func(r.Value).ConfigureAwait(false);
+        }
+
+        return r;
+    }
+
+    public static async ValueTask<Result<T?>> OnSuccessNotNull<T>(this ValueTask<Result<T?>> result, Action<T> func)
+    {
+        var r = await result.ConfigureAwait(false);
+
+        if (r.IsSuccess && r.Value is not null)
+        {
+            func(r.Value);
+        }
+
+        return r;
+    }
     #endregion
 
     #region OnFailed
@@ -243,6 +287,18 @@ public static class ResultExtension
 
 
     #endregion
+
+    public static async Task<Result> LogIfFailed(this Task<Result> result, LogLevel logLevel = LogLevel.Error)
+    {
+        var r = await result.ConfigureAwait(false);
+
+        if (r.IsFailed)
+        {
+            r.LogIfFailed(logLevel);
+        }
+
+        return r;
+    }
 
     public static Task<Result> LogIfFailedAsync(this Task<Result> result, LogLevel logLevel = LogLevel.Information)
     {
