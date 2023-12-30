@@ -143,6 +143,7 @@ public static class ResultExtension
 
         return r;
     }
+
     #endregion
 
     #region OnFailed
@@ -263,6 +264,20 @@ public static class ResultExtension
         {
             action(r.Errors);
         }
+        return r;
+    }
+
+    public static async ValueTask<Result<TValue?>> OnNullableFailed<TValue>(this ValueTask<Result<TValue?>> result, [DisallowNull] Result<TValue> globalResult)
+    {
+        ArgumentNullException.ThrowIfNull(globalResult);
+
+        var r = await result.ConfigureAwait(false);
+
+        if (r.IsFailed)
+        {
+            globalResult.WithErrors(result!.Result.Errors);
+        }
+
         return r;
     }
 
