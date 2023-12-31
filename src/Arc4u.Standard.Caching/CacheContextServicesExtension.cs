@@ -1,4 +1,5 @@
 using System;
+using Arc4u.Configuration.Dapr;
 using Arc4u.Configuration.Memory;
 using Arc4u.Configuration.Redis;
 using Arc4u.Configuration.Sql;
@@ -48,6 +49,9 @@ public static class CacheContextServicesExtension
                     break;
                 case "sql":
                     services.AddSqlCache(cache.Name, configuration, BuildCacheSettingsSectionPath(idx, sectionName));
+                    break;
+                case "dapr":
+                    services.AddDaprCache(cache.Name, configuration, BuildCacheSettingsSectionPath(idx, sectionName));
                     break;
 #endif
             }
