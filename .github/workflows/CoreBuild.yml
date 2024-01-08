@@ -33,27 +33,18 @@ env:
   buildConfiguration: 'Release'  
   netStandardVersion: '${{ github.event.inputs.nugetVersion }}'
   netStandardVersionNuget: '${{ github.event.inputs.nugetVersion }}${{ github.event.inputs.nugetPreviewName }}'
-  iOSVersion: '11.2.${{ github.event.inputs.nugetVersionSpecific }}'
-  iOSVersionNuget: '11.2.${{ github.event.inputs.nugetVersionSpecific }}${{ github.event.inputs.nugetPreviewName }}'
-  AndroidVersion: '9.0.${{ github.event.inputs.nugetVersionSpecific }}'
-  AndroidVersionNuget: '9.0.${{ github.event.inputs.nugetVersionSpecific }}${{ github.event.inputs.nugetPreviewName }}'
-  UwpVersion: '10.18362.${{ github.event.inputs.nugetVersionSpecific }}'
-  UwpVersionNuget: '10.38362.${{ github.event.inputs.nugetVersionSpecific }}${{ github.event.inputs.nugetPreviewName }}'
-  PrismVersion: '7.2.${{ github.event.inputs.nugetVersionSpecific }}'
-  PrismVersionNuget: '7.2.${{ github.event.inputs.nugetVersionSpecific }}${{ github.event.inputs.nugetPreviewName }}'
   PublishToNuget: ${{ github.event.inputs.publish }}
 
 jobs:
   build:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@v3
         with:
            dotnet-version: |
-             6.0.x
-             7.0.x
+             8.0.100
       - name: Change Arc4u.Core versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Core.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
         shell: powershell
@@ -121,6 +112,9 @@ jobs:
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Dispatcher.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
         shell: powershell
       - name: Change Arc4u.Standard.Serializer versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Results.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell   
+      - name: Change Arc4u.Standard.Serializer versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Serializer.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
         shell: powershell        
       - name: Change Arc4u.Standard.Serializer.JSon versions
@@ -178,7 +172,7 @@ jobs:
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Diagnostics.Serilog.Sinks.RealmDb.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
         shell: powershell        
       - name: Change Arc4u.Prism.DI.Wpf versions
-        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Prism.DI.Wpf.csproj" "1.0.0.0" "${{env.PrismVersion}}" "0.0.0.0" "${{env.PrismVersionNuget}}"
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Prism.DI.Wpf.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
         shell: powershell         
 
       - name: Set the NuGet PackageId in the project files
@@ -189,16 +183,18 @@ jobs:
         uses: nuget/setup-nuget@v1
         with:
           nuget-version: latest
-      - name: msbuild
-        uses: microsoft/setup-msbuild@v1.0.3
-        with:
-          vs-version: '[17.3, 18.0)'
+      # - name: msbuild
+      #   uses: microsoft/setup-msbuild@v1.1
+      #   with:
+      #     vs-prerelease: true
+          # vs-version: '[17.3, 18.0)'
  
       - name: nuget restore
-        run: nuget restore .\src\arc4u.sln
+        run: dotnet restore .\src\arc4u.sln
  
       - name: build
-        run: msbuild .\src\arc4u.sln /p:configuration=${{env.buildConfiguration}}
+        # run: msbuild .\src\arc4u.sln /p:configuration=${{env.buildConfiguration}}
+        run: dotnet build .\src\arc4u.sln --configuration ${{env.buildConfiguration}} 
  
       - name: Run Test projects matching *UnitTest.csproj with filter Category = CI
         run: |

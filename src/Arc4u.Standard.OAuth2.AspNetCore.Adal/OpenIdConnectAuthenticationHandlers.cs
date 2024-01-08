@@ -30,7 +30,7 @@ public static class OpenIdConnectAuthenticationHandlers
 
         try
         {
-            var userObjectId = keyGen.GetIdentifer(principal.Identity as ClaimsIdentity);
+            var userObjectId = keyGen.Getidentifier(principal.Identity as ClaimsIdentity);
             var authority = openIdSettings.Values[TokenKeys.AuthorityKey];
             var resource = openIdSettings.Values[TokenKeys.ServiceApplicationIdKey];
 

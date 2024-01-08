@@ -60,7 +60,7 @@ public static partial class AuthenticationExtensions
         services.AddClaimsIdentifier(oidcOptions.ClaimsIdentifierOptions);
         // Will keep in memory the AccessToken and Refresh token for the time of the request...
         services.AddScoped<TokenRefreshInfo>();
-        services.AddAuthorization();
+        services.AddAuthorizationCore();
         services.AddHttpContextAccessor(); // give access to the HttpContext if requested by an external packages.
         services.AddTransient(oidcOptions.CookieAuthenticationEventsType);
         services.AddTransient(oidcOptions.JwtBearerEventsType);
@@ -291,7 +291,7 @@ public static partial class AuthenticationExtensions
             options.ResponseType = settings.ResponseType;
             options.AuthenticationTicketTTL = settings.AuthenticationTicketTTL;
             options.DataProtectionCacheStoreOption = CacheStoreExtension.PrepareAction(configuration, settings.DataProtectionSectionPath);
-            options.ClaimsIdentifierOptions = ClaimsIdentiferExtension.PrepareAction(configuration, settings.ClaimsIdentifierSectionPath);
+            options.ClaimsIdentifierOptions = ClaimsidentifierExtension.PrepareAction(configuration, settings.ClaimsIdentifierSectionPath);
         }
 
         services.AddDomainMapping(configuration, settings.DomainMappingsSectionPath);
@@ -334,7 +334,7 @@ public static partial class AuthenticationExtensions
         services.ConfigureOAuth2Settings(options.OAuth2SettingsOptions, options.OAuth2SettingsKey);
         services.AddClaimsIdentifier(options.ClaimsIdentifierOptions);
         services.AddTransient(options.JwtBearerEventsType);
-        services.AddAuthorization();
+        services.AddAuthorizationCore();
         services.AddHttpContextAccessor();
         services.AddDefaultAuthority(auth =>
         {
@@ -414,7 +414,7 @@ public static partial class AuthenticationExtensions
             options.OAuth2SettingsOptions = OAuth2SettingsExtension.PrepareAction(configuration, settings.OAuth2SettingsSectionPath);
             options.CertSecurityKey = certSecurityKey;
             options.JwtBearerEventsType = jwtBearerEventsType!;
-            options.ClaimsIdentifierOptions = ClaimsIdentiferExtension.PrepareAction(configuration, settings.ClaimsIdentifierSectionPath);
+            options.ClaimsIdentifierOptions = ClaimsidentifierExtension.PrepareAction(configuration, settings.ClaimsIdentifierSectionPath);
         }
 
         services.AddDomainMapping(configuration, settings.DomainMappingsSectionPath);

@@ -170,7 +170,7 @@ public abstract class AdalTokenProvider : ITokenProvider
         }
         else
         {
-            var objectId = _userCacheKeyIdentifier.GetIdentifer(identity);
+            var objectId = _userCacheKeyIdentifier.Getidentifier(identity);
             if (String.IsNullOrWhiteSpace(objectId))
             {
                 messages.Add(new Message(Arc4u.ServiceModel.MessageCategory.Technical, Arc4u.ServiceModel.MessageType.Error, "No user object identifier is found in the claims collection to identify the user."));

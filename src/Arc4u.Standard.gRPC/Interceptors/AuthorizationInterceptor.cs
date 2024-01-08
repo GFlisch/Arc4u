@@ -99,7 +99,10 @@ namespace Arc4u.gRPC.Interceptors
 
         private void SetActivityIDIfExist(ServerCallContext _)
         {
-            _applicationContext.Principal.ActivityID = Activity.Current?.Id ?? Guid.NewGuid().ToString();
+            if (null != _applicationContext.Principal)
+            {
+                _applicationContext.Principal.ActivityID = Activity.Current?.Id ?? Guid.NewGuid().ToString();
+            }
         }
 
         public override async Task ServerStreamingServerHandler<TRequest, TResponse>(TRequest request, IServerStreamWriter<TResponse> responseStream, ServerCallContext context, ServerStreamingServerMethod<TRequest, TResponse> continuation)

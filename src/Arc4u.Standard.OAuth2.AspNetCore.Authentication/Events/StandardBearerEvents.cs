@@ -1,3 +1,4 @@
+using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Security.Claims;
@@ -6,6 +7,7 @@ using Arc4u.Diagnostics;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Arc4u.OAuth2.Events;
 
@@ -45,11 +47,22 @@ public class StandardBearerEvents : JwtBearerEvents
     /// <returns></returns>
     public override Task TokenValidated(TokenValidatedContext context)
     {
-        if (context.SecurityToken is JwtSecurityToken accessToken)
+        if (context.SecurityToken is SecurityToken)
         {
             if (context.Principal?.Identity is ClaimsIdentity identity)
             {
-                identity.BootstrapContext = accessToken.RawData;
+                var sToken = context.Request.Headers.Authorization.ToString();
+                if (sToken.StartsWith("Bearer ", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    sToken = sToken.Substring(7);
+                    identity.BootstrapContext = sToken;
+                }
+                else
+                {
+                    context.Fail("A Bearer token is expected!");
+                    context.Response.Clear();
+                    context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                }
             }
         }
 
