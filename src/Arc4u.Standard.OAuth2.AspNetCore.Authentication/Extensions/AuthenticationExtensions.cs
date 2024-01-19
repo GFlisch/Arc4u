@@ -346,6 +346,7 @@ public static partial class AuthenticationExtensions
         {
             auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
             auth.DefaultForbidScheme = JwtBearerDefaults.AuthenticationScheme;
+            auth.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
         })
                 .AddJwtBearer(option =>
                 {
