@@ -18,7 +18,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Grpc.Core.Api" Version="2.*" />
-    <PackageReference Include="GrpcRichError" Version="0.1.5" />
+    <PackageReference Include="GrpcRichError" Version="0.1.6" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Arc4u.Standard.Configuration\Arc4u.Standard.Configuration.csproj" />

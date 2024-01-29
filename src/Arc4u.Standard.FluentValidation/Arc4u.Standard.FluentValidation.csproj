@@ -27,7 +27,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="FluentValidation" Version="11.*" />
+    <PackageReference Include="FluentValidation" Version="11.9.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Arc4u.Standard.Data\Arc4u.Standard.Data.csproj" />
