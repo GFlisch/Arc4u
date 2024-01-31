@@ -1,5 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
 using System;
+using Microsoft.Extensions.Logging;
 
 namespace Arc4u.Diagnostics
 {
@@ -33,6 +33,11 @@ namespace Arc4u.Diagnostics
         public MonitoringLoggerProperties Information(string message)
         {
             return AddEntry(LogLevel.Information, message);
+        }
+
+        public MonitoringLoggerProperties Trace(string message)
+        {
+            return AddEntry(LogLevel.Trace, message);
         }
 
         internal MonitoringLoggerProperties System(string message)
