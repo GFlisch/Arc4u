@@ -1,5 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
 using System;
+using Microsoft.Extensions.Logging;
 
 namespace Arc4u.Diagnostics
 {
@@ -56,11 +56,24 @@ namespace Arc4u.Diagnostics
             buildMessage.Log();
         }
 
+        public CommonLoggerProperties Critical(string message, params object[] args)
+        {
+            return AddEntry(LogLevel.Critical, message, null, args);
+        }
+
+        public void LogCritical(string message, params object[] args)
+        {
+            var buildMessage = AddEntry(LogLevel.Critical, message, null, args);
+            buildMessage.Log();
+        }
+
+        [Obsolete("This method is obsolete. Use Critical() instead")]
         public CommonLoggerProperties Fatal(string message, params object[] args)
         {
             return AddEntry(LogLevel.Critical, message, null, args);
         }
 
+        [Obsolete("This method is obsolete. Use LogCritical() instead")]
         public void LogFatal(string message, params object[] args)
         {
             var buildMessage = AddEntry(LogLevel.Critical, message, null, args);
@@ -87,6 +100,17 @@ namespace Arc4u.Diagnostics
         public void LogException(Exception exception)
         {
             Exception(exception).Log();
+        }
+
+        internal CommonLoggerProperties Trace(string message, params object[] args)
+        {
+            return AddEntry(LogLevel.Trace, message, null, args);
+        }
+
+        internal void LogTrace(string message, params object[] args)
+        {
+            var buildMessage = AddEntry(LogLevel.Trace, message, null, args);
+            buildMessage.Log();
         }
 
         internal CommonLoggerProperties System(string message, params object[] args)

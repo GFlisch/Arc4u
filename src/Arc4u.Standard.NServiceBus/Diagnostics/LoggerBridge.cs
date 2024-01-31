@@ -51,18 +51,18 @@ namespace Arc4u.NServiceBus.Diagnostics
 
         public void Fatal(string message)
         {
-            LoggerBase.Technical.From<LoggerBridge>().Fatal(message).Log();
+            LoggerBase.Technical.From<LoggerBridge>().Critical(message).Log();
         }
 
         public void Fatal(string message, Exception exception)
         {
-            LoggerBase.Technical.From<LoggerBridge>().Fatal(message).Log();
+            LoggerBase.Technical.From<LoggerBridge>().Critical(message).Log();
             LoggerBase.Technical.From<LoggerBridge>().Exception(exception).Log();
         }
 
         public void FatalFormat(string format, params object[] args)
         {
-            LoggerBase.Technical.From<LoggerBridge>().Fatal(String.Format(format, args)).Log();
+            LoggerBase.Technical.From<LoggerBridge>().Critical(String.Format(format, args)).Log();
         }
 
         public void Info(string message)

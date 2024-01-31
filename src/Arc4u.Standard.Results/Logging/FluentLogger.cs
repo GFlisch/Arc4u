@@ -112,7 +112,7 @@ public class FluentLogger : IResultLogger
         LogLevel.Information => _logger.Business().Information,
         LogLevel.Warning => _logger.Business().Warning,
         LogLevel.Error => _logger.Business().Error,
-        LogLevel.Critical => _logger.Business().Fatal,
+        LogLevel.Critical => _logger.Business().Critical,
         LogLevel.None => _logger.Business().Debug,
         _ => _logger.Business().Debug,
     };
