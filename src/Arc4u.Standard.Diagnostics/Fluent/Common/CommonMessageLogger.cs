@@ -115,7 +115,9 @@ namespace Arc4u.Diagnostics
 
         internal CommonLoggerProperties System(string message, params object[] args)
         {
-            return AddEntry(LogLevel.Trace, message, null, args);
+            var buildMessage = AddEntry(LogLevel.Trace, message, null, args);
+            buildMessage.Add("Arc4u", "Internal");  // to disambiguate between system logging inside Arc4u and user logging.
+            return buildMessage;
         }
     }
 }
