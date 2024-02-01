@@ -20,6 +20,12 @@ namespace Arc4u.Diagnostics
             return this;
         }
 
+        public CommonLoggerProperties AddIf(bool condition, string key, Func<int> value)
+        {
+            if (condition) AddProperty(key, value());
+            return this;
+        }
+
         public CommonLoggerProperties Add(string key, double value)
         {
             AddProperty(key, value);
@@ -29,6 +35,12 @@ namespace Arc4u.Diagnostics
         public CommonLoggerProperties AddIf(bool condition, string key, double value)
         {
             if (condition) AddProperty(key, value);
+            return this;
+        }
+
+        public CommonLoggerProperties AddIf(bool condition, string key, Func<double> value)
+        {
+            if (condition) AddProperty(key, value());
             return this;
         }
 
@@ -44,6 +56,12 @@ namespace Arc4u.Diagnostics
             return this;
         }
 
+        public CommonLoggerProperties AddIf(bool condition, string key, Func<bool> value)
+        {
+            if (condition) AddProperty(key, value());
+            return this;
+        }
+
         public CommonLoggerProperties Add(string key, long value)
         {
             AddProperty(key, value);
@@ -56,6 +74,12 @@ namespace Arc4u.Diagnostics
             return this;
         }
 
+        public CommonLoggerProperties AddIf(bool condition, string key, Func<long> value)
+        {
+            if (condition) AddProperty(key, value());
+            return this;
+        }
+
         public CommonLoggerProperties Add(string key, string value)
         {
             AddProperty(key, value);
@@ -65,6 +89,12 @@ namespace Arc4u.Diagnostics
         public CommonLoggerProperties AddIf(bool condition, string key, string value)
         {
             if (condition) AddProperty(key, value);
+            return this;
+        }
+
+        public CommonLoggerProperties AddIf(bool condition, string key, Func<string> value)
+        {
+            if (condition) AddProperty(key, value());
             return this;
         }
 
