@@ -1,7 +1,7 @@
-﻿using Arc4u.Dependency.Attribute;
-using Arc4u.Security.Principal;
 using System;
 using System.Collections.Generic;
+using Arc4u.Dependency.Attribute;
+using Arc4u.Security.Principal;
 
 namespace Arc4u.Diagnostics
 {
@@ -23,7 +23,7 @@ namespace Arc4u.Diagnostics
                 {
                     return new Dictionary<string, object>
                         {
-                            { LoggingConstants.ActivityId, _applicationContext.Principal.ActivityID.ToString() },
+                            { LoggingConstants.ActivityId, _applicationContext.ActivityID },
                             { LoggingConstants.Identity, (null != _applicationContext.Principal?.Profile)
                                                                                             ? _applicationContext.Principal.Profile.Name
                                                                                             : null != _applicationContext.Principal?.Identity ? _applicationContext.Principal.Identity.Name : String.Empty }
