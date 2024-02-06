@@ -129,11 +129,6 @@ namespace Arc4u.Security.Principal
         /// <exclude/>
         public Authorization Authorization { get; }
 
-        /// <summary>
-        /// Gets or sets the activity ID.
-        /// </summary>
-        /// <value>The activity ID.</value>
-        public string ActivityID { get; set; } = string.Empty;
 
         // If user profile is 
         private UserProfile profile;
