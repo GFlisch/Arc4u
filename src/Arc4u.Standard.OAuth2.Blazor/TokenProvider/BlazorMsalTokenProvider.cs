@@ -41,7 +41,7 @@ namespace Arc4u.OAuth2.TokenProvider
         /// <exception cref="ArgumentNullException">Thrown when the settings parameter is null.</exception>
         public async Task<TokenInfo> GetTokenAsync(IKeyValueSettings settings, object platformParameters)
         {
-            if (null == settings) throw new ArgumentNullException(nameof(settings));
+            ArgumentNullException.ThrowIfNull(settings);
 
             if (null != _applicationContext.Principal)
             {

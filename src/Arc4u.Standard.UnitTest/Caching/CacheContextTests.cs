@@ -17,6 +17,8 @@ using System.IO;
 using Moq;
 using Arc4u.Dependency;
 using Arc4u.Serializer;
+using Arc4u.Configuration;
+using Arc4u.Configuration.Dapr;
 
 namespace Arc4u.UnitTest.Caching;
 
@@ -97,6 +99,7 @@ public class CacheContextTests
         var memorySettings = _fixture.Build<MemoryCacheOption>().With(m => m.CompactionPercentage, 0.2).Create();
         var redisSettings = _fixture.Create<RedisCacheOption>();
         var sqlSettings = _fixture.Create<SqlCacheOption>();
+        var daprSettings = _fixture.Create<DaprCacheOption>();
 
         IServiceCollection services = new ServiceCollection();
 
@@ -130,6 +133,7 @@ public class CacheContextTests
 
                      ["Caching:Caches:3:Name"] = cache.Caches[3].Name,
                      ["Caching:Caches:3:Kind"] = cache.Caches[3].Kind,
+                     ["Caching:Caches:3:Settings:Name"] = daprSettings.Name,
                      ["Caching:Caches:3:IsAutoStart"] = cache.Caches[3].IsAutoStart.ToString(),
 
                  }).Build();
@@ -145,7 +149,7 @@ public class CacheContextTests
         var sutRedis = serviceProvider.GetService<IOptionsMonitor<RedisCacheOption>>()?.Get("Performance");
         var sutSql = serviceProvider.GetService<IOptionsMonitor<SqlCacheOption>>()?.Get("Compromize");
         var sutMemory = serviceProvider.GetService<IOptionsMonitor<MemoryCacheOption>>()?.Get("Volatile");
-
+        var sutDapr = serviceProvider.GetService<IOptionsMonitor<DaprCacheOption>>()?.Get("Diversisty");
         // assert
         // redis
         sutRedis.Should().NotBeNull();
@@ -163,6 +167,10 @@ public class CacheContextTests
         sutMemory.SerializerName.Should().Be(memorySettings.SerializerName);
         sutMemory.SizeLimitInMB.Should().Be(memorySettings.SizeLimitInMB * 1024 * 1024);
         sutMemory.CompactionPercentage.Should().Be(memorySettings.CompactionPercentage);
+        // dapr
+        sutDapr.Should().NotBeNull();
+        sutDapr.Name.Should().Be(daprSettings.Name);
+
 
     }
 

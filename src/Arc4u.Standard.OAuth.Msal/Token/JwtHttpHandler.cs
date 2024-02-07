@@ -1,14 +1,14 @@
-using Arc4u.Dependency;
-using Arc4u.Diagnostics;
-using Arc4u.OAuth2.Token;
-using Arc4u.Security.Principal;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
+using Arc4u.Dependency;
+using Arc4u.Diagnostics;
+using Arc4u.OAuth2.Token;
+using Arc4u.Security.Principal;
+using Microsoft.Extensions.Logging;
 
 namespace Arc4u.OAuth2.Msal.Token;
 
@@ -130,10 +130,10 @@ public class JwtHttpHandler : DelegatingHandler
             // Add ActivityId if founded!
             if (null != _applicationContext?.Principal)
             {
-                if (null != _applicationContext?.Principal?.ActivityID)
+                if (null != _applicationContext?.ActivityID)
                 {
-                    _logger.Technical().System($"Add the activity id to the request for tracing purpose: {_applicationContext.Principal.ActivityID}.").Log();
-                    request.Headers.Add("activityid", _applicationContext.Principal.ActivityID.ToString());
+                    _logger.Technical().System($"Add the activity id to the request for tracing purpose: {_applicationContext.ActivityID}.").Log();
+                    request.Headers.Add("activityid", _applicationContext.ActivityID);
                 }
 
                 _logger.Technical().System($"Add the current culture to the request: {_applicationContext.Principal.Profile?.CurrentCulture?.TwoLetterISOLanguageName}").Log();

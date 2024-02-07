@@ -1,7 +1,11 @@
+using Arc4u.Configuration;
+using Arc4u.Configuration.Dapr;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Dapr.Client;
+using Google.Api;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -13,12 +17,15 @@ namespace Arc4u.Caching.Dapr;
 [Export("Dapr", typeof(ICache))]
 public class DaprCache : ICache
 {
-    public DaprCache(ILogger<DaprCache> logger)
+    public DaprCache(ILogger<DaprCache> logger, IOptionsMonitor<DaprCacheOption> options)
     {
         _logger = logger;
+        _options = options;
     }
 
     private readonly ILogger<DaprCache> _logger;
+    private readonly IOptionsMonitor<DaprCacheOption> _options;
+
     private DaprClient? _daprClient;
     private string _storeName;
 
@@ -57,7 +64,9 @@ public class DaprCache : ICache
             }
             else
             {
-                _storeName = store;
+                var config = _options.Get(store);
+
+                _storeName = config.Name ?? throw new NullReferenceException();
                 _daprClient = new DaprClientBuilder().Build();
                 _logger.Technical().Information($"Dapr caching for dapr state store {store} is initialized.").Log();
             }

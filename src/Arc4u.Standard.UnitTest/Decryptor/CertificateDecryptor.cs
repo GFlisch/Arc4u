@@ -34,12 +34,9 @@ public class CertificateDecryptor
                 new Dictionary<string, string?>
                 {
                     ["EncryptionCertificate:Store:Name"] = "friendlyName"
-                }).Build();
+                });
 
-        var mockConfigurationRoot = _fixture.Freeze<Mock<IConfigurationRoot>>();
-        mockConfigurationRoot.Setup(p => p.Providers).Returns(config.Providers);
-
-        var sut = new SecretConfigurationCertificateProvider(new SecretCertificateOptions { Prefix = "Prefix:", CertificateLoader = new X509CertificateLoader(null) }, mockConfigurationRoot.Object);
+        var sut = new SecretConfigurationCertificateProvider(new SecretCertificateOptions { Prefix = "Prefix:", CertificateLoader = new X509CertificateLoader(null) }, config.Sources);
 
         // act
         var exception = Record.Exception(sut.Load);
@@ -65,12 +62,9 @@ public class CertificateDecryptor
                 new Dictionary<string, string?>
                 {
                     ["ConnectionStrings:Toto"] = $"Tag:{cypherText}"
-                }).Build();
+                });
 
-        var mockConfigurationRoot = _fixture.Freeze<Mock<IConfigurationRoot>>();
-        mockConfigurationRoot.Setup(p => p.Providers).Returns(config.Providers);
-
-        var sut = new SecretConfigurationCertificateProvider(new SecretCertificateOptions { Prefix = "Tag:", Certificate = certificate }, mockConfigurationRoot.Object);
+        var sut = new SecretConfigurationCertificateProvider(new SecretCertificateOptions { Prefix = "Tag:", Certificate = certificate }, config.Sources);
 
         // act
         sut.Load();
@@ -97,12 +91,9 @@ public class CertificateDecryptor
                     ["Authentication:DataProtection:EncryptionCertificate:File:Cert"] = @".\Configs\cert.pem",
                     ["Authentication:DataProtection:EncryptionCertificate:File:Key"] = @".\Configs\key.pem",
                     ["ConnectionStrings:Toto"] = $"Decrypt:{cypherText}"
-                }).Build();
+                });
 
-        var mockConfigurationRoot = _fixture.Freeze<Mock<IConfigurationRoot>>();
-        mockConfigurationRoot.Setup(p => p.Providers).Returns(config.Providers);
-
-        var sut = new SecretConfigurationCertificateProvider(new SecretCertificateOptions { SecretSectionName = "Authentication:DataProtection:EncryptionCertificate", Certificate = certificate }, mockConfigurationRoot.Object);
+        var sut = new SecretConfigurationCertificateProvider(new SecretCertificateOptions { SecretSectionName = "Authentication:DataProtection:EncryptionCertificate", Certificate = certificate }, config.Sources);
 
         // act
         sut.Load();
@@ -129,12 +120,9 @@ public class CertificateDecryptor
                     ["EncryptionCertificate:File:Cert"] = @".\Configs\cert.pem",
                     ["EncryptionCertificate:File:Key"] = @".\Configs\key.pem",
                     ["ConnectionStrings:Toto"] = $"Tag:{cypherText}"
-                }).Build();
+                });
 
-        var mockConfigurationRoot = _fixture.Freeze<Mock<IConfigurationRoot>>();
-        mockConfigurationRoot.Setup(p => p.Providers).Returns(config.Providers);
-
-        var sut = new SecretConfigurationCertificateProvider(new SecretCertificateOptions { Prefix = "Tag:", Certificate = certificate }, mockConfigurationRoot.Object);
+        var sut = new SecretConfigurationCertificateProvider(new SecretCertificateOptions { Prefix = "Tag:", Certificate = certificate }, config.Sources);
 
         // act
         sut.Load();
@@ -154,12 +142,9 @@ public class CertificateDecryptor
                 new Dictionary<string, string?>
                 {
                     ["ConnectionStrings:Toto"] = $"Tag:Database"
-                }).Build();
+                });
 
-        var mockConfigurationRoot = _fixture.Freeze<Mock<IConfigurationRoot>>();
-        mockConfigurationRoot.Setup(p => p.Providers).Returns(config.Providers);
-
-        var sut = new SecretConfigurationCertificateProvider(new SecretCertificateOptions { Prefix = "Tag:" }, mockConfigurationRoot.Object);
+        var sut = new SecretConfigurationCertificateProvider(new SecretCertificateOptions { Prefix = "Tag:" }, config.Sources);
 
         // act
         sut.Load();
@@ -187,12 +172,9 @@ public class CertificateDecryptor
                 new Dictionary<string, string?>
                 {
                     ["ConnectionStrings:Toto"] = $"Tag:{cypherText}"
-                }).Build();
+                });
 
-        var mockConfigurationRoot = _fixture.Freeze<Mock<IConfigurationRoot>>();
-        mockConfigurationRoot.Setup(p => p.Providers).Returns(config.Providers);
-
-        var sut = new SecretRijndaelConfigurationProvider(new SecretRijndaelOptions { Prefix = "Tag:", RijnDael = rijndaelConfig }, mockConfigurationRoot.Object);
+        var sut = new SecretRijndaelConfigurationProvider(new SecretRijndaelOptions { Prefix = "Tag:", RijnDael = rijndaelConfig }, config.Sources);
 
         // act
         sut.Load();
@@ -248,12 +230,9 @@ public class CertificateDecryptor
                     ["EncryptionRijndael:Key"] = stringKey,
                     ["EncryptionRijndael:IV"] = stringIV,
                     ["ConnectionStrings:Toto"] = $"Tag:{cypherText}"
-                }).Build();
+                });
 
-        var mockConfigurationRoot = _fixture.Freeze<Mock<IConfigurationRoot>>();
-        mockConfigurationRoot.Setup(p => p.Providers).Returns(config.Providers);
-
-        var sut = new SecretRijndaelConfigurationProvider(new SecretRijndaelOptions { Prefix = "Tag:" }, mockConfigurationRoot.Object);
+        var sut = new SecretRijndaelConfigurationProvider(new SecretRijndaelOptions { Prefix = "Tag:" }, config.Sources);
 
         // act
         sut.Load();

@@ -46,6 +46,13 @@ public static partial class AuthenticationExtensions
             services.AddCacheTicketStore(oidcOptions.AuthenticationCacheTicketStoreOption);
         }
 
+        // We want to protect keys with a certificate, which can be either provided via configuration, or explicitly.
+        // It is an error if no certificate was provided either way
+        if (oidcOptions.Certificate is null)
+        {
+            throw new ConfigurationException("No certificate was provided for data protection");
+        }
+
         // The Metadata address is retrieved from the DefaultAuthority!
         ArgumentNullException.ThrowIfNull(oidcOptions.DefaultAuthority.GetMetaDataAddress());
         ArgumentNullException.ThrowIfNull(oidcOptions.DefaultAuthority.MetaDataAddress); // should never be the case!
@@ -98,7 +105,7 @@ public static partial class AuthenticationExtensions
                     options.ForwardDefaultSelector = context =>
                     {
                         var authHeader = context.Request.Headers[HeaderNames.Authorization].FirstOrDefault();
-                        if (authHeader?.StartsWith("Bearer ") == true)
+                        if (authHeader?.StartsWith("Bearer ", StringComparison.Ordinal) == true)
                         {
                             return JwtBearerDefaults.AuthenticationScheme;
                         }
@@ -168,7 +175,7 @@ public static partial class AuthenticationExtensions
 
     }
 
-    public static AuthenticationBuilder AddOidcAuthentication(this IServiceCollection services, IConfiguration configuration, [DisallowNull] string authenticationSectionName = "Authentication")
+    public static AuthenticationBuilder AddOidcAuthentication(this IServiceCollection services, IConfiguration configuration, [DisallowNull] string authenticationSectionName = "Authentication", IX509CertificateLoader? certificateLoader = null)
     {
         ArgumentNullException.ThrowIfNull(configuration);
         ArgumentNullException.ThrowIfNull(authenticationSectionName);
@@ -247,7 +254,8 @@ public static partial class AuthenticationExtensions
         }
         var openIdConnectEventsType = Type.GetType(settings.OpenIdConnectEventsType, false);
 
-        var certSecurityKey = string.IsNullOrWhiteSpace(settings.CertSecurityKeyPath) ? null : new X509CertificateLoader(null).FindCertificate(configuration, settings.CertSecurityKeyPath) ?? throw new MissingFieldException($"No certificate was found based on the configuration section: {settings.CertSecurityKeyPath}.");
+        certificateLoader ??= new X509CertificateLoader(null);
+        var certSecurityKey = string.IsNullOrWhiteSpace(settings.CertSecurityKeyPath) ? null : certificateLoader.FindCertificate(configuration, settings.CertSecurityKeyPath) ?? throw new MissingFieldException($"No certificate was found based on the configuration section: {settings.CertSecurityKeyPath}.");
 
         var cert = new X509CertificateLoader(null).FindCertificate(configuration, settings.CertificateSectionPath) ?? throw new MissingFieldException($"No certificate was found based on the configuration section: {settings.CertificateSectionPath}.");
 
@@ -298,7 +306,7 @@ public static partial class AuthenticationExtensions
         services.AddOnBehalfOf(configuration);
         services.AddTokenCache(configuration, settings.TokenCacheSectionPath);
         services.AddClaimsFiller(configuration, settings.ClaimsFillerSectionPath);
-        services.AddBasicAuthenticationSettings(configuration, settings.BasicAuthenticationSectionPath, throwExceptionIfSectionDoesntExist: false);
+        services.AddBasicAuthenticationSettings(configuration, settings.BasicAuthenticationSectionPath, certificateLoader, throwExceptionIfSectionDoesntExist: false);
         services.AddOpenIdBearerInjector();
 
         return services.AddOidcAuthentication(OidcAuthenticationFiller);
@@ -346,6 +354,7 @@ public static partial class AuthenticationExtensions
         {
             auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
             auth.DefaultForbidScheme = JwtBearerDefaults.AuthenticationScheme;
+            auth.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
         })
                 .AddJwtBearer(option =>
                 {

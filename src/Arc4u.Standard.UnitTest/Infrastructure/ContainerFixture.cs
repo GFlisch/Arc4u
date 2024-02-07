@@ -67,7 +67,7 @@ namespace Arc4u.UnitTest.Infrastructure
 
             authorization.AllOperations.Add(new Operation { ID = 1, Name = "AccessApplication" });
 
-            return new AppPrincipal(authorization, new GenericIdentity("TestUser"), "S-1-9-5-100") { ActivityID = Guid.NewGuid().ToString() };
+            return new AppPrincipal(authorization, new GenericIdentity("TestUser"), "S-1-9-5-100");
 
         }
 

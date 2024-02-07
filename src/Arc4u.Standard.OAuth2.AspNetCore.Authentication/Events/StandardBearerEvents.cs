@@ -1,7 +1,7 @@
 using System;
-using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Security.Claims;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Arc4u.Diagnostics;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -18,6 +18,29 @@ public class StandardBearerEvents : JwtBearerEvents
     {
         _logger = logger;
     }
+
+    public override Task Challenge(JwtBearerChallengeContext context)
+    {
+        context.HandleResponse();
+        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+        context.Response.ContentType = "application/json";
+        context.Error = "invalid_or_missing_token";
+        context.ErrorDescription = "This request requires a valid JWT access token to be provided";
+
+        // Add some extra context for expired tokens.
+        if (context.AuthenticateFailure is not null && context.AuthenticateFailure is SecurityTokenExpiredException authenticationException)
+        {
+            var expires = authenticationException.Expires.ToString("o");
+            context.Response.Headers.Add("x-token-expired", expires);
+            context.ErrorDescription = $"The token expired on {expires}";
+        }
+        return context.Response.WriteAsync(JsonSerializer.Serialize(new
+        {
+            error = context.Error,
+            error_description = context.ErrorDescription
+        }));
+    }
+
 
     public override Task MessageReceived(MessageReceivedContext context)
     {

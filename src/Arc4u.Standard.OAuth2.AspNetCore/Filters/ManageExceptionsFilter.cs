@@ -30,10 +30,10 @@ public class ManageExceptionsFilter : IAsyncExceptionFilter
     public Task OnExceptionAsync(ExceptionContext context)
     {
         // If the activity id is not set, create one. This is the case for anonymous users.
-        var activityId = _application?.Principal?.ActivityID.ToString() ?? Activity.Current?.Id ?? Guid.NewGuid().ToString();
+        var activityId = _application?.ActivityID ?? Activity.Current?.Id ?? Guid.NewGuid().ToString();
 
         // First log the exception.
-        _logger.Technical().Exception(context.Exception).AddIf(_application?.Principal?.ActivityID is null, LoggingConstants.ActivityId, activityId).Log();
+        _logger.Technical().Exception(context.Exception).AddIf(_application?.ActivityID is null, LoggingConstants.ActivityId, activityId).Log();
 
         switch (context.Exception)
         {

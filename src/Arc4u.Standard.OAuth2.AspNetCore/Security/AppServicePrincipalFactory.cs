@@ -76,15 +76,12 @@ public class AppServicePrincipalFactory : IAppPrincipalFactory
 
         if (principal is AppPrincipal appPrincipal)
         {
-            appPrincipal.ActivityID = Activity.Current?.Id ?? Guid.NewGuid().ToString();
-
-            activity?.SetTag(LoggingConstants.ActivityId, appPrincipal.ActivityID);
-
+            activity?.SetTag(LoggingConstants.ActivityId, Activity.Current?.Id ?? Guid.NewGuid().ToString());
             return appPrincipal;
         }
 
         throw new AppPrincipalException("No principal can be created.");
-        
+
     }
 
     /// <summary>
