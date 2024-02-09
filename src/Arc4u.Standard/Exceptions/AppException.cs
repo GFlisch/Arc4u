@@ -1,10 +1,10 @@
-﻿using Arc4u.ServiceModel;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
+using Arc4u.ServiceModel;
 
 namespace Arc4u
 {
@@ -97,14 +97,14 @@ namespace Arc4u
             IEnumerable<Message> messages = null;
             try
             {
-                messages = JsonConvert.DeserializeObject<IEnumerable<Message>>(content);
+                messages = JsonSerializer.Deserialize<IEnumerable<Message>>(content);
             }
             catch (Exception)
             {
                 // transform the old format to new one.
                 content = content.Replace("\"Category\":\"Described\"", "\"Category\":\"Business\"");
                 content = content.Replace("\"Category\":\"Undescribed\"", "\"Category\":\"Technical\"");
-                messages = JsonConvert.DeserializeObject<IEnumerable<Message>>(content);
+                messages = JsonSerializer.Deserialize<IEnumerable<Message>>(content);
             }
 
             throw new AppException(messages);

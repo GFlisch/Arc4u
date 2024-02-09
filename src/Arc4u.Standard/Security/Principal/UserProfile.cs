@@ -1,7 +1,7 @@
-﻿using Newtonsoft.Json;
 using System;
 using System.Globalization;
 using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -117,7 +117,6 @@ namespace Arc4u.Security.Principal
         #region IProfile Members
 
         [DataMember]
-        [JsonProperty]
         public String DisplayName { get; private set; }
 
         /// <summary>
@@ -125,7 +124,6 @@ namespace Arc4u.Security.Principal
         /// </summary>
         /// <value>The email.</value>
         [DataMember]
-        [JsonProperty]
         public String Email { get; private set; }
 
         /// <summary>
@@ -133,7 +131,6 @@ namespace Arc4u.Security.Principal
         /// </summary>
         /// <value>The department.</value>
         [DataMember]
-        [JsonProperty]
         public string Department { get; private set; }
 
         /// <summary>
@@ -141,7 +138,6 @@ namespace Arc4u.Security.Principal
         /// </summary>
         /// <value>The company.</value>
         [DataMember]
-        [JsonProperty]
         public string Company { get; private set; }
 
         /// <summary>
@@ -149,7 +145,6 @@ namespace Arc4u.Security.Principal
         /// </summary>
         /// <value>The name of the given.</value>
         [DataMember]
-        [JsonProperty]
         public string GivenName { get; private set; }
 
         /// <summary>
@@ -157,7 +152,6 @@ namespace Arc4u.Security.Principal
         /// </summary>
         /// <value>The surname.</value>
         [DataMember]
-        [JsonProperty]
         public string SurName { get; private set; }
 
         /// <summary>
@@ -165,7 +159,6 @@ namespace Arc4u.Security.Principal
         /// </summary>
         /// <value>The sid.</value>
         [DataMember]
-        [JsonProperty]
         public String Sid { get; private set; }
 
         /// <summary>
@@ -173,7 +166,6 @@ namespace Arc4u.Security.Principal
         /// </summary>
         /// <value>The state.</value>
         [DataMember]
-        [JsonProperty]
         public string State { get; private set; }
 
         /// <summary>
@@ -181,84 +173,73 @@ namespace Arc4u.Security.Principal
         /// </summary>
         /// <value>The mobile.</value>
         [DataMember]
-        [JsonProperty]
         public string Mobile { get; private set; }
         /// <summary>
         /// Gets the telephone.
         /// </summary>
         /// <value>The telephone.</value>
         [DataMember]
-        [JsonProperty]
         public string Telephone { get; private set; }
         /// <summary>
         /// Gets the internal phone.
         /// </summary>
         /// <value>The internal phone.</value>
         [DataMember]
-        [JsonProperty]
         public string InternalPhone { get; private set; }
         /// <summary>
         /// Gets the fax.
         /// </summary>
         /// <value>The fax.</value>
         [DataMember]
-        [JsonProperty]
         public string Fax { get; private set; }
         /// <summary>
         /// Gets the name of the principal.
         /// </summary>
         /// <value>The name of the principal.</value>
         [DataMember]
-        [JsonProperty]
         public string PrincipalName { get; private set; }
         /// <summary>
         /// Gets the postal code.
         /// </summary>
         /// <value>The postal code.</value>
         [DataMember]
-        [JsonProperty]
         public string PostalCode { get; private set; }
 
         /// <summary>
         /// Get the Street defined in the address.
         /// </summary>
         [DataMember]
-        [JsonProperty]
         public String Street { get; private set; }
         /// <summary>
         /// Gets the room.
         /// </summary>
         /// <value>The room.</value>
         [DataMember]
-        [JsonProperty]
         public string Room { get; private set; }
         /// <summary>
         /// Gets the initials.
         /// </summary>
         /// <value>The initials.</value>
         [DataMember]
-        [JsonProperty]
         public string Initials { get; private set; }
         /// <summary>
         /// Gets the name of the sam account.
         /// </summary>
         /// <value>The name of the sam account.</value>
         [DataMember]
-        [JsonProperty]
         public string SamAccountName { get; private set; }
 
         /// <summary>
         /// Get the domain.
         /// </summary>
         [DataMember]
-        [JsonProperty]
         public string Domain { get; private set; }
         /// <summary>
         /// Gets the culture.
         /// </summary>
         /// <value>The culture.</value>
         [DataMember(Name = "Culture")]
-        [JsonProperty(PropertyName = "Culture")]
+        [JsonPropertyName("Culture")]
         private string _culture;
 
         [IgnoreDataMember]
@@ -273,7 +254,7 @@ namespace Arc4u.Security.Principal
         /// </summary>
         /// <value>The current culture.</value>
         [DataMember(Name = "CurrentCulture")]
-        [JsonProperty(PropertyName = "CurrentCulture")]
+        [JsonPropertyName("CurrentCulture")]
         private string _currentCulture;
 
         [IgnoreDataMember]
@@ -289,14 +270,12 @@ namespace Arc4u.Security.Principal
         /// </summary>
         /// <value>The name of the common.</value>
         [DataMember]
-        [JsonProperty]
         public string CommonName { get; private set; }
         /// <summary>
         /// Gets the description.
         /// </summary>
         /// <value>The description.</value>
         [DataMember]
-        [JsonProperty]
         public string Description { get; private set; }
 
         #endregion
