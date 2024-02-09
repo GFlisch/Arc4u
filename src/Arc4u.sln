@@ -100,6 +100,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arc4u.Standard.Authorizatio
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arc4u.Standard.Dispatcher", "Arc4u.Standard.Dispatcher\Arc4u.Standard.Dispatcher.csproj", "{06393D15-0DA9-40FA-84A1-9A822B627B52}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arc4u.Standard.Configuration.Store", "Arc4u.Standard.Configuration.Store\Arc4u.Standard.Configuration.Store.csproj", "{1910732C-CF4C-4411-B29F-F75185DD2F9B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arc4u.Configuration.Store.EFCore", "Arc4u.Configuration.Store.EFCore\Arc4u.Configuration.Store.EFCore.csproj", "{2B61C53F-ECFC-471D-AB98-0D23FF2D071A}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arc4u.Standard.Results", "Arc4u.Standard.Results\Arc4u.Standard.Results.csproj", "{6FD0A0B7-A94C-4DBD-AF62-CE3B5359F088}"
 EndProject
 Global
