@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net6.0;net7.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net6.0;net7.0;net8.0</TargetFrameworks>
     <RootNamespace>Arc4u.gRPC</RootNamespace>
     <Authors>Gilles Flisch</Authors>
     <Description>Core Framework to use gRPC.</Description>
@@ -17,8 +17,8 @@
     <RootNamespace>$(MSBuildProjectName.Replace(" ", "_").Replace(".Standard", ""))</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Grpc.Core.Api" Version="2.55.0" />
-    <PackageReference Include="GrpcRichError" Version="0.1.4" />
+    <PackageReference Include="Grpc.Core.Api" Version="2.*" />
+    <PackageReference Include="GrpcRichError" Version="0.1.6" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Arc4u.Standard.Configuration\Arc4u.Standard.Configuration.csproj" />

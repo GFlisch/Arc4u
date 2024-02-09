@@ -1,3 +1,8 @@
+using System;
+using System.Diagnostics;
+using System.Globalization;
+using System.Text.Json;
+using System.Threading.Tasks;
 using Arc4u.Diagnostics;
 using Arc4u.Security.Principal;
 using Google.Rpc;
@@ -5,11 +10,6 @@ using Grpc.Core;
 using Grpc.Core.Interceptors;
 using GrpcRichError;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Diagnostics;
-using System.Globalization;
-using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace Arc4u.gRPC.Interceptors
 {
@@ -99,7 +99,7 @@ namespace Arc4u.gRPC.Interceptors
 
         private void SetActivityIDIfExist(ServerCallContext _)
         {
-            _applicationContext.Principal.ActivityID = Activity.Current?.Id ?? Guid.NewGuid().ToString();
+            _applicationContext.ActivityID = Activity.Current?.Id ?? Guid.NewGuid().ToString();
         }
 
         public override async Task ServerStreamingServerHandler<TRequest, TResponse>(TRequest request, IServerStreamWriter<TResponse> responseStream, ServerCallContext context, ServerStreamingServerMethod<TRequest, TResponse> continuation)

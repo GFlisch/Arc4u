@@ -95,15 +95,20 @@ public class RefreshTokenProvider : ITokenRefreshProvider
             using (var payload = JsonDocument.Parse(await tokenResponse.Content.ReadAsStringAsync().ConfigureAwait(false)))
             {
                 // Persist the new acess token
-                _tokenRefreshInfo.RefreshToken = new Token.TokenInfo("refresh_token", payload!.RootElement!.GetString("refresh_token"), _tokenRefreshInfo.RefreshToken.ExpiresOnUtc);
+                var refresh_token = payload!.RootElement!.GetString("refresh_token");
+                var access_token = payload!.RootElement!.GetString("access_token")!;
                 if (payload.RootElement.TryGetProperty("expires_in", out var property) && property.TryGetInt32(out var seconds))
                 {
-                    var expirationAt = DateTimeOffset.UtcNow + TimeSpan.FromSeconds(seconds);
-                    _tokenRefreshInfo.AccessToken = new Token.TokenInfo("access_token", payload!.RootElement!.GetString("access_token"), expirationAt.DateTime.ToUniversalTime());
+                    var expirationAt = DateTimeOffset.UtcNow.AddSeconds(seconds).DateTime.ToUniversalTime();
+                    _tokenRefreshInfo.AccessToken = new Token.TokenInfo("access_token", access_token, expirationAt);
+                    if (!string.IsNullOrEmpty(refresh_token))
+                        _tokenRefreshInfo.RefreshToken = new Token.TokenInfo("refresh_token", refresh_token, expirationAt);
                 }
                 else
                 {
-                    _tokenRefreshInfo.AccessToken = new Token.TokenInfo("access_token", payload!.RootElement!.GetString("access_token"));
+                    _tokenRefreshInfo.AccessToken = new Token.TokenInfo("access_token", access_token);
+                    if (!string.IsNullOrEmpty(refresh_token))
+                        _tokenRefreshInfo.RefreshToken = new Token.TokenInfo("refresh_token", refresh_token, _tokenRefreshInfo.RefreshToken.ExpiresOnUtc);
                 }
             }
         }

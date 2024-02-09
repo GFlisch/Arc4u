@@ -1,11 +1,13 @@
-using System.IdentityModel.Tokens.Jwt;
+using System;
 using System.Net;
 using System.Security.Claims;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Arc4u.Diagnostics;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Arc4u.OAuth2.Events;
 
@@ -16,6 +18,29 @@ public class StandardBearerEvents : JwtBearerEvents
     {
         _logger = logger;
     }
+
+    public override Task Challenge(JwtBearerChallengeContext context)
+    {
+        context.HandleResponse();
+        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+        context.Response.ContentType = "application/json";
+        context.Error = "invalid_or_missing_token";
+        context.ErrorDescription = "This request requires a valid JWT access token to be provided";
+
+        // Add some extra context for expired tokens.
+        if (context.AuthenticateFailure is not null && context.AuthenticateFailure is SecurityTokenExpiredException authenticationException)
+        {
+            var expires = authenticationException.Expires.ToString("o");
+            context.Response.Headers.Add("x-token-expired", expires);
+            context.ErrorDescription = $"The token expired on {expires}";
+        }
+        return context.Response.WriteAsync(JsonSerializer.Serialize(new
+        {
+            error = context.Error,
+            error_description = context.ErrorDescription
+        }));
+    }
+
 
     public override Task MessageReceived(MessageReceivedContext context)
     {
@@ -45,11 +70,22 @@ public class StandardBearerEvents : JwtBearerEvents
     /// <returns></returns>
     public override Task TokenValidated(TokenValidatedContext context)
     {
-        if (context.SecurityToken is JwtSecurityToken accessToken)
+        if (context.SecurityToken is SecurityToken)
         {
             if (context.Principal?.Identity is ClaimsIdentity identity)
             {
-                identity.BootstrapContext = accessToken.RawData;
+                var sToken = context.Request.Headers.Authorization.ToString();
+                if (sToken.StartsWith("Bearer ", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    sToken = sToken.Substring(7);
+                    identity.BootstrapContext = sToken;
+                }
+                else
+                {
+                    context.Fail("A Bearer token is expected!");
+                    context.Response.Clear();
+                    context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                }
             }
         }
 

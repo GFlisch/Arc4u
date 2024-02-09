@@ -31,7 +31,7 @@ public class UserObjectIdentifier : IUserObjectIdentifier
     private readonly ClaimsIdentifierOption _identifierOptions;
     private readonly ILogger<UserObjectIdentifier> _logger;
 
-    public string? GetIdentifer(ClaimsIdentity identity)
+    public string? Getidentifier(ClaimsIdentity identity)
     {
 #if NET6_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(identity);

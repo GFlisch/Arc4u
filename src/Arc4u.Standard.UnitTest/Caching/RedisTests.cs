@@ -178,7 +178,7 @@ public class RedisTests
                              .AddInMemoryCollection(
                                  new Dictionary<string, string?>
                                  {
-                                     ["Store:ConnectionString"] = "127.0.0.1:6379,abortConnect=false,connectTimeout=30,connectRetry=5,ssl=false,DefaultDatabase=4",
+                                     ["Store:ConnectionString"] = "127.0.*.1:6379,abortConnect=false,connectTimeout=30,connectRetry=5,ssl=false,DefaultDatabase=4",
                                      ["Store:InstanceName"] = "db1"
                                  }).Build();
 

@@ -1,9 +1,8 @@
-﻿using Arc4u.Data;
+using Arc4u.Data;
 using FluentValidation;
 using FluentValidation.Resources;
 using FluentValidation.Validators;
 using System;
-using System.Collections.Concurrent;
 
 namespace Arc4u.FluentValidation.Rules
 {

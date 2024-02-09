@@ -94,6 +94,18 @@ namespace Arc4u.Security.Principal
             return _authorization.IsAuthorized(operations);
         }
 
+        public bool IsAuthorized<TAccess>(params TAccess[] operations)
+           where TAccess : struct, Enum
+        {
+            var ids = new int[operations.Length];
+            for (var index = 0; index < operations.Length; ++index)
+            {
+                ids[index] = Convert.ToInt32(operations[index]);
+            }
+
+            return _authorization.IsAuthorized(ids);
+        }
+
         /// <exclude/>
         public bool IsAuthorized(string scope, params int[] operations)
         {
@@ -117,11 +129,6 @@ namespace Arc4u.Security.Principal
         /// <exclude/>
         public Authorization Authorization { get; }
 
-        /// <summary>
-        /// Gets or sets the activity ID.
-        /// </summary>
-        /// <value>The activity ID.</value>
-        public string ActivityID { get; set; } = string.Empty;
 
         // If user profile is 
         private UserProfile profile;

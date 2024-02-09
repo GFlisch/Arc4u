@@ -15,6 +15,12 @@ namespace Arc4u.Security.Principal
             Principal = principal;
         }
 
+        /// <summary>
+        /// Gets or sets the activity ID.
+        /// </summary>
+        /// <value>The activity ID.</value>
+        public string ActivityID { get; set; } = string.Empty;
+
         public AppPrincipal Principal { get; private set; }
     }
 }

@@ -36,7 +36,13 @@ public class SecretCertificateConfigurationSource : IConfigurationSource
     /// <returns>A <see cref="EnvironmentVariablesConfigurationProvider"/></returns>
     public IConfigurationProvider Build(IConfigurationBuilder builder)
     {
+        return new SecretConfigurationCertificateProvider(_options, GetSources(builder));
+    }
 
-        return new SecretConfigurationCertificateProvider(_options, builder.Build());
+    private IList<IConfigurationSource> GetSources(IConfigurationBuilder builder)
+    {
+        var sources = builder.Sources.ToList();
+        var index = sources.IndexOf(this);
+        return sources.Take(index).Where(s => s.GetType() != this.GetType()).ToList();
     }
 }

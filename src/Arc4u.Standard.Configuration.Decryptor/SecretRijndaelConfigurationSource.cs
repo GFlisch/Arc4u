@@ -38,6 +38,14 @@ public class SecretRijndaelConfigurationSource : IConfigurationSource
     /// <returns>A <see cref="SecretRijndaelConfigurationProvider"/></returns>
     public IConfigurationProvider Build(IConfigurationBuilder builder)
     {
-        return new SecretRijndaelConfigurationProvider(_options, builder.Build());
+        return new SecretRijndaelConfigurationProvider(_options, GetSources(builder));
+    }
+
+
+    private IList<IConfigurationSource> GetSources(IConfigurationBuilder builder)
+    {
+        var sources = builder.Sources.ToList();
+        var index = sources.IndexOf(this);
+        return sources.Take(index).Where(s => s.GetType() != this.GetType()).ToList();
     }
 }

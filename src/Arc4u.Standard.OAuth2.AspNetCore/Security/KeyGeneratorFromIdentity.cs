@@ -21,7 +21,7 @@ public class KeyGeneratorFromIdentity : ICacheKeyGenerator
 
     public string GetClaimsKey(ClaimsIdentity identity)
     {
-        var id = _userKeyIdentifier.GetIdentifer(identity);
+        var id = _userKeyIdentifier.Getidentifier(identity);
 
         if (string.IsNullOrEmpty(id))
         {

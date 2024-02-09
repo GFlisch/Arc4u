@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
-using Arc4u.Configuration;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Microsoft.Extensions.Configuration;
@@ -27,7 +26,7 @@ public class X509CertificateLoader : IX509CertificateLoader
     /// <param name="name"><see cref="StoreName"/>, default is My</param>
     /// <returns>The <see cref="X509Certificate2"/></returns>
     /// <exception cref="KeyNotFoundException">No certificate is found!</exception>
-    public X509Certificate2 FindCertificate(string find, X509FindType findType = X509FindType.FindBySubjectName, StoreLocation location = StoreLocation.LocalMachine, StoreName name = StoreName.My)
+    protected X509Certificate2 FindCertificate(string find, X509FindType findType = X509FindType.FindBySubjectName, StoreLocation location = StoreLocation.LocalMachine, StoreName name = StoreName.My)
     {
         var certificateStore = new X509Store(name, location);
 
@@ -61,6 +60,7 @@ public class X509CertificateLoader : IX509CertificateLoader
         return certificate;
     }
 
+
     /// <summary>
     /// Read the current section and identify if the section contains a CertificateStore entry.
     /// If yes, the Certificate will be retrieve based on the <see cref="CertificateInfo"/> object.
@@ -76,50 +76,29 @@ public class X509CertificateLoader : IX509CertificateLoader
     {
         var certificate = configuration.GetSection(sectionName).Get<CertificateStoreOrFileInfo>();
 
-        return FindCertificate(certificate);
+        return this.FindCertificate(certificate);
     }
 
-    public X509Certificate2? FindCertificate(CertificateStoreOrFileInfo certificateInfo)
-    {
-        // For this configuration, no decryption exists. Simply skip this provider.
-        if (certificateInfo is null)
-        {
-            return null;
-        }
-
-        if (certificateInfo.Store is not null)
-        {
-            return FindCertificate(certificateInfo.Store);
-        }
-#if NETSTANDARD2_0
-        if (certificateInfo.File is not null)
-        {
-            throw new ConfigurationException("Loading a certificate from pem files are not possible in NetStandard2.0");
-        }
-
-        return null;
-#endif
-
 #if NET6_0_OR_GREATER
-
-        if (certificateInfo.File is null)
+    public X509Certificate2? FindCertificate(CertificateFilePathInfo certificateFilePathInfo)
+    {
+        if (certificateFilePathInfo is null)
         {
             return null;
         }
-        if (!File.Exists(certificateInfo.File.Cert))
+        if (!File.Exists(certificateFilePathInfo.Cert))
         {
             _logger?.Technical().LogError($"Public key file doesn't exist.");
             return null;
         }
 
-        if (!File.Exists(certificateInfo.File.Key))
+        if (!File.Exists(certificateFilePathInfo.Key))
         {
             _logger?.Technical().LogError($"Private key file doesn't exist.");
             return null;
         }
 
-        return X509Certificate2.CreateFromPemFile(certificateInfo.File.Cert, certificateInfo.File.Key);
-#endif
+        return X509Certificate2.CreateFromPemFile(certificateFilePathInfo.Cert, certificateFilePathInfo.Key);
     }
-
+#endif
 }
