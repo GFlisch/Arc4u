@@ -8,6 +8,7 @@
     <Description>Core framework to integrate gRpc in asp net core.</Description>
     <Copyright>Gilles Flisch</Copyright>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageIconUrl>https://www.nuget.org/profiles/Arc4u/avatar?imageSize=128</PackageIconUrl>
     <PackageProjectUrl>https://github.com/GFlisch/Arc4u</PackageProjectUrl>
     <RepositoryUrl>https://github.com/GFlisch/Arc4u</RepositoryUrl>
     <RepositoryType>git</RepositoryType>

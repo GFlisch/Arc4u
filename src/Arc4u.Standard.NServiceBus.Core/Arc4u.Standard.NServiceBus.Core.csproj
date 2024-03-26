@@ -17,6 +17,7 @@
     <PackageTags>Arc4u</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageIconUrl>https://www.nuget.org/profiles/Arc4u/avatar?imageSize=128</PackageIconUrl>
     <LangVersion>latest</LangVersion>
     <PackageId>Arc4u.Standard.NServiceBus.Core</PackageId>
     <RootNamespace>$(MSBuildProjectName.Replace(" ", "_").Replace(".Standard", ""))</RootNamespace>

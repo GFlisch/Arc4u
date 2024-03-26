@@ -20,6 +20,7 @@
     </PackageLicenseExpression>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageIconUrl>https://www.nuget.org/profiles/Arc4u/avatar?imageSize=128</PackageIconUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Arc4u</PackageTags>
     <Description>Arc4u Diagnostics Serilog Sink to RealmDB</Description>

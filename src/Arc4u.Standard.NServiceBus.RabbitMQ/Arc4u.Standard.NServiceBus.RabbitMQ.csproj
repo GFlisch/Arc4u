@@ -19,8 +19,9 @@
     <PackageLicenseExpression>
     </PackageLicenseExpression>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageIconUrl>https://www.nuget.org/profiles/Arc4u/avatar?imageSize=128</PackageIconUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageTags>Arv4u</PackageTags>
+    <PackageTags>Arc4u</PackageTags>
     <Description>Core Framework used to connect application with RabbitMQ.</Description>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <LangVersion>latest</LangVersion>

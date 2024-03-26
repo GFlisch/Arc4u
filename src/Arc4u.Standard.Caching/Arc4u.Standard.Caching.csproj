@@ -19,6 +19,7 @@
     <PackageLicenseExpression>
     </PackageLicenseExpression>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageIconUrl>https://www.nuget.org/profiles/Arc4u/avatar?imageSize=128</PackageIconUrl>
     <Description>Core Framework used to use caching.</Description>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Arc4u</PackageTags>

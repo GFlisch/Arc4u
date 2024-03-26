@@ -22,6 +22,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>Arc4u</PackageTags>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageIconUrl>https://www.nuget.org/profiles/Arc4u/avatar?imageSize=128</PackageIconUrl>
     <Description>DataEntity core framework.</Description>
     <LangVersion>latest</LangVersion>
     <PackageId>Arc4u.Standard.Data</PackageId>

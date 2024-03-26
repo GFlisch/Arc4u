@@ -19,6 +19,7 @@
     <PackageLicenseExpression>
     </PackageLicenseExpression>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageIconUrl>https://www.nuget.org/profiles/Arc4u/avatar?imageSize=128</PackageIconUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Arc4u</PackageTags>
     <Description>Core Framework used to connect application with OAuth2.</Description>
