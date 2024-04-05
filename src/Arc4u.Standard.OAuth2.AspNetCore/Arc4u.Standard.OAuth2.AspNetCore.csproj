@@ -48,7 +48,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Arc4u.Standard.AspNetCore.Results\Arc4u.AspNetCore.Results.csproj" />
+    <ProjectReference Include="..\Arc4u.AspNetCore.Results\Arc4u.AspNetCore.Results.csproj" />
     <ProjectReference Include="..\Arc4u.Standard.Diagnostics\Arc4u.Standard.Diagnostics.csproj" />
     <ProjectReference Include="..\Arc4u.Standard.OAuth2\Arc4u.Standard.OAuth2.csproj" />
   </ItemGroup>

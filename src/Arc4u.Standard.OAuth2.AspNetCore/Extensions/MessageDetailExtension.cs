@@ -19,7 +19,6 @@ public static class MessageDetailExtension
         return objectResult;
     }
 
-
     public static async Task<ActionResult> ToActionResultAsync(this Task<Result> result)
     {
         var res = await result.ConfigureAwait(false);
