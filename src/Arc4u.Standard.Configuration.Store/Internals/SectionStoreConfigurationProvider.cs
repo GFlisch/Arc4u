@@ -33,7 +33,9 @@ sealed class SectionStoreConfigurationProvider : ConfigurationProvider
                     // a complex type
                     int p = item.Key.IndexOf(':');
                     if (p <= 0 || p != ValuePropertyName.Length || !item.Key.StartsWith(ValuePropertyName))
+                    {
                         throw new InvalidOperationException($"The format of the key {item.Key} is not expected");
+                    }
 #if NETSTANDARD2_1_OR_GREATER
                     output[key + item.Key[p..]] = item.Value;
 #elif NETSTANDARD
@@ -56,14 +58,19 @@ sealed class SectionStoreConfigurationProvider : ConfigurationProvider
         var existingKeys = existingSections.ToDictionary(section => section.Key, StringComparer.OrdinalIgnoreCase);
         var newSections = new List<SectionEntity>();
         foreach (var (Key, Value) in _initialData)
+        {
             if (!existingKeys.ContainsKey(Key))
             {
                 var entity = new SectionEntity { Key = Key };
                 entity.SetValue(Value);
                 newSections.Add(entity);
             }
+        }
+
         if (newSections.Count > 0)
+        {
             sectionStore.Add(newSections);
+        }
     }
 
     private IDictionary<string, string?> GetData()
@@ -72,30 +79,48 @@ sealed class SectionStoreConfigurationProvider : ConfigurationProvider
         var transformer = new Transformer();
 
         if (_serviceScopeFactory is null)
+        {
             foreach (var (Key, Value) in _initialData)
+            {
                 transformer.Transform(data, Key, Value.Serialize());
+            }
+        }
         else
+        {
             using (var scope = _serviceScopeFactory.CreateScope())
             {
                 var sectionStore = scope.ServiceProvider.GetRequiredService<ISectionStore>();
                 var existingSections = sectionStore.GetAll();
                 // this might be null if someone resetted the database
                 if (existingSections.Count == 0)
+                {
                     InitializeSectionStore(sectionStore, existingSections);
+                }
+
                 foreach (var entity in existingSections)
+                {
                     transformer.Transform(data, entity.Key, entity.Value);
+                }
             }
+        }
+
         return data;
     }
 
     private static bool Equals(IDictionary<string, string?> data1, IDictionary<string, string?> data2)
     {
         if (data1.Count != data2.Count)
+        {
             return false;
+        }
 
         foreach (var item1 in data1)
+        {
             if (!data2.TryGetValue(item1.Key, out var value2) || item1.Value != value2)
+            {
                 return false;
+            }
+        }
 
         return true;
     }
@@ -115,7 +140,10 @@ sealed class SectionStoreConfigurationProvider : ConfigurationProvider
     {
         var data = GetData();
         if (Equals(data, Data))
+        {
             return;
+        }
+
         Data = data;
         OnReload();
     }

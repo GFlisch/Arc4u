@@ -1,4 +1,4 @@
-﻿namespace Arc4u.Configuration.Store;
+namespace Arc4u.Configuration.Store;
 
 using Internals;
 
@@ -39,7 +39,10 @@ public sealed class SectionEntity
     {
         // check for multiple wrapping... it should never occur
         if (value is IValueHolder)
+        {
             throw new ArgumentException($"The parameter is not expected to implement {typeof(IValueHolder).Name}", nameof(value));
+        }
+
         Value = ValueHolder.Create(value).Serialize();
     }
 

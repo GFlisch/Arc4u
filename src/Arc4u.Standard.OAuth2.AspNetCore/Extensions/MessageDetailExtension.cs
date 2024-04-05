@@ -14,7 +14,7 @@ public static class MessageDetailExtension
         ActionResult<T> objectResult = new BadRequestResult();
         res
             .OnSuccess(value => objectResult = new OkObjectResult(mapper is null ? res.Value : mapper(res.Value)))
-            .OnFailed(errors => objectResult = new BadRequestObjectResult(res.ToMessageDetails()));
+            .OnFailed(errors => objectResult = new BadRequestObjectResult(res.ToProblemDetails()));
 
         return objectResult;
     }
@@ -24,21 +24,21 @@ public static class MessageDetailExtension
     {
         var res = await result.ConfigureAwait(false);
 
-        ActionResult objectResult = res.IsSuccess ? new OkObjectResult(res) : new BadRequestObjectResult(res.ToMessageDetails());
+        ActionResult objectResult = res.IsSuccess ? new OkObjectResult(res) : new BadRequestObjectResult(res.ToProblemDetails());
 
         return objectResult;
     }
 
     public static Task<ActionResult> ToActionResultAsync<TResult>(this Result<TResult> result)
     {
-        ActionResult objectResult = result.IsSuccess ? new OkObjectResult(result.Value) : new BadRequestObjectResult(result.ToMessageDetails());
+        ActionResult objectResult = result.IsSuccess ? new OkObjectResult(result.Value) : new BadRequestObjectResult(result.ToProblemDetails());
 
         return Task.FromResult(objectResult);
     }
 
     public static Task<ActionResult> ToActionResultAsync(this Result result)
     {
-        ActionResult objectResult = result.IsSuccess ? new OkResult() : new BadRequestObjectResult(result.ToMessageDetails());
+        ActionResult objectResult = result.IsSuccess ? new OkResult() : new BadRequestObjectResult(result.ToProblemDetails());
 
         return Task.FromResult(objectResult);
     }

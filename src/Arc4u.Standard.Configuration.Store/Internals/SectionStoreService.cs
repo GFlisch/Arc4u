@@ -18,26 +18,45 @@ sealed class SectionStoreService : ISectionStoreService
     private IEnumerable<SectionStoreConfigurationProvider> EnumerateSectionStoreConfigurationProviders()
     {
         if (_configuration is not IConfigurationRoot configurationRoot)
+        {
             throw new InvalidOperationException($"Expected {typeof(IConfigurationRoot).Name} but got {_configuration.GetType().Name}");
+        }
+
         foreach (var provider in configurationRoot.Providers)
+        {
             if (provider is SectionStoreConfigurationProvider sectionStoreConfigurationProvider)
+            {
                 yield return sectionStoreConfigurationProvider;
+            }
+        }
     }
 
     public void Startup(IServiceScopeFactory serviceScopeFactory)
     {
         foreach (var sectionStoreConfigurationProvider in EnumerateSectionStoreConfigurationProviders())
+        {
             sectionStoreConfigurationProvider.Initialize(serviceScopeFactory);
+        }
+
         lock (_lock)
+        {
             _startupCalled = true;
+        }
     }
 
     public void ReloadIfNeeded()
     {
         lock (_lock)
+        {
             if (!_startupCalled)
+            {
                 return;
+            }
+        }
+
         foreach (var sectionStoreConfigurationProvider in EnumerateSectionStoreConfigurationProviders())
+        {
             sectionStoreConfigurationProvider.ReloadIfNeeded();
+        }
     }
 }

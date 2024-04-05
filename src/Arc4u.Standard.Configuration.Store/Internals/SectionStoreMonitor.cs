@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Arc4u.Diagnostics;
 
 namespace Arc4u.Configuration.Store.Internals;
 
@@ -19,13 +20,13 @@ sealed class SectionStoreMonitor : BackgroundService
 
     public override Task StartAsync(CancellationToken cancellationToken)
     {
-        _logger.LogInformation($"{nameof(SectionStoreMonitor)} Service starting");
+        _logger.Technical().LogInformation($"{nameof(SectionStoreMonitor)} Service starting");
         return base.StartAsync(cancellationToken);
     }
 
     protected async override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation($"{nameof(SectionStoreMonitor)} Service started");
+        _logger.Technical().LogInformation($"{nameof(SectionStoreMonitor)} Service started");
         try
         {
             do
@@ -38,7 +39,7 @@ sealed class SectionStoreMonitor : BackgroundService
                 }
                 catch (Exception e) when (e is not OperationCanceledException || !stoppingToken.IsCancellationRequested)
                 {
-                    _logger.LogError(e, $"Error executing SectionStore service");
+                    _logger.Technical().LogException(e);
                 }
                 await Task.Delay(_pollingInterval, stoppingToken).ConfigureAwait(false);
             }
@@ -50,14 +51,14 @@ sealed class SectionStoreMonitor : BackgroundService
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Periodic Task Exception");
+            _logger.Technical().LogException(e);
         }
-        _logger.LogInformation($"{nameof(SectionStoreMonitor)} Service stopped");
+        _logger.Technical().LogInformation($"{nameof(SectionStoreMonitor)} Service stopped");
     }
 
     public override Task StopAsync(CancellationToken cancellationToken)
     {
-        _logger.LogInformation($"{nameof(SectionStoreMonitor)} Service stopping");
+        _logger.Technical().LogInformation($"{nameof(SectionStoreMonitor)} Service stopping");
         return base.StopAsync(cancellationToken);
     }
 }

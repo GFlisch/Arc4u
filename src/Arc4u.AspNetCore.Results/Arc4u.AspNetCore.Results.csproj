@@ -1,9 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
     <Version>0.0.0.0</Version>
     <Authors>Gilles Flisch</Authors>
-    <Description>Package used on Interface and Facade projects</Description>
+    <Description>Package used on Interface and Facade projects to return ProblemDetails based on Results.</Description>
     <Copyright>Gilles Flisch</Copyright>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageIcon>Arc4u.png</PackageIcon>
@@ -16,13 +17,10 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RootNamespace>Arc4u.OAuth2</RootNamespace>
     <LangVersion>latest</LangVersion>
-    <PackageId>Arc4u.Standard.OAuth2.AspNetCore.Api</PackageId>
+    <PackageId>Arc4u.AspNetCore.Results</PackageId>
     <RootNamespace>$(MSBuildProjectName.Replace(" ", "_").Replace(".Standard", ""))</RootNamespace>
   </PropertyGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Arc4u.Standard.Diagnostics\Arc4u.Standard.Diagnostics.csproj" />
-    <ProjectReference Include="..\Arc4u.Standard\Arc4u.Standard.csproj" />
-  </ItemGroup>
+
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
@@ -36,5 +34,8 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Arc4u.Standard.Results\Arc4u.Standard.Results.csproj" />
   </ItemGroup>
 </Project>

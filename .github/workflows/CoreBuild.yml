@@ -60,6 +60,12 @@ jobs:
       - name: Change Arc4u.Standard.Configuration.Decryptor versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Configuration.Decryptor.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
         shell: powershell        
+      - name: Change Arc4u.Standard.Configuration.Store versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Configuration.Store.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
+      - name: Change Arc4u.Configuration.Store.EFCore versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Configuration.Store.EFCore.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell        
       - name: Change Arc4u.Standard.Dependency versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Dependency.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
         shell: powershell        
@@ -111,8 +117,11 @@ jobs:
       - name: Change Arc4u.Standard.Dispatcher versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Dispatcher.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
         shell: powershell
-      - name: Change Arc4u.Standard.Serializer versions
+      - name: Change Arc4u.Standard.Results versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Results.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+        shell: powershell   
+      - name: Change Arc4u.OAuth2.AspNetCore.Results versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.OAuth2.AspNetCore.Results.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
         shell: powershell   
       - name: Change Arc4u.Standard.Serializer versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Serializer.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"

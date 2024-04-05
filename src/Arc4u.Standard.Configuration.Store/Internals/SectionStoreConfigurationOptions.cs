@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 
 namespace Arc4u.Configuration.Store.Internals;
 
@@ -36,7 +36,9 @@ sealed class SectionStoreConfigurationOptions : ISectionStoreConfigurationOption
     private static void CheckKeyArgument(string key)
     {
         if (string.IsNullOrWhiteSpace(key))
+        {
             throw new ArgumentNullException(nameof(key), "The key of a section cannot be null");
+        }
     }
 
     public ISectionStoreConfigurationOptions Add<TValue>(string key, TValue? value)
@@ -59,13 +61,18 @@ sealed class SectionStoreConfigurationOptions : ISectionStoreConfigurationOption
     public IReadOnlyList<(string Key, IValueHolder Value)> GetInitialData(IConfigurationBuilder builder)
     {
         if (_sections.Count == 0)
+        {
             return _objects;
+        }
         else
         {
             var data = new List<(string Key, IValueHolder Value)>(_objects);
             var configurationRoot = builder.Build();
             foreach (var valueBuilder in _sections)
+            {
                 data.Add((valueBuilder.Key, valueBuilder.Build(configurationRoot)));
+            }
+
             return data;
         }
     }

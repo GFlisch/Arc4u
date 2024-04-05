@@ -4,8 +4,21 @@
     <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <Authors>Gilles Flisch</Authors>
+    <Description>Core Framework to read configuration from EfCore.</Description>
+    <Copyright>Gilles Flisch</Copyright>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageIcon>Arc4u.png</PackageIcon>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <RepositoryUrl>https://github.com/GFlisch/Arc4u</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>Arc4u</PackageTags>
+    <PackageProjectUrl>https://github.com/GFlisch/Arc4u</PackageProjectUrl>
+    <Version>0.0.0.0</Version>
+    <LangVersion>latest</LangVersion>
+    <PackageId>Arc4u.Configuration.Store.EfCore</PackageId>
+    <RootNamespace>$(MSBuildProjectName.Replace(" ", "_").Replace(".Standard", ""))</RootNamespace>
   </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.0" Condition="'$(TargetFramework)' == 'net6.0'" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.0" Condition="'$(TargetFramework)' == 'net7.0'" />
