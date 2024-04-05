@@ -120,8 +120,8 @@ jobs:
       - name: Change Arc4u.Standard.Results versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Results.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
         shell: powershell   
-      - name: Change Arc4u.OAuth2.AspNetCore.Results versions
-        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.OAuth2.AspNetCore.Results.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
+      - name: Change Arc4u.AspNetCore.Results versions
+        run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.AspNetCore.Results.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
         shell: powershell   
       - name: Change Arc4u.Standard.Serializer versions
         run: .\src\Builds\SetVersion.ps1 "..\" "Arc4u.Standard.Serializer.csproj" "1.0.0.0" "${{env.netStandardVersion}}" "0.0.0.0" "${{env.netStandardVersionNuget}}"
