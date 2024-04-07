@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using Arc4u.AspNetCore.Results;
 using Arc4u.Results.Validation;
-using Arc4u.ServiceModel;
 using FluentResults;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
