@@ -72,7 +72,10 @@ public static class ProblemDetailsExtension
 
     public static Task<ActionResult> ToActionResultAsync(this Result result)
     {
-        ActionResult objectResult = result.IsSuccess ? new OkResult() : new BadRequestObjectResult(result.ToProblemDetails());
+        ActionResult objectResult = new BadRequestResult();
+
+        result.OnSuccess(() => objectResult = new OkResult())
+              .OnFailed(_ => objectResult = new BadRequestObjectResult(result.ToProblemDetails()));
 
         return Task.FromResult(objectResult);
     }

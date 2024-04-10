@@ -29,13 +29,15 @@ public static class ProblemDetailExtension
                 .WithTitle("Error from validation.")
                 .WithDetail(validationError.Message)
                 .WithStatusCode(StatusCodes.Status422UnprocessableEntity)
-                .WithSeverity(validationError.Severity.ToString());
+                .WithSeverity(validationError.Severity.ToString())
+                .WithType(new Uri("https://github.com/GFlisch/Arc4u/wiki/StatusCodes#validation-error"));
         }
 
         return new ProblemDetails()
                 .WithTitle("Error.")
                 .WithDetail(error.Message)
-                .WithStatusCode(StatusCodes.Status400BadRequest)
+                .WithStatusCode(StatusCodes.Status500InternalServerError)
+                .WithType(new Uri("about:blank"))
                 .WithSeverity(Severity.Error.ToString());
     }
 
@@ -65,19 +67,22 @@ public static class ProblemDetailExtension
                 return new ProblemDetails()
                     .WithTitle("A technical error occured!")
                     .WithDetail($"Contact the application owner. A message has been logged with id: {activityId}.")
-                    .WithStatusCode(StatusCodes.Status400BadRequest);
+                    .WithType(new Uri("about:blank"))
+                    .WithStatusCode(StatusCodes.Status500InternalServerError);
             }
 
             return new ProblemDetails()
                     .WithTitle("A technical error occured!")
                     .WithDetail("Contact the application owner. A message has been logged.")
-                    .WithStatusCode(StatusCodes.Status400BadRequest);
+                    .WithType(new Uri("about:blank"))
+                    .WithStatusCode(StatusCodes.Status500InternalServerError);
         }
 
         return new ProblemDetails()
             .WithTitle("A technical error occured!")
             .WithDetail("Contact the application owner.")
-            .WithStatusCode(StatusCodes.Status400BadRequest);
+            .WithType(new Uri("about:blank"))
+            .WithStatusCode(StatusCodes.Status500InternalServerError);
 
     }
 
