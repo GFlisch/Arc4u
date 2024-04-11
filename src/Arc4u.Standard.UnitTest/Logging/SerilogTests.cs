@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Arc4u.Diagnostics;
 using Arc4u.Diagnostics.Serilog;
 using Arc4u.UnitTest.Infrastructure;
@@ -5,10 +9,6 @@ using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace Arc4u.UnitTest.Logging;
@@ -37,7 +37,7 @@ public class SerilogTests : BaseContainerFixture<SerilogTests, BasicFixture>
                 logger.Technical().LogInformation("Information {Code}", 101);
                 logger.Technical().LogWarning("Warning {Code}", 102);
                 logger.Technical().LogError("Error {Code}", 103);
-                logger.Technical().LogFatal("Fatal {Code}", 104);
+                logger.Technical().LogCritical("Fatal {Code}", 104);
                 logger.Technical().LogException(new DivideByZeroException("Cannot divide by zero"));
 
                 await Task.Delay(1000);
@@ -68,7 +68,7 @@ public class SerilogTests : BaseContainerFixture<SerilogTests, BasicFixture>
                 logger.Technical().Information("Information").Add("Code", "101").Log();
                 logger.Technical().Warning("Warning").Add("Code", "102").Log();
                 logger.Technical().Error("Error").Add("Code", "103").Log();
-                logger.Technical().Fatal("Fatal").Add("Code", "104").Log();
+                logger.Technical().Critical("Fatal").Add("Code", "104").Log();
                 logger.Technical().Exception(new DivideByZeroException("Cannot divide by zero")).Log();
                 logger.Monitoring().Debug("Memory").AddMemoryUsage().Log();
 
