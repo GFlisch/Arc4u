@@ -22,13 +22,16 @@ public class JwtHttpHandler : DelegatingHandler
     // case can be a singleton because we do an impersonation!
 
     /// <summary>
-    /// This is a ctor to use only in a backend scenario => where <see cref="IPlatformParameters"/> it is not used!
-    /// No inner handler is defined because this will be done via the AddHttpClient method in a service!
+    /// This constructor is obsolete. It does not allow <see cref="JwtHttpHandler"/> to be used with a client secret outside a http context.
+    /// Please use <see cref="JwtHttpHandler(IServiceProvider, ILogger{JwtHttpHandler}, IKeyValueSettings)"/> instead.
     /// </summary>
-    /// <param name="container">The scoped container</param>
-    /// <param name="resolvingName">The name used to resolve the settings</param>
+    /// <param name="serviceProviderAccessor">The name used to resolve the settings</param>
+    /// <param name="logger">The scoped container</param>
+    /// <param name="keyValuesSettings"></param>
+    [Obsolete("Use the ctor accepting an IServiceProvider as first parameter")]
     public JwtHttpHandler(IScopedServiceProviderAccessor serviceProviderAccessor, ILogger<JwtHttpHandler> logger, [DisallowNull] IKeyValueSettings keyValuesSettings)
     {
+        _serviceProvider = null;
         _serviceProviderAccessor = serviceProviderAccessor;
 
         _logger = logger;
@@ -36,11 +39,47 @@ public class JwtHttpHandler : DelegatingHandler
         _settings = keyValuesSettings ?? throw new ArgumentNullException(nameof(keyValuesSettings));
     }
 
+    /// <summary>
+    /// This is a ctor to use only in a backend scenario => where <see cref="IPlatformParameters"/> it is not used!
+    /// No inner handler is defined because this will be done via the AddHttpClient method in a service!
+    /// </summary>
+    /// <param name="serviceProvider"></param>
+    /// <param name="logger"></param>
+    /// <param name="keyValuesSettings"></param>
+    /// <exception cref="ArgumentNullException"></exception>
+    public JwtHttpHandler(IServiceProvider serviceProvider, ILogger<JwtHttpHandler> logger, [DisallowNull] IKeyValueSettings keyValuesSettings)
+    {
+        _serviceProvider = serviceProvider;
+        _serviceProviderAccessor = serviceProvider.GetRequiredService<IScopedServiceProviderAccessor>();
+
+        _logger = logger;
+
+        _settings = keyValuesSettings ?? throw new ArgumentNullException(nameof(keyValuesSettings));
+    }
+
     private readonly IKeyValueSettings? _settings;
+    private readonly IServiceProvider? _serviceProvider;
     private readonly IScopedServiceProviderAccessor _serviceProviderAccessor;
     private readonly ILogger<JwtHttpHandler> _logger;
 
-    private IContainerResolve? GetResolver() => _serviceProviderAccessor.ServiceProvider.GetService<IContainerResolve>();
+    private IContainerResolve? GetResolver()
+    {
+        IServiceProvider serviceProvider;
+
+        try
+        {
+            serviceProvider = _serviceProviderAccessor.ServiceProvider;
+        }
+        catch (NullReferenceException)
+        {
+            if (_serviceProvider is null)
+            {
+                throw new InvalidOperationException("The service provider is not defined. Use the other constructor");
+            }
+            serviceProvider = _serviceProvider;
+        }
+        return serviceProvider.GetService<IContainerResolve>();
+    }
 
     private IApplicationContext? GetCallContext(out IContainerResolve? containerResolve)
     {
@@ -51,13 +90,14 @@ public class JwtHttpHandler : DelegatingHandler
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request);
         try
         {
             _logger.Technical().System($"{GetType().Name} delegate handler is called.").Log();
 
             var applicationContext = GetCallContext(out var containerResolve);
 
-            if (_settings is null || applicationContext is null || containerResolve is null)
+            if (_settings is null || containerResolve is null)
             {
                 _logger.Technical().System($"No settings or application context is defined with {GetType().Name}, Check next Delegate Handler").Log();
                 return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
@@ -74,19 +114,19 @@ public class JwtHttpHandler : DelegatingHandler
                 return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
             }
 
-            var inject = authenticationType.Equals("inject", StringComparison.InvariantCultureIgnoreCase);
+            var inject = authenticationType.Equals("inject", StringComparison.OrdinalIgnoreCase);
 
             // if we don't inject a bearer token, the AuthenticationType defined in the settings must be the same as the authentication type defined in the Identity.
             if (!inject
                 && applicationContext?.Principal?.Identity?.AuthenticationType is not null
-                && !authenticationType.ToLowerInvariant().Contains(applicationContext.Principal.Identity.AuthenticationType.ToLowerInvariant()))
+                && !authenticationType.Contains(applicationContext.Principal.Identity.AuthenticationType, StringComparison.OrdinalIgnoreCase))
             {
                 _logger.Technical().System($"Authentication type is not the same as the Identity for {GetType().Name}, Check next Delegate Handler").Log();
                 return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
             }
 
             // if we inject more than one bearer token do it only if no one exist already.
-            if (null != request.Headers.Authorization)
+            if (request.Headers.Authorization is not null)
             {
                 _logger.Technical().System($"An authorization header already exist for handler {GetType().Name}, Check next Delegate Handler").Log();
                 return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
@@ -114,7 +154,7 @@ public class JwtHttpHandler : DelegatingHandler
             var scheme = inject ? tokenInfo.TokenType : "Bearer";
             _logger.Technical().System($"Add the {scheme} token to provide authentication evidence.").Log();
 
-            if (new string[] { "Bearer", "Basic" }.Any(s => s.Equals(scheme, StringComparison.InvariantCultureIgnoreCase)))
+            if (_supportedSchemes.Any(s => s.Equals(scheme, StringComparison.OrdinalIgnoreCase)))
             {
                 request.Headers.Authorization = new AuthenticationHeaderValue(scheme, tokenInfo.Token);
             }
@@ -143,4 +183,6 @@ public class JwtHttpHandler : DelegatingHandler
 
         return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
     }
+
+    private static readonly string[] _supportedSchemes = new[] { "Bearer", "Basic" };
 }
