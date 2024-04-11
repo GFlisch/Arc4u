@@ -83,7 +83,7 @@ public class ProblemDetailsTests
         problem.Should().NotBeNull();
         problem.Title.Should().Be("Error.");
         problem.Detail.Should().Be(value);
-        problem.Status.Should().Be(StatusCodes.Status400BadRequest);
+        problem.Status.Should().Be(StatusCodes.Status500InternalServerError);
     }
 
     [Fact]
@@ -134,7 +134,7 @@ public class ProblemDetailsTests
         problem.Should().NotBeNull();
         problem.Title.Should().Be("Error.");
         problem.Detail.Should().Be(value);
-        problem.Status.Should().Be(StatusCodes.Status400BadRequest);
+        problem.Status.Should().Be(StatusCodes.Status500InternalServerError);
     }
 
 
@@ -169,7 +169,7 @@ public class ProblemDetailsTests
         problem.Should().NotBeNull();
         problem.Title.Should().Be("Error.");
         problem.Detail.Should().Be(value);
-        problem.Status.Should().Be(StatusCodes.Status400BadRequest);
+        problem.Status.Should().Be(StatusCodes.Status500InternalServerError);
     }
 
     [Fact]
@@ -242,7 +242,7 @@ public class ProblemDetailsTests
         problem.Should().NotBeNull();
         problem.Title.Should().Be("Error.");
         problem.Detail.Should().Be(value);
-        problem.Status.Should().Be(StatusCodes.Status400BadRequest);
+        problem.Status.Should().Be(StatusCodes.Status500InternalServerError);
     }
 
     [Fact]
@@ -294,7 +294,7 @@ public class ProblemDetailsTests
         problem.Should().NotBeNull();
         problem.Title.Should().Be("Error.");
         problem.Detail.Should().Be(value);
-        problem.Status.Should().Be(StatusCodes.Status400BadRequest);
+        problem.Status.Should().Be(StatusCodes.Status500InternalServerError);
     }
 
 
@@ -399,7 +399,7 @@ public class ProblemDetailsTests
         problem.Should().NotBeNull();
         problem.Title.Should().Be("Error.");
         problem.Detail.Should().Be(value);
-        problem.Status.Should().Be(StatusCodes.Status400BadRequest);
+        problem.Status.Should().Be(StatusCodes.Status500InternalServerError);
     }
 
     [Fact]
