@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Http;
 using System;
 using FluentValidation;
 using Arc4u.Results.Validation;
+using Arc4u.Results;
 
 namespace Arc4u.UnitTest.ProblemDetail;
 
@@ -306,7 +307,6 @@ public class ProblemDetailsTests
         // arrange
         var value = string.Empty;
         var validation = new ValidatorExample();
-        //var result = Result.Fail(validation.Validate(value).Errors.ToFluentResultErrors());
         var result = await validation.ValidateWithResultAsync(value);
         validation.ToResult();
         // act
@@ -334,7 +334,6 @@ public class ProblemDetailsTests
         // arrange
         var value = string.Empty;
         var validation = new ValidatorExample();
-        //var result = Result.Fail(validation.Validate(value).Errors.ToFluentResultErrors());
         var result = validation.ValidateWithResult(value);
         validation.ToResult();
         // act
@@ -353,8 +352,32 @@ public class ProblemDetailsTests
         problem.Detail.Should().Be("'Name' must not be empty.");
         problem.Status.Should().Be(StatusCodes.Status422UnprocessableEntity);
     }
+    [Fact]
+    [Trait("Category", "CI")]
+    // Result<TResult>
+    public async Task Test_Result_With_A_ProblemDetails_Should()
+    {
+        // arrange
+        var detail = _fixture.Create<string>();
+        var title = _fixture.Create<string>();
+        var result = Result.Fail(ProblemDetailError.Create(detail).WithTitle(title));
 
+        // act
+        var sut = await result.ToActionResultAsync();
 
+        // assert
+        sut.Should().NotBeNull();
+        sut.Should().BeOfType<BadRequestObjectResult>();
+        ((BadRequestObjectResult)sut).Value.Should().BeOfType<List<ProblemDetails>>();
+        var problems = (List<ProblemDetails>)((BadRequestObjectResult)sut).Value;
+        problems.Should().NotBeNull();
+        problems.Count.Should().Be(1);
+        var problem = problems[0];
+        problem.Should().NotBeNull();
+        problem.Title.Should().Be(title);
+        problem.Detail.Should().Be(detail);
+        problem.Status.Should().Be(StatusCodes.Status500InternalServerError);
+    }
     #endregion
 
     #region Result
