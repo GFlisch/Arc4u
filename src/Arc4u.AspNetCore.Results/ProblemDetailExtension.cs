@@ -33,6 +33,16 @@ public static class ProblemDetailExtension
                 .WithType(new Uri("https://github.com/GFlisch/Arc4u/wiki/StatusCodes#validation-error"));
         }
 
+        if (error is ProblemDetailError problemDetail)
+        {
+            return new ProblemDetails()
+                .WithTitle(problemDetail.Title ?? "Error.")
+                .WithDetail(problemDetail.Message)
+                .WithStatusCode(problemDetail.StatusCode ?? StatusCodes.Status500InternalServerError)
+                .WithSeverity(problemDetail.Severity ?? Severity.Error.ToString())
+                .WithType(problemDetail.Type ?? new Uri("about:blank"));
+        }
+
         return new ProblemDetails()
                 .WithTitle("Error.")
                 .WithDetail(error.Message)

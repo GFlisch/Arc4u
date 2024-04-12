@@ -40,5 +40,11 @@ public static class ProblemDetailsExtensions
         problemDetails.Extensions.AddOrReplace("Severity", severity);
         return problemDetails;
     }
+
+    public static ProblemDetails WithMetadata(this ProblemDetails problemDetails, string key, object value)
+    {
+        problemDetails.Extensions.AddOrReplace(key, value);
+        return problemDetails;
+    }
 }
 

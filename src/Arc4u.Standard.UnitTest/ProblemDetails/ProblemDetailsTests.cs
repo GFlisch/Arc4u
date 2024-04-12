@@ -430,4 +430,8 @@ public class ProblemDetailsTests
     }
 
     #endregion
+
+    #region ProblemDetailError
+
+    #endregion
 }
