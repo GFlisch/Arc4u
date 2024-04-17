@@ -308,7 +308,6 @@ public class ProblemDetailsTests
         var value = string.Empty;
         var validation = new ValidatorExample();
         var result = await validation.ValidateWithResultAsync(value);
-        validation.ToResult();
         // act
         var sut = await result.ToActionResultAsync();
 
@@ -335,7 +334,6 @@ public class ProblemDetailsTests
         var value = string.Empty;
         var validation = new ValidatorExample();
         var result = validation.ValidateWithResult(value);
-        validation.ToResult();
         // act
         var sut = await result.ToActionResultAsync();
 

@@ -23,7 +23,7 @@ public static class ValidationExtensions
         return failures.Select(failure => (ValidationError)failure).ToList();
     }
 
-    public static async ValueTask<Result<T>> ValidateWithResultAsync<T>(this AbstractValidator<T> validator, T value)
+    public static async ValueTask<Result<T>> ValidateWithResultAsync<T>(this IValidator<T> validator, T value)
     {
         var validationResult = await validator.ValidateAsync(value).ConfigureAwait(false);
 
@@ -35,7 +35,7 @@ public static class ValidationExtensions
         return Result.Fail(validationResult.Errors.ToFluentResultErrors());
     }
 
-    public static Result<T> ValidateWithResult<T>(this AbstractValidator<T> validator, T value)
+    public static Result<T> ValidateWithResult<T>(this IValidator<T> validator, T value)
     {
         var validationResult = validator.Validate(value);
 
