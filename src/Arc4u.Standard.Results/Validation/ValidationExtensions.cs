@@ -25,7 +25,12 @@ public static class ValidationExtensions
 
     public static async ValueTask<Result<T>> ValidateWithResultAsync<T>(this IValidator<T> validator, T value)
     {
-        var validationResult = await validator.ValidateAsync(value).ConfigureAwait(false);
+        return await validator.ValidateWithResultAsync(value, CancellationToken.None).ConfigureAwait(false);
+    }
+
+    public static async ValueTask<Result<T>> ValidateWithResultAsync<T>(this IValidator<T> validator, T value, CancellationToken cancellation)
+    {
+        var validationResult = await validator.ValidateAsync(value, cancellation).ConfigureAwait(false);
 
         if (validationResult.IsValid)
         {
