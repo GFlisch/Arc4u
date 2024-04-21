@@ -12,6 +12,9 @@ using System;
 using FluentValidation;
 using Arc4u.Results.Validation;
 using Arc4u.Results;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.SqlClient;
+using System.Linq;
 
 namespace Arc4u.UnitTest.ProblemDetail;
 
@@ -375,6 +378,67 @@ public class ProblemDetailsTests
         problem.Title.Should().Be(title);
         problem.Detail.Should().Be(detail);
         problem.Status.Should().Be(StatusCodes.Status500InternalServerError);
+    }
+
+    [Fact]
+    [Trait("Category", "CI")]
+    // Result<TResult>
+    public async Task Test_Result_With_An_Exception_ProblemDetails_Should()
+    {
+        // arrange
+        Result<string> globalResult = Result.Ok();
+
+        Func<Task> error = () => throw new DbUpdateException();
+
+        var message = _fixture.Create<string>();
+        var uri = _fixture.Create<Uri>();
+        var title = _fixture.Create<string>();
+
+        Result.Try(() => error(), (ex) => ProblemDetailError.Create(message).WithType(uri).WithTitle(title))
+            .OnFailed(globalResult);
+
+        // act
+        var sut = await globalResult.ToActionResultAsync();
+
+        // assert
+        sut.Should().NotBeNull();
+        sut.Result.Should().BeOfType<BadRequestObjectResult>();
+        sut.Result.As<BadRequestObjectResult>().Value.Should().NotBeNull();
+        sut.Result.As<BadRequestObjectResult>().Value.Should().BeOfType<List<ProblemDetails>>();
+        var problem = sut.Result.As<BadRequestObjectResult>().Value.As<List<ProblemDetails>>().First();
+        problem.Detail.Should().Be(message);
+        problem.Title.Should().Be(title);
+        problem.Type.Should().Be(uri.ToString());
+    }
+
+    [Fact]
+    [Trait("Category", "CI")]
+    // Result<TResult>
+    public async Task Test_Result_With_An_Exception_Should()
+    {
+        // arrange
+        Result<string> globalResult = Result.Ok();
+
+        Func<Task> error = () => throw new DbUpdateException();
+
+        Result.Try(() => error())
+            .OnFailed(globalResult);
+
+        // act
+        var sut = await globalResult.ToActionResultAsync();
+
+        // assert
+        sut.Should().NotBeNull();
+        sut.Result.Should().BeOfType<BadRequestObjectResult>();
+        sut.Result.As<BadRequestObjectResult>().Value.Should().NotBeNull();
+        sut.Result.As<BadRequestObjectResult>().Value.Should().BeOfType<List<ProblemDetails>>();
+        var problem = sut.Result.As<BadRequestObjectResult>().Value.As<List<ProblemDetails>>().First();
+        //problem.Detail.Should().Be(message);
+        //problem.Title.Should().Be(title);
+        problem.Type.Should().Be("about:blank");
+        problem.Instance.Should().BeNull();
+        problem.Title.Should().NotBeEmpty();
+        problem.Detail.Should().NotBeEmpty();
     }
     #endregion
 

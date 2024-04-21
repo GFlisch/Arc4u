@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Arc4u.Results;
 using Arc4u.Results.Validation;
@@ -7,6 +8,7 @@ using FluentAssertions;
 using FluentResults;
 using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 namespace Arc4u.UnitTest.Results;
@@ -183,6 +185,23 @@ public class ResultTests
         sut.Should().BeSameAs(result.Result);
         globalResult.IsFailed.Should().BeTrue();
         globalResult.Errors.Count.Should().Be(1);
+    }
+
+    [Fact]
+    [Trait("Category", "CI")]
+    public async Task Test_Exception_Failed_Should()
+    {
+        Result<string> globalResult = Result.Ok();
+
+        Func<Task> error = () => throw new DbUpdateException(); 
+
+        Result.Try(() => error())
+            .OnFailed(globalResult);
+
+        globalResult.IsFailed.Should().BeTrue();
+        globalResult.Errors.Count.Should().Be(1);
+        globalResult.Errors[0].Should().BeOfType<ExceptionalError>();
+        globalResult.Errors[0].As<ExceptionalError>().Exception.Should().BeOfType<DbUpdateException>();
     }
 
     [Fact]

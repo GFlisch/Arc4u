@@ -108,7 +108,7 @@ public static class ProblemDetailExtension
     {
         if (result.IsSuccess)
         {
-            return new List<ProblemDetails>();
+            return result.Successes.Select(reason => new ProblemDetails().WithDetail(reason.Message).WithSeverity(Severity.Info.ToString())).ToList();
         }
 
         if (result.IsFailed && result.Errors.OfType<IExceptionalError>().Any())
@@ -133,7 +133,7 @@ public static class ProblemDetailExtension
     {
         if (result.IsSuccess)
         {
-            return result.Reasons.Select(reason => new ProblemDetails().WithDetail(reason.Message).WithSeverity(Severity.Info.ToString())).ToList();
+            return result.Successes.Select(reason => new ProblemDetails().WithDetail(reason.Message).WithSeverity(Severity.Info.ToString())).ToList();
         }
 
         if (result.IsFailed && result.Errors.OfType<IExceptionalError>().Any())
