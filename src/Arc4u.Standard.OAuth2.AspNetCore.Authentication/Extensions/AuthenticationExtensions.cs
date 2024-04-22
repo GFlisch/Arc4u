@@ -126,10 +126,15 @@ public static partial class AuthenticationExtensions
                     options.ResponseType = oidcOptions.ResponseType;
                     options.CallbackPath = oidcOptions.CallbackPath;
                     options.Scope.Clear();
-                    options.Scope.Add(OpenIdConnectScope.OpenIdProfile);
-                    options.Scope.Add(OpenIdConnectScope.OfflineAccess);
-                    openIdOptions.Scopes.ForEach((scope) => options.Scope.Add(scope));
-
+                    if (openIdOptions.Scopes.Count == 0)
+                    {
+                        openIdOptions.Scopes.ForEach((scope) => options.Scope.Add(scope));
+                    }
+                    else
+                    {
+                        options.Scope.Add(OpenIdConnectScope.OpenIdProfile);
+                        options.Scope.Add(OpenIdConnectScope.OfflineAccess);
+                    }
                     options.ClientId = openIdOptions.ClientId;
                     options.ClientSecret = openIdOptions.ClientSecret;
                     // we don't call the user info endpoint => On AzureAd the user.read scope is needed.
