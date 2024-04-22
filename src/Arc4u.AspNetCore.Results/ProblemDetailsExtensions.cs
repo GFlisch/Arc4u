@@ -31,7 +31,11 @@ public static class ProblemDetailsExtensions
 
     public static ProblemDetails WithCode(this ProblemDetails problemDetails, string code)
     {
-        problemDetails.Extensions.AddOrReplace("Code", code);
+        if (!string.IsNullOrWhiteSpace(code))
+        {
+            problemDetails.Extensions.AddOrReplace("Code", code);
+        }
+        
         return problemDetails;
     }
 

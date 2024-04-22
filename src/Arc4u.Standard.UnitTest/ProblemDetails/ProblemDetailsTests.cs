@@ -495,16 +495,16 @@ public class ProblemDetailsTests
         // arrange
         var value = Guid.NewGuid().ToString();
         var validation = new ValidatorExample();
-        var result = Result.Fail(validation.Validate(value).Errors.ToFluentResultErrors());
+        var result = validation.ValidateWithResult(value);
 
         // act
         var sut = await result.ToActionResultAsync();
 
         // assert
         sut.Should().NotBeNull();
-        sut.Should().BeOfType<BadRequestObjectResult>();
-        ((BadRequestObjectResult)sut).Value.Should().BeOfType<List<ProblemDetails>>();
-        var problems = (List<ProblemDetails>)((BadRequestObjectResult)sut).Value;
+        sut.Result.Should().BeOfType<BadRequestObjectResult>();
+        sut.Result.As<BadRequestObjectResult>().Value.Should().BeOfType<List<ProblemDetails>>();
+        var problems = sut.Result.As<BadRequestObjectResult>().Value.As<List<ProblemDetails>>();
         problems.Should().NotBeNull();
         problems.Count.Should().Be(1);
         var problem = problems[0];

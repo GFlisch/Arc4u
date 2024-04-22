@@ -30,7 +30,8 @@ public static class ProblemDetailExtension
                 .WithDetail(validationError.Message)
                 .WithStatusCode(StatusCodes.Status422UnprocessableEntity)
                 .WithSeverity(validationError.Severity.ToString())
-                .WithType(new Uri("https://github.com/GFlisch/Arc4u/wiki/StatusCodes#validation-error"));
+                .WithType(new Uri("https://github.com/GFlisch/Arc4u/wiki/StatusCodes#validation-error"))
+                .WithCode(validationError.Code);
         }
 
         if (error is ProblemDetailError problemDetail)
