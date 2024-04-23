@@ -129,12 +129,12 @@ public static partial class AuthenticationExtensions
                     options.Scope.Clear();
                     if (openIdOptions.Scopes.Count == 0)
                     {
-                        openIdOptions.Scopes.ForEach((scope) => options.Scope.Add(scope));
+                        options.Scope.Add(OpenIdConnectScope.OpenIdProfile);
+                        options.Scope.Add(OpenIdConnectScope.OfflineAccess);
                     }
                     else
                     {
-                        options.Scope.Add(OpenIdConnectScope.OpenIdProfile);
-                        options.Scope.Add(OpenIdConnectScope.OfflineAccess);
+                        openIdOptions.Scopes.ForEach((scope) => options.Scope.Add(scope));
                     }
                     options.ClientId = openIdOptions.ClientId;
                     options.ClientSecret = openIdOptions.ClientSecret;
