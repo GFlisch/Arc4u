@@ -93,6 +93,48 @@ public class ProblemDetailsTests
     [Fact]
     [Trait("Category", "CI")]
     // ValueTask<Result<TResult>> result
+    public async Task Test_ValueTask_Result_To_OnFailed_With_2_Errors_Should()
+    {
+        // arrange
+        var msg1 = _fixture.Create<string>();
+        var msg2 = _fixture.Create<string>();
+
+        var error = new Error(msg2).WithMetadata("Code", "100");
+        var result = Result.Fail<string>(msg1).WithError(error);
+
+        Func<ValueTask<Result<string>>> valueTask = () => ValueTask.FromResult(result);
+
+        // act
+        var sut = await valueTask().ToActionResultAsync((v) => $"{v} Arc4u");
+
+        // assert
+        sut.Value.Should().BeNull();
+        sut.Result.Should().BeOfType<BadRequestObjectResult>();
+        ((BadRequestObjectResult)sut.Result).Value.Should().BeOfType<List<ProblemDetails>>();
+        var problems = (List<ProblemDetails>)((BadRequestObjectResult)sut.Result).Value;
+        problems.Should().NotBeNull();
+        problems.Count.Should().Be(2);
+
+        var problem = problems[0];
+        problem.Should().NotBeNull();
+        problem.Title.Should().Be("Error.");
+        problem.Detail.Should().Be(msg1);
+        problem.Status.Should().Be(StatusCodes.Status500InternalServerError);
+
+        problem = problems[1];
+        problem.Should().NotBeNull();
+        problem.Title.Should().Be("Error.");
+        problem.Detail.Should().Be(msg2);
+        problem.Status.Should().Be(StatusCodes.Status500InternalServerError);
+        problem.Extensions.Count.Should().Be(2);
+        problem.Extensions["Code"].Should().Be("100");
+    }
+
+
+
+    [Fact]
+    [Trait("Category", "CI")]
+    // ValueTask<Result<TResult>> result
     public async Task Test_ValuTask_Result_To_OnSuccess_Without_Mapping_Should()
     {
         // arrange

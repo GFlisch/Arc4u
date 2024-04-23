@@ -23,33 +23,45 @@ public static class ProblemDetailExtension
 
     private static ProblemDetails _from(IError error)
     {
+        ProblemDetails? problem = null;
+
         if (error is ValidationError validationError)
         {
-            return new ProblemDetails()
-                .WithTitle("Error from validation.")
-                .WithDetail(validationError.Message)
-                .WithStatusCode(StatusCodes.Status422UnprocessableEntity)
-                .WithSeverity(validationError.Severity.ToString())
-                .WithType(new Uri("https://github.com/GFlisch/Arc4u/wiki/StatusCodes#validation-error"))
-                .WithCode(validationError.Code);
+            problem = new ProblemDetails()
+                        .WithTitle("Error from validation.")
+                        .WithDetail(validationError.Message)
+                        .WithStatusCode(StatusCodes.Status422UnprocessableEntity)
+                        .WithSeverity(validationError.Severity.ToString())
+                        .WithType(new Uri("https://github.com/GFlisch/Arc4u/wiki/StatusCodes#validation-error"))
+                        .WithCode(validationError.Code);
         }
 
         if (error is ProblemDetailError problemDetail)
         {
-            return new ProblemDetails()
-                .WithTitle(problemDetail.Title ?? "Error.")
-                .WithDetail(problemDetail.Message)
-                .WithStatusCode(problemDetail.StatusCode ?? StatusCodes.Status500InternalServerError)
-                .WithSeverity(problemDetail.Severity ?? Severity.Error.ToString())
-                .WithType(problemDetail.Type ?? new Uri("about:blank"));
+            problem = new ProblemDetails()
+                        .WithTitle(problemDetail.Title ?? "Error.")
+                        .WithDetail(problemDetail.Message)
+                        .WithStatusCode(problemDetail.StatusCode ?? StatusCodes.Status500InternalServerError)
+                        .WithSeverity(problemDetail.Severity ?? Severity.Error.ToString())
+                        .WithType(problemDetail.Type ?? new Uri("about:blank"));
         }
 
-        return new ProblemDetails()
-                .WithTitle("Error.")
-                .WithDetail(error.Message)
-                .WithStatusCode(StatusCodes.Status500InternalServerError)
-                .WithType(new Uri("about:blank"))
-                .WithSeverity(Severity.Error.ToString());
+        if (null == problem)
+        {
+            problem = new ProblemDetails()
+                    .WithTitle("Error.")
+                    .WithDetail(error.Message)
+                    .WithStatusCode(StatusCodes.Status500InternalServerError)
+                    .WithType(new Uri("about:blank"))
+                    .WithSeverity(Severity.Error.ToString());
+        }
+
+        foreach (var metadata in error.Metadata)
+        {
+            problem.WithMetadata(metadata.Key, metadata.Value);
+        }
+
+        return problem;
     }
 
     public static ProblemDetails ToGenericMessage<TResult>(this Result<TResult> result)

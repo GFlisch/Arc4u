@@ -222,16 +222,14 @@ public class ResultTests
     {
         var validator = new Validation();
 
-        var validation = validator.Validate(string.Empty);
-
-        validation.IsValid.Should().BeFalse();
-
-        var sut = Result.Fail(validation.Errors.ToFluentResultErrors());
+        var sut = validator.ValidateWithResult(string.Empty);
 
         sut.IsFailed.Should().BeTrue();
         sut.Errors.Count.Should().Be(1);
-        sut.Errors[0].Message.Should().Be("A");
-        sut.Errors[0].Metadata["Code"].Should().Be("Code");
+        var error = sut.Errors[0].As<ValidationError>(); 
+        error.Message.Should().Be("A");
+        error.Code.Should().Be("Code");
+        error.Metadata["Severity"].Should().Be(Severity.Warning);
 
     }
 
@@ -239,7 +237,7 @@ public class ResultTests
     {
         public Validation()
         {
-            RuleFor(s => s).NotEmpty().WithMessage("A").WithErrorCode("Code");
+            RuleFor(s => s).NotEmpty().WithMessage("A").WithErrorCode("Code").WithSeverity(Severity.Warning);
         }
     }
 }
