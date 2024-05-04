@@ -1,5 +1,4 @@
 using FluentResults;
-using FluentValidation;
 
 namespace Arc4u.Results;
 
@@ -10,7 +9,7 @@ namespace Arc4u.Results;
 public class ProblemDetailError : Error
 {
     private ProblemDetailError()
-    {  
+    {
     }
 
     private ProblemDetailError(string detail)
@@ -63,7 +62,7 @@ public class ProblemDetailError : Error
         return this;
     }
 
-    public ProblemDetailError WithMetadata(string key, object value)
+    public new ProblemDetailError WithMetadata(string key, object value)
     {
         Metadata.TryAdd(key, value);
         return this;

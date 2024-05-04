@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using Arc4u.AspNetCore.Results;
@@ -13,55 +14,57 @@ namespace Arc4u.Results;
 
 public static class ProblemDetailExtension
 {
-    public static Func<IError, ProblemDetails> FromError => error => _fromError(error);
+    public static Func<IEnumerable<IError>, ProblemDetails> FromError => errors => _fromErrors(errors);
 
-    public static void SetFromErrorFactory(Func<IError, ProblemDetails> fromError)
+    public static void SetFromErrorFactory(Func<IEnumerable<IError>, ProblemDetails> fromErrors)
     {
-        _fromError = fromError;
+        _fromErrors = fromErrors;
     }
-    private static Func<IError, ProblemDetails> _fromError = _from;
+    private static Func<IEnumerable<IError>, ProblemDetails> _fromErrors = _from;
 
-    private static ProblemDetails _from(IError error)
+    private static ProblemDetails _from(IEnumerable<IError> errors)
     {
-        ProblemDetails? problem = null;
-
-        if (error is ValidationError validationError)
+        if (errors.OfType<ValidationError>().Any())
         {
-            problem = new ProblemDetails()
+            //TODO: what to do when Code is null.
+            var orderedErrors = errors.OfType<ValidationError>()
+                                      .OrderBy(x => x.Code)
+                                      .ThenBy(x => x.Severity)
+                                      .GroupBy(x => x.Code)
+                                      .ToImmutableSortedDictionary(g => g.Key, g => g.ToImmutableList().Select(vError => $"{vError.Severity}: {vError.Message}").ToArray());
+
+            return new ValidationProblemDetails(orderedErrors)
                         .WithTitle("Error from validation.")
-                        .WithDetail(validationError.Message)
                         .WithStatusCode(StatusCodes.Status422UnprocessableEntity)
-                        .WithSeverity(validationError.Severity.ToString())
-                        .WithType(new Uri("https://github.com/GFlisch/Arc4u/wiki/StatusCodes#validation-error"))
-                        .WithCode(validationError.Code);
+                        .WithType(new Uri("https://github.com/GFlisch/Arc4u/wiki/StatusCodes#validation-error"));
         }
 
-        if (error is ProblemDetailError problemDetail)
+        if (errors.OfType<ProblemDetailError>().Any())
         {
-            problem = new ProblemDetails()
-                        .WithTitle(problemDetail.Title ?? "Error.")
-                        .WithDetail(problemDetail.Message)
-                        .WithStatusCode(problemDetail.StatusCode ?? StatusCodes.Status500InternalServerError)
-                        .WithSeverity(problemDetail.Severity ?? Severity.Error.ToString())
-                        .WithType(problemDetail.Type ?? new Uri("about:blank"));
+            var problemDetailError = errors.OfType<ProblemDetailError>().First();
+            var problem = new ProblemDetails()
+                        .WithTitle(problemDetailError.Title ?? "Error.")
+                        .WithDetail(problemDetailError.Message)
+                        .WithStatusCode(problemDetailError.StatusCode ?? StatusCodes.Status500InternalServerError)
+                        .WithSeverity(problemDetailError.Severity ?? Severity.Error.ToString())
+                        .WithType(problemDetailError.Type ?? new Uri("about:blank"));
+
+            foreach (var metadata in problemDetailError.Metadata)
+            {
+                problem.WithMetadata(metadata.Key, metadata.Value);
+            }
+
+            return problem;
+
         }
 
-        if (null == problem)
-        {
-            problem = new ProblemDetails()
+        var error = errors.First();
+        return new ProblemDetails()
                     .WithTitle("Error.")
                     .WithDetail(error.Message)
                     .WithStatusCode(StatusCodes.Status500InternalServerError)
                     .WithType(new Uri("about:blank"))
                     .WithSeverity(Severity.Error.ToString());
-        }
-
-        foreach (var metadata in error.Metadata)
-        {
-            problem.WithMetadata(metadata.Key, metadata.Value);
-        }
-
-        return problem;
     }
 
     public static ProblemDetails ToGenericMessage<TResult>(this Result<TResult> result)
@@ -110,27 +113,32 @@ public static class ProblemDetailExtension
     }
 
     /// <summary>
-    /// If Success, return the reasons!
     /// If Failure and no exceptions, return the Errors: Message, Code, Severity.
     /// If Failure and exceptions, Log and return the generic messages.
     /// </summary>
     /// <typeparam name="TResult"></typeparam>
     /// <param name="result"></param>
     /// <returns></returns>
-    public static List<ProblemDetails> ToProblemDetails<TResult>(this Result<TResult> result)
+    public static ProblemDetails ToProblemDetails<TResult>(this Result<TResult> result)
     {
+        // Could not be a valid scenario to call this method! An Exceptional error will be created so the developer is aware of this.
         if (result.IsSuccess)
         {
-            return result.Successes.Select(reason => new ProblemDetails().WithDetail(reason.Message).WithSeverity(Severity.Info.ToString())).ToList();
+#if NET6_0
+            result.WithError(new ExceptionalError(new Exception("Creating a ProblemDetails on a success Result does not make any sense!")));
+#else
+            result.WithError(new ExceptionalError(new UnreachableException("Creating a ProblemDetails on a success Result does not make any sense!")));
+#endif
         }
 
+        // Generate a generic message and log! No sensitive information can be sent outside directly to a user =. vulnerabilities.
         if (result.IsFailed && result.Errors.OfType<IExceptionalError>().Any())
         {
             result.Log();
-            return new List<ProblemDetails>(new[] { result.ToGenericMessage() });
+            return result.ToGenericMessage();
         }
         
-        return result.Errors.Select(e => ProblemDetailExtension.FromError(e)).ToList();
+        return ProblemDetailExtension.FromError(result.Errors);
 
     }
 
@@ -142,20 +150,25 @@ public static class ProblemDetailExtension
     /// <typeparam name="TResult"></typeparam>
     /// <param name="result"></param>
     /// <returns></returns>
-    public static List<ProblemDetails> ToProblemDetails(this Result result)
+    public static ProblemDetails ToProblemDetails(this Result result)
     {
+        // Could not be a valid scenario to call this method! An Exceptional error will be created so the developer is aware of this.
         if (result.IsSuccess)
         {
-            return result.Successes.Select(reason => new ProblemDetails().WithDetail(reason.Message).WithSeverity(Severity.Info.ToString())).ToList();
+#if NET6_0
+            result.WithError(new ExceptionalError(new Exception("Creating a ProblemDetails on a success Result does not make any sense!")));
+#else
+            result.WithError(new ExceptionalError(new UnreachableException("Creating a ProblemDetails on a success Result does not make any sense!")));
+#endif
         }
 
         if (result.IsFailed && result.Errors.OfType<IExceptionalError>().Any())
         {
             result.Log();
-            return new List<ProblemDetails>([result.ToGenericMessage()]);
+            return result.ToGenericMessage();
         }
 
-        return result.Errors.Select(error => ProblemDetailExtension.FromError(error)).ToList();
+        return ProblemDetailExtension.FromError(result.Errors);
 
     }
 }

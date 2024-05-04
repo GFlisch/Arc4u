@@ -13,7 +13,6 @@ using FluentValidation;
 using Arc4u.Results.Validation;
 using Arc4u.Results;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Data.SqlClient;
 using System.Linq;
 
 namespace Arc4u.UnitTest.ProblemDetail;
@@ -78,12 +77,9 @@ public class ProblemDetailsTests
 
         // assert
         sut.Value.Should().BeNull();
-        sut.Result.Should().BeOfType<BadRequestObjectResult>();
-        ((BadRequestObjectResult)sut.Result).Value.Should().BeOfType<List<ProblemDetails>>();
-        var problems = (List<ProblemDetails>)((BadRequestObjectResult)sut.Result).Value;
-        problems.Should().NotBeNull();
-        problems.Count.Should().Be(1);
-        var problem = problems[0];
+        sut.Result.Should().BeOfType<ObjectResult>();
+        ((ObjectResult)sut.Result).Value.Should().BeOfType<ProblemDetails>();
+        var problem = (ProblemDetails)((ObjectResult)sut.Result).Value;
         problem.Should().NotBeNull();
         problem.Title.Should().Be("Error.");
         problem.Detail.Should().Be(value);
@@ -109,25 +105,22 @@ public class ProblemDetailsTests
 
         // assert
         sut.Value.Should().BeNull();
-        sut.Result.Should().BeOfType<BadRequestObjectResult>();
-        ((BadRequestObjectResult)sut.Result).Value.Should().BeOfType<List<ProblemDetails>>();
-        var problems = (List<ProblemDetails>)((BadRequestObjectResult)sut.Result).Value;
-        problems.Should().NotBeNull();
-        problems.Count.Should().Be(2);
-
-        var problem = problems[0];
+        sut.Result.Should().BeOfType<ObjectResult>();
+        ((ObjectResult)sut.Result).Value.Should().BeOfType<ProblemDetails>();
+        var problem = (ProblemDetails)((ObjectResult)sut.Result).Value;
+        problem.Should().NotBeNull();
         problem.Should().NotBeNull();
         problem.Title.Should().Be("Error.");
         problem.Detail.Should().Be(msg1);
         problem.Status.Should().Be(StatusCodes.Status500InternalServerError);
 
-        problem = problems[1];
-        problem.Should().NotBeNull();
-        problem.Title.Should().Be("Error.");
-        problem.Detail.Should().Be(msg2);
-        problem.Status.Should().Be(StatusCodes.Status500InternalServerError);
-        problem.Extensions.Count.Should().Be(2);
-        problem.Extensions["Code"].Should().Be("100");
+        //problem = problems[1];
+        //problem.Should().NotBeNull();
+        //problem.Title.Should().Be("Error.");
+        //problem.Detail.Should().Be(msg2);
+        //problem.Status.Should().Be(StatusCodes.Status500InternalServerError);
+        //problem.Extensions.Count.Should().Be(2);
+        //problem.Extensions["Code"].Should().Be("100");
     }
 
 
@@ -171,12 +164,9 @@ public class ProblemDetailsTests
 
         // assert
         sut.Value.Should().BeNull();
-        sut.Result.Should().BeOfType<BadRequestObjectResult>();
-        ((BadRequestObjectResult)sut.Result).Value.Should().BeOfType<List<ProblemDetails>>();
-        var problems = (List<ProblemDetails>)((BadRequestObjectResult)sut.Result).Value;
-        problems.Should().NotBeNull();
-        problems.Count.Should().Be(1);
-        var problem = problems[0];
+        sut.Result.Should().BeOfType<ObjectResult>();
+        ((ObjectResult)sut.Result).Value.Should().BeOfType<ProblemDetails>();
+        var problem = (ProblemDetails)((ObjectResult)sut.Result).Value;
         problem.Should().NotBeNull();
         problem.Title.Should().Be("Error.");
         problem.Detail.Should().Be(value);
@@ -204,14 +194,9 @@ public class ProblemDetailsTests
 
         // assert
         sut.Should().NotBeNull();
-        sut.Should().BeOfType<BadRequestObjectResult>();
-
-        var badRequest = (BadRequestObjectResult)sut;
-        badRequest.Value.Should().BeOfType<List<ProblemDetails>>();
-        var problems = (List<ProblemDetails>)badRequest.Value;
-        problems.Should().NotBeNull();
-        problems.Count.Should().Be(1);
-        var problem = problems[0];
+        sut.Should().BeOfType<ObjectResult>();
+        ((ObjectResult)sut).Value.Should().BeOfType<ProblemDetails>();
+        var problem = (ProblemDetails)((ObjectResult)sut).Value;
         problem.Should().NotBeNull();
         problem.Title.Should().Be("Error.");
         problem.Detail.Should().Be(value);
@@ -279,12 +264,9 @@ public class ProblemDetailsTests
 
         // assert
         sut.Value.Should().BeNull();
-        sut.Result.Should().BeOfType<BadRequestObjectResult>();
-        ((BadRequestObjectResult)sut.Result).Value.Should().BeOfType<List<ProblemDetails>>();
-        var problems = (List<ProblemDetails>)((BadRequestObjectResult)sut.Result).Value;
-        problems.Should().NotBeNull();
-        problems.Count.Should().Be(1);
-        var problem = problems[0];
+        sut.Result.Should().BeOfType<ObjectResult>();
+        ((ObjectResult)sut.Result).Value.Should().BeOfType<ProblemDetails>();
+        var problem = (ProblemDetails)((ObjectResult)sut.Result).Value;
         problem.Should().NotBeNull();
         problem.Title.Should().Be("Error.");
         problem.Detail.Should().Be(value);
@@ -331,12 +313,10 @@ public class ProblemDetailsTests
 
         // assert
         sut.Value.Should().BeNull();
-        sut.Result.Should().BeOfType<BadRequestObjectResult>();
-        ((BadRequestObjectResult)sut.Result).Value.Should().BeOfType<List<ProblemDetails>>();
-        var problems = (List<ProblemDetails>)((BadRequestObjectResult)sut.Result).Value;
-        problems.Should().NotBeNull();
-        problems.Count.Should().Be(1);
-        var problem = problems[0];
+        sut.Result.Should().BeOfType<ObjectResult>();
+        ((ObjectResult)sut.Result).Value.Should().BeOfType<ProblemDetails>();
+        var problem = (ProblemDetails)((ObjectResult)sut.Result).Value;
+        problem.Should().NotBeNull();
         problem.Should().NotBeNull();
         problem.Title.Should().Be("Error.");
         problem.Detail.Should().Be(value);
@@ -358,15 +338,15 @@ public class ProblemDetailsTests
 
         // assert
         sut.Value.Should().BeNull();
-        sut.Result.Should().BeOfType<BadRequestObjectResult>();
-        ((BadRequestObjectResult)sut.Result).Value.Should().BeOfType<List<ProblemDetails>>();
-        var problems = (List<ProblemDetails>)((BadRequestObjectResult)sut.Result).Value;
-        problems.Should().NotBeNull();
-        problems.Count.Should().Be(1);
-        var problem = problems[0];
+        sut.Result.Should().BeOfType<ObjectResult>();
+        ((ObjectResult)sut.Result).Value.Should().BeOfType<ValidationProblemDetails>();
+        var problem = (ValidationProblemDetails)((ObjectResult)sut.Result).Value;
         problem.Should().NotBeNull();
         problem.Title.Should().Be("Error from validation.");
-        problem.Detail.Should().Be("'Name' must not be empty.");
+        problem.Detail.Should().BeNull();
+        problem.Errors.Should().HaveCount(1);
+        problem.Errors.First().Key.Should().Be("NotEmptyValidator");
+        problem.Errors.First().Value[0].Should().Be("Error: 'Name' must not be empty.");
         problem.Status.Should().Be(StatusCodes.Status422UnprocessableEntity);
     }
 
@@ -384,15 +364,15 @@ public class ProblemDetailsTests
 
         // assert
         sut.Value.Should().BeNull();
-        sut.Result.Should().BeOfType<BadRequestObjectResult>();
-        ((BadRequestObjectResult)sut.Result).Value.Should().BeOfType<List<ProblemDetails>>();
-        var problems = (List<ProblemDetails>)((BadRequestObjectResult)sut.Result).Value;
-        problems.Should().NotBeNull();
-        problems.Count.Should().Be(1);
-        var problem = problems[0];
+        sut.Result.Should().BeOfType<ObjectResult>();
+        ((ObjectResult)sut.Result).Value.Should().BeOfType<ValidationProblemDetails>();
+        var problem = (ValidationProblemDetails)((ObjectResult)sut.Result).Value;
         problem.Should().NotBeNull();
         problem.Title.Should().Be("Error from validation.");
-        problem.Detail.Should().Be("'Name' must not be empty.");
+        problem.Detail.Should().BeNull();
+        problem.Errors.Should().HaveCount(1);
+        problem.Errors.First().Key.Should().Be("NotEmptyValidator");
+        problem.Errors.First().Value[0].Should().Be("Error: 'Name' must not be empty.");
         problem.Status.Should().Be(StatusCodes.Status422UnprocessableEntity);
     }
     [Fact]
@@ -410,12 +390,9 @@ public class ProblemDetailsTests
 
         // assert
         sut.Should().NotBeNull();
-        sut.Should().BeOfType<BadRequestObjectResult>();
-        ((BadRequestObjectResult)sut).Value.Should().BeOfType<List<ProblemDetails>>();
-        var problems = (List<ProblemDetails>)((BadRequestObjectResult)sut).Value;
-        problems.Should().NotBeNull();
-        problems.Count.Should().Be(1);
-        var problem = problems[0];
+        sut.Should().BeOfType<ObjectResult>();
+        ((ObjectResult)sut).Value.Should().BeOfType<ProblemDetails>();
+        var problem = (ProblemDetails)((ObjectResult)sut).Value;
         problem.Should().NotBeNull();
         problem.Title.Should().Be(title);
         problem.Detail.Should().Be(detail);
@@ -444,10 +421,9 @@ public class ProblemDetailsTests
 
         // assert
         sut.Should().NotBeNull();
-        sut.Result.Should().BeOfType<BadRequestObjectResult>();
-        sut.Result.As<BadRequestObjectResult>().Value.Should().NotBeNull();
-        sut.Result.As<BadRequestObjectResult>().Value.Should().BeOfType<List<ProblemDetails>>();
-        var problem = sut.Result.As<BadRequestObjectResult>().Value.As<List<ProblemDetails>>().First();
+        sut.Result.Should().BeOfType<ObjectResult>();
+        ((ObjectResult)sut.Result).Value.Should().BeOfType<ProblemDetails>();
+        var problem = (ProblemDetails)((ObjectResult)sut.Result).Value;
         problem.Detail.Should().Be(message);
         problem.Title.Should().Be(title);
         problem.Type.Should().Be(uri.ToString());
@@ -471,12 +447,9 @@ public class ProblemDetailsTests
 
         // assert
         sut.Should().NotBeNull();
-        sut.Result.Should().BeOfType<BadRequestObjectResult>();
-        sut.Result.As<BadRequestObjectResult>().Value.Should().NotBeNull();
-        sut.Result.As<BadRequestObjectResult>().Value.Should().BeOfType<List<ProblemDetails>>();
-        var problem = sut.Result.As<BadRequestObjectResult>().Value.As<List<ProblemDetails>>().First();
-        //problem.Detail.Should().Be(message);
-        //problem.Title.Should().Be(title);
+        sut.Result.Should().BeOfType<ObjectResult>();
+        ((ObjectResult)sut.Result).Value.Should().BeOfType<ProblemDetails>();
+        var problem = (ProblemDetails)((ObjectResult)sut.Result).Value;
         problem.Type.Should().Be("about:blank");
         problem.Instance.Should().BeNull();
         problem.Title.Should().NotBeEmpty();
@@ -517,12 +490,9 @@ public class ProblemDetailsTests
 
         // assert
         sut.Should().NotBeNull();
-        sut.Should().BeOfType<BadRequestObjectResult>();
-        ((BadRequestObjectResult)sut).Value.Should().BeOfType<List<ProblemDetails>>();
-        var problems = (List<ProblemDetails>)((BadRequestObjectResult)sut).Value;
-        problems.Should().NotBeNull();
-        problems.Count.Should().Be(1);
-        var problem = problems[0];
+        sut.Should().BeOfType<ObjectResult>();
+        ((ObjectResult)sut).Value.Should().BeOfType<ProblemDetails>();
+        var problem = (ProblemDetails)((ObjectResult)sut).Value;
         problem.Should().NotBeNull();
         problem.Title.Should().Be("Error.");
         problem.Detail.Should().Be(value);
@@ -544,16 +514,17 @@ public class ProblemDetailsTests
 
         // assert
         sut.Should().NotBeNull();
-        sut.Result.Should().BeOfType<BadRequestObjectResult>();
-        sut.Result.As<BadRequestObjectResult>().Value.Should().BeOfType<List<ProblemDetails>>();
-        var problems = sut.Result.As<BadRequestObjectResult>().Value.As<List<ProblemDetails>>();
-        problems.Should().NotBeNull();
-        problems.Count.Should().Be(1);
-        var problem = problems[0];
+        sut.Result.Should().BeOfType<ObjectResult>();
+        ((ObjectResult)sut.Result).Value.Should().BeOfType<ValidationProblemDetails>();
+        var problem = (ValidationProblemDetails)((ObjectResult)sut.Result).Value;
         problem.Should().NotBeNull();
         problem.Title.Should().Be("Error from validation.");
-        problem.Detail.Should().Be("Problem");
+        problem.Detail.Should().BeNull();
+        problem.Errors.Should().HaveCount(1);
+        problem.Errors.First().Key.Should().Be("100");
+        problem.Errors.First().Value[0].Should().Be("Error: Problem");
         problem.Status.Should().Be(StatusCodes.Status422UnprocessableEntity);
+
     }
 
     #endregion

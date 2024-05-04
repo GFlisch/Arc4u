@@ -3,10 +3,13 @@ using FluentResults;
 using Microsoft.AspNetCore.Mvc;
 using Arc4u.Results;
 using System;
+//using Microsoft.AspNetCore.Http.HttpResults;
+//using Microsoft.AspNetCore.Http;
 
 namespace Arc4u.OAuth2.AspNetCore.Extensions;
 public static class ProblemDetailsExtension
 {
+#region ActionResult
     /// <summary>
     /// For an asynchronous method returning a Task<Result<T></T>>, we expect a ValueTask.
     /// </summary>
@@ -18,7 +21,7 @@ public static class ProblemDetailsExtension
         ActionResult<T> objectResult = new BadRequestResult();
         res
             .OnSuccess(value => objectResult = new OkObjectResult(mapper is null ? res.Value : mapper(res.Value)))
-            .OnFailed(errors => objectResult = new BadRequestObjectResult(res.ToProblemDetails()));
+            .OnFailed(errors => objectResult = new ObjectResult(res.ToProblemDetails()));
 
         return objectResult;
     }
@@ -30,7 +33,7 @@ public static class ProblemDetailsExtension
         ActionResult<TResult> objectResult = new BadRequestResult();
         res
             .OnSuccess(value => objectResult = new OkObjectResult(res.Value))
-            .OnFailed(errors => objectResult = new BadRequestObjectResult(res.ToProblemDetails()));
+            .OnFailed(errors => objectResult = new ObjectResult(res.ToProblemDetails()));
 
         return objectResult;
     }
@@ -43,7 +46,7 @@ public static class ProblemDetailsExtension
     {
         var res = await result.ConfigureAwait(false);
 
-        ActionResult objectResult = res.IsSuccess ? new OkResult() : new BadRequestObjectResult(res.ToProblemDetails());
+        ActionResult objectResult = res.IsSuccess ? new OkResult() : new ObjectResult(res.ToProblemDetails());
 
         return objectResult;
     }
@@ -54,7 +57,7 @@ public static class ProblemDetailsExtension
 
         result
             .OnSuccess((value) => objectResult = new OkObjectResult(mapper is null ? value : mapper(value)))
-            .OnFailed(_ => objectResult = new BadRequestObjectResult(result.ToProblemDetails()));
+            .OnFailed(_ => objectResult = new ObjectResult(result.ToProblemDetails()));
 
         return Task.FromResult(objectResult);
     }
@@ -65,7 +68,7 @@ public static class ProblemDetailsExtension
 
         result
             .OnSuccess((value) => objectResult = new OkObjectResult(value))
-            .OnFailed(_ => objectResult = new BadRequestObjectResult(result.ToProblemDetails()));
+            .OnFailed(_ => objectResult = new ObjectResult(result.ToProblemDetails()));
 
         return Task.FromResult(objectResult);
     }
@@ -75,8 +78,85 @@ public static class ProblemDetailsExtension
         ActionResult objectResult = new BadRequestResult();
 
         result.OnSuccess(() => objectResult = new OkResult())
-              .OnFailed(_ => objectResult = new BadRequestObjectResult(result.ToProblemDetails()));
+              .OnFailed(_ => objectResult = new ObjectResult(result.ToProblemDetails()));
 
         return Task.FromResult(objectResult);
     }
+#endregion
+
+#region TypedResult
+//#if NET7_0_OR_GREATER
+//    /// <summary>
+//    /// For an asynchronous method returning a Task<Result<T></T>>, we expect a ValueTask.
+//    /// </summary>
+//    /// <return>OkResult<<TResult> or  BadRequestObjectResult<ProblemDetails></return>
+//    public static async ValueTask<Results<Ok<T>, BadRequest>> ToTypedResultAsync<TResult, T>(this ValueTask<Result<TResult>> result, Func<TResult, T> mapper)
+//    {
+//        var res = await result.ConfigureAwait(false);
+
+//        Results<Ok<T>, BadRequest> objectResult = TypedResults.BadRequest();
+//        res
+//            .OnSuccess(value => objectResult = TypedResults.Ok<T>(mapper is null ? res.Value : mapper(res.Value)))
+//            .OnFailed(errors => objectResult = TypedResults.Problem(res.ToProblemDetails()));
+
+//        return objectResult;
+//    }
+
+//    public static async ValueTask<ActionResult<TResult>> ToActionResultAsync<TResult>(this ValueTask<Result<TResult>> result)
+//    {
+//        var res = await result.ConfigureAwait(false);
+
+//        ActionResult<TResult> objectResult = new BadRequestResult();
+//        res
+//            .OnSuccess(value => objectResult = new OkObjectResult(res.Value))
+//            .OnFailed(errors => objectResult = new BadRequestObjectResult(res.ToProblemDetails()));
+
+//        return objectResult;
+//    }
+
+//    /// <summary>
+//    /// For an asynchronous method return a Task<Result>, we expect a Task and not a ValueTask.
+//    /// </summary>
+//    /// <return>OkResult or  BadRequestObjectResult<ProblemDetails></return>
+//    public static async Task<ActionResult> ToActionResultAsync(this Task<Result> result)
+//    {
+//        var res = await result.ConfigureAwait(false);
+//        ActionResult objectResult = res.IsSuccess ? new OkResult() : new BadRequestObjectResult(res.ToProblemDetails());
+
+//        return objectResult;
+//    }
+
+//    public static Task<ActionResult<T>> ToActionResultAsync<TResult, T>(this Result<TResult> result, Func<TResult, T> mapper)
+//    {
+//        ActionResult<T> objectResult = new BadRequestResult();
+
+//        result
+//            .OnSuccess((value) => objectResult = new OkObjectResult(mapper is null ? value : mapper(value)))
+//            .OnFailed(_ => objectResult = new BadRequestObjectResult(result.ToProblemDetails()));
+
+//        return Task.FromResult(objectResult);
+//    }
+
+//    public static Task<ActionResult<TResult>> ToActionResultAsync<TResult>(this Result<TResult> result)
+//    {
+//        ActionResult<TResult> objectResult = new BadRequestResult();
+
+//        result
+//            .OnSuccess((value) => objectResult = new OkObjectResult(value))
+//            .OnFailed(_ => objectResult = new BadRequestObjectResult(result.ToProblemDetails()));
+
+//        return Task.FromResult(objectResult);
+//    }
+
+//    public static Task<ActionResult> ToActionResultAsync(this Result result)
+//    {
+//        ActionResult objectResult = new BadRequestResult();
+
+//        result.OnSuccess(() => objectResult = new OkResult())
+//              .OnFailed(_ => objectResult = new BadRequestObjectResult(result.ToProblemDetails()));
+
+//        return Task.FromResult(objectResult);
+//    }
+//#endif
+#endregion
 }
