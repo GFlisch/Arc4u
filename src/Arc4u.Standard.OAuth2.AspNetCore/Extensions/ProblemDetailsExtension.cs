@@ -3,6 +3,7 @@ using FluentResults;
 using Microsoft.AspNetCore.Mvc;
 using Arc4u.Results;
 using System;
+using Microsoft.AspNetCore.Http;
 //using Microsoft.AspNetCore.Http.HttpResults;
 //using Microsoft.AspNetCore.Http;
 
@@ -14,25 +15,27 @@ public static class ProblemDetailsExtension
     /// For an asynchronous method returning a Task<Result<T></T>>, we expect a ValueTask.
     /// </summary>
     /// <return>OkResult<<TResult> or  BadRequestObjectResult<ProblemDetails></return>
-    public static async ValueTask<ActionResult<T>> ToActionResultAsync<TResult, T>(this ValueTask<Result<TResult>> result, Func<TResult, T> mapper)
+    public static async ValueTask<ActionResult<T>> ToActionResultAsync<TResult, T>(this ValueTask<Result<TResult?>> result, Func<TResult, T> mapper)
     {
         var res = await result.ConfigureAwait(false);
 
-        ActionResult<T> objectResult = new BadRequestResult();
+        ActionResult<T?> objectResult = new BadRequestResult();
         res
-            .OnSuccess(value => objectResult = new OkObjectResult(mapper is null ? res.Value : mapper(res.Value)))
+            .OnSuccess(value => objectResult = new OkObjectResult(mapper is null ? res.Value : mapper(res.Value!)))
+            .OnSuccessNull(() => objectResult = new StatusCodeResult(StatusCodes.Status204NoContent))
             .OnFailed(errors => objectResult = new ObjectResult(res.ToProblemDetails()));
 
         return objectResult;
     }
 
-    public static async ValueTask<ActionResult<TResult>> ToActionResultAsync<TResult>(this ValueTask<Result<TResult>> result)
+    public static async ValueTask<ActionResult<TResult?>> ToActionResultAsync<TResult>(this ValueTask<Result<TResult?>> result)
     {
         var res = await result.ConfigureAwait(false);
 
-        ActionResult<TResult> objectResult = new BadRequestResult();
+        ActionResult<TResult?> objectResult = new BadRequestResult();
         res
             .OnSuccess(value => objectResult = new OkObjectResult(res.Value))
+            .OnSuccessNull(() => objectResult = new StatusCodeResult(StatusCodes.Status204NoContent))
             .OnFailed(errors => objectResult = new ObjectResult(res.ToProblemDetails()));
 
         return objectResult;
@@ -51,27 +54,30 @@ public static class ProblemDetailsExtension
         return objectResult;
     }
 
-    public static Task<ActionResult<T>> ToActionResultAsync<TResult, T>(this Result<TResult> result, Func<TResult, T> mapper)
+    public static Task<ActionResult<T?>> ToActionResultAsync<TResult, T>(this Result<TResult?> result, Func<TResult, T> mapper)
     {
-        ActionResult<T> objectResult = new BadRequestResult();
+        ActionResult<T?> objectResult = new BadRequestResult();
 
         result
             .OnSuccess((value) => objectResult = new OkObjectResult(mapper is null ? value : mapper(value)))
+            .OnSuccessNull(() => objectResult = new StatusCodeResult(StatusCodes.Status204NoContent))
             .OnFailed(_ => objectResult = new ObjectResult(result.ToProblemDetails()));
 
         return Task.FromResult(objectResult);
     }
 
-    public static Task<ActionResult<TResult>> ToActionResultAsync<TResult>(this Result<TResult> result)
+    public static Task<ActionResult<TResult?>> ToActionResultAsync<TResult>(this Result<TResult?> result)
     {
-        ActionResult<TResult> objectResult = new BadRequestResult();
+        ActionResult<TResult?> objectResult = new BadRequestResult();
 
         result
             .OnSuccess((value) => objectResult = new OkObjectResult(value))
+            .OnSuccessNull(() => objectResult = new StatusCodeResult(StatusCodes.Status204NoContent))
             .OnFailed(_ => objectResult = new ObjectResult(result.ToProblemDetails()));
 
         return Task.FromResult(objectResult);
     }
+
 
     public static Task<ActionResult> ToActionResultAsync(this Result result)
     {

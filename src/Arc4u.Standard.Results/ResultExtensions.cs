@@ -18,16 +18,27 @@ public static class ResultExtension
 
     public static Result<TValue> OnSuccess<TValue>(this Result<TValue> result, Action<TValue> action)
     {
-        if (result.IsSuccess)
+        if (result.IsSuccess && result.ValueOrDefault is not null)
         {
             action(result.Value);
         }
         return result;
     }
 
+ 
+
     public static Result<TValue> OnSuccess<TValue>(this Result<TValue> result, Action action)
     {
         if (result.IsSuccess)
+        {
+            action();
+        }
+        return result;
+    }
+
+    public static Result<TValue?> OnSuccessNull<TValue>(this Result<TValue?> result, Action action)
+    {
+        if (result.IsSuccess && result.ValueOrDefault is null)
         {
             action();
         }
@@ -49,7 +60,7 @@ public static class ResultExtension
     {
         var r = await result.ConfigureAwait(false);
 
-        if (r.IsSuccess)
+        if (r.IsSuccess && r.ValueOrDefault is not null)
         {
             action(r.Value);
         }
@@ -78,7 +89,7 @@ public static class ResultExtension
     public static async ValueTask<Result<TValue>> OnSuccessAsync<TValue>(this ValueTask<Result<TValue>> result, Func<TValue, ValueTask<Result<TValue>>> action)
     {
         var r = await result.ConfigureAwait(false);
-        if (r.IsSuccess)
+        if (r.IsSuccess && r.ValueOrDefault is not null)
         {
             return await action(r.Value).ConfigureAwait(false);
         }
@@ -89,7 +100,7 @@ public static class ResultExtension
     public static async ValueTask<Result<TValue>> OnSuccessAsync<TValue>(this ValueTask<Result<TValue>> result, Func<TValue, Task> action)
     {
         var r = await result.ConfigureAwait(false);
-        if (r.IsSuccess)
+        if (r.IsSuccess && r.ValueOrDefault is not null)
         {
             await action(r.Value).ConfigureAwait(false);
         }
@@ -112,7 +123,7 @@ public static class ResultExtension
     {
         var r = await result.ConfigureAwait(false);
 
-        if (r.IsSuccess && r.Value is null)
+        if (r.IsSuccess && r.ValueOrDefault is null)
         {
             func();
         }
@@ -124,9 +135,9 @@ public static class ResultExtension
     {
         var r = await result.ConfigureAwait(false);
 
-        if (r.IsSuccess && r.Value is not null)
+        if (r.IsSuccess && r.ValueOrDefault is not null)
         {
-            await func(r.Value).ConfigureAwait(false);
+            await func(r.Value!).ConfigureAwait(false);
         }
 
         return r;
@@ -136,9 +147,9 @@ public static class ResultExtension
     {
         var r = await result.ConfigureAwait(false);
 
-        if (r.IsSuccess && r.Value is not null)
+        if (r.IsSuccess && r.ValueOrDefault is not null)
         {
-            func(r.Value);
+            func(r.Value!);
         }
 
         return r;
