@@ -51,7 +51,7 @@ public class ProblemDetailsTests
         Func<ValueTask<Result<string>>> valueTask = () => ValueTask.FromResult(result);
 
         // act
-        var sut = await valueTask().ToActionResultAsync((v) => $"{v} Arc4u");
+        var sut = await valueTask().ToActionOkResultAsync((v) => $"{v} Arc4u");
 
         // assert
         sut.Value.Should().BeNull();
@@ -73,7 +73,7 @@ public class ProblemDetailsTests
         Func<ValueTask<Result<string>>> valueTask = () => ValueTask.FromResult(result);
 
         // act
-        var sut = await valueTask().ToActionResultAsync((v) => $"{v} Arc4u");
+        var sut = await valueTask().ToActionOkResultAsync((v) => $"{v} Arc4u");
 
         // assert
         sut.Value.Should().BeNull();
@@ -101,7 +101,7 @@ public class ProblemDetailsTests
         Func<ValueTask<Result<string>>> valueTask = () => ValueTask.FromResult(result);
 
         // act
-        var sut = await valueTask().ToActionResultAsync((v) => $"{v} Arc4u");
+        var sut = await valueTask().ToActionOkResultAsync((v) => $"{v} Arc4u");
 
         // assert
         sut.Value.Should().BeNull();
@@ -138,7 +138,7 @@ public class ProblemDetailsTests
         Func<ValueTask<Result<string>>> valueTask = () => ValueTask.FromResult(result);
 
         // act
-        var sut = await valueTask().ToActionResultAsync();
+        var sut = await valueTask().ToActionOkResultAsync();
 
         // assert
         sut.Value.Should().BeNull();
@@ -160,7 +160,7 @@ public class ProblemDetailsTests
         Func<ValueTask<Result<string>>> valueTask = () => ValueTask.FromResult(result);
 
         // act
-        var sut = await valueTask().ToActionResultAsync();
+        var sut = await valueTask().ToActionOkResultAsync();
 
         // assert
         sut.Value.Should().BeNull();
@@ -190,7 +190,7 @@ public class ProblemDetailsTests
         Func<Task<Result>> task = () => Task.FromResult(result);
 
         // act
-        var sut = await task().ToActionResultAsync();
+        var sut = await task().ToActionOkResultAsync();
 
         // assert
         sut.Should().NotBeNull();
@@ -214,7 +214,7 @@ public class ProblemDetailsTests
         Func<Task<Result>> task = () => Task.FromResult(result);
 
         // act
-        var sut = await task().ToActionResultAsync();
+        var sut = await task().ToActionOkResultAsync();
 
         // assert
         sut.Should().NotBeNull();
@@ -238,7 +238,7 @@ public class ProblemDetailsTests
 
         // act
         var executioin = await task();
-        var sut = await executioin.ToActionResultAsync();
+        var sut = await executioin.ToActionOkResultAsync();
 
         // assert
         sut.Value.Should().BeNull();
@@ -260,7 +260,7 @@ public class ProblemDetailsTests
         Func<Task<Result<string>>> task = () => Task.FromResult(result);
 
         // act
-        var sut = await (await task()).ToActionResultAsync();
+        var sut = await (await task()).ToActionOkResultAsync();
 
         // assert
         sut.Value.Should().BeNull();
@@ -287,7 +287,7 @@ public class ProblemDetailsTests
 
         // act
         var executioin = await task();
-        var sut = await executioin.ToActionResultAsync((v) => $"{v} Arc4u");
+        var sut = await executioin.ToActionOkResultAsync((v) => $"{v} Arc4u");
 
         // assert
         sut.Value.Should().BeNull();
@@ -309,7 +309,7 @@ public class ProblemDetailsTests
         Func<Task<Result<string>>> task = () => Task.FromResult(result);
 
         // act
-        var sut = await (await task()).ToActionResultAsync((v) => $"{v} Arc4u");
+        var sut = await (await task()).ToActionOkResultAsync((v) => $"{v} Arc4u");
 
         // assert
         sut.Value.Should().BeNull();
@@ -334,7 +334,7 @@ public class ProblemDetailsTests
         var validation = new ValidatorExample();
         var result = await validation.ValidateWithResultAsync(value);
         // act
-        var sut = await result.ToActionResultAsync();
+        var sut = await result.ToActionOkResultAsync();
 
         // assert
         sut.Value.Should().BeNull();
@@ -360,7 +360,7 @@ public class ProblemDetailsTests
         var validation = new ValidatorExample();
         var result = validation.ValidateWithResult(value);
         // act
-        var sut = await result.ToActionResultAsync();
+        var sut = await result.ToActionOkResultAsync();
 
         // assert
         sut.Value.Should().BeNull();
@@ -386,7 +386,7 @@ public class ProblemDetailsTests
         var result = Result.Fail(ProblemDetailError.Create(detail).WithTitle(title));
 
         // act
-        var sut = await result.ToActionResultAsync();
+        var sut = await result.ToActionOkResultAsync();
 
         // assert
         sut.Should().NotBeNull();
@@ -417,7 +417,7 @@ public class ProblemDetailsTests
             .OnFailed(globalResult);
 
         // act
-        var sut = await globalResult.ToActionResultAsync();
+        var sut = await globalResult.ToActionOkResultAsync();
 
         // assert
         sut.Should().NotBeNull();
@@ -443,7 +443,7 @@ public class ProblemDetailsTests
             .OnFailed(globalResult);
 
         // act
-        var sut = await globalResult.ToActionResultAsync();
+        var sut = await globalResult.ToActionOkResultAsync();
 
         // assert
         sut.Should().NotBeNull();
@@ -469,7 +469,7 @@ public class ProblemDetailsTests
         var result = Result.Ok();
 
         // act
-        var sut = await result.ToActionResultAsync();
+        var sut = await result.ToActionOkResultAsync();
 
         // assert
         sut.Should().BeOfType<OkResult>();
@@ -486,7 +486,7 @@ public class ProblemDetailsTests
         var result = Result.Fail(value);
 
         // act
-        var sut = await result.ToActionResultAsync();
+        var sut = await result.ToActionOkResultAsync();
 
         // assert
         sut.Should().NotBeNull();
@@ -510,7 +510,7 @@ public class ProblemDetailsTests
         var result = validation.ValidateWithResult(value);
 
         // act
-        var sut = await result.ToActionResultAsync();
+        var sut = await result.ToActionOkResultAsync();
 
         // assert
         sut.Should().NotBeNull();

@@ -159,7 +159,7 @@ public static class ProblemDetailsExtension
 //        return objectResult;
 //    }
 
-//    public static async ValueTask<ActionResult<TResult>> ToActionResultAsync<TResult>(this ValueTask<Result<TResult>> result)
+//    public static async ValueTask<ActionResult<TResult>> ToActionOkResultAsync<TResult>(this ValueTask<Result<TResult>> result)
 //    {
 //        var res = await result.ConfigureAwait(false);
 
@@ -175,7 +175,7 @@ public static class ProblemDetailsExtension
 //    /// For an asynchronous method return a Task<Result>, we expect a Task and not a ValueTask.
 //    /// </summary>
 //    /// <return>OkResult or  BadRequestObjectResult<ProblemDetails></return>
-//    public static async Task<ActionResult> ToActionResultAsync(this Task<Result> result)
+//    public static async Task<ActionResult> ToActionOkResultAsync(this Task<Result> result)
 //    {
 //        var res = await result.ConfigureAwait(false);
 //        ActionResult objectResult = res.IsSuccess ? new OkResult() : new BadRequestObjectResult(res.ToProblemDetails());
@@ -183,7 +183,7 @@ public static class ProblemDetailsExtension
 //        return objectResult;
 //    }
 
-//    public static Task<ActionResult<T>> ToActionResultAsync<TResult, T>(this Result<TResult> result, Func<TResult, T> mapper)
+//    public static Task<ActionResult<T>> ToActionOkResultAsync<TResult, T>(this Result<TResult> result, Func<TResult, T> mapper)
 //    {
 //        ActionResult<T> objectResult = new BadRequestResult();
 
@@ -194,7 +194,7 @@ public static class ProblemDetailsExtension
 //        return Task.FromResult(objectResult);
 //    }
 
-//    public static Task<ActionResult<TResult>> ToActionResultAsync<TResult>(this Result<TResult> result)
+//    public static Task<ActionResult<TResult>> ToActionOkResultAsync<TResult>(this Result<TResult> result)
 //    {
 //        ActionResult<TResult> objectResult = new BadRequestResult();
 
@@ -205,7 +205,7 @@ public static class ProblemDetailsExtension
 //        return Task.FromResult(objectResult);
 //    }
 
-//    public static Task<ActionResult> ToActionResultAsync(this Result result)
+//    public static Task<ActionResult> ToActionOkResultAsync(this Result result)
 //    {
 //        ActionResult objectResult = new BadRequestResult();
 
