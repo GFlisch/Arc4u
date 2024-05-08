@@ -107,8 +107,13 @@ public class ProblemDetailsTests
 
         // assert
         sut.Value.Should().BeNull();
+#if NET8_0
+        sut.Result.Should().BeOfType<CreatedResult>();
+        var createdResult = (CreatedResult)sut.Result;
+#else
         sut.Result.Should().BeOfType<ObjectResult>();
         var createdResult = (ObjectResult)sut.Result;
+#endif
         createdResult!.Value.Should().Be($"{value} Arc4u");
         createdResult.StatusCode.Should().Be(StatusCodes.Status201Created);
     }
@@ -241,7 +246,7 @@ public class ProblemDetailsTests
         problem.Status.Should().Be(StatusCodes.Status500InternalServerError);
     }
 
-    #endregion
+#endregion
 
     #region Task<Result>
 
