@@ -38,10 +38,84 @@ public class ProblemDetailsTests
     readonly Fixture _fixture;
 
     #region ValueTask
+
     [Fact]
     [Trait("Category", "CI")]
-    // ValueTask<Result<TResult>> result
-    public async Task Test_ValuTask_Result_To_OnSuccess_With_Mapping_Should()
+    public async Task Test_ValueTask_Result_To_OnSuccess_Created_With_Mapping_Should()
+    {
+        // arrange
+        var value = Guid.NewGuid().ToString();
+        var uri = _fixture.Create<Uri>();
+
+        var result = Result.Ok(value);
+
+        Func<ValueTask<Result<string>>> valueTask = () => ValueTask.FromResult(result);
+
+        // act
+        var sut = await valueTask().ToActionCreatedResultAsync(uri, (v) => $"{v} Arc4u");
+
+        // assert
+        sut.Value.Should().BeNull();
+        sut.Result.Should().BeOfType<CreatedResult>();
+        var createdResult = (CreatedResult)sut.Result;
+        createdResult!.Value.Should().Be($"{value} Arc4u");
+        createdResult.Location.Should().Be(uri.ToString());
+        createdResult.StatusCode.Should().Be(StatusCodes.Status201Created);
+    }
+
+    [Fact]
+    [Trait("Category", "CI")]
+    public async Task Test_ValueTask_Result_To_OnSuccess_Created_With_Uri_Dynamic_With_Mapping_Should()
+    {
+        // arrange
+        var value = Guid.NewGuid().ToString();
+        var uri = new Uri("about:blank");
+        var okUri = _fixture.Create<Uri>();
+
+        var result = Result.Ok(value);
+        
+        Func<ValueTask<Result<string?>>> valueTask = () => ValueTask.FromResult(result);
+
+        // act
+        var sut = await valueTask()
+                        .OnSuccessNotNull((v) => uri = okUri)
+                        .ToActionCreatedResultAsync(uri, (v) => $"{v} Arc4u");
+
+        // assert
+        sut.Value.Should().BeNull();
+        sut.Result.Should().BeOfType<CreatedResult>();
+        var createdResult = (CreatedResult)sut.Result;
+        createdResult!.Value.Should().Be($"{value} Arc4u");
+        createdResult.Location.Should().Be(okUri.ToString());
+        createdResult.StatusCode.Should().Be(StatusCodes.Status201Created);
+    }
+
+    [Fact]
+    [Trait("Category", "CI")]
+    public async Task Test_ValueTask_Result_To_OnSuccess_Created_With_No_Location_With_Mapping_Should()
+    {
+        // arrange
+        var value = Guid.NewGuid().ToString();
+        Uri? uri = null;
+
+        var result = Result.Ok(value);
+
+        Func<ValueTask<Result<string>>> valueTask = () => ValueTask.FromResult(result);
+
+        // act
+        var sut = await valueTask().ToActionCreatedResultAsync(uri, (v) => $"{v} Arc4u");
+
+        // assert
+        sut.Value.Should().BeNull();
+        sut.Result.Should().BeOfType<ObjectResult>();
+        var createdResult = (ObjectResult)sut.Result;
+        createdResult!.Value.Should().Be($"{value} Arc4u");
+        createdResult.StatusCode.Should().Be(StatusCodes.Status201Created);
+    }
+
+    [Fact]
+    [Trait("Category", "CI")]
+    public async Task Test_ValueTask_Result_To_OnSuccess_With_Mapping_Should()
     {
         // arrange
         var value = Guid.NewGuid().ToString();
@@ -62,7 +136,6 @@ public class ProblemDetailsTests
 
     [Fact]
     [Trait("Category", "CI")]
-    // ValueTask<Result<TResult>> result
     public async Task Test_ValueTask_Result_To_OnFailed_Should()
     {
         // arrange
@@ -88,7 +161,6 @@ public class ProblemDetailsTests
 
     [Fact]
     [Trait("Category", "CI")]
-    // ValueTask<Result<TResult>> result
     public async Task Test_ValueTask_Result_To_OnFailed_With_2_Errors_Should()
     {
         // arrange
@@ -123,12 +195,9 @@ public class ProblemDetailsTests
         //problem.Extensions["Code"].Should().Be("100");
     }
 
-
-
     [Fact]
     [Trait("Category", "CI")]
-    // ValueTask<Result<TResult>> result
-    public async Task Test_ValuTask_Result_To_OnSuccess_Without_Mapping_Should()
+    public async Task Test_ValueTask_Result_To_OnSuccess_Without_Mapping_Should()
     {
         // arrange
         var value = Guid.NewGuid().ToString();
@@ -149,7 +218,6 @@ public class ProblemDetailsTests
 
     [Fact]
     [Trait("Category", "CI")]
-    // ValueTask<Result<TResult>> result
     public async Task Test_ValueTask_Result_To_OnFailed_Without_Mapping_Should()
     {
         // arrange
@@ -173,13 +241,12 @@ public class ProblemDetailsTests
         problem.Status.Should().Be(StatusCodes.Status500InternalServerError);
     }
 
-
     #endregion
 
     #region Task<Result>
+
     [Fact]
     [Trait("Category", "CI")]
-    // this Task<Result> result
     public async Task Test_Task_of_Result_To_Fail_Sould()
     {
         // arrange
@@ -205,7 +272,6 @@ public class ProblemDetailsTests
 
     [Fact]
     [Trait("Category", "CI")]
-    // this Task<Result> result
     public async Task Test_Task_of_Result_To_Success_Sould()
     {
         // arrange
@@ -224,9 +290,60 @@ public class ProblemDetailsTests
     #endregion
 
     #region Result<TResult>
+
     [Fact]
     [Trait("Category", "CI")]
-    // Result<TResult>
+    public async Task Test_Result_To_OnSuccess_Created_With_Mapping_Should()
+    {
+        // arrange
+        var value = Guid.NewGuid().ToString();
+        var uri = new Uri("about:blank");
+        var okUri = _fixture.Create<Uri>();
+
+        var result = Result.Ok<string?>(value);
+
+        // act
+        var sut = await result
+                    .OnSuccess(() => uri = okUri)
+                    .ToActionCreatedResultAsync(uri, (v) => $"{v} Arc4u");
+
+        // assert
+        sut.Value.Should().BeNull();
+        sut.Result.Should().BeOfType<CreatedResult>();
+        var createdResult = (CreatedResult)sut.Result;
+        createdResult!.Value.Should().Be($"{value} Arc4u");
+        //createdResult!.Value.Should().Be(value);
+        createdResult.Location.Should().Be(okUri.ToString());
+        createdResult.StatusCode.Should().Be(StatusCodes.Status201Created);
+    }
+
+    [Fact]
+    [Trait("Category", "CI")]
+    public async Task Test_Task_Result_To_OnSuccess_Created_With_Uri_Dynamic_With_Mapping_Should()
+    {
+        // arrange
+        var value = Guid.NewGuid().ToString();
+        var uri = new Uri("about:blank");
+        var okUri = _fixture.Create<Uri>();
+
+        var result = Result.Ok<string?>(value);
+
+        // act
+        var sut = await result
+                            .OnSuccess(() => uri = okUri)
+                            .ToActionCreatedResultAsync(uri, (v) => $"{v} Arc4u");
+
+        // assert
+        sut.Value.Should().BeNull();
+        sut.Result.Should().BeOfType<CreatedResult>();
+        var createdResult = (CreatedResult)sut.Result;
+        createdResult!.Value.Should().Be($"{value} Arc4u");
+        createdResult.Location.Should().Be(okUri.ToString());
+        createdResult.StatusCode.Should().Be(StatusCodes.Status201Created);
+    }
+
+    [Fact]
+    [Trait("Category", "CI")]
     public async Task Test_Result_T_To_OnSuccess_Without_Mapping_Should()
     {
         // arrange
@@ -249,7 +366,6 @@ public class ProblemDetailsTests
 
     [Fact]
     [Trait("Category", "CI")]
-    // Result<TResult>
     public async Task Test_Result_T_To_OnFailed_Without_Mapping_Should()
     {
         // arrange
@@ -275,7 +391,6 @@ public class ProblemDetailsTests
 
     [Fact]
     [Trait("Category", "CI")]
-    // Result<TResult>
     public async Task Test_Result_T_To_OnSuccess_With_Mapping_Should()
     {
         // arrange
@@ -298,7 +413,6 @@ public class ProblemDetailsTests
 
     [Fact]
     [Trait("Category", "CI")]
-    // Result<TResult>
     public async Task Test_Result_T_To_OnFailed_With_Mapping_Should()
     {
         // arrange
@@ -306,10 +420,8 @@ public class ProblemDetailsTests
 
         var result = Result.Fail<string>(value);
 
-        Func<Task<Result<string>>> task = () => Task.FromResult(result);
-
         // act
-        var sut = await (await task()).ToActionOkResultAsync((v) => $"{v} Arc4u");
+        var sut = await result.ToActionOkResultAsync((v) => $"{v} Arc4u");
 
         // assert
         sut.Value.Should().BeNull();
@@ -323,10 +435,8 @@ public class ProblemDetailsTests
         problem.Status.Should().Be(StatusCodes.Status500InternalServerError);
     }
 
-
     [Fact]
     [Trait("Category", "CI")]
-    // Result<TResult>
     public async Task Test_Result_To_OnFailed_With_Validation_Not_Specific_Async_Should()
     {
         // arrange
@@ -352,7 +462,6 @@ public class ProblemDetailsTests
 
     [Fact]
     [Trait("Category", "CI")]
-    // Result<TResult>
     public async Task Test_Result_To_OnFailed_With_Validation_Not_Specific_Should()
     {
         // arrange
@@ -375,9 +484,9 @@ public class ProblemDetailsTests
         problem.Errors.First().Value[0].Should().Be("Error: 'Name' must not be empty.");
         problem.Status.Should().Be(StatusCodes.Status422UnprocessableEntity);
     }
+
     [Fact]
     [Trait("Category", "CI")]
-    // Result<TResult>
     public async Task Test_Result_With_A_ProblemDetails_Should()
     {
         // arrange
@@ -401,7 +510,6 @@ public class ProblemDetailsTests
 
     [Fact]
     [Trait("Category", "CI")]
-    // Result<TResult>
     public async Task Test_Result_With_An_Exception_ProblemDetails_Should()
     {
         // arrange
@@ -431,7 +539,6 @@ public class ProblemDetailsTests
 
     [Fact]
     [Trait("Category", "CI")]
-    // Result<TResult>
     public async Task Test_Result_With_An_Exception_Should()
     {
         // arrange
@@ -455,12 +562,12 @@ public class ProblemDetailsTests
         problem.Title.Should().NotBeEmpty();
         problem.Detail.Should().NotBeEmpty();
     }
+
     #endregion
 
     #region Result
     [Fact]
     [Trait("Category", "CI")]
-    // Result<TResult>
     public async Task Test_Result_To_OnSuccess_Should()
     {
         // arrange
@@ -477,7 +584,6 @@ public class ProblemDetailsTests
 
     [Fact]
     [Trait("Category", "CI")]
-    // Result
     public async Task Test_Result_To_OnFailed_Should()
     {
         // arrange
@@ -501,7 +607,6 @@ public class ProblemDetailsTests
 
     [Fact]
     [Trait("Category", "CI")]
-    // Result
     public async Task Test_Result_To_OnFailed_With_Validation_Specific_Should()
     {
         // arrange
