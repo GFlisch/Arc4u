@@ -107,11 +107,14 @@ public static class ProblemDetailsExtension
     /// For an asynchronous method return a Task<Result>, we expect a Task and not a ValueTask.
     /// </summary>
     /// <return>OkResult or  BadRequestObjectResult<ProblemDetails></return>
-    public static async ValueTask<ActionResult> ToActionOkResultAsync(this Task<Result> result)
+    public static async Task<ActionResult> ToActionOkResultAsync(this Task<Result> result)
     {
         var res = await result.ConfigureAwait(false);
 
-        ActionResult objectResult = res.IsSuccess ? new OkResult() : new ObjectResult(res.ToProblemDetails());
+        ActionResult objectResult = new BadRequestResult();
+
+        res.OnSuccess(() => objectResult = new NoContentResult())
+           .OnFailed(_ => objectResult = new ObjectResult(res.ToProblemDetails()));
 
         return objectResult;
     }
@@ -200,14 +203,14 @@ public static class ProblemDetailsExtension
         return ValueTask.FromResult(objectResult);
     }
 
-    public static ValueTask<ActionResult> ToActionOkResultAsync(this Result result)
+    public static Task<ActionResult> ToActionOkResultAsync(this Result result)
     {
         ActionResult objectResult = new BadRequestResult();
 
-        result.OnSuccess(() => objectResult = new OkResult())
+        result.OnSuccess(() => objectResult = new NoContentResult())
               .OnFailed(_ => objectResult = new ObjectResult(result.ToProblemDetails()));
 
-        return ValueTask.FromResult(objectResult);
+        return Task.FromResult(objectResult);
     }
 #endregion
 

@@ -289,7 +289,7 @@ public class ProblemDetailsTests
 
         // assert
         sut.Should().NotBeNull();
-        sut.Should().BeOfType<OkResult>();
+        sut.Should().BeOfType<NoContentResult>();
     }
 
     #endregion
