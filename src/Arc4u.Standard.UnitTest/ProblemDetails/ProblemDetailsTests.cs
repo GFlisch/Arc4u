@@ -584,7 +584,7 @@ public class ProblemDetailsTests
         var sut = await result.ToActionOkResultAsync();
 
         // assert
-        sut.Should().BeOfType<OkResult>();
+        sut.Should().BeOfType<NoContentResult>();
     }
 
     [Fact]
