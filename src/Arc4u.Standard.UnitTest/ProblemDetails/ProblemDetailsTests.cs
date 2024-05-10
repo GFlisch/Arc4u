@@ -6,7 +6,6 @@ using FluentResults;
 using Arc4u.OAuth2.AspNetCore.Extensions;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using System;
 using FluentValidation;
@@ -135,8 +134,33 @@ public class ProblemDetailsTests
         // assert
         sut.Value.Should().BeNull();
         sut.Result.Should().BeOfType<OkObjectResult>();
-        ((OkObjectResult)sut.Result).Value.Should().Be($"{value} Arc4u");
+        var actionResult = sut.Result as OkObjectResult;
+        actionResult.Should().NotBeNull();
+        actionResult!.Value.Should().Be($"{value} Arc4u");
         
+    }
+
+    [Fact]
+    [Trait("Category", "CI")]
+    public async Task Test_ValueTask_Result_To_OnSuccess_With_Null_Should()
+    {
+        // arrange
+        var value = Guid.NewGuid().ToString();
+
+        var result = Result.Ok<string?>(null);
+
+        Func<ValueTask<Result<string?>>> valueTask = () => ValueTask.FromResult(result);
+
+        // act
+        var sut = await valueTask().ToActionOkResultAsync((v) => $"{v} Arc4u");
+
+        // assert
+        sut.Value.Should().BeNull();
+        sut.Result.Should().BeOfType<OkObjectResult>();
+        var actionResult = sut.Result as OkObjectResult;
+        actionResult.Should().NotBeNull();
+        actionResult!.Value.Should().BeNull();
+
     }
 
     [Fact]

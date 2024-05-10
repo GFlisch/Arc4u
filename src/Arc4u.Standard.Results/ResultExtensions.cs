@@ -36,7 +36,7 @@ public static class ResultExtension
         return result;
     }
 
-    public static Result<TValue?> OnSuccessNull<TValue>(this Result<TValue?> result, Action action)
+    public static Result<TValue> OnSuccessNull<TValue>(this Result<TValue> result, Action action)
     {
         if (result.IsSuccess && result.ValueOrDefault is null)
         {
@@ -107,11 +107,11 @@ public static class ResultExtension
 
         return r;
     }
-    public static async ValueTask<Result<T?>> OnSuccessNullAsync<T>(this ValueTask<Result<T?>> result, Func<Task> func)
+    public static async ValueTask<Result<T>> OnSuccessNullAsync<T>(this ValueTask<Result<T>> result, Func<Task> func)
     {
         var r = await result.ConfigureAwait(false);
 
-        if (r.IsSuccess && r.Value is null)
+        if (r.IsSuccess && r.ValueOrDefault is null)
         {
             await func().ConfigureAwait(false);
         }
@@ -119,7 +119,7 @@ public static class ResultExtension
         return r;
     }
 
-    public static async ValueTask<Result<T?>> OnSuccessNull<T>(this ValueTask<Result<T?>> result, Action func)
+    public static async ValueTask<Result<T>> OnSuccessNull<T>(this ValueTask<Result<T>> result, Action func)
     {
         var r = await result.ConfigureAwait(false);
 
@@ -131,7 +131,7 @@ public static class ResultExtension
         return r;
     }
 
-    public static async ValueTask<Result<T?>> OnSuccessNotNullAsync<T>(this ValueTask<Result<T?>> result, Func<T, Task> func)
+    public static async ValueTask<Result<T>> OnSuccessNotNullAsync<T>(this ValueTask<Result<T>> result, Func<T, Task> func)
     {
         var r = await result.ConfigureAwait(false);
 
@@ -143,7 +143,7 @@ public static class ResultExtension
         return r;
     }
 
-    public static async ValueTask<Result<T?>> OnSuccessNotNull<T>(this ValueTask<Result<T?>> result, Action<T> func)
+    public static async ValueTask<Result<T>> OnSuccessNotNull<T>(this ValueTask<Result<T>> result, Action<T> func)
     {
         var r = await result.ConfigureAwait(false);
 
@@ -275,20 +275,6 @@ public static class ResultExtension
         {
             action(r.Errors);
         }
-        return r;
-    }
-
-    public static async ValueTask<Result<TValue?>> OnNullableFailed<TValue>(this ValueTask<Result<TValue?>> result, [DisallowNull] Result<TValue> globalResult)
-    {
-        ArgumentNullException.ThrowIfNull(globalResult);
-
-        var r = await result.ConfigureAwait(false);
-
-        if (r.IsFailed)
-        {
-            globalResult.WithErrors(result!.Result.Errors);
-        }
-
         return r;
     }
 
