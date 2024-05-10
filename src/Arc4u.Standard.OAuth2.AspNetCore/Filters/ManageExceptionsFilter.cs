@@ -40,25 +40,24 @@ public class ManageExceptionsFilter : IAsyncExceptionFilter
         switch (context.Exception)
         {
             case UnauthorizedAccessException:
-                context.Result = new BadRequestObjectResult(new ProblemDetails()
-                                                                .WithTitle("Unauthorized")
-                                                                .WithDetail("You are not allowed to perform this operation")
-                                                                .WithStatusCode(StatusCodes.Status403Forbidden)
-                                                                .WithSeverity("Error")
-                                                                .WithType(new Uri("https://github.com/GFlisch/Arc4u/wiki/StatusCodes#unauthorized")));
-                context.HttpContext.Response.StatusCode = StatusCodes.Status403Forbidden;
-                context.ExceptionHandled = true;
+                context.Result = new ObjectResult(new ProblemDetails()
+                                                        .WithTitle("Unauthorized")
+                                                        .WithDetail("You are not allowed to perform this operation")
+                                                        .WithStatusCode(StatusCodes.Status403Forbidden)
+                                                        .WithSeverity("Error")
+                                                        .WithType(new Uri("https://github.com/GFlisch/Arc4u/wiki/StatusCodes#unauthorized")));
                 break;
             case AppException appException:
                 context.Result = new BadRequestObjectResult(Messages.FromEnum(appException.Messages.Where(m => m.Category == Arc4u.ServiceModel.MessageCategory.Business)));
+                context.HttpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
                 break;
             default:
-                context.Result = new BadRequestObjectResult(new ProblemDetails()
-                                                                .WithTitle("Unexpected error.")
-                                                                .WithDetail($"A technical error occured, contact the application owner. A message has been logged with id: {activityId}")
-                                                                .WithStatusCode(StatusCodes.Status500InternalServerError)
-                                                                .WithSeverity("Error")
-                                                                .WithType(new Uri("https://github.com/GFlisch/Arc4u/wiki/StatusCodes#unexpected-error")));
+                context.Result = new ObjectResult(new ProblemDetails()
+                                                        .WithTitle("Unexpected error.")
+                                                        .WithDetail($"A technical error occured, contact the application owner. A message has been logged with id: {activityId}")
+                                                        .WithStatusCode(StatusCodes.Status500InternalServerError)
+                                                        .WithSeverity("Error")
+                                                        .WithType(new Uri("https://github.com/GFlisch/Arc4u/wiki/StatusCodes#unexpected-error")));
                 break;
         }
 
