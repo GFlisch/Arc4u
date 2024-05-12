@@ -544,14 +544,14 @@ public class ProblemDetailsTests
         // arrange
         Result<string> globalResult = Result.Ok();
 
-        Func<Task> error = () => throw new DbUpdateException();
+        Func<Task<string>> error = () => throw new DbUpdateException();
 
         var message = _fixture.Create<string>();
         var uri = _fixture.Create<Uri>();
         var title = _fixture.Create<string>();
 
-        Result.Try(() => error(), (ex) => ProblemDetailError.Create(message).WithType(uri).WithTitle(title))
-            .OnFailed(globalResult);
+        await Result.Try(() => error(), (ex) => ProblemDetailError.Create(message).WithType(uri).WithTitle(title))
+                    .OnFailed(globalResult);
 
         // act
         var sut = await globalResult.ToActionOkResultAsync();
@@ -573,10 +573,10 @@ public class ProblemDetailsTests
         // arrange
         Result<string> globalResult = Result.Ok();
 
-        Func<Task> error = () => throw new DbUpdateException();
+        Func<Task<string>> error = () => throw new DbUpdateException();
 
-        Result.Try(() => error())
-            .OnFailed(globalResult);
+        await Result.Try(() => error())
+                    .OnFailed(globalResult);
 
         // act
         var sut = await globalResult.ToActionOkResultAsync();
