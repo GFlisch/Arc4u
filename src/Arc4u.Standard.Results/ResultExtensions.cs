@@ -354,17 +354,6 @@ public static class ResultExtension
 
         return result;
     }
-    public static Result<TValue> OnFailed<TValue, TGlobal>(this Result<TValue> result, [DisallowNull] Result<TGlobal> globalResult)
-    {
-        ArgumentNullException.ThrowIfNull(globalResult);
-
-        if (result.IsFailed)
-        {
-            globalResult.WithErrors(result.Errors);
-        }
-
-        return result;
-    }
     public static Result<TValue> OnFailed<TValue>(this Result<TValue> result, Action<List<IError>> action)
     {
         if (result.IsFailed)
@@ -447,17 +436,6 @@ public static class ResultExtension
 
         return r;
     }
-    public static async Task<Result<TValue>> OnFailed<TValue, TGlobal>(this Task<Result<TValue>> result, Result<TGlobal> globalResult)
-    {
-        var r = await result.ConfigureAwait(false);
-
-        if (r.IsFailed)
-        {
-            globalResult.WithErrors(result!.Result.Errors);
-        }
-
-        return r;
-    }
     public static async Task<Result<TValue>> OnFailed<TValue>(this Task<Result<TValue>> result, Action<List<IError>> action)
     {
         var r = await result.ConfigureAwait(false);
@@ -479,20 +457,6 @@ public static class ResultExtension
     }
 
     public static async ValueTask<Result> OnFailed(this ValueTask<Result> result, [DisallowNull] Result globalResult)
-    {
-        ArgumentNullException.ThrowIfNull(globalResult);
-        ArgumentNullException.ThrowIfNull(result);
-
-        var r = await result.ConfigureAwait(false);
-
-        if (r.IsFailed)
-        {
-            globalResult.WithErrors(r.Errors);
-        }
-
-        return r;
-    }
-    public static async ValueTask<Result> OnFailed<TGlobal>(this ValueTask<Result> result, [DisallowNull] Result<TGlobal> globalResult)
     {
         ArgumentNullException.ThrowIfNull(globalResult);
         ArgumentNullException.ThrowIfNull(result);
@@ -541,17 +505,6 @@ public static class ResultExtension
         return r;
     }
     public static async ValueTask<Result<TValue>> OnFailed<TValue>(this ValueTask<Result<TValue>> result, Result<TValue> globalResult)
-    {
-        var r = await result.ConfigureAwait(false);
-
-        if (r.IsFailed)
-        {
-            globalResult.WithErrors(result!.Result.Errors);
-        }
-
-        return r;
-    }
-    public static async ValueTask<Result<TValue>> OnFailed<TValue, TGlobal>(this ValueTask<Result<TValue>> result, Result<TGlobal> globalResult) 
     {
         var r = await result.ConfigureAwait(false);
 

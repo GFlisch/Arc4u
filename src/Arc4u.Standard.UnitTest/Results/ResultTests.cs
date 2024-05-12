@@ -176,11 +176,11 @@ public class ResultTests
     [Trait("Category", "CI")]
     public async Task Test_ValueTask_Log_If_Failed_Should()
     {
-        var result = ValueTask.FromResult(Result.Fail<string>(""));
+        var result = ValueTask.FromResult(Result.Fail<Guid>(""));
         Result<string> globalResult = Result.Ok();
 
         var sut = await result.LogIfFailed()
-                              .OnFailed<string>(globalResult);
+                              .OnFailed((errors) => globalResult.WithErrors(errors));
                                 
 
         sut.Should().BeSameAs(result.Result);
