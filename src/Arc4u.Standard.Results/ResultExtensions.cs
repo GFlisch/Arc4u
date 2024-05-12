@@ -551,7 +551,7 @@ public static class ResultExtension
 
         return r;
     }
-    public static async ValueTask<Result<TValue>> OnFailed<TValue, TGlobal>(this ValueTask<Result<TValue>> result, Result<TGlobal> globalResult)
+    public static async ValueTask<Result<TValue>> OnFailed<TValue, TGlobal>(this ValueTask<Result<TValue>> result, Result<TGlobal> globalResult) 
     {
         var r = await result.ConfigureAwait(false);
 

@@ -180,7 +180,7 @@ public class ResultTests
         Result<string> globalResult = Result.Ok();
 
         var sut = await result.LogIfFailed()
-                              .OnFailed(globalResult);
+                              .OnFailed<string>(globalResult);
                                 
 
         sut.Should().BeSameAs(result.Result);

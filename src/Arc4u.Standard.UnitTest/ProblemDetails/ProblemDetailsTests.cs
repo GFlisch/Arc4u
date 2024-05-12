@@ -551,7 +551,7 @@ public class ProblemDetailsTests
         var title = _fixture.Create<string>();
 
         await Result.Try(() => error(), (ex) => ProblemDetailError.Create(message).WithType(uri).WithTitle(title))
-                    .OnFailed(globalResult);
+                    .OnFailed<string>(globalResult);
 
         // act
         var sut = await globalResult.ToActionOkResultAsync();
@@ -576,7 +576,7 @@ public class ProblemDetailsTests
         Func<Task<string>> error = () => throw new DbUpdateException();
 
         await Result.Try(() => error())
-                    .OnFailed(globalResult);
+                    .OnFailed<string>(globalResult);
 
         // act
         var sut = await globalResult.ToActionOkResultAsync();
