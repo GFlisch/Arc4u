@@ -116,7 +116,7 @@ public class ScopeTest
         using (new Scope<String>("Hello"))
         {
             var testThread = Environment.CurrentManagedThreadId;
-            var awaitThread = await GetManageThreadIdAsync().ConfigureAwait(false);
+            var awaitThread = await GetManageThreadIdAsync();
 
             Assert.False(testThread == awaitThread);
             Assert.Equal("Hello", Scope<String>.Current);
