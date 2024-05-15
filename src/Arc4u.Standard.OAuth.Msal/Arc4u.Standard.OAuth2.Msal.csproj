@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup Label="Globals">
     <SccProjectName>SAK</SccProjectName>
     <SccProvider>SAK</SccProvider>
@@ -21,6 +21,7 @@
     </PackageLicenseExpression>
     <Description>Core Framework used to connect application with OAuth2 and Msal.</Description>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageIcon>Arc4u.png</PackageIcon>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Arc4u</PackageTags>
     <PackageId>Arc4u.Standard.OAuth2.Msal</PackageId>
@@ -47,6 +48,10 @@
       <Pack>True</Pack>
       <PackagePath>
       </PackagePath>
+    </None>
+    <None Include="..\..\Arc4u.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
 </Project>

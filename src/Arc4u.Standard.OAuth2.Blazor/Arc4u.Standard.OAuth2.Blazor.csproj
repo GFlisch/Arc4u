@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+<Project Sdk="Microsoft.NET.Sdk.Razor">
   <PropertyGroup>
     <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
     <RootNamespace>Arc4u.Blazor</RootNamespace>
@@ -9,6 +9,7 @@
     <Description>OAuth2 scenario for Blazor.</Description>
     <Copyright>Gilles Flisch</Copyright>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageIcon>Arc4u.png</PackageIcon>
     <PackageProjectUrl>https://github.com/GFlisch/Arc4u</PackageProjectUrl>
     <RepositoryUrl>https://github.com/GFlisch/Arc4u</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
@@ -39,6 +40,10 @@
       <Pack>True</Pack>
       <PackagePath>
       </PackagePath>
+    </None>
+    <None Include="..\..\Arc4u.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
   <ItemGroup>

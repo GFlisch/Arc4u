@@ -6,6 +6,7 @@
     <Description>Core Framework to use EfCore.</Description>
     <Copyright>Gilles Flisch</Copyright>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageIcon>Arc4u.png</PackageIcon>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/GFlisch/Arc4u</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
@@ -40,6 +41,10 @@
       <Pack>True</Pack>
       <PackagePath>
       </PackagePath>
+    </None>
+    <None Include="..\..\Arc4u.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
 </Project>

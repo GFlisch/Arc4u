@@ -14,6 +14,7 @@
     <RootNamespace>Arc4u.Dependency.ComponentModel</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageIcon>Arc4u.png</PackageIcon>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Arc4u</PackageTags>
     <Description>Let you use .Net Core DI.</Description>
@@ -34,6 +35,10 @@
       <Pack>True</Pack>
       <PackagePath>
       </PackagePath>
+    </None>
+    <None Include="..\..\Arc4u.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
 </Project>

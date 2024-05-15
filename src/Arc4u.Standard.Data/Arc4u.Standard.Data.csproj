@@ -22,6 +22,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>Arc4u</PackageTags>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageIcon>Arc4u.png</PackageIcon>
     <Description>DataEntity core framework.</Description>
     <LangVersion>latest</LangVersion>
     <PackageId>Arc4u.Standard.Data</PackageId>
@@ -38,6 +39,10 @@
       <Pack>True</Pack>
       <PackagePath>
       </PackagePath>
+    </None>
+    <None Include="..\..\Arc4u.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
 </Project>

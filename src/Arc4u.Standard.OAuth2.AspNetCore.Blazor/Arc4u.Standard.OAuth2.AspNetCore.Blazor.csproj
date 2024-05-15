@@ -6,6 +6,7 @@
     <Description>Package used on FaÃ§ade projects to add OpenId endpoint to Blazor projects.</Description>
     <Copyright>Gilles Flisch</Copyright>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageIcon>Arc4u.png</PackageIcon>
     <PackageProjectUrl>https://github.com/GFlisch/Arc4u</PackageProjectUrl>
     <RepositoryUrl>https://github.com/GFlisch/Arc4u</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
@@ -23,6 +24,10 @@
       <Pack>True</Pack>
       <PackagePath>
       </PackagePath>
+    </None>
+    <None Include="..\..\Arc4u.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
   <ItemGroup>

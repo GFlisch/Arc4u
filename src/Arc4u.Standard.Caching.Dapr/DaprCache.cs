@@ -1,9 +1,7 @@
-using Arc4u.Configuration;
 using Arc4u.Configuration.Dapr;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Dapr.Client;
-using Google.Api;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;

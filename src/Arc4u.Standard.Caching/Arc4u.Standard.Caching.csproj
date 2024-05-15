@@ -19,6 +19,7 @@
     <PackageLicenseExpression>
     </PackageLicenseExpression>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageIcon>Arc4u.png</PackageIcon>
     <Description>Core Framework used to use caching.</Description>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Arc4u</PackageTags>
@@ -50,6 +51,10 @@
       <Pack>True</Pack>
       <PackagePath>
       </PackagePath>
+    </None>
+    <None Include="..\..\Arc4u.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
 </Project>

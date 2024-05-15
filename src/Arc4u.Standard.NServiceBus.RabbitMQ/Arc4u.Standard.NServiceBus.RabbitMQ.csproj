@@ -19,8 +19,9 @@
     <PackageLicenseExpression>
     </PackageLicenseExpression>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageIcon>Arc4u.png</PackageIcon>
     <RepositoryType>git</RepositoryType>
-    <PackageTags>Arv4u</PackageTags>
+    <PackageTags>Arc4u</PackageTags>
     <Description>Core Framework used to connect application with RabbitMQ.</Description>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <LangVersion>latest</LangVersion>
@@ -45,6 +46,10 @@
       <Pack>True</Pack>
       <PackagePath>
       </PackagePath>
+    </None>
+    <None Include="..\..\Arc4u.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
 </Project>

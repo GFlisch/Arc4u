@@ -23,6 +23,7 @@
     <PackageTags>Arc4u</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageIcon>Arc4u.png</PackageIcon>
     <LangVersion>latest</LangVersion>
     <PackageId>Arc4u.Standard</PackageId>
     <RootNamespace>$(MSBuildProjectName.Replace(" ", "_").Replace(".Standard", ""))</RootNamespace>
@@ -36,9 +37,12 @@
     <None Remove="Threading\**" />
     <None Include="..\..\LICENSE">
       <Pack>True</Pack>
-      <PackagePath>
-      </PackagePath>
+      <PackagePath>\</PackagePath>
     </None>
+    <None Include="..\..\Arc4u.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>    
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
