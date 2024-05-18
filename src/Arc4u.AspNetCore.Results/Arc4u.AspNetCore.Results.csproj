@@ -10,17 +10,6 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\LICENSE">
-      <Pack>True</Pack>
-      <PackagePath>
-      </PackagePath>
-    </None>
-    <None Include="..\..\Arc4u.png">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Arc4u.Standard.Results\Arc4u.Standard.Results.csproj" />
   </ItemGroup>
 </Project>

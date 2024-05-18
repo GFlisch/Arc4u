@@ -3,17 +3,6 @@
     <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
     <PackageId>Arc4u.Standard.Configuration.Decryptor</PackageId>
   </PropertyGroup>
-  <ItemGroup>
-    <None Include="..\..\LICENSE">
-      <Pack>True</Pack>
-      <PackagePath>
-      </PackagePath>
-    </None>
-    <None Include="..\..\Arc4u.png">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-  </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.0" />
   </ItemGroup>

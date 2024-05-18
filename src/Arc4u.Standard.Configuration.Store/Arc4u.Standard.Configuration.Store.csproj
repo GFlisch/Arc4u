@@ -12,17 +12,6 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" Condition="'$(TargetFramework)' == 'net8.0'" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\LICENSE">
-      <Pack>True</Pack>
-      <PackagePath>
-      </PackagePath>
-    </None>
-    <None Include="..\..\Arc4u.png">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Arc4u.Standard.Configuration\Arc4u.Standard.Configuration.csproj" />
   </ItemGroup>
 

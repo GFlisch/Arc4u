@@ -5,24 +5,11 @@
     <PackageId>Arc4u.Standard.Results</PackageId>
     <Description>FLuentResult with fluent validators dedicated for Arc4u.</Description>
   </PropertyGroup>
-  <ItemGroup>
-    <None Include="..\..\LICENSE">
-      <Pack>True</Pack>
-      <PackagePath>
-      </PackagePath>
-    </None>
-    <None Include="..\..\Arc4u.png">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-  </ItemGroup>
-
 
   <ItemGroup>
     <PackageReference Include="FluentValidation" Version="11.9.1" />
     <PackageReference Include="FluentResults" Version="3.15.*" />
   </ItemGroup>
-
 
   <ItemGroup>
     <ProjectReference Include="..\Arc4u.Standard.Diagnostics\Arc4u.Standard.Diagnostics.csproj" />

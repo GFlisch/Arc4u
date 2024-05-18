@@ -9,16 +9,6 @@
     <Compile Remove="Threading\**" />
     <EmbeddedResource Remove="Properties\**" />
     <EmbeddedResource Remove="Threading\**" />
-    <None Remove="Properties\**" />
-    <None Remove="Threading\**" />
-    <None Include="..\..\LICENSE">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-    <None Include="..\..\Arc4u.png">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>    
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
