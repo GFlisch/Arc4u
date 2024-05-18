@@ -202,8 +202,7 @@ jobs:
         run: dotnet restore .\src\arc4u.sln
  
       - name: build
-        # run: msbuild .\src\arc4u.sln /p:configuration=${{env.buildConfiguration}}
-        run: dotnet build .\src\arc4u.sln --configuration ${{env.buildConfiguration}} 
+        run: dotnet build .\src\arc4u.sln --configuration ${{env.buildConfiguration}} /p:Version=${{env.netStandardVersionNuget}}
  
       - name: Run Test projects matching *UnitTest.csproj with filter Category = CI
         run: |
