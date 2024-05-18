@@ -1,4 +1,3 @@
-using System;
 using Arc4u.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 

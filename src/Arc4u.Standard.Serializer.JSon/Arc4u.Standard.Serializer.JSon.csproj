@@ -1,27 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net6.0;net8.0</TargetFrameworks>
-    <RootNamespace>Arc4u.Serializer.Json</RootNamespace>
-    <Description>Cross platform JSon serializer.</Description>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.0</FileVersion>
-    <Version>0.0.0.0</Version>
-    <Authors>Gilles Flisch</Authors>
-    <Company>Gilles Flisch</Company>
-    <Copyright>Gilles Flisch</Copyright>
-    <PackageProjectUrl>https://github.com/GFlisch/Arc4u</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/GFlisch/Arc4u</RepositoryUrl>
-    <PackageLicenseExpression>
-    </PackageLicenseExpression>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageIcon>Arc4u.png</PackageIcon>
-    <RepositoryType>git</RepositoryType>
-    <PackageTags>Arc4u</PackageTags>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <UserSecretsId>3ecd0e40-959a-4d12-9006-ea8e522d4025</UserSecretsId>
-    <LangVersion>latest</LangVersion>
     <PackageId>Arc4u.Standard.Serializer.JSon</PackageId>
-    <RootNamespace>$(MSBuildProjectName.Replace(" ", "_").Replace(".Standard", ""))</RootNamespace>
+    <Description>Cross platform JSon serializer.</Description>
+    <UserSecretsId>3ecd0e40-959a-4d12-9006-ea8e522d4025</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\..\LICENSE">
