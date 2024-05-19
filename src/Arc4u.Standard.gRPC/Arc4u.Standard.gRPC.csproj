@@ -2,7 +2,6 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net6.0;net8.0</TargetFrameworks>
     <PackageId>Arc4u.Standard.gRPC</PackageId>
-    <Description>Core Framework to use gRPC.</Description>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Grpc.Core.Api" Version="2.*" />

@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
     <PackageId>Arc4u.Standard.Results</PackageId>
-    <Description>FLuentResult with fluent validators dedicated for Arc4u.</Description>
   </PropertyGroup>
 
   <ItemGroup>

@@ -2,7 +2,6 @@
   <PropertyGroup>
     <TargetFrameworks>net6.0</TargetFrameworks>
     <PackageId>Arc4u.Standard.OAuth2.AspNetCore.Adal</PackageId>
-    <Description>Core Framework used to connect application with OAuth2 with Adal.</Description>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.IdentityModel.Clients.ActiveDirectory" Version="5.3.0" />

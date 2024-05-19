@@ -2,7 +2,6 @@
   <PropertyGroup>
     <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
     <PackageId>Arc4u.Standard.OAuth2.AspNetCore</PackageId>
-    <Description>Core framework to integrate OAuth2 and creation of the principal in asp net core.</Description>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

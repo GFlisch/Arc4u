@@ -2,7 +2,6 @@
   <PropertyGroup>
     <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
     <PackageId>Arc4u.Standard.OAuth2.AspNetCore.Blazor</PackageId>
-    <Description>Package used on FaÃ§ade projects to add OpenId endpoint to Blazor projects.</Description>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Arc4u.Standard.OAuth2.AspNetCore.Api\Arc4u.Standard.OAuth2.AspNetCore.Api.csproj" />

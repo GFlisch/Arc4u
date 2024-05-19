@@ -2,7 +2,6 @@
   <PropertyGroup>
     <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
     <PackageId>Arc4u.Standard.EfCore</PackageId>
-    <Description>Core Framework to use EfCore.</Description>
   </PropertyGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.0" />

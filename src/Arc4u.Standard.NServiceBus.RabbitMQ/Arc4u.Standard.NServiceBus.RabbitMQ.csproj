@@ -2,7 +2,6 @@
   <PropertyGroup>
     <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
     <PackageId>Arc4u.Standard.NServiceBus.RabbitMQ</PackageId>
-    <Description>Core Framework used to connect application with RabbitMQ.</Description>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="NServiceBus.RabbitMQ" Version="6.1.6" />

@@ -2,8 +2,6 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net6.0;net8.0</TargetFrameworks>
     <PackageId>Arc4u.Standard.Serializer.JSon</PackageId>
-    <Description>Cross platform JSon serializer.</Description>
-    <UserSecretsId>3ecd0e40-959a-4d12-9006-ea8e522d4025</UserSecretsId>
   </PropertyGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
     <PackageReference Include="System.Text.Json" Version="6.0.8" />

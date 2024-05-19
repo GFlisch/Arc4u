@@ -2,7 +2,6 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net6.0;net8.0</TargetFrameworks>
     <PackageId>Arc4u.Standard.Diagnostics.Serilog</PackageId>
-    <Description>Add Serilog logging functionality tool.</Description>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Serilog" Version="3.1.1" />

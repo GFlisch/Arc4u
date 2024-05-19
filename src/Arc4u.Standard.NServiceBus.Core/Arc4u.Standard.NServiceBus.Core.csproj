@@ -2,7 +2,6 @@
   <PropertyGroup>
     <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
     <PackageId>Arc4u.Standard.NServiceBus.Core</PackageId>
-    <Description>NServiceBus AspNet Core implementation</Description>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="NServiceBus" Version="7.8.0" />

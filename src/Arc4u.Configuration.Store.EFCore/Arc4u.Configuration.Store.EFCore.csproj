@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
-    <Description>Core Framework to read configuration from EfCore.</Description>
     <PackageId>Arc4u.Configuration.Store.EfCore</PackageId>
   </PropertyGroup>
   <ItemGroup>

@@ -2,7 +2,6 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.1</TargetFrameworks>
     <PackageId>Arc4u.Standard.Diagnostics.Serilog.Sinks.RealmDb</PackageId>
-    <Description>Arc4u Diagnostics Serilog Sink to RealmDB</Description>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="12.0.1" />
@@ -11,6 +10,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Arc4u.Standard.Diagnostics.Serilog\Arc4u.Standard.Diagnostics.Serilog.csproj" />
+    <ProjectReference Include="..\Arc4u.Standard.Diagnostics.TraceListeners\Arc4u.Standard.Diagnostics.TraceListeners.csproj" />
     <ProjectReference Include="..\Arc4u.Standard.Diagnostics\Arc4u.Standard.Diagnostics.csproj" />
     <ProjectReference Include="..\Arc4u.Standard\Arc4u.Standard.csproj" />
   </ItemGroup>

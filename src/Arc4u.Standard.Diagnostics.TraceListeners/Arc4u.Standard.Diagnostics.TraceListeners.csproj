@@ -2,7 +2,6 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <PackageId>Arc4u.Standard.Diagnostics.TraceListeners</PackageId>
-    <Description>Core Tracelisteners Diagnostics Framework used to log information via Tracing.</Description>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Arc4u.Standard.Diagnostics\Arc4u.Standard.Diagnostics.csproj" />

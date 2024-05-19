@@ -2,7 +2,6 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
     <PackageId>Arc4u.Standard.Serializer.Protobuf</PackageId>
-    <Description>Cross platform protobuf serializer.</Description>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="protobuf-net" Version="3.2.30" />

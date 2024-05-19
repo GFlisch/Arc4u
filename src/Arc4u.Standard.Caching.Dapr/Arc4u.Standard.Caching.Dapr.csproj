@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
-    <Description>Core Framework used to use dapr.io state.</Description>
     <PackageId>Arc4u.Standard.Caching.Dapr</PackageId>
   </PropertyGroup>
   <ItemGroup>

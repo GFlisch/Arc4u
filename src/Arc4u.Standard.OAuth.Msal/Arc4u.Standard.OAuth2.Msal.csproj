@@ -2,7 +2,6 @@
   <PropertyGroup>
     <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
     <PackageId>Arc4u.Standard.OAuth2.Msal</PackageId>
-    <Description>Core Framework used to connect application with OAuth2 and Msal.</Description>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Identity.Client" Version="4.61.0" />
