@@ -16,11 +16,9 @@
     <Copyright>Gilles Flisch</Copyright>
     <PackageProjectUrl>https://github.com/GFlisch/Arc4u</PackageProjectUrl>
     <RepositoryUrl>https://github.com/GFlisch/Arc4u</RepositoryUrl>
-    <PackageLicenseExpression>
-    </PackageLicenseExpression>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Description>Core Diagnostics Framework used to build application.</Description>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageIcon>Arc4u.png</PackageIcon>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Arc4u</PackageTags>

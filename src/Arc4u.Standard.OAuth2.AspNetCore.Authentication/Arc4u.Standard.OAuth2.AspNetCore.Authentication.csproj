@@ -14,7 +14,7 @@
     <Company>Gilles Flisch</Company>
     <Description>Core framework to integrate OAuth2 and OpenIdConnect in a service.</Description>
     <Copyright>Gilles Flisch</Copyright>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageIcon>Arc4u.png</PackageIcon>
     <PackageProjectUrl>https://github.com/GFlisch/Arc4u</PackageProjectUrl>
     <RepositoryUrl>https://github.com/GFlisch/Arc4u</RepositoryUrl>
