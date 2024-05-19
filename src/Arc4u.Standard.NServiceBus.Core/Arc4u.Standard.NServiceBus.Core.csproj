@@ -12,11 +12,9 @@
     <Copyright>Gilles Flisch</Copyright>
     <PackageProjectUrl>https://github.com/GFlisch/Arc4u</PackageProjectUrl>
     <RepositoryUrl>https://github.com/GFlisch/Arc4u</RepositoryUrl>
-    <PackageLicenseExpression>
-    </PackageLicenseExpression>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageTags>Arc4u</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageIcon>Arc4u.png</PackageIcon>
     <LangVersion>latest</LangVersion>
     <PackageId>Arc4u.Standard.NServiceBus.Core</PackageId>

@@ -6,10 +6,10 @@
     <Authors>Gilles Flisch</Authors>
     <Description>Package used on Interface and Facade projects to return ProblemDetails based on Results.</Description>
     <Copyright>Gilles Flisch</Copyright>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageIcon>Arc4u.png</PackageIcon>
     <PackageProjectUrl>https://github.com/GFlisch/Arc4u</PackageProjectUrl>
     <RepositoryUrl>https://github.com/GFlisch/Arc4u</RepositoryUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Arc4u</PackageTags>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
