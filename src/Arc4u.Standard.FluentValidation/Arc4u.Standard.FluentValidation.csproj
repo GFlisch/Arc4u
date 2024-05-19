@@ -8,7 +8,7 @@
     <Company>Gilles Flisch</Company>
     <Description>FluentValidation validators dedicated for Arc4u.</Description>
     <Copyright>Gilles Flisch</Copyright>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageLicenseFile>Apache-2.0</PackageLicenseFile>
     <PackageIcon>Arc4u.png</PackageIcon>
     <PackageProjectUrl>https://github.com/GFlisch/Arc4u</PackageProjectUrl>
     <RepositoryUrl>https://github.com/GFlisch/Arc4u</RepositoryUrl>

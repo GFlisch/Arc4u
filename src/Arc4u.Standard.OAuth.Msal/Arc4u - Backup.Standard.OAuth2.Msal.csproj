@@ -20,7 +20,7 @@
     <PackageLicenseExpression>
     </PackageLicenseExpression>
     <Description>Core Framework used to connect application with OAuth2 and Msal.</Description>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageLicenseFile>Apache-2.0</PackageLicenseFile>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Arc4u</PackageTags>
     <PackageId>Arc4u.Standard.OAuth2.Msal</PackageId>

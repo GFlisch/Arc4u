@@ -18,7 +18,7 @@
     <RepositoryUrl>https://github.com/GFlisch/Arc4u</RepositoryUrl>
     <PackageLicenseExpression>
     </PackageLicenseExpression>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageLicenseFile>Apache-2.0</PackageLicenseFile>
     <PackageIcon>Arc4u.png</PackageIcon>
     <Description>Core Framework used to use caching.</Description>
     <RepositoryType>git</RepositoryType>

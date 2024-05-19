@@ -21,7 +21,7 @@
     </PackageLicenseExpression>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Arc4u</PackageTags>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageLicenseFile>Apache-2.0</PackageLicenseFile>
     <PackageIcon>Arc4u.png</PackageIcon>
     <Description>DataEntity core framework.</Description>
     <LangVersion>latest</LangVersion>

@@ -15,7 +15,7 @@
     </PackageLicenseExpression>
     <Authors>Gilles Flisch</Authors>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageLicenseFile>Apache-2.0</PackageLicenseFile>
     <PackageIcon>Arc4u.png</PackageIcon>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Arc4u</PackageTags>

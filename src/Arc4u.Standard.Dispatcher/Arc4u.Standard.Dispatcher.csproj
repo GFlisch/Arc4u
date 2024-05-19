@@ -25,7 +25,7 @@
     </PackageLicenseExpression>
     <PackageTags>Arc4u</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageLicenseFile>Apache-2.0</PackageLicenseFile>
     <PackageIcon>Arc4u.png</PackageIcon>
     <LangVersion>latest</LangVersion>
     <PackageId>Arc4u.Standard.Dispatcher</PackageId>

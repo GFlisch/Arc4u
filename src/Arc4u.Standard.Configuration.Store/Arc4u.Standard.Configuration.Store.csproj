@@ -7,7 +7,7 @@
     <Authors>Gilles Flisch</Authors>
     <Description>Core Framework to read configuration from EfCore.</Description>
     <Copyright>Gilles Flisch</Copyright>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageLicenseFile>Apache-2.0</PackageLicenseFile>
     <PackageIcon>Arc4u.png</PackageIcon>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/GFlisch/Arc4u</RepositoryUrl>

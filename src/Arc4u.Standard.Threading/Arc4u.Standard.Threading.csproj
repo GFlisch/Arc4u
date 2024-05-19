@@ -20,7 +20,7 @@
     </PackageLicenseExpression>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Description>Core threading Framework used to build application.</Description>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageLicenseFile>Apache-2.0</PackageLicenseFile>
     <PackageIcon>Arc4u.png</PackageIcon>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Arc4u</PackageTags>
