@@ -81,31 +81,22 @@ public static class ProblemDetailExtension
 
     public static ProblemDetails ToGenericMessage(this Result result, string? activityId)
     {
-        if (result.IsFailed)
+        result.LogIfFailed();
+
+        if (activityId is not null)
         {
-            result.Log();
-
-            if (activityId is not null)
-            {
-                return new ProblemDetails()
-                    .WithTitle("A technical error occured!")
-                    .WithDetail($"Contact the application owner. A message has been logged with id: {activityId}.")
-                    .WithType(new Uri("about:blank"))
-                    .WithStatusCode(StatusCodes.Status500InternalServerError);
-            }
-
             return new ProblemDetails()
-                    .WithTitle("A technical error occured!")
-                    .WithDetail("Contact the application owner. A message has been logged.")
-                    .WithType(new Uri("about:blank"))
-                    .WithStatusCode(StatusCodes.Status500InternalServerError);
+                .WithTitle("A technical error occured!")
+                .WithDetail($"Contact the application owner. A message has been logged with id: {activityId}.")
+                .WithType(new Uri("about:blank"))
+                .WithStatusCode(StatusCodes.Status500InternalServerError);
         }
 
         return new ProblemDetails()
-            .WithTitle("A technical error occured!")
-            .WithDetail("Contact the application owner.")
-            .WithType(new Uri("about:blank"))
-            .WithStatusCode(StatusCodes.Status500InternalServerError);
+                .WithTitle("A technical error occured!")
+                .WithDetail("Contact the application owner. A message has been logged.")
+                .WithType(new Uri("about:blank"))
+                .WithStatusCode(StatusCodes.Status500InternalServerError);
 
     }
 
@@ -131,7 +122,6 @@ public static class ProblemDetailExtension
         // Generate a generic message and log! No sensitive information can be sent outside directly to a user =. vulnerabilities.
         if (result.IsFailed && result.Errors.OfType<IExceptionalError>().Any())
         {
-            result.Log();
             return result.ToGenericMessage();
         }
         
@@ -161,7 +151,6 @@ public static class ProblemDetailExtension
 
         if (result.IsFailed && result.Errors.OfType<IExceptionalError>().Any())
         {
-            result.Log();
             return result.ToGenericMessage();
         }
 

@@ -31,3 +31,22 @@ var problemDetails = new ProblemDetails()
 The method WithType asks for a Uri to be sure that the type is referring to a url.
 
 
+## From Results to ProblemDetails
+
+As it is a common scenario to return a ProblemDetails from an action, this package provides extension methods to convert the results to ProblemDetails.
+
+Different scenarios are covered:
+- ToGenericMessage: Converts a result to a ProblemDetails with a generic message saying the information is logged.
+- ToProblemDetails: Converts a result to a ProblemDetails or a generic one if the errors contain at least one exception.
+
+The developers will generaly not used the ToGenericMessage method, but it is used by the ToProblemDetails method, the ToProblemDetails method is taking care to manage this to a generic message if any exception(s) are part of the error messages collection.
+
+A default Function implementation exists to convert an exception to a ProblemDetails, but it is possible to provide a custom implementation.
+Just use the static method 'SetFromErrorFactory(Func<IEnumerable<IError>, ProblemDetails> fromErrors)' to set your custom implementation.
+
+The Arc4u framework covers the following Error types:
+- IExceptionalError => will result in a Generic message.
+- ProblemDetailsError => will be converted to a ProblemDetails.
+- ValidationError => will be converted to a ValidationProblemDetails.
+
+If you have your own error type, you can implement the IError interface and provide a custom implementation to convert it to a ProblemDetails.
