@@ -1,12 +1,10 @@
-using FluentResults;
-using Microsoft.AspNetCore.Mvc;
 using Arc4u.Results;
+using FluentResults;
 using Microsoft.AspNetCore.Http;
-//using Microsoft.AspNetCore.Http.HttpResults;
-//using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
-namespace Arc4u.OAuth2.AspNetCore.Extensions;
-public static class ProblemDetailsExtension
+namespace Arc4u.AspNetCore.Results;
+public static class FromResultToActionResultExtension
 {
     #region ActionResult
 
@@ -26,7 +24,7 @@ public static class ProblemDetailsExtension
 
     public static async ValueTask<ActionResult<TResult>> ToActionOkResultAsync<TResult>(this ValueTask<Result<TResult>> result, Func<StatusCodeResult>? nullCode = null)
     {
-        return await ToActionOkResultAsync<TResult,TResult>(result, null, nullCode).ConfigureAwait(false);
+        return await result.ToActionOkResultAsync<TResult, TResult>(null, nullCode).ConfigureAwait(false);
     }
 
     public static async ValueTask<ActionResult<T>> ToActionCreatedResultAsync<TResult, T>(this ValueTask<Result<TResult>> result, Uri? location, Func<TResult, T>? mapper = null, Func<StatusCodeResult>? nullCode = null)
@@ -52,7 +50,7 @@ public static class ProblemDetailsExtension
                     objectResult = new CreatedResult(location, mapper is null ? value : mapper(value!));
                 }
             })
-                                                                
+
 #endif
             .OnSuccessNull(() => objectResult = null == nullCode ? new OkObjectResult(null) : nullCode())
             .OnFailed(errors => objectResult = new ObjectResult(res.ToProblemDetails()));
@@ -62,7 +60,7 @@ public static class ProblemDetailsExtension
 
     public static async ValueTask<ActionResult<TResult>> ToActionCreatedResultAsync<TResult>(this ValueTask<Result<TResult>> result, Uri? location, Func<StatusCodeResult>? nullCode = null)
     {
-        return await ToActionCreatedResultAsync<TResult, TResult>(result, location, null, nullCode).ConfigureAwait(false);
+        return await result.ToActionCreatedResultAsync<TResult, TResult>(location, null, nullCode).ConfigureAwait(false);
     }
 
     // this Task<Result<T>>
@@ -81,7 +79,7 @@ public static class ProblemDetailsExtension
 
     public static async ValueTask<ActionResult<TResult>> ToActionOkResultAsync<TResult>(this Task<Result<TResult>> result, Func<StatusCodeResult>? nullCode = null)
     {
-        return await ToActionOkResultAsync<TResult, TResult>(result, null, nullCode).ConfigureAwait(false);
+        return await result.ToActionOkResultAsync<TResult, TResult>(null, nullCode).ConfigureAwait(false);
     }
 
     public static async ValueTask<ActionResult<T>> ToActionCreatedResultAsync<TResult, T>(this Task<Result<TResult>> result, Uri? location, Func<TResult, T>? mapper = null, Func<StatusCodeResult>? nullCode = null)
@@ -107,7 +105,7 @@ public static class ProblemDetailsExtension
                     objectResult = new CreatedResult(location, mapper is null ? value : mapper(value!));
                 }
             })
-                                                                
+
 #endif
             .OnSuccessNull(() => objectResult = null == nullCode ? new OkObjectResult(null) : nullCode())
             .OnFailed(errors => objectResult = new ObjectResult(res.ToProblemDetails()));
@@ -117,7 +115,7 @@ public static class ProblemDetailsExtension
 
     public static async ValueTask<ActionResult<TResult>> ToActionCreatedResultAsync<TResult>(this Task<Result<TResult>> result, Uri? location, Func<StatusCodeResult>? nullCode = null)
     {
-        return await ToActionCreatedResultAsync<TResult, TResult>(result, location, null, nullCode).ConfigureAwait(false);
+        return await result.ToActionCreatedResultAsync<TResult, TResult>(location, null, nullCode).ConfigureAwait(false);
     }
 
     public static async Task<ActionResult> ToActionOkResultAsync(this Task<Result> result)
@@ -157,7 +155,7 @@ public static class ProblemDetailsExtension
 
     public static ValueTask<ActionResult<TResult>> ToActionOkResultAsync<TResult>(this Result<TResult> result, Func<StatusCodeResult>? nullCode = null)
     {
-        return ToActionOkResultAsync<TResult, TResult>(result, null, nullCode);
+        return result.ToActionOkResultAsync<TResult, TResult>(null, nullCode);
     }
 
     public static ValueTask<ActionResult<T>> ToActionCreatedResultAsync<TResult, T>(this Result<TResult> result, Uri? location, Func<TResult, T>? mapper = null, Func<StatusCodeResult>? nullCode = null)
@@ -192,13 +190,26 @@ public static class ProblemDetailsExtension
 
     public static ValueTask<ActionResult<TResult>> ToActionCreatedResultAsync<TResult>(this Result<TResult> result, Uri? location, Func<StatusCodeResult>? nullCode = null)
     {
-        return ToActionCreatedResultAsync<TResult, TResult>(result, location, null, nullCode);
+        return result.ToActionCreatedResultAsync<TResult, TResult>(location, null, nullCode);
     }
 
- 
-#endregion
 
-#region TypedResult
+    #endregion
 
-#endregion
+    #region TypedResult
+
+    // this ValueTask<Result<T>>
+
+    //   public static async ValueTask<Results<Ok<T>, BadRequest>> ToTypedResultAsync<TResult, T>(this ValueTask<Result<TResult>> result, Func<TResult, T> mapper)
+    //    {
+    //        var res = await result.ConfigureAwait(false);
+
+    //        Results<Ok<T>, BadRequest> objectResult = TypedResults.BadRequest();
+    //        res
+    //            .OnSuccess(value => objectResult = TypedResults.Ok<T>(mapper is null ? res.Value : mapper(res.Value)))
+    //            .OnFailed(errors => objectResult = TypedResults.Problem(res.ToProblemDetails()));
+
+    //        return objectResult;
+    //    }
+    #endregion
 }

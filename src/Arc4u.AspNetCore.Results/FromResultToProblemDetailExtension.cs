@@ -1,15 +1,15 @@
 using System.Collections.Immutable;
 using System.Diagnostics;
-using Arc4u.AspNetCore.Results;
+using Arc4u.Results;
 using Arc4u.Results.Validation;
 using FluentResults;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Arc4u.Results;
+namespace Arc4u.AspNetCore.Results;
 
-public static class ProblemDetailExtension
+public static class FromResultToProblemDetailExtension
 {
     public static Func<IEnumerable<IError>, ProblemDetails> FromError => errors => _fromErrors(errors);
 
@@ -124,8 +124,8 @@ public static class ProblemDetailExtension
         {
             return result.ToGenericMessage();
         }
-        
-        return ProblemDetailExtension.FromError(result.Errors);
+
+        return FromResultToProblemDetailExtension.FromError(result.Errors);
 
     }
 
@@ -154,7 +154,7 @@ public static class ProblemDetailExtension
             return result.ToGenericMessage();
         }
 
-        return ProblemDetailExtension.FromError(result.Errors);
+        return FromResultToProblemDetailExtension.FromError(result.Errors);
 
     }
 }

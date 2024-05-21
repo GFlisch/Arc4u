@@ -34,7 +34,7 @@ public static class ProblemDetailsExtensions
         {
             problemDetails.Extensions.AddOrReplace("Code", code);
         }
-        
+
         return problemDetails;
     }
 

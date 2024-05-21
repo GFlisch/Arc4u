@@ -3,7 +3,6 @@ using AutoFixture;
 using System.Threading.Tasks;
 using Xunit;
 using FluentResults;
-using Arc4u.OAuth2.AspNetCore.Extensions;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
@@ -13,6 +12,7 @@ using Arc4u.Results.Validation;
 using Arc4u.Results;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using Arc4u.AspNetCore.Results;
 
 namespace Arc4u.UnitTest.ProblemDetail;
 
