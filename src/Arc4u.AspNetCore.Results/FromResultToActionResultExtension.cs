@@ -64,7 +64,7 @@ public static class FromResultToActionResultExtension
     }
 
     // this Task<Result<T>>
-    public static async ValueTask<ActionResult<T>> ToActionOkResultAsync<TResult, T>(this Task<Result<TResult>> result, Func<TResult, T>? mapper = null, Func<StatusCodeResult>? nullCode = null)
+    public static async Task<ActionResult<T>> ToActionOkResultAsync<TResult, T>(this Task<Result<TResult>> result, Func<TResult, T>? mapper = null, Func<StatusCodeResult>? nullCode = null)
     {
         var res = await result.ConfigureAwait(false);
 
@@ -77,12 +77,12 @@ public static class FromResultToActionResultExtension
         return objectResult;
     }
 
-    public static async ValueTask<ActionResult<TResult>> ToActionOkResultAsync<TResult>(this Task<Result<TResult>> result, Func<StatusCodeResult>? nullCode = null)
+    public static async Task<ActionResult<TResult>> ToActionOkResultAsync<TResult>(this Task<Result<TResult>> result, Func<StatusCodeResult>? nullCode = null)
     {
         return await result.ToActionOkResultAsync<TResult, TResult>(null, nullCode).ConfigureAwait(false);
     }
 
-    public static async ValueTask<ActionResult<T>> ToActionCreatedResultAsync<TResult, T>(this Task<Result<TResult>> result, Uri? location, Func<TResult, T>? mapper = null, Func<StatusCodeResult>? nullCode = null)
+    public static async Task<ActionResult<T>> ToActionCreatedResultAsync<TResult, T>(this Task<Result<TResult>> result, Uri? location, Func<TResult, T>? mapper = null, Func<StatusCodeResult>? nullCode = null)
     {
         var res = await result.ConfigureAwait(false);
 
@@ -113,7 +113,7 @@ public static class FromResultToActionResultExtension
         return objectResult;
     }
 
-    public static async ValueTask<ActionResult<TResult>> ToActionCreatedResultAsync<TResult>(this Task<Result<TResult>> result, Uri? location, Func<StatusCodeResult>? nullCode = null)
+    public static async Task<ActionResult<TResult>> ToActionCreatedResultAsync<TResult>(this Task<Result<TResult>> result, Uri? location, Func<StatusCodeResult>? nullCode = null)
     {
         return await result.ToActionCreatedResultAsync<TResult, TResult>(location, null, nullCode).ConfigureAwait(false);
     }
@@ -141,7 +141,7 @@ public static class FromResultToActionResultExtension
     }
 
     // this Result<T>
-    public static ValueTask<ActionResult<T>> ToActionOkResultAsync<TResult, T>(this Result<TResult> result, Func<TResult, T>? mapper, Func<StatusCodeResult>? nullCode = null)
+    public static Task<ActionResult<T>> ToActionOkResultAsync<TResult, T>(this Result<TResult> result, Func<TResult, T>? mapper, Func<StatusCodeResult>? nullCode = null)
     {
         ActionResult<T> objectResult = new BadRequestResult();
 
@@ -150,15 +150,15 @@ public static class FromResultToActionResultExtension
             .OnSuccessNull(() => objectResult = null == nullCode ? new OkObjectResult(null) : nullCode())
             .OnFailed(_ => objectResult = new ObjectResult(result.ToProblemDetails()));
 
-        return ValueTask.FromResult(objectResult);
+        return Task.FromResult(objectResult);
     }
 
-    public static ValueTask<ActionResult<TResult>> ToActionOkResultAsync<TResult>(this Result<TResult> result, Func<StatusCodeResult>? nullCode = null)
+    public static Task<ActionResult<TResult>> ToActionOkResultAsync<TResult>(this Result<TResult> result, Func<StatusCodeResult>? nullCode = null)
     {
         return result.ToActionOkResultAsync<TResult, TResult>(null, nullCode);
     }
 
-    public static ValueTask<ActionResult<T>> ToActionCreatedResultAsync<TResult, T>(this Result<TResult> result, Uri? location, Func<TResult, T>? mapper = null, Func<StatusCodeResult>? nullCode = null)
+    public static Task<ActionResult<T>> ToActionCreatedResultAsync<TResult, T>(this Result<TResult> result, Uri? location, Func<TResult, T>? mapper = null, Func<StatusCodeResult>? nullCode = null)
     {
         ActionResult<T> objectResult = new BadRequestResult();
 
@@ -185,10 +185,10 @@ public static class FromResultToActionResultExtension
             .OnSuccessNull(() => objectResult = null == nullCode ? new OkObjectResult(null) : nullCode())
             .OnFailed(_ => objectResult = new ObjectResult(result.ToProblemDetails()));
 
-        return ValueTask.FromResult(objectResult);
+        return Task.FromResult(objectResult);
     }
 
-    public static ValueTask<ActionResult<TResult>> ToActionCreatedResultAsync<TResult>(this Result<TResult> result, Uri? location, Func<StatusCodeResult>? nullCode = null)
+    public static Task<ActionResult<TResult>> ToActionCreatedResultAsync<TResult>(this Result<TResult> result, Uri? location, Func<StatusCodeResult>? nullCode = null)
     {
         return result.ToActionCreatedResultAsync<TResult, TResult>(location, null, nullCode);
     }
