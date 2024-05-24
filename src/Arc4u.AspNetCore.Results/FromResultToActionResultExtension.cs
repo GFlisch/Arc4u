@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Arc4u.Results;
 using FluentResults;
 using Microsoft.AspNetCore.Http;
@@ -8,208 +9,361 @@ public static class FromResultToActionResultExtension
 {
     #region ActionResult
 
-    // this ValueTask<Result<T>>
-    public static async ValueTask<ActionResult<T>> ToActionOkResultAsync<TResult, T>(this ValueTask<Result<TResult>> result, Func<TResult, T>? mapper = null, Func<StatusCodeResult>? nullCode = null)
+    #region ValueTask<Result<T>>
+
+    public static async ValueTask<ActionResult<TResult>>
+    ToActionOkResultAsync<TResult>(this ValueTask<Result<TResult>> result)
     {
+
         var res = await result.ConfigureAwait(false);
 
-        ActionResult<T> objectResult = new BadRequestResult();
+        ActionResult objectResult = new BadRequestResult();
         res
-            .OnSuccess(value => objectResult = new OkObjectResult(mapper is null ? res.Value : mapper(res.Value!)))
-            .OnSuccessNull(() => objectResult = null == nullCode ? new OkObjectResult(null) : nullCode())
+            .OnSuccessNotNull(value => objectResult = new OkObjectResult(value))
+            .OnSuccessNull(() => objectResult = new OkObjectResult(default(TResult)))
             .OnFailed(errors => objectResult = new ObjectResult(res.ToProblemDetails()));
 
         return objectResult;
     }
 
-    public static async ValueTask<ActionResult<TResult>> ToActionOkResultAsync<TResult>(this ValueTask<Result<TResult>> result, Func<StatusCodeResult>? nullCode = null)
+    public static async ValueTask<ActionResult<T>>
+    ToActionOkResultAsync<TResult, T>(this ValueTask<Result<TResult>> result, [DisallowNull] Func<TResult, T> mapper)
     {
-        return await result.ToActionOkResultAsync<TResult, TResult>(null, nullCode).ConfigureAwait(false);
-    }
+        ArgumentNullException.ThrowIfNull(mapper);
 
-    public static async ValueTask<ActionResult<T>> ToActionCreatedResultAsync<TResult, T>(this ValueTask<Result<TResult>> result, Uri? location, Func<TResult, T>? mapper = null, Func<StatusCodeResult>? nullCode = null)
-    {
         var res = await result.ConfigureAwait(false);
 
-        ActionResult<T> objectResult = new BadRequestResult();
+        ActionResult objectResult = new BadRequestResult();
         res
-#if NET8_0
-            .OnSuccess(value => objectResult = new CreatedResult(location, mapper is null ? value : mapper(value!)))
-#else
-            .OnSuccess(value =>
-            {
-                if (location is null)
-                {
-                    objectResult = new ObjectResult(mapper is null ? value : mapper(value!))
-                    {
-                        StatusCode = StatusCodes.Status201Created
-                    };
-                }
-                else
-                {
-                    objectResult = new CreatedResult(location, mapper is null ? value : mapper(value!));
-                }
-            })
-
-#endif
-            .OnSuccessNull(() => objectResult = null == nullCode ? new OkObjectResult(null) : nullCode())
+            .OnSuccessNotNull(value => objectResult = new OkObjectResult(mapper(value)))
+            .OnSuccessNull(() => objectResult = new OkObjectResult(default(TResult)))
             .OnFailed(errors => objectResult = new ObjectResult(res.ToProblemDetails()));
 
         return objectResult;
     }
 
-    public static async ValueTask<ActionResult<TResult>> ToActionCreatedResultAsync<TResult>(this ValueTask<Result<TResult>> result, Uri? location, Func<StatusCodeResult>? nullCode = null)
-    {
-        return await result.ToActionCreatedResultAsync<TResult, TResult>(location, null, nullCode).ConfigureAwait(false);
-    }
-
-    // this Task<Result<T>>
-    public static async Task<ActionResult<T>> ToActionOkResultAsync<TResult, T>(this Task<Result<TResult>> result, Func<TResult, T>? mapper = null, Func<StatusCodeResult>? nullCode = null)
-    {
-        var res = await result.ConfigureAwait(false);
-
-        ActionResult<T> objectResult = new BadRequestResult();
-        res
-            .OnSuccess(value => objectResult = new OkObjectResult(mapper is null ? res.Value : mapper(res.Value!)))
-            .OnSuccessNull(() => objectResult = null == nullCode ? new OkObjectResult(null) : nullCode())
-            .OnFailed(errors => objectResult = new ObjectResult(res.ToProblemDetails()));
-
-        return objectResult;
-    }
-
-    public static async Task<ActionResult<TResult>> ToActionOkResultAsync<TResult>(this Task<Result<TResult>> result, Func<StatusCodeResult>? nullCode = null)
-    {
-        return await result.ToActionOkResultAsync<TResult, TResult>(null, nullCode).ConfigureAwait(false);
-    }
-
-    public static async Task<ActionResult<T>> ToActionCreatedResultAsync<TResult, T>(this Task<Result<TResult>> result, Uri? location, Func<TResult, T>? mapper = null, Func<StatusCodeResult>? nullCode = null)
-    {
-        var res = await result.ConfigureAwait(false);
-
-        ActionResult<T> objectResult = new BadRequestResult();
-        res
-#if NET8_0
-            .OnSuccess(value => objectResult = new CreatedResult(location, mapper is null ? value : mapper(value!)))
-#else
-            .OnSuccess(value =>
-            {
-                if (location is null)
-                {
-                    objectResult = new ObjectResult(mapper is null ? value : mapper(value!))
-                    {
-                        StatusCode = StatusCodes.Status201Created
-                    };
-                }
-                else
-                {
-                    objectResult = new CreatedResult(location, mapper is null ? value : mapper(value!));
-                }
-            })
-
-#endif
-            .OnSuccessNull(() => objectResult = null == nullCode ? new OkObjectResult(null) : nullCode())
-            .OnFailed(errors => objectResult = new ObjectResult(res.ToProblemDetails()));
-
-        return objectResult;
-    }
-
-    public static async Task<ActionResult<TResult>> ToActionCreatedResultAsync<TResult>(this Task<Result<TResult>> result, Uri? location, Func<StatusCodeResult>? nullCode = null)
-    {
-        return await result.ToActionCreatedResultAsync<TResult, TResult>(location, null, nullCode).ConfigureAwait(false);
-    }
-
-    public static async Task<ActionResult> ToActionOkResultAsync(this Task<Result> result)
+    public static async ValueTask<ActionResult>
+    ToActionOkResultAsync(this ValueTask<Result> result)
     {
         var res = await result.ConfigureAwait(false);
 
         ActionResult objectResult = new BadRequestResult();
-
-        res.OnSuccess(() => objectResult = new NoContentResult())
-           .OnFailed(_ => objectResult = new ObjectResult(res.ToProblemDetails()));
+        res
+            .OnSuccess(() => objectResult = new NoContentResult())
+            .OnFailed(errors => objectResult = new ObjectResult(res.ToProblemDetails()));
 
         return objectResult;
     }
 
-    public static Task<ActionResult> ToActionOkResultAsync(this Result result)
+    public static async ValueTask<ActionResult<T>>
+    ToActionCreatedResultAsync<TResult, T>(this ValueTask<Result<TResult>> result, Uri? location, [DisallowNull] Func<TResult, T> mapper)
     {
+        ArgumentNullException.ThrowIfNull(mapper);
+
+        var res = await result.ConfigureAwait(false);
+
         ActionResult objectResult = new BadRequestResult();
-
-        result.OnSuccess(() => objectResult = new NoContentResult())
-              .OnFailed(_ => objectResult = new ObjectResult(result.ToProblemDetails()));
-
-        return Task.FromResult(objectResult);
-    }
-
-    // this Result<T>
-    public static Task<ActionResult<T>> ToActionOkResultAsync<TResult, T>(this Result<TResult> result, Func<TResult, T>? mapper, Func<StatusCodeResult>? nullCode = null)
-    {
-        ActionResult<T> objectResult = new BadRequestResult();
-
-        result
-            .OnSuccess((value) => objectResult = new OkObjectResult(mapper is null ? value : mapper(value)))
-            .OnSuccessNull(() => objectResult = null == nullCode ? new OkObjectResult(null) : nullCode())
-            .OnFailed(_ => objectResult = new ObjectResult(result.ToProblemDetails()));
-
-        return Task.FromResult(objectResult);
-    }
-
-    public static Task<ActionResult<TResult>> ToActionOkResultAsync<TResult>(this Result<TResult> result, Func<StatusCodeResult>? nullCode = null)
-    {
-        return result.ToActionOkResultAsync<TResult, TResult>(null, nullCode);
-    }
-
-    public static Task<ActionResult<T>> ToActionCreatedResultAsync<TResult, T>(this Result<TResult> result, Uri? location, Func<TResult, T>? mapper = null, Func<StatusCodeResult>? nullCode = null)
-    {
-        ActionResult<T> objectResult = new BadRequestResult();
-
-        result
+        res
 #if NET8_0
-            .OnSuccess(value => objectResult = new CreatedResult(location, mapper is null ? value : mapper(value!)))
+            .OnSuccessNotNull(value => objectResult = new CreatedResult(location, mapper(value)))
 #else
-            .OnSuccess(value =>
+            .OnSuccessNotNull(value =>
             {
                 if (location is null)
                 {
-                    objectResult = new ObjectResult(mapper is null ? value : mapper(value!))
+                    objectResult = new ObjectResult(mapper(value))
                     {
                         StatusCode = StatusCodes.Status201Created
                     };
                 }
                 else
                 {
-                    objectResult = new CreatedResult(location, mapper is null ? value : mapper(value!));
+                    objectResult = new CreatedResult(location, mapper(value));
                 }
             })
-
 #endif
-            .OnSuccessNull(() => objectResult = null == nullCode ? new OkObjectResult(null) : nullCode())
-            .OnFailed(_ => objectResult = new ObjectResult(result.ToProblemDetails()));
+            .OnSuccessNull(() => objectResult = new ObjectResult(default(T))
+            {
+                StatusCode = StatusCodes.Status201Created
+            })
+            .OnFailed(errors => objectResult = new ObjectResult(res.ToProblemDetails()));
+
+        return objectResult;
+    }
+
+    public static async ValueTask<ActionResult<TResult>>
+    ToActionCreatedResultAsync<TResult>(this ValueTask<Result<TResult>> result, Uri? location)
+    {
+        var res = await result.ConfigureAwait(false);
+
+        ActionResult objectResult = new BadRequestResult();
+        res
+#if NET8_0
+            .OnSuccessNotNull(value => objectResult = new CreatedResult(location, value))
+#else
+            .OnSuccessNotNull(value =>
+            {
+                if (location is null)
+                {
+                    objectResult = new ObjectResult(value)
+                    {
+                        StatusCode = StatusCodes.Status201Created
+                    };
+                }
+                else
+                {
+                    objectResult = new CreatedResult(location, value);
+                }
+            })
+#endif
+            .OnSuccessNull(() => objectResult = new ObjectResult(default(TResult))
+            {
+                StatusCode = StatusCodes.Status201Created
+            })
+            .OnFailed(errors => objectResult = new ObjectResult(res.ToProblemDetails()));
+
+        return objectResult;
+    }
+
+    #endregion
+
+    #region Task<Result<T>>
+
+    public static async Task<ActionResult<TResult>>
+    ToActionOkResultAsync<TResult>(this Task<Result<TResult>> result)
+    {
+
+        var res = await result.ConfigureAwait(false);
+
+        ActionResult objectResult = new BadRequestResult();
+        res
+            .OnSuccessNotNull(value => objectResult = new OkObjectResult(value))
+            .OnSuccessNull(() => objectResult = new OkObjectResult(default(TResult)))
+            .OnFailed(errors => objectResult = new ObjectResult(res.ToProblemDetails()));
+
+        return objectResult;
+    }
+
+    public static async Task<ActionResult<T>>
+    ToActionOkResultAsync<TResult, T>(this Task<Result<TResult>> result, [DisallowNull] Func<TResult, T> mapper)
+    {
+        ArgumentNullException.ThrowIfNull(mapper);
+
+        var res = await result.ConfigureAwait(false);
+
+        ActionResult<T> objectResult = new BadRequestResult();
+        res
+            .OnSuccessNotNull(value => objectResult = new OkObjectResult(mapper(value)))
+            .OnSuccessNull(() => objectResult = new OkObjectResult(default(TResult)))
+            .OnFailed(errors => objectResult = new ObjectResult(res.ToProblemDetails()));
+
+        return objectResult;
+    }
+
+    public static async Task<ActionResult>
+    ToActionOkResultAsync(this Task<Result> result)
+    {
+        var res = await result.ConfigureAwait(false);
+
+        ActionResult objectResult = new BadRequestResult();
+        res
+            .OnSuccess(() => objectResult = new NoContentResult())
+            .OnFailed(errors => objectResult = new ObjectResult(res.ToProblemDetails()));
+
+        return objectResult;
+    }
+
+    public static Task<ActionResult>
+    ToActionOkResultAsync(this Result result)
+    {
+        ActionResult objectResult = new BadRequestResult();
+
+        result
+            .OnSuccess(() => objectResult = new NoContentResult())
+            .OnFailed(errors => objectResult = new ObjectResult(result.ToProblemDetails()));
 
         return Task.FromResult(objectResult);
     }
 
-    public static Task<ActionResult<TResult>> ToActionCreatedResultAsync<TResult>(this Result<TResult> result, Uri? location, Func<StatusCodeResult>? nullCode = null)
+    public static async Task<ActionResult<T>>
+    ToActionCreatedResultAsync<TResult, T>(this Task<Result<TResult>> result, Uri? location, [DisallowNull] Func<TResult, T> mapper)
     {
-        return result.ToActionCreatedResultAsync<TResult, TResult>(location, null, nullCode);
+        ArgumentNullException.ThrowIfNull(mapper);
+
+        var res = await result.ConfigureAwait(false);
+
+        ActionResult<T> objectResult = new BadRequestResult();
+        res
+#if NET8_0
+            .OnSuccessNotNull(value => objectResult = new CreatedResult(location, mapper(value)))
+#else
+            .OnSuccessNotNull(value =>
+            {
+                if (location is null)
+                {
+                    objectResult = new ObjectResult(mapper(value))
+                    {
+                        StatusCode = StatusCodes.Status201Created
+                    };
+                }
+                else
+                {
+                    objectResult = new CreatedResult(location, mapper(value));
+                }
+            })
+#endif
+            .OnSuccessNull(() => objectResult = new ObjectResult(default(T))
+            {
+                StatusCode = StatusCodes.Status201Created
+            })
+            .OnFailed(errors => objectResult = new ObjectResult(res.ToProblemDetails()));
+
+        return objectResult;
     }
 
+    public static async Task<ActionResult<TResult>>
+    ToActionCreatedResultAsync<TResult>(this Task<Result<TResult>> result, Uri? location)
+    {
+        var res = await result.ConfigureAwait(false);
+
+        ActionResult<TResult> objectResult = new BadRequestResult();
+        res
+#if NET8_0
+            .OnSuccessNotNull(value => objectResult = new CreatedResult(location, value))
+#else
+            .OnSuccessNotNull(value =>
+            {
+                if (location is null)
+                {
+                    objectResult = new ObjectResult(value)
+                    {
+                        StatusCode = StatusCodes.Status201Created
+                    };
+                }
+                else
+                {
+                    objectResult = new CreatedResult(location, value);
+                }
+            })
+#endif
+            .OnSuccessNull(() => objectResult = new ObjectResult(default(TResult))
+            {
+                StatusCode = StatusCodes.Status201Created
+            })
+            .OnFailed(errors => objectResult = new ObjectResult(res.ToProblemDetails()));
+
+        return objectResult;
+    }
 
     #endregion
 
-    #region TypedResult
+    #region Result<T>
 
-    // this ValueTask<Result<T>>
+    public static ActionResult<TResult>
+    ToActionOkResult<TResult>(this Result<TResult> result)
+    {
+        ActionResult<TResult> objectResult = new BadRequestResult();
+        result
+            .OnSuccessNotNull(value => objectResult = new OkObjectResult(value))
+            .OnSuccessNull(() => objectResult = new OkObjectResult(default(TResult)))
+            .OnFailed(errors => objectResult = new ObjectResult(result.ToProblemDetails()));
 
-    //   public static async ValueTask<Results<Ok<T>, BadRequest>> ToTypedResultAsync<TResult, T>(this ValueTask<Result<TResult>> result, Func<TResult, T> mapper)
-    //    {
-    //        var res = await result.ConfigureAwait(false);
+        return objectResult;
+    }
 
-    //        Results<Ok<T>, BadRequest> objectResult = TypedResults.BadRequest();
-    //        res
-    //            .OnSuccess(value => objectResult = TypedResults.Ok<T>(mapper is null ? res.Value : mapper(res.Value)))
-    //            .OnFailed(errors => objectResult = TypedResults.Problem(res.ToProblemDetails()));
+    public static ActionResult<T>
+    ToActionOkResult<TResult, T>(this Result<TResult> result, [DisallowNull] Func<TResult, T> mapper)
+    {
+        ArgumentNullException.ThrowIfNull(mapper);
 
-    //        return objectResult;
-    //    }
+        ActionResult<T> objectResult = new BadRequestResult();
+        result
+            .OnSuccessNotNull(value => objectResult = new OkObjectResult(mapper(value)))
+            .OnSuccessNull(() => objectResult = new OkObjectResult(default(TResult)))
+            .OnFailed(errors => objectResult = new ObjectResult(result.ToProblemDetails()));
+
+        return objectResult;
+    }
+
+    public static ActionResult
+    ToActionOkResult(this Result result)
+    {
+        ActionResult objectResult = new BadRequestResult();
+
+        result
+            .OnSuccess(() => objectResult = new NoContentResult())
+            .OnFailed(errors => objectResult = new ObjectResult(result.ToProblemDetails()));
+
+        return objectResult;
+    }
+
+    public static ActionResult<T>
+        ToActionCreatedResult<TResult, T>(this Result<TResult> result, Uri? location, [DisallowNull] Func<TResult, T> mapper)
+    {
+        ArgumentNullException.ThrowIfNull(mapper);
+
+        ActionResult<T> objectResult = new BadRequestResult();
+        result
+#if NET8_0
+            .OnSuccessNotNull(value => objectResult = new CreatedResult(location, mapper(value)))
+#else
+            .OnSuccessNotNull(value =>
+            {
+                if (location is null)
+                {
+                    objectResult = new ObjectResult(mapper(value))
+                    {
+                        StatusCode = StatusCodes.Status201Created
+                    };
+                }
+                else
+                {
+                    objectResult = new CreatedResult(location, mapper(value));
+                }
+            })
+#endif
+            .OnSuccessNull(() => objectResult = new ObjectResult(default(T))
+            {
+                StatusCode = StatusCodes.Status201Created
+            })
+            .OnFailed(errors => objectResult = new ObjectResult(result.ToProblemDetails()));
+
+        return objectResult;
+    }
+
+    public static ActionResult<TResult>
+        ToActionCreatedResult<TResult>(this Result<TResult> result, Uri? location)
+    {
+        ActionResult<TResult> objectResult = new BadRequestResult();
+        result
+#if NET8_0
+            .OnSuccessNotNull(value => objectResult = new CreatedResult(location, value))
+#else
+            .OnSuccessNotNull(value =>
+            {
+                if (location is null)
+                {
+                    objectResult = new ObjectResult(value)
+                    {
+                        StatusCode = StatusCodes.Status201Created
+                    };
+                }
+                else
+                {
+                    objectResult = new CreatedResult(location, value);
+                }
+            })
+#endif
+            .OnSuccessNull(() => objectResult = new ObjectResult(default(TResult))
+            {
+                StatusCode = StatusCodes.Status201Created
+            })
+            .OnFailed(errors => objectResult = new ObjectResult(result.ToProblemDetails()));
+
+        return objectResult;
+    }
+
     #endregion
+
+#endregion
 }
