@@ -23,9 +23,9 @@ sealed class ValidatorExample : AbstractValidator<string>
     }
 }
 
-public class ProblemDetailsTests
+public class ProblemDetailsWithActionResultTests
 {
-    public ProblemDetailsTests()
+    public ProblemDetailsWithActionResultTests()
     {
         _fixture = new Fixture();
         _fixture.Customize(new AutoMoqCustomization());

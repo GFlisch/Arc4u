@@ -14,14 +14,13 @@ public static class FromResultToActionResultExtension
     public static async ValueTask<ActionResult<TResult>>
     ToActionOkResultAsync<TResult>(this ValueTask<Result<TResult>> result)
     {
-
         var res = await result.ConfigureAwait(false);
 
         ActionResult objectResult = new BadRequestResult();
         res
             .OnSuccessNotNull(value => objectResult = new OkObjectResult(value))
             .OnSuccessNull(() => objectResult = new OkObjectResult(default(TResult)))
-            .OnFailed(errors => objectResult = new ObjectResult(res.ToProblemDetails()));
+            .OnFailed(_ => objectResult = new ObjectResult(res.ToProblemDetails()));
 
         return objectResult;
     }
@@ -37,7 +36,7 @@ public static class FromResultToActionResultExtension
         res
             .OnSuccessNotNull(value => objectResult = new OkObjectResult(mapper(value)))
             .OnSuccessNull(() => objectResult = new OkObjectResult(default(TResult)))
-            .OnFailed(errors => objectResult = new ObjectResult(res.ToProblemDetails()));
+            .OnFailed(_ => objectResult = new ObjectResult(res.ToProblemDetails()));
 
         return objectResult;
     }
@@ -50,7 +49,7 @@ public static class FromResultToActionResultExtension
         ActionResult objectResult = new BadRequestResult();
         res
             .OnSuccess(() => objectResult = new NoContentResult())
-            .OnFailed(errors => objectResult = new ObjectResult(res.ToProblemDetails()));
+            .OnFailed(_ => objectResult = new ObjectResult(res.ToProblemDetails()));
 
         return objectResult;
     }
@@ -86,7 +85,7 @@ public static class FromResultToActionResultExtension
             {
                 StatusCode = StatusCodes.Status201Created
             })
-            .OnFailed(errors => objectResult = new ObjectResult(res.ToProblemDetails()));
+            .OnFailed(_ => objectResult = new ObjectResult(res.ToProblemDetails()));
 
         return objectResult;
     }
@@ -120,7 +119,7 @@ public static class FromResultToActionResultExtension
             {
                 StatusCode = StatusCodes.Status201Created
             })
-            .OnFailed(errors => objectResult = new ObjectResult(res.ToProblemDetails()));
+            .OnFailed(_ => objectResult = new ObjectResult(res.ToProblemDetails()));
 
         return objectResult;
     }
@@ -139,7 +138,7 @@ public static class FromResultToActionResultExtension
         res
             .OnSuccessNotNull(value => objectResult = new OkObjectResult(value))
             .OnSuccessNull(() => objectResult = new OkObjectResult(default(TResult)))
-            .OnFailed(errors => objectResult = new ObjectResult(res.ToProblemDetails()));
+            .OnFailed(_ => objectResult = new ObjectResult(res.ToProblemDetails()));
 
         return objectResult;
     }
@@ -155,7 +154,7 @@ public static class FromResultToActionResultExtension
         res
             .OnSuccessNotNull(value => objectResult = new OkObjectResult(mapper(value)))
             .OnSuccessNull(() => objectResult = new OkObjectResult(default(TResult)))
-            .OnFailed(errors => objectResult = new ObjectResult(res.ToProblemDetails()));
+            .OnFailed(_ => objectResult = new ObjectResult(res.ToProblemDetails()));
 
         return objectResult;
     }
@@ -168,7 +167,7 @@ public static class FromResultToActionResultExtension
         ActionResult objectResult = new BadRequestResult();
         res
             .OnSuccess(() => objectResult = new NoContentResult())
-            .OnFailed(errors => objectResult = new ObjectResult(res.ToProblemDetails()));
+            .OnFailed(_ => objectResult = new ObjectResult(res.ToProblemDetails()));
 
         return objectResult;
     }
@@ -180,7 +179,7 @@ public static class FromResultToActionResultExtension
 
         result
             .OnSuccess(() => objectResult = new NoContentResult())
-            .OnFailed(errors => objectResult = new ObjectResult(result.ToProblemDetails()));
+            .OnFailed(_ => objectResult = new ObjectResult(result.ToProblemDetails()));
 
         return Task.FromResult(objectResult);
     }
@@ -216,7 +215,7 @@ public static class FromResultToActionResultExtension
             {
                 StatusCode = StatusCodes.Status201Created
             })
-            .OnFailed(errors => objectResult = new ObjectResult(res.ToProblemDetails()));
+            .OnFailed(_ => objectResult = new ObjectResult(res.ToProblemDetails()));
 
         return objectResult;
     }
@@ -250,7 +249,7 @@ public static class FromResultToActionResultExtension
             {
                 StatusCode = StatusCodes.Status201Created
             })
-            .OnFailed(errors => objectResult = new ObjectResult(res.ToProblemDetails()));
+            .OnFailed(_ => objectResult = new ObjectResult(res.ToProblemDetails()));
 
         return objectResult;
     }
@@ -266,7 +265,7 @@ public static class FromResultToActionResultExtension
         result
             .OnSuccessNotNull(value => objectResult = new OkObjectResult(value))
             .OnSuccessNull(() => objectResult = new OkObjectResult(default(TResult)))
-            .OnFailed(errors => objectResult = new ObjectResult(result.ToProblemDetails()));
+            .OnFailed(_ => objectResult = new ObjectResult(result.ToProblemDetails()));
 
         return objectResult;
     }
@@ -280,7 +279,7 @@ public static class FromResultToActionResultExtension
         result
             .OnSuccessNotNull(value => objectResult = new OkObjectResult(mapper(value)))
             .OnSuccessNull(() => objectResult = new OkObjectResult(default(TResult)))
-            .OnFailed(errors => objectResult = new ObjectResult(result.ToProblemDetails()));
+            .OnFailed(_ => objectResult = new ObjectResult(result.ToProblemDetails()));
 
         return objectResult;
     }
@@ -292,13 +291,13 @@ public static class FromResultToActionResultExtension
 
         result
             .OnSuccess(() => objectResult = new NoContentResult())
-            .OnFailed(errors => objectResult = new ObjectResult(result.ToProblemDetails()));
+            .OnFailed(_ => objectResult = new ObjectResult(result.ToProblemDetails()));
 
         return objectResult;
     }
 
     public static ActionResult<T>
-        ToActionCreatedResult<TResult, T>(this Result<TResult> result, Uri? location, [DisallowNull] Func<TResult, T> mapper)
+    ToActionCreatedResult<TResult, T>(this Result<TResult> result, Uri? location, [DisallowNull] Func<TResult, T> mapper)
     {
         ArgumentNullException.ThrowIfNull(mapper);
 
@@ -326,13 +325,13 @@ public static class FromResultToActionResultExtension
             {
                 StatusCode = StatusCodes.Status201Created
             })
-            .OnFailed(errors => objectResult = new ObjectResult(result.ToProblemDetails()));
+            .OnFailed(_ => objectResult = new ObjectResult(result.ToProblemDetails()));
 
         return objectResult;
     }
 
     public static ActionResult<TResult>
-        ToActionCreatedResult<TResult>(this Result<TResult> result, Uri? location)
+    ToActionCreatedResult<TResult>(this Result<TResult> result, Uri? location)
     {
         ActionResult<TResult> objectResult = new BadRequestResult();
         result
@@ -358,7 +357,7 @@ public static class FromResultToActionResultExtension
             {
                 StatusCode = StatusCodes.Status201Created
             })
-            .OnFailed(errors => objectResult = new ObjectResult(result.ToProblemDetails()));
+            .OnFailed(_ => objectResult = new ObjectResult(result.ToProblemDetails()));
 
         return objectResult;
     }
