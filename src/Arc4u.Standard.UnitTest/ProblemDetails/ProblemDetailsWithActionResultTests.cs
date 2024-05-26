@@ -659,8 +659,4 @@ public class ProblemDetailsWithActionResultTests
     }
 
     #endregion
-
-    #region ProblemDetailError
-
-    #endregion
 }
