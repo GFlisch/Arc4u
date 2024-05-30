@@ -4,7 +4,7 @@
     <PackageId>Arc4u.Standard.AspNetCore.gRpc</PackageId>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Grpc.AspNetCore.Server" Version="2.62.0" />
+    <PackageReference Include="Grpc.AspNetCore.Server" Version="2.63.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Arc4u.Standard.Dependency\Arc4u.Standard.Dependency.csproj" />
