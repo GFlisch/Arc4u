@@ -5,6 +5,8 @@ using System.Diagnostics.CodeAnalysis;
 using IResult = Microsoft.AspNetCore.Http.IResult;
 using HttpResults = Microsoft.AspNetCore.Http.Results;
 using Arc4u.Results;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Http;
 
 namespace Arc4u.AspNetCore.Results;
 public static class FromResultToHttpResultExtension
@@ -175,6 +177,57 @@ public static class FromResultToHttpResultExtension
         return objectResult;
     }
 
+    public static Task<IResult>
+    ToHttpCreatedResultAsync<TResult, T>(this Result<TResult> result, Uri? location, [DisallowNull] Func<TResult, T> mapper)
+    {
+        ArgumentNullException.ThrowIfNull(mapper);
+
+        IResult objectResult = HttpResults.BadRequest();
+        result
+            .OnSuccessNotNull(value => objectResult = TypedResults.Created(location, mapper(value)))
+            .OnSuccessNull(() => objectResult = TypedResults.Created((Uri?)null, default(T)))
+            .OnFailed(errors => objectResult = TypedResults.Problem(result.ToProblemDetails()));
+
+        return Task.FromResult(objectResult);
+    }
+
+    public static Task<IResult>
+    ToHttpCreatedResultAsync<TResult>(this Result<TResult> result, Uri? location)
+    {
+        IResult objectResult = HttpResults.BadRequest();
+        result
+            .OnSuccessNotNull(value => objectResult = TypedResults.Created(location, value))
+            .OnSuccessNull(() => objectResult = TypedResults.Created((Uri?)null, default(TResult)))
+            .OnFailed(errors => objectResult = TypedResults.Problem(result.ToProblemDetails()));
+
+        return Task.FromResult(objectResult);
+    }
+
+    public static async Task<IResult>
+    ToHttpCreatedResultAsync<TResult>(this Task<Result> result, Uri? location)
+    {
+        var res = await result.ConfigureAwait(false);
+
+        IResult objectResult = HttpResults.BadRequest();
+        res
+            .OnSuccess(() => objectResult = TypedResults.Created(location))
+            .OnFailed(errors => objectResult = TypedResults.Problem(res.ToProblemDetails()));
+
+        return objectResult;
+    }
+
+    public static Task<IResult>
+    ToHttpCreatedResultAsync<TResult>(this Result result, Uri? location)
+    {
+        IResult objectResult = HttpResults.BadRequest();
+        result
+            .OnSuccess(() => objectResult = TypedResults.Created(location))
+            .OnFailed(errors => objectResult = TypedResults.Problem(result.ToProblemDetails()));
+
+        return Task.FromResult(objectResult);
+    }   
+
+
     #endregion
 
     #region Result<T>
@@ -206,18 +259,6 @@ public static class FromResultToHttpResultExtension
     }
 
     public static IResult
-    ToHttpOkResult(this Result result)
-    {
-        IResult objectResult = HttpResults.BadRequest();
-
-        result
-            .OnSuccess(() => objectResult = HttpResults.NoContent())
-            .OnFailed(_ => objectResult = HttpResults.Problem(result.ToProblemDetails()));
-
-        return objectResult;
-    }
-
-    public static IResult
     ToHttpCreatedResult<TResult, T>(this Result<TResult> result, Uri? location, [DisallowNull] Func<TResult, T> mapper)
     {
         ArgumentNullException.ThrowIfNull(mapper);
@@ -239,6 +280,33 @@ public static class FromResultToHttpResultExtension
             .OnSuccessNotNull(value => objectResult = HttpResults.Created(location, value))
             .OnSuccessNull(() => objectResult = HttpResults.Created((Uri?)null, default(TResult)))
             .OnFailed(_ => objectResult = HttpResults.Problem(result.ToProblemDetails()));
+
+        return objectResult;
+    }
+
+    #endregion
+
+    #region Result
+
+    public static IResult
+    ToHttpOkResult(this Result result)
+    {
+        IResult objectResult = HttpResults.BadRequest();
+
+        result
+            .OnSuccess(() => objectResult = HttpResults.NoContent())
+            .OnFailed(_ => objectResult = HttpResults.Problem(result.ToProblemDetails()));
+
+        return objectResult;
+    }
+
+    public static IResult
+    ToHttpCreatedResult(this Result result, Uri? location)
+    {
+        IResult objectResult = HttpResults.BadRequest();
+        result
+            .OnSuccess(() => objectResult = TypedResults.Created(location))
+            .OnFailed(_ => objectResult = TypedResults.Problem(result.ToProblemDetails()));
 
         return objectResult;
     }

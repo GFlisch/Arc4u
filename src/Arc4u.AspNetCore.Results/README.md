@@ -24,7 +24,7 @@ When using the fluent Api we can write.
 var problemDetails = new ProblemDetails()
                     .WithTitle("Some title")
                     .WithDetail("Some detail")
-                    .WithStatusCode(StatusCodes.Status500InternalServerError)
+                    .WithStatusCode(StatusCodes.Status400BadRequest)
                     .WithType(new Uri("about:blank"))
                     .WithSeverity(Severity.Error.ToString());
 ```
@@ -45,8 +45,8 @@ A default Function implementation exists to convert an exception to a ProblemDet
 Just use the static method 'SetFromErrorFactory(Func<IEnumerable<IError>, ProblemDetails> fromErrors)' to set your custom implementation.
 
 The Arc4u framework covers the following Error types:
-- IExceptionalError => will result in a Generic message.
-- ProblemDetailsError => will be converted to a ProblemDetails.
-- ValidationError => will be converted to a ValidationProblemDetails.
+- IExceptionalError => will result in a Generic message with an Http Status Code equal to 500.
+- ProblemDetailsError => will be converted to a ProblemDetails with a default Http Status Code equal to 400 if another one is not given!
+- ValidationError => will be converted to a ValidationProblemDetails with a Http Status Code equal to 422.
 
 If you have your own error type, you can implement the IError interface and provide a custom implementation to convert it to a ProblemDetails.

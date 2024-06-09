@@ -15,7 +15,7 @@ public static class FromResultToTypedResultExtension
     #region ValueTask<Result<T>>
 
     public static async ValueTask<Results<Ok<TResult>, ProblemHttpResult, ValidationProblem>>
-    ToTypedOkResultAsync<TResult>(this ValueTask<Result<TResult>> result)
+   ToTypedOkResultAsync<TResult>(this ValueTask<Result<TResult>> result)
     {
 
         var res = await result.ConfigureAwait(false);
@@ -88,9 +88,24 @@ public static class FromResultToTypedResultExtension
         return objectResult;
     }
 
+ 
+    public static async ValueTask<Results<Created, ProblemHttpResult, ValidationProblem>>
+    ToTypedCreatedResultAsync<TResult>(this ValueTask<Result> result, Uri? location)
+    {
+        var res = await result.ConfigureAwait(false);
+
+        Results<Created, ProblemHttpResult, ValidationProblem> objectResult = TypedResults.Problem();
+        res
+            .OnSuccess(() => objectResult = TypedResults.Created(location))
+            .OnFailed(errors => objectResult = TypedResults.Problem(res.ToProblemDetails()));
+
+        return objectResult;
+    }
+
+
     #endregion
 
-    #region Task<Result<T>>
+    #region Task<Result> Task<Result<T>>
 
     public static async Task<Results<Ok<TResult>, ProblemHttpResult, ValidationProblem>>
     ToTypedOkResultAsync<TResult>(this Task<Result<TResult>> result)
@@ -178,6 +193,56 @@ public static class FromResultToTypedResultExtension
         return objectResult;
     }
 
+    public static Task<Results<Created<T>, ProblemHttpResult, ValidationProblem>>
+    ToTypedCreatedResultAsync<TResult, T>(this Result<TResult> result, Uri? location, [DisallowNull] Func<TResult, T> mapper)
+    {
+        ArgumentNullException.ThrowIfNull(mapper);
+
+        Results<Created<T>, ProblemHttpResult, ValidationProblem> objectResult = TypedResults.Problem();
+        result
+            .OnSuccessNotNull(value => objectResult = TypedResults.Created(location, mapper(value)))
+            .OnSuccessNull(() => objectResult = TypedResults.Created((Uri?)null, default(T)))
+            .OnFailed(errors => objectResult = TypedResults.Problem(result.ToProblemDetails()));
+
+        return Task.FromResult(objectResult);
+    }
+
+    public static Task<Results<Created<TResult>, ProblemHttpResult, ValidationProblem>>
+    ToTypedCreatedResultAsync<TResult>(this Result<TResult> result, Uri? location)
+    {
+        Results<Created<TResult>, ProblemHttpResult, ValidationProblem> objectResult = TypedResults.Problem();
+        result
+            .OnSuccessNotNull(value => objectResult = TypedResults.Created(location, value))
+            .OnSuccessNull(() => objectResult = TypedResults.Created((Uri?)null, default(TResult)))
+            .OnFailed(errors => objectResult = TypedResults.Problem(result.ToProblemDetails()));
+
+        return Task.FromResult(objectResult);
+    }
+
+    public static async Task<Results<Created, ProblemHttpResult, ValidationProblem>>
+    ToTypedCreatedResultAsync<TResult>(this Task<Result> result, Uri? location)
+    {
+        var res = await result.ConfigureAwait(false);
+
+        Results<Created, ProblemHttpResult, ValidationProblem> objectResult = TypedResults.Problem();
+        res
+            .OnSuccess(() => objectResult = TypedResults.Created(location))
+            .OnFailed(errors => objectResult = TypedResults.Problem(res.ToProblemDetails()));
+
+        return objectResult;
+    }
+
+    public static Task<Results<Created, ProblemHttpResult, ValidationProblem>>
+    ToTypedCreatedResultAsync<TResult>(this Result result, Uri? location)
+    {
+        Results<Created, ProblemHttpResult, ValidationProblem> objectResult = TypedResults.Problem();
+        result
+            .OnSuccess(() => objectResult = TypedResults.Created(location))
+            .OnFailed(errors => objectResult = TypedResults.Problem(result.ToProblemDetails()));
+
+        return Task.FromResult(objectResult);
+    }
+
     #endregion
 
     #region Result<T>
@@ -209,19 +274,8 @@ public static class FromResultToTypedResultExtension
         return objectResult;
     }
 
-    public static Results<NoContent, ProblemHttpResult, ValidationProblem>
-    ToTypedOkResult(this Result result)
-    {
-        Results<NoContent, ProblemHttpResult, ValidationProblem> objectResult = TypedResults.Problem();
-        result
-            .OnSuccess(() => objectResult = TypedResults.NoContent())
-            .OnFailed(errors => objectResult = TypedResults.Problem(result.ToProblemDetails()));
-
-        return objectResult;
-    }
-
     public static Results<Created<T>, ProblemHttpResult, ValidationProblem>
-        ToTypedCreatedResult<TResult, T>(this Result<TResult> result, Uri? location, [DisallowNull] Func<TResult, T> mapper)
+    ToTypedCreatedResult<TResult, T>(this Result<TResult> result, Uri? location, [DisallowNull] Func<TResult, T> mapper)
     {
         ArgumentNullException.ThrowIfNull(mapper);
 
@@ -235,7 +289,7 @@ public static class FromResultToTypedResultExtension
     }
 
     public static Results<Created<TResult>, ProblemHttpResult, ValidationProblem>
-        ToTypedCreatedResult<TResult>(this Result<TResult> result, Uri? location)
+    ToTypedCreatedResult<TResult>(this Result<TResult> result, Uri? location)
     {
         Results<Created<TResult>, ProblemHttpResult, ValidationProblem> objectResult = TypedResults.Problem();
         result
@@ -245,6 +299,31 @@ public static class FromResultToTypedResultExtension
 
         return objectResult;
     }
+    #endregion
+
+    #region Result
+    public static Results<NoContent, ProblemHttpResult, ValidationProblem>
+    ToTypedOkResult(this Result result)
+    {
+        Results<NoContent, ProblemHttpResult, ValidationProblem> objectResult = TypedResults.Problem();
+        result
+            .OnSuccess(() => objectResult = TypedResults.NoContent())
+            .OnFailed(errors => objectResult = TypedResults.Problem(result.ToProblemDetails()));
+
+        return objectResult;
+    }
+
+    public static Results<Created, ProblemHttpResult, ValidationProblem>
+    ToTypedCreatedResult(this Result result, Uri? location)
+    {
+        Results<Created, ProblemHttpResult, ValidationProblem> objectResult = TypedResults.Problem();
+        result
+            .OnSuccess(() => objectResult = TypedResults.Created(location))
+            .OnFailed(errors => objectResult = TypedResults.Problem(result.ToProblemDetails()));
+
+        return objectResult;
+    }
+
     #endregion
 
     #endregion

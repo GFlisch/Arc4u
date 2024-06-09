@@ -254,6 +254,130 @@ public static class FromResultToActionResultExtension
         return objectResult;
     }
 
+    public static Task<ActionResult>
+    ToActionCreatedResultAsync<TResult, T>(this Result<TResult> result, Uri? location, [DisallowNull] Func<TResult, T> mapper)
+    {
+        ArgumentNullException.ThrowIfNull(mapper);
+
+        ActionResult objectResult = new BadRequestResult();
+        result
+#if NET8_0
+            .OnSuccessNotNull(value => objectResult = new CreatedResult(location, mapper(value)))
+#else
+            .OnSuccessNotNull(value =>
+            {
+                if (location is null)
+                {
+                    objectResult = new ObjectResult(mapper(value))
+                    {
+                        StatusCode = StatusCodes.Status201Created
+                    };
+                }
+                else
+                {
+                    objectResult = new CreatedResult(location, mapper(value));
+                }
+            })
+#endif
+            .OnSuccessNull(() => objectResult = new ObjectResult(default(T))
+            {
+                StatusCode = StatusCodes.Status201Created
+            })
+            .OnFailed(_ => objectResult = new ObjectResult(result.ToProblemDetails()));
+
+        return Task.FromResult(objectResult);
+    }
+
+    public static Task<ActionResult>
+    ToActionCreatedResultAsync<TResult>(this Result<TResult> result, Uri? location)
+    {
+        ActionResult objectResult = new BadRequestResult();
+        result
+#if NET8_0
+            .OnSuccessNotNull(value => objectResult = new CreatedResult(location, value))
+#else
+            .OnSuccessNotNull(value =>
+            {
+                if (location is null)
+                {
+                    objectResult = new ObjectResult(value)
+                    {
+                        StatusCode = StatusCodes.Status201Created
+                    };
+                }
+                else
+                {
+                    objectResult = new CreatedResult(location, value);
+                }
+            })
+#endif
+            .OnSuccessNull(() => objectResult = new ObjectResult(default(TResult))
+            {
+                StatusCode = StatusCodes.Status201Created
+            })
+            .OnFailed(_ => objectResult = new ObjectResult(result.ToProblemDetails()));
+
+        return Task.FromResult(objectResult);
+    }
+
+    public static async Task<ActionResult>
+    ToActionCreatedResultAsync<TResult>(this Task<Result> result, Uri? location)
+    {
+        var res = await result.ConfigureAwait(false);
+
+        ActionResult objectResult = new BadRequestResult();
+        res
+#if NET8_0
+            .OnSuccess(() => objectResult = new CreatedResult(location, null))
+#else
+            .OnSuccess(() =>
+            {
+                if (location is null)
+                {
+                    objectResult = new ObjectResult(null)
+                    {
+                        StatusCode = StatusCodes.Status201Created
+                    };
+                }
+                else
+                {
+                    objectResult = new CreatedResult(location, null);
+                }
+            })
+#endif
+            .OnFailed(_ => objectResult = new ObjectResult(res.ToProblemDetails()));
+
+        return objectResult;
+    }
+
+    public static Task<ActionResult>
+    ToActionCreatedResultAsync<TResult>(this Result result, Uri? location)
+    {
+        ActionResult objectResult = new BadRequestResult();
+        result
+#if NET8_0
+            .OnSuccess(() => objectResult = new CreatedResult(location, null))
+#else
+            .OnSuccess(() =>
+            {
+                if (location is null)
+                {
+                    objectResult = new ObjectResult(null)
+                    {
+                        StatusCode = StatusCodes.Status201Created
+                    };
+                }
+                else
+                {
+                    objectResult = new CreatedResult(location, null);
+                }
+            })
+#endif
+            .OnFailed(_ => objectResult = new ObjectResult(result.ToProblemDetails()));
+
+        return Task.FromResult(objectResult);
+    }
+
     #endregion
 
     #region Result<T>
@@ -284,17 +408,7 @@ public static class FromResultToActionResultExtension
         return objectResult;
     }
 
-    public static ActionResult
-    ToActionOkResult(this Result result)
-    {
-        ActionResult objectResult = new BadRequestResult();
 
-        result
-            .OnSuccess(() => objectResult = new NoContentResult())
-            .OnFailed(_ => objectResult = new ObjectResult(result.ToProblemDetails()));
-
-        return objectResult;
-    }
 
     public static ActionResult<T>
     ToActionCreatedResult<TResult, T>(this Result<TResult> result, Uri? location, [DisallowNull] Func<TResult, T> mapper)
@@ -364,5 +478,50 @@ public static class FromResultToActionResultExtension
 
     #endregion
 
-#endregion
+    #region Result
+
+    public static ActionResult
+    ToActionOkResult(this Result result)
+    {
+        ActionResult objectResult = new BadRequestResult();
+
+        result
+            .OnSuccess(() => objectResult = new NoContentResult())
+            .OnFailed(_ => objectResult = new ObjectResult(result.ToProblemDetails()));
+
+        return objectResult;
+    }
+
+    public static ActionResult
+    ToActionCreatedResult(this Result result, Uri? location)
+    {
+        ActionResult objectResult = new BadRequestResult();
+        result
+
+#if NET8_0
+            .OnSuccess(() => objectResult = new CreatedResult(location, null))
+#else
+            .OnSuccess(() =>
+            {
+                if (location is null)
+                {
+                    objectResult = new OkObjectResult(null)
+                    {
+                        StatusCode = StatusCodes.Status201Created
+                    };
+                }
+                else
+                {
+                    objectResult = new CreatedResult(location, null);
+                }
+            })
+#endif
+            .OnFailed(_ => objectResult = new ObjectResult(result.ToProblemDetails()));
+
+        return objectResult;
+    }
+
+    #endregion
+
+    #endregion
 }
