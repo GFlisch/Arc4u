@@ -1,6 +1,7 @@
-﻿using Arc4u.Diagnostics;
-using NServiceBus.Logging;
 using System;
+using System.Globalization;
+using Arc4u.Diagnostics;
+using NServiceBus.Logging;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace Arc4u.NServiceBus.Diagnostics
@@ -30,7 +31,7 @@ namespace Arc4u.NServiceBus.Diagnostics
 
         public void DebugFormat(string format, params object[] args)
         {
-            LoggerBase.Technical.From<LoggerBridge>().Debug(String.Format(format, args)).Log();
+            LoggerBase.Technical.From<LoggerBridge>().Debug(String.Format(CultureInfo.InvariantCulture, format, args)).Log();
         }
 
         public void Error(string message)
@@ -46,23 +47,23 @@ namespace Arc4u.NServiceBus.Diagnostics
 
         public void ErrorFormat(string format, params object[] args)
         {
-            LoggerBase.Technical.From<LoggerBridge>().Error(String.Format(format, args)).Log();
+            LoggerBase.Technical.From<LoggerBridge>().Error(String.Format(CultureInfo.InvariantCulture, format, args)).Log();
         }
 
         public void Fatal(string message)
         {
-            LoggerBase.Technical.From<LoggerBridge>().Fatal(message).Log();
+            LoggerBase.Technical.From<LoggerBridge>().Critical(message).Log();
         }
 
         public void Fatal(string message, Exception exception)
         {
-            LoggerBase.Technical.From<LoggerBridge>().Fatal(message).Log();
+            LoggerBase.Technical.From<LoggerBridge>().Critical(message).Log();
             LoggerBase.Technical.From<LoggerBridge>().Exception(exception).Log();
         }
 
         public void FatalFormat(string format, params object[] args)
         {
-            LoggerBase.Technical.From<LoggerBridge>().Fatal(String.Format(format, args)).Log();
+            LoggerBase.Technical.From<LoggerBridge>().Critical(String.Format(CultureInfo.InvariantCulture, format, args)).Log();
         }
 
         public void Info(string message)
@@ -78,7 +79,7 @@ namespace Arc4u.NServiceBus.Diagnostics
 
         public void InfoFormat(string format, params object[] args)
         {
-            LoggerBase.Technical.From<LoggerBridge>().Information(String.Format(format, args)).Log();
+            LoggerBase.Technical.From<LoggerBridge>().Information(String.Format(CultureInfo.InvariantCulture, format, args)).Log();
         }
 
         public void Warn(string message)
@@ -94,7 +95,7 @@ namespace Arc4u.NServiceBus.Diagnostics
 
         public void WarnFormat(string format, params object[] args)
         {
-            LoggerBase.Technical.From<LoggerBridge>().Warning(String.Format(format, args)).Log();
+            LoggerBase.Technical.From<LoggerBridge>().Warning(String.Format(CultureInfo.InvariantCulture, format, args)).Log();
         }
     }
 }
