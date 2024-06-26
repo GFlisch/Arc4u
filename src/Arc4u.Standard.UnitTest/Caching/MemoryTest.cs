@@ -108,7 +108,8 @@ public class MemoryTest
         var serviceProvider = services.BuildServiceProvider();
 
         var mockIContainer = _fixture.Freeze<Mock<IContainerResolve>>();
-        mockIContainer.Setup(m => m.Resolve<IObjectSerialization>()).Returns(serviceProvider.GetService<IObjectSerialization>()!);
+        IObjectSerialization serializer = serviceProvider.GetRequiredService<IObjectSerialization>();
+        mockIContainer.Setup(m => m.TryResolve<IObjectSerialization>(out serializer)).Returns(true);
 
         var mockIOptions = _fixture.Freeze<Mock<IOptionsMonitor<MemoryCacheOption>>>();
         mockIOptions.Setup(m => m.Get("Store")).Returns(serviceProvider.GetService<IOptionsMonitor<MemoryCacheOption>>()!.Get("Store"));

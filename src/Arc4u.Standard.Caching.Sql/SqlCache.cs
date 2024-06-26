@@ -15,7 +15,7 @@ namespace Arc4u.Caching.Sql;
 /// See Documentation how to create a database here: https://docs.microsoft.com/en-us/aspnet/core/performance/caching/distributed?view=aspnetcore-3.0
 /// </summary>
 [Export("Sql", typeof(ICache))]
-public class SqlCache : BaseDistributeCache, ICache
+public class SqlCache : BaseDistributeCache<SqlCache>, ICache
 {
     private string? Name { get; set; }
 
@@ -25,7 +25,7 @@ public class SqlCache : BaseDistributeCache, ICache
     /// </summary>
     private readonly IOptionsMonitor<SqlCacheOption> _options;
 
-    public SqlCache(ILogger<SqlCache> logger, IContainerResolve container, IOptionsMonitor<SqlCacheOption> options) : base(container)
+    public SqlCache(ILogger<SqlCache> logger, IContainerResolve container, IOptionsMonitor<SqlCacheOption> options) : base(logger, container)
     {
         _logger = logger;
         _options = options;
@@ -63,16 +63,23 @@ public class SqlCache : BaseDistributeCache, ICache
 
             DistributeCache = new SqlServerCache(option);
 
-            if (!Container.TryResolve<IObjectSerialization>(config.SerializerName, out var serializerFactory))
+            if (!string.IsNullOrWhiteSpace(config.SerializerName))
             {
-                SerializerFactory = Container.Resolve<IObjectSerialization>();
-            }
-            else
-            {
+                IsInitialized = Container.TryResolve<IObjectSerialization>(config.SerializerName!, out var serializerFactory);
                 SerializerFactory = serializerFactory;
             }
 
-            IsInitialized = true;
+            if (!IsInitialized)
+            {
+                IsInitialized = Container.TryResolve<IObjectSerialization>(out var serializerFactory);
+                SerializerFactory = serializerFactory;
+            }
+
+            if (!IsInitialized)
+            {
+                _logger.Technical().LogError($"Sql Cache {store} is not initialized. An IObjectSerialization instance cannot be resolved via the Ioc.");
+                return;
+            }
             _logger.Technical().System($"Sql Cache {store} is initialized.").Log();
         }
     }

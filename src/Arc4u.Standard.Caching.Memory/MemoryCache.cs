@@ -16,7 +16,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace Arc4u.Caching.Memory;
 
 [Export("Memory", typeof(ICache))]
-public class MemoryCache : BaseDistributeCache, ICache
+public class MemoryCache : BaseDistributeCache<MemoryCache>, ICache
 {
     private string? Name { get; set; }
 
@@ -26,7 +26,7 @@ public class MemoryCache : BaseDistributeCache, ICache
     /// </summary>
     private readonly IOptionsMonitor<MemoryCacheOption> _options;
 
-    public MemoryCache(ILogger<MemoryCache> logger, IContainerResolve container, IOptionsMonitor<MemoryCacheOption> options) : base(container)
+    public MemoryCache(ILogger<MemoryCache> logger, IContainerResolve container, IOptionsMonitor<MemoryCacheOption> options) : base(logger, container)
     {
         _logger = logger;
         _options = options;
@@ -38,7 +38,7 @@ public class MemoryCache : BaseDistributeCache, ICache
     public override void Initialize(string store)
 #endif
     {
-#if NET7_0_OR_GREATER
+#if NET8_0_OR_GREATER
         ArgumentException.ThrowIfNullOrEmpty(store);
 #else
         if (string.IsNullOrEmpty(store))
@@ -67,16 +67,24 @@ public class MemoryCache : BaseDistributeCache, ICache
 
             DistributeCache = new MemoryDistributedCache(option);
 
-            if (!Container.TryResolve<IObjectSerialization>(config.SerializerName, out var serializerFactory))
+
+            if (!string.IsNullOrWhiteSpace(config.SerializerName))
             {
-                SerializerFactory = Container.Resolve<IObjectSerialization>();
-            }
-            else
-            {
+                IsInitialized = Container.TryResolve<IObjectSerialization>(config.SerializerName!, out var serializerFactory);
                 SerializerFactory = serializerFactory;
             }
 
-            IsInitialized = true;
+            if (!IsInitialized)
+            {
+                IsInitialized = Container.TryResolve<IObjectSerialization>(out var serializerFactory);
+                SerializerFactory = serializerFactory;
+            }
+
+            if (!IsInitialized)
+            {
+                _logger.Technical().LogError($"Memory Cache {store} is not initialized. An IObjectSerialization instance cannot be resolved via the Ioc.");
+                return;
+            }
             _logger.Technical().System($"Memory Cache {store} is initialized.").Log();
         }
     }
