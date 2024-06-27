@@ -38,14 +38,11 @@ public class MemoryCache : BaseDistributeCache<MemoryCache>, ICache
     public override void Initialize(string store)
 #endif
     {
-#if NET8_0_OR_GREATER
-        ArgumentException.ThrowIfNullOrEmpty(store);
-#else
         if (string.IsNullOrEmpty(store))
         {
-            throw new ArgumentException("The value cannot be an empty string.", nameof(store));
+            NotInitializedReason = "When initializing the Memory cache, the value of the store cannot be an empty string.";
+            throw new ArgumentException(NotInitializedReason, nameof(store));
         }
-#endif
 
         lock (_lock)
         {
@@ -55,37 +52,48 @@ public class MemoryCache : BaseDistributeCache<MemoryCache>, ICache
                 return;
             }
 
-            Name = store;
-
-            var config = _options.Get(store);
-
-            var option = new DistriOption(new MemoryDistributedCacheOptions
+            try
             {
-                CompactionPercentage = config.CompactionPercentage,
-                SizeLimit = config.SizeLimitInMB
-            });
+                Name = store;
 
-            DistributeCache = new MemoryDistributedCache(option);
+                var config = _options.Get(store);
 
+                var option = new DistriOption(new MemoryDistributedCacheOptions
+                {
+                    CompactionPercentage = config.CompactionPercentage,
+                    SizeLimit = config.SizeLimitInMB
+                });
 
-            if (!string.IsNullOrWhiteSpace(config.SerializerName))
-            {
-                IsInitialized = Container.TryResolve<IObjectSerialization>(config.SerializerName!, out var serializerFactory);
-                SerializerFactory = serializerFactory;
+                DistributeCache = new MemoryDistributedCache(option);
+
+                if (!string.IsNullOrWhiteSpace(config.SerializerName))
+                {
+                    IsInitialized = Container.TryResolve<IObjectSerialization>(config.SerializerName!, out var serializerFactory);
+                    SerializerFactory = serializerFactory;
+                }
+
+                if (!IsInitialized)
+                {
+                    IsInitialized = Container.TryResolve<IObjectSerialization>(out var serializerFactory);
+                    SerializerFactory = serializerFactory;
+                }
+
+                if (!IsInitialized)
+                {
+                    NotInitializedReason = $"Memory Cache {store} is not initialized. An IObjectSerialization instance cannot be resolved via the Ioc.";
+
+                    _logger.Technical().LogError(NotInitializedReason);
+
+                    return;
+                }
+
+                _logger.Technical().System($"Memory Cache {store} is initialized.").Log();
             }
-
-            if (!IsInitialized)
+            catch (Exception ex)
             {
-                IsInitialized = Container.TryResolve<IObjectSerialization>(out var serializerFactory);
-                SerializerFactory = serializerFactory;
+                NotInitializedReason = $"Memory Cache {store} is not initialized. With exception: {ex.Message}";
+                throw;
             }
-
-            if (!IsInitialized)
-            {
-                _logger.Technical().LogError($"Memory Cache {store} is not initialized. An IObjectSerialization instance cannot be resolved via the Ioc.");
-                return;
-            }
-            _logger.Technical().System($"Memory Cache {store} is initialized.").Log();
         }
     }
 

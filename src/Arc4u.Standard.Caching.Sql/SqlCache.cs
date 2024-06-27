@@ -33,14 +33,11 @@ public class SqlCache : BaseDistributeCache<SqlCache>, ICache
 
     public override void Initialize([DisallowNull] string store)
     {
-#if NET7_0_OR_GREATER
-        ArgumentException.ThrowIfNullOrEmpty(store);
-#else
         if (string.IsNullOrEmpty(store))
         {
-            throw new ArgumentException("The value cannot be an empty string.", nameof(store));
+            NotInitializedReason = "When initializing the Sql cache, the value of the store cannot be an empty string.";
+            throw new ArgumentException(NotInitializedReason, nameof(store));
         }
-#endif
 
         lock (_lock)
         {
@@ -50,37 +47,49 @@ public class SqlCache : BaseDistributeCache<SqlCache>, ICache
                 return;
             }
 
-            Name = store;
-
-            var config = _options.Get(store);
-
-            var option = new SqlServerCacheOptions
+            try
             {
-                ConnectionString = config.ConnectionString,
-                TableName = config.TableName,
-                SchemaName = config.SchemaName
-            };
+                Name = store;
 
-            DistributeCache = new SqlServerCache(option);
+                var config = _options.Get(store);
 
-            if (!string.IsNullOrWhiteSpace(config.SerializerName))
-            {
-                IsInitialized = Container.TryResolve<IObjectSerialization>(config.SerializerName!, out var serializerFactory);
-                SerializerFactory = serializerFactory;
+                var option = new SqlServerCacheOptions
+                {
+                    ConnectionString = config.ConnectionString,
+                    TableName = config.TableName,
+                    SchemaName = config.SchemaName
+                };
+
+                DistributeCache = new SqlServerCache(option);
+
+                if (!string.IsNullOrWhiteSpace(config.SerializerName))
+                {
+                    IsInitialized = Container.TryResolve<IObjectSerialization>(config.SerializerName!, out var serializerFactory);
+                    SerializerFactory = serializerFactory;
+                }
+
+                if (!IsInitialized)
+                {
+                    IsInitialized = Container.TryResolve<IObjectSerialization>(out var serializerFactory);
+                    SerializerFactory = serializerFactory;
+                }
+
+                if (!IsInitialized)
+                {
+                    NotInitializedReason = $"Sql Cache {store} is not initialized. An IObjectSerialization instance cannot be resolved via the Ioc.";
+
+                    _logger.Technical().LogError(NotInitializedReason);
+
+                    return;
+                }
+
+                _logger.Technical().System($"Sql Cache {store} is initialized.").Log();
             }
-
-            if (!IsInitialized)
+            catch (Exception ex)
             {
-                IsInitialized = Container.TryResolve<IObjectSerialization>(out var serializerFactory);
-                SerializerFactory = serializerFactory;
+                NotInitializedReason = $"Sql Cache {store} is not initialized. With exception: {ex.Message}";
+                throw;
             }
-
-            if (!IsInitialized)
-            {
-                _logger.Technical().LogError($"Sql Cache {store} is not initialized. An IObjectSerialization instance cannot be resolved via the Ioc.");
-                return;
-            }
-            _logger.Technical().System($"Sql Cache {store} is initialized.").Log();
         }
     }
     public override string ToString() => Name ?? throw new NullReferenceException();

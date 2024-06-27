@@ -16,6 +16,9 @@ public abstract class BaseDistributeCache<T> : ICache
     protected readonly object _lock = new object();
     protected bool IsInitialized { get; set; }
 
+    // The reason why the cache is not initialized, this will be used when an exception is thrown.
+    protected string NotInitializedReason { get; set; }
+
     protected readonly IContainerResolve _container;
 
     protected IContainerResolve Container => _container;
@@ -333,7 +336,7 @@ public abstract class BaseDistributeCache<T> : ICache
     {
         if (!IsInitialized)
         {
-            throw new CacheNotInitializedException();
+            throw new CacheNotInitializedException(NotInitializedReason);
         }
     }
 }
