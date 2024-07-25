@@ -1,6 +1,4 @@
-using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using Arc4u.Configuration;
 using Arc4u.OAuth2.DataProtection;
@@ -127,15 +125,7 @@ public static partial class AuthenticationExtensions
                     options.ResponseType = oidcOptions.ResponseType;
                     options.CallbackPath = oidcOptions.CallbackPath;
                     options.Scope.Clear();
-                    if (openIdOptions.Scopes.Count == 0)
-                    {
-                        options.Scope.Add(OpenIdConnectScope.OpenIdProfile);
-                        options.Scope.Add(OpenIdConnectScope.OfflineAccess);
-                    }
-                    else
-                    {
-                        openIdOptions.Scopes.ForEach((scope) => options.Scope.Add(scope));
-                    }
+                    openIdOptions.Scopes.ForEach((scope) => options.Scope.Add(scope));
                     options.ClientId = openIdOptions.ClientId;
                     options.ClientSecret = openIdOptions.ClientSecret;
                     // we don't call the user info endpoint => On AzureAd the user.read scope is needed.
@@ -143,7 +133,7 @@ public static partial class AuthenticationExtensions
 
                     options.TokenValidationParameters.SaveSigninToken = false;
                     options.TokenValidationParameters.AuthenticationType = openIdOptions.AuthenticationType;
-                    options.TokenValidationParameters.ValidateAudience = true;
+                    options.TokenValidationParameters.ValidateAudience = oidcOptions.ValidateAudience;
                     options.TokenValidationParameters.ValidAudiences = openIdOptions.Audiences;
 
                     // we will use the same key to generate and validate so we can use this also in the different services...
@@ -306,6 +296,7 @@ public static partial class AuthenticationExtensions
             options.AuthenticationTicketTTL = settings.AuthenticationTicketTTL;
             options.DataProtectionCacheStoreOption = CacheStoreExtension.PrepareAction(configuration, settings.DataProtectionSectionPath);
             options.ClaimsIdentifierOptions = ClaimsidentifierExtension.PrepareAction(configuration, settings.ClaimsIdentifierSectionPath);
+            options.ValidateAudience = settings.ValidateAudience;
         }
 
         services.AddDomainMapping(configuration, settings.DomainMappingsSectionPath);
