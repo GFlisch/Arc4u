@@ -26,4 +26,10 @@ public class JwtAuthenticationSectionOptions
 
     public string DomainMappingsSectionPath { get; set; } = "Authentication:DomainsMapping";
 
+    /// <summary>
+    /// By default the audience is validated. It is always better to do this.
+    /// On Keycloak audience doesn't exist by default, so it is needed to disable it.
+    /// </summary>
+    public bool ValidateAudience { get; set; } = true;
+
 }

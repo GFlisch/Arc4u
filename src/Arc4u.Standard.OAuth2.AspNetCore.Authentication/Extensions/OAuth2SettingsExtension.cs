@@ -111,6 +111,7 @@ public static class OAuth2SettingsExtension
             option.AuthenticationType = settings.AuthenticationType;
             option.ProviderId = settings.ProviderId;
             option.Scopes = settings.Scopes;
+            option.ValidateAudience = settings.ValidateAudience;
         }
 
         return OptionFiller;
