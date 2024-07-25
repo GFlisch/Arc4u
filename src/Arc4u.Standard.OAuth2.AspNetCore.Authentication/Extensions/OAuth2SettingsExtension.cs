@@ -23,7 +23,7 @@ public static class OAuth2SettingsExtension
             configErrors += "ProviderId field is not defined." + System.Environment.NewLine;
         }
 
-        if (!validate.Audiences.Any())
+        if (validate.ValidateAudience && !validate.Audiences.Any())
         {
             configErrors += "Audiences field is not defined." + System.Environment.NewLine;
         }
