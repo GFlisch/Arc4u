@@ -158,7 +158,7 @@ public static partial class AuthenticationExtensions
                     option.TokenValidationParameters.SaveSigninToken = false;
                     option.TokenValidationParameters.AuthenticationType = oauth2Options.AuthenticationType;
                     option.TokenValidationParameters.ValidateIssuer = false;
-                    option.TokenValidationParameters.ValidateAudience = true;
+                    option.TokenValidationParameters.ValidateAudience = oauth2Options.ValidateAudience;
                     option.TokenValidationParameters.ValidAudiences = oauth2Options.Audiences;
                     if (securityKey is not null)
                     {
