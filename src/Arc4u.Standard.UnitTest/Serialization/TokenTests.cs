@@ -89,7 +89,8 @@ namespace Arc4u.UnitTest.Serialization
 
             IObjectSerialization noSerializer = null;
             var mockIContainer = _fixture.Freeze<Mock<IContainerResolve>>();
-            mockIContainer.Setup(m => m.Resolve<IObjectSerialization>()).Returns(serviceProvider.GetService<IObjectSerialization>()!);
+            IObjectSerialization serializer = serviceProvider.GetRequiredService<IObjectSerialization>();
+            mockIContainer.Setup(m => m.TryResolve<IObjectSerialization>(out serializer)).Returns(true);
             mockIContainer.Setup(m => m.TryResolve(storeName, out noSerializer)).Returns(false);
             var mockIOptions = _fixture.Freeze<Mock<IOptionsMonitor<MemoryCacheOption>>>();
             mockIOptions.Setup(m => m.Get(storeName)).Returns(serviceProvider.GetService<IOptionsMonitor<MemoryCacheOption>>()!.Get(storeName));
@@ -127,7 +128,8 @@ namespace Arc4u.UnitTest.Serialization
 
             IObjectSerialization noSerializer = null;
             var mockIContainer = _fixture.Freeze<Mock<IContainerResolve>>();
-            mockIContainer.Setup(m => m.Resolve<IObjectSerialization>()).Returns(serviceProvider.GetService<IObjectSerialization>()!);
+            IObjectSerialization serializer = serviceProvider.GetRequiredService<IObjectSerialization>();
+            mockIContainer.Setup(m => m.TryResolve<IObjectSerialization>(out serializer)).Returns(true);
             mockIContainer.Setup(m => m.TryResolve(storeName, out noSerializer)).Returns(false);
             var mockIOptions = _fixture.Freeze<Mock<IOptionsMonitor<MemoryCacheOption>>>();
             mockIOptions.Setup(m => m.Get(storeName)).Returns(serviceProvider.GetService<IOptionsMonitor<MemoryCacheOption>>()!.Get(storeName));
@@ -165,7 +167,8 @@ namespace Arc4u.UnitTest.Serialization
 
             IObjectSerialization noSerializer = null;
             var mockIContainer = _fixture.Freeze<Mock<IContainerResolve>>();
-            mockIContainer.Setup(m => m.Resolve<IObjectSerialization>()).Returns(serviceProvider.GetService<IObjectSerialization>()!);
+            IObjectSerialization serializer = serviceProvider.GetRequiredService<IObjectSerialization>();
+            mockIContainer.Setup(m => m.TryResolve<IObjectSerialization>(out serializer)).Returns(true);
             mockIContainer.Setup(m => m.TryResolve(storeName, out noSerializer)).Returns(false);
             var mockIOptions = _fixture.Freeze<Mock<IOptionsMonitor<MemoryCacheOption>>>();
             mockIOptions.Setup(m => m.Get(storeName)).Returns(serviceProvider.GetService<IOptionsMonitor<MemoryCacheOption>>()!.Get(storeName));

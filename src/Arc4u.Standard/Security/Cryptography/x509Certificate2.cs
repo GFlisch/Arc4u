@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -92,35 +93,110 @@ public static class Certificate
     /// <returns>The encrypted plain text.</returns>
     public static string Encrypt(this X509Certificate2 x509, string plainText)
     {
-        if (null == x509)
-        {
-            throw new ArgumentNullException(nameof(x509));
-        }
-
         if (string.IsNullOrWhiteSpace(plainText))
         {
             throw new ArgumentNullException(nameof(plainText));
         }
 
-        var plainBytes = Encoding.UTF8.GetBytes(plainText.Trim());
-        byte[] cipherBytes = null;
+        var bytes = Encoding.UTF8.GetBytes(plainText.Trim());
 
-        using (var rsa = x509.GetRSAPublicKey())
+        try
         {
-            cipherBytes = rsa.Encrypt(plainBytes, RSAEncryptionPadding.OaepSHA256);
+            if (bytes.Length < 191)
+            {
+                return x509.Encrypt(bytes);
+            }
+        }
+        catch (Exception)
+        {
+            // will use the Aes encryption.
+            // Encapsulate in case of on an unexpected behaviour on an non tested platform.
         }
 
-        return null == cipherBytes ? string.Empty : Convert.ToBase64String(cipherBytes);
+        using (var aes = Aes.Create())
+        {
+            aes.GenerateKey();
+            aes.GenerateIV();
+
+            var encryptedKey = x509.Encrypt(aes.Key);
+            var encryptedIV = x509.Encrypt(aes.IV);
+            var encryptedData = CypherCodec.EncodeClearText(plainText, aes.Key, aes.IV);
+
+            return $"{encryptedKey}.{encryptedIV}.{encryptedData}";
+        }
+
     }
 
-    public static string Decrypt(this X509Certificate2 x509, string base64CypherString)
+    /// <summary>
+    /// Encrypt a byte array and return an encrypted version formated in a 64String.
+    /// </summary>
+    /// <param name="plainText">The plain text to encrypt.</param>
+    /// <param name="x509">The certificate used to encrypt</param>
+    /// <returns>The encrypted plain text.</returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    private static string Encrypt(this X509Certificate2 x509, byte[] content)
     {
         if (null == x509)
         {
             throw new ArgumentNullException(nameof(x509));
         }
 
-        if (String.IsNullOrWhiteSpace(base64CypherString))
+        if (null == content)
+        {
+            throw new ArgumentNullException(nameof(content));
+        }
+
+        byte[] cipherBytes = null;
+
+        using (var rsa = x509.GetRSAPublicKey())
+        {
+            cipherBytes = rsa.Encrypt(content, RSAEncryptionPadding.OaepSHA256);
+        }
+
+        return null == cipherBytes ? string.Empty : Convert.ToBase64String(cipherBytes);
+    }
+
+    /// <summary>
+    /// Decrypt an formated 64 string encrypted and return the text in clear.
+    /// </summary>
+    /// <param name="plainText">The plain text to encrypt.</param>
+    /// <param name="x509">The certificate used to encrypt</param>
+    /// <returns>The decrypted text.</returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    public static string Decrypt(this X509Certificate2 x509, string base64CypherString)
+    {
+        if (base64CypherString.Contains('.'))
+        {
+            string[] parts = base64CypherString.Split('.');
+            if (parts.Length != 3)
+            {
+                throw new ApplicationException("Invalid encrypted string format");
+            }
+
+            byte[] key = x509.DecryptStringToBytes(parts[0]);
+            byte[] iv = x509.DecryptStringToBytes(parts[1]);
+
+            return CypherCodec.DecodeCypherString(parts[2], key, iv);
+        }
+
+        return Encoding.UTF8.GetString(x509.DecryptStringToBytes(base64CypherString));
+    }
+
+    /// <summary>
+    /// Decrypt an formated 64 string encrypted and return the array of bytes.
+    /// </summary>
+    /// <param name="plainText">The plain text to encrypt.</param>
+    /// <param name="x509">The certificate used to encrypt</param>
+    /// <returns>The decrypted byte array.</returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    private static byte[] DecryptStringToBytes(this X509Certificate2 x509, string base64CypherString)
+    {
+        if (null == x509)
+        {
+            throw new ArgumentNullException(nameof(x509));
+        }
+
+        if (string.IsNullOrWhiteSpace(base64CypherString))
         {
             throw new ArgumentNullException(nameof(base64CypherString));
         }
@@ -133,6 +209,6 @@ public static class Certificate
         var cipherBytes = Convert.FromBase64String(base64CypherString);
 
         using var rsa = x509.GetRSAPrivateKey();
-        return Encoding.UTF8.GetString(rsa.Decrypt(cipherBytes, RSAEncryptionPadding.OaepSHA256));
+        return rsa.Decrypt(cipherBytes, RSAEncryptionPadding.OaepSHA256);
     }
 }

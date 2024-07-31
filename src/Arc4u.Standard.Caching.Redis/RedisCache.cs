@@ -13,7 +13,7 @@ using StackExchangeRedis = Microsoft.Extensions.Caching.StackExchangeRedis.Redis
 namespace Arc4u.Caching.Redis;
 
 [Export("Redis", typeof(ICache))]
-public class RedisCache : BaseDistributeCache, ICache
+public class RedisCache : BaseDistributeCache<RedisCache>, ICache
 {
     private string? Name { get; set; }
 
@@ -24,7 +24,7 @@ public class RedisCache : BaseDistributeCache, ICache
     /// </summary>
     private readonly IOptionsMonitor<RedisCacheOption> _options;
 
-    public RedisCache(ILogger<RedisCache> logger, IContainerResolve container, IOptionsMonitor<RedisCacheOption> options) : base(container)
+    public RedisCache(ILogger<RedisCache> logger, IContainerResolve container, IOptionsMonitor<RedisCacheOption> options) : base(logger, container)
     {
         _logger = logger;
         _options = options;
@@ -32,14 +32,11 @@ public class RedisCache : BaseDistributeCache, ICache
 
     public override void Initialize([DisallowNull] string store)
     {
-#if NET7_0_OR_GREATER
-        ArgumentException.ThrowIfNullOrEmpty(store);
-#else
         if (string.IsNullOrEmpty(store))
         {
-            throw new ArgumentException("The value cannot be an empty string.", nameof(store));
+            NotInitializedReason = "When initializing the Redis cache, the value of the store cannot be an empty string.";
+            throw new ArgumentException(NotInitializedReason, nameof(store));
         }
-#endif
 
         lock (_lock)
         {
@@ -49,29 +46,49 @@ public class RedisCache : BaseDistributeCache, ICache
                 return;
             }
 
-            Name = store;
-
-            var config = _options.Get(store);
-
-            var redisOption = new RedisCacheOptions
+            try
             {
-                InstanceName = config.InstanceName,
-                Configuration = config.ConnectionString,
-            };
+                Name = store;
 
-            DistributeCache = new StackExchangeRedis(redisOption);
+                var config = _options.Get(store);
 
-            if (!Container.TryResolve<IObjectSerialization>(config.SerializerName, out var serializerFactory))
-            {
-                SerializerFactory = Container.Resolve<IObjectSerialization>();
+                var redisOption = new RedisCacheOptions
+                {
+                    InstanceName = config.InstanceName,
+                    Configuration = config.ConnectionString,
+                };
+
+                DistributeCache = new StackExchangeRedis(redisOption);
+
+                if (!string.IsNullOrWhiteSpace(config.SerializerName))
+                {
+                    IsInitialized = Container.TryResolve<IObjectSerialization>(config.SerializerName!, out var serializerFactory);
+                    SerializerFactory = serializerFactory;
+                }
+
+                if (!IsInitialized)
+                {
+                    IsInitialized = Container.TryResolve<IObjectSerialization>(out var serializerFactory);
+                    SerializerFactory = serializerFactory;
+                }
+
+                if (!IsInitialized)
+                {
+                    NotInitializedReason = $"Redis Cache {store} is not initialized. An IObjectSerialization instance cannot be resolved via the Ioc.";
+
+                    _logger.Technical().LogError(NotInitializedReason);
+
+                    return;
+                }
+
+                _logger.Technical().System($"Redis Cache {store} is initialized.").Log();
             }
-            else
+            catch (Exception ex)
             {
-                SerializerFactory = serializerFactory;
+                NotInitializedReason = $"Redis Cache {store} is not initialized. With exception: {ex.Message}";
+                throw;
             }
 
-            IsInitialized = true;
-            _logger.Technical().System($"Redis Cache {store} is initialized.").Log();
         }
     }
 

@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Arc4u.Results;
 using Arc4u.Results.Validation;
@@ -7,6 +8,7 @@ using FluentAssertions;
 using FluentResults;
 using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 namespace Arc4u.UnitTest.Results;
@@ -162,8 +164,8 @@ public class ResultTests
         var result = Task.FromResult(Result.Fail(""));
         var globalResult = Result.Ok();
 
-        var sut = await result.LogIfFailedAsync(globalResult)
-        .ConfigureAwait(false);
+        var sut = await result.LogIfFailed()
+                              .OnFailed(globalResult);
 
         sut.Should().BeSameAs(result.Result);
         globalResult.IsFailed.Should().BeTrue();
@@ -174,15 +176,33 @@ public class ResultTests
     [Trait("Category", "CI")]
     public async Task Test_ValueTask_Log_If_Failed_Should()
     {
-        var result = ValueTask.FromResult(Result.Fail<string>(""));
+        var result = ValueTask.FromResult(Result.Fail<Guid>(""));
         Result<string> globalResult = Result.Ok();
 
-        var sut = await result.LogIfFailedAsync(globalResult)
-        .ConfigureAwait(false);
+        var sut = await result.LogIfFailed()
+                              .OnFailed((errors) => globalResult.WithErrors(errors));
+                                
 
         sut.Should().BeSameAs(result.Result);
         globalResult.IsFailed.Should().BeTrue();
         globalResult.Errors.Count.Should().Be(1);
+    }
+
+    [Fact]
+    [Trait("Category", "CI")]
+    public async Task Test_Exception_Failed_Should()
+    {
+        Result globalResult = Result.Ok();
+
+        Func<Task> error = () => throw new DbUpdateException(); 
+
+        await Result.Try(() => error())
+                    .OnFailed(globalResult);
+
+        globalResult.IsFailed.Should().BeTrue();
+        globalResult.Errors.Count.Should().Be(1);
+        globalResult.Errors[0].Should().BeOfType<ExceptionalError>();
+        globalResult.Errors[0].As<ExceptionalError>().Exception.Should().BeOfType<DbUpdateException>();
     }
 
     [Fact]
@@ -203,16 +223,14 @@ public class ResultTests
     {
         var validator = new Validation();
 
-        var validation = validator.Validate(string.Empty);
-
-        validation.IsValid.Should().BeFalse();
-
-        var sut = Result.Fail(validation.Errors.ToFluentResultErrors());
+        var sut = validator.ValidateWithResult(string.Empty);
 
         sut.IsFailed.Should().BeTrue();
         sut.Errors.Count.Should().Be(1);
-        sut.Errors[0].Message.Should().Be("A");
-        sut.Errors[0].Metadata["Code"].Should().Be("Code");
+        var error = sut.Errors[0].As<ValidationError>(); 
+        error.Message.Should().Be("A");
+        error.Code.Should().Be("Code");
+        error.Metadata["Severity"].Should().Be(Severity.Warning);
 
     }
 
@@ -220,7 +238,7 @@ public class ResultTests
     {
         public Validation()
         {
-            RuleFor(s => s).NotEmpty().WithMessage("A").WithErrorCode("Code");
+            RuleFor(s => s).NotEmpty().WithMessage("A").WithErrorCode("Code").WithSeverity(Severity.Warning);
         }
     }
 }

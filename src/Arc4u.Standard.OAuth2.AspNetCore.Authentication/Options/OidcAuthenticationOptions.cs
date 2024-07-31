@@ -63,4 +63,10 @@ public class OidcAuthenticationOptions
     /// Default is 7 days.
     /// </summary>
     public TimeSpan AuthenticationTicketTTL { get; set; } = TimeSpan.FromDays(7);
+
+    /// <summary>
+    /// By default the audience is validated. It is always better to do this.
+    /// On Keycloak audience doesn't exist by default, so it is needed to disable it.
+    /// </summary>
+    public bool ValidateAudience { get; set; } = true;
 }

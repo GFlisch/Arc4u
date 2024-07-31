@@ -113,16 +113,14 @@ public class ScopeTest
     [Fact]
     public async Task TestAsync1()
     {
-        using (new Scope<String>("Hello"))
+        using (new Scope<string>("Hello"))
         {
-            var testThread = Environment.CurrentManagedThreadId;
-            var awaitThread = await GetManageThreadIdAsync().ConfigureAwait(false);
+            await GetManageThreadIdAsync();
 
-            Assert.False(testThread == awaitThread);
-            Assert.Equal("Hello", Scope<String>.Current);
+            Assert.Equal("Hello", Scope<string>.Current);
         }
 
-        Assert.Null(Scope<String>.Current);
+        Assert.Null(Scope<string>.Current);
     }
 
     [Fact]

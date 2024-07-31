@@ -1,32 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
-    <RootNamespace>Arc4u.MongoDB</RootNamespace>
-    <Authors>Gilles Flisch</Authors>
-    <Description>Core Framework to use MongoDB.</Description>
-    <Copyright>Gilles Flisch</Copyright>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <RepositoryUrl>https://github.com/GFlisch/Arc4u</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <PackageTags>Arc4u</PackageTags>
-    <PackageProjectUrl>https://github.com/GFlisch/Arc4u</PackageProjectUrl>
-    <Version>0.0.0.0</Version>
-    <LangVersion>latest</LangVersion>
+    <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
     <PackageId>Arc4u.Standard.MongoDB</PackageId>
-    <RootNamespace>$(MSBuildProjectName.Replace(" ", "_").Replace(".Standard", ""))</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Arc4u.Standard.Dependency\Arc4u.Standard.Dependency.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\LICENSE">
-      <Pack>True</Pack>
-      <PackagePath>
-      </PackagePath>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="MongoDB.Driver" Version="2.23.1" />
+    <PackageReference Include="MongoDB.Driver" Version="2.25.0" />
   </ItemGroup>
 </Project>

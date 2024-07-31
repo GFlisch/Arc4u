@@ -1,36 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>0.0.0.0</Version>
-    <Authors>Gilles Flisch</Authors>
-    <Company>Gilles Flisch</Company>
-    <Description>Core framework to integrate gRpc in asp net core.</Description>
-    <Copyright>Gilles Flisch</Copyright>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageProjectUrl>https://github.com/GFlisch/Arc4u</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/GFlisch/Arc4u</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <PackageTags>Arc4u</PackageTags>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.0</FileVersion>
-    <RootNamespace>Arc4u.Standard.AspNetCore</RootNamespace>
-    <LangVersion>latest</LangVersion>
+    <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
     <PackageId>Arc4u.Standard.AspNetCore.gRpc</PackageId>
-    <RootNamespace>$(MSBuildProjectName.Replace(" ", "_").Replace(".Standard", ""))</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Grpc.AspNetCore.Server" Version="2.60.0" />
+    <PackageReference Include="Grpc.AspNetCore.Server" Version="2.63.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Arc4u.Standard.Dependency\Arc4u.Standard.Dependency.csproj" />
     <ProjectReference Include="..\Arc4u.Standard.Diagnostics\Arc4u.Standard.Diagnostics.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\LICENSE">
-      <Pack>True</Pack>
-      <PackagePath>
-      </PackagePath>
-    </None>
   </ItemGroup>
 </Project>

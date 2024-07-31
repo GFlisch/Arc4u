@@ -1,6 +1,5 @@
-using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using Arc4u.Configuration;
 using Arc4u.OAuth2.DataProtection;
 using Arc4u.OAuth2.Middleware;
@@ -126,10 +125,7 @@ public static partial class AuthenticationExtensions
                     options.ResponseType = oidcOptions.ResponseType;
                     options.CallbackPath = oidcOptions.CallbackPath;
                     options.Scope.Clear();
-                    options.Scope.Add(OpenIdConnectScope.OpenIdProfile);
-                    options.Scope.Add(OpenIdConnectScope.OfflineAccess);
                     openIdOptions.Scopes.ForEach((scope) => options.Scope.Add(scope));
-
                     options.ClientId = openIdOptions.ClientId;
                     options.ClientSecret = openIdOptions.ClientSecret;
                     // we don't call the user info endpoint => On AzureAd the user.read scope is needed.
@@ -137,7 +133,7 @@ public static partial class AuthenticationExtensions
 
                     options.TokenValidationParameters.SaveSigninToken = false;
                     options.TokenValidationParameters.AuthenticationType = openIdOptions.AuthenticationType;
-                    options.TokenValidationParameters.ValidateAudience = true;
+                    options.TokenValidationParameters.ValidateAudience = oidcOptions.ValidateAudience;
                     options.TokenValidationParameters.ValidAudiences = openIdOptions.Audiences;
 
                     // we will use the same key to generate and validate so we can use this also in the different services...
@@ -162,7 +158,7 @@ public static partial class AuthenticationExtensions
                     option.TokenValidationParameters.SaveSigninToken = false;
                     option.TokenValidationParameters.AuthenticationType = oauth2Options.AuthenticationType;
                     option.TokenValidationParameters.ValidateIssuer = false;
-                    option.TokenValidationParameters.ValidateAudience = true;
+                    option.TokenValidationParameters.ValidateAudience = oauth2Options.ValidateAudience;
                     option.TokenValidationParameters.ValidAudiences = oauth2Options.Audiences;
                     if (securityKey is not null)
                     {
@@ -257,7 +253,7 @@ public static partial class AuthenticationExtensions
         certificateLoader ??= new X509CertificateLoader(null);
         var certSecurityKey = string.IsNullOrWhiteSpace(settings.CertSecurityKeyPath) ? null : certificateLoader.FindCertificate(configuration, settings.CertSecurityKeyPath) ?? throw new MissingFieldException($"No certificate was found based on the configuration section: {settings.CertSecurityKeyPath}.");
 
-        var cert = new X509CertificateLoader(null).FindCertificate(configuration, settings.CertificateSectionPath) ?? throw new MissingFieldException($"No certificate was found based on the configuration section: {settings.CertificateSectionPath}.");
+        var cert = certificateLoader.FindCertificate(configuration, settings.CertificateSectionPath) ?? throw new MissingFieldException($"No certificate was found based on the configuration section: {settings.CertificateSectionPath}.");
 
         var ticketStoreAction = CacheTicketStoreExtension.PrepareAction(configuration, settings.AuthenticationCacheTicketStorePath);
 
@@ -300,6 +296,7 @@ public static partial class AuthenticationExtensions
             options.AuthenticationTicketTTL = settings.AuthenticationTicketTTL;
             options.DataProtectionCacheStoreOption = CacheStoreExtension.PrepareAction(configuration, settings.DataProtectionSectionPath);
             options.ClaimsIdentifierOptions = ClaimsidentifierExtension.PrepareAction(configuration, settings.ClaimsIdentifierSectionPath);
+            options.ValidateAudience = settings.ValidateAudience;
         }
 
         services.AddDomainMapping(configuration, settings.DomainMappingsSectionPath);
@@ -367,7 +364,7 @@ public static partial class AuthenticationExtensions
                     option.TokenValidationParameters.SaveSigninToken = false;
                     option.TokenValidationParameters.AuthenticationType = Constants.BearerAuthenticationType;
                     option.TokenValidationParameters.ValidateIssuer = false;
-                    option.TokenValidationParameters.ValidateAudience = true;
+                    option.TokenValidationParameters.ValidateAudience = oauth2Options.ValidateAudience;
                     option.TokenValidationParameters.ValidAudiences = oauth2Options.Audiences;
                     if (securityKey is not null)
                     {
@@ -379,7 +376,7 @@ public static partial class AuthenticationExtensions
         return authenticationBuilder;
     }
 
-    public static AuthenticationBuilder AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration, [DisallowNull] string authenticationSectionName = "Authentication")
+    public static AuthenticationBuilder AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration, [DisallowNull] string authenticationSectionName = "Authentication", IX509CertificateLoader? certificateLoader = null)
     {
         ArgumentNullException.ThrowIfNull(configuration);
         ArgumentNullException.ThrowIfNull(authenticationSectionName);
@@ -413,7 +410,16 @@ public static partial class AuthenticationExtensions
             throw new MissingFieldException("The JwtBearerEventsType must be defined.");
         }
 
-        var certSecurityKey = string.IsNullOrWhiteSpace(settings.CertSecurityKeyPath) ? null : new X509CertificateLoader(null).FindCertificate(configuration, settings.CertSecurityKeyPath) ?? throw new MissingFieldException($"No certificate was found based on the configuration section: {settings.CertSecurityKeyPath}.");
+        X509Certificate2? certSecurityKey;
+
+        if (string.IsNullOrWhiteSpace(settings.CertSecurityKeyPath))
+            certSecurityKey = null;
+        else
+        {
+            // we only need a non-null loader in this case
+            certificateLoader ??= new X509CertificateLoader(null);
+            certSecurityKey = string.IsNullOrWhiteSpace(settings.CertSecurityKeyPath) ? null : certificateLoader.FindCertificate(configuration, settings.CertSecurityKeyPath) ?? throw new MissingFieldException($"No certificate was found based on the configuration section: {settings.CertSecurityKeyPath}.");
+        }
 
         void JwtAuthenticationFiller(JwtAuthenticationOptions options)
         {
@@ -434,6 +440,4 @@ public static partial class AuthenticationExtensions
 
         return services.AddJwtAuthentication(configuration, JwtAuthenticationFiller);
     }
-
-    static string[] SplitString(string value) => value.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToArray();
 }

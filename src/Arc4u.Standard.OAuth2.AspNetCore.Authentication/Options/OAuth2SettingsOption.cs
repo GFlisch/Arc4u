@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace Arc4u.OAuth2.Options;
 public class OAuth2SettingsOption
 {
@@ -13,5 +11,7 @@ public class OAuth2SettingsOption
 
     // use for Obo scenario.
     public List<string> Scopes { get; set; } = new List<string>();
+
+    public bool ValidateAudience { get; set; } = true;
 
 }

@@ -1,9 +1,9 @@
-﻿using System;
+namespace Arc4u.Caching;
 
-namespace Arc4u.Caching
+public class CacheNotInitializedException : Exception
 {
-    public class CacheNotInitializedException : Exception
-    {
-        public CacheNotInitializedException() : base($"The cache used is not initialized!") { }
-    }
+    const string defaultMessage = "The cache used is not initialized!";
+    public CacheNotInitializedException() : base(defaultMessage) { }
+
+    public CacheNotInitializedException(string message) : base(message ?? defaultMessage) { }
 }

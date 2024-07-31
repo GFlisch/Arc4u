@@ -68,8 +68,6 @@ public class CacheContext : ICacheContext
             var config = new Configuration.Caching();
             configuration.Bind("Caching", config);
 
- //           Principal = config.Principal;
-
             if (null != config.Default && !string.IsNullOrWhiteSpace(config.Default))
             {
                 _cacheConfigName = config.Default;

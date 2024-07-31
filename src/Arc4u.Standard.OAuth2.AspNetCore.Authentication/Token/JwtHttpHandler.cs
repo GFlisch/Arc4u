@@ -91,95 +91,88 @@ public class JwtHttpHandler : DelegatingHandler
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        try
-        {
-            _logger.Technical().System($"{GetType().Name} delegate handler is called.").Log();
 
-            var applicationContext = GetCallContext(out var containerResolve);
+	   _logger.Technical().System($"{GetType().Name} delegate handler is called.").Log();
 
-            if (_settings is null || containerResolve is null)
-            {
-                _logger.Technical().System($"No settings or application context is defined with {GetType().Name}, Check next Delegate Handler").Log();
-                return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
-            }
+		var applicationContext = GetCallContext(out var containerResolve);
 
-            // Or we have an OAuth token and we have to validate if the Authenication Type is 
-            // well the same as the ClaimsPrincipal!
-            // Or we inject in a header another kind of token and we just inject it (no other check).
-            // By pass is provided with the AuthenticationType value = "Inject"
+		if (_settings is null || applicationContext is null || containerResolve is null)
+		{
+			_logger.Technical().System($"No settings or application context is defined with {GetType().Name}, Check next Delegate Handler").Log();
+			return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
+		}
 
-            if (!_settings.Values.TryGetValue(TokenKeys.AuthenticationTypeKey, out var authenticationType))
-            {
-                _logger.Technical().System($"No authentication type for {GetType().Name}, Check next Delegate Handler").Log();
-                return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
-            }
+		// Or we have an OAuth token and we have to validate if the Authenication Type is 
+		// well the same as the ClaimsPrincipal!
+		// Or we inject in a header another kind of token and we just inject it (no other check).
+		// By pass is provided with the AuthenticationType value = "Inject"
 
-            var inject = authenticationType.Equals("inject", StringComparison.OrdinalIgnoreCase);
+		if (!_settings.Values.TryGetValue(TokenKeys.AuthenticationTypeKey, out var authenticationType))
+		{
+			_logger.Technical().System($"No authentication type for {GetType().Name}, Check next Delegate Handler").Log();
+			return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
+		}
 
-            // if we don't inject a bearer token, the AuthenticationType defined in the settings must be the same as the authentication type defined in the Identity.
-            if (!inject
-                && applicationContext?.Principal?.Identity?.AuthenticationType is not null
-                && !authenticationType.Contains(applicationContext.Principal.Identity.AuthenticationType, StringComparison.OrdinalIgnoreCase))
-            {
-                _logger.Technical().System($"Authentication type is not the same as the Identity for {GetType().Name}, Check next Delegate Handler").Log();
-                return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
-            }
+		var inject = authenticationType.Equals("inject", StringComparison.OrdinalIgnoreCase);
 
-            // if we inject more than one bearer token do it only if no one exist already.
-            if (request.Headers.Authorization is not null)
-            {
-                _logger.Technical().System($"An authorization header already exist for handler {GetType().Name}, Check next Delegate Handler").Log();
-                return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
-            }
+		// if we don't inject a bearer token, the AuthenticationType defined in the settings must be the same as the authentication type defined in the Identity.
+		if (!inject
+			&& applicationContext?.Principal?.Identity?.AuthenticationType is not null
+			&& !authenticationType.Contains(applicationContext.Principal.Identity.AuthenticationType, StringComparison.OrdinalIgnoreCase))
+		{
+			_logger.Technical().System($"Authentication type is not the same as the Identity for {GetType().Name}, Check next Delegate Handler").Log();
+			return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
+		}
 
-            _logger.Technical().System($"{GetType().Name} token provider is called.").Log();
+		// if we inject more than one bearer token do it only if no one exist already.
+		if (request.Headers.Authorization is not null)
+		{
+			_logger.Technical().System($"An authorization header already exist for handler {GetType().Name}, Check next Delegate Handler").Log();
+			return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
+		}
 
-            ITokenProvider provider = containerResolve.Resolve<ITokenProvider>(_settings.Values[TokenKeys.ProviderIdKey]);
+		_logger.Technical().System($"{GetType().Name} token provider is called.").Log();
 
-            _logger.Technical().System("Requesting an authentication token.").Log();
-            var tokenInfo = await provider.GetTokenAsync(_settings, null).ConfigureAwait(false);
+		ITokenProvider provider = containerResolve.Resolve<ITokenProvider>(_settings.Values[TokenKeys.ProviderIdKey]);
 
-            // check if the token is still valid.
-            // This is due to gRPC. It is possible that a gRPC streaming call is not closed and the token in the HttpContext is expired.
-            // It is also possible this with OAuth where the token is added to the Identity and used like this => no refresh of the token is possible.
-            if (tokenInfo.ExpiresOnUtc < DateTime.UtcNow)
-            {
-                _logger.Technical().System($"Token is expired! Next Hanlder will be called.").Log();
-                return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
-            }
+		_logger.Technical().System("Requesting an authentication token.").Log();
+		var tokenInfo = await provider.GetTokenAsync(_settings, null).ConfigureAwait(false);
 
-            _logger.Technical().System("Remove any Bearer token attached.").Log();
-            request.Headers.Remove("Bearer");
+		// check if the token is still valid.
+		// This is due to gRPC. It is possible that a gRPC streaming call is not closed and the token in the HttpContext is expired.
+		// It is also possible this with OAuth where the token is added to the Identity and used like this => no refresh of the token is possible.
+		if (tokenInfo.ExpiresOnUtc < DateTime.UtcNow)
+		{
+			_logger.Technical().System($"Token is expired! Next Hanlder will be called.").Log();
+			return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
+		}
 
-            var scheme = inject ? tokenInfo.TokenType : "Bearer";
-            _logger.Technical().System($"Add the {scheme} token to provide authentication evidence.").Log();
+		_logger.Technical().System("Remove any Bearer token attached.").Log();
+		request.Headers.Remove("Bearer");
 
-            if (_supportedSchemes.Any(s => s.Equals(scheme, StringComparison.OrdinalIgnoreCase)))
-            {
-                request.Headers.Authorization = new AuthenticationHeaderValue(scheme, tokenInfo.Token);
-            }
-            else
-            {
-                request.Headers.Add(scheme, tokenInfo.Token);
-            }
+		var scheme = inject ? tokenInfo.TokenType : "Bearer";
+		_logger.Technical().System($"Add the {scheme} token to provide authentication evidence.").Log();
 
-            // Add ActivityId if founded!
-            if (applicationContext?.Principal is not null)
-            {
-                var culture = applicationContext!.Principal?.Profile?.CurrentCulture?.TwoLetterISOLanguageName;
-                if (culture is not null)
-                {
-                    request.Headers.Add("culture", culture);
-                    _logger.Technical().System($"Add the current culture to the request: {culture}").Log();
+		if (_supportedSchemes.Any(s => s.Equals(scheme, StringComparison.OrdinalIgnoreCase)))
+		{
+			request.Headers.Authorization = new AuthenticationHeaderValue(scheme, tokenInfo.Token);
+		}
+		else
+		{
+			request.Headers.Add(scheme, tokenInfo.Token);
+		}
 
-                }
-            }
+		// Add ActivityId if founded!
+		if (applicationContext?.Principal is not null)
+		{
+			var culture = applicationContext!.Principal?.Profile?.CurrentCulture?.TwoLetterISOLanguageName;
+			if (culture is not null)
+			{
+				request.Headers.Add("culture", culture);
+				_logger.Technical().System($"Add the current culture to the request: {culture}").Log();
 
-        }
-        catch (Exception ex)
-        {
-            _logger.Technical().Exception(ex).Log();
-        }
+			}
+		}
 
         return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
     }

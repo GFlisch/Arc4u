@@ -1,45 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Nullable>enable</Nullable>
-    <RootNamespace>Prism.DI.Wpf</RootNamespace>
-    <AssemblyName>Arc4u.Prism.DI.Wpf</AssemblyName>
     <TargetFrameworks>net6.0-windows;net8.0-windows</TargetFrameworks>
-    <LangVersion>10.0</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup Label="Globals">
-    <SccProjectName>SAK</SccProjectName>
-    <SccProvider>SAK</SccProvider>
-    <SccAuxPath>SAK</SccAuxPath>
-    <SccLocalPath>SAK</SccLocalPath>
-  </PropertyGroup>
-  <PropertyGroup>
-    <Description>Wpf Prism framework with DI</Description>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.0</FileVersion>
-    <Version>0.0.0.0</Version>
-    <Authors>Gilles Flisch</Authors>
-    <Company>Gilles Flisch</Company>
-    <Copyright>Gilles Flisch</Copyright>
-    <PackageProjectUrl>https://github.com/GFlisch/Arc4u</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/GFlisch/Arc4u</RepositoryUrl>
-    <PackageLicenseExpression>
-    </PackageLicenseExpression>
-    <PackageTags>Arc4u</PackageTags>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <LangVersion>latest</LangVersion>
     <PackageId>Arc4u.Prism.DI.Wpf</PackageId>
-    <RootNamespace>$(MSBuildProjectName.Replace(" ", "_").Replace(".Standard", ""))</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="..\..\LICENSE">
-      <Pack>True</Pack>
-      <PackagePath>
-      </PackagePath>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.8.0">
+    <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.9.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

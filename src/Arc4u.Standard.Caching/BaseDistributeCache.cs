@@ -2,14 +2,12 @@ using Arc4u.Dependency;
 using Arc4u.Diagnostics;
 using Arc4u.Serializer;
 using Microsoft.Extensions.Caching.Distributed;
-using System;
+using Microsoft.Extensions.Logging;
 using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Arc4u.Caching;
 
-public abstract class BaseDistributeCache : ICache
+public abstract class BaseDistributeCache<T> : ICache
 {
     private bool disposed;
 
@@ -18,19 +16,28 @@ public abstract class BaseDistributeCache : ICache
     protected readonly object _lock = new object();
     protected bool IsInitialized { get; set; }
 
+    // The reason why the cache is not initialized, this will be used when an exception is thrown.
+    protected string NotInitializedReason { get; set; }
+
     protected readonly IContainerResolve _container;
 
     protected IContainerResolve Container => _container;
     private readonly ActivitySource _activitySource;
 
-    public BaseDistributeCache(IContainerResolve container)
+    public BaseDistributeCache(ILogger<T> logger, IContainerResolve container)
     {
+#if NETSTANDARD2_0
         if (null == container)
         {
             throw new ArgumentNullException(nameof(container));
         }
+#else
+        ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(container);
+#endif
 
         _container = container;
+        _logger = logger;
 
         if (container.TryResolve<IActivitySourceFactory>(out var activitySourceFactory))
         {
@@ -123,9 +130,22 @@ public abstract class BaseDistributeCache : ICache
 
     public virtual void Initialize(string store) { }
 
-    protected IObjectSerialization SerializerFactory { get; set; }
+    protected IObjectSerialization SerializerFactory
+                {
+                    get
+                    {
+                        if (null == _serializerFactory)
+                        {
+                            _logger.Technical().LogError("A strong dependency on IObjectSerialization exists in Arc4u and distribute caching!");
+                        }
+
+                        return _serializerFactory;
+                    }
+                    set => _serializerFactory = value; }
 
     protected DistributedCacheEntryOptions DefaultOption = new DistributedCacheEntryOptions();
+    private IObjectSerialization _serializerFactory;
+    private ILogger<T> _logger;
 
     public void Put<T>(string key, T value)
     {
@@ -316,7 +336,7 @@ public abstract class BaseDistributeCache : ICache
     {
         if (!IsInitialized)
         {
-            throw new CacheNotInitializedException();
+            throw new CacheNotInitializedException(NotInitializedReason);
         }
     }
 }
