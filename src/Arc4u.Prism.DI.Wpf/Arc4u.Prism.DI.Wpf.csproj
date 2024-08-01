@@ -4,7 +4,7 @@
     <PackageId>Arc4u.Prism.DI.Wpf</PackageId>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.9.2">
+    <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.10.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
