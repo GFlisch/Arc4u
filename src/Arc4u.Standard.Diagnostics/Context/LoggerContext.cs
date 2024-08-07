@@ -1,4 +1,4 @@
-﻿using Arc4u.Threading;
+using Arc4u.Threading;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -72,7 +72,6 @@ namespace Arc4u.Diagnostics
                 case LoggingConstants.ProcessId:
                 case LoggingConstants.Stacktrace:
                 case LoggingConstants.ThreadId:
-                case LoggingConstants.Type:
                     throw new ReservedLoggingKeyException(key);
             }
 

@@ -1,4 +1,4 @@
-﻿namespace Arc4u.Diagnostics
+namespace Arc4u.Diagnostics
 {
     public static class LoggingConstants
     {
@@ -19,7 +19,5 @@
         public const string Stacktrace = "Stacktrace";
 
         public const string Category = "Category";
-
-        public const string Type = "Type";
     }
 }
