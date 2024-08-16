@@ -1,40 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
-    <Version>0.0.0.0</Version>
-    <Authors>Gilles Flisch</Authors>
+    <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
     <Description>Package used on Interface and Facade projects to return ProblemDetails based on Results.</Description>
-    <Copyright>Gilles Flisch</Copyright>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageIcon>Arc4u.png</PackageIcon>
-    <PackageProjectUrl>https://github.com/GFlisch/Arc4u</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/GFlisch/Arc4u</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <PackageTags>Arc4u</PackageTags>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.0</FileVersion>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <RootNamespace>Arc4u.OAuth2</RootNamespace>
-    <LangVersion>latest</LangVersion>
     <PackageId>Arc4u.AspNetCore.Results</PackageId>
-    <RootNamespace>$(MSBuildProjectName.Replace(" ", "_").Replace(".Standard", ""))</RootNamespace>
-    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\LICENSE">
-      <Pack>True</Pack>
-      <PackagePath>
-      </PackagePath>
-    </None>
-    <None Include="..\..\Arc4u.png">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Arc4u.Standard.Results\Arc4u.Standard.Results.csproj" />

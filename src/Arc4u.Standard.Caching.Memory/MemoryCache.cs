@@ -16,7 +16,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace Arc4u.Caching.Memory;
 
 [Export("Memory", typeof(ICache))]
-public class MemoryCache : BaseDistributeCache, ICache
+public class MemoryCache : BaseDistributeCache<MemoryCache>, ICache
 {
     private string? Name { get; set; }
 
@@ -26,7 +26,7 @@ public class MemoryCache : BaseDistributeCache, ICache
     /// </summary>
     private readonly IOptionsMonitor<MemoryCacheOption> _options;
 
-    public MemoryCache(ILogger<MemoryCache> logger, IContainerResolve container, IOptionsMonitor<MemoryCacheOption> options) : base(container)
+    public MemoryCache(ILogger<MemoryCache> logger, IContainerResolve container, IOptionsMonitor<MemoryCacheOption> options) : base(logger, container)
     {
         _logger = logger;
         _options = options;
@@ -38,14 +38,11 @@ public class MemoryCache : BaseDistributeCache, ICache
     public override void Initialize(string store)
 #endif
     {
-#if NET7_0_OR_GREATER
-        ArgumentException.ThrowIfNullOrEmpty(store);
-#else
         if (string.IsNullOrEmpty(store))
         {
-            throw new ArgumentException("The value cannot be an empty string.", nameof(store));
+            NotInitializedReason = "When initializing the Memory cache, the value of the store cannot be an empty string.";
+            throw new ArgumentException(NotInitializedReason, nameof(store));
         }
-#endif
 
         lock (_lock)
         {
@@ -55,29 +52,48 @@ public class MemoryCache : BaseDistributeCache, ICache
                 return;
             }
 
-            Name = store;
-
-            var config = _options.Get(store);
-
-            var option = new DistriOption(new MemoryDistributedCacheOptions
+            try
             {
-                CompactionPercentage = config.CompactionPercentage,
-                SizeLimit = config.SizeLimitInMB
-            });
+                Name = store;
 
-            DistributeCache = new MemoryDistributedCache(option);
+                var config = _options.Get(store);
 
-            if (!Container.TryResolve<IObjectSerialization>(config.SerializerName, out var serializerFactory))
-            {
-                SerializerFactory = Container.Resolve<IObjectSerialization>();
+                var option = new DistriOption(new MemoryDistributedCacheOptions
+                {
+                    CompactionPercentage = config.CompactionPercentage,
+                    SizeLimit = config.SizeLimitInMB
+                });
+
+                DistributeCache = new MemoryDistributedCache(option);
+
+                if (!string.IsNullOrWhiteSpace(config.SerializerName))
+                {
+                    IsInitialized = Container.TryResolve<IObjectSerialization>(config.SerializerName!, out var serializerFactory);
+                    SerializerFactory = serializerFactory;
+                }
+
+                if (!IsInitialized)
+                {
+                    IsInitialized = Container.TryResolve<IObjectSerialization>(out var serializerFactory);
+                    SerializerFactory = serializerFactory;
+                }
+
+                if (!IsInitialized)
+                {
+                    NotInitializedReason = $"Memory Cache {store} is not initialized. An IObjectSerialization instance cannot be resolved via the Ioc.";
+
+                    _logger.Technical().LogError(NotInitializedReason);
+
+                    return;
+                }
+
+                _logger.Technical().System($"Memory Cache {store} is initialized.").Log();
             }
-            else
+            catch (Exception ex)
             {
-                SerializerFactory = serializerFactory;
+                NotInitializedReason = $"Memory Cache {store} is not initialized. With exception: {ex.Message}";
+                throw;
             }
-
-            IsInitialized = true;
-            _logger.Technical().System($"Memory Cache {store} is initialized.").Log();
         }
     }
 

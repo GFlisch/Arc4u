@@ -8,7 +8,6 @@ using AutoFixture;
 using AutoFixture.AutoMoq;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
-using Moq;
 using Xunit;
 
 namespace Arc4u.UnitTest.Decryptor;
@@ -48,7 +47,7 @@ public class CertificateDecryptor
 
 
     [Fact]
-    public void CertficateShouldDecrypt()
+    public void Certficate_Small_Text_ShouldDecrypt()
     {
         // arrange
         var certificate = GetX509Certificate2();
@@ -71,6 +70,36 @@ public class CertificateDecryptor
 
         // assert
         sut.TryGet("ConnectionStrings:Toto", out var value).Should().BeTrue();
+        value.Should().NotBeNull();
+        value.Should().Be(plainText);
+        cypherText.Should().NotContain(".");
+    }
+
+    [Fact]
+    public void Certficate_Large_Text_ShouldDecrypt()
+    {
+        // arrange
+        var certificate = GetX509Certificate2();
+
+        var plainText = new string('A', 600);
+        var cypherText = certificate.Encrypt(plainText);
+
+
+        var config = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["ConnectionStrings:Toto"] = $"Tag:{cypherText}"
+                });
+
+        var sut = new SecretConfigurationCertificateProvider(new SecretCertificateOptions { Prefix = "Tag:", Certificate = certificate }, config.Sources);
+
+        // act
+        sut.Load();
+
+        // assert
+        sut.TryGet("ConnectionStrings:Toto", out var value).Should().BeTrue();
+        cypherText.Should().Contain(".");
         value.Should().NotBeNull();
         value.Should().Be(plainText);
     }

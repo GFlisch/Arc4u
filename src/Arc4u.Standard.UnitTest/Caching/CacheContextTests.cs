@@ -212,7 +212,8 @@ public class CacheContextTests
         mockIOptions.Setup(m => m.Get("Volatile")).Returns(serviceProvider.GetService<IOptionsMonitor<MemoryCacheOption>>()!.Get("Volatile"));
 
         var mockIContainer = _fixture.Freeze<Mock<IContainerResolve>>();
-        mockIContainer.Setup(m => m.Resolve<IObjectSerialization>()).Returns(new JsonSerialization());
+        IObjectSerialization serializer = new JsonSerialization();
+        mockIContainer.Setup(m => m.TryResolve<IObjectSerialization>(out serializer)).Returns(true);
 
         ICache mockCache = _fixture.Create<MemoryCache>();
         mockIContainer.Setup(m => m.TryResolve<ICache>(CacheContext.Memory, out mockCache)).Returns(true);

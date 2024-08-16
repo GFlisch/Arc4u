@@ -1,4 +1,3 @@
-using System;
 using Arc4u.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
@@ -35,7 +34,7 @@ public static class ProblemDetailsExtensions
         {
             problemDetails.Extensions.AddOrReplace("Code", code);
         }
-        
+
         return problemDetails;
     }
 

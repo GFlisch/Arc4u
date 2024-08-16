@@ -1,6 +1,8 @@
 <Project>
   <PropertyGroup>
-    <RepositoryType>git</RepositoryType>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
     <!-- disable warning when XML comments are missing -->
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <!-- By default every projects are packable -->
@@ -8,13 +10,28 @@
     <!-- But unit test project are not. -->
     <IsPackable Condition="$(MSBuildProjectName.EndsWith('Test'))">false</IsPackable>
   </PropertyGroup>
+  
+ <!-- Packaging -->
+ <PropertyGroup Condition="'$(Configuration)'=='Release' AND $(IsPackable) == true">
+   <GeneratePackageOnBuild>true</GeneratePackageOnBuild> 
+   <Authors>Gilles Flisch</Authors>
+   <Company>Gilles Flisch</Company>
+   <Copyright>Gilles Flisch 2021</Copyright>	
+   <PackageIcon>Arc4u.png</PackageIcon>
+   <PackageReadmeFile>README.md</PackageReadmeFile>
+   <PackageProjectUrl>https://github.com/GFlisch/Arc4u/wiki</PackageProjectUrl>
+   <PublishRepositoryUrl>true</PublishRepositoryUrl>   
+   <RepositoryUrl>https://github.com/GFlisch/Arc4u</RepositoryUrl>
+   <RepositoryType>git</RepositoryType>
+   <PackageTags>Arc4u</PackageTags>
+   <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+   <LangVersion>latest</LangVersion>
+   <RootNamespace>$(MSBuildProjectName.Replace(" ", "_").Replace(".Standard", ""))</RootNamespace>
+   <PackageLicenseExpression>MIT</PackageLicenseExpression>
+   <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+ </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release' AND $(IsPackable) == true">
-    <!-- Produce a NuGet package upon build -->
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <!-- Publish the repository URL in the built .nupkg -->
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <RepositoryUrl>https://github.com/GFlisch/Arc4u</RepositoryUrl>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <!-- Embed source files that are not tracked by the source control manager in the PDB -->
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
@@ -22,9 +39,15 @@
     <DebugType>embedded</DebugType>
     <!-- Ensure that pdb's can be added to nuget packages -->
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
-    <Deterministic>true</Deterministic>
+    <Deterministic>true</Deterministic>  
   </PropertyGroup>
-  
+
+  <ItemGroup Condition="'$(Configuration)'=='Release' AND $(IsPackable) == true">
+    <None Include="README.md" Pack="true" PackagePath="\" />
+    <None Include="..\..\LICENSE" Pack="true" PackagePath="\" />
+    <None Include="..\..\Arc4u.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
   <!-- Always set to true when GitHub Actions is running the workflow -->
   <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>

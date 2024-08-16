@@ -4,7 +4,7 @@ using Xunit;
 using Arc4u.Security.Cryptography;
 using FluentAssertions;
 using System.Security.Cryptography.X509Certificates;
-using System.Net.WebSockets;
+using Arc4u.UnitTest.Decryptor;
 
 namespace Arc4u.UnitTest.Security;
 
@@ -35,6 +35,43 @@ public class CertificateTests
 
         // assert
         certificate.Should().NotBeNull();
+        sut.Should().Be(plainText);
+    }
+
+    [Theory]
+    [InlineData("0123456789")]
+    [InlineData("012345678901234567890123456789012345678901234567890123456789")]
+    [InlineData("0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789")]
+    public void Small_Text_Shoud_Directly_Encrypted(string plainText)
+    {
+        //arranges
+        var certificate = CertificateDecryptor.GetX509Certificate2();
+
+        // act
+        var cypherText = certificate.Encrypt(plainText);
+        var sut = certificate.Decrypt(cypherText);
+
+
+        // assert
+        certificate.Should().NotBeNull();
+        cypherText.Should().NotContain(".");
+        sut.Should().Be(plainText);
+    }
+
+    [Fact]
+    public void Large_Text_Shoud_Encrypted_With_Aes()
+    {
+        //arranges
+        var certificate = CertificateDecryptor.GetX509Certificate2();
+        var plainText = new string('A', 600);
+        // act
+        var cypherText = certificate.Encrypt(plainText);
+        var sut = certificate.Decrypt(cypherText);
+
+
+        // assert
+        certificate.Should().NotBeNull();
+        cypherText.Should().Contain(".");
         sut.Should().Be(plainText);
     }
 }

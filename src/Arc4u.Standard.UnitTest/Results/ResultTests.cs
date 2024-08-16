@@ -164,8 +164,8 @@ public class ResultTests
         var result = Task.FromResult(Result.Fail(""));
         var globalResult = Result.Ok();
 
-        var sut = await result.LogIfFailedAsync(globalResult)
-        .ConfigureAwait(false);
+        var sut = await result.LogIfFailed()
+                              .OnFailed(globalResult);
 
         sut.Should().BeSameAs(result.Result);
         globalResult.IsFailed.Should().BeTrue();
@@ -176,11 +176,12 @@ public class ResultTests
     [Trait("Category", "CI")]
     public async Task Test_ValueTask_Log_If_Failed_Should()
     {
-        var result = ValueTask.FromResult(Result.Fail<string>(""));
+        var result = ValueTask.FromResult(Result.Fail<Guid>(""));
         Result<string> globalResult = Result.Ok();
 
-        var sut = await result.LogIfFailedAsync(globalResult)
-        .ConfigureAwait(false);
+        var sut = await result.LogIfFailed()
+                              .OnFailed((errors) => globalResult.WithErrors(errors));
+                                
 
         sut.Should().BeSameAs(result.Result);
         globalResult.IsFailed.Should().BeTrue();
@@ -191,12 +192,12 @@ public class ResultTests
     [Trait("Category", "CI")]
     public async Task Test_Exception_Failed_Should()
     {
-        Result<string> globalResult = Result.Ok();
+        Result globalResult = Result.Ok();
 
         Func<Task> error = () => throw new DbUpdateException(); 
 
-        Result.Try(() => error())
-            .OnFailed(globalResult);
+        await Result.Try(() => error())
+                    .OnFailed(globalResult);
 
         globalResult.IsFailed.Should().BeTrue();
         globalResult.Errors.Count.Should().Be(1);

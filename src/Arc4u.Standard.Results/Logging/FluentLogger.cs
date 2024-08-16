@@ -17,7 +17,7 @@ public class FluentLogger : IResultLogger
     public void Log(string context, string content, ResultBase result, LogLevel logLevel)
     {
         logDelegate? logger;
-        if (context is not null)
+        if (!string.IsNullOrEmpty(context) && !string.IsNullOrEmpty(content))
         {
             logger = GetLogger(logLevel);
 
@@ -61,7 +61,10 @@ public class FluentLogger : IResultLogger
     {
         var logger = GetLogger(logLevel);
 
-        logger(content).Add("Context", typeof(TContext).FullName).Log();
+        if (!string.IsNullOrEmpty(content))
+        {
+            logger(content).Add("Context", typeof(TContext).FullName).Log();
+        }
 
         if (result is not null && result.IsFailed && result.Errors is not null)
         {
