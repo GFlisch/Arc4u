@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+namespace Arc4u.Dependency.ComponentModel;
 
-namespace Arc4u.Dependency.ComponentModel
+public class MultipleRegistrationException : MultipleRegistrationException<object>
 {
-    public class MultipleRegistrationException : MultipleRegistrationException<object>
-    {
-        public MultipleRegistrationException(Type type, IEnumerable<object> instances) : base(instances) { }
-    }
+    public MultipleRegistrationException(Type type, IEnumerable<object> instances) : base(instances) { }
 }

@@ -69,9 +69,9 @@ public class CacheDataProtectionStoreTests
         container.CreateContainer();
 
         var loggerFactory = container.GetRequiredService<ILoggerFactory>();
-
+        var cacheContext = container.GetRequiredService<ICacheContext>();
         // act
-        var sut = new CacheStore(container, loggerFactory, "DataProtection", "Volatile");
+        var sut = new CacheStore(cacheContext, loggerFactory, "DataProtection", "Volatile");
 
         var element = new XElement("Data", new XAttribute("CreationDate", DateTime.UtcNow),
                             new XElement("Cert", "Begin Certficate"));
@@ -98,9 +98,10 @@ public class CacheDataProtectionStoreTests
         container.CreateContainer();
 
         var loggerFactory = container.GetRequiredService<ILoggerFactory>();
+        var cacheContext = container.GetRequiredService<ICacheContext>();
 
         // act
-        var sut = new CacheStore(container, loggerFactory, "DataProtection");
+        var sut = new CacheStore(cacheContext, loggerFactory, "DataProtection");
 
         var element = new XElement("Data", new XAttribute("CreationDate", DateTime.UtcNow),
                             new XElement("Cert", "Begin Certficate"));
@@ -127,9 +128,10 @@ public class CacheDataProtectionStoreTests
         container.CreateContainer();
 
         var loggerFactory = container.GetRequiredService<ILoggerFactory>();
+        var cacheContext = container.GetRequiredService<ICacheContext>();
 
         // act
-        var exception = Record.Exception(() => new CacheStore(container, loggerFactory, null));
+        var exception = Record.Exception(() => new CacheStore(cacheContext, loggerFactory, null));
 
         // assert
         exception.Should().NotBeNull();
@@ -146,16 +148,19 @@ public class CacheDataProtectionStoreTests
         // arrange
         var (services, configuration) = BuiltContainer();
 
-        var mockBuilder = _fixture.Freeze<Mock<IDataProtectionBuilder>>();
-        mockBuilder.Setup(p => p.Services).Returns(services);
-
-        mockBuilder.Object.PersistKeysToCache(configuration);
-
         var container = new ComponentModelContainer(services);
 
         container.Register<ICache, MemoryCache>(CacheContext.Memory);
 
+        var mockBuilder = _fixture.Freeze<Mock<IDataProtectionBuilder>>();
+        mockBuilder.Setup(p => p.Services).Returns(services);
+        mockBuilder.Object.PersistKeysToCache(configuration);
+
+
         container.CreateContainer();
+
+        container.ServiceProvider.GetService<IServiceProvider>().Should().NotBeNull();
+
 
         var sut = container.GetService<IConfigureOptions<KeyManagementOptions>>();
 

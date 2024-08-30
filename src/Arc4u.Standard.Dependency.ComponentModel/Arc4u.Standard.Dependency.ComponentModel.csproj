@@ -4,9 +4,6 @@
     <PackageId>Arc4u.Standard.Dependency.ComponentModel</PackageId>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="System.ComponentModel" Version="4.3.0" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Arc4u.Standard.Core\Arc4u.Standard.Core.csproj" />
     <ProjectReference Include="..\Arc4u.Standard.Dependency\Arc4u.Standard.Dependency.csproj" />
   </ItemGroup>

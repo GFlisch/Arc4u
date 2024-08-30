@@ -14,27 +14,25 @@ namespace Arc4u.OAuth2.DataProtection;
 
 public class CacheStore : IXmlRepository
 {
-    public CacheStore(IServiceProvider serviceProvider, ILoggerFactory loggerFactory, [DisallowNull] string cacheKey, string? cacheName = null)
+    public CacheStore(ICacheContext cacheContext, ILoggerFactory loggerFactory, [DisallowNull] string cacheKey, string? cacheName = null)
     {
-        ArgumentNullException.ThrowIfNull(serviceProvider);
+        ArgumentNullException.ThrowIfNull(cacheContext);
         ArgumentNullException.ThrowIfNull(loggerFactory);
         ArgumentNullException.ThrowIfNull(cacheKey);
 
         _logger = loggerFactory.CreateLogger<CacheStore>();
-        _serviceProvider = serviceProvider;
+        _cacheContext = cacheContext;
         _cacheName = cacheName;
         _cacheKey = cacheKey;
 
         _cache = new Lazy<ICache>(() =>
         {
-            var cacheContext = _serviceProvider.GetRequiredService<ICacheContext>();
-
             // Check if I give a wrong cache name => Exception with clear context!
             return string.IsNullOrWhiteSpace(_cacheName) ? cacheContext.Default : cacheContext[_cacheName];
         });
     }
 
-    private readonly IServiceProvider _serviceProvider;
+    private readonly ICacheContext _cacheContext;
     private readonly ILogger<CacheStore> _logger;
     private readonly string _cacheKey;
     private readonly string? _cacheName;

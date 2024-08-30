@@ -629,7 +629,7 @@ namespace Arc4u.UnitTest
             Assert.NotEqual(n2, instance);
             Assert.NotEqual(n1, n2);
         }
-
+#if NET6_0
         [Fact]
         void TestDIRegisterInstances4()
         {
@@ -646,7 +646,25 @@ namespace Arc4u.UnitTest
             Assert.True(instances.Count() == 2);
             Assert.NotEqual(instances.First(), instances.Last());
         }
+#endif
+#if NET8_0_OR_GREATER
+        [Fact]
+        void TestDIRegisterInstances4()
+        {
+            var container = new ComponentModelContainer();
+            var instance = new SingletonIdGenerator();
+            container.RegisterInstance<IGenerator>(instance);
+            container.RegisterInstance<IGenerator>(new SingletonIdGenerator(), "Name");
+            container.RegisterInstance<IGenerator>(new SingletonIdGenerator(), "Name");
+            container.CreateContainer();
 
+            Assert.NotNull(container.Resolve<IGenerator>());
+            container.Resolve(typeof(IGenerator), "Name").Should().NotBeNull();
+            var instances = container.ResolveAll(typeof(IGenerator), "Name");
+            Assert.True(instances.Count() == 2);
+            Assert.NotEqual(instances.First(), instances.Last());
+        }
+#endif
 
         #endregion
     }
