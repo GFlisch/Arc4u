@@ -9,7 +9,8 @@ public class ClaimsFillerOptions
     public bool LoadClaimsFromClaimsFillerProvider { get; set; } = true;
 
     /// <summary>
-    /// If <see cref="LoadClaimsFromClaimsFillerProvider"/> is true, the extra claims are cached for <see cref="MaxTime"/>."/>
+    /// If <see cref="LoadClaimsFromClaimsFillerProvider"/> is true, the extra claims are cached for <see cref="MaxTime"/>.
+    /// The default value of 20 minutes provides a balance between performance and data freshness for most use cases.
     /// </summary>
     public TimeSpan MaxTime { get; set; } = TimeSpan.FromMinutes(20);
 

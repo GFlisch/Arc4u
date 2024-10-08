@@ -73,17 +73,19 @@ namespace Arc4u.OAuth2.Token.Adal
             if (HasStateChanged)
             {
                 Logger.Technical().From<Cache>().System($"Adding token information to the cache for the identifier: {_identifier}.").Log();
+
                 var now = DateTimeOffset.UtcNow;
-                var maxExpires = now;
-                foreach (var tokenCacheItem in ReadItems())
+                var maxExpires = ReadItems().Select(item => item.ExpiresOn).DefaultIfEmpty(now).Max();
+                var timeout = maxExpires - now;
+                if (timeout > TimeSpan.Zero)
                 {
-                    if (tokenCacheItem.ExpiresOn > maxExpires)
-                    {
-                        maxExpires = tokenCacheItem.ExpiresOn;
-                    }
+                    TokenCache.Put(_identifier, timeout, SerializeAdalV3());
+                    Logger.Technical().From<Cache>().System($"Added token information to the cache for the identifier: {_identifier}.").Log();
                 }
-                TokenCache.Put(_identifier, maxExpires - now, SerializeAdalV3());
-                Logger.Technical().From<Cache>().System($"Added token information to the cache for the identifier: {_identifier}.").Log();
+                else
+                {
+                    Logger.Technical().From<Cache>().System($"No valid tokens to cache for identifier: {_identifier} because of negative duration {timeout}.").Log();
+                }
 
                 HasStateChanged = false;
             }

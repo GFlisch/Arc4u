@@ -127,8 +127,8 @@ public class AppPrincipalTransform : IClaimsTransformation
             // if cachedClaims is not null, it means that the information was in the cache and didn't expire yet.
             if (cachedClaims is not null)
             {
-                identity.AddClaims(cachedClaims.Where(c => !ClaimsToExclude.Contains(c.ClaimType))
-                                               .Where(c => !identity.Claims.Any(c1 => StringComparer.OrdinalIgnoreCase.Equals(c1.Type, c.ClaimType)))
+                // Add the new claims to the identity
+                identity.AddClaims(cachedClaims.Where(c => !identity.Claims.Any(c1 => StringComparer.OrdinalIgnoreCase.Equals(c1.Type, c.ClaimType)))
                                                .Select(c => new Claim(c.ClaimType, c.Value)));
                 return;
             }
@@ -146,34 +146,33 @@ public class AppPrincipalTransform : IClaimsTransformation
 
             // Load the claims into the identity but exclude the exp claim and the one already present.
             identity.AddClaims(claims.Where(c => !StringComparer.OrdinalIgnoreCase.Equals(c.ClaimType, tokenExpirationClaimType))
-                                     .Where(c => !ClaimsToExclude.Contains(c.ClaimType))
                                      .Where(c => !identity.Claims.Any(c1 => StringComparer.OrdinalIgnoreCase.Equals(c1.Type, c.ClaimType)))
                                      .Select(c => new Claim(c.ClaimType, c.Value)));
 
-            // Check expiry claim explicitly returned in the call to _claimsFiller.GetAsync.
-            var cachedExpiredClaim = claims.FirstOrDefault(c => StringComparer.OrdinalIgnoreCase.Equals(c.ClaimType, tokenExpirationClaimType))?.Value;
+            // Check expiry claim explicitly returned in the call to _claimsFiller.GetAsync
+            // If no expiry claim found in the call to _claimsFiller.GetAsync, try to locate one in the existing identity claims (which are normally obtained from the bearer token)
+            DateTimeOffset? expDate;
 
-            DateTimeOffset expDate;
-            if (cachedExpiredClaim is not null && long.TryParse(cachedExpiredClaim, NumberStyles.Integer, CultureInfo.InvariantCulture, out var cachedExpiredTicks))
+            if (!TryParseExpirationDate(claims.FirstOrDefault(c => StringComparer.OrdinalIgnoreCase.Equals(c.ClaimType, tokenExpirationClaimType))?.Value, out expDate) && !TryParseExpirationDate(identity.Claims.FirstOrDefault(c => StringComparer.OrdinalIgnoreCase.Equals(c.Type, tokenExpirationClaimType))?.Value, out expDate))
             {
-                expDate = DateTimeOffset.FromUnixTimeSeconds(cachedExpiredTicks);
-            }
-            else
-            {
-                // No expiry claim found in the call to _claimsFiller.GetAsync, try to locate one in the existing identity claims (which are normally obtained from the bearer token)
-                cachedExpiredClaim = identity.Claims.FirstOrDefault(c => StringComparer.OrdinalIgnoreCase.Equals(c.Type, tokenExpirationClaimType))?.Value;
-                if (cachedExpiredClaim is not null && long.TryParse(cachedExpiredClaim, NumberStyles.Integer, CultureInfo.InvariantCulture, out cachedExpiredTicks))
-                {
-                    expDate = DateTimeOffset.FromUnixTimeSeconds(cachedExpiredTicks);
-                }
-                else
-                {
-                    expDate = DateTimeOffset.UtcNow.Add(_options.MaxTime);
-                }
+                // fall back to the configured max time.
+                expDate = DateTimeOffset.UtcNow.Add(_options.MaxTime);
             }
 
-            SaveClaimsToCache(claims, cacheKey, expDate - DateTimeOffset.UtcNow);
+            SaveClaimsToCache(claims, cacheKey, expDate!.Value - DateTimeOffset.UtcNow);
         }
+    }
+
+    private static bool TryParseExpirationDate(string? value, out DateTimeOffset? expirationDate)
+    {
+        if (value is not null && long.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var ticks))
+        {
+            expirationDate = DateTimeOffset.FromUnixTimeSeconds(ticks);
+            return true;
+        }
+
+        expirationDate = null;
+        return false;
     }
 
     private List<ClaimDto>? GetClaimsFromCache(string? cacheKey)
@@ -201,13 +200,20 @@ public class AppPrincipalTransform : IClaimsTransformation
 
         ArgumentNullException.ThrowIfNull(claims);
 
-        try
+        if (timeout > TimeSpan.Zero)
         {
-            _cacheHelper.GetCache().Put(cacheKey, timeout, claims);
+            try
+            {
+                _cacheHelper.GetCache().Put(cacheKey, timeout, claims);
+            }
+            catch (Exception ex)
+            {
+                _logger.Technical().Exception(ex).Log();
+            }
         }
-        catch (Exception ex)
+        else
         {
-            _logger.Technical().Exception(ex).Log();
+            _logger.Technical().LogWarning("The timeout is not valid to save the claims in the cache.");
         }
     }
     #endregion

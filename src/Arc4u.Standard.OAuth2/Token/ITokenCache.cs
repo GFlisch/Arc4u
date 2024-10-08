@@ -11,7 +11,7 @@ namespace Arc4u.OAuth2.Token
 
         /// <summary>
         /// Set or overwrite the item with key <paramref name="key"/> with <paramref name="data"/>.
-        /// The item expires after <paramref name="timeout"/>
+        /// The item expires after <paramref name="timeout"/>.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="key"></param>
