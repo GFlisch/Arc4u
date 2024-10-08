@@ -2,7 +2,6 @@ using Arc4u.Caching;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Microsoft.Extensions.Logging;
-using System;
 
 namespace Arc4u.OAuth2.Token
 {
@@ -37,7 +36,7 @@ namespace Arc4u.OAuth2.Token
             Clear(key);
         }
 
-        public void Put<T>(string key, T data)
+        public void Put<T>(string key, TimeSpan timeout, T data)
         {
             try
             {

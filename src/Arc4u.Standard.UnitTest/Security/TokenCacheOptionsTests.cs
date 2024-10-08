@@ -1,15 +1,13 @@
-using AutoFixture.AutoMoq;
-using AutoFixture;
-using Xunit;
-using Microsoft.Extensions.DependencyInjection;
+using Arc4u.Configuration;
 using Arc4u.OAuth2.Extensions;
 using Arc4u.OAuth2.Options;
-using Microsoft.Extensions.Options;
+using AutoFixture;
+using AutoFixture.AutoMoq;
 using FluentAssertions;
-using System;
 using Microsoft.Extensions.Configuration;
-using System.Collections.Generic;
-using Arc4u.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using Xunit;
 
 namespace Arc4u.UnitTest.Security;
 
@@ -41,7 +39,6 @@ public class TokenCacheOptionsTests
         var sut = options.Value;
 
         sut.CacheName.Should().Be("test");
-        sut.MaxTime.Should().Be(TimeSpan.FromMinutes(20));
     }
 
     [Fact]
@@ -56,7 +53,6 @@ public class TokenCacheOptionsTests
                   new Dictionary<string, string?>
                   {
                       ["Authentication:TokenCache:CacheName"] = options.CacheName,
-                      ["Authentication:TokenCache:MaxTime"] = options.MaxTime.ToString(),
                   }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
@@ -70,7 +66,6 @@ public class TokenCacheOptionsTests
         var sut = sutOptions.Value;
 
         sut.CacheName.Should().Be(options.CacheName);
-        sut.MaxTime.Should().Be(options.MaxTime);
     }
 
     [Fact]
@@ -99,7 +94,6 @@ public class TokenCacheOptionsTests
         var sut = sutOptions.Value;
 
         sut.CacheName.Should().Be(options.CacheName);
-        sut.MaxTime.Should().Be(defaultOptions.MaxTime);
     }
 
     [Fact]
@@ -113,8 +107,7 @@ public class TokenCacheOptionsTests
               .AddInMemoryCollection(
                   new Dictionary<string, string?>
                   {
-                      ["Authentication:TokenCache:CacheName"] = options.CacheName,
-                      ["Authentication:TokenCache:MaxTime"] = TimeSpan.Zero.ToString(),
+                      ["Authentication:TokenCache:CacheName"] = options.CacheName
                   }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
@@ -134,8 +127,7 @@ public class TokenCacheOptionsTests
               .AddInMemoryCollection(
                   new Dictionary<string, string?>
                   {
-                      ["Authentication:TokenCache:CacheName"] = "",
-                      ["Authentication:TokenCache:MaxTime"] = TimeSpan.FromMinutes(20).ToString(),
+                      ["Authentication:TokenCache:CacheName"] = ""
                   }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));

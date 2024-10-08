@@ -1,9 +1,7 @@
-﻿using Arc4u.Dependency;
+using Arc4u.Dependency;
 using Arc4u.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
-using System;
-using System.Collections.Generic;
 
 namespace Arc4u.OAuth2.Token.Adal
 {
@@ -75,7 +73,16 @@ namespace Arc4u.OAuth2.Token.Adal
             if (HasStateChanged)
             {
                 Logger.Technical().From<Cache>().System($"Adding token information to the cache for the identifier: {_identifier}.").Log();
-                TokenCache.Put(_identifier, SerializeAdalV3());
+                var now = DateTimeOffset.UtcNow;
+                var maxExpires = now;
+                foreach (var tokenCacheItem in ReadItems())
+                {
+                    if (tokenCacheItem.ExpiresOn > maxExpires)
+                    {
+                        maxExpires = tokenCacheItem.ExpiresOn;
+                    }
+                }
+                TokenCache.Put(_identifier, maxExpires - now, SerializeAdalV3());
                 Logger.Technical().From<Cache>().System($"Added token information to the cache for the identifier: {_identifier}.").Log();
 
                 HasStateChanged = false;

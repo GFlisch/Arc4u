@@ -1,4 +1,4 @@
-﻿namespace Arc4u.OAuth2.Token
+namespace Arc4u.OAuth2.Token
 {
     public interface ITokenCache
     {
@@ -9,7 +9,15 @@
         void DeleteItem(string key);
 
 
-        void Put<T>(string key, T data);
+        /// <summary>
+        /// Set or overwrite the item with key <paramref name="key"/> with <paramref name="data"/>.
+        /// The item expires after <paramref name="timeout"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="timeout"></param>
+        /// <param name="data"></param>
+        void Put<T>(string key, TimeSpan timeout, T data);
 
         T Get<T>(string key);
 

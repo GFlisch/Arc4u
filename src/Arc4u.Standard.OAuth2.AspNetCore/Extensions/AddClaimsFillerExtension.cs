@@ -1,5 +1,3 @@
-using System;
-using System.Linq;
 using Arc4u.Configuration;
 using Arc4u.OAuth2.Options;
 using Microsoft.Extensions.Configuration;
@@ -13,9 +11,21 @@ public static class AddClaimsFillerExtension
         var validate = new ClaimsFillerOptions();
         options(validate);
 
-        if (validate.LoadClaimsFromClaimsFillerProvider && (null == validate.SettingsKeys || !validate.SettingsKeys.Any()))
+        if (validate.LoadClaimsFromClaimsFillerProvider)
         {
-            throw new ConfigurationException("Settings key must be provided.");
+            string? configErrors = null;
+            if (null == validate.SettingsKeys || !validate.SettingsKeys.Any())
+            {
+                configErrors += "Settings key must be provided." + System.Environment.NewLine;
+            }
+            if (validate.LoadClaimsFromClaimsFillerProvider && validate.MaxTime == TimeSpan.Zero)
+            {
+                configErrors += $"If {nameof(validate.LoadClaimsFromClaimsFillerProvider)} is true, then {nameof(validate.MaxTime)} must be provided." + System.Environment.NewLine;
+            }
+            if (configErrors is not null)
+            {
+                throw new ConfigurationException(configErrors);
+            }
         }
 
         services.Configure<ClaimsFillerOptions>(options);
@@ -39,10 +49,10 @@ public static class AddClaimsFillerExtension
             }
         }
 
-       AddClaimsFiller(services, o =>
-        {
-            o.LoadClaimsFromClaimsFillerProvider = options.LoadClaimsFromClaimsFillerProvider;
-            o.SettingsKeys = options.SettingsKeys;
-        });
+        AddClaimsFiller(services, o =>
+         {
+             o.LoadClaimsFromClaimsFillerProvider = options.LoadClaimsFromClaimsFillerProvider;
+             o.SettingsKeys = options.SettingsKeys;
+         });
     }
 }
