@@ -1,11 +1,8 @@
-using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
-using System.Threading.Tasks;
 using Arc4u.Configuration;
 using Arc4u.Dependency;
 using Arc4u.Diagnostics;
@@ -89,7 +86,7 @@ public class BasicAuthenticationMiddleware
             {
                 tokenInfo = await GetTokenFromCredentialAsync(credential, context.RequestServices).ConfigureAwait(false);
 
-                tokenCache?.Put(cacheKey, tokenInfo);
+                tokenCache?.Put(cacheKey, tokenInfo.ExpiresOnUtc - DateTime.UtcNow, tokenInfo);
             }
 
             if (tokenInfo is not null)

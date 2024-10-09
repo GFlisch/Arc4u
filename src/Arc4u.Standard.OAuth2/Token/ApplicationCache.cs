@@ -4,8 +4,6 @@ using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Options;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
 
 namespace Arc4u.OAuth2.Token
 {
@@ -40,7 +38,7 @@ namespace Arc4u.OAuth2.Token
             _logger.Technical().From<ApplicationCache>().System($"Deleted information from the token cache for the id: {id}.").Log();
         }
 
-        public void Put<T>(string key, T data)
+        public void Put<T>(string key, TimeSpan timeout, T data)
         {
             if (null == data)
             {
@@ -49,7 +47,7 @@ namespace Arc4u.OAuth2.Token
             }
 
             _logger.Technical().From<ApplicationCache>().System($"Adding token data information to the cache: {key}.").Log();
-            _cache.Put(GetKey(key), _tokenCacheOptions.MaxTime, data);
+            _cache.Put(GetKey(key), timeout, data);
             _logger.Technical().From<ApplicationCache>().System($"Added token data information to the cache: {key}.").Log();
         }
 

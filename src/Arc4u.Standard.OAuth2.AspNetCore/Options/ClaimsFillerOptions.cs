@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace Arc4u.OAuth2.Options;
 
 /// <summary>
@@ -9,6 +7,12 @@ public class ClaimsFillerOptions
 {
     // By default, a specific claims filler is needed to manage the right.
     public bool LoadClaimsFromClaimsFillerProvider { get; set; } = true;
+
+    /// <summary>
+    /// If <see cref="LoadClaimsFromClaimsFillerProvider"/> is true, the extra claims are cached for <see cref="MaxTime"/>.
+    /// The default value of 20 minutes provides a balance between performance and data freshness for most use cases.
+    /// </summary>
+    public TimeSpan MaxTime { get; set; } = TimeSpan.FromMinutes(20);
 
     /// <summary>
     /// The settings key to load the claims from. => registered as a named <see cref="SimpleKeyValueSettings>"/>

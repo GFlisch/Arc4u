@@ -1,6 +1,3 @@
-using System;
-using System.Threading.Tasks;
-using Arc4u.Configuration;
 using Arc4u.Dependency;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
@@ -84,7 +81,7 @@ public class CredentialTokenCacheTokenProvider : ICredentialTokenProvider
                 try
                 {
                     _logger.Technical().System($"Save the token in the cache for {cacheKey}, will expire at {tokenInfo.ExpiresOnUtc} Utc.").Log();
-                    TokenCache.Put(cacheKey, tokenInfo);
+                    TokenCache.Put(cacheKey, tokenInfo.ExpiresOnUtc - DateTime.UtcNow, tokenInfo);
                 }
                 catch (Exception ex)
                 {
