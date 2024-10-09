@@ -1,10 +1,6 @@
-using System;
 using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
-using System.Threading;
-using System.Threading.Tasks;
 using Arc4u.Configuration;
 using Arc4u.Dependency;
 using Arc4u.Dependency.Attribute;
@@ -12,6 +8,7 @@ using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Token;
 using Arc4u.Security.Principal;
 using Arc4u.ServiceModel;
+using Arc4u.Standard.OAuth2.Security;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -23,8 +20,6 @@ public class AppServicePrincipalFactory : IAppPrincipalFactory
 {
     public const string ProviderKey = "ProviderId";
 
-    public static readonly string tokenExpirationClaimType = "exp";
-    public static readonly string[] ClaimsToExclude = { "exp", "aud", "iss", "iat", "nbf", "acr", "aio", "appidacr", "ipaddr", "scp", "sub", "tid", "uti", "unique_name", "apptype", "appid", "ver", "http://schemas.microsoft.com/ws/2008/06/identity/claims/authenticationinstant", "http://schemas.microsoft.com/identity/claims/scope" };
 
     private readonly IContainerResolve _container;
     private readonly ILogger<AppServicePrincipalFactory> _logger;
@@ -102,13 +97,12 @@ public class AppServicePrincipalFactory : IAppPrincipalFactory
         }
 
         // Check the settings contains the service url.
-        TokenInfo? token = null;
         try
         {
-            token = await provider.GetTokenAsync(settings, parameter).ConfigureAwait(true);
+            var token = await provider.GetTokenAsync(settings, parameter).ConfigureAwait(true);
             identity.BootstrapContext = token.Token;
             var jwtToken = new JwtSecurityToken(token.Token);
-            identity.AddClaims(jwtToken.Claims.Where(c => !ClaimsToExclude.Any(arg => arg.Equals(c.Type))).Select(c => new Claim(c.Type, c.Value)));
+            identity.MergeClaims(jwtToken.Claims.Sanitize());
         }
         catch (Exception ex)
         {

@@ -1,11 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
-using System.Threading;
-using System.Threading.Tasks;
 using Arc4u.Caching;
 using Arc4u.Configuration;
 using Arc4u.Dependency;
@@ -16,6 +10,7 @@ using Arc4u.Network.Connectivity;
 using Arc4u.OAuth2.Token;
 using Arc4u.Security.Principal;
 using Arc4u.ServiceModel;
+using Arc4u.Standard.OAuth2.Security;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -28,8 +23,6 @@ public class AppPrincipalFactory : IAppPrincipalFactory
     public const string DefaultSettingsResolveName = "OAuth2";
     public const string PlatformParameters = "platformParameters";
 
-    public static readonly string tokenExpirationClaimType = "exp";
-    public static readonly string[] ClaimsToExclude = { "exp", "aud", "iss", "iat", "nbf", "acr", "aio", "appidacr", "ipaddr", "scp", "sub", "tid", "uti", "unique_name", "apptype", "appid", "ver", "http://schemas.microsoft.com/ws/2008/06/identity/claims/authenticationinstant", "http://schemas.microsoft.com/identity/claims/scope" };
 
     private readonly IContainerResolve _container;
     private readonly INetworkInformation _networkInformation;
@@ -118,10 +111,6 @@ public class AppPrincipalFactory : IAppPrincipalFactory
             // The token has claims filled by the STS.
             // We can fill the new federated identity with the claims from the token.
             var jwtToken = new JwtSecurityToken(token.Token);
-            var expTokenClaim = jwtToken.Claims.FirstOrDefault(c => c.Type.Equals(tokenExpirationClaimType, StringComparison.InvariantCultureIgnoreCase));
-            long expTokenTicks = 0;
-            if (null != expTokenClaim)
-                long.TryParse(expTokenClaim.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out expTokenTicks);
 
             // The key for the cache is based on the claims from a ClaimsIdentity => build a dummy identity with the claim from the token.
             var dummyIdentity = new ClaimsIdentity(jwtToken.Claims);
@@ -132,16 +121,12 @@ public class AppPrincipalFactory : IAppPrincipalFactory
             // if we have a token "cached" from the system, we can take the authorization claims from the cache (if exists)...
             // so we avoid too many backend calls for nothing.
             // But every time we have a token that has been refreshed, we will call the backend (if available and reload the claims).
-            var cachedExpiredClaim = cachedClaims.FirstOrDefault(c => c.ClaimType.Equals(tokenExpirationClaimType, StringComparison.InvariantCultureIgnoreCase));
-            long cachedExpiredTicks = 0;
-
-            if (null != cachedExpiredClaim)
-                long.TryParse(cachedExpiredClaim.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out cachedExpiredTicks);
 
             // we only call the backend if the ticks are not the same.
-            bool copyClaimsFromCache = cachedExpiredTicks > 0 && expTokenTicks > 0 && cachedClaims.Count > 0 && cachedExpiredTicks == expTokenTicks;
-
-            if (copyClaimsFromCache)
+            var copyClaimsFromCache = jwtToken.Claims.TryGetExpiration(out Claim? expTokenClaim) && expTokenClaim.Value.TryParseTicks(out var expTokenTicks)
+                && cachedClaims.TryGetExpiration(out var cachedExpiredTicks)
+                && cachedExpiredTicks == expTokenTicks;
+            if (copyClaimsFromCache && cachedClaims.Count > 0)
             {
                 identity.AddClaims(cachedClaims.Select(p => new Claim(p.ClaimType, p.Value)));
                 messages.Add(new Message(ServiceModel.MessageCategory.Technical, MessageType.Information, "Create the principal from the cache, token has not been refreshed."));
@@ -149,21 +134,24 @@ public class AppPrincipalFactory : IAppPrincipalFactory
             else
             {
                 // Fill the claims based on the token and the backend call
-                identity.AddClaims(jwtToken.Claims.Where(c => !ClaimsToExclude.Any(arg => arg.Equals(c.Type))).Select(c => new Claim(c.Type, c.Value)));
-                identity.AddClaim(expTokenClaim);
+                identity.AddClaims(jwtToken.Claims.Sanitize().Select(c => new Claim(c.Type, c.Value)));
+                // there is no guarantee that expTokenClaim is not null, so we need to check it.
+                if (expTokenClaim is not null)
+                {
+                    identity.AddClaim(expTokenClaim);
+                }
 
                 if (_container.TryResolve(out IClaimsFiller claimFiller)) // Fill the claims with more information.
                 {
                     try
                     {
                         // Get the claims and clean any technical claims in case of.
-                        var claims = (await claimFiller.GetAsync(identity, new List<IKeyValueSettings> { settings }, parameter))
-                                        .Where(c => !ClaimsToExclude.Any(arg => arg.Equals(c.ClaimType))).ToList();
+                        var claims = (await claimFiller.GetAsync(identity, new List<IKeyValueSettings> { settings }, parameter)).Sanitize().ToList();
 
                         // We copy the claims from the backend but the exp claim will be the value of the token (front end definition) and not the backend one. Otherwhise there will be always a difference.
-                        identity.AddClaims(claims.Where(c => !identity.Claims.Any(c1 => c1.Type == c.ClaimType)).Select(c => new Claim(c.ClaimType, c.Value)));
+                        identity.MergeClaims(claims);
 
-                        messages.Add(new Message(ServiceModel.MessageCategory.Technical, MessageType.Information, $"Add {claims.Count()} claims to the principal."));
+                        messages.Add(new Message(ServiceModel.MessageCategory.Technical, MessageType.Information, $"Add {claims.Count} claims to the principal."));
                         messages.Add(new Message(ServiceModel.MessageCategory.Technical, MessageType.Information, $"Save claims to the cache."));
                     }
                     catch (Exception e)
