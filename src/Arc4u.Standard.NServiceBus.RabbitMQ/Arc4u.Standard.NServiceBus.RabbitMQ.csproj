@@ -4,8 +4,13 @@
     <PackageId>Arc4u.Standard.NServiceBus.RabbitMQ</PackageId>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="NServiceBus.RabbitMQ" Version="6.1.6" />
     <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
+    <PackageReference Include="NServiceBus.RabbitMQ" Version="8.0.5" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
+    <PackageReference Include="NServiceBus.RabbitMQ" Version="9.1.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Arc4u.Standard.Caching\Arc4u.Standard.Caching.csproj" />
