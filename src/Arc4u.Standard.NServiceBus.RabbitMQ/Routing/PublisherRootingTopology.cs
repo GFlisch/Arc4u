@@ -1,9 +1,10 @@
-﻿using Arc4u.Diagnostics;
+using Arc4u.Diagnostics;
 using NServiceBus.Transport;
 using NServiceBus.Transport.RabbitMQ;
 using RabbitMQ.Client;
 using System;
 using System.Collections.Generic;
+using NServiceBus.Unicast.Messages;
 
 namespace Arc4u.NServiceBus.RabbitMQ.Routing
 {
@@ -16,11 +17,11 @@ namespace Arc4u.NServiceBus.RabbitMQ.Routing
 
         private Func<Type, String> ExchangeName;
 
-        public void SetupSubscription(IModel channel, Type type, string subscriberName)
+        public void SetupSubscription(IModel channel, MessageMetadata type, string subscriberName)
         {
         }
 
-        public void TeardownSubscription(IModel channel, Type type, string subscriberName)
+        public void TeardownSubscription(IModel channel, MessageMetadata type, string subscriberName)
         {
         }
 
