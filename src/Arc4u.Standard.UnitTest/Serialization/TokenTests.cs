@@ -148,44 +148,5 @@ namespace Arc4u.UnitTest.Serialization
             cachedToken.TokenType.Should().Be(tokenInfo.TokenType);
             cachedToken.ExpiresOnUtc.Should().Be(tokenInfo.ExpiresOnUtc);
         }
-
-        [Fact]
-        public void AccessTokenSerializationProtobufZipShouldNot()
-        {
-            // Arrange
-            var jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddMinutes(-10));
-
-            var tokenInfo = new TokenInfo("Bearer", jwt.EncodedPayload, DateTime.UtcNow);
-
-            var storeName = "store name";
-            IServiceCollection services = new ServiceCollection();
-
-            services.AddMemoryCache(storeName, options => options.SizeLimitInMB = 10);
-            services.AddTransient<IObjectSerialization, ProtoBufZipSerialization>();
-
-            var serviceProvider = services.BuildServiceProvider();
-
-            IObjectSerialization noSerializer = null;
-            var mockIContainer = _fixture.Freeze<Mock<IContainerResolve>>();
-            IObjectSerialization serializer = serviceProvider.GetRequiredService<IObjectSerialization>();
-            mockIContainer.Setup(m => m.TryResolve<IObjectSerialization>(out serializer)).Returns(true);
-            mockIContainer.Setup(m => m.TryResolve(storeName, out noSerializer)).Returns(false);
-            var mockIOptions = _fixture.Freeze<Mock<IOptionsMonitor<MemoryCacheOption>>>();
-            mockIOptions.Setup(m => m.Get(storeName)).Returns(serviceProvider.GetService<IOptionsMonitor<MemoryCacheOption>>()!.Get(storeName));
-
-            var sut = _fixture.Create<MemoryCache>();
-            sut.Initialize(storeName);
-
-            sut.Put("key", tokenInfo);
-
-            // act
-            var cachedToken = sut.Get<TokenInfo>("key");
-
-            // assert
-            cachedToken.Should().NotBeNull();
-            cachedToken.Token.Should().Be(jwt.EncodedPayload);
-            cachedToken.TokenType.Should().Be(tokenInfo.TokenType);
-            cachedToken.ExpiresOnUtc.Should().Be(tokenInfo.ExpiresOnUtc);
-        }
     }
 }

@@ -103,8 +103,6 @@ public class CompressionAndSpeedTests
     public void CheckRuntimeTypeModelConcurrencyAsync()
     {
         // arrange
-        var protoBufSerialization = new ProtoBufSerialization();
-        var protoBufZipSerialization = new ProtoBufZipSerialization();
         var jsonSerialization = new JsonSerialization();
         var jsonBrotliSerialization = new JsonBrotliSerialization();
         var jsonDeflateSerialization = new JsonDeflateSerialization();
@@ -113,13 +111,11 @@ public class CompressionAndSpeedTests
 
         // act
         var list = new List<Measurement>();
-        list.Add(Measure(protoBufSerialization, "Protobuf"));
         list.Add(Measure(jsonSerialization, "Json"));
         list.Add(Measure(jsonBrotliSerialization, "JSon+Brotli"));
         list.Add(Measure(jsonDeflateSerialization, "Json+Deflate"));
         list.Add(Measure(jsonGZipSerialization, "Json+GZip"));
         list.Add(Measure(jsonZipSerialization, "Json+Zip"));
-        list.Add(Measure(protoBufZipSerialization, "Protobuf+Zip"));
 
         // sort by fastest compression
         list.Sort((item1, item2) => item1.TimeSpan.CompareTo(item2.TimeSpan));

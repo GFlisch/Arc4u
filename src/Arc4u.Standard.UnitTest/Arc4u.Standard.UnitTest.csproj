@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
+    <TargetFrameworks>net8.0</TargetFrameworks>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
@@ -33,10 +33,6 @@
     <PackageReference Include="Moq" Version="4.20.70" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="6.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.0" />
-  </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
@@ -53,13 +49,11 @@
     <ProjectReference Include="..\Arc4u.Standard.EfCore\Arc4u.Standard.EfCore.csproj" />
     <ProjectReference Include="..\Arc4u.Standard.gRPC\Arc4u.Standard.gRPC.csproj" />
     <ProjectReference Include="..\Arc4u.Standard.MongoDB\Arc4u.Standard.MongoDB.csproj" />
-    <ProjectReference Include="..\Arc4u.Standard.OAuth2.AspNetCore.Adal\Arc4u.Standard.OAuth2.AspNetCore.Adal.csproj" />
     <ProjectReference Include="..\Arc4u.Standard.OAuth2.AspNetCore.Authentication\Arc4u.Standard.OAuth2.AspNetCore.Authentication.csproj" />
     <ProjectReference Include="..\Arc4u.Standard.OAuth2.Blazor\Arc4u.Standard.OAuth2.Blazor.csproj" />
     <ProjectReference Include="..\Arc4u.Standard.OAuth2\Arc4u.Standard.OAuth2.csproj" />
     <ProjectReference Include="..\Arc4u.Standard.Results\Arc4u.Standard.Results.csproj" />
     <ProjectReference Include="..\Arc4u.Standard.Serializer.JSon\Arc4u.Standard.Serializer.JSon.csproj" />
-    <ProjectReference Include="..\Arc4u.Standard.Serializer.Protobuf\Arc4u.Standard.Serializer.Protobuf.csproj" />
     <ProjectReference Include="..\Arc4u.Standard\Arc4u.Standard.csproj" />
   </ItemGroup>
 
