@@ -9,6 +9,10 @@
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Arc4u.Standard.Results\Arc4u.Standard.Results.csproj" />
   </ItemGroup>
