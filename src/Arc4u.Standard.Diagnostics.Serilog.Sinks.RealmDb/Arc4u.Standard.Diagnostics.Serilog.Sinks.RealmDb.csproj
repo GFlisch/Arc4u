@@ -1,10 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>net8.0</TargetFrameworks>
     <PackageId>Arc4u.Standard.Diagnostics.Serilog.Sinks.RealmDb</PackageId>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="12.0.1" />
+    <PackageReference Include="AutoMapper" Version="13.0.1" />
     <PackageReference Include="Realm" Version="20.0.0" />
     <PackageReference Include="Serilog.Sinks.PeriodicBatching" Version="5.0.0" />
     <PackageReference Include="System.Text.Json" Version="8.0.5" />
