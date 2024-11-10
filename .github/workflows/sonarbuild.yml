@@ -45,12 +45,14 @@ jobs:
         uses: nuget/setup-nuget@v1
         with:
           nuget-version: latest
+ 
+       
       - name: nuget restore
         run: dotnet restore .\src\arc4u.sln
  
       - name: build
-        # run: msbuild .\src\arc4u.sln /p:configuration=${{env.buildConfiguration}}
-        run: dotnet build .\src\arc4u.sln --configuration ${{env.buildConfiguration}}        
+        run: dotnet build .\src\arc4u.sln --configuration ${{env.buildConfiguration}}
+
       - name: Build and analyze
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
@@ -58,5 +60,5 @@ jobs:
         shell: powershell
         run: |
           .\.sonar\scanner\dotnet-sonarscanner begin /k:"GFlisch_Arc4u" /o:"gflisch" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
-          msbuild .\src\arc4u.sln /p:configuration=${{env.buildConfiguration}}
+          dotnet build .\src\arc4u.sln --configuration ${{env.buildConfiguration}}
           .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
