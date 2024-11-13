@@ -1,12 +1,10 @@
-using System.Collections.Generic;
 using AutoFixture.AutoMoq;
 using AutoFixture;
 using Xunit;
 using Microsoft.Extensions.Configuration;
 using Arc4u.Security.Cryptography;
 using FluentAssertions;
-using System.Security.Cryptography.X509Certificates;
-using Moq;
+using X509CertificateLoader = Arc4u.Security.Cryptography.X509CertificateLoader;
 
 namespace Arc4u.UnitTest.Decryptor;
 

@@ -1,6 +1,6 @@
 using System.Security.Cryptography.X509Certificates;
-using Arc4u.Security.Cryptography;
 using Microsoft.Extensions.Configuration;
+using X509CertificateLoader = Arc4u.Security.Cryptography.X509CertificateLoader;
 
 namespace Arc4u.Configuration.Decryptor;
 
