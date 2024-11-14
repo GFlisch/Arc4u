@@ -1,4 +1,4 @@
-#if NET6_0 || NETSTANDARD2_0
+#if NETSTANDARD2_0
 
 using Arc4u.Dependency.Attribute;
 using Microsoft.Extensions.DependencyInjection;

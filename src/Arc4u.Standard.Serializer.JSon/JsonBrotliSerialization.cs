@@ -4,7 +4,7 @@ using System.Text.Json;
 
 namespace Arc4u.Serializer
 {
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
     /// <summary>
     /// Implement object serialization with Json and Brotli compression (https://en.wikipedia.org/wiki/Brotli).
     /// Only available for .NET Standard 2.1 / .NET Core 3.0+

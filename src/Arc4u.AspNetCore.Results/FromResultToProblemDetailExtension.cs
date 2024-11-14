@@ -112,11 +112,7 @@ public static class FromResultToProblemDetailExtension
         // Could not be a valid scenario to call this method! An Exceptional error will be created so the developer is aware of this.
         if (result.IsSuccess)
         {
-#if NET6_0
-            result.WithError(new ExceptionalError(new Exception("Creating a ProblemDetails on a success Result does not make any sense!")));
-#else
             result.WithError(new ExceptionalError(new UnreachableException("Creating a ProblemDetails on a success Result does not make any sense!")));
-#endif
         }
 
         // Generate a generic message and log! No sensitive information can be sent outside directly to a user =. vulnerabilities.
@@ -142,11 +138,7 @@ public static class FromResultToProblemDetailExtension
         // Could not be a valid scenario to call this method! An Exceptional error will be created so the developer is aware of this.
         if (result.IsSuccess)
         {
-#if NET6_0
-            result.WithError(new ExceptionalError(new Exception("Creating a ProblemDetails on a success Result does not make any sense!")));
-#else
             result.WithError(new ExceptionalError(new UnreachableException("Creating a ProblemDetails on a success Result does not make any sense!")));
-#endif
         }
 
         if (result.IsFailed && result.Errors.OfType<IExceptionalError>().Any())

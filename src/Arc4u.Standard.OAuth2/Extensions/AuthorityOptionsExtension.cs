@@ -15,7 +15,7 @@ public static class AuthorityOptionsExtension
 
     public static void AddDefaultAuthority(this IServiceCollection services, IConfiguration configuration, string sectionName = "Authentication:DefaultAuthority")
     {
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(configuration);
         ArgumentNullException.ThrowIfNull(services);
 #endif
@@ -57,7 +57,7 @@ public static class AuthorityOptionsExtension
 
     public static void AddAuthority(this IServiceCollection services, Action<AuthorityOptions> options, string optionKey)
     {
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(options);
 

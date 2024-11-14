@@ -64,7 +64,7 @@ public class X509CertificateLoader : IX509CertificateLoader
     /// <summary>
     /// Read the current section and identify if the section contains a CertificateStore entry.
     /// If yes, the Certificate will be retrieve based on the <see cref="CertificateInfo"/> object.
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
     /// If no CertificateStore section exists, the File is checked and a certificate will be created bqsed
     /// on the pem files (private and public keys).
 #endif
@@ -79,7 +79,7 @@ public class X509CertificateLoader : IX509CertificateLoader
         return this.FindCertificate(certificate);
     }
 
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
     public X509Certificate2? FindCertificate(CertificateFilePathInfo certificateFilePathInfo)
     {
         if (certificateFilePathInfo is null)

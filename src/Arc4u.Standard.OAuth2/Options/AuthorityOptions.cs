@@ -1,6 +1,6 @@
 using System;
 using System.Net.Http;
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
 using System.Net.Http.Json;
 #else
 using System.Text.Json;
@@ -72,7 +72,7 @@ public class AuthorityOptions
         {
             using var client = new HttpClient();
             OpenIdConfiguration? openIdConfiguration;
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
             openIdConfiguration = await client.GetFromJsonAsync<OpenIdConfiguration>(GetMetaDataAddress(), cancellationToken).ConfigureAwait(false);
 #else
             using var stream = await client.GetStreamAsync(GetMetaDataAddress()).ConfigureAwait(false);

@@ -27,7 +27,7 @@ namespace Arc4u.OAuth2.Token
         public ValueTask SignOutAsync(IKeyValueSettings settings, CancellationToken cancellationToken)
         {
             _logger.Technical().System("Null token provider doesn't do anything.").Log();
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
             return ValueTask.CompletedTask;
 #else
         return default;

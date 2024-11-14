@@ -9,7 +9,7 @@ public interface IX509CertificateLoader
 {
     public X509Certificate2 FindCertificate(CertificateInfo certificateInfo);
 
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
     public X509Certificate2 FindCertificate(CertificateFilePathInfo certificateInfo);
 #endif
 
@@ -32,7 +32,7 @@ public static class IX509CertificateLoaderExtensionMethods
         }
         else
         {
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
             return x509CertificateLoader.FindCertificate(certificateInfo.File);
 #else
             throw new ConfigurationException("Loading a certificate from pem files are not possible in NetStandard2.0");

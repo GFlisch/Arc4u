@@ -36,7 +36,7 @@ namespace Arc4u.Diagnostics
             AddProperty(key, value);
             return this;
         }
-#if NET6_0 || NET7_0 || NET8_0 || NETSTANDARD2_0
+#if NET8_0 || NETSTANDARD2_0
         [Obsolete("Use the Func<int> instead, this is improving performance. Will be removed on .NET9")]
         public CommonLoggerProperties AddIf(bool condition, string key, int value)
         {
@@ -59,7 +59,7 @@ namespace Arc4u.Diagnostics
             return this;
         }
 
-#if NET6_0 || NET7_0 || NET8_0 || NETSTANDARD2_0
+#if NET8_0 || NETSTANDARD2_0
         [Obsolete("Use the Func<double> instead, this is improving performance. Will be removed on .NET9")]
         public CommonLoggerProperties AddIf(bool condition, string key, double value)
         {
@@ -82,7 +82,7 @@ namespace Arc4u.Diagnostics
             return this;
         }
 
-#if NET6_0 || NET7_0 || NET8_0 || NETSTANDARD2_0
+#if NET8_0 || NETSTANDARD2_0
         [Obsolete("Use the Func<bool> instead, this is improving performance. Will be removed on .NET9")]
         public CommonLoggerProperties AddIf(bool condition, string key, bool value)
         {
@@ -104,7 +104,7 @@ namespace Arc4u.Diagnostics
             return this;
         }
 
-#if NET6_0 || NET7_0 || NET8_0 || NETSTANDARD2_0
+#if NET8_0 || NETSTANDARD2_0
         [Obsolete("Use the Func<long> instead, this is improving performance. Will be removed on .NET9")]
         public CommonLoggerProperties AddIf(bool condition, string key, long value)
         {
@@ -123,7 +123,7 @@ namespace Arc4u.Diagnostics
             return this;
         }
 
-#if NET6_0 || NET7_0 || NET8_0 || NETSTANDARD2_0
+#if NET8_0 || NETSTANDARD2_0
         [Obsolete("Use the Func<string> instead, this is improving performance. Will be removed on .NET9")]
         public CommonLoggerProperties AddIf(bool condition, string key, string value)
         {

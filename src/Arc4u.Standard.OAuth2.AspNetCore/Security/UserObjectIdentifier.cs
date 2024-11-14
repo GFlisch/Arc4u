@@ -14,14 +14,7 @@ public class UserObjectIdentifier : IUserObjectIdentifier
 {
     public UserObjectIdentifier(IOptions<ClaimsIdentifierOption> identifierOptions, ILogger<UserObjectIdentifier> logger)
     {
-#if NET6_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(identifierOptions);
-#else
-        if (identifierOptions is null)
-        {
-            throw new ArgumentNullException(nameof(identifierOptions));
-        }
-#endif
 
         _identifierOptions = identifierOptions.Value;
 
@@ -33,14 +26,8 @@ public class UserObjectIdentifier : IUserObjectIdentifier
 
     public string? Getidentifier(ClaimsIdentity identity)
     {
-#if NET6_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(identity);
-#else
-        if (identity is null)
-        {
-            throw new ArgumentNullException(nameof(identity));
-        }
-#endif
+
         var id = UserClaimIdentifier(identity);
 
         if (string.IsNullOrEmpty(id))

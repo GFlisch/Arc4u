@@ -1,4 +1,3 @@
-using System;
 using Arc4u.Configuration.Dapr;
 using Arc4u.Configuration.Memory;
 using Arc4u.Configuration.Redis;
@@ -14,7 +13,7 @@ public static class CacheContextServicesExtension
 {
     public static void AddCacheContext(this IServiceCollection services, IConfiguration configuration, string sectionName = "Caching")
     {
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(configuration);
 #endif
 #if NETSTANDARD2_0_OR_GREATER
@@ -43,7 +42,7 @@ public static class CacheContextServicesExtension
                 case "memory":
                     services.AddMemoryCache(cache.Name, configuration, BuildCacheSettingsSectionPath(idx, sectionName));
                     break;
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
                 case "redis":
                     services.AddRedisCache(cache.Name, configuration, BuildCacheSettingsSectionPath(idx, sectionName));
                     break;

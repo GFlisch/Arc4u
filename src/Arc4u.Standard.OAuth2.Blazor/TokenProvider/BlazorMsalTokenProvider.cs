@@ -80,11 +80,7 @@ namespace Arc4u.OAuth2.TokenProvider
         /// <returns><see cref="ValueTask"/></returns>
         public ValueTask SignOutAsync(IKeyValueSettings settings, CancellationToken cancellationToken)
         {
-#if NET6_0_OR_GREATER
             return ValueTask.CompletedTask;
-#else
-            return default;
-#endif
         }
     }
 }

@@ -2,14 +2,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
 using System.Diagnostics.CodeAnalysis;
 #endif
 
 namespace Arc4u.Configuration.Memory;
 public static class MemoryCacheExtension
 {
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
     public static IServiceCollection AddMemoryCache(this IServiceCollection services, [DisallowNull] string name, Action<MemoryCacheOption> options)
 #else
     public static IServiceCollection AddMemoryCache(this IServiceCollection services, string name, Action<MemoryCacheOption> options)
@@ -38,7 +38,7 @@ public static class MemoryCacheExtension
         return services;
     }
 
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
     public static IServiceCollection AddMemoryCache(this IServiceCollection services, [DisallowNull] string name, [DisallowNull] IConfiguration configuration, [DisallowNull] string sectionName)
 #else
     public static IServiceCollection AddMemoryCache(this IServiceCollection services, string name, IConfiguration configuration, string sectionName)

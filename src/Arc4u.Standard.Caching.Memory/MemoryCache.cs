@@ -7,9 +7,8 @@ using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System;
 
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
 using System.Diagnostics.CodeAnalysis;
 #endif
 
@@ -32,7 +31,7 @@ public class MemoryCache : BaseDistributeCache<MemoryCache>, ICache
         _options = options;
     }
 
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
     public override void Initialize([DisallowNull] string store)
 #else
     public override void Initialize(string store)
