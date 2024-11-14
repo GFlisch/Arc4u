@@ -54,7 +54,7 @@ sealed class DbContextSectionStore<TDbContext> : ISectionStore
     public async Task ResetAsync(CancellationToken cancellationToken)
     {
         var set = SectionEntitySet;
-        set.RemoveRange(set.AsNoTracking().ToList());
+        set.RemoveRange(await set.AsNoTracking().ToListAsync(cancellationToken).ConfigureAwait(false));
         await _dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 }
