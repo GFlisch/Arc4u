@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 
 namespace Arc4u.Configuration;
 
@@ -6,7 +5,8 @@ public class Caching
 {
     public Caching()
     {
-        Caches = new List<CachingCache>();
+        Caches = [];
+        Default = string.Empty;
     }
 
     public string Default { get; set; }

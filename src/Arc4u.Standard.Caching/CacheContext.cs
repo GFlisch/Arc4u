@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using Arc4u.Configuration;
 using Arc4u.Dependency;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
@@ -29,7 +25,7 @@ public class CacheContext : ICacheContext
 
     private Dictionary<string, ICache> _caches = new();
     private Dictionary<string, string> _uninitializedCaches = new();
-    private string _cacheConfigName;
+    private string _cacheConfigName = string.Empty;
 
     private static readonly object _lock = new();
 
