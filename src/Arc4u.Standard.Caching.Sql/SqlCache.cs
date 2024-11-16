@@ -1,4 +1,3 @@
-using System;
 using System.Diagnostics.CodeAnalysis;
 using Arc4u.Configuration.Sql;
 using Arc4u.Dependency;
