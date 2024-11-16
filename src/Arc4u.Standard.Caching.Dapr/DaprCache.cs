@@ -5,6 +5,7 @@ using Dapr.Client;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Globalization;
+using System.Xml.Linq;
 
 namespace Arc4u.Caching.Dapr;
 
@@ -81,7 +82,6 @@ public sealed class DaprCache : ICache
                 
             }
         }
-
     }
 
     public void Put<T>(string key, T value)
@@ -197,8 +197,5 @@ public sealed class DaprCache : ICache
         }
     }
 
-    public override string ToString()
-    {
-        return ToString();
-    }
+    public override string ToString() => _storeName ?? throw new InvalidOperationException("The Store name parameter must not be null.");
 }

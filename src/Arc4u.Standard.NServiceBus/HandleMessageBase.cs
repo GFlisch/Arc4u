@@ -1,4 +1,4 @@
-﻿using Arc4u.Diagnostics;
+using Arc4u.Diagnostics;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
 using System;

@@ -3,7 +3,7 @@ using Microsoft.Extensions.Options;
 
 namespace Arc4u.Caching.Memory;
 
-class DistriOption : IOptions<MemoryDistributedCacheOptions>
+sealed class DistriOption : IOptions<MemoryDistributedCacheOptions>
 {
     public DistriOption(MemoryDistributedCacheOptions options)
     {

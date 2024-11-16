@@ -91,5 +91,5 @@ public class SqlCache : BaseDistributeCache<SqlCache>, ICache
             }
         }
     }
-    public override string ToString() => Name ?? throw new NullReferenceException();
+    public override string ToString() => Name ?? throw new InvalidOperationException("The 'Name' property must not be null.");
 }
