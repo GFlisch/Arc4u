@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading;
 
 namespace Arc4u
@@ -20,6 +20,14 @@ namespace Arc4u
                 return true;
             }
 
+#if NET8_0_OR_GREATER
+            ArgumentOutOfRangeException.ThrowIfLessThan(timeout, TimeSpan.Zero);
+#else
+        if (timeout < TimeSpan.Zero)
+        {
+            throw new ArgumentOutOfRangeException("timeout");
+        }
+#endif
             var maxWait = TimeSpan.FromMilliseconds(Int32.MaxValue);
 
             while (timeout > maxWait)
