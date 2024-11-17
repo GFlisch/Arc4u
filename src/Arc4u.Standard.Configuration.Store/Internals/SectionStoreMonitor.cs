@@ -24,7 +24,7 @@ sealed class SectionStoreMonitor : BackgroundService
         return base.StartAsync(cancellationToken);
     }
 
-    protected async override Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _logger.Technical().LogInformation($"{nameof(SectionStoreMonitor)} Service started");
         try
