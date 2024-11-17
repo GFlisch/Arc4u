@@ -2,7 +2,6 @@ using System.Runtime.InteropServices;
 
 namespace Arc4u;
 
-
 [StructLayout(LayoutKind.Sequential)]
 public struct TimeoutHelper
 {
@@ -170,7 +169,7 @@ public struct TimeoutHelper
         {
             return TimeSpan.MaxValue;
         }
-        return Ticks.ToTimeSpan((Ticks.FromTimeSpan(timeout) / factor) + 1L);
+        return Ticks.ToTimeSpan((Ticks.FromTimeSpan(timeout) / factor));
     }
 }
 
