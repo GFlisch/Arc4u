@@ -90,6 +90,7 @@ public class Scope<T> : IDisposable
         }
 
         _instance.Value = Parent;
+        GC.SuppressFinalize(this);
     }
 
     /// <summary>

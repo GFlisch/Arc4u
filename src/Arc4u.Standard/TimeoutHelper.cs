@@ -66,9 +66,9 @@ public struct TimeoutHelper
     /// </summary>
     /// <param name="callback">The method to call.</param>
     /// <param name="state">Additional parameter.</param>
-    public void SetTimer(TimerCallback callback, object state)
+    public Timer SetTimer(TimerCallback callback, object? state)
     {
-        new Timer(callback, state, ToMilliseconds(RemainingTime()), -1);
+        return new Timer(callback, state, ToMilliseconds(RemainingTime()), -1);
     }
 
     /// <summary>

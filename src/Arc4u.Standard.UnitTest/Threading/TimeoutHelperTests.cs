@@ -1,3 +1,4 @@
+using FluentAssertions;
 using Xunit;
 
 namespace Arc4u.Standard.UnitTest.Threading;
@@ -164,5 +165,21 @@ public class TimeoutHelperTests
         var result = TimeoutHelper.Divide(timeout, factor);
 
         Assert.Equal(TimeSpan.FromSeconds(5), result);
+    }
+
+    [Fact]
+    public void Set_Timer_CallBack()
+    {
+        var timeout = TimeSpan.FromMilliseconds(50);
+        var helper = new TimeoutHelper(timeout);
+        var callbackInvoked = false;
+        void Callback(object? state)
+        {
+            callbackInvoked = true;
+        }
+        helper.SetTimer(Callback, null);
+        Thread.Sleep(100);
+
+        callbackInvoked.Should().BeTrue();
     }
 }
