@@ -38,7 +38,7 @@ public class Scope<TScope, TInstance> : IDisposable
     /// Initializes a new instance of the <see cref="Scope&lt;T&gt;"/> class.
     /// </summary>
     /// <param name="instance">The instance.</param>
-    /// <param name="dispose">Indicates if the scoped <paramref name="instance"/> is disposed when its scope is disposed.</param>
+    /// <param name="toDispose">Indicates if the scoped <paramref name="instance"/> is disposed when its scope is disposed.</param>
     public Scope(TInstance instance, bool toDispose)
     {
         Value = instance;
@@ -81,19 +81,30 @@ public class Scope<TScope, TInstance> : IDisposable
     /// </summary>
     public void Dispose()
     {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    /// <summary>
+    /// Disposes the ambient scope and its current instance when applicable.
+    /// </summary>
+    /// <param name="disposing"></param>
+    protected virtual void Dispose(bool disposing)
+    {
         if (!Disposed)
         {
-            Disposed = true;
-
-            if (ToDispose)
+            if (disposing)
             {
-                var disposable = Current as IDisposable;
-                disposable?.Dispose();
+                if (ToDispose)
+                {
+                    var disposable = Current as IDisposable;
+                    disposable?.Dispose();
+                }
             }
-        }
 
-        _instance.Value = Parent;
-        GC.SuppressFinalize(this);
+            _instance.Value = Parent;
+            Disposed = true;
+        }
     }
 
     /// <summary>
