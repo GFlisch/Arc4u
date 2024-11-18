@@ -33,7 +33,7 @@ public class AppServicePrincipalFactory : IAppPrincipalFactory
     private readonly ActivitySource? _activitySource;
 
 
-    public Task<AppPrincipal> CreatePrincipal(Messages messages, object parameter = null)
+    public Task<AppPrincipal> CreatePrincipalAsync(Messages messages, object parameter = null)
     {
         throw new NotImplementedException();
     }
@@ -47,10 +47,10 @@ public class AppServicePrincipalFactory : IAppPrincipalFactory
         _activitySource = activitySourceFactory.GetArc4u();
     }
 
-    public async Task<AppPrincipal> CreatePrincipal(string settingsResolveName, Messages messages, object parameter = null)
+    public async Task<AppPrincipal> CreatePrincipalAsync(string settingsResolveName, Messages messages, object parameter = null)
     {
         var settings = _settings.Get(settingsResolveName);
-        return await CreatePrincipal(settings, messages, parameter).ConfigureAwait(false);
+        return await CreatePrincipalAsync(settings, messages, parameter).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -61,7 +61,7 @@ public class AppServicePrincipalFactory : IAppPrincipalFactory
     /// <param name="parameter">unused.</param>
     /// <returns></returns>
     /// <exception cref="AppPrincipalException">Thrown when a principal cannot be created.</exception>
-    public async Task<AppPrincipal> CreatePrincipal(IKeyValueSettings settings, Messages messages, object? parameter = null)
+    public async Task<AppPrincipal> CreatePrincipalAsync(IKeyValueSettings settings, Messages messages, object? parameter = null)
     {
         ArgumentNullException.ThrowIfNull(settings);
         ArgumentNullException.ThrowIfNull(messages);

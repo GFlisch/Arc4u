@@ -28,11 +28,14 @@ namespace Arc4u.Dependency.Attribute
         /// <param name="type">The type to register.</param>
         public void Register(Type type)
         {
+#if NET8_0_OR_GREATER
+            ArgumentNullException.ThrowIfNull(type);
+#else
             if (type == null)
             {
                 throw new ArgumentNullException(nameof(type));
             }
-
+#endif
             if (!type.CustomAttributes.Any())
             {
                 return;
