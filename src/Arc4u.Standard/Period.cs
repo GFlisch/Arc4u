@@ -107,17 +107,20 @@ public sealed class Period
     /// <returns>
     /// A string representation of the value of the current <see cref="Period"/> object, as specified by <paramref name="format"/> and <paramref name="formatProvider"/>.
     /// </returns>
-    public string ToString(string format, IFormatProvider formatProvider)
+    public string ToString(string? format, IFormatProvider? formatProvider)
     {
+        formatProvider ??= DateTimeFormatInfo.CurrentInfo;
+        format ??= "G";
+
         return IsEmpty
             ? Bound.EmptySet
             : IsSingleton
-                ? LowerBound.Value.Value.ToString(format, formatProvider)
-                : string.Format("{0}{1} ; {2}{3}"
-                , LowerBound.Direction == BoundDirection.Closed ? "[" : "]"
-                , object.Equals(LowerBound.Value, default(object)) ? Bound.Infinity : LowerBound.Value.Value.ToString(format, formatProvider)
-                , object.Equals(UpperBound.Value, default(object)) ? Bound.Infinity : UpperBound.Value.Value.ToString(format, formatProvider)
-                , UpperBound.Direction == BoundDirection.Closed ? "]" : "[");
+                ? LowerBound.Value!.Value.ToString(format, formatProvider)
+                : string.Format(formatProvider, "{0}{1} ; {2}{3}"
+                                , LowerBound.Direction == BoundDirection.Closed ? "[" : "]"
+                                , object.Equals(LowerBound.Value, default(object)) ? Bound.Infinity : LowerBound.Value.Value.ToString(format, formatProvider)
+                                , object.Equals(UpperBound.Value, default(object)) ? Bound.Infinity : UpperBound.Value.Value.ToString(format, formatProvider)
+                                , UpperBound.Direction == BoundDirection.Closed ? "]" : "[");
     }
 
     #endregion                           
