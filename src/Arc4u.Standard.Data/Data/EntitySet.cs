@@ -1,13 +1,10 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Threading;
 
 namespace Arc4u.Data
 {
@@ -49,14 +46,13 @@ namespace Arc4u.Data
         #endregion
 
         private const int _defaultCapacity = 4;
-        private static TEntity[] _emptyArray;
+        private static readonly TEntity[] _emptyArray;
         private TEntity[] _items;
         private int _size;
 
         private object _syncRoot;
         private int _version;
-        private SimpleMonitor _monitor;
-
+        private readonly SimpleMonitor _monitor;
 
         #region INotifyPropertyChanged Members
 
@@ -83,7 +79,9 @@ namespace Arc4u.Data
             //keep handler to avoid race codition
             var handler = PropertyChanged;
             if (handler != null)
+            {
                 handler(this, e);
+            }
         }
 
         #endregion
@@ -177,7 +175,6 @@ namespace Arc4u.Data
             this.OnCollectionChanged(NotifyCollectionChangedAction.Move, entity, newIndex, oldIndex);
         }
 
-
         #endregion
 
         /// <summary>
@@ -198,7 +195,6 @@ namespace Arc4u.Data
         {
             EntitySet<TEntity>._emptyArray = new TEntity[0];
         }
-
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EntitySet&lt;TEntity&gt;"/> class.
@@ -249,12 +245,10 @@ namespace Arc4u.Data
             {
                 this._size = 0;
                 this._items = new TEntity[4];
-                using (var enumerator = collection.GetEnumerator())
+                using var enumerator = collection.GetEnumerator();
+                while (enumerator.MoveNext())
                 {
-                    while (enumerator.MoveNext())
-                    {
-                        this.Add(enumerator.Current);
-                    }
+                    this.Add(enumerator.Current);
                 }
             }
         }
@@ -923,12 +917,10 @@ namespace Arc4u.Data
             }
             else
             {
-                using (IEnumerator<TEntity> enumerator = collection.GetEnumerator())
+                using IEnumerator<TEntity> enumerator = collection.GetEnumerator();
+                while (enumerator.MoveNext())
                 {
-                    while (enumerator.MoveNext())
-                    {
-                        this.InsertItem(index++, enumerator.Current);
-                    }
+                    this.InsertItem(index++, enumerator.Current);
                 }
             }
 
@@ -1032,7 +1024,9 @@ namespace Arc4u.Data
                 if (match(entity))
                 {
                     if (entity == null)
+                    {
                         BaseRemoveAt(i);
+                    }
                     else
                     {
                         switch (entity.PersistChange)
@@ -1130,7 +1124,6 @@ namespace Arc4u.Data
             {
                 throw new ArgumentException(Argument_InvalidOffLen);
             }
-
 
             for (int i = index; i < index + count; i++)
             {
@@ -1572,7 +1565,9 @@ namespace Arc4u.Data
         public static implicit operator EntitySet<EntityItem<TEntity>>(EntitySet<TEntity> entities)
         {
             if (entities == null)
+            {
                 throw new ArgumentNullException("entities");
+            }
 
             return entities.ConvertAll<EntityItem<TEntity>>(converter => (EntityItem<TEntity>)converter);
         }
@@ -1586,7 +1581,9 @@ namespace Arc4u.Data
         public static implicit operator EntitySet<TEntity>(EntitySet<EntityItem<TEntity>> items)
         {
             if (items == null)
+            {
                 throw new ArgumentNullException("items");
+            }
 
             return items.ConvertAll<TEntity>(converter => converter);
         }
@@ -1598,9 +1595,9 @@ namespace Arc4u.Data
         [StructLayout(LayoutKind.Sequential)]
         public struct Enumerator : IEnumerator<TEntity>, IDisposable, IEnumerator
         {
-            private EntitySet<TEntity> list;
+            private readonly EntitySet<TEntity> list;
             private int index;
-            private int version;
+            private readonly int version;
             private TEntity current;
 
             internal Enumerator(EntitySet<TEntity> list)
@@ -1673,8 +1670,8 @@ namespace Arc4u.Data
 
         internal sealed class FunctorComparer<T> : IComparer<T>
         {
-            private Comparer<T> c;
-            private Comparison<T> comparison;
+            private readonly Comparer<T> c;
+            private readonly Comparison<T> comparison;
 
             public FunctorComparer(Comparison<T> comparison)
             {

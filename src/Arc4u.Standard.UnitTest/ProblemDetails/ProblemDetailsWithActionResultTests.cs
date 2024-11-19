@@ -1,15 +1,15 @@
-using AutoFixture.AutoMoq;
-using AutoFixture;
-using Xunit;
-using FluentResults;
-using FluentAssertions;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
-using FluentValidation;
-using Arc4u.Results.Validation;
-using Arc4u.Results;
-using Microsoft.EntityFrameworkCore;
 using Arc4u.AspNetCore.Results;
+using Arc4u.Results;
+using Arc4u.Results.Validation;
+using AutoFixture;
+using AutoFixture.AutoMoq;
+using FluentAssertions;
+using FluentResults;
+using FluentValidation;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Xunit;
 
 namespace Arc4u.UnitTest.ProblemDetail;
 
@@ -69,7 +69,7 @@ public class ProblemDetailsWithActionResultTests
         var okUri = _fixture.Create<Uri>();
 
         var result = Result.Ok(value);
-        
+
         Func<ValueTask<Result<string?>>> valueTask = () => ValueTask.FromResult(result);
 
         // act
@@ -134,7 +134,7 @@ public class ProblemDetailsWithActionResultTests
         var actionResult = sut.Result as OkObjectResult;
         actionResult.Should().NotBeNull();
         actionResult!.Value.Should().Be($"{value} Arc4u");
-        
+
     }
 
     [Fact]
@@ -267,7 +267,7 @@ public class ProblemDetailsWithActionResultTests
         problem.Status.Should().Be(StatusCodes.Status500InternalServerError);
     }
 
-#endregion
+    #endregion
 
     #region Task<Result>
 
@@ -329,7 +329,7 @@ public class ProblemDetailsWithActionResultTests
         var result = Result.Ok<string>(value);
 
         // act
-        var sut =  result
+        var sut = result
                     .OnSuccess(() => uri = okUri)
                     .ToActionCreatedResult(uri, (v) => $"{v} Arc4u");
 
@@ -355,7 +355,7 @@ public class ProblemDetailsWithActionResultTests
         var result = Result.Ok<string>(value);
 
         // act
-        var sut =  result
+        var sut = result
                             .OnSuccess(() => uri = okUri)
                             .ToActionCreatedResult(uri, (v) => $"{v} Arc4u");
 
@@ -495,7 +495,7 @@ public class ProblemDetailsWithActionResultTests
         var validation = new ValidatorExample();
         var result = validation.ValidateWithResult(value);
         // act
-        var sut =  result.ToActionOkResult();
+        var sut = result.ToActionOkResult();
 
         // assert
         sut.Value.Should().BeNull();

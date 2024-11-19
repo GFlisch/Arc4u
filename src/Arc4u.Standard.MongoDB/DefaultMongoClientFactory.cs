@@ -1,7 +1,6 @@
 using Arc4u.MongoDB.Exceptions;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
-using System;
 
 namespace Arc4u.MongoDB;
 
@@ -43,7 +42,6 @@ public class DefaultMongoClientFactory<TContext> : IMongoClientFactory<TContext>
             }
             throw new MongoClientException($"No mongo client settings defined for key {_mongoContext.DatabaseName}");
         }
-
 
     }
 

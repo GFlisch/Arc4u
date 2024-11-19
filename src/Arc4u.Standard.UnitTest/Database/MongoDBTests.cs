@@ -1,15 +1,12 @@
-using AutoFixture.AutoMoq;
-using AutoFixture;
-using Xunit;
-using System.Collections.Generic;
-using System.Linq;
-using FluentAssertions;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
 using Arc4u.MongoDB;
 using Arc4u.MongoDB.Configuration;
-using System;
 using Arc4u.MongoDB.Exceptions;
+using AutoFixture;
+using AutoFixture.AutoMoq;
+using FluentAssertions;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Xunit;
 
 namespace Arc4u.UnitTest.Database.MongoDB;
 

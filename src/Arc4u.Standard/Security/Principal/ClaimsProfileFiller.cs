@@ -1,12 +1,9 @@
+using System.Globalization;
+using System.Security.Claims;
+using System.Security.Principal;
 using Arc4u.Configuration;
 using Arc4u.Dependency.Attribute;
 using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Security.Claims;
-using System.Security.Principal;
 
 namespace Arc4u.Security.Principal;
 
@@ -51,7 +48,6 @@ public class ClaimsProfileFiller : IClaimProfileFiller
         var name = ClaimsProfileFiller.ExtractClaimValue(claimsIdentity.Claims, ClaimTypes.Name, IdentityModel.Claims.ClaimTypes.Name);
         var surName = ClaimsProfileFiller.ExtractClaimValue(claimsIdentity.Claims, ClaimTypes.Surname, IdentityModel.Claims.ClaimTypes.Surname);
         var givenName = ClaimsProfileFiller.ExtractClaimValue(claimsIdentity.Claims, ClaimTypes.GivenName, IdentityModel.Claims.ClaimTypes.GivenName);
-
 
         var email = ClaimsProfileFiller.ExtractClaimValue(claimsIdentity.Claims, ClaimTypes.Email, IdentityModel.Claims.ClaimTypes.Email);
         var upn = ClaimsProfileFiller.ExtractClaimValue(claimsIdentity.Claims, ClaimTypes.Upn, IdentityModel.Claims.ClaimTypes.Upn);

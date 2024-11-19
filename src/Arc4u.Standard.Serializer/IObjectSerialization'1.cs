@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Arc4u.Serializer
+﻿namespace Arc4u.Serializer
 {
     /// <summary>
     /// Specify the serialization protocol for cached objects of a specific type.

@@ -1,5 +1,3 @@
-using System.IO;
-
 namespace Arc4u.OAuth2.TicketStore;
 
 public class FileTicketStoreOptions

@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -113,17 +110,15 @@ public static class Certificate
             // Encapsulate in case of on an unexpected behaviour on an non tested platform.
         }
 
-        using (var aes = Aes.Create())
-        {
-            aes.GenerateKey();
-            aes.GenerateIV();
+        using var aes = Aes.Create();
+        aes.GenerateKey();
+        aes.GenerateIV();
 
-            var encryptedKey = x509.Encrypt(aes.Key);
-            var encryptedIV = x509.Encrypt(aes.IV);
-            var encryptedData = CypherCodec.EncodeClearText(plainText, aes.Key, aes.IV);
+        var encryptedKey = x509.Encrypt(aes.Key);
+        var encryptedIV = x509.Encrypt(aes.IV);
+        var encryptedData = CypherCodec.EncodeClearText(plainText, aes.Key, aes.IV);
 
-            return $"{encryptedKey}.{encryptedIV}.{encryptedData}";
-        }
+        return $"{encryptedKey}.{encryptedIV}.{encryptedData}";
 
     }
 

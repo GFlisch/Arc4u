@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Arc4u.Caching
+﻿namespace Arc4u.Caching
 {
     [Flags]
     public enum CacheAction

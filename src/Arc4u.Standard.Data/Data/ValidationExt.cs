@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
 
 namespace Arc4u.Data
 {

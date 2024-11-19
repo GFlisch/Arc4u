@@ -1,5 +1,3 @@
-using System;
-using System.Linq;
 using Arc4u.Configuration;
 using Arc4u.OAuth2.Options;
 using Microsoft.Extensions.Configuration;
@@ -39,10 +37,10 @@ public static class AddClaimsFillerExtension
             }
         }
 
-       AddClaimsFiller(services, o =>
-        {
-            o.LoadClaimsFromClaimsFillerProvider = options.LoadClaimsFromClaimsFillerProvider;
-            o.SettingsKeys = options.SettingsKeys;
-        });
+        AddClaimsFiller(services, o =>
+         {
+             o.LoadClaimsFromClaimsFillerProvider = options.LoadClaimsFromClaimsFillerProvider;
+             o.SettingsKeys = options.SettingsKeys;
+         });
     }
 }

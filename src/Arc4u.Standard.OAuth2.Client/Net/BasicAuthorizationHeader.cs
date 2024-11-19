@@ -1,8 +1,7 @@
-﻿using Arc4u.Caching;
+﻿using System.Text;
+using Arc4u.Caching;
 using Arc4u.Dependency.Attribute;
 using Arc4u.OAuth2.Token;
-using System;
-using System.Text;
 
 namespace Arc4u.OAuth2.Net
 {
@@ -14,7 +13,7 @@ namespace Arc4u.OAuth2.Net
             this.secureCache = secureCache;
         }
 
-        private ISecureCache secureCache;
+        private readonly ISecureCache secureCache;
 
         public string GetHeader(IKeyValueSettings settings)
         {

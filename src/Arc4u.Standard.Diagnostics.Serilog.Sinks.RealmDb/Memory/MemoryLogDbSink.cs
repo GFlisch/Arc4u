@@ -2,11 +2,6 @@
 using Serilog.Events;
 using Serilog.Formatting.Display;
 using Serilog.Sinks.PeriodicBatching;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Threading.Tasks;
 
 namespace Arc4u.Diagnostics.Serilog.Sinks.Memory
 {
@@ -33,31 +28,29 @@ namespace Arc4u.Diagnostics.Serilog.Sinks.Memory
 
                 try
                 {
-                    using (var properties = new StringWriter())
-                    using (var messageText = new StringWriter())
+                    using var properties = new StringWriter();
+                    using var messageText = new StringWriter();
+                    PropertyFormatter.Format(Properties, properties);
+                    MessageFormatter.Format(_event, messageText);
+
+                    var logMsg = new LogMessage
                     {
-                        PropertyFormatter.Format(Properties, properties);
-                        MessageFormatter.Format(_event, messageText);
+                        Timestamp = _event.Timestamp,
+                        Message = messageText.ToString(),
+                        ActivityId = ActivityId,
+                        MethodName = MethodName,
+                        ClassType = ClassType,
+                        Properties = properties.ToString(),
+                        ProcessId = ProcessId,
+                        ThreadId = ThreadId,
+                        Stacktrace = Stacktrace,
+                        MessageCategory = Category.ToString(),
+                        MessageType = _event.Level.ToMessageType().ToString(),
+                        Application = Application,
+                        Identity = Identity,
+                    };
 
-                        var logMsg = new LogMessage
-                        {
-                            Timestamp = _event.Timestamp,
-                            Message = messageText.ToString(),
-                            ActivityId = ActivityId,
-                            MethodName = MethodName,
-                            ClassType = ClassType,
-                            Properties = properties.ToString(),
-                            ProcessId = ProcessId,
-                            ThreadId = ThreadId,
-                            Stacktrace = Stacktrace,
-                            MessageCategory = Category.ToString(),
-                            MessageType = _event.Level.ToMessageType().ToString(),
-                            Application = Application,
-                            Identity = Identity,
-                        };
-
-                        LogMessages.Add(logMsg);
-                    }
+                    LogMessages.Add(logMsg);
                 }
                 catch (Exception)
                 {

@@ -2,7 +2,6 @@ using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Arc4u.Caching;
-using Arc4u.Configuration;
 using Arc4u.Dependency;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
@@ -12,7 +11,6 @@ using Arc4u.OAuth2.Token;
 using Arc4u.Security.Principal;
 using Arc4u.ServiceModel;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace Arc4u.OAuth2.Client.Security.Principal;
 

@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
@@ -59,7 +57,6 @@ public class X509CertificateLoader : IX509CertificateLoader
 
         return certificate;
     }
-
 
     /// <summary>
     /// Read the current section and identify if the section contains a CertificateStore entry.

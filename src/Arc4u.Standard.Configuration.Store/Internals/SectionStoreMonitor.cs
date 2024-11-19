@@ -1,7 +1,7 @@
+using Arc4u.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Arc4u.Diagnostics;
 
 namespace Arc4u.Configuration.Store.Internals;
 

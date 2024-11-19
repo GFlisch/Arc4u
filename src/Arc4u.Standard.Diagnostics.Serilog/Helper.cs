@@ -31,9 +31,9 @@ public static class Helper
                stacktrace = string.Empty,
                identity = string.Empty,
                application = string.Empty;
-           int processId = -1,
-               threadId = -1;
-         short category = -1;
+        int processId = -1,
+            threadId = -1;
+        short category = -1;
 
         var filteredProperties = new List<LogEventProperty>();
 

@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using Arc4u.Configuration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -43,8 +41,9 @@ public static class DomainMappingExtensions
 
         settings ??= new Dictionary<string, string>();
 
-        AddDomainMapping(services, options => {
-            foreach (var key in settings.Keys )
+        AddDomainMapping(services, options =>
+        {
+            foreach (var key in settings.Keys)
             {
                 options.Add(key, settings[key]);
             }

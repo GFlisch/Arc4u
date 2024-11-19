@@ -3,7 +3,6 @@ using Arc4u.OAuth2.Options;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System;
 
 namespace Arc4u.OAuth2.Middleware;
 

@@ -1,5 +1,3 @@
-
-using System;
 using System.ComponentModel;
 using System.Runtime.Serialization;
 
@@ -133,7 +131,6 @@ namespace Arc4u.Data
         }
 
         #endregion
-
 
     }
 }

@@ -1,5 +1,3 @@
-using System.Threading;
-using System.Threading.Tasks;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Microsoft.Extensions.Logging;
@@ -30,7 +28,7 @@ namespace Arc4u.OAuth2.Token
 #if NET8_0_OR_GREATER
             return ValueTask.CompletedTask;
 #else
-        return default;
+            return default;
 #endif
         }
     }

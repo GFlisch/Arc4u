@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Arc4u.Dependency.Configuration
+﻿namespace Arc4u.Dependency.Configuration
 {
     public class TypeConfig
     {

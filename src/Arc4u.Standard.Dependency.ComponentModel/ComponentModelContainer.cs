@@ -1,10 +1,9 @@
 #if NETSTANDARD2_0
 
+using System.Reflection;
 using Arc4u.Dependency.Attribute;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using System.Reflection;
-
 
 namespace Arc4u.Dependency.ComponentModel;
 
@@ -18,8 +17,8 @@ public class ComponentModelContainer : IContainer
 
     public IServiceProvider ServiceProvider => _serviceProvider;
 
-    private IServiceCollection _collection = null;
-    private IServiceScope _serviceScope = null;
+    private readonly IServiceCollection _collection = null;
+    private readonly IServiceScope _serviceScope = null;
     protected bool disposed = false;
 
     public ComponentModelContainer() : this(new ServiceCollection())
@@ -50,7 +49,9 @@ public class ComponentModelContainer : IContainer
     protected ComponentModelContainer(IServiceScope serviceScope, NameResolver nameResolution)
     {
         if (null == serviceScope)
+        {
             throw new ArgumentNullException(nameof(serviceScope));
+        }
 
         _serviceProvider = serviceScope.ServiceProvider;
         _serviceScope = serviceScope;
@@ -91,12 +92,20 @@ public class ComponentModelContainer : IContainer
     {
         var attributeInspector = new AttributeInspector(this);
         if (null != types)
+        {
             foreach (var type in types)
+            {
                 attributeInspector.Register(type);
+            }
+        }
 
         if (null != assemblies)
+        {
             foreach (var assembly in assemblies)
+            {
                 attributeInspector.Register(assembly);
+            }
+        }
     }
 
     private void Add2NameResolution(Type from, Type to, string name)
@@ -105,10 +114,14 @@ public class ComponentModelContainer : IContainer
         if (NameResolver.NameResolution.ContainsKey(key))
         {
             if (!NameResolver.NameResolution[key].Contains(to))
+            {
                 NameResolver.NameResolution[key].Add(to);
+            }
         }
         else
+        {
             NameResolver.NameResolution.Add(key, new List<Type> { to });
+        }
     }
 
     private void Add2InstanceNameResolution(Type from, object instance, string name)
@@ -117,18 +130,26 @@ public class ComponentModelContainer : IContainer
         if (NameResolver.InstanceNameResolution.ContainsKey(key))
         {
             if (!NameResolver.InstanceNameResolution[key].Contains(instance))
+            {
                 NameResolver.InstanceNameResolution[key].Add(instance);
+            }
         }
         else
+        {
             NameResolver.InstanceNameResolution.Add(key, new List<object> { instance });
+        }
     }
 
     public void Register(Type from, Type to)
     {
         if (from != to)
+        {
             _collection.AddTransient(from, to);
+        }
         else
+        {
             _collection.AddTransient(to);
+        }
     }
 
     public void Register(Type from, Type to, string name)
@@ -167,9 +188,13 @@ public class ComponentModelContainer : IContainer
     public void RegisterSingleton(Type from, Type to)
     {
         if (from != to)
+        {
             _collection.AddSingleton(from, to);
+        }
         else
+        {
             _collection.AddSingleton(to);
+        }
     }
 
     public void RegisterSingleton(Type from, Type to, string name)
@@ -185,9 +210,13 @@ public class ComponentModelContainer : IContainer
     public void Register<TFrom, To>() where TFrom : class where To : class, TFrom
     {
         if (typeof(TFrom) != typeof(To))
+        {
             _collection.AddTransient<TFrom, To>();
+        }
         else
+        {
             _collection.AddTransient<To>();
+        }
     }
 
     public void Register<TFrom, To>(string name) where TFrom : class where To : class, TFrom
@@ -202,16 +231,24 @@ public class ComponentModelContainer : IContainer
     public void RegisterScoped(Type from, Type to)
     {
         if (from != to)
+        {
             _collection.AddScoped(from, to);
+        }
         else
+        {
             _collection.AddScoped(to);
+        }
     }
     public void RegisterScoped<TFrom, To>() where TFrom : class where To : class, TFrom
     {
         if (typeof(TFrom) != typeof(To))
+        {
             _collection.AddScoped<TFrom, To>();
+        }
         else
+        {
             _collection.AddScoped<To>();
+        }
     }
 
     public void RegisterScoped<TFrom, To>(string name) where TFrom : class where To : class, TFrom
@@ -241,9 +278,13 @@ public class ComponentModelContainer : IContainer
     public void RegisterSingleton<TFrom, To>() where TFrom : class where To : class, TFrom
     {
         if (typeof(TFrom) != typeof(To)) // already added.
+        {
             _collection.AddSingleton<TFrom, To>();
+        }
         else
+        {
             _collection.TryAddSingleton<To>();
+        }
     }
 
     public void RegisterSingleton<TFrom, To>(string name) where TFrom : class where To : class, TFrom
@@ -258,13 +299,17 @@ public class ComponentModelContainer : IContainer
     private void ThrowIfNameIsNull(string name)
     {
         if (null == name)
+        {
             throw new ArgumentNullException(nameof(name));
+        }
     }
 
     private void ThrowIfNull()
     {
         if (null == Instance)
+        {
             throw new NullReferenceException("DI container is null.");
+        }
     }
 
     private IEnumerable<object> GetNamedInstances(Type type, string name, bool throwIfError)
@@ -275,25 +320,44 @@ public class ComponentModelContainer : IContainer
         if (NameResolver.InstanceNameResolution.TryGetValue(key, out var oto))
         {
             if (oto.Count != 1)
+            {
                 if (throwIfError)
+                {
                     throw new IndexOutOfRangeException($"More than one instance type is registered for name {name}.");
+                }
                 else
+                {
                     return new List<object>();
+                }
+            }
+
             instances = oto;
         }
         else
         {
             if (!NameResolver.NameResolution.TryGetValue(key, out var to))
+            {
                 if (throwIfError)
+                {
                     throw new NullReferenceException($"No type found registered with the name: {name}.");
+                }
                 else
+                {
                     return new List<object>();
+                }
+            }
 
             if (to.Count != 1)
+            {
                 if (throwIfError)
+                {
                     throw new IndexOutOfRangeException($"More than one type is registered for name {name}.");
+                }
                 else
+                {
                     return new List<object>();
+                }
+            }
 
             instances = _serviceProvider.GetServices(to.First());
         }
@@ -301,15 +365,21 @@ public class ComponentModelContainer : IContainer
         return instances;
     }
 
-
     private bool InternalTryResolve(Type type, string name, bool throwIfError, out object value)
     {
         value = null;
         if (null == Instance)
+        {
             if (throwIfError)
+            {
                 throw new NullReferenceException("DI container is null.");
+            }
             else
+            {
                 return false;
+            }
+        }
+
         IEnumerable<object> instances;
 
         if (name is null)
@@ -323,31 +393,43 @@ public class ComponentModelContainer : IContainer
             {
                 // value is already null.            
             }
-            
+
         }
         else
         {
             instances = GetNamedInstances(type, name, throwIfError);
             if (instances.Count() > 1)
+            {
                 if (throwIfError)
+                {
                     throw new MultipleRegistrationException(type, instances);
+                }
                 else
+                {
                     return false;
+                }
+            }
+
             value = instances.FirstOrDefault();
         }
 
         return value != null;
     }
 
-
     private bool InternalTryResolve<T>(string name, bool throwIfError, out T value)
     {
         value = default(T);
         if (null == Instance)
+        {
             if (throwIfError)
+            {
                 throw new NullReferenceException("DI container is null.");
+            }
             else
+            {
                 return false;
+            }
+        }
 
         if (name == null)
         {
@@ -362,25 +444,31 @@ public class ComponentModelContainer : IContainer
                 //        return false;
                 value = instance;
             }
-            catch 
+            catch
             {
                 // value is already null.            
-            }                
+            }
         }
         else
         {
             var instances = GetNamedInstances(typeof(T), name, throwIfError);
             if (instances.Count() > 1)
+            {
                 if (throwIfError)
+                {
                     throw new MultipleRegistrationException(typeof(T), instances);
+                }
                 else
+                {
                     return false;
+                }
+            }
+
             value = (T)instances.FirstOrDefault();
         }
 
         return value != null;
     }
-
 
     public T Resolve<T>()
     {
@@ -424,16 +512,20 @@ public class ComponentModelContainer : IContainer
     {
         ThrowIfNull();
 
-        if (null == name) return ResolveAll<T>();
+        if (null == name)
+        {
+            return ResolveAll<T>();
+        }
 
         if (NameResolver.InstanceNameResolution.TryGetValue(new Tuple<string, Type>(name, typeof(T)), out var oto))
         {
             return oto.Cast<T>();
         }
 
-
         if (!NameResolver.NameResolution.TryGetValue(new Tuple<string, Type>(name, typeof(T)), out var to))
+        {
             throw new NullReferenceException($"No type found registered with the name: {name}.");
+        }
 
         var instances = to.Select(type => _serviceProvider.GetService(type)).Cast<T>();
 
@@ -444,7 +536,10 @@ public class ComponentModelContainer : IContainer
     {
         ThrowIfNull();
 
-        if (null == name) return ResolveAll(type);
+        if (null == name)
+        {
+            return ResolveAll(type);
+        }
 
         if (NameResolver.InstanceNameResolution.TryGetValue(new Tuple<string, Type>(name, type), out var oto))
         {
@@ -452,7 +547,9 @@ public class ComponentModelContainer : IContainer
         }
 
         if (!NameResolver.NameResolution.TryGetValue(new Tuple<string, Type>(name, type), out var to))
+        {
             throw new NullReferenceException($"No type found registered with the name: {name}.");
+        }
 
         var instances = to.Select(_type => _serviceProvider.GetService(_type));
 
@@ -507,7 +604,6 @@ public class ComponentModelContainer : IContainer
     {
         _collection.AddScoped(type, x => exportedInstanceFactory());
     }
-
 
     public object GetService(Type serviceType)
     {

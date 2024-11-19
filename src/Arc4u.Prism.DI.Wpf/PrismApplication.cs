@@ -1,11 +1,10 @@
-﻿using CommonServiceLocator;
+﻿using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using CommonServiceLocator;
 using Prism.DI.Regions;
 using Prism.Ioc;
 using Prism.Regions;
 using Prism.Regions.Behaviors;
-using System;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 
 namespace Prism.DI
 {

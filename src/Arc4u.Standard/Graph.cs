@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 using System.Diagnostics;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.Serialization;
@@ -40,7 +37,9 @@ namespace Arc4u
         public Graph(IEnumerable<string> paths)
         {
             if (null == paths)
+            {
                 throw new ArgumentNullException("paths");
+            }
 
             ValidatePaths(paths);
 
@@ -57,17 +56,23 @@ namespace Arc4u
                 {
                     var propertyInfo = type.GetRuntimeProperty(property);
                     if (null == propertyInfo)
+                    {
                         throw new MissingMemberException(String.Format("The property {0} does not exist!", property));
+                    }
 
                     if (propertyInfo.PropertyType.IsArray)
                     {
                         type = propertyInfo.PropertyType.GetElementType();
 
                         if (type == typeof(String))
+                        {
                             throw new MissingMemberException(String.Format("The property {0} is a simple type!", property));
+                        }
 
                         if (!type.GetTypeInfo().IsClass)
+                        {
                             throw new MissingMemberException(String.Format("The property {0} is a simple type!", property));
+                        }
 
                         continue;
                     }
@@ -75,33 +80,44 @@ namespace Arc4u
                     if (!propertyInfo.PropertyType.GetTypeInfo().ImplementedInterfaces.All(t => t != typeof(IEnumerable)))
                     {
                         if (!propertyInfo.PropertyType.GetTypeInfo().IsGenericType)
+                        {
                             throw new MissingMemberException(String.Format("The property {0} is not a generic collection!", property));
+                        }
 
                         var types = propertyInfo.PropertyType.GenericTypeArguments;
                         foreach (var t in types)
                         {
                             if (t == typeof(String))
+                            {
                                 throw new MissingMemberException(String.Format("The property {0} is a simple type!", property));
+                            }
 
                             if (!t.GetTypeInfo().IsClass)
+                            {
                                 throw new MissingMemberException(String.Format("The property {0} is a simple type!", property));
+                            }
                         }
 
                         if (types.Length > 1)
+                        {
                             throw new MissingMemberException(String.Format("Simple Collection is allowed, property {0} has more than one type.", property));
+                        }
 
                         type = types[0];
                         continue;
                     }
 
-
                     type = propertyInfo.PropertyType;
 
                     if (type == typeof(String))
+                    {
                         throw new MissingMemberException(String.Format("The property {0} is a simple type!", property));
+                    }
 
                     if (!type.GetTypeInfo().IsClass)
+                    {
                         throw new MissingMemberException(String.Format("The property {0} is a simple type!", property));
+                    }
                 }
             }
         }
@@ -120,7 +136,9 @@ namespace Arc4u
                 }
 
                 if (Includes.Count == 1)
+                {
                     info.Append(includes[0]);
+                }
                 else
                 {
                     info.Append(includes[0]);
@@ -135,7 +153,6 @@ namespace Arc4u
             }
         }
 
-
         /// <summary>
         /// Let you add new <see cref="MemberExpression"/> you want to include in the object's graph.
         /// </summary>
@@ -146,20 +163,25 @@ namespace Arc4u
             var stringPath = EvaluateExpression(path);
 
             if (!String.IsNullOrWhiteSpace(stringPath) && stringPath[0] == '.')
+            {
                 stringPath = stringPath.Substring(1);
+            }
 
             if (!String.IsNullOrWhiteSpace(stringPath) && !_includes.Exists(i => i == stringPath))
+            {
                 _includes.Add(stringPath);
+            }
 
             return this;
 
         }
 
-
         public static String EvaluateExpression(Expression path)
         {
             if (null == path)
+            {
                 throw new ArgumentNullException("path");
+            }
 
             var stringPath = String.Empty;
             var memberExpression = path as MemberExpression;
@@ -167,15 +189,21 @@ namespace Arc4u
             {
                 // Check if type is System.String. because String is of type Class and the include allows to parse member of type Class. But we are not interested to see the String type.
                 if (memberExpression.Type == typeof(String))
+                {
                     throw new MemberAccessException(StringTypeNotAllowed);
+                }
 
                 if (memberExpression.Type.IsArray)
                 {
                     if (memberExpression.Type.GetElementType() == typeof(String))
+                    {
                         throw new MemberAccessException(StringTypeNotAllowed);
+                    }
 
                     if (!memberExpression.Type.GetElementType().GetTypeInfo().IsClass)
+                    {
                         throw new MemberAccessException(StructTypeNotAllowed);
+                    }
                 }
                 if (!memberExpression.Type.GetTypeInfo().ImplementedInterfaces.All(t => t != typeof(IEnumerable)))
                 {
@@ -184,10 +212,14 @@ namespace Arc4u
                     foreach (var type in types)
                     {
                         if (type == typeof(String))
+                        {
                             throw new MemberAccessException(StringTypeNotAllowed);
+                        }
 
                         if (!type.GetTypeInfo().IsClass)
+                        {
                             throw new MemberAccessException(StructTypeNotAllowed);
+                        }
                     }
                 }
 
@@ -222,18 +254,21 @@ namespace Arc4u
         public bool Exist<TProperty>(Expression<Func<T, TProperty>> path) where TProperty : class
         {
             if (null == path)
+            {
                 throw new ArgumentNullException("path");
+            }
 
             var stringPath = EvaluateExpression(path);
 
             if (!String.IsNullOrWhiteSpace(stringPath) && stringPath[0] == '.')
+            {
                 stringPath = stringPath.Substring(1);
+            }
 
             return (from s in _includes
                     where s.StartsWith(stringPath, StringComparison.OrdinalIgnoreCase)
                     select s).Any();
         }
-
 
         /// <summary>
         /// If you have a member with deep graphing, this method gives you a new graph for the specified member. As the delegation of graph is allowed only by one level step, only the direct member selection is allowed.
@@ -244,16 +279,21 @@ namespace Arc4u
         public Graph<TProperty> GetGraph<TProperty>(Expression<Func<T, TProperty>> path) where TProperty : class
         {
             if (null == path)
+            {
                 throw new ArgumentNullException("path");
+            }
 
             var stringPath = EvaluateExpression(path);
 
             if (!String.IsNullOrWhiteSpace(stringPath) && stringPath[0] == '.')
+            {
                 stringPath = stringPath.Substring(1);
-
+            }
 
             if (stringPath.Contains('.'))
+            {
                 throw new AppException(OnlyLevelOneIsAllowed);
+            }
 
             var q = (from s in _includes
                      let paths = s.Split('.').ToList()
@@ -271,7 +311,9 @@ namespace Arc4u
         public static Graph<T> Parse(T instance, bool shouldHaveElement = false)
         {
             if (null == instance)
+            {
                 throw new ArgumentNullException("instance");
+            }
 
             return shouldHaveElement ? new Graph<T>(ParseObject2(instance)) : new Graph<T>(ParseObject(instance));
         }
@@ -285,13 +327,16 @@ namespace Arc4u
         public Graph<T> RemoveGraph<TProperty>(Expression<Func<T, TProperty>> path) where TProperty : class
         {
             if (null == path)
+            {
                 throw new ArgumentNullException("path");
+            }
 
             var stringPath = EvaluateExpression(path);
 
             if (!String.IsNullOrWhiteSpace(stringPath) && stringPath[0] == '.')
+            {
                 stringPath = stringPath.Substring(1);
-
+            }
 
             // remove from the Includes, all the includes containig the path.
             var l = (from i in Includes where !i.StartsWith(stringPath) select i).ToList();
@@ -304,18 +349,26 @@ namespace Arc4u
             var result = new List<String>();
 
             if (null == o)
+            {
                 throw new ArgumentNullException("o");
+            }
 
             if (o is IEnumerable)
+            {
                 throw new ArgumentException("Collection is not allowed", "instance");
+            }
 
             var type = o.GetType();
 
             if (!type.GetTypeInfo().IsClass)
+            {
                 throw new ArgumentException("Only class type is allowed", "instance");
+            }
 
             if (type.IsArray)
+            {
                 throw new ArgumentException("Array type is not allowed", "instance");
+            }
 
             var properties = type.GetRuntimeProperties();
 
@@ -326,17 +379,24 @@ namespace Arc4u
                 if (property.PropertyType.IsArray)
                 {
                     if (property.PropertyType.GetElementType() == typeof(String))
+                    {
                         continue;
+                    }
 
                     if (!property.PropertyType.GetElementType().GetTypeInfo().IsClass)
+                    {
                         continue;
+                    }
 
                     // Check if type instance is not null.
                     oProperty = property.GetValue(o, null);
 
                     var array = oProperty as Array;
 
-                    if (null == array) continue;
+                    if (null == array)
+                    {
+                        continue;
+                    }
 
                     if (array.Length == 0)
                     {
@@ -345,12 +405,17 @@ namespace Arc4u
                     }
 
                     var children = ParseObject(array.GetValue(0));
-                    if (null == children || children.Count() == 0) result.Add(property.Name);
+                    if (null == children || children.Count() == 0)
+                    {
+                        result.Add(property.Name);
+                    }
                     else
+                    {
                         foreach (var child in children)
                         {
                             result.Add(String.Format("{0}.{1}", property.Name, child));
                         }
+                    }
 
                     continue;
                 }
@@ -358,7 +423,9 @@ namespace Arc4u
                 if (!property.PropertyType.GetTypeInfo().ImplementedInterfaces.All(t => t != typeof(IEnumerable)))
                 {
                     if (!property.PropertyType.GetTypeInfo().IsGenericType)
+                    {
                         continue;
+                    }
 
                     oProperty = property.GetValue(o, null);
                     var enumerable = oProperty as IEnumerable;
@@ -368,12 +435,17 @@ namespace Arc4u
                         if (enumerator.MoveNext())
                         {
                             var children = ParseObject(enumerator.Current);
-                            if (children.Count() == 0) result.Add(property.Name);
+                            if (children.Count() == 0)
+                            {
+                                result.Add(property.Name);
+                            }
                             else
+                            {
                                 foreach (var child in children)
                                 {
                                     result.Add(String.Format("{0}.{1}", property.Name, child));
                                 }
+                            }
                         }
                         else
                         {
@@ -384,11 +456,14 @@ namespace Arc4u
                 }
 
                 if (property.PropertyType == typeof(String))
+                {
                     continue;
+                }
 
                 if (!property.PropertyType.GetTypeInfo().IsClass)
+                {
                     continue;
-
+                }
 
                 // Check if type instance is not null.
                 oProperty = property.GetValue(o, null);
@@ -396,17 +471,20 @@ namespace Arc4u
                 if (null != oProperty)
                 {
                     var children = ParseObject(oProperty);
-                    if (children.Count() == 0) result.Add(property.Name);
+                    if (children.Count() == 0)
+                    {
+                        result.Add(property.Name);
+                    }
                     else
+                    {
                         foreach (var child in children)
                         {
                             result.Add(String.Format("{0}.{1}", property.Name, child));
                         }
-
+                    }
                 }
                 //var child = ParseObject()
             }
-
 
             return result;
         }
@@ -416,18 +494,26 @@ namespace Arc4u
             var result = new List<String>();
 
             if (null == o)
+            {
                 throw new ArgumentNullException("o");
+            }
 
             if (o is IEnumerable)
+            {
                 throw new ArgumentException("Collection is not allowed", "instance");
+            }
 
             var type = o.GetType();
 
             if (!type.GetTypeInfo().IsClass)
+            {
                 throw new ArgumentException("Only class type is allowed", "instance");
+            }
 
             if (type.IsArray)
+            {
                 throw new ArgumentException("Array type is not allowed", "instance");
+            }
 
             var properties = type.GetRuntimeProperties();
 
@@ -438,17 +524,24 @@ namespace Arc4u
                 if (property.PropertyType.IsArray)
                 {
                     if (property.PropertyType.GetElementType() == typeof(String))
+                    {
                         continue;
+                    }
 
                     if (!property.PropertyType.GetElementType().GetTypeInfo().IsClass)
+                    {
                         continue;
+                    }
 
                     // Check if type instance is not null.
                     oProperty = property.GetValue(o, null);
 
                     var array = oProperty as Array;
 
-                    if (null == array) continue;
+                    if (null == array)
+                    {
+                        continue;
+                    }
 
                     if (array.Length == 0) // we graph here if an item is added to the list. If not we consider this is the same as null!
                     {
@@ -456,12 +549,17 @@ namespace Arc4u
                     }
 
                     var children = ParseObject2(array.GetValue(0));
-                    if (null == children || children.Count() == 0) result.Add(property.Name);
+                    if (null == children || children.Count() == 0)
+                    {
+                        result.Add(property.Name);
+                    }
                     else
+                    {
                         foreach (var child in children)
                         {
                             result.Add(String.Format("{0}.{1}", property.Name, child));
                         }
+                    }
 
                     continue;
                 }
@@ -469,7 +567,9 @@ namespace Arc4u
                 if (!property.PropertyType.GetTypeInfo().ImplementedInterfaces.All(t => t != typeof(IEnumerable)))
                 {
                     if (!property.PropertyType.GetTypeInfo().IsGenericType)
+                    {
                         continue;
+                    }
 
                     oProperty = property.GetValue(o, null);
                     var enumerable = oProperty as IEnumerable;
@@ -479,24 +579,32 @@ namespace Arc4u
                         if (enumerator.MoveNext())
                         {
                             var children = ParseObject2(enumerator.Current);
-                            if (children.Count() == 0) result.Add(property.Name);
+                            if (children.Count() == 0)
+                            {
+                                result.Add(property.Name);
+                            }
                             else
                             if (children.Count() > 0)
+                            {
                                 foreach (var child in children)
                                 {
                                     result.Add(String.Format("{0}.{1}", property.Name, child));
                                 }
+                            }
                         }
                     }
                     continue;
                 }
 
                 if (property.PropertyType == typeof(String))
+                {
                     continue;
+                }
 
                 if (!property.PropertyType.GetTypeInfo().IsClass)
+                {
                     continue;
-
+                }
 
                 // Check if type instance is not null.
                 oProperty = property.GetValue(o, null);
@@ -504,16 +612,19 @@ namespace Arc4u
                 if (null != oProperty)
                 {
                     var children = ParseObject2(oProperty);
-                    if (children.Count() == 0) result.Add(property.Name);
+                    if (children.Count() == 0)
+                    {
+                        result.Add(property.Name);
+                    }
                     else
+                    {
                         foreach (var child in children)
                         {
                             result.Add(String.Format("{0}.{1}", property.Name, child));
                         }
-
+                    }
                 }
             }
-
 
             return result;
         }
@@ -532,14 +643,15 @@ namespace Arc4u
             set
             {
                 if (null == value)
+                {
                     throw new ArgumentNullException("value");
+                }
 
                 ValidatePaths(value);
 
                 _includes = new List<string>(value);
             }
         }
-
 
     }
 }

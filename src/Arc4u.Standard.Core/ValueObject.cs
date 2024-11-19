@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 namespace Arc4u.Core;
 
 public abstract class ValueObject
@@ -43,7 +39,7 @@ public abstract class ValueObject
     }
     public static bool operator ==(ValueObject? one, ValueObject? two)
     {
-         return EqualOperator(one, two);
+        return EqualOperator(one, two);
     }
 
     public static bool operator !=(ValueObject? one, ValueObject? two)

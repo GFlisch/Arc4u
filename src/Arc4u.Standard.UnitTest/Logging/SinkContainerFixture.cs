@@ -8,6 +8,5 @@ namespace Arc4u.UnitTest.Logging
 
         public abstract ILogEventSink Sink { get; }
 
-
     }
 }

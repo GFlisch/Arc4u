@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Arc4u.gRPC
+﻿namespace Arc4u.gRPC
 {
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     public class ServiceAspectAttribute : Attribute

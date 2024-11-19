@@ -1,9 +1,6 @@
 using Arc4u.Caching;
 using Arc4u.Dependency.Attribute;
 using Arc4u.OAuth2.Token;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Arc4u.OAuth2.Security.Principal;
 
@@ -27,13 +24,14 @@ public class ServerPrincipalCache : ISecureCache
     protected virtual void Dispose(bool disposing)
     {
         if (!disposed)
+        {
             if (disposing)
             {
                 _cache = null;
                 disposed = true;
             }
+        }
     }
-
 
     public TValue Get<TValue>(string key)
     {

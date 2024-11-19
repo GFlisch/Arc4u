@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.Text;
+﻿using System.Text;
 using System.Xml;
 
 namespace System.Runtime.Serialization
@@ -22,15 +21,17 @@ namespace System.Runtime.Serialization
         public static object ReadObject(this DataContractSerializer serializer, string s)
         {
             if (serializer == null)
+            {
                 throw new ArgumentNullException("serializer");
+            }
 
             if (s == null)
-                return null;
-
-            using (var xmlReader = XmlReader.Create(new StringReader(s)))
             {
-                return serializer.ReadObject(xmlReader);
+                return null;
             }
+
+            using var xmlReader = XmlReader.Create(new StringReader(s));
+            return serializer.ReadObject(xmlReader);
         }
 
         /// <summary>
@@ -52,14 +53,13 @@ namespace System.Runtime.Serialization
         public static void ReadObject(this DataContractSerializer serializer, string path, out object graph)
         {
             if (serializer == null)
-                throw new ArgumentNullException("serializer");
-
-            using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
-                graph = serializer.ReadObject(stream);
+                throw new ArgumentNullException("serializer");
             }
-        }
 
+            using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            graph = serializer.ReadObject(stream);
+        }
 
         /// <summary>
         /// Reads the XML contained in the specified file path and return the deserialized object via the <c>out</c> parameter.
@@ -80,13 +80,12 @@ namespace System.Runtime.Serialization
         public static void ReadObject(this DataContractSerializer serializer, Stream stream, out object graph)
         {
             if (serializer == null)
+            {
                 throw new ArgumentNullException("serializer");
+            }
 
             graph = serializer.ReadObject(stream);
         }
-
-
-
 
         /// <summary>
         /// Writes the complete content of the object to a file using the specified path.
@@ -111,12 +110,12 @@ namespace System.Runtime.Serialization
         public static void WriteObject(this DataContractSerializer serializer, string path, object graph)
         {
             if (serializer == null)
-                throw new ArgumentNullException("serializer");
-
-            using (var stream = new FileStream(path, FileMode.Create, FileAccess.Write))
             {
-                serializer.WriteObject(stream, graph);
+                throw new ArgumentNullException("serializer");
             }
+
+            using var stream = new FileStream(path, FileMode.Create, FileAccess.Write);
+            serializer.WriteObject(stream, graph);
         }
 
         /// <summary>
@@ -132,7 +131,9 @@ namespace System.Runtime.Serialization
         public static void WriteObject(this DataContractSerializer serializer, object graph, out string s)
         {
             if (serializer == null)
+            {
                 throw new ArgumentNullException("serializer");
+            }
 
             var builder = new StringBuilder();
             using (var xmlWriter = XmlWriter.Create(builder))
@@ -157,16 +158,17 @@ namespace System.Runtime.Serialization
         public static void WriteObject(this DataContractSerializer serializer, object obj, Stream stream)
         {
             if (serializer == null)
+            {
                 throw new ArgumentNullException("serializer");
+            }
 
             if (null == stream)
-                throw new ArgumentNullException("stream");
-
-
-            using (var writer = XmlDictionaryWriter.CreateTextWriter(stream))
             {
-                serializer.WriteObject(writer, obj);
+                throw new ArgumentNullException("stream");
             }
+
+            using var writer = XmlDictionaryWriter.CreateTextWriter(stream);
+            serializer.WriteObject(writer, obj);
         }
     }
 }

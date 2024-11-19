@@ -1,7 +1,5 @@
-﻿using Microsoft.IO;
-using System;
-using System.IO;
-using System.Text.Json;
+﻿using System.Text.Json;
+using Microsoft.IO;
 
 namespace Arc4u.Serializer
 {
@@ -34,7 +32,6 @@ namespace Arc4u.Serializer
             _options = options;
         }
 
-
         /// <summary>
         /// Construct an instance, optionally specifying compression and a serialization context.
         /// This is used for source generation, implemented in .NET 6 or later (https://learn.microsoft.com/en-us/dotnet/standard/serialization/system-text-json/source-generation?pivots=dotnet-6-0)
@@ -52,25 +49,37 @@ namespace Arc4u.Serializer
         protected void InternalSerialize<T>(Stream utf8json, T value)
         {
             if (_context != null)
+            {
                 JsonSerializer.Serialize(utf8json, value, typeof(T), _context);
+            }
             else
+            {
                 JsonSerializer.Serialize(utf8json, value, _options);
+            }
         }
 
         protected T InternalDeserialize<T>(Stream utf8json)
         {
             if (_context != null)
+            {
                 return (T)JsonSerializer.Deserialize(utf8json, typeof(T), _context);
+            }
             else
+            {
                 return JsonSerializer.Deserialize<T>(utf8json, _options);
+            }
         }
 
         protected object InternalDeserialize(Stream utf8json, Type returnType)
         {
             if (_context != null)
+            {
                 return JsonSerializer.Deserialize(utf8json, returnType, _context);
+            }
             else
+            {
                 return JsonSerializer.Deserialize(utf8json, returnType, _options);
+            }
         }
     }
 }

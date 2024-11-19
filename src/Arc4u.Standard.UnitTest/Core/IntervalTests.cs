@@ -1,6 +1,7 @@
-using Arc4u;
 using FluentAssertions;
 using Xunit;
+
+namespace Arc4u.Standard.UnitTest.Core;
 
 public class IntervalTests
 {

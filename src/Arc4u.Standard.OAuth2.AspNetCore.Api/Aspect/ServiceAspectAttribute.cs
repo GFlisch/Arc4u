@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using System;
 
 namespace Arc4u.OAuth2.Aspect
 {

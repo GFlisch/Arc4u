@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace Arc4u.Dispatcher.Notification;
 
 /// <summary>

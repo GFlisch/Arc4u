@@ -1,8 +1,4 @@
 ﻿using NServiceBus;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 
 namespace Arc4u.NServiceBus
 {
@@ -14,7 +10,7 @@ namespace Arc4u.NServiceBus
     /// </summary>
     public sealed class MessagesToPublish
     {
-        static AsyncLocal<List<Object>> messages = new AsyncLocal<List<Object>>();
+        static readonly AsyncLocal<List<Object>> messages = new AsyncLocal<List<Object>>();
 
         public static Func<Type, bool> EventsNamingConvention;
 
@@ -34,15 +30,18 @@ namespace Arc4u.NServiceBus
         public static void Add(Object message)
         {
             if (null == EventsNamingConvention || null == CommandsNamingConvention)
+            {
                 throw new AppException("No conventions is defined for Commands or Events.");
+            }
 
             if (EventsNamingConvention(message.GetType()) || CommandsNamingConvention(message.GetType()))
             {
                 messages.Value.Add(message);
             }
             else
+            {
                 throw new AppException("Doesn't respect the namespace convention defined for events and commands.");
-
+            }
         }
 
         /// <summary>
@@ -51,7 +50,9 @@ namespace Arc4u.NServiceBus
         public static void Clear()
         {
             if (null != messages.Value)
+            {
                 messages.Value.Clear();
+            }
         }
 
         internal static List<Object> Events => messages.Value.Where((m) => EventsNamingConvention(m.GetType())).ToList();

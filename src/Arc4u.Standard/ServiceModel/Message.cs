@@ -1,9 +1,4 @@
-﻿using Arc4u.Diagnostics;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
+﻿using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Resources;
@@ -12,6 +7,7 @@ using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
+using Microsoft.Extensions.Logging;
 
 namespace Arc4u.ServiceModel
 {
@@ -74,9 +70,13 @@ namespace Arc4u.ServiceModel
             set
             {
                 if (value.Equals("Described", StringComparison.InvariantCultureIgnoreCase))
+                {
                     Category = MessageCategory.Business;
+                }
                 else
+                {
                     Category = MessageCategory.Technical;
+                }
             }
         }
         /// <summary>
@@ -87,19 +87,33 @@ namespace Arc4u.ServiceModel
         {
             var builder = new StringBuilder();
 
-            if (Code != null) builder.AppendFormat("{0} ", Code);
-            if (Subject != null) builder.AppendFormat("{0} ", Subject);
-            if (Text != null) builder.AppendFormat("{0} ", Text);
+            if (Code != null)
+            {
+                builder.AppendFormat("{0} ", Code);
+            }
+
+            if (Subject != null)
+            {
+                builder.AppendFormat("{0} ", Subject);
+            }
+
+            if (Text != null)
+            {
+                builder.AppendFormat("{0} ", Text);
+            }
 
             //remove last delimiter
             if (builder.Length != 0)
+            {
                 builder.Remove(builder.Length - 1, 1);
+            }
             else
+            {
                 return base.ToString();
+            }
 
             return builder.ToString();
         }
-
 
         /// <summary>
         /// Add the stacktrace to receive the information on the messsage but not persist it (back to
@@ -201,8 +215,6 @@ namespace Arc4u.ServiceModel
             Category = category;
         }
 
-
-
         public Message LocalizeMessage(CultureInfo culture = null)
         {
             if (this.Text.StartsWith("{") && this.Text.EndsWith("}"))
@@ -243,19 +255,20 @@ namespace Arc4u.ServiceModel
         /// <param name="level">Message level</param>
         /// <param name="message">The message.</param>
         /// <param name="stringFormatParameters">The parameters to inject into the message.</param>
-        public static void LogAndThrowIfNecessary<T>(ILogger<T> logger,MessageType level, Expression<Func<string>> message, params object[] stringFormatParameters)
+        public static void LogAndThrowIfNecessary<T>(ILogger<T> logger, MessageType level, Expression<Func<string>> message, params object[] stringFormatParameters)
         {
             var messages = new Messages { new Message(level, message, stringFormatParameters) };
             messages.LogAndThrowIfNecessary(logger);
         }
-
 
         private static string GetResourceFromLocalizableMessage(LocalizedMessage msg, CultureInfo culture)
         {
             var type = GetTypeFromString(msg.Type);
 
             if (null == type)
+            {
                 throw new AppException($"The given type({msg.Type}) does not exist.");
+            }
 
             // Check the resource file contains at least the property.
             var resourceManagerProp = type.GetProperty(msg.Message);
@@ -277,7 +290,10 @@ namespace Arc4u.ServiceModel
                 textOut = rm.GetString(msg.Message, culture);
             }
             else
+            {
                 textOut = resourceManagerProp.GetValue(null).ToString();
+            }
+
             return textOut;
         }
 

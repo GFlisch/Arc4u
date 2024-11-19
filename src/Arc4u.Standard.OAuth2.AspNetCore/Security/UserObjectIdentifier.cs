@@ -1,5 +1,3 @@
-using System;
-using System.Linq;
 using System.Security.Claims;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
@@ -54,6 +52,5 @@ public class UserObjectIdentifier : IUserObjectIdentifier
 
         return null;
     }
-
 
 }

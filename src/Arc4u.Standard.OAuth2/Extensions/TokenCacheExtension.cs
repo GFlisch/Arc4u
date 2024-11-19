@@ -1,4 +1,3 @@
-using System;
 using Arc4u.Configuration;
 using Arc4u.OAuth2.Options;
 using Microsoft.Extensions.Configuration;

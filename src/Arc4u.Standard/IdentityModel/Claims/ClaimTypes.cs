@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Arc4u.IdentityModel.Claims
+﻿namespace Arc4u.IdentityModel.Claims
 {
     public class ClaimTypes
     {

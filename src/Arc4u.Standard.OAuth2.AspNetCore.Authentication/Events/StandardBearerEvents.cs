@@ -1,8 +1,6 @@
-using System;
 using System.Net;
 using System.Security.Claims;
 using System.Text.Json;
-using System.Threading.Tasks;
 using Arc4u.Diagnostics;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
@@ -40,7 +38,6 @@ public class StandardBearerEvents : JwtBearerEvents
             error_description = context.ErrorDescription
         }));
     }
-
 
     public override Task MessageReceived(MessageReceivedContext context)
     {

@@ -1,8 +1,7 @@
-﻿using Microsoft.IO;
-using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO.Compression;
 using System.Text.Json;
+using Microsoft.IO;
 
 namespace Arc4u.Serializer
 {
@@ -23,7 +22,6 @@ namespace Arc4u.Serializer
             : base(options)
         {
         }
-
 
         /// <summary>
         /// Construct an instance with a serialization context.
@@ -46,41 +44,34 @@ namespace Arc4u.Serializer
         {
             Activity.Current?.SetTag("SerializerType", SerializerType);
 
-            using (var output = RecyclableMemoryStreamManager.GetStream())
+            using var output = RecyclableMemoryStreamManager.GetStream();
+            using (var archive = new ZipArchive(output, ZipArchiveMode.Create, leaveOpen: true))
             {
-                using (var archive = new ZipArchive(output, ZipArchiveMode.Create, leaveOpen: true))
-                {
-                    var entry = archive.CreateEntry(EntryName, CompressionLevel.Fastest);
-                    using (var contentStream = entry.Open())
-                        InternalSerialize(contentStream, value);
-                }
-                return output.ToArray();
+                var entry = archive.CreateEntry(EntryName, CompressionLevel.Fastest);
+                using var contentStream = entry.Open();
+                InternalSerialize(contentStream, value);
             }
+            return output.ToArray();
         }
-
 
         public T Deserialize<T>(byte[] data)
         {
             Activity.Current?.SetTag("SerializerType", SerializerType);
-            using (var compressed = RecyclableMemoryStreamManager.GetStream(data))
-            using (var archive = new ZipArchive(compressed))
-            {
-                var entry = archive.GetEntry(EntryName);
-                using (var contentStream = entry.Open())
-                    return InternalDeserialize<T>(contentStream);
-            }
+            using var compressed = RecyclableMemoryStreamManager.GetStream(data);
+            using var archive = new ZipArchive(compressed);
+            var entry = archive.GetEntry(EntryName);
+            using var contentStream = entry.Open();
+            return InternalDeserialize<T>(contentStream);
         }
 
         public object Deserialize(byte[] data, Type objectType)
         {
             Activity.Current?.SetTag("SerializerType", SerializerType);
-            using (var compressed = RecyclableMemoryStreamManager.GetStream(data))
-            using (var archive = new ZipArchive(compressed))
-            {
-                var entry = archive.GetEntry(EntryName);
-                using (var contentStream = entry.Open())
-                    return InternalDeserialize(contentStream, objectType);
-            }
+            using var compressed = RecyclableMemoryStreamManager.GetStream(data);
+            using var archive = new ZipArchive(compressed);
+            var entry = archive.GetEntry(EntryName);
+            using var contentStream = entry.Open();
+            return InternalDeserialize(contentStream, objectType);
         }
     }
 }

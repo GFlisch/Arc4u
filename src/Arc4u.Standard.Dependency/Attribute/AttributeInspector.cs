@@ -1,5 +1,3 @@
-using System;
-using System.Linq;
 using System.Reflection;
 
 namespace Arc4u.Dependency.Attribute

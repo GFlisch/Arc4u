@@ -1,7 +1,4 @@
 ﻿using Arc4u.IdentityModel.Claims;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Arc4u.OAuth2.Security
 {

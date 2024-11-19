@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Arc4u.Network
+﻿namespace Arc4u.Network
 {
     public class Handler
     {

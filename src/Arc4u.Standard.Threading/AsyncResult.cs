@@ -1,6 +1,3 @@
-using System;
-using System.Threading;
-
 namespace Arc4u.Threading
 {
     /// <summary>
@@ -58,7 +55,10 @@ namespace Arc4u.Threading
                 lock (_lock)
                 {
                     if (_event == null)
+                    {
                         _event = new ManualResetEvent(IsCompleted);
+                    }
+
                     return _event;
                 }
             }
@@ -72,10 +72,16 @@ namespace Arc4u.Threading
             lock (_lock)
             {
                 _completed = true;
-                if (_event != null) _event.Set();
+                if (_event != null)
+                {
+                    _event.Set();
+                }
             }
 
-            if (_cb != null) _cb(this);
+            if (_cb != null)
+            {
+                _cb(this);
+            }
         }
     }
 

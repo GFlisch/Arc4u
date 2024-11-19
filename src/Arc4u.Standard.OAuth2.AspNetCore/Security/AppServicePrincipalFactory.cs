@@ -1,10 +1,6 @@
-using System;
 using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
-using System.Threading;
-using System.Threading.Tasks;
 using Arc4u.Configuration;
 using Arc4u.Dependency;
 using Arc4u.Dependency.Attribute;
@@ -31,7 +27,6 @@ public class AppServicePrincipalFactory : IAppPrincipalFactory
     private readonly IOptionsMonitor<SimpleKeyValueSettings> _settings;
     private readonly IClaimsTransformation _claimsTransformation;
     private readonly ActivitySource? _activitySource;
-
 
     public Task<AppPrincipal> CreatePrincipalAsync(Messages messages, object parameter = null)
     {
@@ -115,7 +110,6 @@ public class AppServicePrincipalFactory : IAppPrincipalFactory
             _logger.Technical().LogException(ex);
         }
     }
-
 
     private async ValueTask RemoveCacheFromUserAsync()
     {

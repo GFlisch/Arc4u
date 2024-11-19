@@ -1,6 +1,4 @@
 ﻿using NServiceBus;
-using System;
-using System.Threading.Tasks;
 
 namespace Arc4u.NServiceBus
 {
@@ -33,7 +31,9 @@ namespace Arc4u.NServiceBus
         public async Task StartAsync(string applicationName)
         {
             if (String.IsNullOrEmpty(applicationName))
+            {
                 throw new ArgumentException("applicationName");
+            }
 
             var endpointConfiguration = new EndpointConfiguration(applicationName);
             // for to be a sender only!
@@ -58,7 +58,9 @@ namespace Arc4u.NServiceBus
         public async Task StopAsync()
         {
             if (null != _endpointInstance)
+            {
                 await _endpointInstance.Stop().ConfigureAwait(false);
+            }
         }
     }
 }

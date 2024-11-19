@@ -21,7 +21,10 @@ namespace Arc4u.Diagnostics
             get
             {
                 if (null != Scope<ILogger>.Current)
+                {
                     return Scope<ILogger>.Current;
+                }
+
                 return _loggerInstance;
             }
 
@@ -33,7 +36,6 @@ namespace Arc4u.Diagnostics
         public static CommonFromLogger Business { get { return new CommonFromLogger(LoggerInstance, MessageCategory.Business); } }
 
         public static MonitoringFromLogger Monitoring { get { return new MonitoringFromLogger(LoggerInstance); } }
-
 
         public static LogLevel FilterLevel { get; set; }
     }

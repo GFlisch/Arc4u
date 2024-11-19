@@ -1,9 +1,6 @@
+using System.Reflection;
 using Arc4u.Dependency.Configuration;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 
 namespace Arc4u.Dependency
 {
@@ -44,7 +41,10 @@ namespace Arc4u.Dependency
             types = new List<Type>();
             var result = new List<Assembly>();
 
-            if (null == assemblies) return result;
+            if (null == assemblies)
+            {
+                return result;
+            }
 
             foreach (var assembly in assemblies)
             {
@@ -56,7 +56,9 @@ namespace Arc4u.Dependency
                 {
                     var a = Assembly.Load(assembly.Assembly);
                     if (null != a)
+                    {
                         result.Add(a);
+                    }
                 }
             }
 
@@ -67,13 +69,18 @@ namespace Arc4u.Dependency
         {
             var _types = new List<Type>();
 
-            if (null == types) return _types;
+            if (null == types)
+            {
+                return _types;
+            }
 
             foreach (var type in types)
             {
                 var t = Type.GetType(type);
                 if (null != t)
+                {
                     _types.Add(t);
+                }
             }
             return _types;
 

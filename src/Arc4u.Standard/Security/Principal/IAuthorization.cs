@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Arc4u.Security.Principal
+﻿namespace Arc4u.Security.Principal
 {
     /// <summary>
     /// The interface defines the authorization pattern used to check if a user is able to do an operation or not.
@@ -52,7 +50,6 @@ namespace Arc4u.Security.Principal
         /// 	<c>true</c> if the specified operations is authorized; otherwise, <c>false</c>.
         /// </returns>
         bool IsAuthorized(params int[] operations);
-
 
         /// <summary>
         /// Determines whether the specified operations are authorized.

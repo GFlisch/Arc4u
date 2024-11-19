@@ -112,7 +112,6 @@ public static class BasicAuthenticationMiddlewareExtension
             basicSettings.CertificateHeaderOptions = certs;
         });
 
-
     }
 
     public static bool RegisterBasicAuthority(IServiceCollection services, Action<BasicSettingsOptions> options)
@@ -172,7 +171,7 @@ public static class BasicAuthenticationMiddlewareExtension
         settings.Add(TokenKeys.ProviderIdKey, validate!.ProviderId);
         settings.Add(TokenKeys.AuthenticationTypeKey, validate.AuthenticationType);
         settings.Add(TokenKeys.ClientIdKey, validate.ClientId);
-        settings.Add(TokenKeys.Scope, string.Join(' ',validate.Scopes));
+        settings.Add(TokenKeys.Scope, string.Join(' ', validate.Scopes));
         if (!string.IsNullOrWhiteSpace(validate.ClientSecret))
         {
             settings.Add(TokenKeys.ClientSecret, validate.ClientSecret!);
@@ -254,7 +253,6 @@ public static class BasicAuthenticationMiddlewareExtension
         {
             configErrors += "Scope in Basic settings must be filled!" + System.Environment.NewLine;
         }
-
 
         if (configErrors is not null)
         {

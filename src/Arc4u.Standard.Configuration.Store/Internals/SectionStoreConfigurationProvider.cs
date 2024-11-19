@@ -26,8 +26,10 @@ sealed class SectionStoreConfigurationProvider : ConfigurationProvider
             foreach (var item in Data)
             {
                 if (item.Key == ValuePropertyName)
+                {
                     // a simple type (no structure)
                     output[key] = item.Value;
+                }
                 else
                 {
                     // a complex type
@@ -87,20 +89,18 @@ sealed class SectionStoreConfigurationProvider : ConfigurationProvider
         }
         else
         {
-            using (var scope = _serviceScopeFactory.CreateScope())
+            using var scope = _serviceScopeFactory.CreateScope();
+            var sectionStore = scope.ServiceProvider.GetRequiredService<ISectionStore>();
+            var existingSections = sectionStore.GetAll();
+            // this might be null if someone resetted the database
+            if (existingSections.Count == 0)
             {
-                var sectionStore = scope.ServiceProvider.GetRequiredService<ISectionStore>();
-                var existingSections = sectionStore.GetAll();
-                // this might be null if someone resetted the database
-                if (existingSections.Count == 0)
-                {
-                    InitializeSectionStore(sectionStore, existingSections);
-                }
+                InitializeSectionStore(sectionStore, existingSections);
+            }
 
-                foreach (var entity in existingSections)
-                {
-                    transformer.Transform(data, entity.Key, entity.Value);
-                }
+            foreach (var entity in existingSections)
+            {
+                transformer.Transform(data, entity.Key, entity.Value);
             }
         }
 
@@ -135,7 +135,6 @@ sealed class SectionStoreConfigurationProvider : ConfigurationProvider
         InitializeSectionStore(sectionStore, existingSections);
     }
 
-
     public void ReloadIfNeeded()
     {
         var data = GetData();
@@ -147,7 +146,6 @@ sealed class SectionStoreConfigurationProvider : ConfigurationProvider
         Data = data;
         OnReload();
     }
-
 
     public override void Load()
     {

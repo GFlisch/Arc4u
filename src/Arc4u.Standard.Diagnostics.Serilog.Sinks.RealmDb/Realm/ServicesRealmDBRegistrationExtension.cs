@@ -15,5 +15,4 @@ namespace Arc4u.Diagnostics.Serilog.Sinks.RealmDb
         }
     }
 
-
 }

@@ -1,6 +1,4 @@
-﻿using System.IO;
-using System.Text;
-
+﻿using System.Text;
 
 namespace System.Runtime.Serialization.Json
 {
@@ -22,17 +20,18 @@ namespace System.Runtime.Serialization.Json
         public static T ReadObject<T>(this DataContractJsonSerializer serializer, string content)
         {
             if (serializer == null)
+            {
                 throw new ArgumentNullException("serializer");
+            }
 
             if (content == null)
-                return default(T);
-
-            using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(content)))
             {
-                return (T)serializer.ReadObject(stream);
+                return default(T);
             }
-        }
 
+            using var stream = new MemoryStream(Encoding.UTF8.GetBytes(content));
+            return (T)serializer.ReadObject(stream);
+        }
 
         /// <summary>
         /// Reads the Json contained in the specified file path and return the deserialized object via the <c>out</c> parameter.
@@ -53,7 +52,9 @@ namespace System.Runtime.Serialization.Json
         public static void ReadObject<T>(this DataContractJsonSerializer serializer, Stream stream, out T graph)
         {
             if (serializer == null)
+            {
                 throw new ArgumentNullException("serializer");
+            }
 
             graph = (T)serializer.ReadObject(stream);
         }
@@ -77,7 +78,9 @@ namespace System.Runtime.Serialization.Json
         public static void ReadObject<T>(this DataContractJsonSerializer serializer, string fileName, out T graph)
         {
             if (serializer == null)
+            {
                 throw new ArgumentNullException("serializer");
+            }
 
             graph = serializer.ReadObject<T>(File.ReadAllText(fileName));
 
@@ -96,15 +99,15 @@ namespace System.Runtime.Serialization.Json
         public static void WriteObject(this DataContractJsonSerializer serializer, object graph, out string content)
         {
             if (serializer == null)
-                throw new ArgumentNullException("serializer");
-
-            using (var stream = new MemoryStream())
             {
-                serializer.WriteObject(stream, graph);
-
-                var blob = stream.ToArray();
-                content = Encoding.UTF8.GetString(blob, 0, blob.Length);
+                throw new ArgumentNullException("serializer");
             }
+
+            using var stream = new MemoryStream();
+            serializer.WriteObject(stream, graph);
+
+            var blob = stream.ToArray();
+            content = Encoding.UTF8.GetString(blob, 0, blob.Length);
         }
 
         /// <summary>
@@ -130,12 +133,12 @@ namespace System.Runtime.Serialization.Json
         public static void WriteObject(this DataContractJsonSerializer serializer, string path, object graph)
         {
             if (serializer == null)
-                throw new ArgumentNullException("serializer");
-
-            using (var stream = new FileStream(path, FileMode.Create, FileAccess.Write))
             {
-                serializer.WriteObject(stream, graph);
+                throw new ArgumentNullException("serializer");
             }
+
+            using var stream = new FileStream(path, FileMode.Create, FileAccess.Write);
+            serializer.WriteObject(stream, graph);
         }
     }
 }

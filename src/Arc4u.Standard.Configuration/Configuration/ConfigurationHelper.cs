@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -46,7 +43,9 @@ public static class ConfigurationHelper
             {
                 var a = Assembly.Load(assemblyName);
                 if (null != a)
+                {
                     assemblies.Add(assemblyName, a);
+                }
             }
 
             var stream = assemblies[assemblyName].GetManifestResourceStream(fileInfo[1].Trim());
@@ -60,7 +59,9 @@ public static class ConfigurationHelper
         var configuration = configBuilder.Build();
 
         foreach (var disp in disposables)
+        {
             disp.Dispose();
+        }
 
         return configuration;
     }

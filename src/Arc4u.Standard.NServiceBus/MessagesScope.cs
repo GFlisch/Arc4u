@@ -2,7 +2,6 @@
 using Arc4u.Diagnostics;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
-using System;
 
 namespace Arc4u.NServiceBus
 {
@@ -77,7 +76,7 @@ namespace Arc4u.NServiceBus
             MessagesToPublish.Clear();
         }
 
-        private IEndpointInstance _instance;
+        private readonly IEndpointInstance _instance;
 
         public void Dispose()
         {

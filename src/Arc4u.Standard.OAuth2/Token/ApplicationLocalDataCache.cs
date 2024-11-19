@@ -2,7 +2,6 @@ using Arc4u.Caching;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Microsoft.Extensions.Logging;
-using System;
 
 namespace Arc4u.OAuth2.Token
 {

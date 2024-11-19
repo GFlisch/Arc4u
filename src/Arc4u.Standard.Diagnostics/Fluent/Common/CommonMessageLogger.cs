@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using System;
 
 namespace Arc4u.Diagnostics
 {
@@ -18,7 +17,6 @@ namespace Arc4u.Diagnostics
             MessageLogger.Text = message;
             MessageLogger.Args = args;
             MessageLogger.Exception = exception;
-
 
             return new CommonLoggerProperties(MessageLogger);
         }

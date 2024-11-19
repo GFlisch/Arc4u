@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Arc4u.Diagnostics.Serilog.Sinks
+﻿namespace Arc4u.Diagnostics.Serilog.Sinks
 {
     public interface ILogStore
     {

@@ -1,7 +1,4 @@
 using Microsoft.AspNetCore.Http;
-using System;
-using System.Threading.Tasks;
-
 
 namespace Arc4u.AspNetCore.Middleware;
 

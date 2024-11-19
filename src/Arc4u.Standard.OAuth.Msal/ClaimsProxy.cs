@@ -1,3 +1,5 @@
+using System.Runtime.Serialization.Json;
+using System.Security.Principal;
 using Arc4u.Configuration;
 using Arc4u.Dependency;
 using Arc4u.Dependency.Attribute;
@@ -7,13 +9,6 @@ using Arc4u.OAuth2.Token;
 using Arc4u.Security.Principal;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Runtime.Serialization.Json;
-using System.Security.Principal;
-using System.Threading.Tasks;
 
 namespace Arc4u.OAuth2.Security.Principal
 {
@@ -33,7 +28,7 @@ namespace Arc4u.OAuth2.Security.Principal
 
         private string _url;
         private readonly DataContractJsonSerializer _jsonSerializer;
-        private string _applicationName;
+        private readonly string _applicationName;
         protected readonly IContainerResolve _container;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<ClaimsProxy> _logger;
@@ -62,10 +57,14 @@ namespace Arc4u.OAuth2.Security.Principal
             {
                 // Check before the url and application name is defined!
                 if (String.IsNullOrWhiteSpace(_url))
+                {
                     // no override rule, use the standard endpoint defined.
                     _url = settings.First().Values[TokenKeys.RootServiceUrlKey].TrimEnd('/') + "/api/claims";
+                }
                 else
+                {
                     _url = String.Format(_url, _applicationName);
+                }
 
                 _logger.Technical().System($"Call back-end service for authorization, endpoint = {_url}.").Log();
 

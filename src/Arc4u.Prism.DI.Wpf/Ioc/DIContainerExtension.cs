@@ -1,6 +1,5 @@
 ﻿using Arc4u.Dependency;
 using Prism.Ioc;
-using System;
 using IContainerRegistry = Prism.Ioc.IContainerRegistry;
 
 namespace Prism.DI.Ioc

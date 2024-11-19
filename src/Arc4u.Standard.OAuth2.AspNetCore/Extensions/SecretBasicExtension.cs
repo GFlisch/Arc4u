@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using Arc4u.Configuration;
 using Arc4u.OAuth2.Token;
 using Microsoft.Extensions.Configuration;
@@ -55,7 +52,6 @@ public static class SecretBasicExtension
         Register(services, options, optionKey);
 
     }
-
 
     private static void Register(IServiceCollection services, SecretBasicSettingsOptions options, [DisallowNull] string optionKey)
     {
@@ -135,6 +131,5 @@ public static class SecretBasicExtension
 
         services.Configure<SimpleKeyValueSettings>(optionKey, Settings);
     }
-
 
 }

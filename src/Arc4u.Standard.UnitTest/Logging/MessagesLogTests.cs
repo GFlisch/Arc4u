@@ -15,19 +15,17 @@ namespace Arc4u.UnitTest.Logging
         [Fact]
         public void TestLogAll()
         {
-            using (var container = Fixture.CreateScope())
-            {
-                LogStartBanner();
+            using var container = Fixture.CreateScope();
+            LogStartBanner();
 
-                var messages = new Messages();
-                messages.Add(new Message(MessageCategory.Technical, MessageType.Error, "An error message."));
+            var messages = new Messages();
+            messages.Add(new Message(MessageCategory.Technical, MessageType.Error, "An error message."));
 
-                var logger = container.Resolve<ILogger<MessagesLogTests>>();
+            var logger = container.Resolve<ILogger<MessagesLogTests>>();
 
-                messages.LogAll(logger);
+            messages.LogAll(logger);
 
-                LogEndBanner();
-            }
+            LogEndBanner();
         }
     }
 }

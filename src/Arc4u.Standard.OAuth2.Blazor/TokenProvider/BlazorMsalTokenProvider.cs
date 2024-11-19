@@ -1,8 +1,5 @@
-using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Threading;
-using System.Threading.Tasks;
 using Arc4u.Dependency.Attribute;
 using Arc4u.OAuth2.Token;
 using Arc4u.Security.Principal;
@@ -54,7 +51,9 @@ namespace Arc4u.OAuth2.TokenProvider
                     JwtSecurityToken jwt = new(token);
 
                     if (jwt.ValidTo > DateTime.UtcNow)
+                    {
                         return new TokenInfo("Bearer", token, jwt.ValidTo);
+                    }
                 }
 
             }

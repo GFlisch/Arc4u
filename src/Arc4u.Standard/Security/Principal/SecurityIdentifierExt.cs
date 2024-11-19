@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Arc4u.Security.Principal
+﻿namespace Arc4u.Security.Principal
 {
     /// <summary>
     /// The class extend the security identifier to generate a custom sid based on a Guid.

@@ -31,34 +31,32 @@ public class RealmDBSink : IBatchedLogEventSink
 
             try
             {
-                using (var properties = new StringWriter())
-                using (var messageText = new StringWriter())
+                using var properties = new StringWriter();
+                using var messageText = new StringWriter();
+                PropertyFormatter.Format(Properties, properties);
+                MessageFormatter.Format(_event, messageText);
+
+                var logMsg = new LogDBMessage
                 {
-                    PropertyFormatter.Format(Properties, properties);
-                    MessageFormatter.Format(_event, messageText);
+                    Timestamp = _event.Timestamp,
+                    Message = messageText.ToString(),
+                    ActivityId = ActivityId,
+                    MethodName = MethodName,
+                    ClassType = ClassType,
+                    Properties = properties.ToString(),
+                    ProcessId = ProcessId,
+                    ThreadId = ThreadId,
+                    Stacktrace = Stacktrace,
+                    MessageCategory = (short)Category,
+                    MessageType = (int)_event.Level.ToMessageType(),
+                    Application = Application,
+                    Identity = Identity,
+                };
 
-                    var logMsg = new LogDBMessage
-                    {
-                        Timestamp = _event.Timestamp,
-                        Message = messageText.ToString(),
-                        ActivityId = ActivityId,
-                        MethodName = MethodName,
-                        ClassType = ClassType,
-                        Properties = properties.ToString(),
-                        ProcessId = ProcessId,
-                        ThreadId = ThreadId,
-                        Stacktrace = Stacktrace,
-                        MessageCategory = (short)Category,
-                        MessageType = (int)_event.Level.ToMessageType(),
-                        Application = Application,
-                        Identity = Identity,
-                    };
-
-                    await DB.WriteAsync(() =>
-                    {
-                        DB.Add(logMsg);
-                    });
-                }
+                await DB.WriteAsync(() =>
+                {
+                    DB.Add(logMsg);
+                });
             }
             catch (Exception)
             {

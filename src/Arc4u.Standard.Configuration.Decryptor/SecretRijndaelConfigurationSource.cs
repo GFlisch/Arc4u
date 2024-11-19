@@ -41,7 +41,6 @@ public class SecretRijndaelConfigurationSource : IConfigurationSource
         return new SecretRijndaelConfigurationProvider(_options, GetSources(builder));
     }
 
-
     private IList<IConfigurationSource> GetSources(IConfigurationBuilder builder)
     {
         var sources = builder.Sources.ToList();

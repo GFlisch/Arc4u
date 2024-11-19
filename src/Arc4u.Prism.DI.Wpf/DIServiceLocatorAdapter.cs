@@ -1,7 +1,5 @@
 using Arc4u.Dependency;
 using CommonServiceLocator;
-using System;
-using System.Collections.Generic;
 
 namespace Prism.DI
 {
@@ -25,7 +23,11 @@ namespace Prism.DI
         /// <returns>Resolved service object.</returns>
         protected override object DoGetInstance(Type serviceType, string key)
         {
-            if (serviceType == null) throw new ArgumentNullException(nameof(serviceType));
+            if (serviceType == null)
+            {
+                throw new ArgumentNullException(nameof(serviceType));
+            }
+
             var result = String.IsNullOrWhiteSpace(key) ? Container.Resolve(serviceType) : Container.Resolve(serviceType, key);
             return result;
         }
@@ -37,7 +39,11 @@ namespace Prism.DI
         /// <returns>Returns enumerable which will return resolved service objects.</returns>
         protected override IEnumerable<object> DoGetAllInstances(Type serviceType)
         {
-            if (serviceType == null) throw new ArgumentNullException(nameof(serviceType));
+            if (serviceType == null)
+            {
+                throw new ArgumentNullException(nameof(serviceType));
+            }
+
             return Container.ResolveAll(serviceType);
         }
     }

@@ -408,8 +408,6 @@ public static class FromResultToActionResultExtension
         return objectResult;
     }
 
-
-
     public static ActionResult<T>
     ToActionCreatedResult<TResult, T>(this Result<TResult> result, Uri? location, [DisallowNull] Func<TResult, T> mapper)
     {

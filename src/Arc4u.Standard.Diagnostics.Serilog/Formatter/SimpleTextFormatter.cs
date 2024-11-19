@@ -1,8 +1,8 @@
+using System.Globalization;
+using System.Text;
 using Serilog.Events;
 using Serilog.Formatting;
 using Serilog.Formatting.Display;
-using System.Globalization;
-using System.Text;
 
 namespace Arc4u.Diagnostics.Formatter;
 

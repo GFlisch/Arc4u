@@ -1,4 +1,3 @@
-using System;
 using System.ComponentModel;
 using System.Runtime.Serialization;
 
@@ -30,10 +29,15 @@ namespace Arc4u.Data
             {
                 _entity = value;
                 if (_persistEntity != null)
+                {
                     _persistEntity.PropertyChanged -= Entity_PropertyChanged;
+                }
+
                 _persistEntity = value as PersistEntity;
                 if (_persistEntity != null)
+                {
                     _persistEntity.PropertyChanged += new PropertyChangedEventHandler(Entity_PropertyChanged);
+                }
             }
         }
 
@@ -52,7 +56,9 @@ namespace Arc4u.Data
                 {
                     // consider invalid PersistChange
                     if (value == PersistChange.Update)
+                    {
                         throw new ArgumentException(string.Format(InvalidPersistChange, value));
+                    }
 
                     // prevent invalid transitions except when serializing / deserializing
                     if (!IgnoreOnPropertyChanged
@@ -93,13 +99,17 @@ namespace Arc4u.Data
         public EntityItem(TEntity entity, PersistChange persistChange)
         {
             if (entity == null)
+            {
                 throw new ArgumentNullException(nameof(entity));
+            }
 
             _entity = entity;
             _persistEntity = entity as PersistEntity;
 
             if (_persistEntity != null)
+            {
                 _persistEntity.PropertyChanged += new PropertyChangedEventHandler(Entity_PropertyChanged);
+            }
 
             _persistChange = persistChange;
         }
@@ -113,7 +123,9 @@ namespace Arc4u.Data
         public EntityItem(EntityItem<TEntity> item)
         {
             if (item == null)
+            {
                 throw new ArgumentNullException("item");
+            }
 
             this._entity = item._entity;
             this._persistChange = item._persistChange;
@@ -126,7 +138,9 @@ namespace Arc4u.Data
         {
             //consider only necessary cases
             if (!string.Equals(e.PropertyName, PersistChangePropertyName))
+            {
                 return;
+            }
 
             //consider PersistChange inconsistency
             if ((PersistChange == PersistChange.Insert && _persistEntity.PersistChange == PersistChange.Delete) ||

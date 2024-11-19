@@ -8,7 +8,6 @@
         /// <param name="Id"></param>
         void DeleteItem(string key);
 
-
         void Put<T>(string key, T data);
 
         T Get<T>(string key);

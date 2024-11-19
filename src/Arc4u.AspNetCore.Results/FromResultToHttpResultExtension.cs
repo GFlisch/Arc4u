@@ -1,12 +1,11 @@
 #if NET8_0_OR_GREATER
 
-using FluentResults;
 using System.Diagnostics.CodeAnalysis;
-using IResult = Microsoft.AspNetCore.Http.IResult;
-using HttpResults = Microsoft.AspNetCore.Http.Results;
 using Arc4u.Results;
-using Microsoft.AspNetCore.Http.HttpResults;
+using FluentResults;
 using Microsoft.AspNetCore.Http;
+using HttpResults = Microsoft.AspNetCore.Http.Results;
+using IResult = Microsoft.AspNetCore.Http.IResult;
 
 namespace Arc4u.AspNetCore.Results;
 public static class FromResultToHttpResultExtension
@@ -225,8 +224,7 @@ public static class FromResultToHttpResultExtension
             .OnFailed(errors => objectResult = TypedResults.Problem(result.ToProblemDetails()));
 
         return Task.FromResult(objectResult);
-    }   
-
+    }
 
     #endregion
 

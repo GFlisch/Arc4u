@@ -1,13 +1,7 @@
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Security.Claims;
-using System.Threading;
-using System.Threading.Tasks;
 using Arc4u.Caching;
 using Arc4u.Configuration;
 using Arc4u.Dependency.ComponentModel;
@@ -115,13 +109,13 @@ public class JwtHttpHandlerTests
 
         // Create a scope to be in the context majority of the time a business code is.
         using var scopedContainer = container.CreateScope();
-       
+
         scopedServiceAccessor.ServiceProvider = scopedContainer.ServiceProvider;
 
         var tokenRefresh = scopedContainer.Resolve<TokenRefreshInfo>();
         tokenRefresh.RefreshToken = new TokenInfo("refresh_token", Guid.NewGuid().ToString(), DateTime.UtcNow.AddHours(1));
         tokenRefresh.AccessToken = new TokenInfo("access_token", accessToken);
-       
+
         // Define a Principal with no OAuth2Bearer token here => we test the injection.
         var appContext = scopedContainer.Resolve<IApplicationContext>();
         appContext.SetPrincipal(new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.CookiesAuthenticationType), "S-1-0-0"));
@@ -201,7 +195,7 @@ public class JwtHttpHandlerTests
 
         // Define a Principal with no OAuth2Bearer token here => we test the injection.
         var appContext = scopedContainer.Resolve<IApplicationContext>();
-        appContext.SetPrincipal(new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessToken}, "S-1-0-0"));
+        appContext.SetPrincipal(new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0"));
 
         var setingsOptions = scopedContainer.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
 
@@ -247,7 +241,7 @@ public class JwtHttpHandlerTests
             ["Authentication:ClientSecrets:Client1:Credential"] = $"{options.User}:password",
             ["Authentication:DefaultAuthority:Url"] = "https://login.microsoft.com"
         };
-        foreach(var scope in options.Scopes)
+        foreach (var scope in options.Scopes)
         {
             configDic.Add($"Authentication:ClientSecrets:Client1:Scopes:{options.Scopes.IndexOf(scope)}", scope);
         }
@@ -278,7 +272,6 @@ public class JwtHttpHandlerTests
         var mockTokenCache = _fixture.Freeze<Mock<ITokenCache>>();
         mockTokenCache.Setup(m => m.Get<TokenInfo>(It.IsAny<string>())).Returns((TokenInfo)null);
         mockTokenCache.Setup(m => m.Put<TokenInfo>(It.IsAny<string>(), It.IsAny<TokenInfo>()));
-
 
         var mockHttpContextAccessor = _fixture.Freeze<Mock<IHttpContextAccessor>>();
         mockHttpContextAccessor.SetupGet(x => x.HttpContext).Returns(() => null);
@@ -465,7 +458,6 @@ public class JwtHttpHandlerTests
         httpRequestMessage.Headers.Contains(options.HeaderKey).Should().BeTrue();
         httpRequestMessage.Headers.GetValues(options.HeaderKey).FirstOrDefault().Should().Be(options.ClientSecret);
     }
-
 
     [Fact]
     // Scenario 6

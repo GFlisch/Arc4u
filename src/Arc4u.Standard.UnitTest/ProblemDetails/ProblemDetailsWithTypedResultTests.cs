@@ -1,17 +1,17 @@
 #if NET8_0_OR_GREATER
 
-using AutoFixture.AutoMoq;
+using Arc4u.AspNetCore.Results;
+using Arc4u.Results;
+using Arc4u.Results.Validation;
+using Arc4u.UnitTest.ProblemDetail;
 using AutoFixture;
-using Xunit;
+using AutoFixture.AutoMoq;
+using FluentAssertions;
 using FluentResults;
 using Microsoft.AspNetCore.Http;
-using Arc4u.AspNetCore.Results;
-using FluentAssertions;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Arc4u.Results;
-using Arc4u.UnitTest.ProblemDetail;
 using Microsoft.AspNetCore.Mvc;
-using Arc4u.Results.Validation;
+using Xunit;
 
 namespace Arc4u.Standard.UnitTest.ProblemDetails;
 public class ProblemDetailsWithTypedResultTests

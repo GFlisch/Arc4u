@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Arc4u.Security.Principal
+﻿namespace Arc4u.Security.Principal
 {
     /// <summary>
     /// The AppPrincipalException is thrown when a problem occurs during the collection of information needed to have a valid principal.

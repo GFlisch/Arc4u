@@ -1,6 +1,3 @@
-using System;
-using System.Threading;
-
 namespace Arc4u
 {
     public class WaitHandleHelper
@@ -23,10 +20,10 @@ namespace Arc4u
 #if NET8_0_OR_GREATER
             ArgumentOutOfRangeException.ThrowIfLessThan(timeout, TimeSpan.Zero);
 #else
-        if (timeout < TimeSpan.Zero)
-        {
-            throw new ArgumentOutOfRangeException("timeout");
-        }
+            if (timeout < TimeSpan.Zero)
+            {
+                throw new ArgumentOutOfRangeException("timeout");
+            }
 #endif
             var maxWait = TimeSpan.FromMilliseconds(Int32.MaxValue);
 

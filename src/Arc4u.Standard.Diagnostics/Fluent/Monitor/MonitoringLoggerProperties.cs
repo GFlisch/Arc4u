@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Arc4u.Diagnostics
+﻿namespace Arc4u.Diagnostics
 {
     public class MonitoringLoggerProperties : BaseLoggerProperties, ILoggerProperties<MonitoringLoggerProperties>
     {
@@ -41,7 +39,6 @@ namespace Arc4u.Diagnostics
             AddProperty(key, value);
             return this;
         }
-
 
     }
 }

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Arc4u.Caching
+﻿namespace Arc4u.Caching
 {
     /// <summary>
     /// Exception used to encapsulate the error from the cache engine.

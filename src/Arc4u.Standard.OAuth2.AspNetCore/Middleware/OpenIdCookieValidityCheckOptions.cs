@@ -1,4 +1,3 @@
-using System;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace Arc4u.OAuth2.Middleware

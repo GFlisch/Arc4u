@@ -14,7 +14,6 @@ public interface ISectionStoreConfigurationOptions
     /// <returns></returns>
     ISectionStoreConfigurationOptions Add<TValue>(string key, TValue? value);
 
-
     /// <summary>
     /// Add a section from the existing configuration to be persisted.
     /// </summary>

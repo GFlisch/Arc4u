@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Arc4u
+﻿namespace Arc4u
 {
     /// <summary>
     /// Define a generic event argument.
@@ -17,7 +15,7 @@ namespace Arc4u
             m_value = value;
         }
 
-        private T m_value;
+        private readonly T m_value;
 
         /// <summary>
         /// Get the value assigned during construction of the event argument.
@@ -46,7 +44,7 @@ namespace Arc4u
             m_value2 = value2;
         }
 
-        private T1 m_value;
+        private readonly T1 m_value;
 
         /// <summary>
         /// Get the value assigned during construction of the event argument.
@@ -56,7 +54,7 @@ namespace Arc4u
             get { return m_value; }
         }
 
-        private T2 m_value2;
+        private readonly T2 m_value2;
 
         /// <summary>
         /// Get the value assigned during construction of the event argument.
@@ -66,6 +64,5 @@ namespace Arc4u
             get { return m_value2; }
         }
     }
-
 
 }

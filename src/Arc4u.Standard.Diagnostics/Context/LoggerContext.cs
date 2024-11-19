@@ -1,7 +1,4 @@
 using Arc4u.Threading;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Arc4u.Diagnostics
 {
@@ -17,12 +14,18 @@ namespace Arc4u.Diagnostics
             if (filter == PropertyFilter.All)
             {
                 if (null == Current?.Properties)
+                {
                     Properties = new List<KeyValuePair<string, object>>();
+                }
                 else
+                {
                     Properties = new List<KeyValuePair<string, object>>(Current?.Properties);
+                }
             }
             else
+            {
                 Properties = new List<KeyValuePair<string, object>>();
+            }
 
             toDispose = new Scope<LoggerContext>(this);
 
@@ -40,14 +43,19 @@ namespace Arc4u.Diagnostics
             if (null != Current?.Properties)
             {
                 foreach (var property in Current.Properties)
-                    if (keepItOrNot(property)) Properties.Add(property);
+                {
+                    if (keepItOrNot(property))
+                    {
+                        Properties.Add(property);
+                    }
+                }
             }
 
             toDispose = new Scope<LoggerContext>(this);
 
         }
 
-        private IDisposable toDispose;
+        private readonly IDisposable toDispose;
 
         public static LoggerContext Current { get { return Scope<LoggerContext>.Current; } }
 
@@ -77,7 +85,9 @@ namespace Arc4u.Diagnostics
 
             var existingValue = Current.Properties.FirstOrDefault(kv => kv.Key.Equals(key));
             if (null == existingValue.Key)
+            {
                 Properties.Add(new KeyValuePair<string, object>(key, value));
+            }
             else
             {
                 Properties.Remove(existingValue);

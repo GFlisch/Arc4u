@@ -1,6 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 using Arc4u.Dependency;
 using Arc4u.Diagnostics;
 using Microsoft.AspNetCore.Http;
@@ -13,7 +11,7 @@ namespace Arc4u.OAuth2.Middleware
     public class LogMonitoringTimeElapsedMiddleware
     {
         private readonly RequestDelegate _next;
-        private Action<Type, TimeSpan> _log;
+        private readonly Action<Type, TimeSpan> _log;
 
         public LogMonitoringTimeElapsedMiddleware(RequestDelegate next)
         {

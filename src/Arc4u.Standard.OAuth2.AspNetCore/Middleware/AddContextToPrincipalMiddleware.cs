@@ -1,8 +1,5 @@
-using System;
 using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
-using System.Threading.Tasks;
 using Arc4u.Diagnostics;
 using Arc4u.Security.Principal;
 using Microsoft.AspNetCore.Http;

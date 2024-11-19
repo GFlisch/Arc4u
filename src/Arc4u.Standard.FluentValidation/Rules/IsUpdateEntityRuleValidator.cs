@@ -2,13 +2,12 @@ using Arc4u.Data;
 using FluentValidation;
 using FluentValidation.Resources;
 using FluentValidation.Validators;
-using System;
 
 namespace Arc4u.FluentValidation.Rules;
 
 public class IsUpdateEntityRuleValidator<T, TProperty> : PropertyValidator<T, TProperty> where T : IPersistEntity where TProperty : Enum
-{ 
-    static string ruleName = "IsUpdateRuleValidator";
+{
+    static readonly string ruleName = "IsUpdateRuleValidator";
     public override string Name => ruleName;
 
     static IsUpdateEntityRuleValidator()

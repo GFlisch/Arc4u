@@ -1,12 +1,10 @@
-using Arc4u.OAuth2.Token;
-using Arc4u.Serializer;
-using AutoFixture.AutoMoq;
-using AutoFixture;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Arc4u.OAuth2.Token;
+using Arc4u.Serializer;
+using AutoFixture;
+using AutoFixture.AutoMoq;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -33,7 +31,9 @@ public class CompressionAndSpeedTests
         {
             List<Claim> claims = new();
             for (int i = 0; i < 150; i++)
+            {
                 claims.Add(new Claim(_fixture.Create<string>(), _fixture.Create<string>()));
+            }
 
             JwtSecurityToken jwt = new("issuer", "audience", claims, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
 
@@ -53,11 +53,9 @@ public class CompressionAndSpeedTests
     private sealed class Measurement
     {
         public string Method { get; set; }
-        public TimeSpan TimeSpan { get; set; } 
+        public TimeSpan TimeSpan { get; set; }
         public int Size { get; set; }
     }
-
-
 
     private Measurement Measure(IObjectSerialization objectSerialization, string method)
     {
@@ -92,7 +90,10 @@ public class CompressionAndSpeedTests
         _output.WriteLine(title);
         _output.WriteLine("Method\tTime\tSize");
         foreach (var measurement in measurements)
+        {
             _output.WriteLine($"{measurement.Method}\t{measurement.TimeSpan}\t{measurement.Size}");
+        }
+
         _output.WriteLine("");
     }
 

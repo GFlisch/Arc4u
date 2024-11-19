@@ -1,6 +1,5 @@
 ﻿using Blazored.LocalStorage;
 using Microsoft.JSInterop;
-using System.Threading.Tasks;
 
 namespace Arc4u.Blazor
 {

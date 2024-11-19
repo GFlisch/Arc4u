@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Arc4u.Dependency.Configuration
+﻿namespace Arc4u.Dependency.Configuration
 {
     public class Dependencies
     {

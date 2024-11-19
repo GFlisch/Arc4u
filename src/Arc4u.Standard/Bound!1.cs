@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.Serialization;
 
 namespace Arc4u
@@ -110,7 +107,9 @@ namespace Arc4u
         internal Bound(BoundType type, BoundDirection direction, T value, bool checkArguments)
         {
             if (checkArguments && Bound.IsInfinity(value) && direction == BoundDirection.Closed)
+            {
                 throw new ArgumentException("An infinity bound must define an opened direction.");
+            }
 
             Type = type;
             Direction = direction;
@@ -195,9 +194,9 @@ namespace Arc4u
                 : false;
         }
 
-#endregion
+        #endregion
 
-#region IEquatable<Bound<T>> Members
+        #region IEquatable<Bound<T>> Members
 
         /// <summary>
         /// Returns a value indicating whether this instance is equal to a specified <see cref="Bound&lt;T&gt;"/>.
@@ -215,9 +214,9 @@ namespace Arc4u
                 && object.Equals(Value, other.Value));
         }
 
-#endregion
+        #endregion
 
-#region IComparable<Bound<T>> Members
+        #region IComparable<Bound<T>> Members
 
         /// <summary>
         /// Compares this instance to a specified <see cref="Bound&lt;T&gt;"/> and returns an indication of their relative values.
@@ -248,7 +247,9 @@ namespace Arc4u
         public int CompareTo(Bound<T> other)
         {
             if (other == null)
+            {
                 throw new ArgumentNullException("other");
+            }
 
             //perform value comparaison
             var vCompare = ((Type == BoundType.Upper && Bound.IsInfinity(Value)) || (other.Type == BoundType.Upper && Bound.IsInfinity(other.Value)))
@@ -257,13 +258,17 @@ namespace Arc4u
 
             //consider value comparaison
             if (vCompare != 0)
+            {
                 return vCompare;
+            }
             else
             {
                 //perform type comparaison
                 var tCompare = Type.CompareTo(other.Type);
                 if (tCompare != 0)
+                {
                     return tCompare;
+                }
                 else
                 {
                     //perform direction comparaison
@@ -288,9 +293,9 @@ namespace Arc4u
                     : -1;
         }
 
-#endregion
+        #endregion
 
-#region Methods
+        #region Methods
 
         internal static void OverrideBounds(T lowestValue, T upmostValue)
         {
@@ -348,9 +353,14 @@ namespace Arc4u
                 else
                 {
                     if (value.CompareTo(lowestValue) <= 0)
+                    {
                         lowestValue = (T)Enum.ToObject(typeof(T), value);
+                    }
+
                     if (value.CompareTo(upmostValue) >= 0)
+                    {
                         upmostValue = (T)Enum.ToObject(typeof(T), value);
+                    }
                 }
 
                 if (hasFlag)
@@ -361,14 +371,15 @@ namespace Arc4u
             }
 
             if (hasFlag)
+            {
                 upmostValue = (T)Enum.ToObject(typeof(T), sum);
+            }
         }
 
         private static bool IsPowerOfTwo(ulong value)
         {
             return (value != 0) && ((value & (value - 1)) == 0);
         }
-
 
         internal bool Contains(T value)
         {
@@ -385,9 +396,9 @@ namespace Arc4u
                         : Comparer<T>.Default.Compare(Value, value) > 0;
         }
 
-#endregion
+        #endregion
 
-#region Operators
+        #region Operators
 
         /// <summary>
         /// Implements the operator ==.
@@ -421,7 +432,10 @@ namespace Arc4u
         public static bool operator <(Bound<T> left, Bound<T> right)
         {
             if (left == null || right == null)
+            {
                 throw new ArgumentNullException("left or right");
+            }
+
             return (left.CompareTo(right) < 0);
         }
 
@@ -435,7 +449,10 @@ namespace Arc4u
         public static bool operator <=(Bound<T> left, Bound<T> right)
         {
             if (left == null || right == null)
+            {
                 throw new ArgumentNullException("left or right");
+            }
+
             return (left.CompareTo(right) <= 0);
         }
 
@@ -449,7 +466,10 @@ namespace Arc4u
         public static bool operator >(Bound<T> left, Bound<T> right)
         {
             if (left == null || right == null)
+            {
                 throw new ArgumentNullException("left or right");
+            }
+
             return (left.CompareTo(right) > 0);
         }
 
@@ -463,10 +483,13 @@ namespace Arc4u
         public static bool operator >=(Bound<T> left, Bound<T> right)
         {
             if (left == null || right == null)
+            {
                 throw new ArgumentNullException("left or right");
+            }
+
             return (left.CompareTo(right) >= 0);
         }
 
-#endregion
+        #endregion
     }
 }

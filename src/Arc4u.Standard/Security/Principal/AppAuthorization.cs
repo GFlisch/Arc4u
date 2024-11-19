@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 namespace Arc4u.Security.Principal;
 
 public class AppAuthorization : IAuthorization
@@ -159,7 +155,9 @@ public class AppAuthorization : IAuthorization
     public bool IsInRole(string scope, string role)
     {
         if (!_roles.ContainsKey(scope))
+        {
             return false;
+        }
 
         return _roles[scope].ContainsKey(role);
     }

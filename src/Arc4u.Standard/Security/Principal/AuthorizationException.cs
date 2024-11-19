@@ -1,6 +1,3 @@
-
-using System;
-
 namespace Arc4u.Security.Principal
 {
     /// <summary>

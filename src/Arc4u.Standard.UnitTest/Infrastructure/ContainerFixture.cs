@@ -1,3 +1,4 @@
+using System.Security.Principal;
 using Arc4u.Configuration;
 using Arc4u.Dependency;
 using Arc4u.Dependency.ComponentModel;
@@ -6,7 +7,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Serilog.Core;
-using System.Security.Principal;
 
 namespace Arc4u.UnitTest.Infrastructure;
 

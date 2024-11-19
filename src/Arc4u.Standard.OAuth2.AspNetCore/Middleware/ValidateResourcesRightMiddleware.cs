@@ -1,11 +1,8 @@
+using Arc4u.OAuth2.Options;
+using Arc4u.Security.Principal;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using System.Threading.Tasks;
-using System;
 using Microsoft.Extensions.DependencyInjection;
-using Arc4u.Security.Principal;
-using Arc4u.OAuth2.Options;
-using System.Linq;
 
 namespace Arc4u.OAuth2.Middleware;
 public class ValidateResourcesRightMiddleware

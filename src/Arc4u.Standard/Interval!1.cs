@@ -245,9 +245,9 @@ public class Interval<T>
         return obj is Interval<T> other && Equals(other);
     }
 
-#endregion
+    #endregion
 
-#region IEquatable<Interval<T>> Members
+    #region IEquatable<Interval<T>> Members
 
     /// <summary>
     /// Returns a value indicating whether this instance is equal to a specified <see cref="Interval&lt;T&gt;"/>.
@@ -264,9 +264,9 @@ public class Interval<T>
                     && UpperBound.Equals(other.UpperBound));
     }
 
-#endregion
+    #endregion
 
-#region IComparable<Interval<T>> Members
+    #region IComparable<Interval<T>> Members
 
     /// <summary>
     /// Compares this instance to a specified <see cref="Interval&lt;T&gt;"/> and returns an indication of their relative values.
@@ -413,9 +413,9 @@ public class Interval<T>
         return left != (right as Interval<T>);
     }
 
-#endregion
+    #endregion
 
-#region Methods
+    #region Methods
 
     /// <summary>
     /// Overrides the default bound values of <see cref="Interval&lt;T&gt;"/>.
@@ -565,5 +565,5 @@ public class Interval<T>
         return Interval.DifferenceOf(this, other);
     }
 
-#endregion
+    #endregion
 }

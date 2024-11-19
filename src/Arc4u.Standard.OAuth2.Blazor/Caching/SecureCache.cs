@@ -1,8 +1,4 @@
 ﻿using Arc4u.Dependency.Attribute;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Arc4u.Caching
 {

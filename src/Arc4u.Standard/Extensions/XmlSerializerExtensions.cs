@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.Security;
+﻿using System.Security;
 using System.Text;
 
 namespace System.Xml.Serialization
@@ -23,15 +22,17 @@ namespace System.Xml.Serialization
         public static object Deserialize(this XmlSerializer serializer, string s)
         {
             if (serializer == null)
+            {
                 throw new ArgumentNullException("serializer");
+            }
 
             if (s == null)
-                return null;
-
-            using (var xmlReader = XmlReader.Create(new StringReader(s)))
             {
-                return serializer.Deserialize(xmlReader);
+                return null;
             }
+
+            using var xmlReader = XmlReader.Create(new StringReader(s));
+            return serializer.Deserialize(xmlReader);
         }
 
         /// <summary>
@@ -49,15 +50,17 @@ namespace System.Xml.Serialization
         public static object Deserialize(this XmlSerializer serializer, string s, string encodingStyle)
         {
             if (serializer == null)
+            {
                 throw new ArgumentNullException("serializer");
+            }
 
             if (s == null)
-                return null;
-
-            using (var xmlReader = XmlReader.Create(new StringReader(s)))
             {
-                return serializer.Deserialize(xmlReader, encodingStyle);
+                return null;
             }
+
+            using var xmlReader = XmlReader.Create(new StringReader(s));
+            return serializer.Deserialize(xmlReader, encodingStyle);
         }
 
         /// <summary>
@@ -79,12 +82,12 @@ namespace System.Xml.Serialization
         public static void Deserialize(this XmlSerializer serializer, string path, out object o)
         {
             if (serializer == null)
-                throw new ArgumentNullException("serializer");
-
-            using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
-                o = serializer.Deserialize(stream);
+                throw new ArgumentNullException("serializer");
             }
+
+            using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            o = serializer.Deserialize(stream);
         }
 
         /// <summary>
@@ -110,12 +113,12 @@ namespace System.Xml.Serialization
             , object o)
         {
             if (serializer == null)
-                throw new ArgumentNullException("serializer");
-
-            using (var stream = new FileStream(path, FileMode.Create, FileAccess.Write))
             {
-                serializer.Serialize(stream, o);
+                throw new ArgumentNullException("serializer");
             }
+
+            using var stream = new FileStream(path, FileMode.Create, FileAccess.Write);
+            serializer.Serialize(stream, o);
         }
 
         /// <summary>
@@ -146,12 +149,12 @@ namespace System.Xml.Serialization
             , XmlSerializerNamespaces namespaces)
         {
             if (serializer == null)
-                throw new ArgumentNullException("serializer");
-
-            using (var stream = new FileStream(path, FileMode.Create, FileAccess.Write))
             {
-                serializer.Serialize(stream, o, namespaces);
+                throw new ArgumentNullException("serializer");
             }
+
+            using var stream = new FileStream(path, FileMode.Create, FileAccess.Write);
+            serializer.Serialize(stream, o, namespaces);
         }
 
         /// <summary>
@@ -168,7 +171,9 @@ namespace System.Xml.Serialization
             , out string s)
         {
             if (serializer == null)
+            {
                 throw new ArgumentNullException("serializer");
+            }
 
             var builder = new StringBuilder();
             using (var xmlWriter = XmlWriter.Create(builder))
@@ -195,7 +200,9 @@ namespace System.Xml.Serialization
             , out string s)
         {
             if (serializer == null)
+            {
                 throw new ArgumentNullException("serializer");
+            }
 
             var builder = new StringBuilder();
             using (var xmlWriter = XmlWriter.Create(builder))
@@ -224,7 +231,9 @@ namespace System.Xml.Serialization
             , out string s)
         {
             if (serializer == null)
+            {
                 throw new ArgumentNullException("serializer");
+            }
 
             var builder = new StringBuilder();
             using (var xmlWriter = XmlWriter.Create(builder))
@@ -255,7 +264,9 @@ namespace System.Xml.Serialization
             , out string s)
         {
             if (serializer == null)
+            {
                 throw new ArgumentNullException("serializer");
+            }
 
             var builder = new StringBuilder();
             using (var xmlWriter = XmlWriter.Create(builder))

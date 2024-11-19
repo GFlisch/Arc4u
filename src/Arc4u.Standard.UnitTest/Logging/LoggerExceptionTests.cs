@@ -5,10 +5,6 @@ using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace Arc4u.UnitTest.Logging
@@ -23,19 +19,17 @@ namespace Arc4u.UnitTest.Logging
         [Fact]
         public void ExceptionTest()
         {
-            using (var container = Fixture.CreateScope())
-            {
-                var logger = container.Resolve<ILogger<LoggerSimpleExceptionTests>>();
+            using var container = Fixture.CreateScope();
+            var logger = container.Resolve<ILogger<LoggerSimpleExceptionTests>>();
 
-                var sink = (ExceptionSinkTest)Fixture.Sink;
+            var sink = (ExceptionSinkTest)Fixture.Sink;
 
-                logger.Technical().Exception(new StackOverflowException("Overflow", new DivideByZeroException())).Log();
+            logger.Technical().Exception(new StackOverflowException("Overflow", new DivideByZeroException())).Log();
 
-                Assert.True(sink.HasException);
-                Assert.Single(sink.Exceptions);
-                Assert.IsType<StackOverflowException>(sink.Exceptions.First());
-                Assert.IsType<DivideByZeroException>(sink.Exceptions.First().InnerException);
-            }
+            Assert.True(sink.HasException);
+            Assert.Single(sink.Exceptions);
+            Assert.IsType<StackOverflowException>(sink.Exceptions.First());
+            Assert.IsType<DivideByZeroException>(sink.Exceptions.First().InnerException);
         }
     }
 
@@ -49,28 +43,25 @@ namespace Arc4u.UnitTest.Logging
         [Fact]
         public void TestAggregateException()
         {
-            using (var container = Fixture.CreateScope())
-            {
-                var logger = container.Resolve<ILogger<LoggerAggregateExceptionTests>>();
+            using var container = Fixture.CreateScope();
+            var logger = container.Resolve<ILogger<LoggerAggregateExceptionTests>>();
 
-                var sink = (ExceptionSinkTest)Fixture.Sink;
+            var sink = (ExceptionSinkTest)Fixture.Sink;
 
-                logger.Technical().Exception(new AggregateException("Aggregated",
-                                                new DivideByZeroException("Go back to school", new OutOfMemoryException("Out of memory")),
-                                                new ArgumentNullException("null"),
-                                                new AggregateException(
-                                                    new AppDomainUnloadedException("Houston, we have a problem.")))).Log();
+            logger.Technical().Exception(new AggregateException("Aggregated",
+                                            new DivideByZeroException("Go back to school", new OutOfMemoryException("Out of memory")),
+                                            new ArgumentNullException("null"),
+                                            new AggregateException(
+                                                new AppDomainUnloadedException("Houston, we have a problem.")))).Log();
 
-                Assert.True(sink.HasException);
-                Assert.Collection(sink.Exceptions,
-                                        e => Assert.IsType<AggregateException>(e),
-                                        e => Assert.IsType<DivideByZeroException>(e),
-                                        e => Assert.IsType<ArgumentNullException>(e),
-                                        e => Assert.IsType<AppDomainUnloadedException>(e));
+            Assert.True(sink.HasException);
+            Assert.Collection(sink.Exceptions,
+                                    e => Assert.IsType<AggregateException>(e),
+                                    e => Assert.IsType<DivideByZeroException>(e),
+                                    e => Assert.IsType<ArgumentNullException>(e),
+                                    e => Assert.IsType<AppDomainUnloadedException>(e));
 
-                Assert.IsType<OutOfMemoryException>(sink.Exceptions[1].InnerException);
-
-            }
+            Assert.IsType<OutOfMemoryException>(sink.Exceptions[1].InnerException);
 
         }
     }

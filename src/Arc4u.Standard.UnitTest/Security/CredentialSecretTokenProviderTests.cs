@@ -1,21 +1,18 @@
-using System.Collections.Generic;
 using Arc4u.Configuration;
 using Arc4u.Dependency;
+using Arc4u.OAuth2;
+using Arc4u.OAuth2.Extensions;
 using Arc4u.OAuth2.Security.Principal;
 using Arc4u.OAuth2.Token;
 using Arc4u.OAuth2.TokenProvider;
-using Arc4u.OAuth2;
 using AutoFixture;
 using AutoFixture.AutoMoq;
-using Moq;
-using Xunit;
-using System.Threading.Tasks;
 using FluentAssertions;
-using System;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Arc4u.OAuth2.Extensions;
+using Moq;
+using Xunit;
 
 namespace Arc4u.UnitTest.Security;
 
@@ -77,7 +74,6 @@ public class CredentialSecretTokenProviderTests
 
         // act.
         var sut = _fixture.Create<CredentialSecretTokenProvider>();
-
 
         var exception = await Record.ExceptionAsync(async () => await sut.GetTokenAsync(settings, null).ConfigureAwait(false)).ConfigureAwait(false);
 

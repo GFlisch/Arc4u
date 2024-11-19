@@ -1,9 +1,6 @@
-﻿using Arc4u.Diagnostics;
-using NServiceBus.Transport;
+﻿using NServiceBus.Transport;
 using NServiceBus.Transport.RabbitMQ;
 using RabbitMQ.Client;
-using System;
-using System.Collections.Generic;
 
 namespace Arc4u.NServiceBus.RabbitMQ.Routing
 {
@@ -14,7 +11,7 @@ namespace Arc4u.NServiceBus.RabbitMQ.Routing
             ExchangeName = exchangeName;
         }
 
-        private Func<Type, String> ExchangeName;
+        private readonly Func<Type, String> ExchangeName;
 
         public void SetupSubscription(IModel channel, Type type, string subscriberName)
         {
@@ -23,8 +20,6 @@ namespace Arc4u.NServiceBus.RabbitMQ.Routing
         public void TeardownSubscription(IModel channel, Type type, string subscriberName)
         {
         }
-
-
 
         public void Publish(IModel channel, Type type, OutgoingMessage message, IBasicProperties properties)
         {

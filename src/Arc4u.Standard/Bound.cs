@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Arc4u
+﻿namespace Arc4u
 {
     internal static class Bound
     {
@@ -36,7 +34,9 @@ namespace Arc4u
         internal static Bound<T> Min<T>(Bound<T> x, Bound<T> y)
         {
             if (x == null || y == null)
+            {
                 throw new ArgumentNullException("x or y");
+            }
 
             return x.CompareTo(y) > 0 ? y : x;
         }
@@ -44,7 +44,9 @@ namespace Arc4u
         internal static Bound<T> Max<T>(Bound<T> x, Bound<T> y)
         {
             if (x == null || y == null)
+            {
                 throw new ArgumentNullException("x or y");
+            }
 
             return x.CompareTo(y) < 0 ? y : x;
         }

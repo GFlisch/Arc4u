@@ -1,8 +1,4 @@
-﻿
-
-using System;
-
-namespace Arc4u.Network.Connectivity
+﻿namespace Arc4u.Network.Connectivity
 {
     public interface INetworkInformation
     {

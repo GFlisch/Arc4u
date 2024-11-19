@@ -1,11 +1,9 @@
+using System.Globalization;
 using Arc4u.Configuration;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System;
-using System.Globalization;
-using System.Linq;
 
 namespace Arc4u.Dependency
 {
@@ -47,14 +45,18 @@ namespace Arc4u
             try
             {
                 if (null == config)
+                {
                     throw new ArgumentNullException(nameof(config));
+                }
 
                 try
                 {
                     logger.Technical().From<TimeZoneContext>().System(config.Environment.TimeZone).Log();
 
                     if (!String.IsNullOrWhiteSpace(config.Environment.TimeZone))
+                    {
                         _timeZone = TimeZoneInfo.FindSystemTimeZoneById(config.Environment.TimeZone);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -90,7 +92,10 @@ namespace Arc4u
             //Find the correct adjustment rule
             ruleFound = adjustments.SingleOrDefault(a => a.DateStart.Year <= inYear && a.DateEnd.Year >= inYear);
 
-            if (null == ruleFound) return null;
+            if (null == ruleFound)
+            {
+                return null;
+            }
 
             DaylightTime outDaylightTime = new DaylightTime(
                                                       GetDateTime(inYear, ruleFound.DaylightTransitionStart)
@@ -99,7 +104,6 @@ namespace Arc4u
 
             return outDaylightTime;
         }
-
 
         private DateTime GetDateTime(int year, TimeZoneInfo.TransitionTime transition)
         {
@@ -115,13 +119,19 @@ namespace Arc4u
             int changeDayOfWeek = (int)transition.DayOfWeek;
 
             if (firstDayOfWeek <= changeDayOfWeek)
+            {
                 transitionDay = startOfWeek + (changeDayOfWeek - firstDayOfWeek);
+            }
             else
+            {
                 transitionDay = startOfWeek + (7 - firstDayOfWeek + changeDayOfWeek);
+            }
 
             // Adjust for months with no fifth week
             if (transitionDay > cal.GetDaysInMonth(year, transition.Month))
+            {
                 transitionDay -= 7;
+            }
 
             return new DateTime(year, transition.Month, transitionDay).AsLocalTime() + transition.TimeOfDay.TimeOfDay;
 
@@ -140,7 +150,9 @@ namespace Arc4u
         public DateTime ConvertFromUtc(DateTime value)
         {
             if (DateTimeKind.Utc != value.Kind)
+            {
                 throw new InvalidTimeZoneException("An Utc date is mandatory!");
+            }
 
             var date = TimeZoneInfo.ConvertTime(value, TimeZoneInfo);
             return DateTime.SpecifyKind(date, DateTimeKind.Local);
@@ -149,7 +161,9 @@ namespace Arc4u
         public DateTime ConvertToUtc(DateTime value)
         {
             if (DateTimeKind.Utc == value.Kind)
+            {
                 return value;
+            }
 
             return TimeZoneInfo.ConvertTime(value, TimeZoneInfo.Utc);
         }

@@ -1,4 +1,3 @@
-using System.IO;
 using System.IO.Compression;
 using System.Text.Json;
 
@@ -23,10 +22,9 @@ namespace Arc4u.Serializer
         /// </summary>
         /// <param name="options">Json serializer options</param>
         public JsonBrotliSerialization(JsonSerializerOptions options)
-            :base(options)
+            : base(options)
         {
         }
-
 
         /// <summary>
         /// Construct an instance with a serialization context.
@@ -34,7 +32,7 @@ namespace Arc4u.Serializer
         /// </summary>
         /// <param name="context">Json context for source generation.</param>
         public JsonBrotliSerialization(System.Text.Json.Serialization.JsonSerializerContext context)
-            :base(context)
+            : base(context)
         {
         }
 

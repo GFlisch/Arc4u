@@ -1,5 +1,4 @@
 ﻿using Realms;
-using System;
 
 namespace Arc4u.Diagnostics.Serilog.Sinks.RealmDb
 {

@@ -1,6 +1,5 @@
 ﻿using Serilog.Core;
 using Serilog.Events;
-using System;
 
 namespace Arc4u.Diagnostics.Sinks
 {
@@ -18,7 +17,9 @@ namespace Arc4u.Diagnostics.Sinks
         public void Dispose()
         {
             if (Sink is IDisposable)
+            {
                 ((IDisposable)Sink).Dispose();
+            }
         }
 
         /// <summary>

@@ -1,8 +1,6 @@
-﻿using Arc4u.Diagnostics.Serilog.Sinks.RealmDb;
-using Serilog;
+﻿using Serilog;
 using Serilog.Configuration;
 using Serilog.Sinks.PeriodicBatching;
-using System;
 
 namespace Arc4u.Diagnostics.Serilog.Sinks.Memory
 {

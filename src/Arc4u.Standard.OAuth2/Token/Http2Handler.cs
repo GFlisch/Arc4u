@@ -1,9 +1,4 @@
-﻿using System;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace Arc4u.OAuth2
+﻿namespace Arc4u.OAuth2
 {
     /// <summary>
     /// Force the Http request to use Http 2.0

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Arc4u.Data
+﻿namespace Arc4u.Data
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public class RelationAttribute : Attribute

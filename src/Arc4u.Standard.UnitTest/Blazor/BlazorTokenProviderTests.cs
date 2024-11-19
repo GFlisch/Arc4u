@@ -1,22 +1,14 @@
-﻿using Arc4u.Blazor;
-using Arc4u.Caching.Memory;
-using Arc4u.Dependency;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using Arc4u.Blazor;
 using Arc4u.OAuth2.Token;
 using Arc4u.OAuth2.TokenProvider;
-using Arc4u.Serializer;
 using AutoFixture;
 using AutoFixture.AutoMoq;
 using Blazored.LocalStorage;
 using FluentAssertions;
 using Microsoft.JSInterop;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Threading;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace Arc4u.UnitTest.Blazor
@@ -54,7 +46,6 @@ namespace Arc4u.UnitTest.Blazor
 
             var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
             var tokenInfo = new TokenInfo("Bearer", accessToken, DateTime.UtcNow);
-
 
             Dictionary<String, String> keySettings = new();
             keySettings.Add(TokenKeys.AuthorityKey, "http://sts");
@@ -135,7 +126,6 @@ namespace Arc4u.UnitTest.Blazor
             var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
             var tokenInfo = new TokenInfo("Bearer", accessToken, DateTime.UtcNow);
 
-
             Dictionary<String, String> keySettings = new();
             keySettings.Add(TokenKeys.AuthorityKey, "http://sts");
             keySettings.Add(TokenKeys.RedirectUrl, "https://localhost:44444/");
@@ -146,7 +136,7 @@ namespace Arc4u.UnitTest.Blazor
                             .Returns(ValueTask.FromResult(accessToken));
             mockLocalStorage.Setup(p => p.RemoveItemAsync("token", It.IsAny<CancellationToken>()));
 
-            var mockInterop = fixture.Freeze<Mock<ITokenWindowInterop>> ();
+            var mockInterop = fixture.Freeze<Mock<ITokenWindowInterop>>();
             mockInterop.Setup(m => m.OpenWindowAsync(It.IsAny<IJSRuntime>(), It.IsAny<ILocalStorageService>(), It.IsAny<String>(), It.IsAny<String>()))
                          .Returns(Task.CompletedTask);
 
@@ -174,7 +164,6 @@ namespace Arc4u.UnitTest.Blazor
 
             var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
             var tokenInfo = new TokenInfo("Bearer", accessToken, DateTime.UtcNow);
-
 
             Dictionary<String, String> keySettings = new();
             keySettings.Add(TokenKeys.AuthorityKey, "http://sts");

@@ -12,7 +12,10 @@ public class MultipleRegistrationException<T> : Exception
         content.AppendLine($"{instances.Count()} registrations exist for type {typeof(T).Name}.");
         content.AppendLine("Only one is expected.");
         foreach (var instance in instances)
+        {
             content.AppendLine($"{instance.GetType().Name} is registered.");
+        }
+
         content.AppendLine("Use ResolveAll instead.");
 
         return content.ToString();

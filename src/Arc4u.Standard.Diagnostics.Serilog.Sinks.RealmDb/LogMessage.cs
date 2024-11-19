@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Arc4u.Diagnostics.Serilog.Sinks
+﻿namespace Arc4u.Diagnostics.Serilog.Sinks
 {
     public class LogMessage
     {

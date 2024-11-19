@@ -1,13 +1,10 @@
 ﻿using NServiceBus;
-using System;
-using System.Threading.Tasks;
 
 namespace Arc4u.NServiceBus
 {
     public abstract class ReceiverEndpointConfigurationBase : IEndpointConfiguration
     {
         private IEndpointInstance _endpointInstance;
-
 
         public IEndpointInstance Instance => _endpointInstance;
 
@@ -16,7 +13,9 @@ namespace Arc4u.NServiceBus
         public async Task StartAsync(string endpointName)
         {
             if (String.IsNullOrEmpty(endpointName))
+            {
                 throw new ArgumentException("endpointName");
+            }
 
             var endpointConfiguration = new EndpointConfiguration(endpointName);
 
@@ -35,7 +34,9 @@ namespace Arc4u.NServiceBus
         public async Task StopAsync()
         {
             if (null != _endpointInstance)
+            {
                 await _endpointInstance.Stop().ConfigureAwait(false);
+            }
         }
     }
 }

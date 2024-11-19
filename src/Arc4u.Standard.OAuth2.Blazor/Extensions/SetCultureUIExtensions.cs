@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+﻿using System.Globalization;
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Globalization;
-using System.Threading.Tasks;
 
 namespace Arc4u.Blazor
 {

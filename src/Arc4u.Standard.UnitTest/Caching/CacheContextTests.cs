@@ -1,24 +1,20 @@
-using AutoFixture.AutoMoq;
-using AutoFixture;
-using Xunit;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using System.Collections.Generic;
 using System.Globalization;
-using System;
-using FluentAssertions;
-using Arc4u.Caching.Memory;
-using Microsoft.Extensions.Options;
 using Arc4u.Caching;
+using Arc4u.Caching.Memory;
+using Arc4u.Configuration.Dapr;
 using Arc4u.Configuration.Memory;
 using Arc4u.Configuration.Redis;
 using Arc4u.Configuration.Sql;
-using System.IO;
-using Moq;
 using Arc4u.Dependency;
 using Arc4u.Serializer;
-using Arc4u.Configuration;
-using Arc4u.Configuration.Dapr;
+using AutoFixture;
+using AutoFixture.AutoMoq;
+using FluentAssertions;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using Moq;
+using Xunit;
 
 namespace Arc4u.UnitTest.Caching;
 
@@ -171,7 +167,6 @@ public class CacheContextTests
         sutDapr.Should().NotBeNull();
         sutDapr.Name.Should().Be(daprSettings.Name);
 
-
     }
 
     [Fact]
@@ -227,7 +222,6 @@ public class CacheContextTests
         cacheInstance.Put("key", "value");
 
         cacheInstance.Get<string>("key").Should().Be("value");
-
 
     }
 

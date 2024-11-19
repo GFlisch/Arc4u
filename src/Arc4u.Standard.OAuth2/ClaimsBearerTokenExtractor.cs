@@ -1,11 +1,7 @@
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Runtime.Serialization.Json;
 using System.Security.Claims;
 using System.Security.Principal;
-using System.Threading.Tasks;
 using Arc4u.Dependency;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;

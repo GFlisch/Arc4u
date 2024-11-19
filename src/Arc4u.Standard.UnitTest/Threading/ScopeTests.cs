@@ -1,5 +1,5 @@
-using Arc4u.Threading;
 using System.Globalization;
+using Arc4u.Threading;
 using Xunit;
 
 namespace Arc4u.UnitTest.Threading;
@@ -171,8 +171,5 @@ public class ScopeTest
 
         return threadId;
     }
-
-
-
 
 }

@@ -1,9 +1,6 @@
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Threading;
 using Arc4u.Caching;
 using Arc4u.Configuration;
 using Arc4u.Dependency;
@@ -11,7 +8,9 @@ using Arc4u.Dependency.ComponentModel;
 using Arc4u.Diagnostics;
 using Arc4u.gRPC.Interceptors;
 using Arc4u.OAuth2;
+using Arc4u.OAuth2.AspNetCore;
 using Arc4u.OAuth2.Extensions;
+using Arc4u.OAuth2.Options;
 using Arc4u.OAuth2.Security.Principal;
 using Arc4u.OAuth2.Token;
 using Arc4u.OAuth2.TokenProvider;
@@ -20,7 +19,9 @@ using Arc4u.Security.Principal;
 using AutoFixture;
 using AutoFixture.AutoMoq;
 using FluentAssertions;
+using Grpc.Core;
 using Grpc.Core.Interceptors;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -29,10 +30,6 @@ using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
 using static Grpc.Core.Interceptors.Interceptor;
-using Grpc.Core;
-using Arc4u.OAuth2.Options;
-using Microsoft.AspNetCore.Http;
-using Arc4u.OAuth2.AspNetCore;
 
 namespace Arc4u.UnitTest.Security;
 
@@ -233,7 +230,7 @@ public class GRpcInterceptorTests
             ["Authentication:ClientSecrets:Client1:Credential"] = $"{options.User}:password",
             ["Authentication:DefaultAuthority:Url"] = "https://login.microsoft.com"
         };
-        foreach(var scope in options.Scopes)
+        foreach (var scope in options.Scopes)
         {
             configDic.Add($"Authentication:ClientSecrets:Client1:Scopes:{options.Scopes.IndexOf(scope)}", scope);
         }
@@ -460,7 +457,6 @@ public class GRpcInterceptorTests
         services.AddScoped<TokenRefreshInfo>();
         services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
 
-
         var mockActivitySourceFactory = new Mock<IActivitySourceFactory>();
         mockActivitySourceFactory.Setup(m => m.Get("Arc4u", null)).Returns((ActivitySource)null);
         services.AddSingleton<IActivitySourceFactory>(mockActivitySourceFactory.Object);
@@ -539,7 +535,7 @@ public class GRpcInterceptorTests
         services.AddScoped<IApplicationContext, ApplicationInstanceContext>();
         services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
 
-                // Register the different TokenProvider and CredentialTokenProviders.
+        // Register the different TokenProvider and CredentialTokenProviders.
         var container = new ComponentModelContainer(services);
         container.Register<ITokenProvider, BootstrapContextTokenProvider>("Bootstrap");
         container.CreateContainer();

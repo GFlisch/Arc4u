@@ -14,7 +14,6 @@ namespace Arc4u.NServiceBus.RabbitMQ
             transport.SetClientCertificate(certificate);
         }
 
-
     }
 
 }

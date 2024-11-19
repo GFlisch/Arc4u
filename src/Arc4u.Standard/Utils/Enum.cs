@@ -1,8 +1,5 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Reflection;
 
 namespace Arc4u.Utils
@@ -67,14 +64,20 @@ namespace Arc4u.Utils
                     case TypeCode.Int32:
                     case TypeCode.Int64:
                         if ((Convert.ToInt64(_value, CultureInfo.InvariantCulture) & Convert.ToInt64(value, CultureInfo.InvariantCulture)) == Convert.ToInt64(value, CultureInfo.InvariantCulture))
+                        {
                             yield return (T)Enum.ToObject(typeof(T), value);
+                        }
+
                         break;
                     case TypeCode.Byte:
                     case TypeCode.UInt16:
                     case TypeCode.UInt32:
                     case TypeCode.UInt64:
                         if ((Convert.ToUInt64(_value, CultureInfo.InvariantCulture) & Convert.ToUInt64(value, CultureInfo.InvariantCulture)) != Convert.ToUInt64(value, CultureInfo.InvariantCulture))
+                        {
                             yield return (T)Enum.ToObject(typeof(T), value);
+                        }
+
                         break;
                 }
             }
@@ -429,7 +432,6 @@ namespace Arc4u.Utils
 
             return new ArgumentException(string.Format(Arg_EnumValueNotFound, value), "value");
         }
-
 
         public static Enum<T> FromEnumerable<T>(IEnumerable<T> value)
             where T : struct, IComparable, IFormattable, IConvertible

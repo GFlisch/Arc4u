@@ -1,5 +1,4 @@
 ﻿using Arc4u.OAuth2.Security.Principal;
-using System.Threading.Tasks;
 
 namespace Arc4u.OAuth2.Token
 {

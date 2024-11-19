@@ -1,10 +1,6 @@
-﻿using Arc4u.ServiceModel;
+﻿using System.Text;
+using Arc4u.ServiceModel;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Arc4u
 {
@@ -24,7 +20,10 @@ namespace Arc4u
         private static string ToString(IEnumerable<Message> messages)
         {
             //consider argument
-            if (messages == null) return String.Empty;
+            if (messages == null)
+            {
+                return String.Empty;
+            }
 
             var builder = new StringBuilder();
 
@@ -35,12 +34,12 @@ namespace Arc4u
 
             //remove last Environment.NewLine
             if (builder.Length != 0)
+            {
                 builder.Remove(builder.Length - Environment.NewLine.Length, Environment.NewLine.Length);
+            }
 
             return builder.ToString();
         }
-
-
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AppException"/> class.
@@ -123,5 +122,4 @@ namespace Arc4u
         }
     }
 }
-
 

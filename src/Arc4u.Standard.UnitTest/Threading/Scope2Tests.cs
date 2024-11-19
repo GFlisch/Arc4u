@@ -9,10 +9,8 @@ public class Scope2Tests
     public void TestScopeInitialization()
     {
         var instance = new TestInstance();
-        using (var scope = new Scope<string, TestInstance>(instance))
-        {
-            Assert.Equal(instance, Scope<string, TestInstance>.Current);
-        }
+        using var scope = new Scope<string, TestInstance>(instance);
+        Assert.Equal(instance, Scope<string, TestInstance>.Current);
     }
 
     [Fact]
@@ -50,10 +48,8 @@ public class Scope2Tests
     public void TestScopeToString()
     {
         var instance = new TestInstance();
-        using (var scope = new Scope<string, TestInstance>(instance))
-        {
-            Assert.Equal($"Scoping: {instance}", scope.ToString());
-        }
+        using var scope = new Scope<string, TestInstance>(instance);
+        Assert.Equal($"Scoping: {instance}", scope.ToString());
     }
 
     private class TestInstance

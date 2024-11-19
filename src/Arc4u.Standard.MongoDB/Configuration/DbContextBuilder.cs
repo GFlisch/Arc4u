@@ -1,6 +1,4 @@
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
 
 namespace Arc4u.MongoDB.Configuration;
 

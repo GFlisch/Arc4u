@@ -1,7 +1,6 @@
-using System.Collections.Generic;
 using Arc4u.Core;
-using AutoFixture.AutoMoq;
 using AutoFixture;
+using AutoFixture.AutoMoq;
 using FluentAssertions;
 using Xunit;
 
@@ -71,7 +70,7 @@ public class ValueObjectTests
 
 }
 
-public class  SimpleObject : ValueObject
+public class SimpleObject : ValueObject
 {
     public int Counter { get; set; }
 

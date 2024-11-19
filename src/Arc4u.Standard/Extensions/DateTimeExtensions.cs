@@ -16,12 +16,12 @@ namespace System
         public static DateTime AsLocalTime(this DateTime value)
         {
             if (DateTimeKind.Unspecified == value.Kind)
+            {
                 return DateTime.SpecifyKind(value, DateTimeKind.Local);
+            }
 
             return (value.Kind == DateTimeKind.Utc) ? TimeZoneContext.Current.ConvertFromUtc(value) : value;
         }
-
-
 
         /// <summary>
         /// Converts the specified <paramref name="value"/> to Coordinated Universal Time (UTC) when its <see cref="DateTime.Kind"/> is <see cref="DateTime.Kind.Unspecified"/>.
@@ -31,7 +31,9 @@ namespace System
         public static DateTime AsUniversalTime(this DateTime value)
         {
             if (value.Kind == DateTimeKind.Local)
+            {
                 return TimeZoneContext.Current.ConvertToUtc(value);
+            }
 
             return DateTime.SpecifyKind(value, DateTimeKind.Utc);
         }

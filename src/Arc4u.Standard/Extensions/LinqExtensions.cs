@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using System.Reflection;
 
 namespace System.Linq
@@ -40,10 +39,14 @@ namespace System.Linq
         public Switch<TSource, TResult> Case(Func<TSource, bool> predicate, Func<TSource, TResult> selector)
         {
             if (predicate == null)
+            {
                 throw new ArgumentNullException(nameof(predicate));
+            }
 
             if (selector == null)
+            {
                 throw new ArgumentNullException(nameof(selector));
+            }
 
             casePredicates.Add(new CaseSelector<TSource, TResult>(predicate, selector));
 
@@ -53,10 +56,14 @@ namespace System.Linq
         public Switch<TSource, TResult> Case(Type type, Func<TSource, TResult> selector)
         {
             if (type == null)
+            {
                 throw new ArgumentNullException(nameof(type));
+            }
 
             if (selector == null)
+            {
                 throw new ArgumentNullException(nameof(selector));
+            }
 
             casePredicates.Add(new CaseSelector<TSource, TResult>(x => type.GetTypeInfo().IsAssignableFrom(x.GetType().GetTypeInfo()), selector));
 
@@ -66,7 +73,9 @@ namespace System.Linq
         public Switch<TSource, TResult> Case<TCase>(Func<TCase, TResult> selector)
         {
             if (selector == null)
+            {
                 throw new ArgumentNullException(nameof(selector));
+            }
 
             casePredicates.Add(new CaseSelector<TSource, TCase, TResult>(selector));
 
@@ -81,7 +90,9 @@ namespace System.Linq
                 var switchCase = casePredicates.FirstOrDefault(x => x.CanSelect(item));
 
                 if (switchCase != null)
+                {
                     yield return switchCase.Select(item);
+                }
             }
         }
         #endregion
@@ -101,30 +112,41 @@ namespace System.Linq
             Func<TSource, TResult> selector)
         {
             if (source == null)
+            {
                 throw new ArgumentNullException(nameof(source));
+            }
 
             if (predicate == null)
+            {
                 throw new ArgumentNullException(nameof(predicate));
+            }
 
             if (selector == null)
+            {
                 throw new ArgumentNullException(nameof(selector));
+            }
 
             return new Switch<TSource, TResult>(source).Case(predicate, selector);
         }
-
 
         public static Switch<TSource, TResult> Case<TSource, TResult>(this IEnumerable<TSource> source,
             Type type,
             Func<TSource, TResult> selector)
         {
             if (source == null)
+            {
                 throw new ArgumentNullException(nameof(source));
+            }
 
             if (type == null)
+            {
                 throw new ArgumentNullException(nameof(type));
+            }
 
             if (selector == null)
+            {
                 throw new ArgumentNullException(nameof(selector));
+            }
 
             return new Switch<TSource, TResult>(source).Case(type, selector);
         }
@@ -132,7 +154,9 @@ namespace System.Linq
         public static Switch<TSource, TResult> AsSwitch<TSource, TResult>(this IEnumerable<TSource> source)
         {
             if (source == null)
+            {
                 throw new ArgumentNullException(nameof(source));
+            }
 
             return new Switch<TSource, TResult>(source);
         }
@@ -156,18 +180,26 @@ namespace System.Linq
             , Func<TSource, IEnumerable<TSource>> selector)
         {
             if (source == null)
+            {
                 throw new ArgumentNullException(nameof(source));
+            }
 
             if (predicate == null)
+            {
                 throw new ArgumentNullException(nameof(predicate));
+            }
 
             if (selector == null)
+            {
                 throw new ArgumentNullException(nameof(selector));
+            }
 
             foreach (var item in source)
             {
                 if (predicate(item))
+                {
                     yield return item;
+                }
 
                 var innerSource = selector(item);
                 if (innerSource != null)
@@ -175,7 +207,9 @@ namespace System.Linq
                     foreach (var innerItem in Where(innerSource, predicate, selector))
                     {
                         if (predicate(innerItem))
+                        {
                             yield return innerItem;
+                        }
                     }
                 }
             }
@@ -191,7 +225,10 @@ namespace System.Linq
         /// <returns></returns>
         public static IEnumerable<TSource> Flatten<TSource>(this IEnumerable<TSource> source, Func<TSource, IEnumerable<TSource>> getChildrenFunction)
         {
-            if (null == source) return new List<TSource>();
+            if (null == source)
+            {
+                return new List<TSource>();
+            }
             // Add what we have to the stack
             var flattenedList = source;
 

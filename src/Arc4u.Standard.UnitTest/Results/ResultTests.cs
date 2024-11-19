@@ -1,5 +1,3 @@
-using System;
-using System.Threading.Tasks;
 using Arc4u.Results;
 using Arc4u.Results.Validation;
 using AutoFixture;
@@ -122,7 +120,6 @@ public class ResultTests
         sut.Should().BeSameAs(result.Result);
     }
 
-
     [Fact]
     [Trait("Category", "CI")]
     public void Test_On_Failed_With_Success_Should()
@@ -181,7 +178,6 @@ public class ResultTests
 
         var sut = await result.LogIfFailed()
                               .OnFailed((errors) => globalResult.WithErrors(errors));
-                                
 
         sut.Should().BeSameAs(result.Result);
         globalResult.IsFailed.Should().BeTrue();
@@ -194,7 +190,7 @@ public class ResultTests
     {
         Result globalResult = Result.Ok();
 
-        Func<Task> error = () => throw new DbUpdateException(); 
+        Func<Task> error = () => throw new DbUpdateException();
 
         await Result.Try(() => error())
                     .OnFailed(globalResult);
@@ -216,7 +212,6 @@ public class ResultTests
         ierror.Message.Should().Be("A");
     }
 
-
     [Fact]
     [Trait("Category", "CI")]
     public void Test_Error_Code_Is_Not_Filled_Should()
@@ -227,7 +222,7 @@ public class ResultTests
 
         sut.IsFailed.Should().BeTrue();
         sut.Errors.Count.Should().Be(1);
-        var error = sut.Errors[0].As<ValidationError>(); 
+        var error = sut.Errors[0].As<ValidationError>();
         error.Message.Should().Be("A");
         error.Code.Should().Be("Code");
         error.Metadata["Severity"].Should().Be(Severity.Warning);

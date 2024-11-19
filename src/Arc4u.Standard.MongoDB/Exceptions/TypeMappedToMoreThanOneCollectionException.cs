@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Arc4u.MongoDB.Exceptions
+﻿namespace Arc4u.MongoDB.Exceptions
 {
     public class TypeMappedToMoreThanOneCollectionException<TEntity> : Exception
     {

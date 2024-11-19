@@ -1,6 +1,4 @@
-using System;
 using System.Globalization;
-using System.Threading.Tasks;
 using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Options;
 using Arc4u.OAuth2.Token;
@@ -35,7 +33,6 @@ public class StandardCookieEvents : CookieAuthenticationEvents
     {
         ArgumentNullException.ThrowIfNull(_serviceProvider);
         ArgumentNullException.ThrowIfNull(_oidcOptions);
-
 
         var cookieTokenExpiration = cookieCtx.Properties.ExpiresUtc;
         if (!cookieTokenExpiration.HasValue || cookieTokenExpiration.Value < DateTime.UtcNow)

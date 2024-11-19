@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using Arc4u.Diagnostics;
 using Microsoft.Extensions.Logging;
@@ -10,7 +7,6 @@ namespace Arc4u.ServiceModel
     public class Messages : List<Message>
     {
         private readonly bool _ignoreWarnings;
-
 
         public Messages(bool ignoreWarnings = false)
         {
@@ -97,8 +93,15 @@ namespace Arc4u.ServiceModel
                         property = categoryLogger.Debug(lm.Text);
                         break;
                 }
-                if (!String.IsNullOrWhiteSpace(m.Code)) property.Add("Code", m.Code);
-                if (!String.IsNullOrWhiteSpace(m.Subject)) property.Add("Subject", m.Subject);
+                if (!String.IsNullOrWhiteSpace(m.Code))
+                {
+                    property.Add("Code", m.Code);
+                }
+
+                if (!String.IsNullOrWhiteSpace(m.Subject))
+                {
+                    property.Add("Subject", m.Subject);
+                }
 
                 property.Log();
             });

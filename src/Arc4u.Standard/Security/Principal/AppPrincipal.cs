@@ -128,7 +128,6 @@ public class AppPrincipal : ClaimsPrincipal, IAuthorization
     /// <exclude/>
     public Authorization Authorization { get; }
 
-
     // If user profile is 
     private UserProfile profile;
     /// <summary>

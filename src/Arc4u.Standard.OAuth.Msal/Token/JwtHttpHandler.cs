@@ -1,9 +1,4 @@
-using System;
-using System.Linq;
-using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Threading;
-using System.Threading.Tasks;
 using Arc4u.Dependency;
 using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Token;
@@ -137,7 +132,9 @@ public class JwtHttpHandler : DelegatingHandler
             _logger.Technical().System($"Add the current culture to the request: {_applicationContext.Principal.Profile?.CurrentCulture?.TwoLetterISOLanguageName}").Log();
             var culture = _applicationContext.Principal.Profile?.CurrentCulture?.TwoLetterISOLanguageName;
             if (null != culture)
+            {
                 request.Headers.Add("culture", culture);
+            }
         }
 
         return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);

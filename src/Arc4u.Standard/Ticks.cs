@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Arc4u
+﻿namespace Arc4u
 {
     /// <exclude/>
     internal static class Ticks

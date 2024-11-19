@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using System;
 
 namespace Arc4u.ServiceModel
 {
@@ -26,7 +25,6 @@ namespace Arc4u.ServiceModel
             var category = MessageCategory.Technical;
             var type = MessageType.Information;
 
-
             while (reader.Read())
             {
                 var tokenType = reader.TokenType;
@@ -38,19 +36,31 @@ namespace Arc4u.ServiceModel
                     // Key/value pattern.
 
                     if (propertyName.Equals("code", StringComparison.CurrentCultureIgnoreCase))
+                    {
                         code = reader.ReadAsString();
+                    }
                     else if (propertyName.Equals("text", StringComparison.CurrentCultureIgnoreCase))
+                    {
                         text = reader.ReadAsString();
+                    }
                     else if (propertyName.Equals("subject", StringComparison.CurrentCultureIgnoreCase))
+                    {
                         subject = reader.ReadAsString();
+                    }
                     else if (propertyName.Equals("category", StringComparison.CurrentCultureIgnoreCase))
+                    {
                         category = reader.ReadAsString().Equals("described", StringComparison.CurrentCultureIgnoreCase) ? MessageCategory.Business : MessageCategory.Technical;
+                    }
                     else if (propertyName.Equals("type", StringComparison.CurrentCultureIgnoreCase))
+                    {
                         type = (MessageType)reader.ReadAsInt32();
+                    }
                 }
 
                 if (tokenType == JsonToken.EndObject)
+                {
                     return new Message(category, type, code, subject, text);
+                }
             }
 
             return new Message();
@@ -92,7 +102,6 @@ namespace Arc4u.ServiceModel
 
             writer.WriteToken(JsonToken.PropertyName, "Category");
             writer.WriteValue(message.Category == MessageCategory.Business ? "Described" : "Undescribed");
-
 
             writer.WriteEndObject();
         }

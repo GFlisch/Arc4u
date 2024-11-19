@@ -1,14 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace Arc4u.Threading
+﻿namespace Arc4u.Threading
 {
     public class AsyncSemaphore
     {
         public AsyncSemaphore(int initialCount)
         {
-            if (initialCount < 0) throw new ArgumentOutOfRangeException("initialCount");
+            if (initialCount < 0)
+            {
+                throw new ArgumentOutOfRangeException("initialCount");
+            }
+
             m_currentCount = initialCount;
         }
 
@@ -35,16 +35,19 @@ namespace Arc4u.Threading
             lock (m_waiters)
             {
                 if (m_waiters.Count > 0)
+                {
                     toRelease = m_waiters.Dequeue();
+                }
                 else
+                {
                     ++m_currentCount;
+                }
             }
             if (toRelease != null)
+            {
                 toRelease.SetResult(true);
+            }
         }
-
-
-
 
         private readonly static Task s_completed = Task.FromResult(true);
         private readonly Queue<TaskCompletionSource<bool>> m_waiters = new Queue<TaskCompletionSource<bool>>();

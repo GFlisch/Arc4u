@@ -1,11 +1,8 @@
-﻿using Arc4u.Dependency.Attribute;
+﻿using System.Runtime.Serialization.Json;
+using System.Security.Claims;
+using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization.Json;
-using System.Security.Claims;
 
 namespace Arc4u.Security.Principal
 {
@@ -18,14 +15,18 @@ namespace Arc4u.Security.Principal
         }
 
         private readonly ILogger<ClaimsAuthorizationFiller> _logger;
-        
+
         public Authorization GetAuthorization(System.Security.Principal.IIdentity identity)
         {
             if (null == identity)
+            {
                 throw new ArgumentNullException("identity");
+            }
 
             if (!(identity is ClaimsIdentity))
+            {
                 throw new NotSupportedException("Only identity from ClaimsIdentity are allowed.");
+            }
 
             var claimsIdentity = (ClaimsIdentity)identity;
 
@@ -62,7 +63,9 @@ namespace Arc4u.Security.Principal
             try
             {
                 if (null != claim)
+                {
                     return claim.Value;
+                }
 
                 return String.Empty;
             }
@@ -71,7 +74,6 @@ namespace Arc4u.Security.Principal
                 return String.Empty;
             }
         }
-
 
     }
 }

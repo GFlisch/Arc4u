@@ -1,6 +1,3 @@
-using System.Threading;
-using System.Threading.Tasks;
-
 namespace Arc4u.OAuth2.Token;
 
 public interface ITokenProvider

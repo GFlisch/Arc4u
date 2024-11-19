@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using System.Threading;
 using Arc4u.Dependency.Attribute;
 
 namespace Arc4u.Security.Principal

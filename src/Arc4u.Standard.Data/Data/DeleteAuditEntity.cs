@@ -1,4 +1,3 @@
-using System;
 using System.Runtime.Serialization;
 
 namespace Arc4u.Data
@@ -22,7 +21,6 @@ namespace Arc4u.Data
         public DeleteAuditEntity() : this(PersistChange.None)
         {
         }
-
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DeleteAuditEntity"/> class 

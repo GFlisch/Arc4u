@@ -1,10 +1,8 @@
-using Arc4u.ServiceModel;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
+using Arc4u.ServiceModel;
+using Microsoft.Extensions.Logging;
 
 namespace Arc4u.Data
 {
@@ -62,7 +60,9 @@ namespace Arc4u.Data
         protected override void RaisePropertyChanged(PropertyChangedEventArgs e)
         {
             if (IgnoreOnPropertyChanged)
+            {
                 return;
+            }
 
             base.RaisePropertyChanged(e);
         }
@@ -79,7 +79,9 @@ namespace Arc4u.Data
         protected virtual bool IsTouchingProperty(PropertyChangedEventArgs e)
         {
             if (e == null)
+            {
                 throw new ArgumentNullException(nameof(e));
+            }
 
             return !string.Equals(e.PropertyName, PersistChangePropertyName, StringComparison.Ordinal);
         }
@@ -141,7 +143,9 @@ namespace Arc4u.Data
         protected PersistEntity(PersistEntity entity)
         {
             if (entity == null)
+            {
                 throw new ArgumentNullException(nameof(entity));
+            }
 
             _persistChange = entity._persistChange;
         }

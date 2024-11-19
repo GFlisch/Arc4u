@@ -1,9 +1,6 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using System.Diagnostics;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Arc4u.Diagnostics.Monitoring
 {
@@ -15,10 +12,14 @@ namespace Arc4u.Diagnostics.Monitoring
         public SystemResources(ILogger logger, uint internalPeriodInSeconds = 10)
         {
             if (null == logger)
+            {
                 throw new ArgumentNullException(nameof(logger));
+            }
 
             if (0 == internalPeriodInSeconds)
+            {
                 throw new ArgumentException("The interval must be bigger than 0!");
+            }
 
             interval = internalPeriodInSeconds;
             _lastTimeStamp = _process.StartTime.ToUniversalTime();
@@ -42,7 +43,7 @@ namespace Arc4u.Diagnostics.Monitoring
         private TimeSpan _lastUserProcessorTime = TimeSpan.Zero;
         private TimeSpan _lastPrivilegedProcessorTime = TimeSpan.Zero;
 
-        private CpuData _cpuData = new CpuData();
+        private readonly CpuData _cpuData = new CpuData();
 
         private void CollectData(object state)
         {
@@ -62,7 +63,6 @@ namespace Arc4u.Diagnostics.Monitoring
             _cpuData.TotalCpuUsed = totalCpuTimeUsed * 100 / cpuTimeElapsed;
             _cpuData.PrivilegedCpuUsed = privilegedCpuTimeUsed * 100 / cpuTimeElapsed;
             _cpuData.UserCpuUsed = userCpuTimeUsed * 100 / cpuTimeElapsed;
-
 
             _logger.Monitoring()
                    .From<SystemResources>()

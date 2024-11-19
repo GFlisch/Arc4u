@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Arc4u.Dependency
+﻿namespace Arc4u.Dependency
 {
     public static class ContainerContext
     {
@@ -9,7 +7,9 @@ namespace Arc4u.Dependency
         public static void RegisterCreateContainerFunction(Func<IContainer> createContainer)
         {
             if (null == createContainer)
+            {
                 throw new ArgumentNullException(nameof(createContainer));
+            }
 
             _creationContainerFunction = createContainer;
         }

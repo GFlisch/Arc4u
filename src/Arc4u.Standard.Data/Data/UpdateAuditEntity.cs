@@ -1,4 +1,3 @@
-using System;
 using System.Runtime.Serialization;
 
 namespace Arc4u.Data
@@ -13,7 +12,6 @@ namespace Arc4u.Data
     public class UpdateAuditEntity : UpdateAuditEntity<Guid, string, DateTimeOffset, string, DateTimeOffset?>
     {
         #region Constructors
-
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UpdateAuditEntity"/> class 
@@ -34,7 +32,6 @@ namespace Arc4u.Data
             Id = Guid.NewGuid();
             CreatedOn = DateTimeOffset.UtcNow;
         }
-
 
         #endregion
     }

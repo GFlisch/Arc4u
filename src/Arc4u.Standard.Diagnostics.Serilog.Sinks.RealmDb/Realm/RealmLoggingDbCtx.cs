@@ -1,9 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.Logging;
 using Realms;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Arc4u.Diagnostics.Serilog.Sinks.RealmDb
 {
@@ -45,9 +42,14 @@ namespace Arc4u.Diagnostics.Serilog.Sinks.RealmDb
             while (i < take && enumerator.MoveNext())
             {
                 if (hasCriteria && enumerator.Current.Message.ToLowerInvariant().Contains(searchText))
+                {
                     result.Add(enumerator.Current);
+                }
+
                 if (!hasCriteria)
+                {
                     result.Add(enumerator.Current);
+                }
 
                 i++;
             }
@@ -55,10 +57,10 @@ namespace Arc4u.Diagnostics.Serilog.Sinks.RealmDb
             return Mapper.Map<List<LogMessage>>(result);
         }
 
-        private Realm _realm;
+        private readonly Realm _realm;
         public Realm Realm { get { return _realm; } }
 
-        private static IMapper _mapper;
+        private static readonly IMapper _mapper;
         public static IMapper Mapper { get { return _mapper; } }
 
         public static IMapper CreateMapping()

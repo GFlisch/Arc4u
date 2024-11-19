@@ -1,18 +1,16 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using Arc4u.Caching.Memory;
+using Arc4u.Configuration.Memory;
 using Arc4u.Dependency;
 using Arc4u.OAuth2.Token;
 using Arc4u.Serializer;
-using Arc4u.Configuration.Memory;
 using AutoFixture;
 using AutoFixture.AutoMoq;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using Xunit;
 
 namespace Arc4u.UnitTest.Serialization
@@ -27,7 +25,6 @@ namespace Arc4u.UnitTest.Serialization
         }
 
         private readonly Fixture _fixture;
-
 
         [Fact]
         public void AccessTokenValidityShould()

@@ -1,8 +1,5 @@
-﻿using Arc4u.Data;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
+﻿using System.Diagnostics.CodeAnalysis;
+using Arc4u.Data;
 
 namespace Arc4u.UnitTest.Database.EfCore.Model
 {
@@ -33,12 +30,17 @@ namespace Arc4u.UnitTest.Database.EfCore.Model
             comparisons[3] = DateTime.Compare(y.StartDate, x.StartDate);
             comparisons[4] = DateTime.Compare(y.EndDate, x.EndDate);
 
-
-            if (comparisons.All(x => x == 0)) return 0;
+            if (comparisons.All(x => x == 0))
+            {
+                return 0;
+            }
 
             var positives = comparisons.Where(x => x > 0).Count();
 
-            if (positives >= 1) return 1;
+            if (positives >= 1)
+            {
+                return 1;
+            }
 
             return -1;
 

@@ -1,4 +1,3 @@
-using System;
 using Arc4u.Dependency;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;

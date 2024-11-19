@@ -2,13 +2,12 @@ using Arc4u.Data;
 using FluentValidation;
 using FluentValidation.Resources;
 using FluentValidation.Validators;
-using System;
 
 namespace Arc4u.FluentValidation.Rules
 {
     public class IsDeleteEntityRuleValidator<T, TProperty> : PropertyValidator<T, TProperty> where T : IPersistEntity where TProperty : Enum
     {
-        static string ruleName = "IsDeleteRuleValidator";
+        static readonly string ruleName = "IsDeleteRuleValidator";
         public override string Name => ruleName;
 
         static IsDeleteEntityRuleValidator()

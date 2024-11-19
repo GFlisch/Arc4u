@@ -1,6 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
 
 namespace Arc4u.Diagnostics
 {
@@ -29,12 +27,15 @@ namespace Arc4u.Diagnostics
                 {
                     properties = new Dictionary<string, object>();
                     foreach (var pair in pairs)
+                    {
                         properties.Add(pair.Key, pair.Value);
+                    }
                 }
 
                 foreach (var property in _addPropertiesToLog.GetProperties())
+                {
                     properties.AddIfNotExist(property.Key, property.Value);
-
+                }
             }
 
             _logger.Log(logLevel, eventId, state, exception, formatter);

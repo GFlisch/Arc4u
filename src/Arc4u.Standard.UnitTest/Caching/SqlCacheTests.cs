@@ -1,17 +1,16 @@
-using AutoFixture.AutoMoq;
+using Arc4u.Caching.Sql;
+using Arc4u.Configuration.Sql;
+using Arc4u.Dependency;
+using Arc4u.Serializer;
 using AutoFixture;
-using Xunit;
+using AutoFixture.AutoMoq;
+using FluentAssertions;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using System.Collections.Generic;
-using Arc4u.Caching.Sql;
-using FluentAssertions;
 using Moq;
-using Arc4u.Serializer;
-using Arc4u.Dependency;
-using Microsoft.Data.SqlClient;
-using Arc4u.Configuration.Sql;
+using Xunit;
 
 namespace Arc4u.UnitTest.Caching;
 

@@ -1,7 +1,7 @@
-﻿using Arc4u.Diagnostics;
+﻿using System.Runtime.CompilerServices;
+using Arc4u.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Serilog.Core;
-using System.Runtime.CompilerServices;
 using Xunit;
 
 namespace Arc4u.UnitTest.Logging

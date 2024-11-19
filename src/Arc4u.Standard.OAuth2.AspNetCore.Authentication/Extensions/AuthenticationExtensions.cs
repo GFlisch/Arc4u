@@ -414,7 +414,9 @@ public static partial class AuthenticationExtensions
         X509Certificate2? certSecurityKey;
 
         if (string.IsNullOrWhiteSpace(settings.CertSecurityKeyPath))
+        {
             certSecurityKey = null;
+        }
         else
         {
             // we only need a non-null loader in this case

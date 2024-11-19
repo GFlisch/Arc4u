@@ -1,7 +1,6 @@
-using Arc4u.Diagnostics;
-using Arc4u.UnitTest.Infrastructure;
-using Microsoft.Extensions.Logging;
 using System.Runtime.CompilerServices;
+using Arc4u.Diagnostics;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Arc4u.UnitTest.Infrastructure

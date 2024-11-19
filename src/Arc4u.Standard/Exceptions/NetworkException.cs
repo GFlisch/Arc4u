@@ -1,6 +1,5 @@
-﻿using Arc4u.Network.Connectivity;
-using System;
-using System.Text;
+﻿using System.Text;
+using Arc4u.Network.Connectivity;
 
 namespace Arc4u.Exceptions
 {

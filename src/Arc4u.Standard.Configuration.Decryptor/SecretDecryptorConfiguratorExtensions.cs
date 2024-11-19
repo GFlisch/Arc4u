@@ -19,7 +19,6 @@ public static class SecretDecryptorConfiguratorExtensions
         return configurationBuilder;
     }
 
-
     /// <summary>
     /// Adds an <see cref="IConfigurationProvider"/> that reads configuration values based on the default values defined in the <see cref="SecretRijndaelOptions"/>.
     /// </summary>

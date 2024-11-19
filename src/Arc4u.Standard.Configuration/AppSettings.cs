@@ -8,7 +8,7 @@ namespace Arc4u
     public sealed class AppSettings : KeyValueSettings, IAppSettings
     {
         public AppSettings(IConfiguration configuration)
-            :base("AppSettings", configuration)
+            : base("AppSettings", configuration)
         {
         }
     }

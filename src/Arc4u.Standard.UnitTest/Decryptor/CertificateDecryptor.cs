@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
 using Arc4u.Configuration.Decryptor;
 using Arc4u.Security;
@@ -45,8 +43,6 @@ public class CertificateDecryptor
         exception.Should().BeOfType<KeyNotFoundException>();
     }
 
-
-
     [Fact]
     public void Certficate_Small_Text_ShouldDecrypt()
     {
@@ -55,7 +51,6 @@ public class CertificateDecryptor
 
         var plainText = _fixture.Create<string>();
         var cypherText = certificate.Encrypt(plainText);
-
 
         var config = new ConfigurationBuilder()
             .AddInMemoryCollection(
@@ -84,7 +79,6 @@ public class CertificateDecryptor
 
         var plainText = new string('A', 600);
         var cypherText = certificate.Encrypt(plainText);
-
 
         var config = new ConfigurationBuilder()
             .AddInMemoryCollection(

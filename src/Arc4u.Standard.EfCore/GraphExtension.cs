@@ -1,17 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore;
 
 namespace Arc4u.EfCore
 {
     public static class GraphExtension
     {
         private const String OnlyLevelOneIsAllowed = "It is not allowed to check more than one level!";
-
 
         /// <summary>
         /// Will apply the includes on the <see cref="IQueryable&gt;T&lt;"/> but the types having an assoication based on <see cref="IEnumerable"/>.
@@ -21,7 +17,9 @@ namespace Arc4u.EfCore
         public static IQueryable<T> ApplySingleReferences<T>(this Graph<T> graph, IQueryable<T> query) where T : class
         {
             if (null == query)
+            {
                 throw new ArgumentNullException(nameof(query));
+            }
 
             IQueryable<T> dQuery = query; // will invoke the Include method.
             var objectType = typeof(T);
@@ -34,7 +32,9 @@ namespace Arc4u.EfCore
                 if (path.Length == 1)
                 {
                     if (objectType.GetRuntimeProperty(i).PropertyType.GetTypeInfo().ImplementedInterfaces.All(t => t != typeof(IEnumerable)))
+                    {
                         dQuery = dQuery.Include(i);
+                    }
                 }
                 else
                 {
@@ -56,7 +56,9 @@ namespace Arc4u.EfCore
 
                     // if (bSimpleGraph)
                     if (includedItems.Count > 0)
+                    {
                         dQuery = dQuery.Include(String.Join(".", includedItems));
+                    }
                 }
 
             }
@@ -77,12 +79,16 @@ namespace Arc4u.EfCore
         public static IQueryable<T> ApplyReferences<TProperty, T>(this Graph<T> graph, IQueryable<T> query, Expression<Func<T, TProperty>> path) where TProperty : class where T : class
         {
             if (null == query)
+            {
                 throw new ArgumentNullException("query");
+            }
 
             var stringPath = Graph<T>.EvaluateExpression(path);
 
             if (stringPath.Contains('.'))
+            {
                 throw new AppException(OnlyLevelOneIsAllowed);
+            }
 
             return graph.Includes.Where(i => i.StartsWith(stringPath)).Aggregate<string, IQueryable<T>>(query, (queryable, i) => queryable.BuildInclude(i));
 
@@ -106,7 +112,6 @@ namespace Arc4u.EfCore
                 thenIncludeObject = BuildThenInclude(thenIncludeObject, typeof(T), propertyType, properties[i], out var subProperty);
                 propertyType = subProperty;
             }
-
 
             return thenIncludeObject as IQueryable<T>;
 
@@ -136,7 +141,6 @@ namespace Arc4u.EfCore
 
             ParameterExpression pe = Expression.Parameter(basePropertyType, "p");
             var expr = Expression.Lambda(Expression.Property(pe, subProperty), pe);
-
 
             var l = typeof(EntityFrameworkQueryableExtensions)
                 .GetMethods(BindingFlags.Public | BindingFlags.Static)

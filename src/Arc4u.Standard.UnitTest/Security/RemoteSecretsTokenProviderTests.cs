@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Arc4u.Configuration;
 using Arc4u.OAuth2.Options;
 using Arc4u.OAuth2.Token;
@@ -51,7 +48,7 @@ public class RemoteSecretsTokenProviderTests
     public async Task RemoteSecrets_TokenProvider_With_No_Settings_Should()
     {
         // arrange
- 
+
         // act
         var sut = _fixture.Create<RemoteClientSecretTokenProvider>();
         var exception = await Record.ExceptionAsync(async () => await sut.GetTokenAsync(null, null).ConfigureAwait(false)).ConfigureAwait(false);

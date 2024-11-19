@@ -1,5 +1,4 @@
-﻿using System;
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 
@@ -24,7 +23,6 @@ namespace Arc4u.OAuth2.Token
             var jwtToken = new JwtSecurityToken(token);
             ExpiresOnUtc = jwtToken.ValidTo.ToUniversalTime();
         }
-
 
         /// <summary>
         /// Gets the type of the Access Token returned. 

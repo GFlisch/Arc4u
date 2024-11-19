@@ -1,5 +1,6 @@
-﻿using Arc4u.Dependency;
-using Arc4u.Diagnostics;
+﻿using System.Net;
+using System.Security.Claims;
+using Arc4u.Dependency;
 using Arc4u.OAuth2.Aspect;
 using Arc4u.OAuth2.Token;
 using Arc4u.Security.Principal;
@@ -9,11 +10,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace Arc4u.Blazor
 {
@@ -47,7 +43,11 @@ namespace Arc4u.Blazor
         [HttpGet("redirectTo/{redirectTo}/{id?}")]
         public async Task<IActionResult> Get(int? id, string redirectTo, [FromServices] IApplicationContext applicationContext, [FromServices] IContainerResolve containerResolve, [FromServices] ILogger<BlazorController> logger)
         {
-            if (applicationContext.Principal.Authorization.Operations.Count == 0) return Unauthorized();
+            if (applicationContext.Principal.Authorization.Operations.Count == 0)
+            {
+                return Unauthorized();
+            }
+
             string accessToken = null;
 
             int index = id.HasValue ? id.Value : 1;
@@ -70,7 +70,10 @@ namespace Arc4u.Blazor
                 }
             }
 
-            if (string.IsNullOrEmpty(accessToken)) return BadRequest();
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                return BadRequest();
+            }
 
             var redirectUrl = WebUtility.UrlDecode(redirectTo);
 

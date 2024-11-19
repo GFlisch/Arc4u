@@ -88,7 +88,6 @@ public static class FromResultToTypedResultExtension
         return objectResult;
     }
 
- 
     public static async ValueTask<Results<Created, ProblemHttpResult, ValidationProblem>>
     ToTypedCreatedResultAsync<TResult>(this ValueTask<Result> result, Uri? location)
     {
@@ -101,7 +100,6 @@ public static class FromResultToTypedResultExtension
 
         return objectResult;
     }
-
 
     #endregion
 
@@ -247,7 +245,7 @@ public static class FromResultToTypedResultExtension
 
     #region Result<T>
 
-    public static  Results<Ok<TResult>, ProblemHttpResult, ValidationProblem>
+    public static Results<Ok<TResult>, ProblemHttpResult, ValidationProblem>
     ToTypedOkResult<TResult>(this Result<TResult> result)
     {
 
@@ -260,7 +258,7 @@ public static class FromResultToTypedResultExtension
         return objectResult;
     }
 
-    public static  Results<Ok<T>, ProblemHttpResult, ValidationProblem>
+    public static Results<Ok<T>, ProblemHttpResult, ValidationProblem>
     ToTypedOkResult<TResult, T>(this Result<TResult> result, [DisallowNull] Func<TResult, T> mapper)
     {
         ArgumentNullException.ThrowIfNull(mapper);

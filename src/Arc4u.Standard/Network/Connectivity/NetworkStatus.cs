@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Arc4u.Network.Connectivity
+﻿namespace Arc4u.Network.Connectivity
 {
     [Flags]
     public enum NetworkStatus

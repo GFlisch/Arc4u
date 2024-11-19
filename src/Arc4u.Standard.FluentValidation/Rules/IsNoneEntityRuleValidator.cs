@@ -2,14 +2,12 @@
 using FluentValidation;
 using FluentValidation.Resources;
 using FluentValidation.Validators;
-using System;
-using System.Collections.Concurrent;
 
 namespace Arc4u.FluentValidation.Rules
 {
     public class IsNoneEntityRuleValidator<T, TProperty> : PropertyValidator<T, TProperty> where T : IPersistEntity where TProperty : Enum
     {
-        static string ruleName = "IsNoneRuleValidator";
+        static readonly string ruleName = "IsNoneRuleValidator";
         public override string Name => ruleName;
 
         static IsNoneEntityRuleValidator()

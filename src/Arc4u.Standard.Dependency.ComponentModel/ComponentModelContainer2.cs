@@ -17,7 +17,7 @@ public class ComponentModelContainer : IContainer
     public IServiceProvider ServiceProvider => _serviceProvider ?? throw new NullReferenceException("DI container is null.");
 
     readonly IServiceCollection? _collection;
-    private IServiceScope? _serviceScope;
+    private readonly IServiceScope? _serviceScope;
     private IServiceProvider? _serviceProvider;
 
     protected bool disposed;
@@ -79,7 +79,6 @@ public class ComponentModelContainer : IContainer
 
     public IContainerResolve CreateScope()
     {
-
 
         // As this must be used with a Using, the Dipose will dispose the Scope!
         return new ComponentModelContainer(_serviceProvider.CreateScope());
@@ -260,7 +259,6 @@ public class ComponentModelContainer : IContainer
     public T Resolve<T>(string name)
     {
 
-
         return ServiceProvider.GetKeyedService<T>(name); // ?? throw new NullReferenceException($"No registration exitst for {typeof(T)}");
     }
 
@@ -277,13 +275,11 @@ public class ComponentModelContainer : IContainer
     public IEnumerable<T> ResolveAll<T>()
     {
 
-
         return _serviceProvider!.GetServices<T>();
     }
 
     public IEnumerable<object> ResolveAll(Type type)
     {
-
 
         return ServiceProvider!.GetServices(type).Where(o => o is not null).Cast<object>();
     }
@@ -291,13 +287,11 @@ public class ComponentModelContainer : IContainer
     public IEnumerable<T> ResolveAll<T>(string name)
     {
 
-
         return ServiceProvider!.GetKeyedServices<T>(name);
     }
 
     public IEnumerable<object> ResolveAll(Type type, string name)
     {
-
 
         return ServiceProvider!.GetKeyedServices(type, name).Where(o => o is not null).Cast<object>();
     }

@@ -5,8 +5,6 @@ using Arc4u.Dependency.ComponentModel;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using System;
-using System.Linq;
 using Xunit;
 
 namespace Arc4u.UnitTest
@@ -25,22 +23,20 @@ namespace Arc4u.UnitTest
             services.AddApplicationConfig(configuration);
 
             var container = new ComponentModelContainer(services);
-//            container.RegisterInstance(configuration);
+            //            container.RegisterInstance(configuration);
             container.RegisterScoped<IGenerator, IdGenerator>();
 
             container.CreateContainer();
 
             var id1 = container.Resolve<IGenerator>().Id;
 
-            using (var c2 = container.CreateScope())
-            {
-                var id2 = c2.Resolve<IGenerator>().Id;
+            using var c2 = container.CreateScope();
+            var id2 = c2.Resolve<IGenerator>().Id;
 
-                Assert.NotEqual(id1, id2);
-                Assert.Equal(id2, c2.Resolve<IGenerator>().Id);
-                Assert.Equal(id1, container.Resolve<IGenerator>().Id);
-                Assert.True(container.CanCreateScope);
-            }
+            Assert.NotEqual(id1, id2);
+            Assert.Equal(id2, c2.Resolve<IGenerator>().Id);
+            Assert.Equal(id1, container.Resolve<IGenerator>().Id);
+            Assert.True(container.CanCreateScope);
         }
 
         [Fact]
@@ -59,15 +55,13 @@ namespace Arc4u.UnitTest
 
             var id1 = container.Resolve<IGenerator>("Named").Id;
 
-            using (var c2 = container.CreateScope())
-            {
-                var id2 = c2.Resolve<IGenerator>("Named").Id;
+            using var c2 = container.CreateScope();
+            var id2 = c2.Resolve<IGenerator>("Named").Id;
 
-                Assert.NotEqual(id1, id2);
-                Assert.Equal(id2, c2.Resolve<IGenerator>("Named").Id);
-                Assert.Equal(id1, container.Resolve<IGenerator>("Named").Id);
-                Assert.True(container.CanCreateScope);
-            }
+            Assert.NotEqual(id1, id2);
+            Assert.Equal(id2, c2.Resolve<IGenerator>("Named").Id);
+            Assert.Equal(id1, container.Resolve<IGenerator>("Named").Id);
+            Assert.True(container.CanCreateScope);
         }
 
         [Fact]
@@ -134,22 +128,18 @@ namespace Arc4u.UnitTest
             Assert.NotNull(byType);
             Assert.NotEqual(byInterface.Id, byType.Id);
 
-            using (var scope = container.CreateScope())
-            {
-                var scopedByInterface = scope.Resolve<IGenerator>();
-                var scopedByType = scope.Resolve<TestScopedParser>();
-                Assert.NotNull(scopedByInterface);
-                Assert.NotNull(scopedByType);
-                Assert.NotEqual(scopedByType.Id, scopedByInterface.Id);
+            using var scope = container.CreateScope();
+            var scopedByInterface = scope.Resolve<IGenerator>();
+            var scopedByType = scope.Resolve<TestScopedParser>();
+            Assert.NotNull(scopedByInterface);
+            Assert.NotNull(scopedByType);
+            Assert.NotEqual(scopedByType.Id, scopedByInterface.Id);
 
-                Assert.NotEqual(scopedByInterface.Id, byInterface.Id);
-                Assert.NotEqual(scopedByType.Id, byType.Id);
-                Assert.Equal(scopedByInterface.Id, scope.Resolve<IGenerator>().Id);
-                Assert.Equal(scopedByType.Id, scope.Resolve<TestScopedParser>().Id);
-            }
+            Assert.NotEqual(scopedByInterface.Id, byInterface.Id);
+            Assert.NotEqual(scopedByType.Id, byType.Id);
+            Assert.Equal(scopedByInterface.Id, scope.Resolve<IGenerator>().Id);
+            Assert.Equal(scopedByType.Id, scope.Resolve<TestScopedParser>().Id);
         }
-
-
 
         [Fact]
         void TestCompositionRegister()
@@ -287,8 +277,6 @@ namespace Arc4u.UnitTest
 
             Assert.False(container.TryResolve<IGenerator>(out var gen));
         }
-
-
 
         #region Singleton
 
@@ -450,7 +438,6 @@ namespace Arc4u.UnitTest
         }
         #endregion
 
-
         [Fact]
         void TestDIRegisterMultipleWithName()
         {
@@ -565,7 +552,6 @@ namespace Arc4u.UnitTest
             Assert.NotNull(container.Resolve<IGenerator>());
             Assert.NotNull(container.Resolve<IGenerator>("Gen1"));
         }
-
 
         [Fact]
         void TestDIRegisterInstancesOfT()
@@ -695,7 +681,7 @@ namespace Arc4u.UnitTest
             _id = Guid.NewGuid();
         }
 
-        private Guid _id;
+        private readonly Guid _id;
         public Guid Id => _id;
     }
 
@@ -708,10 +694,9 @@ namespace Arc4u.UnitTest
             _id = Guid.NewGuid();
         }
 
-        private Guid _id;
+        private readonly Guid _id;
         public Guid Id => _id;
     }
-
 
     [Export(typeof(IBool1)), Shared]
     [Export(typeof(IBool2))]
@@ -737,7 +722,7 @@ namespace Arc4u.UnitTest
             _id = Guid.NewGuid();
         }
 
-        private Guid _id;
+        private readonly Guid _id;
         public Guid Id => _id;
     }
 
@@ -749,7 +734,7 @@ namespace Arc4u.UnitTest
             _id = Guid.NewGuid();
         }
 
-        private Guid _id;
+        private readonly Guid _id;
         public Guid Id => _id;
     }
 
@@ -761,7 +746,7 @@ namespace Arc4u.UnitTest
             _id = Guid.NewGuid();
         }
 
-        private Guid _id;
+        private readonly Guid _id;
         public Guid Id => _id;
     }
 
@@ -773,7 +758,7 @@ namespace Arc4u.UnitTest
 
         }
 
-        private IGenerator _generator;
+        private readonly IGenerator _generator;
         public Second Second { get; set; }
     }
 

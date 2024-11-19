@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Arc4u.Diagnostics.Serilog.Sinks.Memory
+﻿namespace Arc4u.Diagnostics.Serilog.Sinks.Memory
 {
     public class MemoryLogStore : ILogStore
     {
@@ -19,7 +15,9 @@ namespace Arc4u.Diagnostics.Serilog.Sinks.Memory
             var searchText = hasCriteria ? criteria.ToLowerInvariant() : "";
 
             if (hasCriteria)
+            {
                 return _logMessages.Where(m => m.Message.Contains(searchText)).Skip(skip).Take(take).ToList();
+            }
 
             return _logMessages.Skip(skip).Take(take).ToList();
         }

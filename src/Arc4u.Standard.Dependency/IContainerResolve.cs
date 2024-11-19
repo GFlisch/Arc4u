@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 namespace Arc4u.Dependency
 {
     public interface IContainerResolve : IDisposable

@@ -1,5 +1,4 @@
 ﻿using Arc4u.Configuration;
-using System.Collections.Generic;
 using Xunit;
 
 namespace Arc4u.UnitTest.Core
@@ -30,7 +29,6 @@ namespace Arc4u.UnitTest.Core
             });
 
             Assert.Equal(settings1.GetHashCode(), settings2.GetHashCode());
-
 
             settings2 = new SimpleKeyValueSettings(new Dictionary<string, string> {
                 { "key1", "value1" },
@@ -66,7 +64,6 @@ namespace Arc4u.UnitTest.Core
 
             Assert.True(settings1.Equals(settings2));
 
-
             settings2 = new SimpleKeyValueSettings(new Dictionary<string, string> {
                 { "key1", "value1" },
                 { "key2", "value2" },
@@ -77,7 +74,6 @@ namespace Arc4u.UnitTest.Core
 
             Assert.False(settings1.Equals(settings2));
         }
-
 
     }
 }

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using Arc4u.Security.Principal;
+﻿using Arc4u.Security.Principal;
 using Microsoft.AspNetCore.Http;
 
 namespace Arc4u.OAuth2.Middleware
@@ -14,7 +12,9 @@ namespace Arc4u.OAuth2.Middleware
         public ValidateSwaggerRightMiddleware(RequestDelegate next, ValidateSwaggerRightMiddlewareOption option)
         {
             if (null == option)
+            {
                 throw new ArgumentNullException(nameof(option));
+            }
 
             _next = next ?? throw new ArgumentNullException(nameof(next));
 
@@ -38,10 +38,10 @@ namespace Arc4u.OAuth2.Middleware
                 }
             }
             else
+            {
                 await _next.Invoke(context);
-
+            }
         }
-
 
     }
 }

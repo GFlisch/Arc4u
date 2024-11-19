@@ -1,5 +1,4 @@
 ﻿using NServiceBus.Logging;
-using System;
 
 namespace Arc4u.NServiceBus.Diagnostics
 {

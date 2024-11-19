@@ -1,11 +1,9 @@
-using AutoFixture.AutoMoq;
-using AutoFixture;
-using Xunit;
-using Arc4u.Security.Principal;
-using System.Collections.Generic;
-using System.Linq;
 using Arc4u.Extensions;
+using Arc4u.Security.Principal;
+using AutoFixture;
+using AutoFixture.AutoMoq;
 using FluentAssertions;
+using Xunit;
 
 namespace Arc4u.UnitTest.Security;
 

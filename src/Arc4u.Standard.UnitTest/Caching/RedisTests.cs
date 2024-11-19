@@ -1,16 +1,15 @@
-using AutoFixture.AutoMoq;
-using AutoFixture;
 using Arc4u.Caching.Redis;
+using Arc4u.Configuration.Redis;
+using Arc4u.Dependency;
+using Arc4u.Serializer;
+using AutoFixture;
+using AutoFixture.AutoMoq;
+using FluentAssertions;
 using Microsoft.Extensions.Configuration;
-using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using FluentAssertions;
-using Xunit;
-using Arc4u.Serializer;
-using Arc4u.Dependency;
 using Moq;
-using Arc4u.Configuration.Redis;
+using Xunit;
 
 namespace Arc4u.UnitTest.Caching;
 

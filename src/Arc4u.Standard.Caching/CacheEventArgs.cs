@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Arc4u.Caching
+﻿namespace Arc4u.Caching
 {
     /// <summary>
     /// Event argument to inform an action on the cache.
@@ -13,13 +11,13 @@ namespace Arc4u.Caching
             _cacheAction = action;
         }
 
-        private String _key;
+        private readonly String _key;
         /// <summary>
         /// The <see cref="String"/> used to identify the object in the cache.
         /// </summary>
         public String Key { get { return _key; } }
 
-        private CacheAction _cacheAction;
+        private readonly CacheAction _cacheAction;
         /// <summary>
         /// Action performed on the object. Can be an update, an insert or a delete.
         /// </summary>

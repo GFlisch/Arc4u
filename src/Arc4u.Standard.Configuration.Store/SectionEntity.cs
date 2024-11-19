@@ -46,7 +46,6 @@ public sealed class SectionEntity
         Value = ValueHolder.Create(value).Serialize();
     }
 
-
     /// <summary>
     /// Internal method to set the value directoy using the internal <see cref="IValueHolder"/> interface
     /// </summary>

@@ -1,5 +1,3 @@
-using System;
-
 namespace Arc4u.Configuration;
 
 public class ConfigurationException : Exception

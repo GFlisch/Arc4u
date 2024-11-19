@@ -12,7 +12,7 @@ namespace Arc4u.Threading
             _neutral = new CultureInfo("en-GB");
         }
 
-        private static CultureInfo _neutral;
+        private static readonly CultureInfo _neutral;
 
         /// <summary>
         ///  Get the Arc4u neutral culture info!

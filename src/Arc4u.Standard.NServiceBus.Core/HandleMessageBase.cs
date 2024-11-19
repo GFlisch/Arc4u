@@ -2,9 +2,6 @@
 using Arc4u.Diagnostics;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Arc4u.NServiceBus
 {

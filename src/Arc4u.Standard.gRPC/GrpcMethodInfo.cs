@@ -1,7 +1,4 @@
 using Arc4u.Dependency.Attribute;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Arc4u.gRPC;
 
@@ -46,7 +43,9 @@ public class GrpcMethodInfo
 
         // should not be possible!
         if (null == methodInfo)
+        {
             return RegisterEmptyAspectForMethod(method);
+        }
 
         var serviceAspects = methodInfo.GetCustomAttributes(typeof(ServiceAspectAttribute), true).Cast<ServiceAspectAttribute>();
 

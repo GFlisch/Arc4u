@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Arc4u.Diagnostics
+﻿namespace Arc4u.Diagnostics
 {
     public class OpenTelemetrySettings
     {

@@ -1,7 +1,6 @@
 using Arc4u.Dependency.Attribute;
 using Blazored.LocalStorage;
 using Microsoft.JSInterop;
-using System.Threading.Tasks;
 
 namespace Arc4u.Blazor
 {
@@ -26,11 +25,14 @@ namespace Arc4u.Blazor
             // Virtual and non static for Mocking purpose.
 
             if (await localStorage.ContainKeyAsync("token"))
+            {
                 await localStorage.RemoveItemAsync("token");
+            }
 
             if (await localStorage.ContainKeyAsync("fetching"))
+            {
                 await localStorage.RemoveItemAsync("fetching");
-
+            }
 
             await jsRuntime.InvokeVoidAsync("Arc4u.CreatePopupWindow", url, feature);
 

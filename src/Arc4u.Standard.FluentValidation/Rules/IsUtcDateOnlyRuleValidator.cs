@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
 using FluentValidation.Resources;
 using FluentValidation.Validators;
-using System;
 
 namespace Arc4u.FluentValidation.Rules
 {
@@ -9,7 +8,7 @@ namespace Arc4u.FluentValidation.Rules
     internal class IsUtcDateOnlyRuleValidator<T, TProperty> : PropertyValidator<T, TProperty> where T : class where TProperty : struct
     {
 
-        static string ruleName = "IsUtcDateOnlyRuleValidator";
+        static readonly string ruleName = "IsUtcDateOnlyRuleValidator";
         static IsUtcDateOnlyRuleValidator()
         {
             var lgMgr = ValidatorOptions.Global.LanguageManager as LanguageManager;
@@ -23,7 +22,6 @@ namespace Arc4u.FluentValidation.Rules
             var dt = value as DateTime?;
 
             return dt.HasValue && dt.Value.TimeOfDay.Equals(TimeSpan.Zero);
-
 
         }
     }

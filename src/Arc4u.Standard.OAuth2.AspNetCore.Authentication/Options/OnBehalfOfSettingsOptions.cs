@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Arc4u.OAuth2.TokenProviders;
 
 namespace Arc4u.OAuth2.Options;

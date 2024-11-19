@@ -2,7 +2,6 @@
 using Realms;
 using Serilog.Configuration;
 using Serilog.Sinks.PeriodicBatching;
-using System;
 
 namespace Serilog
 {

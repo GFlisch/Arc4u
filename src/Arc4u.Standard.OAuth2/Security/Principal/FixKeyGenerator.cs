@@ -1,5 +1,5 @@
-﻿using Arc4u.Dependency.Attribute;
-using System.Security.Claims;
+﻿using System.Security.Claims;
+using Arc4u.Dependency.Attribute;
 
 namespace Arc4u.OAuth2.Security.Principal
 {

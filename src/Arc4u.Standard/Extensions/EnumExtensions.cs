@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 
 namespace Arc4u.Extensions
@@ -12,12 +9,18 @@ namespace Arc4u.Extensions
         {
             var type = value.GetType();
             TypeInfo ti = type.GetTypeInfo();
-            if (!ti.IsEnum) throw new ArgumentException(String.Format("Type '{0}' is not Enum", type));
+            if (!ti.IsEnum)
+            {
+                throw new ArgumentException(String.Format("Type '{0}' is not Enum", type));
+            }
 
             var member = type.GetRuntimeField(value.ToString());
 
             var attributes = member.GetCustomAttributes(typeof(DisplayAttribute), false);
-            if (attributes.Count() == 0) throw new ArgumentException(String.Format("'{0}.{1}' doesn't have DisplayAttribute", type.Name, value));
+            if (attributes.Count() == 0)
+            {
+                throw new ArgumentException(String.Format("'{0}.{1}' doesn't have DisplayAttribute", type.Name, value));
+            }
 
             var attribute = (DisplayAttribute)attributes.First();
             return attribute.GetName();
@@ -32,7 +35,11 @@ namespace Arc4u.Extensions
         {
             TypeInfo ti = enumType.GetTypeInfo();
 
-            if (!ti.IsEnum) throw new ArgumentException(String.Format("Type '{0}' is not Enum", enumType));
+            if (!ti.IsEnum)
+            {
+                throw new ArgumentException(String.Format("Type '{0}' is not Enum", enumType));
+            }
+
             var t = Enum.GetNames(enumType).Select(enumName => Enum.Parse(enumType, enumName) as Enum)
                 .Where(e => e != null).ToDictionary(e => e.ToString(), e => e.GetDisplayName());
 
@@ -43,7 +50,11 @@ namespace Arc4u.Extensions
         {
             TypeInfo ti = enumType.GetTypeInfo();
 
-            if (!ti.IsEnum) throw new ArgumentException(String.Format("Type '{0}' is not Enum", enumType));
+            if (!ti.IsEnum)
+            {
+                throw new ArgumentException(String.Format("Type '{0}' is not Enum", enumType));
+            }
+
             return Enum.GetNames(enumType).Select(enumName => Enum.Parse(enumType, enumName) as Enum)
                 .Where(e => e != null).ToDictionary(e => e, e => e.GetDisplayName());
         }

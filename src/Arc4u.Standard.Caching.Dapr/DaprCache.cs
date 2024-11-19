@@ -1,11 +1,10 @@
+using System.Globalization;
 using Arc4u.Configuration.Dapr;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Dapr.Client;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.Globalization;
-using System.Xml.Linq;
 
 namespace Arc4u.Caching.Dapr;
 
@@ -79,7 +78,7 @@ public sealed class DaprCache : ICache
 
                     throw;
                 }
-                
+
             }
         }
     }
@@ -118,7 +117,7 @@ public sealed class DaprCache : ICache
         {
             throw new NotSupportedException("Sliding is not supported in Dapr State.");
         }
-        
+
         await _daprClient!.SaveStateAsync(_storeName, key, value, metadata: new Dictionary<string, string> { { "ttlInSeconds", timeout.TotalSeconds.ToString(CultureInfo.InvariantCulture) } }, cancellationToken: cancellation).ConfigureAwait(false);
     }
 

@@ -1,5 +1,3 @@
-using System;
-using System.Threading;
 using Arc4u.Dependency.Attribute;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;

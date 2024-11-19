@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 
 namespace Arc4u.OAuth2.Middleware
 {
@@ -8,7 +7,9 @@ namespace Arc4u.OAuth2.Middleware
         public static IApplicationBuilder AddValidateSwaggerRightFor(this IApplicationBuilder app, ValidateSwaggerRightMiddlewareOption option)
         {
             if (null == app)
+            {
                 throw new ArgumentNullException(nameof(app));
+            }
 
             return app.UseMiddleware<ValidateSwaggerRightMiddleware>(option);
         }

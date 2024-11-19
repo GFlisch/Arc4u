@@ -1,4 +1,3 @@
-using System;
 using System.Security.Claims;
 using Arc4u.Dependency.Attribute;
 

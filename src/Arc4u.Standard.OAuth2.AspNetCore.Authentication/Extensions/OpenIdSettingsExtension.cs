@@ -62,7 +62,7 @@ public static class OpenIdSettingsExtension
             {
                 keyOptions.Add(TokenKeys.Audiences, string.Join(' ', validate.Audiences));
             }
-            keyOptions.Add(TokenKeys.Scope, string.Join(' ',validate.Scopes));
+            keyOptions.Add(TokenKeys.Scope, string.Join(' ', validate.Scopes));
         }
 
         services.Configure<SimpleKeyValueSettings>(sectionKey, SettingsFiller);

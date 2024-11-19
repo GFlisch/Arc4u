@@ -1,8 +1,4 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace Arc4u.Threading
+﻿namespace Arc4u.Threading
 {
     public class AsyncLock
     {
@@ -34,7 +30,9 @@ namespace Arc4u.Threading
             public void Dispose()
             {
                 if (m_toRelease != null)
+                {
                     m_toRelease.m_semaphore.Release();
+                }
             }
         }
 

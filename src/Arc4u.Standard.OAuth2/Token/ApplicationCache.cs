@@ -4,8 +4,6 @@ using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Options;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
 
 namespace Arc4u.OAuth2.Token
 {
@@ -59,7 +57,9 @@ namespace Arc4u.OAuth2.Token
             var data = _cache.Get<T>(GetKey(id));
 
             if (null == data)
+            {
                 _logger.Technical().From<ApplicationCache>().System($"The data in cache is null for user: {id}.").Log();
+            }
 
             return data;
         }
@@ -75,7 +75,6 @@ namespace Arc4u.OAuth2.Token
         {
             return (id + "_TokenCache").ToLowerInvariant();
         }
-
 
     }
 }

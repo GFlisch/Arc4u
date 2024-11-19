@@ -1,5 +1,4 @@
-﻿using System;
-using System.Transactions;
+﻿using System.Transactions;
 
 namespace Arc4u.Transaction
 {
@@ -26,7 +25,6 @@ namespace Arc4u.Transaction
         {
             transactionScope?.Complete();
         }
-
 
         public void Dispose()
         {

@@ -2,8 +2,6 @@
 using Microsoft.AspNetCore.OData.Formatter;
 using Microsoft.AspNetCore.OData.Formatter.Serialization;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Linq;
 
 namespace Arc4u.OData
 {
@@ -35,10 +33,12 @@ namespace Arc4u.OData
         public static IServiceCollection AddODataSerializerBaseAddress(this IServiceCollection configureServices, Uri odataBaseAddress)
         {
             if (odataBaseAddress != null)
+            {
                 configureServices.AddSingleton((Func<IServiceProvider, IODataSerializerProvider>)(rootContainer => new ODataSerializerProvider(rootContainer, odataBaseAddress)));
+            }
+
             return configureServices;
         }
-
 
         /// <summary>
         /// Make sure OData's metadata URI's ("@odata.context") point to the endpoint used by external consumers (as understood by YARP).
@@ -62,9 +62,14 @@ namespace Arc4u.OData
             if (odataBaseAddress != null)
             {
                 foreach (var outputFormatter in options.OutputFormatters.OfType<ODataOutputFormatter>())
+                {
                     outputFormatter.BaseAddressFactory = request => odataBaseAddress;
+                }
+
                 foreach (var inputFormatter in options.InputFormatters.OfType<ODataInputFormatter>())
+                {
                     inputFormatter.BaseAddressFactory = request => odataBaseAddress;
+                }
             }
             return options;
         }

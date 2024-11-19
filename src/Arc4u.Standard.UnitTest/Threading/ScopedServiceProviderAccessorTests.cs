@@ -1,14 +1,11 @@
-using AutoFixture.AutoMoq;
-using AutoFixture;
-using Xunit;
-using Microsoft.Extensions.DependencyInjection;
 using Arc4u.OAuth2.AspNetCore;
-using Microsoft.AspNetCore.Http;
-using Moq;
+using AutoFixture;
+using AutoFixture.AutoMoq;
 using FluentAssertions;
-using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+using Moq;
+using Xunit;
 
 namespace Arc4u.UnitTest.Threading;
 
@@ -34,7 +31,7 @@ public class ScopedServiceProviderAccessorTests
 
         exception.Should().BeOfType<NullReferenceException>();
     }
-        
+
     [Fact]
     public void Scoped_Service_Accessor_When_HttpContextAccessor_Exists_Should()
     {
@@ -114,7 +111,6 @@ public class ScopedServiceProviderAccessorTests
 
         var sut = new ScopedServiceProviderAccessor(mockHttpContextAccessor.Object);
 
-
         sut.ServiceProvider.Should().NotBeNull();
         sut.ServiceProvider.Should().BeSameAs(serviceScopedProvider1);
 
@@ -133,7 +129,7 @@ public class ScopedServiceProviderAccessorTests
 
         sut.ServiceProvider.Should().NotBeNull();
         sut.ServiceProvider.Should().BeSameAs(serviceScopedProvider1);
-        
+
     }
 
     [Fact]
@@ -175,7 +171,7 @@ public class ScopedServiceProviderAccessorTests
         IServiceCollection services = new ServiceCollection();
 
         var serviceProvider = services.BuildServiceProvider();
-       
+
         var mockHttpContext = _fixture.Freeze<Mock<HttpContext>>();
         mockHttpContext.SetupGet<IServiceProvider>(g => g.RequestServices).Returns(() => null);
 

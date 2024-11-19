@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.IO.Compression;
+﻿using System.IO.Compression;
 using System.Text.Json;
 
 namespace Arc4u.Serializer
@@ -24,7 +23,6 @@ namespace Arc4u.Serializer
             : base(options)
         {
         }
-
 
         /// <summary>
         /// Construct an instance with a serialization context.

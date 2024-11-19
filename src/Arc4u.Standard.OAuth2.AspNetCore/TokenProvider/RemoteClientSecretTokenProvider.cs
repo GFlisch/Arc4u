@@ -1,6 +1,3 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Arc4u.Configuration;
 using Arc4u.Dependency.Attribute;
 using Arc4u.OAuth2.Token;

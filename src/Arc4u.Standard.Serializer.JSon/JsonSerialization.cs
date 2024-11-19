@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text.Json;
 
 namespace Arc4u.Serializer
@@ -28,7 +27,6 @@ namespace Arc4u.Serializer
             _options = options;
         }
 
-
         /// <summary>
         /// Construct an instance with a serialization context.
         /// This is used for source generation, implemented in .NET 6 or later (https://learn.microsoft.com/en-us/dotnet/standard/serialization/system-text-json/source-generation?pivots=dotnet-6-0)
@@ -39,15 +37,18 @@ namespace Arc4u.Serializer
             _context = context;
         }
 
-
         public byte[] Serialize<T>(T value)
         {
             Activity.Current?.SetTag("SerializerType", "Json");
 
             if (_context != null)
+            {
                 return JsonSerializer.SerializeToUtf8Bytes(value, typeof(T), _context);
+            }
             else
+            {
                 return JsonSerializer.SerializeToUtf8Bytes(value, _options);
+            }
         }
 
         public T Deserialize<T>(byte[] data)
@@ -55,20 +56,27 @@ namespace Arc4u.Serializer
             Activity.Current?.SetTag("SerializerType", "Json");
 
             if (_context != null)
+            {
                 return (T)JsonSerializer.Deserialize(data, typeof(T), _context);
+            }
             else
+            {
                 return JsonSerializer.Deserialize<T>(data, _options);
+            }
         }
-
 
         public object Deserialize(byte[] data, Type objectType)
         {
             Activity.Current?.SetTag("SerializerType", "Json");
 
             if (_context != null)
+            {
                 return JsonSerializer.Deserialize(data, objectType, _context);
+            }
             else
+            {
                 return JsonSerializer.Deserialize(data, objectType, _options);
+            }
         }
     }
 }

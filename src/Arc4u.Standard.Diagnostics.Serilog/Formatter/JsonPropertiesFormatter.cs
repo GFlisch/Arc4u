@@ -1,8 +1,5 @@
 ﻿using Serilog.Events;
 using Serilog.Formatting.Json;
-using System;
-using System.Collections.Generic;
-using System.IO;
 
 namespace Arc4u.Diagnostics.Formatter
 {

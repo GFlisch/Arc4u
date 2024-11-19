@@ -32,7 +32,7 @@ public class CacheContext : ICacheContext
     private readonly IContainerResolve _dependency;
     private readonly ILogger<CacheContext> _logger;
 
-//    public CachingPrincipal Principal { get; set; }
+    //    public CachingPrincipal Principal { get; set; }
 
     /// <summary>
     /// Initialise the cache following the caching config section.

@@ -1,5 +1,4 @@
 ﻿using NServiceBus;
-using System.Threading.Tasks;
 
 namespace Arc4u.NServiceBus
 {

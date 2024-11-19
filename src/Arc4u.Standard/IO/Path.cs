@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-
-namespace Arc4u.IO
+﻿namespace Arc4u.IO
 {
     /// <summary>
     /// The class help you to retrieve and construct a relative path.
@@ -34,7 +31,10 @@ namespace Arc4u.IO
 
             var result = rootUri.MakeRelativeUri(fullUri).ToString().Replace('/', '\\');
 
-            if (result.Equals(fullFileName)) throw new InvalidOperationException($"Impossible to find a match between {root} and {fullFileName}.");
+            if (result.Equals(fullFileName))
+            {
+                throw new InvalidOperationException($"Impossible to find a match between {root} and {fullFileName}.");
+            }
 
             return result;
         }

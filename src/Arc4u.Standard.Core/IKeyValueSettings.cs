@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Arc4u
+﻿namespace Arc4u
 {
     /// <summary>
     /// Define the informations we need to retrive a token for an account and the service uri for calling backend service.

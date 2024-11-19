@@ -1,5 +1,3 @@
-using System.Threading;
-using System.Threading.Tasks;
 using Arc4u.Diagnostics;
 using Arc4u.Security.Principal;
 using Microsoft.AspNetCore.Mvc.Controllers;

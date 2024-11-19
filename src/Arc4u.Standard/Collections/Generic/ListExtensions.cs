@@ -13,9 +13,14 @@
         public static List<T> Substract<T>(this List<T> col, Predicate<T> match)
         {
             if (col == null)
+            {
                 throw new ArgumentNullException("col");
+            }
+
             if (match == null)
+            {
                 throw new ArgumentNullException("match");
+            }
 
             var result = new List<T>();
             int index = 0;
@@ -56,9 +61,14 @@
         public static List<T> SubstractFirst<T>(this List<T> col, Predicate<T> match)
         {
             if (col == null)
+            {
                 throw new ArgumentNullException("col");
+            }
+
             if (match == null)
+            {
                 throw new ArgumentNullException("match");
+            }
 
             var result = new List<T>();
             int index = 0;
@@ -101,9 +111,14 @@
         public static T SubstractFirstOne<T>(this List<T> col, Predicate<T> match)
         {
             if (col == null)
+            {
                 throw new ArgumentNullException("col");
+            }
+
             if (match == null)
+            {
                 throw new ArgumentNullException("match");
+            }
 
             var result = default(T);
             var index = -1;
@@ -119,7 +134,9 @@
             }
 
             if (index >= 0)
+            {
                 col.RemoveAt(index);
+            }
 
             return result;
         }

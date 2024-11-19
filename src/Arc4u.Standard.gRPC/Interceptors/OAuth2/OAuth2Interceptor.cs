@@ -1,5 +1,3 @@
-using System;
-using System.Linq;
 using System.Security.Claims;
 using Arc4u.Dependency;
 using Arc4u.Diagnostics;
@@ -50,7 +48,6 @@ public class OAuth2Interceptor : Interceptor
     private readonly IContainerResolve? _containerResolve = null;
 
     private IContainerResolve? GetResolver() => _containerResolve ?? _serviceProviderAccessor?.ServiceProvider?.GetService<IContainerResolve>();
-
 
     public override AsyncUnaryCall<TResponse> AsyncUnaryCall<TRequest, TResponse>(TRequest request, ClientInterceptorContext<TRequest, TResponse> context, AsyncUnaryCallContinuation<TRequest, TResponse> continuation)
     {
@@ -169,7 +166,6 @@ public class OAuth2Interceptor : Interceptor
         {
             _logger.Technical().Exception(ex).Log();
         }
-
 
         // Add culture and activityID if exists!
         if (null != applicationContext?.Principal)

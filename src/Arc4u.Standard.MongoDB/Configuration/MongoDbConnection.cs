@@ -3,7 +3,6 @@ using Arc4u.MongoDB.Configuration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using MongoDB.Driver;
-using System;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -65,7 +64,6 @@ public static class MongoDbConnection
 
         dbContext.Configure(contextBuilder);
     }
-
 
     public static void AddMongoDatabase<TContext>(this IServiceCollection services, string databaseName, Action<MongoClientSettings> options) where TContext : DbContext, new()
     {

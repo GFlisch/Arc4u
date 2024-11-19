@@ -46,12 +46,16 @@ namespace Arc4u.Data
         protected virtual void RaisePropertyChanged(PropertyChangedEventArgs e)
         {
             if (IgnoreOnPropertyChanged)
+            {
                 return;
+            }
 
             // keep handler to avoid race condition
             var handler = PropertyChanged;
             if (handler != null)
+            {
                 handler(this, e);
+            }
         }
 
         /// <summary>

@@ -1,8 +1,5 @@
-using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
 using Arc4u.Blazor;
 using Arc4u.Dependency.Attribute;
 using Arc4u.OAuth2.Token;
@@ -47,20 +44,32 @@ namespace Arc4u.OAuth2.TokenProvider
         /// <exception cref="Exception">Thrown when no token is found after the window operation.</exception>
         public async Task<TokenInfo> GetTokenAsync(IKeyValueSettings settings, object platformParameters)
         {
-            if (null == settings) throw new ArgumentNullException(nameof(settings));
+            if (null == settings)
+            {
+                throw new ArgumentNullException(nameof(settings));
+            }
 
-            if (null == settings.Values) throw new ArgumentNullException(nameof(settings.Values));
+            if (null == settings.Values)
+            {
+                throw new ArgumentNullException(nameof(settings.Values));
+            }
 
             var token = await GetToken();
 
-            if (null != token) return token;
+            if (null != token)
+            {
+                return token;
+            }
 
             var authority = settings.Values.ContainsKey(TokenKeys.AuthorityKey) ? settings.Values[TokenKeys.AuthorityKey] : throw new ArgumentNullException(TokenKeys.AuthorityKey);
             var redirectUrl = settings.Values.ContainsKey(TokenKeys.RedirectUrl) ? settings.Values[TokenKeys.RedirectUrl] : throw new ArgumentNullException(TokenKeys.RedirectUrl);
 
             var result = Uri.TryCreate(redirectUrl, UriKind.Absolute, out Uri redirectUri);
 
-            if (!result) throw new UriFormatException($"RedirectUrl {redirectUrl} is not a valid url.");
+            if (!result)
+            {
+                throw new UriFormatException($"RedirectUrl {redirectUrl} is not a valid url.");
+            }
 
             var redirectTo = WebUtility.UrlEncode(redirectUri.Authority + redirectUri.LocalPath.TrimEnd(new[] { '/' }));
 

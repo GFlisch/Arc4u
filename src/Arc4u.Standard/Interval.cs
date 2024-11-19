@@ -310,7 +310,7 @@ public static class Interval
         return new IntervalCollection<T>(result.Distinct().ToList());
     }
 
-#endregion
+    #endregion
 
     #region Difference
 
@@ -578,7 +578,7 @@ public static class Interval
         return a;
     }
 
-#endregion
+    #endregion
 
     #region Union
 

@@ -1,6 +1,4 @@
-using System;
 using System.Diagnostics;
-using System.Threading.Tasks;
 using Arc4u.Dependency;
 using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Token;
@@ -25,13 +23,14 @@ namespace Arc4u.OAuth2.Middleware
             _options = options ?? throw new ArgumentNullException(nameof(options));
 
             if (null == options.CookieManager)
+            {
                 throw new ArgumentNullException("CookieManager is not set.");
+            }
         }
 
         private readonly OpenIdCookieValidityCheckOptions _options;
         private ActivitySource _activitySource;
         private bool hasAlreadyTriedToResolve = false;
-
 
         public async Task Invoke(HttpContext context)
         {
@@ -70,7 +69,9 @@ namespace Arc4u.OAuth2.Middleware
                     }
 
                     if (null == tokenInfo)
+                    {
                         throw new ApplicationException("Refresh Token is expired or invalid");
+                    }
 
                     await _next.Invoke(context);
                 }
@@ -90,7 +91,9 @@ namespace Arc4u.OAuth2.Middleware
                 }
             }
             else
+            {
                 await _next.Invoke(context);
+            }
         }
     }
 

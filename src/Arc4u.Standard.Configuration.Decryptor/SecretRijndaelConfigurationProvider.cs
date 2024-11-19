@@ -28,7 +28,6 @@ public class SecretRijndaelConfigurationProvider : ConfigurationProvider
     private readonly IList<IConfigurationSource> _sources;
     private readonly SecretRijndaelOptions _rijndaelOptions;
 
-
     /// <summary>
     /// The Load method does the different steps.
     /// - Check if a configuration section exists defining the key/iv to use.

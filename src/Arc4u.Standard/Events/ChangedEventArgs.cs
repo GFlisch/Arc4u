@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Arc4u.Events
+﻿namespace Arc4u.Events
 {
     public class ChangedEventArgs<TValue> : EventArgs
     {

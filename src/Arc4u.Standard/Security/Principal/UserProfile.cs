@@ -1,9 +1,8 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Runtime.Serialization;
 using System.Xml;
 using System.Xml.Serialization;
+using Newtonsoft.Json;
 
 namespace Arc4u.Security.Principal
 {
@@ -84,10 +83,14 @@ namespace Arc4u.Security.Principal
         {
 
             if (null == sid)
+            {
                 throw new ArgumentNullException("sid");
+            }
 
             if (null == culture)
+            {
                 throw new ArgumentNullException("culture");
+            }
 
             DisplayName = displayName;
             Email = email;
@@ -386,7 +389,10 @@ namespace Arc4u.Security.Principal
         {
             writer.WriteStartElement(elementName);
             if (!String.IsNullOrWhiteSpace(value))
+            {
                 writer.WriteString(value);
+            }
+
             writer.WriteEndElement();
         }
 

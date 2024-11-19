@@ -1,4 +1,3 @@
-using System;
 using System.Security.Cryptography.X509Certificates;
 using Arc4u.OAuth2.Configuration;
 using Arc4u.OAuth2.DataProtection;

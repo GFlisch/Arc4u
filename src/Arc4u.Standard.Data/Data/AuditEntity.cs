@@ -1,5 +1,4 @@
-﻿using System;
-using System.Runtime.Serialization;
+﻿using System.Runtime.Serialization;
 
 namespace Arc4u.Data
 {
@@ -31,7 +30,6 @@ namespace Arc4u.Data
         {
             Id = Guid.NewGuid();
         }
-
 
         #endregion
     }

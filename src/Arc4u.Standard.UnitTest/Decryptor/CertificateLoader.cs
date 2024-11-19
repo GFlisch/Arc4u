@@ -1,9 +1,9 @@
-using AutoFixture.AutoMoq;
-using AutoFixture;
-using Xunit;
-using Microsoft.Extensions.Configuration;
 using Arc4u.Security.Cryptography;
+using AutoFixture;
+using AutoFixture.AutoMoq;
 using FluentAssertions;
+using Microsoft.Extensions.Configuration;
+using Xunit;
 using X509CertificateLoader = Arc4u.Security.Cryptography.X509CertificateLoader;
 
 namespace Arc4u.UnitTest.Decryptor;
@@ -55,7 +55,6 @@ public class CertificateLoader
                     ["EncryptionCertificate:File:Cert"] = @".\cert.pem",
                     ["EncryptionCertificate:File:Key"] = @".\key.pem",
                 }).Build();
-
 
         var sut = _fixture.Create<X509CertificateLoader>();
 

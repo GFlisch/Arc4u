@@ -1,13 +1,9 @@
-using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Text.Json;
 using System.Xml.Linq;
 using Arc4u.Caching;
 using Arc4u.Diagnostics;
 using Microsoft.AspNetCore.DataProtection.Repositories;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Arc4u.OAuth2.DataProtection;

@@ -2,7 +2,6 @@ using Arc4u.Diagnostics;
 using Arc4u.Diagnostics.Serilog;
 using Microsoft.Extensions.Logging;
 using Serilog;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace Arc4u.UnitTest.Logging
@@ -17,50 +16,46 @@ namespace Arc4u.UnitTest.Logging
         [Fact]
         public void LoggerTechnicalTest()
         {
-            using (var container = Fixture.CreateScope())
-            {
-                var logger = container.Resolve<ILogger<CategorySerilogTesters>>();
+            using var container = Fixture.CreateScope();
+            var logger = container.Resolve<ILogger<CategorySerilogTesters>>();
 
-                ((SinkTest)Fixture.Sink).Emited = false;
-                logger.Technical().Debug("Technical").Add("Code", "100").Log();
-                Assert.False(((SinkTest)Fixture.Sink).Emited);
+            ((SinkTest)Fixture.Sink).Emited = false;
+            logger.Technical().Debug("Technical").Add("Code", "100").Log();
+            Assert.False(((SinkTest)Fixture.Sink).Emited);
 
-                Logger.Business().Debug("Business").Add("Code", "100").Log();
-                Assert.True(((SinkTest)Fixture.Sink).Emited);
-                ((SinkTest)Fixture.Sink).Emited = false;
+            Logger.Business().Debug("Business").Add("Code", "100").Log();
+            Assert.True(((SinkTest)Fixture.Sink).Emited);
+            ((SinkTest)Fixture.Sink).Emited = false;
 
-                Logger.Monitoring().Debug("Monitoring").AddMemoryUsage().Log();
-                Assert.True(((SinkTest)Fixture.Sink).Emited);
-            }
+            Logger.Monitoring().Debug("Monitoring").AddMemoryUsage().Log();
+            Assert.True(((SinkTest)Fixture.Sink).Emited);
         }
 
         [Fact]
         public async Task LoggerSystemResourcesTest()
         {
-            using (var container = Fixture.CreateScope())
+            using var container = Fixture.CreateScope();
+            var logger = container.Resolve<ILogger<CategorySerilogTesters>>();
+
+            var sink = (SinkTest)Fixture.Sink;
+
+            logger.Monitoring().Information("Message monitoring").Add("Code", 100).Log();
+
+            Assert.True(sink.Emited);
+            sink.Emited = false;
+
+            using var monitoring = new Diagnostics.Monitoring.SystemResources(logger, 1)
             {
-                var logger = container.Resolve<ILogger<CategorySerilogTesters>>();
+                StartMonitoringDelayInSeconds = 1
+            };
 
-                var sink = (SinkTest)Fixture.Sink;
+            await monitoring.StartAsync(new System.Threading.CancellationToken());
 
-                logger.Monitoring().Information("Message monitoring").Add("Code", 100).Log();
+            await Task.Delay(1500);
 
-                Assert.True(sink.Emited);
-                sink.Emited = false;
+            await monitoring.StopAsync(new System.Threading.CancellationToken());
 
-                using var monitoring = new Diagnostics.Monitoring.SystemResources(logger, 1)
-                {
-                    StartMonitoringDelayInSeconds = 1
-                };
-
-                await monitoring.StartAsync(new System.Threading.CancellationToken());
-
-                await Task.Delay(1500);
-
-                await monitoring.StopAsync(new System.Threading.CancellationToken());
-
-                Assert.True(sink.Emited);
-            }
+            Assert.True(sink.Emited);
         }
     }
 

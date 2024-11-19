@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 
@@ -15,7 +14,7 @@ namespace Arc4u.Diagnostics
             _activitySources = new ConcurrentDictionary<string, ActivitySource>();
         }
 
-        private ConcurrentDictionary<string, ActivitySource> _activitySources;
+        private readonly ConcurrentDictionary<string, ActivitySource> _activitySources;
 
         /// <summary>
         /// Get and Create an <see cref="ActivitySource"/> based on the name and version.
@@ -43,5 +42,5 @@ namespace Arc4u.Diagnostics
             return activitySourceFactory.Get("Arc4u");
         }
     }
-        
+
 }

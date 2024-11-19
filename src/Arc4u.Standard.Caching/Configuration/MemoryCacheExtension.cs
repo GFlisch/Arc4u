@@ -1,6 +1,5 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System;
 
 #if NET8_0_OR_GREATER
 using System.Diagnostics.CodeAnalysis;
