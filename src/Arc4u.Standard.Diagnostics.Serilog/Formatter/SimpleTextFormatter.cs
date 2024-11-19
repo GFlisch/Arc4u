@@ -77,7 +77,7 @@ internal static class DumpException
     {
         var messages = exception
             .GetAllExceptions()
-            .Where(e => !String.IsNullOrWhiteSpace(e.Message))
+            .Where(e => !string.IsNullOrWhiteSpace(e.Message))
             .Select(e => e.GetType().FullName + " : " + e.Message.Trim());
         var sb = new StringBuilder();
         var i = 0;
