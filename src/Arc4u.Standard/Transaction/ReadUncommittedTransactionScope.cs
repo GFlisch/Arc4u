@@ -1,15 +1,14 @@
-﻿using System.Transactions;
+using System.Transactions;
 
-namespace Arc4u.Transaction
+namespace Arc4u.Transaction;
+
+public class ReadUncommittedTransactionScope : BaseTransactionScope
 {
-    public class ReadUncommittedTransactionScope : BaseTransactionScope
+    public ReadUncommittedTransactionScope() : base(IsolationLevel.ReadUncommitted)
     {
-        public ReadUncommittedTransactionScope() : base(IsolationLevel.ReadUncommitted)
-        {
-        }
+    }
 
-        public ReadUncommittedTransactionScope(TransactionScopeOption transactionScopeOption) : base(transactionScopeOption, IsolationLevel.ReadUncommitted)
-        {
-        }
+    public ReadUncommittedTransactionScope(TransactionScopeOption transactionScopeOption) : base(transactionScopeOption, IsolationLevel.ReadUncommitted)
+    {
     }
 }
