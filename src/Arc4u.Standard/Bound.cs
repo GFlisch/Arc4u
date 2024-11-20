@@ -14,16 +14,19 @@ internal static class Bound
 
     #region Methods
 
-    internal static bool TryParse<T>(BoundType type
-        , BoundDirection direction
-        , T value
-        , out Bound<T> result)
+    internal static bool TryParse<T>(BoundType type,
+                                     BoundDirection direction,
+                                     T value,
+                                     out Bound<T> result)
     {
-        result = (Bound.IsInfinity(value) && direction == BoundDirection.Closed)
-            ? default(Bound<T>)
-            : new Bound<T>(type, direction, value);
+        if (Bound.IsInfinity(value) && direction == BoundDirection.Closed)
+        {
+            result = default!;
+            return false;
+        }
 
-        return result != default(Bound<T>);
+        result = new Bound<T>(type, direction, value);
+        return true;
     }
 
     internal static bool IsInfinity<T>(T value)

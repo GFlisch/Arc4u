@@ -42,31 +42,31 @@ namespace Arc4u
 
         private void IntializeFromConfig(ApplicationConfig config, ILogger logger)
         {
+#if NET8_0_OR_GREATER
+            ArgumentNullException.ThrowIfNull(config);
+            ArgumentNullException.ThrowIfNull(logger);
+#else
+            if (null == config)
+            {
+                throw new ArgumentNullException(nameof(config));
+            }
+            if (null == logger)
+            {
+                throw new ArgumentNullException(nameof(logger));
+            }
+#endif
             try
             {
-                if (null == config)
-                {
-                    throw new ArgumentNullException(nameof(config));
-                }
+                logger.Technical().From<TimeZoneContext>().System(config.Environment.TimeZone).Log();
 
-                try
+                if (!string.IsNullOrWhiteSpace(config.Environment.TimeZone))
                 {
-                    logger.Technical().From<TimeZoneContext>().System(config.Environment.TimeZone).Log();
-
-                    if (!string.IsNullOrWhiteSpace(config.Environment.TimeZone))
-                    {
-                        _timeZone = TimeZoneInfo.FindSystemTimeZoneById(config.Environment.TimeZone);
-                    }
+                    _timeZone = TimeZoneInfo.FindSystemTimeZoneById(config.Environment.TimeZone);
                 }
-                catch (Exception ex)
-                {
-                    logger.Technical().From<TimeZoneContext>().Warning("Zone not found!").Log();
-                    logger.Technical().From<TimeZoneContext>().Exception(ex).Log();
-                }
-
             }
             catch (Exception ex)
             {
+                logger.Technical().From<TimeZoneContext>().Warning("Zone not found!").Log();
                 logger.Technical().From<TimeZoneContext>().Exception(ex).Log();
             }
         }
@@ -80,7 +80,7 @@ namespace Arc4u
         }
 
 #if !WINDOWS_UAP
-        public DaylightTime GetDaylightChanges(int inYear)
+        public DaylightTime? GetDaylightChanges(int inYear)
         {
             TimeZoneInfo.AdjustmentRule ruleFound = null;
 
@@ -97,10 +97,9 @@ namespace Arc4u
                 return null;
             }
 
-            DaylightTime outDaylightTime = new DaylightTime(
-                                                      GetDateTime(inYear, ruleFound.DaylightTransitionStart)
-                                                    , GetDateTime(inYear, ruleFound.DaylightTransitionEnd)
-                                                    , ruleFound.DaylightDelta);
+            DaylightTime outDaylightTime = new DaylightTime(GetDateTime(inYear, ruleFound.DaylightTransitionStart),
+                                                            GetDateTime(inYear, ruleFound.DaylightTransitionEnd),
+                                                            ruleFound.DaylightDelta);
 
             return outDaylightTime;
         }

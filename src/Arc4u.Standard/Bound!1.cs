@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Reflection;
 using System.Runtime.Serialization;
 
@@ -8,35 +9,30 @@ namespace Arc4u;
 /// </summary>
 /// <typeparam name="T">The <see cref="Value"/> type of the bound.</typeparam>
 [DataContract(Name = "BoundOf{0}")]
-public sealed class Bound<T>
-    : IEquatable<Bound<T>>
-    , IComparable<Bound<T>>
+public sealed class Bound<T> : IEquatable<Bound<T>>, IComparable<Bound<T>>
 {
     #region Properties
 
     /// <summary>
     /// Gets the bound type.
     /// </summary>        
-    /// <remarks>The set operation is not private to let the Silverlight runtime 
     /// accessing the property during serializing/deserializing operations.</remarks>
     [DataMember(EmitDefaultValue = false)]
-    public BoundType Type { get; internal set; }
+    public BoundType Type { get; private set; }
 
     /// <summary>
     /// Gets the bound direction.
     /// </summary>
-    /// <remarks>The set operation is not private to let the Silverlight runtime 
     /// accessing the property during serializing/deserializing operations.</remarks>
     [DataMember(EmitDefaultValue = false)]
-    public BoundDirection Direction { get; internal set; }
+    public BoundDirection Direction { get; private set; }
 
     /// <summary>
     /// Gets the bound value.
     /// </summary>        
-    /// <remarks>The set operation is not private to let the Silverlight runtime 
     /// accessing the property during serializing/deserializing operations.</remarks>
     [DataMember(EmitDefaultValue = false)]
-    public T Value { get; internal set; }
+    public T Value { get; private set; }
 
     private static T _lowestValue;
 
@@ -69,10 +65,10 @@ public sealed class Bound<T>
         get
         {
             return new Bound<T>(BoundType.Lower
-                , object.Equals(default(T), default(object))
-                    ? BoundDirection.Opened
-                    : BoundDirection.Closed
-                , Bound<T>.LowestValue);
+                                , object.Equals(default(T), null)
+                                    ? BoundDirection.Opened
+                                    : BoundDirection.Closed
+                                , Bound<T>.LowestValue);
         }
     }
 
@@ -85,10 +81,10 @@ public sealed class Bound<T>
         get
         {
             return new Bound<T>(BoundType.Upper
-                , object.Equals(default(T), default(object))
-                    ? BoundDirection.Opened
-                    : BoundDirection.Closed
-                , Bound<T>.UpmostValue);
+                                , object.Equals(default(T), default(object))
+                                    ? BoundDirection.Opened
+                                    : BoundDirection.Closed
+                                , Bound<T>.UpmostValue);
         }
     }
 
@@ -96,16 +92,28 @@ public sealed class Bound<T>
 
     #region Constructors
 
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
     static Bound()
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
     {
         InitializeBounds();
     }
 
     private Bound()
-    { }
+    {
+        Value = default(T)!;
+    }
 
     internal Bound(BoundType type, BoundDirection direction, T value, bool checkArguments)
     {
+#if NET8_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(value);
+#else
+        if (value is null)
+        {
+            throw new ArgumentNullException(nameof(value));
+        }
+#endif
         if (checkArguments && Bound.IsInfinity(value) && direction == BoundDirection.Closed)
         {
             throw new ArgumentException("An infinity bound must define an opened direction.");
@@ -128,7 +136,7 @@ public sealed class Bound<T>
     {
     }
 
-    #endregion
+#endregion
 
     #region Overriden Members
 
@@ -154,13 +162,13 @@ public sealed class Bound<T>
 
         var value = (Type == BoundType.Lower)
             ? object.Equals(Value, LowestValue)
-                ? Bound.Infinity
-                : Value.ToString()
+                        ? Bound.Infinity
+                        : Value?.ToString() ?? Bound.EmptySet
             : object.Equals(Value, UpmostValue)
-                ? Bound.Infinity
-                : Value.ToString();
+                        ? Bound.Infinity
+                        : Value?.ToString() ?? Bound.EmptySet;
 
-        return string.Format(format, value);
+        return string.Format(CultureInfo.InvariantCulture, format, value);
     }
 
     /// <summary>
@@ -175,7 +183,7 @@ public sealed class Bound<T>
         int hash = 0x4043ed47;
         hash = (hash * -1521134295) + Type.GetHashCode();
         hash = (hash * -1521134295) + Direction.GetHashCode();
-        hash = (hash * -1521134295) + (object.Equals(Value, default(T)) ? 0 : Value.GetHashCode());
+        hash = (hash * -1521134295) + (object.Equals(Value, default(T)) ? 0 : Value!.GetHashCode());
         return hash;
 #endif
     }
@@ -187,7 +195,7 @@ public sealed class Bound<T>
     /// <returns>        
     ///     <b>true</b> if this instance equals the <paramref name="obj"/>; otherwise, <b>false</b>.
     /// </returns>
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         return (obj is Bound<T> bound)
             ? Equals(bound)
@@ -205,13 +213,13 @@ public sealed class Bound<T>
     /// <returns>
     ///     <b>true</b> if this instance equals the <paramref name="other"/>; otherwise, <b>false</b>.
     /// </returns>
-    public bool Equals(Bound<T> other)
+    public bool Equals(Bound<T>? other)
     {
         return object.ReferenceEquals(this, other) ||
-            (other != null
-            && object.Equals(Type, other.Type)
-            && object.Equals(Direction, other.Direction)
-            && object.Equals(Value, other.Value));
+                                                         (other is not null
+                                                         && object.Equals(Type, other.Type)
+                                                         && object.Equals(Direction, other.Direction)
+                                                         && object.Equals(Value, other.Value));
     }
 
     #endregion
@@ -244,12 +252,16 @@ public sealed class Bound<T>
     ///</list>
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="other"/> is null.</exception>
-    public int CompareTo(Bound<T> other)
+    public int CompareTo(Bound<T>? other)
     {
-        if (other == null)
+#if NET8_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(other);
+#else
+        if (other is null)
         {
-            throw new ArgumentNullException("other");
+            throw new ArgumentNullException(nameof(other));
         }
+#endif
 
         //perform value comparaison
         var vCompare = ((Type == BoundType.Upper && Bound.IsInfinity(Value)) || (other.Type == BoundType.Upper && Bound.IsInfinity(other.Value)))
@@ -320,52 +332,44 @@ public sealed class Bound<T>
         var fields = typeof(T).GetTypeInfo().DeclaredFields;
         var lowestField = (from f in fields
                            where string.Equals(f.Name, "NegativeInfinity", StringComparison.Ordinal)
-                           || string.Equals(f.Name, "MinValue", StringComparison.Ordinal)
+                                || string.Equals(f.Name, "MinValue", StringComparison.Ordinal)
                            orderby f.Name descending
-                           select f).FirstOrDefault();
+                           select f)
+                           .FirstOrDefault();
 
         var upmostField = (from f in fields
                            where string.Equals(f.Name, "PositiveInfinity", StringComparison.Ordinal)
-                           || string.Equals(f.Name, "MaxValue", StringComparison.Ordinal)
+                                 || string.Equals(f.Name, "MaxValue", StringComparison.Ordinal)
                            orderby f.Name descending
-                           select f).FirstOrDefault();
-
-        lowestValue = (lowestField != null) ? (T)lowestField.GetValue(null) : default(T);
-        upmostValue = (upmostField != null) ? (T)upmostField.GetValue(null) : default(T);
+                           select f)
+                           .FirstOrDefault();
+        lowestValue = (T?)lowestField?.GetValue(null) ?? throw new InvalidDataException(nameof(lowestValue));
+        upmostValue = (T?)upmostField?.GetValue(null) ?? throw new InvalidDataException(nameof(upmostField));
     }
 
     private static void InitializeEnumBounds(out T lowestValue, out T upmostValue)
     {
         var values = Enum.GetValues(typeof(T));
         var hasFlag = (typeof(T).GetTypeInfo().GetCustomAttributes(typeof(FlagsAttribute), true).Length != 0);
-        lowestValue = default(T);
-        upmostValue = default(T);
-        var sum = default(ulong);
-        var firstValue = true;
+        var sum = 0UL;
+
+        lowestValue = (values.Length > 0) ? (T)Enum.ToObject(typeof(T), values.GetValue(0)!) : throw new InvalidDataException();
+        upmostValue = lowestValue;
         foreach (Enum value in values)
         {
-            if (firstValue)
+            if (value.CompareTo(lowestValue) <= 0)
             {
                 lowestValue = (T)Enum.ToObject(typeof(T), value);
-                upmostValue = (T)Enum.ToObject(typeof(T), value);
-                firstValue = false;
             }
-            else
-            {
-                if (value.CompareTo(lowestValue) <= 0)
-                {
-                    lowestValue = (T)Enum.ToObject(typeof(T), value);
-                }
 
-                if (value.CompareTo(upmostValue) >= 0)
-                {
-                    upmostValue = (T)Enum.ToObject(typeof(T), value);
-                }
+            if (value.CompareTo(upmostValue) >= 0)
+            {
+                upmostValue = (T)Enum.ToObject(typeof(T), value);
             }
 
             if (hasFlag)
             {
-                var ul = ulong.Parse(value.ToString("D"));
+                var ul = ulong.Parse(value.ToString("D"), CultureInfo.InvariantCulture);
                 if (IsPowerOfTwo(ul)) { sum += ul; }
             }
         }
@@ -431,10 +435,20 @@ public sealed class Bound<T>
     /// <exception cref="ArgumentNullException"><paramref name="left"/> or <paramref name="right"/> is <c>null</c>.</exception>
     public static bool operator <(Bound<T> left, Bound<T> right)
     {
-        if (left == null || right == null)
+#if NET8_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(left);
+        ArgumentNullException.ThrowIfNull(right);
+#else
+        if (left is null)
         {
-            throw new ArgumentNullException("left or right");
+            throw new ArgumentNullException(nameof(left));
         }
+
+        if (right is null)
+        {
+            throw new ArgumentNullException(nameof(right));
+        }
+#endif
 
         return (left.CompareTo(right) < 0);
     }
@@ -448,10 +462,20 @@ public sealed class Bound<T>
     /// <exception cref="ArgumentNullException"><paramref name="left"/> or <paramref name="right"/> is <c>null</c>.</exception>
     public static bool operator <=(Bound<T> left, Bound<T> right)
     {
-        if (left == null || right == null)
+#if NET8_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(left);
+        ArgumentNullException.ThrowIfNull(right);
+#else
+        if (left is null)
         {
-            throw new ArgumentNullException("left or right");
+            throw new ArgumentNullException(nameof(left));
         }
+
+        if (right is null)
+        {
+            throw new ArgumentNullException(nameof(right));
+        }
+#endif
 
         return (left.CompareTo(right) <= 0);
     }
@@ -465,11 +489,20 @@ public sealed class Bound<T>
     /// <exception cref="ArgumentNullException"><paramref name="left"/> or <paramref name="right"/> is <c>null</c>.</exception>
     public static bool operator >(Bound<T> left, Bound<T> right)
     {
-        if (left == null || right == null)
+#if NET8_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(left);
+        ArgumentNullException.ThrowIfNull(right);
+#else
+        if (left is null)
         {
-            throw new ArgumentNullException("left or right");
+            throw new ArgumentNullException(nameof(left));
         }
 
+        if (right is null)
+        {
+            throw new ArgumentNullException(nameof(right));
+        }
+#endif
         return (left.CompareTo(right) > 0);
     }
 
@@ -482,13 +515,23 @@ public sealed class Bound<T>
     /// <exception cref="ArgumentNullException"><paramref name="left"/> or <paramref name="right"/> is <c>null</c>.</exception>
     public static bool operator >=(Bound<T> left, Bound<T> right)
     {
-        if (left == null || right == null)
+#if NET8_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(left);
+        ArgumentNullException.ThrowIfNull(right);
+#else
+        if (left is null)
         {
-            throw new ArgumentNullException("left or right");
+            throw new ArgumentNullException(nameof(left));
         }
+
+        if (right is null)
+        {
+            throw new ArgumentNullException(nameof(right));
+        }
+#endif
 
         return (left.CompareTo(right) >= 0);
     }
 
-    #endregion
+#endregion
 }
