@@ -1,12 +1,11 @@
-﻿namespace Arc4u.Network.Connectivity
-{
-    public class NetworkInformationArgs : EventArgs
-    {
-        public NetworkInformationArgs(NetworkStatus newStatus)
-        {
-            NewStatus = newStatus;
-        }
+namespace Arc4u.Network.Connectivity;
 
-        public NetworkStatus NewStatus { get; }
+public class NetworkInformationArgs : EventArgs
+{
+    public NetworkInformationArgs(NetworkStatus newStatus)
+    {
+        NewStatus = newStatus;
     }
+
+    public NetworkStatus NewStatus { get; }
 }

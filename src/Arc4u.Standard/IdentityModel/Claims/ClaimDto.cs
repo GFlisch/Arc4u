@@ -1,31 +1,32 @@
-﻿using System.Runtime.Serialization;
+using System.Globalization;
+using System.Runtime.Serialization;
 
-namespace Arc4u.IdentityModel.Claims
+namespace Arc4u.IdentityModel.Claims;
+
+[DataContract]
+public class ClaimDto
 {
-    [DataContract]
-    public class ClaimDto
+    public ClaimDto()
     {
-        public ClaimDto()
-        {
+        ClaimType = string.Empty;
+        Value = string.Empty;
+    }
 
-        }
+    public ClaimDto(string type, string value)
+    {
+        ClaimType = type;
 
-        public ClaimDto(string type, string value)
-        {
-            ClaimType = type;
+        Value = value;
+    }
 
-            Value = value;
-        }
+    [DataMember(Name = "claimType")]
+    public string ClaimType { get; set; }
 
-        [DataMember(Name = "claimType")]
-        public String ClaimType { get; set; }
+    [DataMember(Name = "value")]
+    public string Value { get; set; }
 
-        [DataMember(Name = "value")]
-        public String Value { get; set; }
-
-        public override string ToString()
-        {
-            return String.Format("{0} : {1}", ClaimType, Value);
-        }
+    public override string ToString()
+    {
+        return String.Format(CultureInfo.InvariantCulture, "{0} : {1}", ClaimType, Value);
     }
 }

@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 
 namespace Arc4u.Extensions
@@ -17,7 +17,7 @@ namespace Arc4u.Extensions
             var member = type.GetRuntimeField(value.ToString());
 
             var attributes = member.GetCustomAttributes(typeof(DisplayAttribute), false);
-            if (attributes.Count() == 0)
+            if (attributes.Length == 0)
             {
                 throw new ArgumentException(String.Format("'{0}.{1}' doesn't have DisplayAttribute", type.Name, value));
             }

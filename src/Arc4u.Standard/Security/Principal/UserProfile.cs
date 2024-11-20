@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Runtime.Serialization;
 using System.Xml;
 using System.Xml.Serialization;
@@ -81,16 +81,20 @@ namespace Arc4u.Security.Principal
             string commonName,
             string description)
         {
-
+#if NET8_0_OR_GREATER
+            ArgumentNullException.ThrowIfNull(nameof(sid));
+            ArgumentNullException.ThrowIfNull(nameof(culture));
+#else
             if (null == sid)
             {
-                throw new ArgumentNullException("sid");
+                throw new ArgumentNullException(nameof(sid));
             }
 
             if (null == culture)
             {
-                throw new ArgumentNullException("culture");
+                throw new ArgumentNullException(nameof(culture));
             }
+#endif
 
             DisplayName = displayName;
             Email = email;

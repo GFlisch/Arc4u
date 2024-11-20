@@ -49,6 +49,11 @@ public class X509CertificateLoader : IX509CertificateLoader
     /// <returns></returns>
     public X509Certificate2 FindCertificate(CertificateInfo certificateInfo)
     {
+        if (certificateInfo.Name is null)
+        {
+            throw new InvalidOperationException("Certificate name cannot be null.");
+        }
+
         var certificate = FindCertificate(
                             certificateInfo.Name,
                             certificateInfo.FindType,
@@ -57,6 +62,7 @@ public class X509CertificateLoader : IX509CertificateLoader
 
         return certificate;
     }
+
 
     /// <summary>
     /// Read the current section and identify if the section contains a CertificateStore entry.
@@ -83,6 +89,7 @@ public class X509CertificateLoader : IX509CertificateLoader
         {
             return null;
         }
+
         if (!File.Exists(certificateFilePathInfo.Cert))
         {
             _logger?.Technical().LogError($"Public key file doesn't exist.");

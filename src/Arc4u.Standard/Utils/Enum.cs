@@ -201,7 +201,7 @@ namespace Arc4u.Utils
             }
 
             //add flagged values
-            if (!ignoreFlags && enumType.GetTypeInfo().GetCustomAttributes(typeof(FlagsAttribute), true).Count() != 0)
+            if (!ignoreFlags && enumType.GetTypeInfo().GetCustomAttributes(typeof(FlagsAttribute), true).Length != 0)
             {
                 for (ulong i = 0; i < maxValue * 2; i++)
                 {
@@ -352,13 +352,13 @@ namespace Arc4u.Utils
 
             if (value == null)
             {
-                return new ArgumentNullException("value");
+                return new ArgumentNullException(nameof(value));
             }
 
             Type type = value.GetType();
             if (!(type == typeof(string)) && !type.GetTypeInfo().IsSubclassOf(typeof(ValueType)))
             {
-                return new ArgumentException(Arg_MustBeValueTypeOrString, "value");
+                return new ArgumentException(Arg_MustBeValueTypeOrString, nameof(value));
             }
 
             Type underlyingType = Enum.GetUnderlyingType(typeof(T));
@@ -381,7 +381,7 @@ namespace Arc4u.Utils
                 name = name.Trim();
                 if (name.Length == 0)
                 {
-                    return new ArgumentException(Arg_MustContainEnumInfo, "value");
+                    return new ArgumentException(Arg_MustContainEnumInfo, nameof(value));
                 }
 
                 foreach (Enum val in GetValues(typeof(T), false))
@@ -430,7 +430,7 @@ namespace Arc4u.Utils
                 }
             }
 
-            return new ArgumentException(string.Format(Arg_EnumValueNotFound, value), "value");
+            return new ArgumentException(string.Format(CultureInfo.InvariantCulture, Arg_EnumValueNotFound, value), nameof(value));
         }
 
         public static Enum<T> FromEnumerable<T>(IEnumerable<T> value)

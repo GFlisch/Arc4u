@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using System.Xml;
 
 namespace System.Runtime.Serialization
@@ -157,15 +157,21 @@ namespace System.Runtime.Serialization
         /// <exception cref="QuotaExceededException">the maximum number of objects to serialize has been exceeded. Check the <see cref="DataContractSerializer.MaxItemsInObjectGraph"/> property.</exception>     
         public static void WriteObject(this DataContractSerializer serializer, object obj, Stream stream)
         {
+#if NET8_0
+            ArgumentNullException.ThrowIfNull(nameof(obj));
+            ArgumentNullException.ThrowIfNull(nameof(stream));
+            ArgumentNullException.ThrowIfNull(nameof(serializer));
+#else
             if (serializer == null)
             {
-                throw new ArgumentNullException("serializer");
+                throw new ArgumentNullException(nameof(serializer));
             }
 
             if (null == stream)
             {
-                throw new ArgumentNullException("stream");
+                throw new ArgumentNullException(nameof(stream));
             }
+#endif
 
             using var writer = XmlDictionaryWriter.CreateTextWriter(stream);
             serializer.WriteObject(writer, obj);

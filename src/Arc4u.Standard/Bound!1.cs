@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Runtime.Serialization;
 
 namespace Arc4u
@@ -189,8 +189,8 @@ namespace Arc4u
         /// </returns>
         public override bool Equals(object obj)
         {
-            return (obj is Bound<T>)
-                ? Equals((Bound<T>)obj)
+            return (obj is Bound<T> bound)
+                ? Equals(bound)
                 : false;
         }
 
@@ -337,7 +337,7 @@ namespace Arc4u
         private static void InitializeEnumBounds(out T lowestValue, out T upmostValue)
         {
             var values = Enum.GetValues(typeof(T));
-            var hasFlag = (typeof(T).GetTypeInfo().GetCustomAttributes(typeof(FlagsAttribute), true).Count() != 0);
+            var hasFlag = (typeof(T).GetTypeInfo().GetCustomAttributes(typeof(FlagsAttribute), true).Length != 0);
             lowestValue = default(T);
             upmostValue = default(T);
             var sum = default(ulong);

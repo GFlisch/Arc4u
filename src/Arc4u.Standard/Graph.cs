@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -642,11 +642,14 @@ namespace Arc4u
             }
             set
             {
-                if (null == value)
+#if NET8_0
+                ArgumentNullException.ThrowIfNull(value);
+#else
+                if (value == null)
                 {
-                    throw new ArgumentNullException("value");
+                    throw new ArgumentNullException(nameof(value));
                 }
-
+#endif
                 ValidatePaths(value);
 
                 _includes = new List<string>(value);
