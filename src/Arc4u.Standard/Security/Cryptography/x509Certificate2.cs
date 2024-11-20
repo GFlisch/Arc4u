@@ -8,7 +8,7 @@ namespace Arc4u.Security.Cryptography;
 public static class Certificate
 {
     /// <summary>
-    /// Encrypt a text and return an encrypted version formated in a 64String.
+    /// Encrypt a text and return an encrypted version formated in a 64string.
     /// </summary>
     /// <param name="plainText">The plain text to encrypt.</param>
     /// <param name="x509">The certificate used to encrypt</param>
@@ -48,7 +48,7 @@ public static class Certificate
     }
 
     /// <summary>
-    /// Encrypt a byte array and return an encrypted version formated in a 64String.
+    /// Encrypt a byte array and return an encrypted version formated in a 64string.
     /// </summary>
     /// <param name="plainText">The plain text to encrypt.</param>
     /// <param name="x509">The certificate used to encrypt</param>
@@ -81,23 +81,23 @@ public static class Certificate
     /// <param name="x509">The certificate used to encrypt</param>
     /// <returns>The decrypted text.</returns>
     /// <exception cref="ArgumentNullException"></exception>
-    public static string Decrypt(this X509Certificate2 x509, string base64CypherString)
+    public static string Decrypt(this X509Certificate2 x509, string base64Cypherstring)
     {
-        if (base64CypherString.Contains('.'))
+        if (base64Cypherstring.Contains('.'))
         {
-            string[] parts = base64CypherString.Split('.');
+            string[] parts = base64Cypherstring.Split('.');
             if (parts.Length != 3)
             {
                 throw new ApplicationException("Invalid encrypted string format");
             }
 
-            var key = x509.DecryptStringToBytes(parts[0]);
-            var iv = x509.DecryptStringToBytes(parts[1]);
+            var key = x509.DecryptstringToBytes(parts[0]);
+            var iv = x509.DecryptstringToBytes(parts[1]);
 
-            return CypherCodec.DecodeCypherString(parts[2], key, iv);
+            return CypherCodec.DecodeCypherstring(parts[2], key, iv);
         }
 
-        return Encoding.UTF8.GetString(x509.DecryptStringToBytes(base64CypherString));
+        return Encoding.UTF8.GetString(x509.DecryptstringToBytes(base64Cypherstring));
     }
 
     /// <summary>
@@ -107,11 +107,11 @@ public static class Certificate
     /// <param name="x509">The certificate used to encrypt</param>
     /// <returns>The decrypted byte array.</returns>
     /// <exception cref="ArgumentNullException"></exception>
-    private static byte[] DecryptStringToBytes(this X509Certificate2 x509, string base64CypherString)
+    private static byte[] DecryptstringToBytes(this X509Certificate2 x509, string base64Cypherstring)
     {
-        if (string.IsNullOrWhiteSpace(base64CypherString))
+        if (string.IsNullOrWhiteSpace(base64Cypherstring))
         {
-            throw new ArgumentNullException(nameof(base64CypherString));
+            throw new ArgumentNullException(nameof(base64Cypherstring));
         }
 
         if (!x509.HasPrivateKey)
@@ -119,7 +119,7 @@ public static class Certificate
             throw new CryptographicException(string.Format(CultureInfo.InvariantCulture, "The certificate {0} has no private key!", x509.FriendlyName));
         }
 
-        var cipherBytes = Convert.FromBase64String(base64CypherString);
+        var cipherBytes = Convert.FromBase64String(base64Cypherstring);
 
         using var rsa = x509.GetRSAPrivateKey();
         return rsa?.Decrypt(cipherBytes, RSAEncryptionPadding.OaepSHA256) ?? [];

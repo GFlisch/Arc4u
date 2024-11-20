@@ -20,7 +20,7 @@ namespace Arc4u.Diagnostics.Formatter
             if (properties.Count > 0)
             {
                 output.Write("{");
-                var separator = String.Empty;
+                var separator = string.Empty;
                 foreach (var property in properties)
                 {
                     output.Write($"{separator}\"{property.Name}\":");

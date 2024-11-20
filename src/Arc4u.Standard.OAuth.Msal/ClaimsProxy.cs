@@ -56,14 +56,14 @@ namespace Arc4u.OAuth2.Security.Principal
             try
             {
                 // Check before the url and application name is defined!
-                if (String.IsNullOrWhiteSpace(_url))
+                if (string.IsNullOrWhiteSpace(_url))
                 {
                     // no override rule, use the standard endpoint defined.
                     _url = settings.First().Values[TokenKeys.RootServiceUrlKey].TrimEnd('/') + "/api/claims";
                 }
                 else
                 {
-                    _url = String.Format(_url, _applicationName);
+                    _url = string.Format(_url, _applicationName);
                 }
 
                 _logger.Technical().System($"Call back-end service for authorization, endpoint = {_url}.").Log();
@@ -78,9 +78,9 @@ namespace Arc4u.OAuth2.Security.Principal
                 if (response.IsSuccessStatusCode)
                 {
                     _logger.Technical().System($"Call service {_url} succeeds.").Log();
-                    String responseString = await response.Content.ReadAsStringAsync();
+                    string responsestring = await response.Content.ReadAsStringAsync();
                     // Add the claims.
-                    result.AddRange(_jsonSerializer.ReadObject<IEnumerable<ClaimDto>>(responseString));
+                    result.AddRange(_jsonSerializer.ReadObject<IEnumerable<ClaimDto>>(responsestring));
                     _logger.Technical().System($"{result.Count} claim(s) received.").Log();
                 }
                 else

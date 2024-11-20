@@ -2,8 +2,8 @@
 {
     public class AssemblyConfig
     {
-        public String Assembly { get; set; }
+        public string Assembly { get; set; }
 
-        public ICollection<String> RejectedTypes { get; set; }
+        public ICollection<string> RejectedTypes { get; set; }
     }
 }

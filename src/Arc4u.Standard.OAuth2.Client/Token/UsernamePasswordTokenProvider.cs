@@ -16,8 +16,8 @@ public class UsernamePasswordTokenProvider : ITokenProvider
 {
     public UsernamePasswordTokenProvider(ISecureCache secureCache, INetworkInformation networkStatus, ILogger<UsernamePasswordTokenProvider> logger, IContainerResolve container)
     {
-        this.secureCache = secureCache;
-        this.networkStatus = networkStatus;
+        secureCache = secureCache;
+        networkStatus = networkStatus;
         Container = container;
         _logger = logger;
     }
@@ -61,7 +61,7 @@ public class UsernamePasswordTokenProvider : ITokenProvider
         secureCache.TryGetValue<string>(userkey, out var upn);
         secureCache.TryGetValue<string>(pwdkey, out var pwd);
 
-        if (String.IsNullOrWhiteSpace(upn) || String.IsNullOrWhiteSpace(pwd))
+        if (string.IsNullOrWhiteSpace(upn) || string.IsNullOrWhiteSpace(pwd))
         {
             if (!Container.TryResolve<IUserNamePasswordProvider>(out var usernamePasswordProvider))
             {
@@ -158,12 +158,12 @@ public class UsernamePasswordTokenProvider : ITokenProvider
         // Check the information.
         var messages = new Arc4u.ServiceModel.Messages();
 
-        if (String.IsNullOrWhiteSpace(serviceId))
+        if (string.IsNullOrWhiteSpace(serviceId))
         {
             messages.Add(new Message(ServiceModel.MessageCategory.Technical, ServiceModel.MessageType.Warning, $"No information from the application settings section about an entry: {TokenKeys.ServiceApplicationIdKey}."));
         }
 
-        if (String.IsNullOrWhiteSpace(authority))
+        if (string.IsNullOrWhiteSpace(authority))
         {
             messages.Add(new Message(ServiceModel.MessageCategory.Technical, ServiceModel.MessageType.Warning, $"{TokenKeys.AuthorityKey} is not defined in the configuration file."));
         }
@@ -174,7 +174,7 @@ public class UsernamePasswordTokenProvider : ITokenProvider
         passwordStoreKey = "secret";
         if (settings.Values.ContainsKey(TokenKeys.PasswordStoreKey))
         {
-            passwordStoreKey = String.IsNullOrWhiteSpace(settings.Values[TokenKeys.PasswordStoreKey]) ? passwordStoreKey : settings.Values[TokenKeys.PasswordStoreKey];
+            passwordStoreKey = string.IsNullOrWhiteSpace(settings.Values[TokenKeys.PasswordStoreKey]) ? passwordStoreKey : settings.Values[TokenKeys.PasswordStoreKey];
         }
 
     }

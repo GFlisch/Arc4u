@@ -2,7 +2,7 @@
 {
     public interface ILogStore
     {
-        List<LogMessage> GetLogs(String criteria, int skip, int take);
+        List<LogMessage> GetLogs(string criteria, int skip, int take);
 
         void RemoveAll();
     }

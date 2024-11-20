@@ -12,7 +12,7 @@ namespace Arc4u.NServiceBus
 
         public async Task StartAsync(string endpointName)
         {
-            if (String.IsNullOrEmpty(endpointName))
+            if (string.IsNullOrEmpty(endpointName))
             {
                 throw new ArgumentException("endpointName");
             }

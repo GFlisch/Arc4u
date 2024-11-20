@@ -71,7 +71,7 @@ namespace Arc4u.OAuth2.Token
             return new List<byte[]>();
         }
 
-        private String GetKey(string id)
+        private string GetKey(string id)
         {
             return (id + "_TokenCache").ToLowerInvariant();
         }

@@ -94,8 +94,8 @@ namespace Arc4u.Data
         protected AuditEntity(AuditEntity<TId, TAuditedBy, TAuditedOn> entity)
             : base(entity)
         {
-            this._auditedBy = entity._auditedBy;
-            this._auditedOn = entity._auditedOn;
+            _auditedBy = entity._auditedBy;
+            _auditedOn = entity._auditedOn;
         }
 
         #endregion

@@ -65,7 +65,7 @@ namespace Arc4u.Dependency
             return result;
         }
 
-        private static List<Type> GetRegisterTypesFromConfig(ICollection<String> types)
+        private static List<Type> GetRegisterTypesFromConfig(ICollection<string> types)
         {
             var _types = new List<Type>();
 
@@ -95,7 +95,7 @@ namespace Arc4u.Dependency
                     select type).ToList();
         }
 
-        public static List<Type> FilterList(this IEnumerable<Type> types, List<String> rejectedTypes)
+        public static List<Type> FilterList(this IEnumerable<Type> types, List<string> rejectedTypes)
         {
             return types.Where(type => !rejectedTypes.Contains(type.FullName, StringComparer.InvariantCultureIgnoreCase)).ToList();
         }

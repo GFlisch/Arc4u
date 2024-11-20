@@ -13,7 +13,7 @@ namespace Arc4u.Data
                 throw new ArgumentNullException("collection");
             }
 
-            this.collection = collection;
+            collection = collection;
         }
 
         [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
@@ -21,8 +21,8 @@ namespace Arc4u.Data
         {
             get
             {
-                T[] array = new T[this.collection.Count];
-                this.collection.CopyTo(array, 0);
+                T[] array = new T[collection.Count];
+                collection.CopyTo(array, 0);
                 return array;
             }
         }

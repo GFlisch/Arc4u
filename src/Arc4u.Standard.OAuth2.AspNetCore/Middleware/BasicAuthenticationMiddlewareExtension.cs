@@ -164,7 +164,7 @@ public static class BasicAuthenticationMiddlewareExtension
         }
 
         // We map this to a IKeyValuesSettings dictionary.
-        // The TokenProviders are based on this.
+        // The TokenProviders are based on 
 
         var settings = new SimpleKeyValueSettings();
 

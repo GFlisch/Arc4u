@@ -21,9 +21,9 @@ namespace Arc4u.Diagnostics.Serilog.Sinks.RealmDb
             _realm.Write(() => _realm.RemoveAll<LogDBMessage>());
         }
 
-        public List<LogMessage> GetLogs(String criteria, int skip, int take)
+        public List<LogMessage> GetLogs(string criteria, int skip, int take)
         {
-            var hasCriteria = !String.IsNullOrWhiteSpace(criteria);
+            var hasCriteria = !string.IsNullOrWhiteSpace(criteria);
             var searchText = hasCriteria ? criteria.ToLowerInvariant() : "";
 
             IOrderedQueryable<LogDBMessage> queryable = _realm.All<LogDBMessage>().OrderByDescending(msg => msg.Timestamp);

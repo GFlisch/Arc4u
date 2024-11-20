@@ -109,7 +109,7 @@ public static class FromResultToProblemDetailExtension
     /// <returns></returns>
     public static ProblemDetails ToProblemDetails<TResult>(this Result<TResult> result)
     {
-        // Could not be a valid scenario to call this method! An Exceptional error will be created so the developer is aware of this.
+        // Could not be a valid scenario to call this method! An Exceptional error will be created so the developer is aware of 
         if (result.IsSuccess)
         {
             result.WithError(new ExceptionalError(new UnreachableException("Creating a ProblemDetails on a success Result does not make any sense!")));
@@ -135,7 +135,7 @@ public static class FromResultToProblemDetailExtension
     /// <returns></returns>
     public static ProblemDetails ToProblemDetails(this Result result)
     {
-        // Could not be a valid scenario to call this method! An Exceptional error will be created so the developer is aware of this.
+        // Could not be a valid scenario to call this method! An Exceptional error will be created so the developer is aware of 
         if (result.IsSuccess)
         {
             result.WithError(new ExceptionalError(new UnreachableException("Creating a ProblemDetails on a success Result does not make any sense!")));

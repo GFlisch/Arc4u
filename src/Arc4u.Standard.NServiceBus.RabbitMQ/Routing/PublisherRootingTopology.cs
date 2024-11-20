@@ -6,12 +6,12 @@ namespace Arc4u.NServiceBus.RabbitMQ.Routing
 {
     public class PublisherRootingTopology : IRoutingTopology
     {
-        public PublisherRootingTopology(Func<Type, String> exchangeName)
+        public PublisherRootingTopology(Func<Type, string> exchangeName)
         {
             ExchangeName = exchangeName;
         }
 
-        private readonly Func<Type, String> ExchangeName;
+        private readonly Func<Type, string> ExchangeName;
 
         public void SetupSubscription(IModel channel, Type type, string subscriberName)
         {
@@ -23,12 +23,12 @@ namespace Arc4u.NServiceBus.RabbitMQ.Routing
 
         public void Publish(IModel channel, Type type, OutgoingMessage message, IBasicProperties properties)
         {
-            channel.BasicPublish(ExchangeName(type), String.Empty, false, properties, message.Body);
+            channel.BasicPublish(ExchangeName(type), string.Empty, false, properties, message.Body);
         }
 
         public void Send(IModel channel, string address, OutgoingMessage message, IBasicProperties properties)
         {
-            channel.BasicPublish(address, String.Empty, true, properties, message.Body);
+            channel.BasicPublish(address, string.Empty, true, properties, message.Body);
         }
 
         public void BindToDelayInfrastructure(IModel channel, string address, string deliveryExchange, string routingKey)
@@ -42,7 +42,7 @@ namespace Arc4u.NServiceBus.RabbitMQ.Routing
 
         public void RawSendInCaseOfFailure(IModel channel, string address, ReadOnlyMemory<byte> body, IBasicProperties properties)
         {
-            channel.BasicPublish(address, String.Empty, true, properties, body);
+            channel.BasicPublish(address, string.Empty, true, properties, body);
         }
     }
 }

@@ -5,7 +5,7 @@ namespace Arc4u.gRPC;
 [Export, Shared]
 public class GrpcMethodInfo
 {
-    private readonly Dictionary<String, ServiceAspectAttribute> RightsOnMethod;
+    private readonly Dictionary<string, ServiceAspectAttribute> RightsOnMethod;
 
     public GrpcMethodInfo()
     {
@@ -18,7 +18,7 @@ public class GrpcMethodInfo
     /// <param name="method">The gRPC method called.</param>
     /// <param name="serviceType">The service implementing the method.</param>
     /// <returns>A service aspect, empty one if no service aspect is defined.</returns>
-    public ServiceAspectAttribute GetAttributeFor(String method, Type serviceType)
+    public ServiceAspectAttribute GetAttributeFor(string method, Type serviceType)
     {
         if (string.IsNullOrWhiteSpace(method))
         {

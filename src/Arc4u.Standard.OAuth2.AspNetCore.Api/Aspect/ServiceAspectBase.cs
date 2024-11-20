@@ -23,7 +23,7 @@ namespace Arc4u.OAuth2.Aspect
         /// The page used to render when you are unauthorized.
         /// </summary>
         private readonly int[] _operations;
-        private readonly String _scope = string.Empty;
+        private readonly string _scope = string.Empty;
         protected readonly ILogger Logger;
         protected readonly IHttpContextAccessor _httpContextAccessor;
 

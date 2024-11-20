@@ -3,8 +3,8 @@
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public class RelationAttribute : Attribute
     {
-        public String NavigationProperty { get; set; }
+        public string NavigationProperty { get; set; }
 
-        public String TargetRelationProperty { get; set; }
+        public string TargetRelationProperty { get; set; }
     }
 }

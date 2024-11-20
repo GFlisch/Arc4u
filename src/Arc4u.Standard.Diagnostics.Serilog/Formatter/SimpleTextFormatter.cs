@@ -57,10 +57,10 @@ public class SimpleTextFormatter : ITextFormatter
 
             if (null != logEvent.Exception)
             {
-                output.Write(logEvent.Exception.ToFormattedString());
+                output.Write(logEvent.Exception.ToFormattedstring());
             }
 
-            if (!String.IsNullOrWhiteSpace(Stacktrace))
+            if (!string.IsNullOrWhiteSpace(Stacktrace))
             {
                 output.WriteLine(Stacktrace);
             }
@@ -73,7 +73,7 @@ public class SimpleTextFormatter : ITextFormatter
 
 internal static class DumpException
 {
-    internal static string ToFormattedString(this Exception exception)
+    internal static string ToFormattedstring(this Exception exception)
     {
         var messages = exception
             .GetAllExceptions()

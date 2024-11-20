@@ -9,7 +9,7 @@
 
         public ServiceAspectAttribute(string scope, params int[] operations)
         {
-            Scope = String.IsNullOrWhiteSpace(scope) ? string.Empty : scope.Trim();
+            Scope = string.IsNullOrWhiteSpace(scope) ? string.Empty : scope.Trim();
             Operations = operations;
         }
 

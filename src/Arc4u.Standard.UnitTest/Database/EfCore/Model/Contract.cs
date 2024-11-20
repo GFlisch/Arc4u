@@ -7,9 +7,9 @@ namespace Arc4u.UnitTest.Database.EfCore.Model
     {
         public Guid Id { get; set; }
 
-        public String Name { get; set; }
+        public string Name { get; set; }
 
-        public String Reference { get; set; }
+        public string Reference { get; set; }
 
         public DateTime StartDate { get; set; }
 
@@ -25,8 +25,8 @@ namespace Arc4u.UnitTest.Database.EfCore.Model
             int[] comparisons = new int[5];
 
             comparisons[0] = y.Id.CompareTo(x.Id);
-            comparisons[1] = String.Compare(y.Name, x.Name);
-            comparisons[2] = String.Compare(y.Reference, x.Reference);
+            comparisons[1] = string.Compare(y.Name, x.Name);
+            comparisons[2] = string.Compare(y.Reference, x.Reference);
             comparisons[3] = DateTime.Compare(y.StartDate, x.StartDate);
             comparisons[4] = DateTime.Compare(y.EndDate, x.EndDate);
 

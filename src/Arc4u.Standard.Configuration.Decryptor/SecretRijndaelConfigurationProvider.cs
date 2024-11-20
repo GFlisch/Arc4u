@@ -68,7 +68,7 @@ public class SecretRijndaelConfigurationProvider : ConfigurationProvider
             {
                 var cypher = item.Value.Substring(_rijndaelOptions.Prefix.Length);
 
-                data.Add(item.Key, CypherCodec.DecodeCypherString(cypher, rijndaelkeys.Item1, rijndaelkeys.Item2));
+                data.Add(item.Key, CypherCodec.DecodeCypherstring(cypher, rijndaelkeys.Item1, rijndaelkeys.Item2));
             }
         }
 

@@ -5,7 +5,7 @@
     /// </summary>
     public class DataCacheException : Exception
     {
-        public DataCacheException(String message) : base(message)
+        public DataCacheException(string message) : base(message)
         {
         }
     }

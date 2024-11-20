@@ -90,7 +90,7 @@ public sealed class IntervalCollection<T> : ReadOnlyCollection<Interval<T>>
     {
         get
         {
-            return this.Count != 0
+            return Count != 0
                 && (from item in base.Items
                     where !item.IsUniverse
                     select item).FirstOrDefault() == default(Interval<T>);
@@ -109,7 +109,7 @@ public sealed class IntervalCollection<T> : ReadOnlyCollection<Interval<T>>
     {
         get
         {
-            return this.Count != 0
+            return Count != 0
                 && (from item in base.Items
                     where !item.IsSingleton
                     select item).FirstOrDefault() == default(Interval<T>);
@@ -127,7 +127,7 @@ public sealed class IntervalCollection<T> : ReadOnlyCollection<Interval<T>>
     /// <seealso href="http://en.wikipedia.org/wiki/Singleton_(mathematics)">Singleton</seealso>
     public bool IsSingletonOf(T value)
     {
-        return this.Count != 0
+        return Count != 0
             && (from item in base.Items
                 where !item.IsSingletonOf(value)
                 select item).FirstOrDefault() == default(Interval<T>);

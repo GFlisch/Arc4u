@@ -11,7 +11,7 @@
 
         public List<LogMessage> GetLogs(string criteria, int skip, int take)
         {
-            var hasCriteria = !String.IsNullOrWhiteSpace(criteria);
+            var hasCriteria = !string.IsNullOrWhiteSpace(criteria);
             var searchText = hasCriteria ? criteria.ToLowerInvariant() : "";
 
             if (hasCriteria)

@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Security.Claims;
 using System.Security.Principal;
 
@@ -10,7 +11,7 @@ namespace Arc4u.Security.Principal;
 public class AppPrincipal : ClaimsPrincipal, IAuthorization
 {
     private readonly AppAuthorization _authorization;
-    private String _sid;
+    private string _sid;
     /// <summary>
     /// Initializes a new instance of the <see cref="AppPrincipal"/> class.
     /// </summary>
@@ -19,18 +20,39 @@ public class AppPrincipal : ClaimsPrincipal, IAuthorization
     /// <param name="sid">The sid.</param>
     public AppPrincipal(Authorization authorizationData, IIdentity identity, string sid) : base(identity)
     {
+#if NET8_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(identity);
+        ArgumentNullException.ThrowIfNull(sid);
+        ArgumentNullException.ThrowIfNull(authorizationData);
+#else
+        if (null == identity)
+        {
+            throw new ArgumentNullException(nameof(identity));
+        }
+        if (null == sid)
+        {
+            throw new ArgumentNullException(nameof(sid));
+        }
+        if (null == authorizationData)
+        {
+            throw new ArgumentNullException(nameof(authorizationData));
+        }
+#endif
         _sid = sid;
         Authorization = authorizationData;
         _authorization = new AppAuthorization(authorizationData);
+        profile = new UserProfile();
     }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AppPrincipal"/> class.
     /// </summary>
-    public AppPrincipal()
+    private AppPrincipal()
     {
-        _authorization = null;
-        _sid = null;
+        _authorization = new AppAuthorization(new Authorization());
+        Authorization = new Authorization();
+        _sid = string.Empty;
+        profile = new UserProfile();
     }
 
     #region IPrincipal Members
@@ -99,7 +121,7 @@ public class AppPrincipal : ClaimsPrincipal, IAuthorization
         var ids = new int[operations.Length];
         for (var index = 0; index < operations.Length; ++index)
         {
-            ids[index] = Convert.ToInt32(operations[index]);
+            ids[index] = Convert.ToInt32(operations[index], CultureInfo.InvariantCulture);
         }
 
         return _authorization.IsAuthorized(ids);
@@ -112,13 +134,13 @@ public class AppPrincipal : ClaimsPrincipal, IAuthorization
     }
 
     /// <exclude/>
-    public bool IsAuthorized(params String[] operations)
+    public bool IsAuthorized(params string[] operations)
     {
         return _authorization.IsAuthorized(operations);
     }
 
     /// <exclude/>
-    public bool IsAuthorized(string scope, params String[] operations)
+    public bool IsAuthorized(string scope, params string[] operations)
     {
         return _authorization.IsAuthorized(scope, operations);
     }
@@ -147,5 +169,5 @@ public class AppPrincipal : ClaimsPrincipal, IAuthorization
         }
     }
 
-    public String Sid { get => _sid; }
+    public string Sid { get => _sid; }
 }

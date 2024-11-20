@@ -44,7 +44,7 @@ namespace Arc4u.OAuth2.TokenProvider
             {
                 var identity = (ClaimsIdentity)_applicationContext.Principal.Identity;
 
-                if (!String.IsNullOrWhiteSpace(identity.BootstrapContext.ToString()))
+                if (!string.IsNullOrWhiteSpace(identity.BootstrapContext.ToString()))
                 {
                     var token = identity.BootstrapContext.ToString();
 

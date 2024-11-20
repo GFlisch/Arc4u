@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace Arc4u.Security.Principal;
 
 public class AppAuthorization : IAuthorization
@@ -5,7 +7,7 @@ public class AppAuthorization : IAuthorization
     private readonly Dictionary<string, Dictionary<int, string>> _operations;
     private readonly Dictionary<string, Dictionary<string, int>> _operationsName;
     private readonly Dictionary<string, Dictionary<string, short>> _roles;
-    private readonly List<String> _scopes;
+    private readonly List<string> _scopes;
 
     public AppAuthorization(Authorization authorizationData)
     {
@@ -18,7 +20,7 @@ public class AppAuthorization : IAuthorization
             var operations = new Dictionary<int, string>();
             var operationsName = new Dictionary<string, int>();
 
-            foreach (Int32 operationId in scopedOperations.Operations)
+            foreach (var operationId in scopedOperations.Operations)
             {
                 var operation = authorizationData.AllOperations.SingleOrDefault(o => o.ID == operationId);
                 if (default(Operation) != operation)
@@ -75,7 +77,7 @@ public class AppAuthorization : IAuthorization
         }
         catch
         {
-            return new string[0];
+            return [];
         }
     }
 
@@ -84,7 +86,7 @@ public class AppAuthorization : IAuthorization
         return IsAuthorized(string.Empty, operations);
     }
 
-    public bool IsAuthorized(params String[] operations)
+    public bool IsAuthorized(params string[] operations)
     {
         return IsAuthorized(string.Empty, operations);
     }
@@ -141,7 +143,7 @@ public class AppAuthorization : IAuthorization
 
         for (int index = 0; index < operations.Length; ++index)
         {
-            ids[index] = Convert.ToInt32(operations[index]);
+            ids[index] = Convert.ToInt32(operations[index], CultureInfo.InvariantCulture);
         }
 
         return IsAuthorized(scope, ids);
@@ -154,12 +156,12 @@ public class AppAuthorization : IAuthorization
 
     public bool IsInRole(string scope, string role)
     {
-        if (!_roles.ContainsKey(scope))
+        if (_roles.TryGetValue(scope, out var roles))
         {
-            return false;
+            return roles.ContainsKey(role);
         }
 
-        return _roles[scope].ContainsKey(role);
+        return false;
     }
 
     public string[] Operations()
@@ -178,7 +180,7 @@ public class AppAuthorization : IAuthorization
         }
         catch
         {
-            return new string[0];
+            return [];
         }
     }
 

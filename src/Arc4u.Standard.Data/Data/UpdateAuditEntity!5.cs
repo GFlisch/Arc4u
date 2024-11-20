@@ -110,8 +110,8 @@ namespace Arc4u.Data
         protected UpdateAuditEntity(UpdateAuditEntity<TId, TCreatedBy, TCreatedOn, TUpdatedBy, TUpdatedOn> entity)
             : base(entity)
         {
-            this._updatedBy = entity._updatedBy;
-            this._updatedOn = entity._updatedOn;
+            _updatedBy = entity._updatedBy;
+            _updatedOn = entity._updatedOn;
         }
 
         #endregion

@@ -160,9 +160,9 @@ namespace Arc4u.Utils
 
     public struct EnumUtil
     {
-        private const string Arg_EnumUnderlyingTypeAndObjectMustBeSameType = "Enum underlying type and the object must be same type or object must be a String. Type passed in was '{0}'; the enum underlying type was '{1}'.";
+        private const string Arg_EnumUnderlyingTypeAndObjectMustBeSameType = "Enum underlying type and the object must be same type or object must be a string. Type passed in was '{0}'; the enum underlying type was '{1}'.";
         private const string Arg_EnumAndObjectMustBeSameType = "Object must be the same type as the enum. The type passed in was '{0}'; the enum type was '{1}'.";
-        private const string Arg_MustBeValueTypeOrString = "Object must be a ValueType or a String.";
+        private const string Arg_MustBeValueTypeOrstring = "Object must be a ValueType or a string.";
         private const string Arg_MustContainEnumInfo = "Must specify valid information for parsing in the string.";
         private const string Arg_EnumValueNotFound = "Requested value '{0}' was not found.";
         private const string InvalidOperation_UnknownEnumType = "Unknown enum type.";
@@ -358,7 +358,7 @@ namespace Arc4u.Utils
             Type type = value.GetType();
             if (!(type == typeof(string)) && !type.GetTypeInfo().IsSubclassOf(typeof(ValueType)))
             {
-                return new ArgumentException(Arg_MustBeValueTypeOrString, nameof(value));
+                return new ArgumentException(Arg_MustBeValueTypeOrstring, nameof(value));
             }
 
             Type underlyingType = Enum.GetUnderlyingType(typeof(T));

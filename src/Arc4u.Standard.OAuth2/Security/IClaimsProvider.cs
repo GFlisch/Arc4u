@@ -8,6 +8,6 @@ namespace Arc4u.OAuth2.Security
     /// </summary>
     public interface IClaimsProvider
     {
-        Task<IEnumerable<ClaimDto>> GetAsync(String userIdentifier);
+        Task<IEnumerable<ClaimDto>> GetAsync(string userIdentifier);
     }
 }

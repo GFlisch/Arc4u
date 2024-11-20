@@ -14,20 +14,20 @@ public static class Helper
     /// <param name="logEvent"></param>
     /// <returns></returns>
     public static (MessageCategory Category,
-                    String Application,
-                    String Identity,
-                    String ClassType,
-                    String MethodName,
-                    String ActivityId,
+                    string Application,
+                    string Identity,
+                    string ClassType,
+                    string MethodName,
+                    string ActivityId,
                     int ProcessId,
                     int ThreadId,
-                    String Stacktrace,
+                    string Stacktrace,
                     List<LogEventProperty> Properties)
     ExtractEventInfo(LogEvent logEvent)
     {
-        String activityId = String.Empty,
-               methodName = String.Empty,
-               classType = String.Empty,
+        string activityId = string.Empty,
+               methodName = string.Empty,
+               classType = string.Empty,
                stacktrace = string.Empty,
                identity = string.Empty,
                application = string.Empty;
@@ -45,10 +45,10 @@ public static class Helper
                     activityId = GetValue(property.Value, Guid.Empty.ToString());
                     break;
                 case LoggingConstants.MethodName:
-                    methodName = GetValue(property.Value, String.Empty);
+                    methodName = GetValue(property.Value, string.Empty);
                     break;
                 case LoggingConstants.Class:
-                    classType = GetValue(property.Value, String.Empty);
+                    classType = GetValue(property.Value, string.Empty);
                     break;
                 case LoggingConstants.ProcessId:
                     processId = GetValue(property.Value, -1);
@@ -60,13 +60,13 @@ public static class Helper
                     category = GetValue(property.Value, (short)1);
                     break;
                 case LoggingConstants.Stacktrace:
-                    stacktrace = GetValue(property.Value, String.Empty);
+                    stacktrace = GetValue(property.Value, string.Empty);
                     break;
                 case LoggingConstants.Identity:
-                    identity = GetValue(property.Value, String.Empty);
+                    identity = GetValue(property.Value, string.Empty);
                     break;
                 case LoggingConstants.Application:
-                    application = GetValue(property.Value, String.Empty);
+                    application = GetValue(property.Value, string.Empty);
                     break;
                 case ExceptionDetail:
                     break;

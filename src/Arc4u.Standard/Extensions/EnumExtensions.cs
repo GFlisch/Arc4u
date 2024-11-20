@@ -1,62 +1,77 @@
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.Reflection;
 
-namespace Arc4u.Extensions
+namespace Arc4u.Extensions;
+
+public static class EnumExtentions
 {
-    public static class EnumExtentions
+    public static string GetDisplayName(this Enum value)
     {
-        public static string GetDisplayName(this Enum value)
+        var type = value.GetType();
+        TypeInfo ti = type.GetTypeInfo();
+        if (!ti.IsEnum)
         {
-            var type = value.GetType();
-            TypeInfo ti = type.GetTypeInfo();
-            if (!ti.IsEnum)
-            {
-                throw new ArgumentException(String.Format("Type '{0}' is not Enum", type));
-            }
-
-            var member = type.GetRuntimeField(value.ToString());
-
-            var attributes = member.GetCustomAttributes(typeof(DisplayAttribute), false);
-            if (attributes.Length == 0)
-            {
-                throw new ArgumentException(String.Format("'{0}.{1}' doesn't have DisplayAttribute", type.Name, value));
-            }
-
-            var attribute = (DisplayAttribute)attributes.First();
-            return attribute.GetName();
+            throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Type '{0}' is not Enum", type));
         }
 
-        public static string GetValue(this Enum value)
+        var member = type.GetRuntimeField(value.ToString());
+
+        if (null == member)
         {
-            return value.ToString();
+            throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "'{0}' is not a member of the enum '{1}'", value, type.Name));
         }
 
-        public static List<KeyValuePair<String, String>> ToTranslationList(this Type enumType)
+        var attributes = member.GetCustomAttributes(typeof(DisplayAttribute), false);
+        if (attributes.Length == 0)
         {
-            TypeInfo ti = enumType.GetTypeInfo();
-
-            if (!ti.IsEnum)
-            {
-                throw new ArgumentException(String.Format("Type '{0}' is not Enum", enumType));
-            }
-
-            var t = Enum.GetNames(enumType).Select(enumName => Enum.Parse(enumType, enumName) as Enum)
-                .Where(e => e != null).ToDictionary(e => e.ToString(), e => e.GetDisplayName());
-
-            return t.Select(v => new KeyValuePair<String, String>(v.Key, v.Value)).ToList();
+            throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "'{0}.{1}' doesn't have DisplayAttribute", type.Name, value));
         }
 
-        public static Dictionary<Enum, string> ToTranslationDictionary(this Type enumType)
+        var attribute = (DisplayAttribute)attributes.First();
+
+        if (null == attribute)
         {
-            TypeInfo ti = enumType.GetTypeInfo();
-
-            if (!ti.IsEnum)
-            {
-                throw new ArgumentException(String.Format("Type '{0}' is not Enum", enumType));
-            }
-
-            return Enum.GetNames(enumType).Select(enumName => Enum.Parse(enumType, enumName) as Enum)
-                .Where(e => e != null).ToDictionary(e => e, e => e.GetDisplayName());
+            throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "'{0}' doesn't have DisplayAttribute", value));
         }
+
+        return attribute.GetName() ?? string.Empty;
+    }
+
+    public static string GetValue(this Enum value)
+    {
+        return value.ToString();
+    }
+
+    public static List<KeyValuePair<string, string>> ToTranslationList(this Type enumType)
+    {
+        var ti = enumType.GetTypeInfo();
+
+        if (!ti.IsEnum)
+        {
+            throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Type '{0}' is not Enum", enumType));
+        }
+
+        var t = Enum.GetNames(enumType)
+                    .Select(enumName => Enum.Parse(enumType, enumName) as Enum)
+                    .Where(e => e != null)
+                    .ToDictionary(e => e!.ToString(), e => e!.GetDisplayName());
+
+        return t.Select(v => new KeyValuePair<string, string>(v.Key, v.Value)).ToList();
+    }
+
+    public static Dictionary<Enum, string> ToTranslationDictionary(this Type enumType)
+    {
+        TypeInfo ti = enumType.GetTypeInfo();
+
+        if (!ti.IsEnum)
+        {
+            throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Type '{0}' is not Enum", enumType));
+        }
+
+        return Enum.GetNames(enumType)
+                   .Select(enumName => Enum.Parse(enumType, enumName) as Enum)
+                   .Where(e => e != null)
+                   .ToDictionary(e => e!, e => e!.GetDisplayName());
     }
 }

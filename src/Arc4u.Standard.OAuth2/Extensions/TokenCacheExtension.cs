@@ -48,7 +48,7 @@ public static class TokenCacheExtension
             throw new ConfigurationException("TokenCacheOptions is not defined in the configuration file.");
         }
 
-        if (String.IsNullOrWhiteSpace(tokenCacheOptions.CacheName))
+        if (string.IsNullOrWhiteSpace(tokenCacheOptions.CacheName))
         {
             throw new ConfigurationException("TokenCacheOptions.CacheName is not defined in the configuration file.");
         }

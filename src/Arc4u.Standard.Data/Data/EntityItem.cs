@@ -127,9 +127,9 @@ namespace Arc4u.Data
                 throw new ArgumentNullException("item");
             }
 
-            this._entity = item._entity;
-            this._persistChange = item._persistChange;
-            this._persistEntity = item._persistEntity;
+            _entity = item._entity;
+            _persistChange = item._persistChange;
+            _persistEntity = item._persistEntity;
         }
 
         #endregion

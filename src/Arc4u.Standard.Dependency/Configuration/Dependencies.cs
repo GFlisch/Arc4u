@@ -4,6 +4,6 @@
     {
         public ICollection<AssemblyConfig> Assemblies { get; set; }
 
-        public ICollection<String> RegisterTypes { get; set; }
+        public ICollection<string> RegisterTypes { get; set; }
     }
 }

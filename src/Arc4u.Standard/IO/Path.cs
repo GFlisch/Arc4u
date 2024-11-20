@@ -20,7 +20,7 @@ public static class Path
     /// <summary>
     /// From two path (a root) and the full path, the method returns the relative path from the root.
     /// </summary>
-    /// <param name="rootPath">relative to this.</param>
+    /// <param name="rootPath">relative to </param>
     /// <param name="fullFileName">the complete file name.</param>
     /// <returns>the relative path.</returns>
     public static string MakeRelative(string rootPath, string fullFileName)

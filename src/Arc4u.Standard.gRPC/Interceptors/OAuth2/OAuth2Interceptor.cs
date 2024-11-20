@@ -115,7 +115,7 @@ public class OAuth2Interceptor : Interceptor
 
         if (!_settings.Values.TryGetValue(TokenKeys.AuthenticationTypeKey, out var authenticationType))
         {
-            _logger.Technical().System($"No authentication type for {this.GetType().Name}, Check next Interceptor").Log();
+            _logger.Technical().System($"No authentication type for {GetType().Name}, Check next Interceptor").Log();
             return;
         }
 

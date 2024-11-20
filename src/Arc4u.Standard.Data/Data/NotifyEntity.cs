@@ -35,7 +35,7 @@ namespace Arc4u.Data
         /// <param name="propertyName">The name of the property whose the value has changed.</param>
         protected virtual void RaisePropertyChanged([CallerMemberName] string propertyName = "undefined")
         {
-            this.RaisePropertyChanged(new PropertyChangedEventArgs(propertyName));
+            RaisePropertyChanged(new PropertyChangedEventArgs(propertyName));
         }
 
         /// <summary>
@@ -59,10 +59,10 @@ namespace Arc4u.Data
         }
 
         /// <summary>
-        /// Returns a <see cref="System.String"/> that represents this instance.
+        /// Returns a <see cref="System.string"/> that represents this instance.
         /// </summary>
         /// <returns>
-        /// A <see cref="System.String"/> that represents this instance.
+        /// A <see cref="System.string"/> that represents this instance.
         /// </returns>
         public override string ToString()
         {

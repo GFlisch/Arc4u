@@ -21,7 +21,7 @@ public class Context
         }
     }
 
-    public String Value { get; set; }
+    public string Value { get; set; }
 }
 
 public class ScopeTest
@@ -30,23 +30,23 @@ public class ScopeTest
     [Fact]
     public void Fact1()
     {
-        Assert.Null(Scope<String>.Current);
+        Assert.Null(Scope<string>.Current);
     }
 
     [Trait("Category", "CI")]
     [Fact]
     public void Fact2()
     {
-        using (new Scope<String>("Hello"))
+        using (new Scope<string>("Hello"))
         {
-            using (new Scope<String>("Gilles"))
+            using (new Scope<string>("Gilles"))
             {
-                Assert.Equal("Gilles", Scope<String>.Current);
+                Assert.Equal("Gilles", Scope<string>.Current);
             }
-            Assert.Equal("Hello", Scope<String>.Current);
+            Assert.Equal("Hello", Scope<string>.Current);
         }
 
-        Assert.Null(Scope<String>.Current);
+        Assert.Null(Scope<string>.Current);
 
     }
 
@@ -123,7 +123,7 @@ public class ScopeTest
     [Fact]
     public void TestAsync2()
     {
-        using (new Scope<String>("Hello"))
+        using (new Scope<string>("Hello"))
         {
             var testThread = Environment.CurrentManagedThreadId;
             var t1 = GetManageThreadIdAsync();
@@ -132,25 +132,25 @@ public class ScopeTest
 
             Assert.False(testThread == t1.Result);
             Assert.False(testThread == t2.Result);
-            Assert.Equal("Hello", Scope<String>.Current);
+            Assert.Equal("Hello", Scope<string>.Current);
         }
 
-        Assert.Null(Scope<String>.Current);
+        Assert.Null(Scope<string>.Current);
     }
 
     private async Task<int> GetManageThreadIdAsync()
     {
         int threadId;
 
-        using (new Scope<String>("Gilles"))
+        using (new Scope<string>("Gilles"))
         {
             await Task.Delay(100).ConfigureAwait(false);
-            Assert.Equal("Gilles", Scope<String>.Current);
+            Assert.Equal("Gilles", Scope<string>.Current);
             threadId = Environment.CurrentManagedThreadId;
 
         }
 
-        Assert.Equal("Hello", Scope<String>.Current);
+        Assert.Equal("Hello", Scope<string>.Current);
 
         return threadId;
     }
@@ -159,15 +159,15 @@ public class ScopeTest
     {
         int threadId;
 
-        using (new Scope<String>("Gaëtan"))
+        using (new Scope<string>("Gaëtan"))
         {
             await Task.Delay(100).ConfigureAwait(false);
-            Assert.Equal("Gaëtan", Scope<String>.Current);
+            Assert.Equal("Gaëtan", Scope<string>.Current);
             threadId = Environment.CurrentManagedThreadId;
 
         }
 
-        Assert.Equal("Hello", Scope<String>.Current);
+        Assert.Equal("Hello", Scope<string>.Current);
 
         return threadId;
     }

@@ -22,7 +22,7 @@ public class AppException : Exception
         //consider argument
         if (messages == null)
         {
-            return String.Empty;
+            return string.Empty;
         }
 
         var builder = new StringBuilder();

@@ -133,10 +133,10 @@ namespace Arc4u
         #region Overriden Members
 
         /// <summary>
-        /// Returns a <see cref="System.String"/> that represents this instance.
+        /// Returns a <see cref="System.string"/> that represents this instance.
         /// </summary>
         /// <returns>
-        /// A <see cref="System.String"/> that represents this instance.
+        /// A <see cref="System.string"/> that represents this instance.
         /// </returns>
         /// <remarks>
         /// Type of <typeparamref name="T"/> is not considered for uniformity between types

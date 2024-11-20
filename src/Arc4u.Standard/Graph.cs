@@ -15,19 +15,19 @@ namespace Arc4u
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class Graph<T> where T : class
     {
-        private const String StringTypeNotAllowed = "Including a type of String is not allowed when you try to define a graph path.";
-        private const String StructTypeNotAllowed = "Including a struct type is not allowed when you try to define a graph path.";
-        private const String OnlyLevelOneIsAllowed = "It is not allowed to check more than one level!";
+        private const string stringTypeNotAllowed = "Including a type of string is not allowed when you try to define a graph path.";
+        private const string StructTypeNotAllowed = "Including a struct type is not allowed when you try to define a graph path.";
+        private const string OnlyLevelOneIsAllowed = "It is not allowed to check more than one level!";
 
         [DataMember(Name = "Includes")]
-        private List<String> _includes;
+        private List<string> _includes;
 
         /// <summary>
         /// Create a Graph instance based on the typeof(T).
         /// </summary>
         public Graph()
         {
-            _includes = new List<String>();
+            _includes = new List<string>();
         }
 
         /// <summary>
@@ -43,7 +43,7 @@ namespace Arc4u
 
             ValidatePaths(paths);
 
-            _includes = new List<String>(paths);
+            _includes = new List<string>(paths);
         }
 
         private void ValidatePaths(IEnumerable<string> paths)
@@ -57,21 +57,21 @@ namespace Arc4u
                     var propertyInfo = type.GetRuntimeProperty(property);
                     if (null == propertyInfo)
                     {
-                        throw new MissingMemberException(String.Format("The property {0} does not exist!", property));
+                        throw new MissingMemberException(string.Format("The property {0} does not exist!", property));
                     }
 
                     if (propertyInfo.PropertyType.IsArray)
                     {
                         type = propertyInfo.PropertyType.GetElementType();
 
-                        if (type == typeof(String))
+                        if (type == typeof(string))
                         {
-                            throw new MissingMemberException(String.Format("The property {0} is a simple type!", property));
+                            throw new MissingMemberException(string.Format("The property {0} is a simple type!", property));
                         }
 
                         if (!type.GetTypeInfo().IsClass)
                         {
-                            throw new MissingMemberException(String.Format("The property {0} is a simple type!", property));
+                            throw new MissingMemberException(string.Format("The property {0} is a simple type!", property));
                         }
 
                         continue;
@@ -81,26 +81,26 @@ namespace Arc4u
                     {
                         if (!propertyInfo.PropertyType.GetTypeInfo().IsGenericType)
                         {
-                            throw new MissingMemberException(String.Format("The property {0} is not a generic collection!", property));
+                            throw new MissingMemberException(string.Format("The property {0} is not a generic collection!", property));
                         }
 
                         var types = propertyInfo.PropertyType.GenericTypeArguments;
                         foreach (var t in types)
                         {
-                            if (t == typeof(String))
+                            if (t == typeof(string))
                             {
-                                throw new MissingMemberException(String.Format("The property {0} is a simple type!", property));
+                                throw new MissingMemberException(string.Format("The property {0} is a simple type!", property));
                             }
 
                             if (!t.GetTypeInfo().IsClass)
                             {
-                                throw new MissingMemberException(String.Format("The property {0} is a simple type!", property));
+                                throw new MissingMemberException(string.Format("The property {0} is a simple type!", property));
                             }
                         }
 
                         if (types.Length > 1)
                         {
-                            throw new MissingMemberException(String.Format("Simple Collection is allowed, property {0} has more than one type.", property));
+                            throw new MissingMemberException(string.Format("Simple Collection is allowed, property {0} has more than one type.", property));
                         }
 
                         type = types[0];
@@ -109,14 +109,14 @@ namespace Arc4u
 
                     type = propertyInfo.PropertyType;
 
-                    if (type == typeof(String))
+                    if (type == typeof(string))
                     {
-                        throw new MissingMemberException(String.Format("The property {0} is a simple type!", property));
+                        throw new MissingMemberException(string.Format("The property {0} is a simple type!", property));
                     }
 
                     if (!type.GetTypeInfo().IsClass)
                     {
-                        throw new MissingMemberException(String.Format("The property {0} is a simple type!", property));
+                        throw new MissingMemberException(string.Format("The property {0} is a simple type!", property));
                     }
                 }
             }
@@ -127,7 +127,7 @@ namespace Arc4u
             get
             {
                 var info = new StringBuilder();
-                info.Append(String.Format("{0}: ", typeof(T).Name));
+                info.Append(string.Format("{0}: ", typeof(T).Name));
                 var includes = Includes;
                 if (includes.Count == 0)
                 {
@@ -145,7 +145,7 @@ namespace Arc4u
                     info.Append(", ");
                     for (int i = 1; i < includes.Count - 1; i++)
                     {
-                        info.Append(String.Format("{0}, ", includes[i]));
+                        info.Append(string.Format("{0}, ", includes[i]));
                     }
                     info.Append(includes[includes.Count - 1]);
                 }
@@ -162,12 +162,12 @@ namespace Arc4u
         {
             var stringPath = EvaluateExpression(path);
 
-            if (!String.IsNullOrWhiteSpace(stringPath) && stringPath[0] == '.')
+            if (!string.IsNullOrWhiteSpace(stringPath) && stringPath[0] == '.')
             {
                 stringPath = stringPath.Substring(1);
             }
 
-            if (!String.IsNullOrWhiteSpace(stringPath) && !_includes.Exists(i => i == stringPath))
+            if (!string.IsNullOrWhiteSpace(stringPath) && !_includes.Exists(i => i == stringPath))
             {
                 _includes.Add(stringPath);
             }
@@ -176,28 +176,28 @@ namespace Arc4u
 
         }
 
-        public static String EvaluateExpression(Expression path)
+        public static string EvaluateExpression(Expression path)
         {
             if (null == path)
             {
                 throw new ArgumentNullException("path");
             }
 
-            var stringPath = String.Empty;
+            var stringPath = string.Empty;
             var memberExpression = path as MemberExpression;
             if (null != memberExpression)
             {
-                // Check if type is System.String. because String is of type Class and the include allows to parse member of type Class. But we are not interested to see the String type.
-                if (memberExpression.Type == typeof(String))
+                // Check if type is System.string. because string is of type Class and the include allows to parse member of type Class. But we are not interested to see the string type.
+                if (memberExpression.Type == typeof(string))
                 {
-                    throw new MemberAccessException(StringTypeNotAllowed);
+                    throw new MemberAccessException(stringTypeNotAllowed);
                 }
 
                 if (memberExpression.Type.IsArray)
                 {
-                    if (memberExpression.Type.GetElementType() == typeof(String))
+                    if (memberExpression.Type.GetElementType() == typeof(string))
                     {
-                        throw new MemberAccessException(StringTypeNotAllowed);
+                        throw new MemberAccessException(stringTypeNotAllowed);
                     }
 
                     if (!memberExpression.Type.GetElementType().GetTypeInfo().IsClass)
@@ -211,9 +211,9 @@ namespace Arc4u
 
                     foreach (var type in types)
                     {
-                        if (type == typeof(String))
+                        if (type == typeof(string))
                         {
-                            throw new MemberAccessException(StringTypeNotAllowed);
+                            throw new MemberAccessException(stringTypeNotAllowed);
                         }
 
                         if (!type.GetTypeInfo().IsClass)
@@ -260,7 +260,7 @@ namespace Arc4u
 
             var stringPath = EvaluateExpression(path);
 
-            if (!String.IsNullOrWhiteSpace(stringPath) && stringPath[0] == '.')
+            if (!string.IsNullOrWhiteSpace(stringPath) && stringPath[0] == '.')
             {
                 stringPath = stringPath.Substring(1);
             }
@@ -285,7 +285,7 @@ namespace Arc4u
 
             var stringPath = EvaluateExpression(path);
 
-            if (!String.IsNullOrWhiteSpace(stringPath) && stringPath[0] == '.')
+            if (!string.IsNullOrWhiteSpace(stringPath) && stringPath[0] == '.')
             {
                 stringPath = stringPath.Substring(1);
             }
@@ -333,7 +333,7 @@ namespace Arc4u
 
             var stringPath = EvaluateExpression(path);
 
-            if (!String.IsNullOrWhiteSpace(stringPath) && stringPath[0] == '.')
+            if (!string.IsNullOrWhiteSpace(stringPath) && stringPath[0] == '.')
             {
                 stringPath = stringPath.Substring(1);
             }
@@ -346,7 +346,7 @@ namespace Arc4u
 
         private static IEnumerable<string> ParseObject(object o)
         {
-            var result = new List<String>();
+            var result = new List<string>();
 
             if (null == o)
             {
@@ -378,7 +378,7 @@ namespace Arc4u
                 object oProperty;
                 if (property.PropertyType.IsArray)
                 {
-                    if (property.PropertyType.GetElementType() == typeof(String))
+                    if (property.PropertyType.GetElementType() == typeof(string))
                     {
                         continue;
                     }
@@ -413,7 +413,7 @@ namespace Arc4u
                     {
                         foreach (var child in children)
                         {
-                            result.Add(String.Format("{0}.{1}", property.Name, child));
+                            result.Add(string.Format("{0}.{1}", property.Name, child));
                         }
                     }
 
@@ -443,7 +443,7 @@ namespace Arc4u
                             {
                                 foreach (var child in children)
                                 {
-                                    result.Add(String.Format("{0}.{1}", property.Name, child));
+                                    result.Add(string.Format("{0}.{1}", property.Name, child));
                                 }
                             }
                         }
@@ -455,7 +455,7 @@ namespace Arc4u
                     continue;
                 }
 
-                if (property.PropertyType == typeof(String))
+                if (property.PropertyType == typeof(string))
                 {
                     continue;
                 }
@@ -479,7 +479,7 @@ namespace Arc4u
                     {
                         foreach (var child in children)
                         {
-                            result.Add(String.Format("{0}.{1}", property.Name, child));
+                            result.Add(string.Format("{0}.{1}", property.Name, child));
                         }
                     }
                 }
@@ -491,7 +491,7 @@ namespace Arc4u
 
         private static IEnumerable<string> ParseObject2(object o)
         {
-            var result = new List<String>();
+            var result = new List<string>();
 
             if (null == o)
             {
@@ -523,7 +523,7 @@ namespace Arc4u
                 object oProperty;
                 if (property.PropertyType.IsArray)
                 {
-                    if (property.PropertyType.GetElementType() == typeof(String))
+                    if (property.PropertyType.GetElementType() == typeof(string))
                     {
                         continue;
                     }
@@ -557,7 +557,7 @@ namespace Arc4u
                     {
                         foreach (var child in children)
                         {
-                            result.Add(String.Format("{0}.{1}", property.Name, child));
+                            result.Add(string.Format("{0}.{1}", property.Name, child));
                         }
                     }
 
@@ -588,7 +588,7 @@ namespace Arc4u
                             {
                                 foreach (var child in children)
                                 {
-                                    result.Add(String.Format("{0}.{1}", property.Name, child));
+                                    result.Add(string.Format("{0}.{1}", property.Name, child));
                                 }
                             }
                         }
@@ -596,7 +596,7 @@ namespace Arc4u
                     continue;
                 }
 
-                if (property.PropertyType == typeof(String))
+                if (property.PropertyType == typeof(string))
                 {
                     continue;
                 }
@@ -620,7 +620,7 @@ namespace Arc4u
                     {
                         foreach (var child in children)
                         {
-                            result.Add(String.Format("{0}.{1}", property.Name, child));
+                            result.Add(string.Format("{0}.{1}", property.Name, child));
                         }
                     }
                 }
@@ -633,12 +633,12 @@ namespace Arc4u
         /// The read collection of includes defined.
         /// </summary>
 
-        public IList<String> Includes
+        public IList<string> Includes
         {
             get
             {
                 // Clone it before.
-                return new List<String>(_includes);
+                return new List<string>(_includes);
             }
             set
             {

@@ -13,8 +13,8 @@ public class Switch<TSource, TResult> : IEnumerable<TResult>
 
         public CaseSelector(Func<TSource, bool> predicate, Func<TSource, TResult> selector)
         {
-            this.predicate = predicate;
-            this.selector = selector;
+            predicate = predicate;
+            selector = selector;
         }
 
         public bool CanSelect(TSource source) { return predicate(source); }
@@ -37,7 +37,7 @@ public class Switch<TSource, TResult> : IEnumerable<TResult>
 
     public Switch(IEnumerable<TSource> source)
     {
-        this.source = source;
+        source = source;
     }
 
     public Switch<TSource, TResult> Case(Func<TSource, bool> predicate, Func<TSource, TResult> selector)
@@ -118,7 +118,7 @@ public class Switch<TSource, TResult> : IEnumerable<TResult>
     #region IEnumerable Members
     IEnumerator IEnumerable.GetEnumerator()
     {
-        return this.GetEnumerator();
+        return GetEnumerator();
     }
     #endregion
 }

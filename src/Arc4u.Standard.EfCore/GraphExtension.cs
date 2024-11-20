@@ -7,7 +7,7 @@ namespace Arc4u.EfCore
 {
     public static class GraphExtension
     {
-        private const String OnlyLevelOneIsAllowed = "It is not allowed to check more than one level!";
+        private const string OnlyLevelOneIsAllowed = "It is not allowed to check more than one level!";
 
         /// <summary>
         /// Will apply the includes on the <see cref="IQueryable&gt;T&lt;"/> but the types having an assoication based on <see cref="IEnumerable"/>.
@@ -40,7 +40,7 @@ namespace Arc4u.EfCore
                 {
                     var type = objectType;
                     // var bSimpleGraph = true;
-                    var includedItems = new List<String>();
+                    var includedItems = new List<string>();
                     foreach (var propertyName in path)
                     {
                         type = type.GetRuntimeProperty(propertyName).PropertyType;
@@ -57,7 +57,7 @@ namespace Arc4u.EfCore
                     // if (bSimpleGraph)
                     if (includedItems.Count > 0)
                     {
-                        dQuery = dQuery.Include(String.Join(".", includedItems));
+                        dQuery = dQuery.Include(string.Join(".", includedItems));
                     }
                 }
 

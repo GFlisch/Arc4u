@@ -24,7 +24,7 @@ public class DefaultLoggingProperties : IAddPropertiesToLog
                         { LoggingConstants.ActivityId, _applicationContext.ActivityID },
                         { LoggingConstants.Identity, (null != _applicationContext.Principal?.Profile)
                                                                                         ? _applicationContext.Principal.Profile.Name ?? string.Empty
-                                                                                        : null != _applicationContext.Principal?.Identity ? _applicationContext.Principal.Identity.Name ?? string.Empty: String.Empty }
+                                                                                        : null != _applicationContext.Principal?.Identity ? _applicationContext.Principal.Identity.Name ?? string.Empty: string.Empty }
                     };
             }
         }

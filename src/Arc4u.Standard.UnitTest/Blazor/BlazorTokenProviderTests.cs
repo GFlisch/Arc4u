@@ -47,7 +47,7 @@ namespace Arc4u.UnitTest.Blazor
             var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
             var tokenInfo = new TokenInfo("Bearer", accessToken, DateTime.UtcNow);
 
-            Dictionary<String, String> keySettings = new();
+            Dictionary<string, string> keySettings = new();
             keySettings.Add(TokenKeys.AuthorityKey, "http://sts");
             keySettings.Add(TokenKeys.RedirectUrl, "https://localhost:44444/");
 
@@ -56,7 +56,7 @@ namespace Arc4u.UnitTest.Blazor
             mockLocalStorage.Setup(p => p.RemoveItemAsync("token", It.IsAny<CancellationToken>()));
 
             var mockInterop = fixture.Freeze<Mock<ITokenWindowInterop>>();
-            mockInterop.Setup(m => m.OpenWindowAsync(It.IsAny<IJSRuntime>(), It.IsAny<ILocalStorageService>(), It.IsAny<String>(), It.IsAny<String>()))
+            mockInterop.Setup(m => m.OpenWindowAsync(It.IsAny<IJSRuntime>(), It.IsAny<ILocalStorageService>(), It.IsAny<string>(), It.IsAny<string>()))
                          .Returns(Task.CompletedTask);
 
             var mockKeyValueSettings = fixture.Freeze<Mock<IKeyValueSettings>>();
@@ -71,7 +71,7 @@ namespace Arc4u.UnitTest.Blazor
             token.Should().NotBeNull();
             token.Token.Should().Be(accessToken);
 
-            mockInterop.Verify(m => m.OpenWindowAsync(It.IsAny<IJSRuntime>(), It.IsAny<ILocalStorageService>(), It.IsAny<String>(), It.IsAny<String>()), Times.Never);
+            mockInterop.Verify(m => m.OpenWindowAsync(It.IsAny<IJSRuntime>(), It.IsAny<ILocalStorageService>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
             mockLocalStorage.Verify(p => p.GetItemAsStringAsync("token", It.IsAny<CancellationToken>()), Times.Once);
             mockLocalStorage.Verify(p => p.RemoveItemAsync("token", It.IsAny<CancellationToken>()), Times.Never);
         }
@@ -86,7 +86,7 @@ namespace Arc4u.UnitTest.Blazor
             JwtSecurityToken jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
             var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
 
-            Dictionary<String, String> keySettings = new();
+            Dictionary<string, string> keySettings = new();
             keySettings.Add(TokenKeys.AuthorityKey, "http://sts");
             keySettings.Add(TokenKeys.RedirectUrl, "https://localhost:44444/");
 
@@ -97,7 +97,7 @@ namespace Arc4u.UnitTest.Blazor
             mockLocalStorage.Setup(p => p.RemoveItemAsync("token", It.IsAny<CancellationToken>()));
 
             var mockInterop = fixture.Freeze<Mock<ITokenWindowInterop>>();
-            mockInterop.Setup(m => m.OpenWindowAsync(It.IsAny<IJSRuntime>(), It.IsAny<ILocalStorageService>(), It.IsAny<String>(), It.IsAny<String>()))
+            mockInterop.Setup(m => m.OpenWindowAsync(It.IsAny<IJSRuntime>(), It.IsAny<ILocalStorageService>(), It.IsAny<string>(), It.IsAny<string>()))
                          .Returns(Task.CompletedTask);
 
             var mockKeyValueSettings = fixture.Freeze<Mock<IKeyValueSettings>>();
@@ -112,7 +112,7 @@ namespace Arc4u.UnitTest.Blazor
             token.Should().NotBeNull();
             token.Token.Should().Be(accessToken);
 
-            mockInterop.Verify(m => m.OpenWindowAsync(It.IsAny<IJSRuntime>(), It.IsAny<ILocalStorageService>(), It.IsAny<String>(), It.IsAny<String>()), Times.Once);
+            mockInterop.Verify(m => m.OpenWindowAsync(It.IsAny<IJSRuntime>(), It.IsAny<ILocalStorageService>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
             mockLocalStorage.Verify(p => p.GetItemAsStringAsync("token", It.IsAny<CancellationToken>()), Times.Exactly(2));
             mockLocalStorage.Verify(p => p.RemoveItemAsync("token", It.IsAny<CancellationToken>()), Times.Once);
         }
@@ -126,7 +126,7 @@ namespace Arc4u.UnitTest.Blazor
             var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
             var tokenInfo = new TokenInfo("Bearer", accessToken, DateTime.UtcNow);
 
-            Dictionary<String, String> keySettings = new();
+            Dictionary<string, string> keySettings = new();
             keySettings.Add(TokenKeys.AuthorityKey, "http://sts");
             keySettings.Add(TokenKeys.RedirectUrl, "https://localhost:44444/");
 
@@ -137,7 +137,7 @@ namespace Arc4u.UnitTest.Blazor
             mockLocalStorage.Setup(p => p.RemoveItemAsync("token", It.IsAny<CancellationToken>()));
 
             var mockInterop = fixture.Freeze<Mock<ITokenWindowInterop>>();
-            mockInterop.Setup(m => m.OpenWindowAsync(It.IsAny<IJSRuntime>(), It.IsAny<ILocalStorageService>(), It.IsAny<String>(), It.IsAny<String>()))
+            mockInterop.Setup(m => m.OpenWindowAsync(It.IsAny<IJSRuntime>(), It.IsAny<ILocalStorageService>(), It.IsAny<string>(), It.IsAny<string>()))
                          .Returns(Task.CompletedTask);
 
             var mockKeyValueSettings = fixture.Freeze<Mock<IKeyValueSettings>>();
@@ -152,7 +152,7 @@ namespace Arc4u.UnitTest.Blazor
             token.Should().NotBeNull();
             token.Token.Should().Be(accessToken);
 
-            mockInterop.Verify(m => m.OpenWindowAsync(It.IsAny<IJSRuntime>(), It.IsAny<ILocalStorageService>(), It.IsAny<String>(), It.IsAny<String>()), Times.Once);
+            mockInterop.Verify(m => m.OpenWindowAsync(It.IsAny<IJSRuntime>(), It.IsAny<ILocalStorageService>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
             mockLocalStorage.Verify(p => p.GetItemAsStringAsync("token", It.IsAny<CancellationToken>()), Times.Exactly(2));
         }
 
@@ -165,7 +165,7 @@ namespace Arc4u.UnitTest.Blazor
             var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
             var tokenInfo = new TokenInfo("Bearer", accessToken, DateTime.UtcNow);
 
-            Dictionary<String, String> keySettings = new();
+            Dictionary<string, string> keySettings = new();
             keySettings.Add(TokenKeys.AuthorityKey, "http://sts");
             keySettings.Add(TokenKeys.RedirectUrl, "https://localhost:44444/");
 
@@ -176,7 +176,7 @@ namespace Arc4u.UnitTest.Blazor
             mockLocalStorage.Setup(p => p.RemoveItemAsync("token", It.IsAny<CancellationToken>()));
 
             var mockInterop = fixture.Freeze<Mock<ITokenWindowInterop>>();
-            mockInterop.Setup(m => m.OpenWindowAsync(It.IsAny<IJSRuntime>(), It.IsAny<ILocalStorageService>(), It.IsAny<String>(), It.IsAny<String>()))
+            mockInterop.Setup(m => m.OpenWindowAsync(It.IsAny<IJSRuntime>(), It.IsAny<ILocalStorageService>(), It.IsAny<string>(), It.IsAny<string>()))
                          .Returns(Task.CompletedTask);
 
             var mockKeyValueSettings = fixture.Freeze<Mock<IKeyValueSettings>>();
@@ -191,7 +191,7 @@ namespace Arc4u.UnitTest.Blazor
             token.Should().NotBeNull();
             token.Token.Should().Be(accessToken);
 
-            mockInterop.Verify(m => m.OpenWindowAsync(It.IsAny<IJSRuntime>(), It.IsAny<ILocalStorageService>(), It.IsAny<String>(), It.IsAny<String>()), Times.Once);
+            mockInterop.Verify(m => m.OpenWindowAsync(It.IsAny<IJSRuntime>(), It.IsAny<ILocalStorageService>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
             mockLocalStorage.Verify(p => p.GetItemAsStringAsync("token", It.IsAny<CancellationToken>()), Times.Exactly(2));
             mockLocalStorage.Verify(p => p.RemoveItemAsync("token", It.IsAny<CancellationToken>()), Times.Once);
         }
@@ -200,7 +200,7 @@ namespace Arc4u.UnitTest.Blazor
         public async Task GetTokenWithNullSettingsValuesShoud()
         {
             // Arrange
-            Dictionary<String, String> keySettings = null;
+            Dictionary<string, string> keySettings = null;
 
             var mockKeyValueSettings = fixture.Freeze<Mock<IKeyValueSettings>>();
             mockKeyValueSettings.SetupGet(p => p.Values).Returns(keySettings);

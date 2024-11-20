@@ -2,31 +2,31 @@ namespace Arc4u.IdentityModel.Claims;
 
 public class ClaimTypes
 {
-    public static String Culture { get { return "http://schemas.arc4u.net/ws/2012/05/identity/claims/culture"; } }
+    public static string Culture { get { return "http://schemas.arc4u.net/ws/2012/05/identity/claims/culture"; } }
 
-    public static String Authorization { get { return "http://schemas.arc4u.net/ws/2012/05/identity/claims/authorization"; } }
+    public static string Authorization { get { return "http://schemas.arc4u.net/ws/2012/05/identity/claims/authorization"; } }
 
-    public static String ServiceSid { get { return "http://schemas.arc4u.net/ws/2012/05/identity/claims/servicesid"; } }
+    public static string ServiceSid { get { return "http://schemas.arc4u.net/ws/2012/05/identity/claims/servicesid"; } }
 
-    public static String Company { get { return "http://schemas.arc4u.net/ws/2012/05/identity/claims/company"; } }
+    public static string Company { get { return "http://schemas.arc4u.net/ws/2012/05/identity/claims/company"; } }
 
-    public static String Sid { get { return "http://schemas.arc4u.net/ws/2012/05/identity/claims/sid"; } }
+    public static string Sid { get { return "http://schemas.arc4u.net/ws/2012/05/identity/claims/sid"; } }
 
-    public static String UserPicture { get { return "http://schemas.arc4u.net/ws/2012/05/identity/claims/userPicture"; } }
+    public static string UserPicture { get { return "http://schemas.arc4u.net/ws/2012/05/identity/claims/userPicture"; } }
 
-    public static String Name { get { return "name"; } }
+    public static string Name { get { return "name"; } }
 
-    public static String Surname { get { return "family_name"; } }
+    public static string Surname { get { return "family_name"; } }
 
-    public static String GivenName { get { return "given_name"; } }
+    public static string GivenName { get { return "given_name"; } }
 
-    public static String Upn { get { return "upn"; } }
+    public static string Upn { get { return "upn"; } }
 
-    public static String Email { get { return "email"; } }
+    public static string Email { get { return "email"; } }
 
-    public static String PrimarySid { get { return "primarysid"; } }
+    public static string PrimarySid { get { return "primarysid"; } }
 
-    public static String ObjectIdentifier { get { return "http://schemas.microsoft.com/identity/claims/objectidentifier"; } }
+    public static string ObjectIdentifier { get { return "http://schemas.microsoft.com/identity/claims/objectidentifier"; } }
 
-    public static String OID { get { return "oid"; } }
+    public static string OID { get { return "oid"; } }
 }

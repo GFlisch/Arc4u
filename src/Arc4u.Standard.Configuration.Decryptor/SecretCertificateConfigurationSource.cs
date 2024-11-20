@@ -43,6 +43,6 @@ public class SecretCertificateConfigurationSource : IConfigurationSource
     {
         var sources = builder.Sources.ToList();
         var index = sources.IndexOf(this);
-        return sources.Take(index).Where(s => s.GetType() != this.GetType()).ToList();
+        return sources.Take(index).Where(s => s.GetType() != GetType()).ToList();
     }
 }

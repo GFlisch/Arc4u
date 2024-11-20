@@ -5,17 +5,17 @@
     /// </summary>
     public class CacheEventArgs : EventArgs
     {
-        public CacheEventArgs(String key, CacheAction action)
+        public CacheEventArgs(string key, CacheAction action)
         {
             _key = key;
             _cacheAction = action;
         }
 
-        private readonly String _key;
+        private readonly string _key;
         /// <summary>
-        /// The <see cref="String"/> used to identify the object in the cache.
+        /// The <see cref="string"/> used to identify the object in the cache.
         /// </summary>
-        public String Key { get { return _key; } }
+        public string Key { get { return _key; } }
 
         private readonly CacheAction _cacheAction;
         /// <summary>

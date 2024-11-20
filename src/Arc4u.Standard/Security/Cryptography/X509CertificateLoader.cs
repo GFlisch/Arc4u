@@ -79,7 +79,7 @@ public class X509CertificateLoader : IX509CertificateLoader
     {
         var certificate = configuration.GetSection(sectionName).Get<CertificateStoreOrFileInfo>();
 
-        return this.FindCertificate(certificate);
+        return FindCertificate(certificate);
     }
 
 #if NET8_0_OR_GREATER

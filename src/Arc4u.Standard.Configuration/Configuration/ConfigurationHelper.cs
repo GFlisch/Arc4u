@@ -28,7 +28,7 @@ public static class ConfigurationHelper
         var configBuilder = new ConfigurationBuilder();
 
         var disposables = new List<IDisposable>();
-        var assemblies = new Dictionary<String, Assembly>();
+        var assemblies = new Dictionary<string, Assembly>();
 
         foreach (var file in fileTypes)
         {

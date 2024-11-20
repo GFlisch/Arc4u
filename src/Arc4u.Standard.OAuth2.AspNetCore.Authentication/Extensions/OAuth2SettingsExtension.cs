@@ -37,7 +37,7 @@ public static class OAuth2SettingsExtension
         }
 
         // We map this to a IKeyValuesSettings dictionary.
-        // The TokenProviders are based on this.
+        // The TokenProviders are based on 
 
         void SettingsFiller(SimpleKeyValueSettings keyOptions)
         {

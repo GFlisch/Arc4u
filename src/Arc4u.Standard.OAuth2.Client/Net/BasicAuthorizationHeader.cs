@@ -10,7 +10,7 @@ namespace Arc4u.OAuth2.Net
     {
         public BasicAuthorizationHeader(ISecureCache secureCache)
         {
-            this.secureCache = secureCache;
+            secureCache = secureCache;
         }
 
         private readonly ISecureCache secureCache;
@@ -33,7 +33,7 @@ namespace Arc4u.OAuth2.Net
             passwordStoreKey = "secret";
             if (settings.Values.ContainsKey(TokenKeys.PasswordStoreKey))
             {
-                passwordStoreKey = String.IsNullOrWhiteSpace(settings.Values[TokenKeys.PasswordStoreKey]) ? passwordStoreKey : settings.Values[TokenKeys.PasswordStoreKey];
+                passwordStoreKey = string.IsNullOrWhiteSpace(settings.Values[TokenKeys.PasswordStoreKey]) ? passwordStoreKey : settings.Values[TokenKeys.PasswordStoreKey];
             }
 
         }

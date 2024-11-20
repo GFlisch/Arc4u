@@ -99,8 +99,8 @@ namespace Arc4u.Data
         protected DeleteAuditEntity(DeleteAuditEntity<TId, TCreatedBy, TCreatedOn, TUpdatedBy, TUpdatedOn, TDeletedBy, TDeletedOn> entity)
             : base(entity)
         {
-            this._deletedBy = entity._deletedBy;
-            this._deletedOn = entity._deletedOn;
+            _deletedBy = entity._deletedBy;
+            _deletedOn = entity._deletedOn;
         }
 
         #endregion

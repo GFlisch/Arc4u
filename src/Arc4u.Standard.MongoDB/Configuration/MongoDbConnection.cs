@@ -15,16 +15,16 @@ public static class MongoDbConnection
     /// <typeparam name="TContext"></typeparam>
     /// <param name="services"></param>
     /// <param name="configuration"></param>
-    /// <param name="connectionStringKey"></param>
-    public static void AddMongoDatabase<TContext>(this IServiceCollection services, IConfiguration configuration, string connectionStringKey) where TContext : DbContext, new()
+    /// <param name="ConnectionStringKey"></param>
+    public static void AddMongoDatabase<TContext>(this IServiceCollection services, IConfiguration configuration, string ConnectionStringKey) where TContext : DbContext, new()
     {
-        var connectionString = configuration.GetConnectionString(connectionStringKey);
+        var ConnectionString = configuration.GetConnectionString(ConnectionStringKey);
 
-        var mongoUrl = new MongoUrl(connectionString);
+        var mongoUrl = new MongoUrl(ConnectionString);
 
         services.Configure<MongoClientSettings>(mongoUrl.DatabaseName.ToLowerInvariant(), options =>
         {
-            var c = MongoClientSettings.FromConnectionString(configuration.GetConnectionString(connectionStringKey));
+            var c = MongoClientSettings.FromConnectionString(configuration.GetConnectionString(ConnectionStringKey));
             options.AllowInsecureTls = c.AllowInsecureTls;
             options.ApplicationName = c.ApplicationName;
             options.AutoEncryptionOptions = c.AutoEncryptionOptions;
@@ -55,7 +55,7 @@ public static class MongoDbConnection
             options.WriteEncoding = c.WriteEncoding;
         });
 
-        var contextBuilder = new DbContextBuilder(services, mongoUrl.DatabaseName, connectionStringKey);
+        var contextBuilder = new DbContextBuilder(services, mongoUrl.DatabaseName, ConnectionStringKey);
 
         var dbContext = new TContext();
 

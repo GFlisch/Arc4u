@@ -28,7 +28,7 @@ namespace Prism.DI
                 throw new ArgumentNullException(nameof(serviceType));
             }
 
-            var result = String.IsNullOrWhiteSpace(key) ? Container.Resolve(serviceType) : Container.Resolve(serviceType, key);
+            var result = string.IsNullOrWhiteSpace(key) ? Container.Resolve(serviceType) : Container.Resolve(serviceType, key);
             return result;
         }
 

@@ -30,7 +30,7 @@ namespace Arc4u.NServiceBus
         /// <param name="applicationName">The name of the application. This is sent in the headers of the message.</param>
         public async Task StartAsync(string applicationName)
         {
-            if (String.IsNullOrEmpty(applicationName))
+            if (string.IsNullOrEmpty(applicationName))
             {
                 throw new ArgumentException("applicationName");
             }

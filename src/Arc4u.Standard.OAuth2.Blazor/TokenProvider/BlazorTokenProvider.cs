@@ -86,7 +86,7 @@ namespace Arc4u.OAuth2.TokenProvider
         {
             var accessToken = await _localStorage.GetItemAsStringAsync("token");
 
-            if (!String.IsNullOrEmpty(accessToken))
+            if (!string.IsNullOrEmpty(accessToken))
             {
                 try
                 {

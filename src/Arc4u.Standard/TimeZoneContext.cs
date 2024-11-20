@@ -53,7 +53,7 @@ namespace Arc4u
                 {
                     logger.Technical().From<TimeZoneContext>().System(config.Environment.TimeZone).Log();
 
-                    if (!String.IsNullOrWhiteSpace(config.Environment.TimeZone))
+                    if (!string.IsNullOrWhiteSpace(config.Environment.TimeZone))
                     {
                         _timeZone = TimeZoneInfo.FindSystemTimeZoneById(config.Environment.TimeZone);
                     }

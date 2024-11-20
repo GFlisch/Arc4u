@@ -27,6 +27,6 @@ public class ClaimDto
 
     public override string ToString()
     {
-        return String.Format(CultureInfo.InvariantCulture, "{0} : {1}", ClaimType, Value);
+        return string.Format(CultureInfo.InvariantCulture, "{0} : {1}", ClaimType, Value);
     }
 }

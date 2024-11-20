@@ -4,11 +4,11 @@ namespace Arc4u.MongoDB.Configuration;
 
 public class DbContextBuilder
 {
-    public DbContextBuilder(IServiceCollection services, string databaseName, string connectionStringKey)
+    public DbContextBuilder(IServiceCollection services, string databaseName, string ConnectionStringKey)
     {
         Services = services;
         DatabaseName = databaseName;
-        ConnectionStringKey = connectionStringKey;
+        ConnectionStringKey = ConnectionStringKey;
         EntityCollectionTypes = [];
     }
 

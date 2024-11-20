@@ -29,7 +29,7 @@ namespace Arc4u.Data
         , IEnumerable
         where TEntity : IPersistEntity
     {
-        #region String Constants
+        #region string Constants
         const string ArgumentOutOfRange_Index = "Index was out of range. Must be non-negative and less than the size of the collection.";
         const string ArgumentOutOfRange_Count = "Count must be positive and count must refer to a location within the string/array/collection.";
         const string ArgumentOutOfRange_NeedNonNegNum = "Non-negative number required.";
@@ -67,7 +67,7 @@ namespace Arc4u.Data
         /// <param name="propertyName">The name of the property whose value has changed.</param>
         void OnPropertyChanged(string propertyName)
         {
-            this.OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
+            OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
         }
 
         /// <summary>
@@ -106,33 +106,33 @@ namespace Arc4u.Data
         /// </remarks>
         void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
         {
-            if (this.CollectionChanged != null)
+            if (CollectionChanged != null)
             {
-                using (this.BlockReentrancy())
+                using (BlockReentrancy())
                 {
-                    this.CollectionChanged(this, e);
+                    CollectionChanged(this, e);
                 }
             }
         }
 
         void OnCollectionChanged(NotifyCollectionChangedAction action, object item, int index)
         {
-            this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(action, item, index));
+            OnCollectionChanged(new NotifyCollectionChangedEventArgs(action, item, index));
         }
 
         private void OnCollectionChanged(NotifyCollectionChangedAction action, object item, int index, int oldIndex)
         {
-            this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(action, item, index, oldIndex));
+            OnCollectionChanged(new NotifyCollectionChangedEventArgs(action, item, index, oldIndex));
         }
 
         private void OnCollectionChanged(NotifyCollectionChangedAction action, object oldItem, object newItem, int index)
         {
-            this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(action, newItem, oldItem, index));
+            OnCollectionChanged(new NotifyCollectionChangedEventArgs(action, newItem, oldItem, index));
         }
 
         private void OnCollectionReset()
         {
-            this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
 
         /// <summary>
@@ -141,8 +141,8 @@ namespace Arc4u.Data
         /// <returns>An <see cref="T:System.Idisposable"/> object that can be used to dispose of the object.</returns>
         IDisposable BlockReentrancy()
         {
-            this._monitor.Enter();
-            return this._monitor;
+            _monitor.Enter();
+            return _monitor;
         }
 
         /// <summary>
@@ -151,7 +151,7 @@ namespace Arc4u.Data
         /// <exception cref="T:System.InvalidOperationException">If there was a call to <see cref="BlockReentrancy"/> of which the <see cref="T:System.Idisposable"/> return value has not yet been disposed of. Typically, this means when there are additional attempts to change this collection during a <see cref="CollectionChanged"/> event. However, it depends on when derived classes choose to call <see cref="BlockReentrancy"/>.</exception>
         void CheckReentrancy()
         {
-            if ((this._monitor.Busy && (this.CollectionChanged != null)) && (this.CollectionChanged.GetInvocationList().Length > 1))
+            if ((_monitor.Busy && (CollectionChanged != null)) && (CollectionChanged.GetInvocationList().Length > 1))
             {
                 throw new InvalidOperationException(ObservableCollectionReentrancyNotAllowed);
             }
@@ -167,12 +167,12 @@ namespace Arc4u.Data
         /// </remarks>
         public void Move(int oldIndex, int newIndex)
         {
-            this.CheckReentrancy();
+            CheckReentrancy();
             TEntity entity = this[oldIndex];
-            this.BaseRemoveAt(oldIndex);
-            this.InsertItem(newIndex, entity);
-            this.OnPropertyChanged("Item[]");
-            this.OnCollectionChanged(NotifyCollectionChangedAction.Move, entity, newIndex, oldIndex);
+            BaseRemoveAt(oldIndex);
+            InsertItem(newIndex, entity);
+            OnPropertyChanged("Item[]");
+            OnCollectionChanged(NotifyCollectionChangedAction.Move, entity, newIndex, oldIndex);
         }
 
         #endregion
@@ -202,8 +202,8 @@ namespace Arc4u.Data
         public EntitySet()
             : base()
         {
-            this._items = EntitySet<TEntity>._emptyArray;
-            this._monitor = new SimpleMonitor();
+            _items = EntitySet<TEntity>._emptyArray;
+            _monitor = new SimpleMonitor();
         }
 
         /// <summary>Initializes a new instance of the <see cref="EntitySet&lt;TEntity&gt;"/> class that is empty and has the specified initial capacity.</summary>
@@ -216,8 +216,8 @@ namespace Arc4u.Data
             {
                 throw new ArgumentOutOfRangeException("capacity", ArgumentOutOfRange_SmallCapacity);
             }
-            this._items = new TEntity[capacity];
-            this._monitor = new SimpleMonitor();
+            _items = new TEntity[capacity];
+            _monitor = new SimpleMonitor();
         }
 
         /// <summary>Initializes a new instance of the <see cref="EntitySet&lt;TEntity&gt;"/> class that contains entities copied from the specified collection and has sufficient capacity to accommodate the number of entities copied.</summary>
@@ -231,24 +231,24 @@ namespace Arc4u.Data
                 throw new ArgumentNullException("collection");
             }
 
-            this._monitor = new SimpleMonitor();
+            _monitor = new SimpleMonitor();
 
             var is2 = collection as ICollection<TEntity>;
             if (is2 != null)
             {
                 int count = is2.Count;
-                this._items = new TEntity[count];
-                is2.CopyTo(this._items, 0);
-                this._size = count;
+                _items = new TEntity[count];
+                is2.CopyTo(_items, 0);
+                _size = count;
             }
             else
             {
-                this._size = 0;
-                this._items = new TEntity[4];
+                _size = 0;
+                _items = new TEntity[4];
                 using var enumerator = collection.GetEnumerator();
                 while (enumerator.MoveNext())
                 {
-                    this.Add(enumerator.Current);
+                    Add(enumerator.Current);
                 }
             }
         }
@@ -262,25 +262,25 @@ namespace Arc4u.Data
         /// </remarks>
         public void Add(TEntity entity)
         {
-            this.CheckReentrancy();
-            int index = this._size;
-            this.AddItem(entity);
-            this.OnPropertyChanged("Count");
-            this.OnPropertyChanged("Item[]");
-            this.OnCollectionChanged(NotifyCollectionChangedAction.Add, entity, index);
+            CheckReentrancy();
+            int index = _size;
+            AddItem(entity);
+            OnPropertyChanged("Count");
+            OnPropertyChanged("Item[]");
+            OnCollectionChanged(NotifyCollectionChangedAction.Add, entity, index);
         }
 
         /// <summary>Adds an object to the end of the <see cref="EntitySet&lt;TEntity&gt;"/>.</summary>
         /// <param name="entity">The object to be added to the end of the <see cref="EntitySet&lt;TEntity&gt;"/>. The value can be null for reference types.</param>
         void AddItem(TEntity entity)
         {
-            if (this._size == this._items.Length)
+            if (_size == _items.Length)
             {
-                this.EnsureCapacity(this._size + 1);
+                EnsureCapacity(_size + 1);
             }
 
-            this._items[this._size++] = entity;
-            this._version++;
+            _items[_size++] = entity;
+            _version++;
         }
 
         /// <summary>Adds the entities of the specified collection to the end of the <see cref="EntitySet&lt;TEntity&gt;"/>.</summary>
@@ -288,7 +288,7 @@ namespace Arc4u.Data
         /// <exception cref="T:System.ArgumentNullException">collection is null.</exception>
         public void AddRange(IEnumerable<TEntity> collection)
         {
-            this.InsertRange(this._size, collection);
+            InsertRange(_size, collection);
         }
 
         /// <summary>Returns a read-only <see cref="T:System.Collections.Generic.IList`1"/> wrapper for the current collection.</summary>
@@ -304,7 +304,7 @@ namespace Arc4u.Data
         /// <exception cref="T:System.InvalidOperationException">The default comparer <see cref="P:System.Collections.Generic.Comparer`1.Default"/> cannot find an implementation of the <see cref="T:System.IComparable`1"/> generic interface or the <see cref="T:System.IComparable"/> interface for type TEntity.</exception>
         public int BinarySearch(TEntity entity)
         {
-            return this.BinarySearch(0, this._size, entity, null);
+            return BinarySearch(0, _size, entity, null);
         }
 
         /// <summary>Searches the entire sorted <see cref="EntitySet&lt;TEntity&gt;"/> for an entity using the specified comparer and returns the zero-based index of the entity.</summary>
@@ -314,7 +314,7 @@ namespace Arc4u.Data
         /// <exception cref="T:System.InvalidOperationException">comparer is null, and the default comparer <see cref="P:System.Collections.Generic.Comparer`1.Default"/> cannot find an implementation of the <see cref="T:System.IComparable`1"/> generic interface or the <see cref="T:System.IComparable"/> interface for type TEntity.</exception>
         public int BinarySearch(TEntity entity, IComparer<TEntity> comparer)
         {
-            return this.BinarySearch(0, this._size, entity, comparer);
+            return BinarySearch(0, _size, entity, comparer);
         }
 
         /// <summary>Searches a range of entities in the sorted <see cref="EntitySet&lt;TEntity&gt;"/> for an entity using the specified comparer and returns the zero-based index of the entity.</summary>
@@ -332,11 +332,11 @@ namespace Arc4u.Data
             {
                 throw new ArgumentOutOfRangeException((index < 0) ? "index" : "count", ArgumentOutOfRange_NeedNonNegNum);
             }
-            if ((this._size - index) < count)
+            if ((_size - index) < count)
             {
                 throw new ArgumentException(Argument_InvalidOffLen);
             }
-            return Array.BinarySearch<TEntity>(this._items, index, count, entity, comparer);
+            return Array.BinarySearch<TEntity>(_items, index, count, entity, comparer);
         }
 
         /// <summary>
@@ -347,11 +347,11 @@ namespace Arc4u.Data
         /// </remarks>
         public void Clear()
         {
-            this.CheckReentrancy();
-            this.ClearItems();
-            this.OnPropertyChanged("Count");
-            this.OnPropertyChanged("Item[]");
-            this.OnCollectionReset();
+            CheckReentrancy();
+            ClearItems();
+            OnPropertyChanged("Count");
+            OnPropertyChanged("Item[]");
+            OnCollectionReset();
         }
 
         /// <summary>
@@ -359,9 +359,9 @@ namespace Arc4u.Data
         /// </summary>
         void ClearItems()
         {
-            Array.Clear(this._items, 0, this._size);
-            this._size = 0;
-            this._version++;
+            Array.Clear(_items, 0, _size);
+            _size = 0;
+            _version++;
         }
 
         /// <summary>Determines whether an entity is in the <see cref="EntitySet&lt;TEntity&gt;"/>.</summary>
@@ -371,9 +371,9 @@ namespace Arc4u.Data
         {
             if (entity == null)
             {
-                for (int j = 0; j < this._size; j++)
+                for (int j = 0; j < _size; j++)
                 {
-                    if (this._items[j] == null)
+                    if (_items[j] == null)
                     {
                         return true;
                     }
@@ -381,8 +381,8 @@ namespace Arc4u.Data
                 return false;
             }
 
-            TEntity[] items = this._items;
-            int size = this._size; ;
+            TEntity[] items = _items;
+            int size = _size; ;
 
             EqualityComparer<TEntity> comparer = EqualityComparer<TEntity>.Default;
             for (int i = 0; i < size; i++)
@@ -407,12 +407,12 @@ namespace Arc4u.Data
             {
                 throw new ArgumentNullException("converter");
             }
-            EntitySet<TOutput> list = new EntitySet<TOutput>(this._size);
-            for (int i = 0; i < this._size; i++)
+            EntitySet<TOutput> list = new EntitySet<TOutput>(_size);
+            for (int i = 0; i < _size; i++)
             {
-                list._items[i] = converter(this._items[i]);
+                list._items[i] = converter(_items[i]);
             }
-            list._size = this._size;
+            list._size = _size;
             return list;
         }
 
@@ -422,7 +422,7 @@ namespace Arc4u.Data
         /// <exception cref="T:System.ArgumentNullException">array is null.</exception>
         public void CopyTo(TEntity[] array)
         {
-            this.CopyTo(array, 0);
+            CopyTo(array, 0);
         }
 
         /// <summary>Copies the entire <see cref="EntitySet&lt;TEntity&gt;"/> to a compatible one-dimensional array, starting at the specified index of the target array.</summary>
@@ -433,7 +433,7 @@ namespace Arc4u.Data
         /// <exception cref="T:System.ArgumentNullException">array is null.</exception>
         public void CopyTo(TEntity[] array, int arrayIndex)
         {
-            Array.Copy(this._items, 0, array, arrayIndex, this._size);
+            Array.Copy(_items, 0, array, arrayIndex, _size);
         }
 
         /// <summary>Copies a range of entities from the <see cref="EntitySet&lt;TEntity&gt;"/> to a compatible one-dimensional array, starting at the specified index of the target array.</summary>
@@ -446,23 +446,23 @@ namespace Arc4u.Data
         /// <exception cref="T:System.ArgumentException">index is equal to or greater than the <see cref="EntitySet&lt;TEntity&gt;.Count"/> of the source <see cref="EntitySet&lt;TEntity&gt;"/>.<br/>-or-<br/>arrayIndex is equal to or greater than the length of array.<br/>-or-<br/>The number of entities from index to the end of the source <see cref="EntitySet&lt;TEntity&gt;"/> is greater than the available space from arrayIndex to the end of the destination array. </exception>
         public void CopyTo(int index, TEntity[] array, int arrayIndex, int count)
         {
-            if ((this._size - index) < count)
+            if ((_size - index) < count)
             {
                 throw new ArgumentException(Argument_InvalidOffLen);
             }
-            Array.Copy(this._items, index, array, arrayIndex, count);
+            Array.Copy(_items, index, array, arrayIndex, count);
         }
 
         private void EnsureCapacity(int min)
         {
-            if (this._items.Length < min)
+            if (_items.Length < min)
             {
-                int num = (this._items.Length == 0) ? 4 : (this._items.Length * 2);
+                int num = (_items.Length == 0) ? 4 : (_items.Length * 2);
                 if (num < min)
                 {
                     num = min;
                 }
-                this.Capacity = num;
+                Capacity = num;
             }
         }
 
@@ -472,7 +472,7 @@ namespace Arc4u.Data
         /// <exception cref="T:System.ArgumentNullException">match is null.</exception>
         public bool Exists(Predicate<TEntity> match)
         {
-            return (this.FindIndex(match) != -1);
+            return (FindIndex(match) != -1);
         }
 
         /// <summary>Searches for an entity that matches the conditions defined by the specified predicate, and returns the first occurrence within the entire <see cref="EntitySet&lt;TEntity&gt;"/>.</summary>
@@ -486,8 +486,8 @@ namespace Arc4u.Data
                 throw new ArgumentNullException("match");
             }
 
-            TEntity[] items = this._items;
-            int size = this._size; ;
+            TEntity[] items = _items;
+            int size = _size; ;
 
             for (int i = 0; i < size; i++)
             {
@@ -567,8 +567,8 @@ namespace Arc4u.Data
                 throw new ArgumentNullException("match");
             }
 
-            TEntity[] items = this._items;
-            int size = this._size; ;
+            TEntity[] items = _items;
+            int size = _size; ;
 
             EntitySet<TEntity> list = new EntitySet<TEntity>();
             for (int i = 0; i < size; i++)
@@ -587,7 +587,7 @@ namespace Arc4u.Data
         /// <exception cref="T:System.ArgumentNullException">match is null.</exception>
         public int FindIndex(Predicate<TEntity> match)
         {
-            return this.FindIndex(0, this._size, match);
+            return FindIndex(0, _size, match);
         }
 
         /// <summary>Searches for an entity that matches the conditions defined by the specified predicate, and returns the zero-based index of the first occurrence within the range of entities in the <see cref="EntitySet&lt;TEntity&gt;"/> that extends from the specified index to the last entity.</summary>
@@ -598,7 +598,7 @@ namespace Arc4u.Data
         /// <exception cref="T:System.ArgumentNullException">match is null.</exception>
         public int FindIndex(int startIndex, Predicate<TEntity> match)
         {
-            return this.FindIndex(startIndex, this._size - startIndex, match);
+            return FindIndex(startIndex, _size - startIndex, match);
         }
 
         /// <summary>Searches for an entity that matches the conditions defined by the specified predicate, and returns the zero-based index of the first occurrence within the range of entities in the <see cref="EntitySet&lt;TEntity&gt;"/> that starts at the specified index and contains the specified number of entities.</summary>
@@ -615,8 +615,8 @@ namespace Arc4u.Data
                 throw new ArgumentNullException("match");
             }
 
-            TEntity[] items = this._items;
-            int size = this._size; ;
+            TEntity[] items = _items;
+            int size = _size; ;
 
             if (startIndex > size)
             {
@@ -650,8 +650,8 @@ namespace Arc4u.Data
                 throw new ArgumentNullException("match");
             }
 
-            TEntity[] items = this._items;
-            int size = this._size; ;
+            TEntity[] items = _items;
+            int size = _size; ;
 
             for (int i = size - 1; i >= 0; i--)
             {
@@ -670,7 +670,7 @@ namespace Arc4u.Data
         /// <exception cref="T:System.ArgumentNullException">match is null.</exception>
         public int FindLastIndex(Predicate<TEntity> match)
         {
-            return this.FindLastIndex(this._size - 1, this._size, match);
+            return FindLastIndex(_size - 1, _size, match);
         }
 
         /// <summary>Searches for an entity that matches the conditions defined by the specified predicate, and returns the zero-based index of the last occurrence within the range of entities in the <see cref="EntitySet&lt;TEntity&gt;"/> that extends from the first entity to the specified index.</summary>
@@ -681,7 +681,7 @@ namespace Arc4u.Data
         /// <exception cref="T:System.ArgumentNullException">match is null.</exception>
         public int FindLastIndex(int startIndex, Predicate<TEntity> match)
         {
-            return this.FindLastIndex(startIndex, startIndex + 1, match);
+            return FindLastIndex(startIndex, startIndex + 1, match);
         }
 
         /// <summary>Searches for an entity that matches the conditions defined by the specified predicate, and returns the zero-based index of the last occurrence within the range of entities in the <see cref="EntitySet&lt;TEntity&gt;"/> that contains the specified number of entities and ends at the specified index.</summary>
@@ -698,8 +698,8 @@ namespace Arc4u.Data
                 throw new ArgumentNullException("match");
             }
 
-            TEntity[] items = this._items;
-            int size = this._size; ;
+            TEntity[] items = _items;
+            int size = _size; ;
 
             if (size == 0)
             {
@@ -739,8 +739,8 @@ namespace Arc4u.Data
                 throw new ArgumentNullException("match");
             }
 
-            TEntity[] items = this._items;
-            int size = this._size; ;
+            TEntity[] items = _items;
+            int size = _size; ;
 
             for (int i = 0; i < size; i++)
             {
@@ -768,8 +768,8 @@ namespace Arc4u.Data
                 throw new ArgumentOutOfRangeException((index < 0) ? "index" : "count", ArgumentOutOfRange_NeedNonNegNum);
             }
 
-            TEntity[] items = this._items;
-            int size = this._size; ;
+            TEntity[] items = _items;
+            int size = _size; ;
 
             if ((size - index) < count)
             {
@@ -787,8 +787,8 @@ namespace Arc4u.Data
         /// <param name="entity">The object to locate in the <see cref="EntitySet&lt;TEntity&gt;"/>. The value can be null for reference types.</param>
         public int IndexOf(TEntity entity)
         {
-            TEntity[] items = this._items;
-            int size = this._size; ;
+            TEntity[] items = _items;
+            int size = _size; ;
             return Array.IndexOf<TEntity>(items, entity, 0, size);
         }
 
@@ -799,8 +799,8 @@ namespace Arc4u.Data
         /// <exception cref="T:System.ArgumentOutOfRangeException">index is outside the range of valid indexes for the <see cref="EntitySet&lt;TEntity&gt;"/>.</exception>
         public int IndexOf(TEntity entity, int index)
         {
-            TEntity[] items = this._items;
-            int size = this._size; ;
+            TEntity[] items = _items;
+            int size = _size; ;
 
             if (index > size)
             {
@@ -818,8 +818,8 @@ namespace Arc4u.Data
         /// <exception cref="T:System.ArgumentOutOfRangeException">index is outside the range of valid indexes for the <see cref="EntitySet&lt;TEntity&gt;"/>.<br/>-or-<br/>count is less than 0.<br/>-or-<br/>index and count do not specify a valid section in the <see cref="EntitySet&lt;TEntity&gt;"/>.</exception>
         public int IndexOf(TEntity entity, int index, int count)
         {
-            TEntity[] items = this._items;
-            int size = this._size; ;
+            TEntity[] items = _items;
+            int size = _size; ;
 
             if (index > size)
             {
@@ -842,11 +842,11 @@ namespace Arc4u.Data
         /// </remarks>
         public void Insert(int index, TEntity entity)
         {
-            this.CheckReentrancy();
+            CheckReentrancy();
             InsertItem(index, entity);
-            this.OnPropertyChanged("Count");
-            this.OnPropertyChanged("Item[]");
-            this.OnCollectionChanged(NotifyCollectionChangedAction.Add, entity, index);
+            OnPropertyChanged("Count");
+            OnPropertyChanged("Item[]");
+            OnCollectionChanged(NotifyCollectionChangedAction.Add, entity, index);
         }
 
         /// <summary>Inserts an entity into the <see cref="EntitySet&lt;TEntity&gt;"/> at the specified index.</summary>
@@ -855,22 +855,22 @@ namespace Arc4u.Data
         /// <exception cref="T:System.ArgumentOutOfRangeException">index is less than 0.<br/>-or-<br/>index is greater than <see cref="EntitySet&lt;TEntity&gt;.Count"/>.</exception>
         void InsertItem(int index, TEntity entity)
         {
-            if (index > this._size)
+            if (index > _size)
             {
                 throw new ArgumentOutOfRangeException("index", ArgumentOutOfRange_ListInsert);
             }
 
-            if (this._size == this._items.Length)
+            if (_size == _items.Length)
             {
-                this.EnsureCapacity(this._size + 1);
+                EnsureCapacity(_size + 1);
             }
-            if (index < this._size)
+            if (index < _size)
             {
-                Array.Copy(this._items, index, this._items, index + 1, this._size - index);
+                Array.Copy(_items, index, _items, index + 1, _size - index);
             }
-            this._items[index] = entity;
-            this._size++;
-            this._version++;
+            _items[index] = entity;
+            _size++;
+            _version++;
         }
 
         /// <summary>Inserts the entities of a collection into the <see cref="EntitySet&lt;TEntity&gt;"/> at the specified index.</summary>
@@ -880,7 +880,7 @@ namespace Arc4u.Data
         /// <exception cref="T:System.ArgumentNullException">collection is null.</exception>
         public void InsertRange(int index, IEnumerable<TEntity> collection)
         {
-            if (index > this._size)
+            if (index > _size)
             {
                 throw new ArgumentOutOfRangeException("index", ArgumentOutOfRange_Index);
             }
@@ -896,23 +896,23 @@ namespace Arc4u.Data
                 int count = is2.Count;
                 if (count > 0)
                 {
-                    this.EnsureCapacity(this._size + count);
-                    if (index < this._size)
+                    EnsureCapacity(_size + count);
+                    if (index < _size)
                     {
-                        Array.Copy(this._items, index, this._items, index + count, this._size - index);
+                        Array.Copy(_items, index, _items, index + count, _size - index);
                     }
                     if (this == is2)
                     {
-                        Array.Copy(this._items, 0, this._items, index, index);
-                        Array.Copy(this._items, index + count, this._items, index * 2, this._size - index);
+                        Array.Copy(_items, 0, _items, index, index);
+                        Array.Copy(_items, index + count, _items, index * 2, _size - index);
                     }
                     else
                     {
                         TEntity[] array = new TEntity[count];
                         is2.CopyTo(array, 0);
-                        array.CopyTo(this._items, index);
+                        array.CopyTo(_items, index);
                     }
-                    this._size += count;
+                    _size += count;
                 }
             }
             else
@@ -920,14 +920,14 @@ namespace Arc4u.Data
                 using IEnumerator<TEntity> enumerator = collection.GetEnumerator();
                 while (enumerator.MoveNext())
                 {
-                    this.InsertItem(index++, enumerator.Current);
+                    InsertItem(index++, enumerator.Current);
                 }
             }
 
-            this._version++;
-            this.OnPropertyChanged("Count");
-            this.OnPropertyChanged("Item[]");
-            this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            _version++;
+            OnPropertyChanged("Count");
+            OnPropertyChanged("Item[]");
+            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
 
         private static bool IsCompatibleObject(object value)
@@ -944,7 +944,7 @@ namespace Arc4u.Data
         /// <param name="entity">The object to locate in the <see cref="EntitySet&lt;TEntity&gt;"/>. The value can be null for reference types.</param>
         public int LastIndexOf(TEntity entity)
         {
-            return this.LastIndexOf(entity, this._size - 1, this._size);
+            return LastIndexOf(entity, _size - 1, _size);
         }
 
         /// <summary>Searches for the specified object and returns the zero-based index of the last occurrence within the range of entities in the <see cref="EntitySet&lt;TEntity&gt;"/> that extends from the first entity to the specified index.</summary>
@@ -954,11 +954,11 @@ namespace Arc4u.Data
         /// <exception cref="T:System.ArgumentOutOfRangeException">index is outside the range of valid indexes for the <see cref="EntitySet&lt;TEntity&gt;"/>. </exception>
         public int LastIndexOf(TEntity entity, int index)
         {
-            if (index >= this._size)
+            if (index >= _size)
             {
                 throw new ArgumentOutOfRangeException("index", ArgumentOutOfRange_Index);
             }
-            return this.LastIndexOf(entity, index, index + 1);
+            return LastIndexOf(entity, index, index + 1);
         }
 
         /// <summary>Searches for the specified object and returns the zero-based index of the last occurrence within the range of entities in the <see cref="EntitySet&lt;TEntity&gt;"/> that contains the specified number of entities and ends at the specified index.</summary>
@@ -969,8 +969,8 @@ namespace Arc4u.Data
         /// <exception cref="T:System.ArgumentOutOfRangeException">index is outside the range of valid indexes for the <see cref="EntitySet&lt;TEntity&gt;"/>.<br/>-or-<br/>count is less than 0.<br/>-or-<br/>index and count do not specify a valid section in the <see cref="EntitySet&lt;TEntity&gt;"/>. </exception>
         public int LastIndexOf(TEntity entity, int index, int count)
         {
-            TEntity[] items = this._items;
-            int size = this._size; ;
+            TEntity[] items = _items;
+            int size = _size; ;
 
             if (size == 0)
             {
@@ -997,7 +997,7 @@ namespace Arc4u.Data
         /// </remarks>
         public bool Remove(TEntity entity)
         {
-            int index = this.IndexOf(entity);
+            int index = IndexOf(entity);
             if (index >= 0)
             {
                 RemoveItemAt(index);
@@ -1018,9 +1018,9 @@ namespace Arc4u.Data
             }
 
             int count = 0;
-            for (int i = this._size - 1; i >= 0; i--)
+            for (int i = _size - 1; i >= 0; i--)
             {
-                TEntity entity = this._items[i];
+                TEntity entity = _items[i];
                 if (match(entity))
                 {
                     if (entity == null)
@@ -1047,10 +1047,10 @@ namespace Arc4u.Data
                     count++;
                 }
             }
-            this._version++;
-            this.OnPropertyChanged("Count");
-            this.OnPropertyChanged("Item[]");
-            this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            _version++;
+            OnPropertyChanged("Count");
+            OnPropertyChanged("Item[]");
+            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
             return count;
         }
 
@@ -1070,20 +1070,20 @@ namespace Arc4u.Data
         /// <exception cref="T:System.ArgumentOutOfRangeException">index is less than 0.<br/>-or-<br/>index is equal to or greater than <see cref="EntitySet&lt;TEntity&gt;.Count"/>.</exception>
         void RemoveItemAt(int index)
         {
-            this.CheckReentrancy();
+            CheckReentrancy();
             TEntity entity = this[index];
 
-            if (index >= this._size)
+            if (index >= _size)
             {
                 throw new ArgumentOutOfRangeException();
             }
 
-            if (this._items[index] == null)
+            if (_items[index] == null)
             {
                 BaseRemoveAt(index);
-                this.OnPropertyChanged("Count");
-                this.OnPropertyChanged("Item[]");
-                this.OnCollectionChanged(NotifyCollectionChangedAction.Remove, entity, index);
+                OnPropertyChanged("Count");
+                OnPropertyChanged("Item[]");
+                OnCollectionChanged(NotifyCollectionChangedAction.Remove, entity, index);
             }
             else
             {
@@ -1091,14 +1091,14 @@ namespace Arc4u.Data
                 {
                     case PersistChange.None:
                     case PersistChange.Update:
-                        this._items[index].PersistChange = PersistChange.Delete;
-                        this._version++;
+                        _items[index].PersistChange = PersistChange.Delete;
+                        _version++;
                         break;
                     case PersistChange.Insert:
                         BaseRemoveAt(index);
-                        this.OnPropertyChanged("Count");
-                        this.OnPropertyChanged("Item[]");
-                        this.OnCollectionChanged(NotifyCollectionChangedAction.Remove, entity, index);
+                        OnPropertyChanged("Count");
+                        OnPropertyChanged("Item[]");
+                        OnCollectionChanged(NotifyCollectionChangedAction.Remove, entity, index);
                         break;
                     case PersistChange.Delete:
                         break;
@@ -1120,25 +1120,25 @@ namespace Arc4u.Data
                 throw new ArgumentOutOfRangeException((index < 0) ? "index" : "count", ArgumentOutOfRange_NeedNonNegNum);
             }
 
-            if ((this._size - index) < count) // because we must have index + count <= size
+            if ((_size - index) < count) // because we must have index + count <= size
             {
                 throw new ArgumentException(Argument_InvalidOffLen);
             }
 
             for (int i = index; i < index + count; i++)
             {
-                if (this._items[i] == null)
+                if (_items[i] == null)
                 {
                     BaseRemoveAt(i);
                 }
                 else
                 {
-                    switch (this._items[i].PersistChange)
+                    switch (_items[i].PersistChange)
                     {
                         case PersistChange.None:
                         case PersistChange.Update:
-                            this._items[i].PersistChange = PersistChange.Delete;
-                            this._version++;
+                            _items[i].PersistChange = PersistChange.Delete;
+                            _version++;
                             break;
                         case PersistChange.Insert:
                             BaseRemoveAt(i);
@@ -1151,9 +1151,9 @@ namespace Arc4u.Data
                 }
             }
 
-            this.OnPropertyChanged("Count");
-            this.OnPropertyChanged("Item[]");
-            this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            OnPropertyChanged("Count");
+            OnPropertyChanged("Item[]");
+            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
 
         }
 
@@ -1162,7 +1162,7 @@ namespace Arc4u.Data
         /// </summary>
         public void Reverse()
         {
-            this.Reverse(0, this.Count);
+            Reverse(0, Count);
         }
 
         /// <summary>Reverses the order of the entities in the specified range.</summary>
@@ -1176,21 +1176,21 @@ namespace Arc4u.Data
             {
                 throw new ArgumentOutOfRangeException((index < 0) ? "index" : "count", ArgumentOutOfRange_NeedNonNegNum);
             }
-            if ((this._size - index) < count)
+            if ((_size - index) < count)
             {
                 throw new ArgumentException(Argument_InvalidOffLen);
             }
-            Array.Reverse(this._items, index, count);
-            this._version++;
-            this.OnPropertyChanged("Item[]");
-            this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            Array.Reverse(_items, index, count);
+            _version++;
+            OnPropertyChanged("Item[]");
+            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
 
         /// <summary>Sorts the entities in the entire <see cref="EntitySet&lt;TEntity&gt;"/> using the default comparer.</summary>
         /// <exception cref="T:System.InvalidOperationException">The default comparer <see cref="P:System.Collections.Generic.Comparer`1.Default"/> cannot find an implementation of the <see cref="T:System.IComparable`1"/> generic interface or the <see cref="T:System.IComparable"/> interface for type TEntity.</exception>
         public void Sort()
         {
-            this.Sort(0, this.Count, null);
+            Sort(0, Count, null);
         }
 
         /// <summary>Sorts the entities in the entire <see cref="EntitySet&lt;TEntity&gt;"/> using the specified comparer.</summary>
@@ -1199,7 +1199,7 @@ namespace Arc4u.Data
         /// <exception cref="T:System.InvalidOperationException">comparer is null, and the default comparer <see cref="P:System.Collections.Generic.Comparer`1.Default"/> cannot find implementation of the <see cref="T:System.IComparable`1"/> generic interface or the <see cref="T:System.IComparable"/> interface for type TEntity.</exception>
         public void Sort(IComparer<TEntity> comparer)
         {
-            this.Sort(0, this.Count, comparer);
+            Sort(0, Count, comparer);
         }
 
         /// <summary>Sorts the entities in the entire <see cref="EntitySet&lt;TEntity&gt;"/> using the specified <see cref="T:System.Comparison`1"/>.</summary>
@@ -1212,13 +1212,13 @@ namespace Arc4u.Data
             {
                 throw new ArgumentNullException("comparison");
             }
-            if (this._size > 0)
+            if (_size > 0)
             {
                 IComparer<TEntity> comparer = new FunctorComparer<TEntity>(comparison);
-                Array.Sort<TEntity>(this._items, 0, this._size, comparer);
-                this._version++;
-                this.OnPropertyChanged("Item[]");
-                this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+                Array.Sort<TEntity>(_items, 0, _size, comparer);
+                _version++;
+                OnPropertyChanged("Item[]");
+                OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
             }
         }
 
@@ -1235,14 +1235,14 @@ namespace Arc4u.Data
             {
                 throw new ArgumentOutOfRangeException((index < 0) ? "index" : "count", ArgumentOutOfRange_NeedNonNegNum);
             }
-            if ((this._size - index) < count)
+            if ((_size - index) < count)
             {
                 throw new ArgumentException(Argument_InvalidOffLen);
             }
-            Array.Sort<TEntity>(this._items, index, count, comparer);
-            this._version++;
-            this.OnPropertyChanged("Item[]");
-            this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            Array.Sort<TEntity>(_items, index, count, comparer);
+            _version++;
+            OnPropertyChanged("Item[]");
+            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
 
         IEnumerator<TEntity> IEnumerable<TEntity>.GetEnumerator()
@@ -1258,7 +1258,7 @@ namespace Arc4u.Data
             }
             try
             {
-                Array.Copy(this._items, 0, array, arrayIndex, this._size);
+                Array.Copy(_items, 0, array, arrayIndex, _size);
             }
             catch (ArrayTypeMismatchException)
             {
@@ -1274,20 +1274,20 @@ namespace Arc4u.Data
         int IList.Add(object item)
         {
             EntitySet<TEntity>.VerifyValueType(item);
-            this.Add((TEntity)item);
-            return (this.Count - 1);
+            Add((TEntity)item);
+            return (Count - 1);
         }
 
         bool IList.Contains(object entity)
         {
-            return (EntitySet<TEntity>.IsCompatibleObject(entity) && this.Contains((TEntity)entity));
+            return (EntitySet<TEntity>.IsCompatibleObject(entity) && Contains((TEntity)entity));
         }
 
         int IList.IndexOf(object entity)
         {
             if (EntitySet<TEntity>.IsCompatibleObject(entity))
             {
-                return this.IndexOf((TEntity)entity);
+                return IndexOf((TEntity)entity);
             }
             return -1;
         }
@@ -1295,14 +1295,14 @@ namespace Arc4u.Data
         void IList.Insert(int index, object entity)
         {
             EntitySet<TEntity>.VerifyValueType(entity);
-            this.Insert(index, (TEntity)entity);
+            Insert(index, (TEntity)entity);
         }
 
         void IList.Remove(object entity)
         {
             if (EntitySet<TEntity>.IsCompatibleObject(entity))
             {
-                this.Remove((TEntity)entity);
+                Remove((TEntity)entity);
             }
         }
 
@@ -1310,8 +1310,8 @@ namespace Arc4u.Data
         /// <returns>An array containing copies of the entities of the <see cref="EntitySet&lt;TEntity&gt;"/>.</returns>
         public TEntity[] ToArray()
         {
-            TEntity[] destinationArray = new TEntity[this._size];
-            Array.Copy(this._items, 0, destinationArray, 0, this._size);
+            TEntity[] destinationArray = new TEntity[_size];
+            Array.Copy(_items, 0, destinationArray, 0, _size);
             return destinationArray;
         }
 
@@ -1320,7 +1320,7 @@ namespace Arc4u.Data
         /// <returns>An array containing copies of the entities matching the specified actions.</returns>
         public TEntity[] ToArray(PersistChangeActions includedActions)
         {
-            TEntity[] sourceArray = FindAll(this._items, includedActions);
+            TEntity[] sourceArray = FindAll(_items, includedActions);
             TEntity[] destinationArray = new TEntity[sourceArray.Length];
             Array.Copy(sourceArray, 0, destinationArray, 0, sourceArray.Length);
             return destinationArray;
@@ -1332,10 +1332,10 @@ namespace Arc4u.Data
         /// </remarks>
         public void TrimExcess()
         {
-            int num = (int)(this._items.Length * 0.9);
-            if (this._size < num)
+            int num = (int)(_items.Length * 0.9);
+            if (_size < num)
             {
-                this.Capacity = this._size;
+                Capacity = _size;
             }
         }
 
@@ -1350,8 +1350,8 @@ namespace Arc4u.Data
                 throw new ArgumentNullException("match");
             }
 
-            TEntity[] items = this._items;
-            int size = this._size; ;
+            TEntity[] items = _items;
+            int size = _size; ;
 
             for (int i = 0; i < size; i++)
             {
@@ -1366,17 +1366,17 @@ namespace Arc4u.Data
 
         private void BaseRemoveAt(int index)
         {
-            if (index >= this._size)
+            if (index >= _size)
             {
                 throw new ArgumentOutOfRangeException();
             }
-            this._size--;
-            if (index < this._size)
+            _size--;
+            if (index < _size)
             {
-                Array.Copy(this._items, index + 1, this._items, index, this._size - index);
+                Array.Copy(_items, index + 1, _items, index, _size - index);
             }
-            this._items[this._size] = default(TEntity);
-            this._version++;
+            _items[_size] = default(TEntity);
+            _version++;
         }
 
         private static void VerifyValueType(object value)
@@ -1394,28 +1394,28 @@ namespace Arc4u.Data
         {
             get
             {
-                return this._items.Length;
+                return _items.Length;
             }
             set
             {
-                if (value != this._items.Length)
+                if (value != _items.Length)
                 {
-                    if (value < this._size)
+                    if (value < _size)
                     {
                         throw new ArgumentOutOfRangeException("value", ArgumentOutOfRange_SmallCapacity);
                     }
                     if (value > 0)
                     {
                         TEntity[] destinationArray = new TEntity[value];
-                        if (this._size > 0)
+                        if (_size > 0)
                         {
-                            Array.Copy(this._items, 0, destinationArray, 0, this._size);
+                            Array.Copy(_items, 0, destinationArray, 0, _size);
                         }
-                        this._items = destinationArray;
+                        _items = destinationArray;
                     }
                     else
                     {
-                        this._items = EntitySet<TEntity>._emptyArray;
+                        _items = EntitySet<TEntity>._emptyArray;
                     }
                 }
             }
@@ -1427,7 +1427,7 @@ namespace Arc4u.Data
         {
             get
             {
-                return this._size;
+                return _size;
             }
         }
 
@@ -1442,8 +1442,8 @@ namespace Arc4u.Data
         {
             get
             {
-                TEntity[] items = this._items;
-                int size = this._size; ;
+                TEntity[] items = _items;
+                int size = _size; ;
 
                 if (index >= size)
                 {
@@ -1454,11 +1454,11 @@ namespace Arc4u.Data
             }
             set
             {
-                this.CheckReentrancy();
+                CheckReentrancy();
                 TEntity oldItem = this[index];
                 SetItem(index, value);
-                this.OnPropertyChanged("Item[]");
-                this.OnCollectionChanged(NotifyCollectionChangedAction.Replace, oldItem, value, index);
+                OnPropertyChanged("Item[]");
+                OnCollectionChanged(NotifyCollectionChangedAction.Replace, oldItem, value, index);
             }
         }
 
@@ -1469,8 +1469,8 @@ namespace Arc4u.Data
         /// <param name="entity">The new value for the entity at the specified index.</param>
         void SetItem(int index, TEntity entity)
         {
-            TEntity[] items = this._items;
-            int size = this._size; ;
+            TEntity[] items = _items;
+            int size = _size; ;
 
             if (index >= size)
             {
@@ -1478,7 +1478,7 @@ namespace Arc4u.Data
             }
 
             items[index] = entity;
-            this._version++;
+            _version++;
         }
 
         bool ICollection<TEntity>.IsReadOnly
@@ -1507,11 +1507,11 @@ namespace Arc4u.Data
         {
             get
             {
-                if (this._syncRoot == null)
+                if (_syncRoot == null)
                 {
-                    Interlocked.CompareExchange(ref this._syncRoot, new object(), null);
+                    Interlocked.CompareExchange(ref _syncRoot, new object(), null);
                 }
-                return this._syncRoot;
+                return _syncRoot;
             }
         }
 
@@ -1519,11 +1519,11 @@ namespace Arc4u.Data
         {
             get
             {
-                if (this._syncRoot == null)
+                if (_syncRoot == null)
                 {
-                    Interlocked.CompareExchange(ref this._syncRoot, new object(), null);
+                    Interlocked.CompareExchange(ref _syncRoot, new object(), null);
                 }
-                return this._syncRoot;
+                return _syncRoot;
             }
         }
 
@@ -1602,10 +1602,10 @@ namespace Arc4u.Data
 
             internal Enumerator(EntitySet<TEntity> list)
             {
-                this.list = list;
-                this.index = 0;
-                this.version = list._version;
-                this.current = default(TEntity);
+                list = list;
+                index = 0;
+                version = list._version;
+                current = default(TEntity);
             }
 
             /// <summary>Releases all resources used by the <see cref="EntitySet&lt;TEntity&gt;.Enumerator"/>.</summary>
@@ -1618,20 +1618,20 @@ namespace Arc4u.Data
             /// <exception cref="T:System.InvalidOperationException">The collection was modified after the enumerator was created. </exception>
             public bool MoveNext()
             {
-                if (this.version != this.list._version)
+                if (version != list._version)
                 {
                     throw new InvalidOperationException(InvalidOperation_EnumFailedVersion);
                 }
 
-                if (this.index < this.list._size)
+                if (index < list._size)
                 {
-                    this.current = this.list._items[this.index];
-                    this.index++;
+                    current = list._items[index];
+                    index++;
                     return true;
                 }
 
-                this.index = this.list._size + 1;
-                this.current = default(TEntity);
+                index = list._size + 1;
+                current = default(TEntity);
                 return false;
             }
 
@@ -1641,7 +1641,7 @@ namespace Arc4u.Data
             {
                 get
                 {
-                    return this.current;
+                    return current;
                 }
             }
 
@@ -1649,22 +1649,22 @@ namespace Arc4u.Data
             {
                 get
                 {
-                    if ((this.index == 0) || (this.index == (this.list._size + 1)))
+                    if ((index == 0) || (index == (list._size + 1)))
                     {
                         throw new InvalidOperationException(InvalidOperation_EnumOpCantHappen);
                     }
-                    return this.Current;
+                    return Current;
                 }
             }
 
             void IEnumerator.Reset()
             {
-                if (this.version != this.list._version)
+                if (version != list._version)
                 {
                     throw new InvalidOperationException(InvalidOperation_EnumFailedVersion);
                 }
-                this.index = 0;
-                this.current = default(TEntity);
+                index = 0;
+                current = default(TEntity);
             }
         }
 
@@ -1675,13 +1675,13 @@ namespace Arc4u.Data
 
             public FunctorComparer(Comparison<T> comparison)
             {
-                this.c = Comparer<T>.Default;
-                this.comparison = comparison;
+                c = Comparer<T>.Default;
+                comparison = comparison;
             }
 
             public int Compare(T x, T y)
             {
-                return this.comparison(x, y);
+                return comparison(x, y);
             }
         }
 
@@ -1691,19 +1691,19 @@ namespace Arc4u.Data
 
             public void Dispose()
             {
-                this._busyCount--;
+                _busyCount--;
             }
 
             public void Enter()
             {
-                this._busyCount++;
+                _busyCount++;
             }
 
             public bool Busy
             {
                 get
                 {
-                    return (this._busyCount > 0);
+                    return (_busyCount > 0);
                 }
             }
 
