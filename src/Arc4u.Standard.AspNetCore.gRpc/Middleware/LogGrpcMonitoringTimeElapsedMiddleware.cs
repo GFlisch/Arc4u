@@ -3,6 +3,7 @@ using Arc4u.Dependency;
 using Arc4u.Diagnostics;
 using Grpc.AspNetCore.Server;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Arc4u.AspNetCore.Middleware;
@@ -10,7 +11,7 @@ namespace Arc4u.AspNetCore.Middleware;
 public class LogGrpcMonitoringTimeElapsedMiddleware
 {
     private readonly RequestDelegate _next;
-    private readonly Action<Type, TimeSpan> _log;
+    private readonly Action<Type, TimeSpan>? _log;
 
     public LogGrpcMonitoringTimeElapsedMiddleware(RequestDelegate next)
     {
@@ -28,7 +29,7 @@ public class LogGrpcMonitoringTimeElapsedMiddleware
 
     public async Task Invoke(HttpContext context)
     {
-        var logger = ((IContainerResolve)context.RequestServices.GetService(typeof(IContainerResolve))).Resolve<ILogger>();
+        var logger = context.RequestServices.GetService<IContainerResolve>()?.Resolve<ILogger>();
 
         var stopwatch = Stopwatch.StartNew();
 
@@ -44,11 +45,12 @@ public class LogGrpcMonitoringTimeElapsedMiddleware
                 var descriptor = endpoint.Metadata.GetMetadata<GrpcMethodMetadata>();
                 if (descriptor != null)
                 {
-                    logger.Monitoring().From(descriptor.ServiceType, descriptor.Method.Name)
-                        .Information($"Time to complete method call")
-                        .Add("Elapsed", stopwatch.Elapsed.TotalMilliseconds)
-                        .Add("StatusCode", context.Response.StatusCode)
-                        .Log();
+                    logger?.Monitoring()
+                           .From(descriptor.ServiceType, descriptor.Method.Name)
+                           .Information($"Time to complete method call")
+                           .Add("Elapsed", stopwatch.Elapsed.TotalMilliseconds)
+                           .Add("StatusCode", context.Response.StatusCode)
+                           .Log();
 
                     _log?.Invoke(descriptor.ServiceType, stopwatch.Elapsed);
                 }
@@ -57,7 +59,7 @@ public class LogGrpcMonitoringTimeElapsedMiddleware
         }
         catch (Exception ex)
         {
-            logger.Technical().From<LogGrpcMonitoringTimeElapsedMiddleware>().Exception(ex).Log();
+            logger?.Technical().From<LogGrpcMonitoringTimeElapsedMiddleware>().Exception(ex).Log();
         }
     }
 }

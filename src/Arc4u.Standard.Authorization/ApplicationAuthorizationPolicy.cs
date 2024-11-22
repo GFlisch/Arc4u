@@ -28,6 +28,11 @@ public class ApplicationAuthorizationPolicy : IApplicationAuthorizationPolicy
 
     public async Task<bool> IsAuthorizeAsync(string policyName)
     {
+        if (null == _applicationContext.Principal)
+        {
+            return false;
+        }
+
         var authResult = await _authorizationService.AuthorizeAsync(_applicationContext.Principal, policyName).ConfigureAwait(false);
 
         return authResult.Succeeded;

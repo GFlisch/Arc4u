@@ -1,15 +1,17 @@
 using System.Security.Cryptography.X509Certificates;
 using Arc4u.Dependency.Attribute;
-using Arc4u.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+#if NET8_0_OR_GREATER
+using Arc4u.Diagnostics;
+#endif
 
 namespace Arc4u.Security.Cryptography;
 
 [Export(typeof(IX509CertificateLoader))]
 public class X509CertificateLoader : IX509CertificateLoader
 {
-    public X509CertificateLoader(ILogger<X509CertificateLoader> logger)
+    public X509CertificateLoader(ILogger<X509CertificateLoader>? logger)
     {
         _logger = logger;
     }
@@ -63,7 +65,6 @@ public class X509CertificateLoader : IX509CertificateLoader
         return certificate;
     }
 
-
     /// <summary>
     /// Read the current section and identify if the section contains a CertificateStore entry.
     /// If yes, the Certificate will be retrieve based on the <see cref="CertificateInfo"/> object.
@@ -83,23 +84,20 @@ public class X509CertificateLoader : IX509CertificateLoader
     }
 
 #if NET8_0_OR_GREATER
-    public X509Certificate2? FindCertificate(CertificateFilePathInfo certificateFilePathInfo)
+    public X509Certificate2 FindCertificate(CertificateFilePathInfo? certificateFilePathInfo)
     {
-        if (certificateFilePathInfo is null)
-        {
-            return null;
-        }
+        ArgumentNullException.ThrowIfNull(certificateFilePathInfo);
 
         if (!File.Exists(certificateFilePathInfo.Cert))
         {
             _logger?.Technical().LogError($"Public key file doesn't exist.");
-            return null;
+            throw new FileNotFoundException("Public key file doesn't exist.", certificateFilePathInfo.Cert);
         }
 
         if (!File.Exists(certificateFilePathInfo.Key))
         {
             _logger?.Technical().LogError($"Private key file doesn't exist.");
-            return null;
+            throw new FileNotFoundException("Private key file doesn't exist.", certificateFilePathInfo.Key);
         }
 
         return X509Certificate2.CreateFromPemFile(certificateFilePathInfo.Cert, certificateFilePathInfo.Key);

@@ -1,4 +1,4 @@
-﻿namespace Arc4u.OAuth2.Token
+namespace Arc4u.OAuth2.Token
 {
     public interface ITokenCache
     {
@@ -10,7 +10,7 @@
 
         void Put<T>(string key, T data);
 
-        T Get<T>(string key);
+        T? Get<T>(string key);
 
     }
 }

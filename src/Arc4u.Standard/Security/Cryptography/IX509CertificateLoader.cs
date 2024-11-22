@@ -10,7 +10,7 @@ public interface IX509CertificateLoader
     public X509Certificate2 FindCertificate(CertificateInfo certificateInfo);
 
 #if NET8_0_OR_GREATER
-    public X509Certificate2 FindCertificate(CertificateFilePathInfo certificateInfo);
+    public X509Certificate2 FindCertificate(CertificateFilePathInfo? certificateInfo);
 #endif
 
     public X509Certificate2? FindCertificate(IConfiguration configuration, string sectionName);
