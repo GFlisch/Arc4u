@@ -37,8 +37,8 @@ namespace Arc4u
             _current = this;
         }
 
-        private static TimeZoneContext _current = null;
-        public static TimeZoneContext Current => _current;
+        private static TimeZoneContext? _current;
+        public static TimeZoneContext Current => _current ?? throw new InvalidOperationException("No timezone context is defined");
 
         private void IntializeFromConfig(ApplicationConfig config, ILogger logger)
         {
@@ -82,15 +82,13 @@ namespace Arc4u
 #if !WINDOWS_UAP
         public DaylightTime? GetDaylightChanges(int inYear)
         {
-            TimeZoneInfo.AdjustmentRule ruleFound = null;
-
-            TimeZoneInfo.AdjustmentRule[] adjustments = TimeZoneInfo.GetAdjustmentRules();
+            var adjustments = TimeZoneInfo.GetAdjustmentRules();
             if (adjustments.Length == 0)
             {
                 return null; // No Daylighttime.
             }
             //Find the correct adjustment rule
-            ruleFound = adjustments.SingleOrDefault(a => a.DateStart.Year <= inYear && a.DateEnd.Year >= inYear);
+            var ruleFound = adjustments.SingleOrDefault(a => a.DateStart.Year <= inYear && a.DateEnd.Year >= inYear);
 
             if (null == ruleFound)
             {
@@ -104,15 +102,15 @@ namespace Arc4u
             return outDaylightTime;
         }
 
-        private DateTime GetDateTime(int year, TimeZoneInfo.TransitionTime transition)
+        private static DateTime GetDateTime(int year, TimeZoneInfo.TransitionTime transition)
         {
             // For non-fixed date rules, get local calendar
             Calendar cal = new GregorianCalendar();
             // Get first day of week for transition
             // For example, the 3rd week starts no earlier than the 15th of the month
-            int startOfWeek = transition.Week * 7 - 6;
+            var startOfWeek = transition.Week * 7 - 6;
             // What day of the week does the month start on?
-            int firstDayOfWeek = (int)cal.GetDayOfWeek(new DateTime(year, transition.Month, 1));
+            var firstDayOfWeek = (int)cal.GetDayOfWeek(new DateTime(year, transition.Month, 1));
             // Determine how much start date has to be adjusted
             int transitionDay;
             int changeDayOfWeek = (int)transition.DayOfWeek;
@@ -136,7 +134,7 @@ namespace Arc4u
 
         }
 
-        private static int GetWeekNumber(DateTime date)
+        public static int GetWeekNumber(DateTime date)
         {
             var culture = CultureInfo.CurrentCulture;
 
