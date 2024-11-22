@@ -1,7 +1,6 @@
-﻿namespace Arc4u.Caching
+namespace Arc4u.Caching;
+
+public class KeyAlreadyRegisteredException : Exception
 {
-    public class KeyAlreadyRegisteredException : Exception
-    {
-        public KeyAlreadyRegisteredException(string key) : base(key) { }
-    }
+    public KeyAlreadyRegisteredException(string key) : base(key) { }
 }

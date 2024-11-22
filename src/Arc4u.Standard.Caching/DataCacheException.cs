@@ -1,12 +1,11 @@
-﻿namespace Arc4u.Caching
+namespace Arc4u.Caching;
+
+/// <summary>
+/// Exception used to encapsulate the error from the cache engine.
+/// </summary>
+public class DataCacheException : Exception
 {
-    /// <summary>
-    /// Exception used to encapsulate the error from the cache engine.
-    /// </summary>
-    public class DataCacheException : Exception
+    public DataCacheException(string message) : base(message)
     {
-        public DataCacheException(string message) : base(message)
-        {
-        }
     }
 }
