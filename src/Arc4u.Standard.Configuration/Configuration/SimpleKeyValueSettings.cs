@@ -36,7 +36,7 @@ public class SimpleKeyValueSettings : IKeyValueSettings, IEquatable<SimpleKeyVal
     {
         if (!string.IsNullOrWhiteSpace(value))
         {
-            _keyValues.Add(key, value);
+            _keyValues.Add(key, value!);
         }
     }
     private readonly Dictionary<string, string> _keyValues;
@@ -61,7 +61,7 @@ public class SimpleKeyValueSettings : IKeyValueSettings, IEquatable<SimpleKeyVal
 #endif
     }
 
-    public bool Equals(SimpleKeyValueSettings other)
+    public bool Equals(SimpleKeyValueSettings? other)
     {
         if (other != null && other._keyValues.Count == _keyValues.Count)
         {
@@ -78,7 +78,7 @@ public class SimpleKeyValueSettings : IKeyValueSettings, IEquatable<SimpleKeyVal
         return false;
     }
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         return obj is SimpleKeyValueSettings other && Equals(other);
     }

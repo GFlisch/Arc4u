@@ -42,7 +42,7 @@ public class CertificateLoader
 
         // assert
         configCert.Should().NotBeNull();
-        plainText.Should().Be(configCert.Decrypt(cypherText));
+        plainText.Should().Be(configCert!.Decrypt(cypherText));
     }
 
     [Fact]
@@ -59,10 +59,10 @@ public class CertificateLoader
         var sut = _fixture.Create<X509CertificateLoader>();
 
         // act
-        var configCert = sut.FindCertificate(config, "EncryptionCertificate");
+        var exception = Record.Exception(() => sut.FindCertificate(config, "EncryptionCertificate"));
 
         // assert
-        configCert.Should().BeNull();
+        exception.Should().BeOfType<FileNotFoundException>();
     }
 
     [Fact]

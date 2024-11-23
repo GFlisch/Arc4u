@@ -6,7 +6,7 @@ public class ApplicationConfig
     /// Name used to identify the application when used externally other than logging!
     /// Cache or authorization, etc...
     /// </summary>
-    public string ApplicationName { get; set; }
+    public string ApplicationName { get; set; } = string.Empty;
 
     public Environment Environment { get; set; } = new Environment();
 }

@@ -68,11 +68,6 @@ public static class ConfigurationHelper
 
     public static void AddApplicationConfig(this IServiceCollection services, Action<ApplicationConfig> option)
     {
-        if (option is null)
-        {
-            throw new ArgumentNullException(nameof(option));
-        }
-
         var validate = new ApplicationConfig();
         option(validate);
 
@@ -110,27 +105,33 @@ public static class ConfigurationHelper
 
     public static void AddApplicationConfig(this IServiceCollection services, IConfiguration configuration, string sectionName = "Application.Configuration")
     {
-        if (string.IsNullOrEmpty(sectionName))
-        {
-            throw new ArgumentNullException(nameof(sectionName));
-        }
 
+#if NET8_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(configuration);
+        ArgumentNullException.ThrowIfNullOrEmpty(sectionName);
+#else
         if (configuration is null)
         {
             throw new ArgumentNullException(nameof(configuration));
         }
-
-        var section = configuration.GetSection(sectionName);
-
-        if (section is null)
+        if (string.IsNullOrEmpty(sectionName))
         {
-            throw new NullReferenceException($"No section exists with name {sectionName}");
+            throw new ArgumentNullException(nameof(sectionName));
         }
-
-        var config = section.Get<ApplicationConfig>();
+#endif
+        var section = configuration.GetSection(sectionName) ?? throw new NullReferenceException($"No section exists with name {sectionName}");
+        var config = section.Get<ApplicationConfig>() ?? throw new NullReferenceException($"section exists with name {sectionName} but it is not an ApplicationConfig object.");
 
         void OptionFiller(ApplicationConfig option)
         {
+#if NET8_0_OR_GREATER
+            ArgumentNullException.ThrowIfNull(option);
+#else
+            if (option is null)
+            {
+                throw new ArgumentNullException(nameof(option));
+            }
+#endif
             option.ApplicationName = config.ApplicationName;
             option.Environment.Name = config.Environment.Name;
             option.Environment.LoggingName = config.Environment.LoggingName;
@@ -139,5 +140,4 @@ public static class ConfigurationHelper
 
         AddApplicationConfig(services, OptionFiller);
     }
-
 }

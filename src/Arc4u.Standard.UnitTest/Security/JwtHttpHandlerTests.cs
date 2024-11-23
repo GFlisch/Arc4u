@@ -112,20 +112,25 @@ public class JwtHttpHandlerTests
         container.RegisterInstance<ITokenRefreshProvider>(mockTokenRefresh.Object);
         container.CreateContainer();
 
-        var scopedServiceAccessor = container.Resolve<IScopedServiceProviderAccessor>();
 
         // Create a scope to be in the context majority of the time a business code is.
         using var scopedContainer = container.CreateScope();
 
+        var scopedServiceAccessor = scopedContainer.Resolve<IScopedServiceProviderAccessor>();
         scopedServiceAccessor.ServiceProvider = scopedContainer.ServiceProvider;
 
         var tokenRefresh = scopedContainer.Resolve<TokenRefreshInfo>();
         tokenRefresh.RefreshToken = new TokenInfo("refresh_token", Guid.NewGuid().ToString(), DateTime.UtcNow.AddHours(1));
         tokenRefresh.AccessToken = new TokenInfo("access_token", accessToken);
 
+        var principal = new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.CookiesAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0")
+        {
+            Profile = UserProfile.Empty
+        };
+
         // Define a Principal with no OAuth2Bearer token here => we test the injection.
         var appContext = scopedContainer.Resolve<IApplicationContext>();
-        appContext.SetPrincipal(new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.CookiesAuthenticationType), "S-1-0-0"));
+        appContext.SetPrincipal(principal);
 
         var setingsOptions = scopedContainer.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
 
@@ -212,9 +217,14 @@ public class JwtHttpHandlerTests
         tokenRefresh.RefreshToken = new TokenInfo("refresh_token", Guid.NewGuid().ToString(), DateTime.UtcNow.AddHours(1));
         tokenRefresh.AccessToken = new TokenInfo("access_token", accessToken);
 
+        var principal = new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.CookiesAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0")
+        {
+            Profile = UserProfile.Empty
+        };
+
         // Define a Principal with no OAuth2Bearer token here => we test the injection.
         var appContext = scopedContainer.Resolve<IApplicationContext>();
-        appContext.SetPrincipal(new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.CookiesAuthenticationType), "S-1-0-0"));
+        appContext.SetPrincipal(principal);
 
         var setingsOptions = scopedContainer.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
 
@@ -288,9 +298,14 @@ public class JwtHttpHandlerTests
         var scopedServiceAccessor = container.Resolve<IScopedServiceProviderAccessor>();
         scopedServiceAccessor.ServiceProvider = scopedContainer.ServiceProvider;
 
+        var principal = new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0")
+        {
+            Profile = UserProfile.Empty
+        };
+
         // Define a Principal with no OAuth2Bearer token here => we test the injection.
         var appContext = scopedContainer.Resolve<IApplicationContext>();
-        appContext.SetPrincipal(new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0"));
+        appContext.SetPrincipal(principal);
 
         var setingsOptions = scopedContainer.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
 
@@ -616,9 +631,14 @@ public class JwtHttpHandlerTests
         var scopedServiceAccessor = container.Resolve<IScopedServiceProviderAccessor>();
         scopedServiceAccessor.ServiceProvider = scopedContainer.ServiceProvider;
 
+        var principal = new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0")
+        {
+            Profile = UserProfile.Empty
+        };
+
         // Define a Principal with no OAuth2Bearer token here => we test the injection.
         var appContext = scopedContainer.Resolve<IApplicationContext>();
-        appContext.SetPrincipal(new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0"));
+        appContext.SetPrincipal(principal);
 
         var setingsOptions = scopedContainer.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
 
@@ -708,9 +728,14 @@ public class JwtHttpHandlerTests
         tokenRefresh.RefreshToken = new TokenInfo("refresh_token", Guid.NewGuid().ToString(), DateTime.UtcNow.AddHours(1));
         tokenRefresh.AccessToken = new TokenInfo("access_token", accessTokenCookies);
 
+        var principal = new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessTokenOAuth2 }, "S-1-0-0")
+        {
+            Profile = UserProfile.Empty
+        };
+
         // Define a Principal with no OAuth2Bearer token here => we test the injection.
         var appContext = scopedContainer.Resolve<IApplicationContext>();
-        appContext.SetPrincipal(new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessTokenOAuth2 }, "S-1-0-0"));
+        appContext.SetPrincipal(principal);
 
         var setingsOptions = scopedContainer.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
 
@@ -806,9 +831,14 @@ public class JwtHttpHandlerTests
         tokenRefresh.RefreshToken = new TokenInfo("refresh_token", Guid.NewGuid().ToString(), DateTime.UtcNow.AddHours(1));
         tokenRefresh.AccessToken = new TokenInfo("access_token", accessTokenCookies);
 
+        var principal = new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessTokenOAuth2 }, "S-1-0-0")
+        {
+            Profile = UserProfile.Empty
+        };
+
         // Define a Principal with no OAuth2Bearer token here => we test the injection.
         var appContext = scopedContainer.Resolve<IApplicationContext>();
-        appContext.SetPrincipal(new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.CookiesAuthenticationType), "S-1-0-0"));
+        appContext.SetPrincipal(principal);
 
         var setingsOptions = scopedContainer.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
 
@@ -908,9 +938,14 @@ public class JwtHttpHandlerTests
         tokenRefresh.RefreshToken = new TokenInfo("refresh_token", Guid.NewGuid().ToString(), DateTime.UtcNow.AddHours(1));
         tokenRefresh.AccessToken = new TokenInfo("access_token", accessTokenCookies);
 
+        var principal = new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessTokenOAuth2 }, "S-1-0-0")
+        {
+            Profile = UserProfile.Empty
+        };
+
         // Define a Principal with no OAuth2Bearer token here => we test the injection.
         var appContext = scopedContainer.Resolve<IApplicationContext>();
-        appContext.SetPrincipal(new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessTokenOAuth2 }, "S-1-0-0"));
+        appContext.SetPrincipal(principal);
 
         var setingsOptions = scopedContainer.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
 
