@@ -63,7 +63,7 @@ public class AttributeInspector
                 }
                 else
                 {
-                    _container.RegisterScoped(fromType, type, contractName);
+                    _container.RegisterScoped(fromType, type, contractName!);
                 }
             }
             else if (isSingleton)
@@ -74,7 +74,7 @@ public class AttributeInspector
                 }
                 else
                 {
-                    _container.RegisterSingleton(fromType, type, contractName);
+                    _container.RegisterSingleton(fromType, type, contractName!);
                 }
             }
             else if (string.IsNullOrWhiteSpace(contractName))
@@ -83,7 +83,7 @@ public class AttributeInspector
             }
             else
             {
-                _container.Register(fromType, type, contractName);
+                _container.Register(fromType, type, contractName!);
             }
         }
     }

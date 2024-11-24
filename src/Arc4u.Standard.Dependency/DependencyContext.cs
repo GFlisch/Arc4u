@@ -60,7 +60,7 @@ public class DependencyContext
     /// </summary>
     public object? Container { get { return Resolver?.Instance; } }
 
-    public T Resolve<T>()
+    public T? Resolve<T>()
     {
         return Resolver.Resolve<T>();
     }
@@ -70,7 +70,7 @@ public class DependencyContext
         return Resolver?.Resolve(type);
     }
 
-    public T Resolve<T>(string name)
+    public T? Resolve<T>(string name)
     {
         return Resolver.Resolve<T>(name);
     }
@@ -79,22 +79,22 @@ public class DependencyContext
         return Resolver?.Resolve(type, name);
     }
 
-    public bool TryResolve<T>(out T value)
+    public bool TryResolve<T>(out T? value)
     {
         return Resolver.TryResolve<T>(out value);
     }
 
-    public bool TryResolve(Type type, out object value)
+    public bool TryResolve(Type type, out object? value)
     {
         return Resolver.TryResolve(type, out value);
     }
 
-    public bool TryResolve<T>(string name, out T value)
+    public bool TryResolve<T>(string name, out T? value)
     {
         return Resolver.TryResolve<T>(name, out value);
     }
 
-    public bool TryResolve(Type type, string name, out object value)
+    public bool TryResolve(Type type, string name, out object? value)
     {
         return Resolver.TryResolve(type, name, out value);
     }
@@ -106,7 +106,7 @@ public class DependencyContext
 
     public IEnumerable<object> ResolveAll(Type type)
     {
-        return Resolver?.ResolveAll(type) ?? [];
+        return (Resolver?.ResolveAll(type) ?? []).Where(x => x is not null).Cast<object>();
     }
 
     public IEnumerable<T> ResolveAll<T>(string name)
@@ -115,6 +115,6 @@ public class DependencyContext
     }
     public IEnumerable<object> ResolveAll(Type type, string name)
     {
-        return Resolver?.ResolveAll(type, name) ?? [];
+        return (Resolver?.ResolveAll(type, name) ?? []).Where(x => x is not null).Cast<object>();
     }
 }

@@ -55,7 +55,7 @@ public static class MongoDbConnection
             options.WriteEncoding = c.WriteEncoding;
         });
 
-        var contextBuilder = new DbContextBuilder(services, mongoUrl.DatabaseName, ConnectionStringKey);
+        var contextBuilder = new DbContextBuilder(services, mongoUrl.DatabaseName);
 
         var dbContext = new TContext();
 
@@ -69,7 +69,7 @@ public static class MongoDbConnection
     {
         services.Configure<MongoClientSettings>(databaseName.ToLowerInvariant(), options);
 
-        var contextBuilder = new DbContextBuilder(services, databaseName, databaseName);
+        var contextBuilder = new DbContextBuilder(services, databaseName);
 
         var dbContext = new TContext();
 
