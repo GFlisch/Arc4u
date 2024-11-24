@@ -1,6 +1,5 @@
-﻿namespace Arc4u.Diagnostics.Serilog.Sinks.Memory
+namespace Arc4u.Diagnostics.Serilog.Sinks.Memory;
+
+public class MemoryLogMessages : List<LogMessage>
 {
-    public class MemoryLogMessages : List<LogMessage>
-    {
-    }
 }
