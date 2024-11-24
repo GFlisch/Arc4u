@@ -1,9 +1,8 @@
-﻿namespace Arc4u.Dependency.Configuration
-{
-    public class AssemblyConfig
-    {
-        public string Assembly { get; set; }
+namespace Arc4u.Dependency.Configuration;
 
-        public ICollection<string> RejectedTypes { get; set; }
-    }
+public class AssemblyConfig
+{
+    public string Assembly { get; set; } = String.Empty;
+
+    public ICollection<string> RejectedTypes { get; set; } = [];
 }
