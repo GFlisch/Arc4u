@@ -1,30 +1,32 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 
-namespace Arc4u.Data
+namespace Arc4u.Data;
+
+internal sealed class CollectionDebugView<T>
 {
-    internal sealed class CollectionDebugView<T>
+    private readonly ICollection<T> collection;
+
+    public CollectionDebugView(ICollection<T> collection)
     {
-        private readonly ICollection<T> collection;
-
-        public CollectionDebugView(ICollection<T> collection)
+#if NET8_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(collection);
+#else
+        if (collection == null)
         {
-            if (collection == null)
-            {
-                throw new ArgumentNullException("collection");
-            }
-
-            collection = collection;
+            throw new ArgumentNullException("collection");
         }
+#endif
+        this.collection = collection;
+    }
 
-        [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-        public T[] Items
+    [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
+    public T[] Items
+    {
+        get
         {
-            get
-            {
-                T[] array = new T[collection.Count];
-                collection.CopyTo(array, 0);
-                return array;
-            }
+            T[] array = new T[collection.Count];
+            collection.CopyTo(array, 0);
+            return array;
         }
     }
 }

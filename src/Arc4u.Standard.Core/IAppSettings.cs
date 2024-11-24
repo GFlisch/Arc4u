@@ -1,6 +1,5 @@
-﻿namespace Arc4u
+namespace Arc4u;
+
+public interface IAppSettings : IKeyValueSettings
 {
-    public interface IAppSettings : IKeyValueSettings
-    {
-    }
 }
