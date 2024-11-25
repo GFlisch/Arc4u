@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.Serialization;
@@ -36,17 +37,20 @@ public class Graph<T> where T : class
     /// <param name="paths">The list of initials includes you want to predefined!</param>
     public Graph(IEnumerable<string> paths)
     {
+#if NET8_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(paths);
+#else
         if (null == paths)
         {
-            throw new ArgumentNullException("paths");
+            throw new ArgumentNullException(nameof(paths));
         }
-
-        ValidatePaths(paths);
+#endif
+        Graph<T>.ValidatePaths(paths);
 
         _includes = new List<string>(paths);
     }
 
-    private void ValidatePaths(IEnumerable<string> paths)
+    private static void ValidatePaths(IEnumerable<string> paths)
     {
         foreach (var path in paths)
         {
@@ -57,21 +61,25 @@ public class Graph<T> where T : class
                 var propertyInfo = type.GetRuntimeProperty(property);
                 if (null == propertyInfo)
                 {
-                    throw new MissingMemberException(string.Format("The property {0} does not exist!", property));
+                    throw new MissingMemberException(string.Format(CultureInfo.InvariantCulture, "The property {0} does not exist!", property));
                 }
 
                 if (propertyInfo.PropertyType.IsArray)
                 {
                     type = propertyInfo.PropertyType.GetElementType();
 
+                    if (null == type)
+                    {
+                        throw new MissingMemberException(string.Format(CultureInfo.InvariantCulture, "The property {0} doesn't exist!", property));
+                    }
                     if (type == typeof(string))
                     {
-                        throw new MissingMemberException(string.Format("The property {0} is a simple type!", property));
+                        throw new MissingMemberException(string.Format(CultureInfo.InvariantCulture, "The property {0} is a simple type!", property));
                     }
 
                     if (!type.GetTypeInfo().IsClass)
                     {
-                        throw new MissingMemberException(string.Format("The property {0} is a simple type!", property));
+                        throw new MissingMemberException(string.Format(CultureInfo.InvariantCulture, "The property {0} is a simple type!", property));
                     }
 
                     continue;
@@ -81,7 +89,7 @@ public class Graph<T> where T : class
                 {
                     if (!propertyInfo.PropertyType.GetTypeInfo().IsGenericType)
                     {
-                        throw new MissingMemberException(string.Format("The property {0} is not a generic collection!", property));
+                        throw new MissingMemberException(string.Format(CultureInfo.InvariantCulture, "The property {0} is not a generic collection!", property));
                     }
 
                     var types = propertyInfo.PropertyType.GenericTypeArguments;
@@ -89,18 +97,18 @@ public class Graph<T> where T : class
                     {
                         if (t == typeof(string))
                         {
-                            throw new MissingMemberException(string.Format("The property {0} is a simple type!", property));
+                            throw new MissingMemberException(string.Format(CultureInfo.InvariantCulture, "The property {0} is a simple type!", property));
                         }
 
                         if (!t.GetTypeInfo().IsClass)
                         {
-                            throw new MissingMemberException(string.Format("The property {0} is a simple type!", property));
+                            throw new MissingMemberException(string.Format(CultureInfo.InvariantCulture, "The property {0} is a simple type!", property));
                         }
                     }
 
                     if (types.Length > 1)
                     {
-                        throw new MissingMemberException(string.Format("Simple Collection is allowed, property {0} has more than one type.", property));
+                        throw new MissingMemberException(string.Format(CultureInfo.InvariantCulture, "Simple Collection is allowed, property {0} has more than one type.", property));
                     }
 
                     type = types[0];
@@ -111,12 +119,12 @@ public class Graph<T> where T : class
 
                 if (type == typeof(string))
                 {
-                    throw new MissingMemberException(string.Format("The property {0} is a simple type!", property));
+                    throw new MissingMemberException(string.Format(CultureInfo.InvariantCulture, "The property {0} is a simple type!", property));
                 }
 
                 if (!type.GetTypeInfo().IsClass)
                 {
-                    throw new MissingMemberException(string.Format("The property {0} is a simple type!", property));
+                    throw new MissingMemberException(string.Format(CultureInfo.InvariantCulture, "The property {0} is a simple type!", property));
                 }
             }
         }
@@ -127,7 +135,7 @@ public class Graph<T> where T : class
         get
         {
             var info = new StringBuilder();
-            info.Append(string.Format("{0}: ", typeof(T).Name));
+            info.Append(string.Format(CultureInfo.InvariantCulture, "{0}: ", typeof(T).Name));
             var includes = Includes;
             if (includes.Count == 0)
             {
@@ -145,7 +153,7 @@ public class Graph<T> where T : class
                 info.Append(", ");
                 for (int i = 1; i < includes.Count - 1; i++)
                 {
-                    info.Append(string.Format("{0}, ", includes[i]));
+                    info.Append(string.Format(CultureInfo.InvariantCulture, "{0}, ", includes[i]));
                 }
                 info.Append(includes[includes.Count - 1]);
             }
@@ -178,11 +186,14 @@ public class Graph<T> where T : class
 
     public static string EvaluateExpression(Expression path)
     {
+#if NET8_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(path);
+#else
         if (null == path)
         {
-            throw new ArgumentNullException("path");
+            throw new ArgumentNullException(nameof(path));
         }
-
+#endif
         var stringPath = string.Empty;
         var memberExpression = path as MemberExpression;
         if (null != memberExpression)
@@ -200,7 +211,7 @@ public class Graph<T> where T : class
                     throw new MemberAccessException(stringTypeNotAllowed);
                 }
 
-                if (!memberExpression.Type.GetElementType().GetTypeInfo().IsClass)
+                if (!memberExpression.Type.GetElementType()!.GetTypeInfo().IsClass)
                 {
                     throw new MemberAccessException(StructTypeNotAllowed);
                 }
@@ -253,11 +264,14 @@ public class Graph<T> where T : class
     /// <returns>True if the path defined was included in the object's graph.</returns>
     public bool Exist<TProperty>(Expression<Func<T, TProperty>> path) where TProperty : class
     {
+#if NET8_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(path);
+#else
         if (null == path)
         {
-            throw new ArgumentNullException("path");
+            throw new ArgumentNullException(nameof(path));
         }
-
+#endif
         var stringPath = EvaluateExpression(path);
 
         if (!string.IsNullOrWhiteSpace(stringPath) && stringPath[0] == '.')
@@ -278,10 +292,14 @@ public class Graph<T> where T : class
     /// <returns>A new Graph instance with the type of the property selected in the path parameter.</returns>
     public Graph<TProperty> GetGraph<TProperty>(Expression<Func<T, TProperty>> path) where TProperty : class
     {
+#if NET8_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(path);
+#else
         if (null == path)
         {
-            throw new ArgumentNullException("path");
+            throw new ArgumentNullException(nameof(path));
         }
+#endif
 
         var stringPath = EvaluateExpression(path);
 
@@ -310,11 +328,14 @@ public class Graph<T> where T : class
     /// <returns>The Graph for the dedicated object parsed.</returns>
     public static Graph<T> Parse(T instance, bool shouldHaveElement = false)
     {
+#if NET8_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(instance);
+#else
         if (null == instance)
         {
-            throw new ArgumentNullException("instance");
+            throw new ArgumentNullException(nameof(instance));
         }
-
+#endif
         return shouldHaveElement ? new Graph<T>(ParseObject2(instance)) : new Graph<T>(ParseObject(instance));
     }
 
@@ -326,10 +347,14 @@ public class Graph<T> where T : class
     /// <returns>A copy of the graph with the removed path.</returns>
     public Graph<T> RemoveGraph<TProperty>(Expression<Func<T, TProperty>> path) where TProperty : class
     {
+#if NET8_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(path);
+#else
         if (null == path)
         {
-            throw new ArgumentNullException("path");
+            throw new ArgumentNullException(nameof(path));
         }
+#endif
 
         var stringPath = EvaluateExpression(path);
 
@@ -348,26 +373,30 @@ public class Graph<T> where T : class
     {
         var result = new List<string>();
 
+#if NET8_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(o);
+#else
         if (null == o)
         {
-            throw new ArgumentNullException("o");
+            throw new ArgumentNullException(nameof(o));
         }
+#endif
 
         if (o is IEnumerable)
         {
-            throw new ArgumentException("Collection is not allowed", "instance");
+            throw new InvalidOperationException("Collection is not allowed");
         }
 
         var type = o.GetType();
 
         if (!type.GetTypeInfo().IsClass)
         {
-            throw new ArgumentException("Only class type is allowed", "instance");
+            throw new InvalidOperationException("Class is not allowed");
         }
 
         if (type.IsArray)
         {
-            throw new ArgumentException("Array type is not allowed", "instance");
+            throw new InvalidOperationException("Array is not allowed");
         }
 
         var properties = type.GetRuntimeProperties();
@@ -375,7 +404,7 @@ public class Graph<T> where T : class
         foreach (var property in properties)
         {
 
-            object oProperty;
+            object? oProperty;
             if (property.PropertyType.IsArray)
             {
                 if (property.PropertyType.GetElementType() == typeof(string))
@@ -383,7 +412,7 @@ public class Graph<T> where T : class
                     continue;
                 }
 
-                if (!property.PropertyType.GetElementType().GetTypeInfo().IsClass)
+                if (!property.PropertyType.GetElementType()!.GetTypeInfo().IsClass)
                 {
                     continue;
                 }
@@ -404,8 +433,8 @@ public class Graph<T> where T : class
                     continue;
                 }
 
-                var children = ParseObject(array.GetValue(0));
-                if (null == children || children.Count() == 0)
+                var children = ParseObject(array.GetValue(0)!);
+                if (null == children || !children.Any())
                 {
                     result.Add(property.Name);
                 }
@@ -413,7 +442,7 @@ public class Graph<T> where T : class
                 {
                     foreach (var child in children)
                     {
-                        result.Add(string.Format("{0}.{1}", property.Name, child));
+                        result.Add(string.Format(CultureInfo.InvariantCulture, "{0}.{1}", property.Name, child));
                     }
                 }
 
@@ -435,7 +464,7 @@ public class Graph<T> where T : class
                     if (enumerator.MoveNext())
                     {
                         var children = ParseObject(enumerator.Current);
-                        if (children.Count() == 0)
+                        if (!children.Any())
                         {
                             result.Add(property.Name);
                         }
@@ -443,7 +472,7 @@ public class Graph<T> where T : class
                         {
                             foreach (var child in children)
                             {
-                                result.Add(string.Format("{0}.{1}", property.Name, child));
+                                result.Add(string.Format(CultureInfo.InvariantCulture, "{0}.{1}", property.Name, child));
                             }
                         }
                     }
@@ -471,7 +500,7 @@ public class Graph<T> where T : class
             if (null != oProperty)
             {
                 var children = ParseObject(oProperty);
-                if (children.Count() == 0)
+                if (!children.Any())
                 {
                     result.Add(property.Name);
                 }
@@ -479,7 +508,7 @@ public class Graph<T> where T : class
                 {
                     foreach (var child in children)
                     {
-                        result.Add(string.Format("{0}.{1}", property.Name, child));
+                        result.Add(string.Format(CultureInfo.InvariantCulture, "{0}.{1}", property.Name, child));
                     }
                 }
             }
@@ -493,34 +522,37 @@ public class Graph<T> where T : class
     {
         var result = new List<string>();
 
+#if NET8_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(o);
+#else
         if (null == o)
         {
-            throw new ArgumentNullException("o");
+            throw new ArgumentNullException(nameof(o));
         }
+#endif
 
         if (o is IEnumerable)
         {
-            throw new ArgumentException("Collection is not allowed", "instance");
+            throw new InvalidOperationException("Collection is not allowed");
         }
 
         var type = o.GetType();
 
         if (!type.GetTypeInfo().IsClass)
         {
-            throw new ArgumentException("Only class type is allowed", "instance");
+            throw new InvalidOperationException("Only class type is allowed");
         }
 
         if (type.IsArray)
         {
-            throw new ArgumentException("Array type is not allowed", "instance");
+            throw new InvalidOperationException("Array type is not allowed");
         }
 
         var properties = type.GetRuntimeProperties();
 
         foreach (var property in properties)
         {
-
-            object oProperty;
+            object? oProperty;
             if (property.PropertyType.IsArray)
             {
                 if (property.PropertyType.GetElementType() == typeof(string))
@@ -528,7 +560,7 @@ public class Graph<T> where T : class
                     continue;
                 }
 
-                if (!property.PropertyType.GetElementType().GetTypeInfo().IsClass)
+                if (!property.PropertyType.GetElementType()!.GetTypeInfo().IsClass)
                 {
                     continue;
                 }
@@ -548,8 +580,8 @@ public class Graph<T> where T : class
                     continue;
                 }
 
-                var children = ParseObject2(array.GetValue(0));
-                if (null == children || children.Count() == 0)
+                var children = ParseObject2(array.GetValue(0)!);
+                if (null == children || !children.Any())
                 {
                     result.Add(property.Name);
                 }
@@ -557,7 +589,7 @@ public class Graph<T> where T : class
                 {
                     foreach (var child in children)
                     {
-                        result.Add(string.Format("{0}.{1}", property.Name, child));
+                        result.Add(string.Format(CultureInfo.InvariantCulture, "{0}.{1}", property.Name, child));
                     }
                 }
 
@@ -579,16 +611,16 @@ public class Graph<T> where T : class
                     if (enumerator.MoveNext())
                     {
                         var children = ParseObject2(enumerator.Current);
-                        if (children.Count() == 0)
+                        if (!children.Any())
                         {
                             result.Add(property.Name);
                         }
                         else
-                        if (children.Count() > 0)
+                        if (children.Any())
                         {
                             foreach (var child in children)
                             {
-                                result.Add(string.Format("{0}.{1}", property.Name, child));
+                                result.Add(string.Format(CultureInfo.InvariantCulture, "{0}.{1}", property.Name, child));
                             }
                         }
                     }
@@ -612,7 +644,7 @@ public class Graph<T> where T : class
             if (null != oProperty)
             {
                 var children = ParseObject2(oProperty);
-                if (children.Count() == 0)
+                if (!children.Any())
                 {
                     result.Add(property.Name);
                 }
@@ -620,7 +652,7 @@ public class Graph<T> where T : class
                 {
                     foreach (var child in children)
                     {
-                        result.Add(string.Format("{0}.{1}", property.Name, child));
+                        result.Add(string.Format(CultureInfo.InvariantCulture, "{0}.{1}", property.Name, child));
                     }
                 }
             }
@@ -642,7 +674,7 @@ public class Graph<T> where T : class
         }
         set
         {
-#if NET8_0
+#if NET8_0_OR_GREATER
             ArgumentNullException.ThrowIfNull(value);
 #else
             if (value == null)
@@ -650,7 +682,7 @@ public class Graph<T> where T : class
                 throw new ArgumentNullException(nameof(value));
             }
 #endif
-            ValidatePaths(value);
+            Graph<T>.ValidatePaths(value);
 
             _includes = new List<string>(value);
         }

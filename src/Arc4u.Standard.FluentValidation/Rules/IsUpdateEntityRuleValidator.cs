@@ -7,7 +7,7 @@ namespace Arc4u.FluentValidation.Rules;
 
 public class IsUpdateEntityRuleValidator<T, TProperty> : PropertyValidator<T, TProperty> where T : IPersistEntity where TProperty : Enum
 {
-    static readonly string ruleName = "IsUpdateRuleValidator";
+    const string ruleName = "IsUpdateRuleValidator";
     public override string Name => ruleName;
 
     static IsUpdateEntityRuleValidator()

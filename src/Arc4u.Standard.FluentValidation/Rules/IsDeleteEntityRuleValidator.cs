@@ -3,26 +3,25 @@ using FluentValidation;
 using FluentValidation.Resources;
 using FluentValidation.Validators;
 
-namespace Arc4u.FluentValidation.Rules
+namespace Arc4u.FluentValidation.Rules;
+
+public class IsDeleteEntityRuleValidator<T, TProperty> : PropertyValidator<T, TProperty> where T : IPersistEntity where TProperty : Enum
 {
-    public class IsDeleteEntityRuleValidator<T, TProperty> : PropertyValidator<T, TProperty> where T : IPersistEntity where TProperty : Enum
+    const string ruleName = "IsDeleteRuleValidator";
+    public override string Name => ruleName;
+
+    static IsDeleteEntityRuleValidator()
     {
-        static readonly string ruleName = "IsDeleteRuleValidator";
-        public override string Name => ruleName;
+        var lgMgr = ValidatorOptions.Global.LanguageManager as LanguageManager;
+        lgMgr?.AddTranslation("en", ruleName, "PersistEntity is expected to be set as Delete and is {PropertyValue}.");
+    }
+    public override bool IsValid(ValidationContext<T> context, TProperty value)
+    {
+        return value.Equals(PersistChange.Delete);
+    }
 
-        static IsDeleteEntityRuleValidator()
-        {
-            var lgMgr = ValidatorOptions.Global.LanguageManager as LanguageManager;
-            lgMgr?.AddTranslation("en", ruleName, "PersistEntity is expected to be set as Delete and is {PropertyValue}.");
-        }
-        public override bool IsValid(ValidationContext<T> context, TProperty value)
-        {
-            return value.Equals(PersistChange.Delete);
-        }
-
-        protected override string GetDefaultMessageTemplate(string errorCode)
-        {
-            return Localized(errorCode, Name);
-        }
+    protected override string GetDefaultMessageTemplate(string errorCode)
+    {
+        return Localized(errorCode, Name);
     }
 }
