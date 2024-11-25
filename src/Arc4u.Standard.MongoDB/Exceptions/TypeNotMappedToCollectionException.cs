@@ -1,6 +1,5 @@
-﻿namespace Arc4u.MongoDB.Exceptions
+namespace Arc4u.MongoDB.Exceptions;
+
+public class TypeNotMappedToCollectionException : Exception
 {
-    public class TypeNotMappedToCollectionException : Exception
-    {
-    }
 }
