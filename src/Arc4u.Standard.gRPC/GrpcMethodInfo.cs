@@ -20,6 +20,10 @@ public class GrpcMethodInfo
     /// <returns>A service aspect, empty one if no service aspect is defined.</returns>
     public ServiceAspectAttribute GetAttributeFor(string method, Type serviceType)
     {
+#if NET8_0_OR_GREATER
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(method);
+        ArgumentNullException.ThrowIfNull(serviceType);
+#else
         if (string.IsNullOrWhiteSpace(method))
         {
             throw new ArgumentException(nameof(method));
@@ -29,10 +33,10 @@ public class GrpcMethodInfo
         {
             throw new ArgumentException(nameof(serviceType));
         }
-
-        if (RightsOnMethod.ContainsKey(method))
+#endif
+        if (RightsOnMethod.TryGetValue(method, out var rights))
         {
-            return RightsOnMethod[method];
+            return rights;
         }
 
         var methodSplit = method.Split('/');
