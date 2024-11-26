@@ -12,12 +12,12 @@ namespace Arc4u.NServiceBus;
 /// <typeparam name="T"></typeparam>
 public abstract class HandleMessageBase<T> : IHandleMessages<T>
 {
-    public HandleMessageBase(ILogger<HandleMessageBase<T>> logger = null)
+    public HandleMessageBase(ILogger<HandleMessageBase<T>>? logger = null)
     {
         _logger = logger;
     }
 
-    private readonly ILogger<HandleMessageBase<T>> _logger;
+    private readonly ILogger<HandleMessageBase<T>>? _logger;
     /// <summary>
     /// Method that will be used by NServiceBus to process a message.
     /// The real work is implemented in the Handle(T message) abstract method.
@@ -33,16 +33,16 @@ public abstract class HandleMessageBase<T> : IHandleMessages<T>
             MessagesToPublish.Create();
 
             // business work to implement.
-            await Handle(message);
+            await Handle(message).ConfigureAwait(false);
 
             // Publish events.
-            foreach (Object _event in MessagesToPublish.Events)
+            foreach (object _event in MessagesToPublish.Events)
             {
                 try
                 {
-                    await context.Publish(_event);
+                    await context.Publish(_event).ConfigureAwait(false);
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
                     _logger?.Technical().LogException(ex);
                 }
@@ -53,7 +53,7 @@ public abstract class HandleMessageBase<T> : IHandleMessages<T>
             {
                 try
                 {
-                    await context.Send(command);
+                    await context.Send(command).ConfigureAwait(false);
                 }
                 catch (System.Exception ex)
                 {
@@ -62,7 +62,7 @@ public abstract class HandleMessageBase<T> : IHandleMessages<T>
             }
 
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
             _logger?.Technical().LogException(ex);
         }
