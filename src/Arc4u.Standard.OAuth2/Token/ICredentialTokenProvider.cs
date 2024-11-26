@@ -1,9 +1,8 @@
-﻿using Arc4u.OAuth2.Security.Principal;
+using Arc4u.OAuth2.Security.Principal;
 
-namespace Arc4u.OAuth2.Token
+namespace Arc4u.OAuth2.Token;
+
+public interface ICredentialTokenProvider
 {
-    public interface ICredentialTokenProvider
-    {
-        Task<TokenInfo> GetTokenAsync(IKeyValueSettings settings, CredentialsResult credential);
-    }
+    Task<TokenInfo> GetTokenAsync(IKeyValueSettings settings, CredentialsResult credential);
 }

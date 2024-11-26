@@ -28,6 +28,10 @@ public class CredentialTokenProvider : ICredentialTokenProvider
     {
         var messages = GetContext(settings, out var clientId, out var authority, out var scope, out var clientSecret);
 
+        if (null == authority)
+        {
+            throw new NullReferenceException(nameof(authority));
+        }
         var tokenEndpoint = await authority.GetEndpointAsync(CancellationToken.None).ConfigureAwait(false);
 
         _logger.Technical().Debug($"ClientId = {clientId}.").Log();
@@ -36,12 +40,12 @@ public class CredentialTokenProvider : ICredentialTokenProvider
 
         if (string.IsNullOrWhiteSpace(credential.Upn))
         {
-            messages.Add(new Message(Arc4u.ServiceModel.MessageCategory.Technical, Arc4u.ServiceModel.MessageType.Error, "No Username is provided."));
+            messages.Add(new Message(ServiceModel.MessageCategory.Technical, MessageType.Error, "No Username is provided."));
         }
 
         if (string.IsNullOrWhiteSpace(credential.Password))
         {
-            messages.Add(new Message(Arc4u.ServiceModel.MessageCategory.Technical, Arc4u.ServiceModel.MessageType.Warning, "No password is provided."));
+            messages.Add(new Message(ServiceModel.MessageCategory.Technical, MessageType.Warning, "No password is provided."));
         }
 
         messages.LogAndThrowIfNecessary(_logger);
@@ -49,11 +53,11 @@ public class CredentialTokenProvider : ICredentialTokenProvider
 
         // no cache, do a direct call on every calls.
         _logger.Technical().Debug($"Call STS: {authority} for user: {credential.Upn}").Log();
-        return await GetTokenInfoAsync(clientSecret, clientId, tokenEndpoint, scope, credential.Upn, credential.Password).ConfigureAwait(false);
+        return await GetTokenInfoAsync(clientSecret, clientId, tokenEndpoint, scope, credential.Upn!, credential.Password!).ConfigureAwait(false);
 
     }
 
-    private Messages GetContext(IKeyValueSettings settings, out string clientId, out AuthorityOptions authority, out string scope, out string clientSecret)
+    private Messages GetContext(IKeyValueSettings settings, out string clientId, out AuthorityOptions? authority, out string scope, out string clientSecret)
     {
         // Check the information.
         var messages = new Messages();
@@ -111,7 +115,7 @@ public class CredentialTokenProvider : ICredentialTokenProvider
                     };
             if (!string.IsNullOrWhiteSpace(clientSecret))
             {
-                parameters.Add("client_secret", clientSecret);
+                parameters.Add("client_secret", clientSecret!);
             }
             using var content = new FormUrlEncodedContent(parameters);
 

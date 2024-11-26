@@ -1,38 +1,44 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Security.Claims;
 using System.Security.Principal;
 
-namespace Arc4u.OAuth2.Token
+namespace Arc4u.OAuth2.Token;
+
+public static class UserProfileExt
 {
-    public static class UserProfileExt
+    public static readonly string tokenExpirationClaimType = "exp";
+
+    public static DateTime AccessTokenExpiresOn(this IIdentity identity)
     {
-        public static readonly string tokenExpirationClaimType = "exp";
-
-        public static DateTime AccessTokenExpiresOn(this IIdentity identity)
+        if (identity is not ClaimsIdentity claimsIdentity)
         {
-            return GetExpDateTimeOffset(identity as ClaimsIdentity).DateTime;
+            throw new InvalidOperationException("The identity is not a ClaimsIdentity.");
         }
+        return GetExpDateTimeOffset(claimsIdentity).DateTime;
+    }
 
-        public static DateTime AccessTokenExpiresOnUtc(this IIdentity identity)
+    public static DateTime AccessTokenExpiresOnUtc(this IIdentity identity)
+    {
+        if (identity is not ClaimsIdentity claimsIdentity)
         {
-            return GetExpDateTimeOffset(identity as ClaimsIdentity).UtcDateTime;
+            throw new InvalidOperationException("The identity is not a ClaimsIdentity.");
         }
+        return GetExpDateTimeOffset(claimsIdentity).UtcDateTime;
+    }
 
-        private static DateTimeOffset GetExpDateTimeOffset(ClaimsIdentity identity)
+    private static DateTimeOffset GetExpDateTimeOffset(ClaimsIdentity identity)
+    {
+        if (null != identity)
         {
-            if (null != identity)
+            var expTokenClaim = identity.Claims.FirstOrDefault(c => c.Type.Equals(tokenExpirationClaimType, StringComparison.InvariantCultureIgnoreCase));
+            long expTokenTicks = 0;
+            if (null != expTokenClaim)
             {
-                var expTokenClaim = identity.Claims.FirstOrDefault(c => c.Type.Equals(tokenExpirationClaimType, StringComparison.InvariantCultureIgnoreCase));
-                long expTokenTicks = 0;
-                if (null != expTokenClaim)
-                {
-                    long.TryParse(expTokenClaim.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out expTokenTicks);
+                long.TryParse(expTokenClaim.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out expTokenTicks);
 
-                    return DateTimeOffset.FromUnixTimeSeconds(expTokenTicks);
-                }
+                return DateTimeOffset.FromUnixTimeSeconds(expTokenTicks);
             }
-
-            return DateTimeOffset.FromUnixTimeSeconds(0);
         }
+        return DateTimeOffset.FromUnixTimeSeconds(0);
     }
 }

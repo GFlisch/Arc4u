@@ -55,7 +55,7 @@ public class ClaimsBearerTokenExtractor : IClaimsFiller
 
         try
         {
-            JwtSecurityToken bearerToken = null;
+            JwtSecurityToken? bearerToken = null;
             if (null != claimsIdentity.BootstrapContext)
             {
                 bearerToken = new JwtSecurityToken(claimsIdentity.BootstrapContext.ToString());
@@ -67,6 +67,11 @@ public class ClaimsBearerTokenExtractor : IClaimsFiller
                 var providerSettings = settings.First(s => s.Values[TokenKeys.AuthenticationTypeKey].Equals(identity.AuthenticationType));
 
                 var provider = _container.Resolve<ITokenProvider>(providerSettings.Values[TokenKeys.ProviderIdKey]);
+
+                if (null == provider)
+                {
+                    throw new InvalidOperationException($"No token provider named: {providerSettings.Values[TokenKeys.ProviderIdKey]} is registered.");
+                }
 
                 _logger.Technical().System("Requesting an authentication token.").Log();
                 var tokenInfo = await provider.GetTokenAsync(providerSettings, claimsIdentity).ConfigureAwait(false);
