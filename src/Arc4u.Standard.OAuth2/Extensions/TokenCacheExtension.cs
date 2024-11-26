@@ -1,4 +1,3 @@
-using System;
 using Arc4u.Configuration;
 using Arc4u.OAuth2.Options;
 using Microsoft.Extensions.Configuration;
@@ -54,15 +53,9 @@ public static class TokenCacheExtension
             throw new ConfigurationException("TokenCacheOptions.CacheName is not defined in the configuration file.");
         }
 
-        if (TimeSpan.Zero == tokenCacheOptions.MaxTime)
-        {
-            throw new ConfigurationException("TokenCacheOptions.MaxTime is not defined in the configuration file.");
-        }
-
         services.Configure<TokenCacheOptions>(options =>
         {
             options.CacheName = tokenCacheOptions.CacheName;
-            options.MaxTime = tokenCacheOptions.MaxTime;
         });
     }
 }
