@@ -3,15 +3,14 @@
     <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
     <PackageId>Arc4u.Standard.NServiceBus</PackageId>
   </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="NServiceBus" Version="7.8.0" />
-  </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.4" />
+    <PackageReference Include="NServiceBus" Version="8.2.3" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
-  </ItemGroup>  
+    <PackageReference Include="NServiceBus" Version="9.1.1" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Arc4u.Standard.Caching\Arc4u.Standard.Caching.csproj" />
     <ProjectReference Include="..\Arc4u.Standard.Core\Arc4u.Standard.Core.csproj" />
