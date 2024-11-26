@@ -91,7 +91,7 @@ namespace Arc4u.ServiceModel
                         property = categoryLogger.Error(lm.Text);
                         break;
                     case MessageType.Critical:
-                        property = categoryLogger.Fatal(lm.Text);
+                        property = categoryLogger.Critical(lm.Text);
                         break;
                     default:
                         property = categoryLogger.Debug(lm.Text);
