@@ -4,9 +4,9 @@ using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 namespace Arc4u.OAuth2.Options;
 public class OidcAuthenticationSectionOptions
 {
-    public AuthorityOptions DefaultAuthority { get; set; }
+    public AuthorityOptions DefaultAuthority { get; set; } = default!;
 
-    public string CookieName { get; set; }
+    public string CookieName { get; set; } = default!;
 
     public bool ValidateAuthority { get; set; } = true;
 
@@ -48,7 +48,7 @@ public class OidcAuthenticationSectionOptions
 
     public string CallbackPath { get; set; } = "/signin-oidc";
 
-    public string? CertSecurityKeyPath { get; set; } = null;
+    public string? CertSecurityKeyPath { get; set; } = default!;
 
     /// <summary>
     /// The <see cref="IPostConfigureOptions<CookieAuthenticationOptions"/> type used to configure the <see cref="CookieAuthenticationOptions"/>.

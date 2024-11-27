@@ -128,7 +128,13 @@ public class JwtHttpHandler : DelegatingHandler
 
         _logger.Technical().System($"{GetType().Name} token provider is called.").Log();
 
-        ITokenProvider provider = containerResolve.Resolve<ITokenProvider>(_settings.Values[TokenKeys.ProviderIdKey]);
+        
+        var provider = containerResolve.Resolve<ITokenProvider>(_settings.Values[TokenKeys.ProviderIdKey]);
+        if (provider is null)
+        {
+            _logger.Technical().System($"No token provider is defined for {GetType().Name}, Check next Delegate Handler").Log();
+            return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
+        }
 
         _logger.Technical().System("Requesting an authentication token.").Log();
         var tokenInfo = await provider.GetTokenAsync(_settings, null).ConfigureAwait(false);

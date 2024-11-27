@@ -47,14 +47,21 @@ public static class CacheStoreExtension
         }
 
         var storeInfo = section.Get<CacheStoreOption>();
-        if (storeInfo.CacheKey is null && storeInfo.CacheName is null)
+        if (storeInfo == null)
         {
             throw new InvalidCastException($"Retrieving the cache data protection store info from section {configSectionName} is impossible.");
         }
 
+        if (storeInfo.CacheKey is null && storeInfo.CacheName is null)
+        {
+            throw new InvalidCastException($"Retrieving the CacheKey or CacheName data protection store info from section {configSectionName} is impossible.");
+        }
+
         void OptionsFiller(CacheStoreOption option)
         {
-            option.CacheKey = storeInfo.CacheKey;
+            ArgumentNullException.ThrowIfNull(option);
+
+            option.CacheKey = storeInfo.CacheKey ?? throw new InvalidCastException($"CacheKey from section {configSectionName} is null.");
             option.CacheName = storeInfo.CacheName;
         }
 

@@ -41,7 +41,7 @@ public class RefreshTokenProvider : ITokenRefreshProvider
     private readonly ILogger<RefreshTokenProvider> _logger;
     private readonly ActivitySource? _activitySource;
 
-    public async Task<TokenInfo> GetTokenAsync(IKeyValueSettings settings, object platformParameters)
+    public async Task<TokenInfo> GetTokenAsync(IKeyValueSettings? settings, object? platformParameters)
     {
         ArgumentNullException.ThrowIfNull(_tokenRefreshInfo);
         ArgumentNullException.ThrowIfNull(_openIdConnectOptions);
@@ -57,13 +57,13 @@ public class RefreshTokenProvider : ITokenRefreshProvider
             throw new InvalidOperationException("Refreshing the token is impossible, validity date is expired.");
         }
 
-        var options = _openIdConnectOptions.Get(OpenIdConnectDefaults.AuthenticationScheme);
+        var options = _openIdConnectOptions.Get(OpenIdConnectDefaults.AuthenticationScheme) ?? throw new InvalidCastException("The OpenIdConnectOptions is not found!");
         var metadata = await options!.ConfigurationManager!.GetConfigurationAsync(CancellationToken.None).ConfigureAwait(false);
 
         var pairs = new Dictionary<string, string>()
                                     {
-                                            { "client_id", options.ClientId },
-                                            { "client_secret", options.ClientSecret },
+                                            { "client_id", options.ClientId ?? string.Empty},
+                                            { "client_secret", options.ClientSecret ?? string.Empty },
                                             { "grant_type", "refresh_token" },
                                             { "refresh_token", _tokenRefreshInfo.RefreshToken.Token }
                                     };

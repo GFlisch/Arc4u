@@ -42,6 +42,10 @@ public static class OnBehalfOfAuthenticationExtensions
         }
 
         var options = section.Get<Dictionary<string, OnBehalfOfSettingsOptions>>();
+        if (null == options)
+        {
+            return;
+        }
 
         foreach (var settingsOptions in options)
         {

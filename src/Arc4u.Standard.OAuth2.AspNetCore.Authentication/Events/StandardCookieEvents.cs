@@ -54,13 +54,21 @@ public class StandardCookieEvents : CookieAuthenticationEvents
 
         var tokensInfo = _serviceProvider.GetService<TokenRefreshInfo>();
 
+        if (null == tokensInfo)
+        {
+            _logger.Technical().LogError("No TokenRefreshInfo found in the service provider.");
+            cookieCtx.RejectPrincipal();
+            await cookieCtx.HttpContext.SignOutAsync().ConfigureAwait(false);
+            return;
+        }
+
         var accessToken = cookieCtx.Properties.GetTokenValue("access_token");
         var jwtToken = new JsonWebToken(accessToken);
         var refreshToken = cookieCtx.Properties.GetTokenValue("refresh_token");
 
-        tokensInfo.AccessToken = new TokenInfo("access_token", accessToken, jwtToken.ValidTo);
+        tokensInfo.AccessToken = new TokenInfo("access_token", accessToken ?? string.Empty, jwtToken.ValidTo);
         // As not all the autorities are using a jwt token for the refresh token, the expiration date is not  extracted from the token
-        tokensInfo.RefreshToken = new TokenInfo("refresh_token", refreshToken, cookieTokenExpiration.Value.DateTime);
+        tokensInfo.RefreshToken = new TokenInfo("refresh_token", refreshToken ?? string.Empty, cookieTokenExpiration.Value.DateTime);
 
         var timeRemaining = jwtToken.ValidTo - DateTime.UtcNow;
         if (timeRemaining < refreshThreshold)

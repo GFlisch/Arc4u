@@ -18,7 +18,7 @@ public class ConfigureCookieWithTicketStoreAuthenticationOptions : IPostConfigur
         _options = optionsMonitor;
     }
 
-    public void PostConfigure(string name, CookieAuthenticationOptions options)
+    public void PostConfigure(string? name, CookieAuthenticationOptions options)
     {
         options.SessionStore = _ticketStore;
         options.Cookie.Name = _options.CurrentValue.CookieName;

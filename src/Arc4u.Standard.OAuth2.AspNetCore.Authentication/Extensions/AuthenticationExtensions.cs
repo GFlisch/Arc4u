@@ -72,7 +72,7 @@ public static partial class AuthenticationExtensions
         services.AddTransient(oidcOptions.CookieAuthenticationEventsType);
         services.AddTransient(oidcOptions.JwtBearerEventsType);
         services.AddTransient(oidcOptions.OpenIdConnectEventsType);
-        services.AddSingleton(typeof(IPostConfigureOptions<CookieAuthenticationOptions>), oidcOptions.CookiesConfigureOptionsType);
+        services.AddSingleton(typeof(IPostConfigureOptions<CookieAuthenticationOptions>), oidcOptions.CookiesConfigureOptionsType!);
 
         services.AddDefaultAuthority(options =>
         {
@@ -239,11 +239,21 @@ public static partial class AuthenticationExtensions
 
         var jwtBearerEventsType = Type.GetType(settings.JwtBearerEventsType, false);
 
+        if (null ==  jwtBearerEventsType)
+        {
+            throw new MissingFieldException("The JwtBearerEventsType must be defined.");
+        }
+
         if (string.IsNullOrWhiteSpace(settings.CookieAuthenticationEventsType))
         {
             throw new MissingFieldException("The CookieAuthenticationEventsType must be defined.");
         }
-        var cookieAuthenticationEventsType = Type.GetType(settings.CookieAuthenticationEventsType, true);
+        var cookieAuthenticationEventsType = Type.GetType(settings.CookieAuthenticationEventsType, false);
+
+        if (null == cookieAuthenticationEventsType)
+        {
+            throw new MissingFieldException("The CookieAuthenticationEventsType must be defined.");
+        }
 
         if (string.IsNullOrWhiteSpace(settings.OpenIdConnectEventsType))
         {
@@ -251,12 +261,21 @@ public static partial class AuthenticationExtensions
         }
         var openIdConnectEventsType = Type.GetType(settings.OpenIdConnectEventsType, false);
 
+        if (openIdConnectEventsType is null)
+        {
+            throw new MissingFieldException("The OpenIdConnectEventsType must be defined.");
+        }
+
         certificateLoader ??= new X509CertificateLoader(null);
         var certSecurityKey = string.IsNullOrWhiteSpace(settings.CertSecurityKeyPath) ? null : certificateLoader.FindCertificate(configuration, settings.CertSecurityKeyPath) ?? throw new MissingFieldException($"No certificate was found based on the configuration section: {settings.CertSecurityKeyPath}.");
 
         var cert = certificateLoader.FindCertificate(configuration, settings.CertificateSectionPath) ?? throw new MissingFieldException($"No certificate was found based on the configuration section: {settings.CertificateSectionPath}.");
 
         var ticketStoreAction = CacheTicketStoreExtension.PrepareAction(configuration, settings.AuthenticationCacheTicketStorePath);
+        if (null == ticketStoreAction)
+        {
+            throw new MissingFieldException("A TicketStore is mandatory to store the authentication ticket.");
+        }
 
         Type? cookiesConfigureOptionsType;
         if (string.IsNullOrWhiteSpace(settings.CookiesConfigureOptionsType))
@@ -278,7 +297,7 @@ public static partial class AuthenticationExtensions
             options.DefaultAuthority = settings.DefaultAuthority!;
             options.CookieName = settings.CookieName;
             options.ValidateAuthority = settings.ValidateAuthority;
-            options.AuthenticationCacheTicketStoreOption = ticketStoreAction;
+            options.AuthenticationCacheTicketStoreOption = ticketStoreAction!;
             options.OpenIdSettingsKey = settings.OpenIdSettingsKey;
             options.OpenIdSettingsOptions = OpenIdSettingsExtension.PrepareAction(configuration, settings.OpenIdSettingsSectionPath);
             options.OAuth2SettingsKey = settings.OAuth2SettingsKey;
@@ -286,7 +305,7 @@ public static partial class AuthenticationExtensions
             options.Certificate = cert;
             options.CallbackPath = settings.CallbackPath;
             options.DefaultKeyLifetime = settings.DefaultKeyLifetime;
-            options.ApplicationName = configuration[settings.ApplicationNameSectionPath];
+            options.ApplicationName = configuration[settings.ApplicationNameSectionPath]!;
             options.JwtBearerEventsType = jwtBearerEventsType;
             options.CookieAuthenticationEventsType = cookieAuthenticationEventsType;
             options.OpenIdConnectEventsType = openIdConnectEventsType;

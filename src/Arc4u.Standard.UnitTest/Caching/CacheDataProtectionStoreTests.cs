@@ -249,7 +249,7 @@ public class CacheDataProtectionStoreTests
         var exception = Record.Exception(() => mockBuilder.Object.PersistKeysToCache(configuration));
 
         exception.Should().NotBeNull();
-        exception.Should().BeOfType<ArgumentNullException>();
+        exception.Should().BeOfType<InvalidCastException>();
     }
 
     private static (IServiceCollection, IConfiguration) BuiltContainer()

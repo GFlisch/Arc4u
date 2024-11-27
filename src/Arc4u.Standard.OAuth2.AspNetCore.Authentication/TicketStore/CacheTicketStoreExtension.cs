@@ -23,7 +23,13 @@ public static class CacheTicketStoreExtension
 
     public static void AddCacheTicketStore(this IServiceCollection services, IConfiguration configuration, string sectionName = "AuthenticationCacheTicketStore")
     {
-        AddCacheTicketStore(services, PrepareAction(configuration, sectionName));
+        var action = PrepareAction(configuration, sectionName);
+        if (null == action)
+        {
+            throw new InvalidOperationException("Ticket store cannot be created.");
+        }
+
+        AddCacheTicketStore(services, action);
     }
 
     internal static Action<CacheTicketStoreOptions>? PrepareAction(IConfiguration configuration, string? sectionName)

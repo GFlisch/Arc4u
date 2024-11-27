@@ -29,7 +29,7 @@ public class StandardBearerEvents : JwtBearerEvents
         if (context.AuthenticateFailure is not null && context.AuthenticateFailure is SecurityTokenExpiredException authenticationException)
         {
             var expires = authenticationException.Expires.ToString("o");
-            context.Response.Headers.Add("x-token-expired", expires);
+            context.Response.Headers.Append("x-token-expired", expires);
             context.ErrorDescription = $"The token expired on {expires}";
         }
         return context.Response.WriteAsync(JsonSerializer.Serialize(new

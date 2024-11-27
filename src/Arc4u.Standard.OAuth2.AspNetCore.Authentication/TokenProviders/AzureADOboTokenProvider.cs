@@ -42,10 +42,14 @@ public class AzureADOboTokenProvider : ITokenProvider
     private readonly AuthorityOptions _defaultAuthority;
     private readonly IApplicationContext _applicationContext;
 
-    public async Task<TokenInfo> GetTokenAsync(IKeyValueSettings settings, object _)
+    public async Task<TokenInfo> GetTokenAsync(IKeyValueSettings? settings, object? _)
     {
         ArgumentNullException.ThrowIfNull(settings);
 
+        if (_applicationContext.Principal is null)
+        {
+            throw new InvalidOperationException("No principal exists.");
+        }
         using var activity = _activitySource?.StartActivity("Get on behal of token", ActivityKind.Producer);
 
         var identity = _applicationContext.Principal.Identity as ClaimsIdentity;
@@ -125,11 +129,11 @@ public class AzureADOboTokenProvider : ITokenProvider
                 if (payload.RootElement.TryGetProperty("expires_in", out var property) && property.TryGetInt32(out var seconds))
                 {
                     var expirationAt = DateTime.UtcNow + TimeSpan.FromSeconds(seconds);
-                    oboToken = new TokenInfo("access_token", payload!.RootElement!.GetString("access_token"), expirationAt.ToUniversalTime());
+                    oboToken = new TokenInfo("access_token", payload!.RootElement!.GetString("access_token") ?? string.Empty, expirationAt.ToUniversalTime());
                 }
                 else
                 {
-                    oboToken = new TokenInfo("access_token", payload!.RootElement!.GetString("access_token"));
+                    oboToken = new TokenInfo("access_token", payload!.RootElement!.GetString("access_token") ?? string.Empty);
                 }
 
                 await cache.PutAsync(cacheKey, oboToken.ExpiresOnUtc - DateTime.UtcNow, oboToken).ConfigureAwait(false);

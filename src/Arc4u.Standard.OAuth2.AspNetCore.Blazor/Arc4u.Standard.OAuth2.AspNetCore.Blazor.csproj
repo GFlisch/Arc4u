@@ -12,7 +12,6 @@
     <PackageReference Include="System.Text.Json" Version="9.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Arc4u.Standard.OAuth2.AspNetCore.Api\Arc4u.Standard.OAuth2.AspNetCore.Api.csproj" />
     <ProjectReference Include="..\Arc4u.Standard.OAuth2\Arc4u.Standard.OAuth2.csproj" />
   </ItemGroup>
 </Project>
