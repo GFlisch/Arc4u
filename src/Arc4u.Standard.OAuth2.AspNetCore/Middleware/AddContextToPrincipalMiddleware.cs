@@ -34,7 +34,7 @@ public class AddContextToPrincipalMiddleware
             if (!context.Request.Headers.ContainsKey("traceparent"))
             {
                 // Activity.Current is not null just because we are in the context of an activity.
-                context.Request.Headers.Add("traceparent", Activity.Current!.Id);
+                context.Request.Headers.Append("traceparent", Activity.Current!.Id);
             }
 
             activity?.SetTag(LoggingConstants.ActivityId, Activity.Current!.Id);
@@ -45,7 +45,7 @@ public class AddContextToPrincipalMiddleware
             {
                 try
                 {
-                    principal.Profile.CurrentCulture = new CultureInfo(cultureHeader.Value.Value[0]);
+                    principal.Profile.CurrentCulture = new CultureInfo(cultureHeader.Value.Value[0]!);
                 }
                 catch (Exception ex)
                 {

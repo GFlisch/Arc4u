@@ -9,12 +9,9 @@ public class RemoteClientSecretTokenProvider : ITokenProvider
 {
     public const string ProviderName = "RemoteSecret";
 
-    public Task<TokenInfo> GetTokenAsync(IKeyValueSettings settings, object _)
+    public Task<TokenInfo> GetTokenAsync(IKeyValueSettings settings, object? _)
     {
-        if (null == settings)
-        {
-            throw new ArgumentNullException(nameof(settings));
-        }
+        ArgumentNullException.ThrowIfNull(settings);
 
         // Read the settings to extract the data:
         // HeaderKey => default = SecretKey

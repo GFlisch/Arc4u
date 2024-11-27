@@ -37,10 +37,15 @@ public static class AddClaimsFillerExtension
             }
         }
 
+        if (null == options)
+        {
+            return;
+        }
+
         AddClaimsFiller(services, o =>
-         {
-             o.LoadClaimsFromClaimsFillerProvider = options.LoadClaimsFromClaimsFillerProvider;
-             o.SettingsKeys = options.SettingsKeys;
-         });
+        {
+            o.LoadClaimsFromClaimsFillerProvider = options.LoadClaimsFromClaimsFillerProvider;
+            o.SettingsKeys = options.SettingsKeys;
+        });
     }
 }

@@ -81,6 +81,11 @@ public static class ValidateResourcesRightMiddlewareExtension
         {
             var resources = section.Get<ValidateResourcesRightMiddlewareOptions>();
 
+            if (resources is null)
+            {
+                return;
+            }
+
             options.DefaultContent = resources.DefaultContent;
             options.ResourcesPolicies = resources.ResourcesPolicies;
         });

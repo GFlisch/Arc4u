@@ -28,7 +28,7 @@ public class AppServicePrincipalFactory : IAppPrincipalFactory
     private readonly IClaimsTransformation _claimsTransformation;
     private readonly ActivitySource? _activitySource;
 
-    public Task<AppPrincipal> CreatePrincipalAsync(Messages messages, object parameter = null)
+    public Task<AppPrincipal> CreatePrincipalAsync(Messages messages, object? parameter)
     {
         throw new NotImplementedException();
     }
@@ -42,7 +42,7 @@ public class AppServicePrincipalFactory : IAppPrincipalFactory
         _activitySource = activitySourceFactory.GetArc4u();
     }
 
-    public async Task<AppPrincipal> CreatePrincipalAsync(string settingsResolveName, Messages messages, object parameter = null)
+    public async Task<AppPrincipal> CreatePrincipalAsync(string settingsResolveName, Messages messages, object? parameter)
     {
         var settings = _settings.Get(settingsResolveName);
         return await CreatePrincipalAsync(settings, messages, parameter).ConfigureAwait(false);
@@ -65,7 +65,7 @@ public class AppServicePrincipalFactory : IAppPrincipalFactory
 
         var identity = new ClaimsIdentity("OAuth2Bearer", "upn", ClaimsIdentity.DefaultRoleClaimType);
 
-        await BuildTheIdentity(identity, settings, messages, parameter).ConfigureAwait(false);
+        await BuildTheIdentity(identity, settings, parameter).ConfigureAwait(false);
 
         var principal = await _claimsTransformation.TransformAsync(new ClaimsPrincipal(identity)).ConfigureAwait(false);
 
@@ -88,10 +88,10 @@ public class AppServicePrincipalFactory : IAppPrincipalFactory
     /// <param name="parameter"></param>
     /// <returns></returns>
     /// <exception cref="NotSupportedException">When the provider doesn't exists.</exception>
-    private async Task BuildTheIdentity(ClaimsIdentity identity, IKeyValueSettings settings, Messages messages, object? parameter = null)
+    private async Task BuildTheIdentity(ClaimsIdentity identity, IKeyValueSettings settings, object? parameter = null)
     {
         // Check if we have a provider registered.
-        if (!_container.TryResolve(settings.Values[ProviderKey], out ITokenProvider provider))
+        if (!_container.TryResolve(settings.Values[ProviderKey], out ITokenProvider? provider))
         {
             throw new NotSupportedException($"The principal cannot be created. We are missing an account provider: {settings.Values[ProviderKey]}");
         }
@@ -100,7 +100,7 @@ public class AppServicePrincipalFactory : IAppPrincipalFactory
         TokenInfo? token = null;
         try
         {
-            token = await provider.GetTokenAsync(settings, parameter).ConfigureAwait(true);
+            token = await provider!.GetTokenAsync(settings, parameter).ConfigureAwait(true);
             identity.BootstrapContext = token.Token;
             var jwtToken = new JwtSecurityToken(token.Token);
             identity.AddClaims(jwtToken.Claims.Where(c => !ClaimsToExclude.Any(arg => arg.Equals(c.Type))).Select(c => new Claim(c.Type, c.Value)));
@@ -115,12 +115,15 @@ public class AppServicePrincipalFactory : IAppPrincipalFactory
     {
         if (_container.TryResolve<IApplicationContext>(out var appContext))
         {
-            if (appContext.Principal is not null && appContext.Principal.Identity is not null && appContext.Principal.Identity is ClaimsIdentity claimsIdentity)
+            if (appContext!.Principal is not null && appContext.Principal.Identity is not null && appContext.Principal.Identity is ClaimsIdentity claimsIdentity)
             {
                 var cacheHelper = _container.Resolve<ICacheHelper>();
                 var cacheKeyGenerator = _container.Resolve<ICacheKeyGenerator>();
 
-                await cacheHelper.GetCache().RemoveAsync(cacheKeyGenerator.GetClaimsKey(claimsIdentity), CancellationToken.None).ConfigureAwait(false);
+                if (null != cacheHelper && null != cacheKeyGenerator)
+                {
+                    await cacheHelper.GetCache().RemoveAsync(cacheKeyGenerator.GetClaimsKey(claimsIdentity), CancellationToken.None).ConfigureAwait(false);
+                }
             }
             else
             {

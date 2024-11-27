@@ -29,7 +29,7 @@ public class CredentialSecretTokenProvider : ITokenProvider
     private readonly IContainerResolve _containerResolve;
     private readonly ILogger<CredentialSecretTokenProvider> _logger;
 
-    public async Task<TokenInfo> GetTokenAsync([DisallowNull] IKeyValueSettings settings, object _)
+    public async Task<TokenInfo> GetTokenAsync([DisallowNull] IKeyValueSettings settings, object? _)
     {
         ArgumentNullException.ThrowIfNull(settings);
 
@@ -63,7 +63,7 @@ public class CredentialSecretTokenProvider : ITokenProvider
         basicSettings.Add(TokenKeys.AuthenticationTypeKey, settings.Values[TokenKeys.AuthenticationTypeKey]);
         basicSettings.AddifNotNullOrEmpty(TokenKeys.AuthorityKey, settings.Values.ContainsKey(TokenKeys.AuthorityKey) ? settings.Values[TokenKeys.AuthorityKey] : string.Empty);
 
-        return await credentialToken.GetTokenAsync(basicSettings, credential).ConfigureAwait(false);
+        return await credentialToken!.GetTokenAsync(basicSettings, credential).ConfigureAwait(false);
     }
 
     public ValueTask SignOutAsync(IKeyValueSettings settings, CancellationToken cancellationToken)

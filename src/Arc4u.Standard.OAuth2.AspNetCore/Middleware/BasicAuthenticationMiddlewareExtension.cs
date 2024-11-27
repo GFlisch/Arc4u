@@ -181,21 +181,15 @@ public static class BasicAuthenticationMiddlewareExtension
     }
     private static Action<Dictionary<string, X509Certificate2>> PrepareCertificatesAction(IConfiguration configuration, [DisallowNull] string sectionName, [DisallowNull] IX509CertificateLoader certificateLoader)
     {
-        if (string.IsNullOrEmpty(sectionName))
-        {
-            throw new ArgumentNullException(nameof(sectionName));
-        }
-
-        if (configuration is null)
-        {
-            throw new ArgumentNullException(nameof(configuration));
-        }
+        ArgumentException.ThrowIfNullOrWhiteSpace(sectionName);
+        ArgumentNullException.ThrowIfNull(configuration);
+        ArgumentNullException.ThrowIfNull(certificateLoader);
 
         var section = configuration.GetSection(sectionName);
 
         if (section is null)
         {
-            throw new NullReferenceException($"No section exists with name {sectionName}");
+            throw new InvalidOperationException($"No section exists with name {sectionName}");
         }
 
         var settings = section.Get<Dictionary<string, CertificateStoreOrFileInfo>>() ?? new Dictionary<string, CertificateStoreOrFileInfo>();
@@ -204,8 +198,12 @@ public static class BasicAuthenticationMiddlewareExtension
         {
             foreach (var setting in settings)
             {
+                var cert = certificateLoader.FindCertificate(setting.Value);
                 // must add a functionality to load it from a File or Store
-                option.Add(setting.Key, certificateLoader.FindCertificate(setting.Value));
+                if (cert is not null)
+                {
+                    option.Add(setting.Key, cert);
+                }
             }
         }
 
@@ -213,6 +211,10 @@ public static class BasicAuthenticationMiddlewareExtension
     }
     private static Action<BasicSettingsOptions> PrepareBasicAction(IConfiguration configuration, [DisallowNull] string sectionName)
     {
+#if NET8_0_OR_GREATER
+        ArgumentException.ThrowIfNullOrWhiteSpace(sectionName);
+        ArgumentNullException.ThrowIfNull(configuration);
+#else
         if (string.IsNullOrEmpty(sectionName))
         {
             throw new ArgumentNullException(nameof(sectionName));
@@ -222,6 +224,7 @@ public static class BasicAuthenticationMiddlewareExtension
         {
             throw new ArgumentNullException(nameof(configuration));
         }
+#endif
 
         var section = configuration.GetSection(sectionName);
 

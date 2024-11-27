@@ -1,17 +1,14 @@
-﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Builder;
 
-namespace Arc4u.OAuth2.Middleware
+namespace Arc4u.OAuth2.Middleware;
+
+public static class ValidateSwaggerRightMiddlewareExtension
 {
-    public static class ValidateSwaggerRightMiddlewareExtension
+    public static IApplicationBuilder AddValidateSwaggerRightFor(this IApplicationBuilder app, ValidateSwaggerRightMiddlewareOption option)
     {
-        public static IApplicationBuilder AddValidateSwaggerRightFor(this IApplicationBuilder app, ValidateSwaggerRightMiddlewareOption option)
-        {
-            if (null == app)
-            {
-                throw new ArgumentNullException(nameof(app));
-            }
+        ArgumentNullException.ThrowIfNull(app);
+        ArgumentNullException.ThrowIfNull(option);
 
-            return app.UseMiddleware<ValidateSwaggerRightMiddleware>(option);
-        }
+        return app.UseMiddleware<ValidateSwaggerRightMiddleware>(option);
     }
 }

@@ -1,22 +1,18 @@
-﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Builder;
 
-namespace Arc4u.OAuth2.Middleware
+namespace Arc4u.OAuth2.Middleware;
+
+public static class LogMonitoringTimeElapsedMiddlewareExtension
 {
-    public static class LogMonitoringTimeElapsedMiddlewareExtension
+    public static IApplicationBuilder AddMonitoringTimeElapsed(this IApplicationBuilder app, Action<Type, TimeSpan>? extraLog = null)
     {
-        public static IApplicationBuilder AddMonitoringTimeElapsed(this IApplicationBuilder app, Action<Type, TimeSpan> extraLog = null)
+        ArgumentNullException.ThrowIfNull(app);
+
+        if (null != extraLog)
         {
-            if (null == app)
-            {
-                throw new ArgumentNullException(nameof(app));
-            }
-
-            if (null != extraLog)
-            {
-                return app.UseMiddleware<LogMonitoringTimeElapsedMiddleware>(extraLog);
-            }
-
-            return app.UseMiddleware<LogMonitoringTimeElapsedMiddleware>();
+            return app.UseMiddleware<LogMonitoringTimeElapsedMiddleware>(extraLog);
         }
+
+        return app.UseMiddleware<LogMonitoringTimeElapsedMiddleware>();
     }
 }

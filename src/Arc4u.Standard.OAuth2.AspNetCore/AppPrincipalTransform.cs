@@ -67,6 +67,9 @@ public class AppPrincipalTransform : IClaimsTransformation
 
     public async Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
     {
+        ArgumentNullException.ThrowIfNull(principal);
+        ArgumentNullException.ThrowIfNull(principal.Identity);
+
         AppPrincipal appPrincipal;
 
         _logger.Technical().System("Create the principal.").Log();
@@ -87,9 +90,9 @@ public class AppPrincipalTransform : IClaimsTransformation
 
             // Build an AppPrincipal.
 
-            var authorization = _claimAuthorizationFiller.GetAuthorization(principal.Identity);
-            var profile = _claimProfileFiller.GetProfile(principal.Identity);
-            appPrincipal = new AppPrincipal(authorization, principal.Identity, profile.Sid) { Profile = profile };
+            var authorization = _claimAuthorizationFiller.GetAuthorization(principal.Identity!);
+            var profile = _claimProfileFiller.GetProfile(principal.Identity!);
+            appPrincipal = new AppPrincipal(authorization, principal.Identity!, profile.Sid) { Profile = profile };
 
             _applicationContext.SetPrincipal(appPrincipal);
         }

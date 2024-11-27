@@ -1,13 +1,13 @@
 namespace Arc4u.OAuth2.AspNetCore.Options;
 public class ValidateResourceRightMiddlewareOptions
 {
-    public string AuthorizationPolicy { get; set; }
+    public string AuthorizationPolicy { get; set; } = default!;
 
-    public string Path { get; set; }
+    public string Path { get; set; } = default!;
 
     /// <summary>
     /// Overide the default content if specified.
     /// </summary>
-    public string ContentToDisplay { get; set; } = string.Empty;
+    public string ContentToDisplay { get; set; } = default!;
 
 }

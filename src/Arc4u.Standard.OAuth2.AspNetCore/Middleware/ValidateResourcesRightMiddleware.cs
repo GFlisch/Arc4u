@@ -32,7 +32,7 @@ public class ValidateResourcesRightMiddleware
 
         var options = _options.ResourcesPolicies.Where(o => string.Equals(context.Request.Path.Value.Trim('/'), o.Value.Path.Trim('/'), StringComparison.OrdinalIgnoreCase)).Select(o => o.Value);
 
-        if (!options.Any())
+        if (!options.Any() || applicationContext.Principal is null)
         {
             await _next.Invoke(context).ConfigureAwait(false);
             return;

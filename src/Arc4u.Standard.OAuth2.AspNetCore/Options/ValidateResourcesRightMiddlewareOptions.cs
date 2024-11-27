@@ -8,5 +8,5 @@ public class ValidateResourcesRightMiddlewareOptions
     /// <summary>
     /// The key is not used but I use this for the configuration, this is more clear, the key can be used as a description.
     /// </summary>
-    public Dictionary<string, ValidateResourceRightMiddlewareOptions> ResourcesPolicies { get; set; }
+    public Dictionary<string, ValidateResourceRightMiddlewareOptions> ResourcesPolicies { get; set; } = default!;
 }

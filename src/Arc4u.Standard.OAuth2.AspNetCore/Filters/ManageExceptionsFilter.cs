@@ -32,7 +32,10 @@ public class ManageExceptionsFilter : IAsyncExceptionFilter
         var activityId = string.IsNullOrEmpty(_application?.ActivityID) ? Activity.Current?.Id ?? Guid.NewGuid().ToString() : _application?.ActivityID;
 
         // First log the exception.
-        _logger.Technical().Exception(context.Exception).AddIf(string.IsNullOrEmpty(_application?.ActivityID), LoggingConstants.ActivityId, () => activityId).Log();
+        _logger.Technical()
+               .Exception(context.Exception)
+               .AddIf(string.IsNullOrEmpty(_application?.ActivityID),
+                                           LoggingConstants.ActivityId, () => activityId!).Log();
 
         switch (context.Exception)
         {

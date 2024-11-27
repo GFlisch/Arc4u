@@ -9,10 +9,7 @@ public static class ClaimsidentifierExtension
 {
     public static void AddClaimsIdentifier(this IServiceCollection services, Action<ClaimsIdentifierOption> options)
     {
-        if (options is null)
-        {
-            throw new ArgumentNullException(nameof(options));
-        }
+        ArgumentNullException.ThrowIfNull(options);
 
         services.Configure<ClaimsIdentifierOption>(options);
     }
