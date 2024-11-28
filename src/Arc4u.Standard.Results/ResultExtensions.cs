@@ -556,7 +556,6 @@ public static class ResultExtension
     public static async ValueTask<Result> OnFailed(this ValueTask<Result> result, [DisallowNull] Result globalResult)
     {
         ArgumentNullException.ThrowIfNull(globalResult);
-        ArgumentNullException.ThrowIfNull(result);
 
         var r = await result.ConfigureAwait(false);
 

@@ -21,7 +21,7 @@ public class FluentLogger : IResultLogger
         {
             logger = GetLogger(logLevel);
 
-            logger(content).AddIf(context is not null, "Context", () => context).Log();
+            logger(content).AddIf(context is not null, "Context", () => context!).Log();
         }
 
         if (result is not null && result.IsFailed && result.Errors is not null)
@@ -33,7 +33,7 @@ public class FluentLogger : IResultLogger
                     logger = GetLogger(validationError.Severity);
 
                     logger(validationError.Message)
-                        .AddIf(validationError.Code is not null, "Code", () => validationError.Code)
+                        .AddIf(validationError.Code is not null, "Code", () => validationError.Code!)
                         .Log();
 
                     LogReasons(result.Reasons);
@@ -63,7 +63,7 @@ public class FluentLogger : IResultLogger
 
         if (!string.IsNullOrEmpty(content))
         {
-            logger(content).Add("Context", typeof(TContext).FullName).Log();
+            logger(content).Add("Context", typeof(TContext).FullName!).Log();
         }
 
         if (result is not null && result.IsFailed && result.Errors is not null)
@@ -75,7 +75,7 @@ public class FluentLogger : IResultLogger
                     logger = GetLogger(validationError.Severity);
 
                     logger(validationError.Message)
-                        .AddIf(validationError.Code is not null, "Code", () => validationError.Code)
+                        .AddIf(validationError.Code is not null, "Code", () => validationError.Code!)
                         .Log();
 
                     LogReasons(result.Reasons);
