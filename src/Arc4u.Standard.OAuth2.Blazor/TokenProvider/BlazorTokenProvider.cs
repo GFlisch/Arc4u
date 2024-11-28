@@ -42,7 +42,7 @@ public class BlazorTokenProvider : ITokenProvider
     /// <exception cref="ArgumentNullException">Thrown when the settings parameter or its Values property is null.</exception>
     /// <exception cref="UriFormatException">Thrown when the RedirectUrl from settings is not a valid URL.</exception>
     /// <exception cref="Exception">Thrown when no token is found after the window operation.</exception>
-    public async Task<TokenInfo> GetTokenAsync(IKeyValueSettings? settings, object? platformParameters)
+    public async Task<TokenInfo?> GetTokenAsync(IKeyValueSettings? settings, object? platformParameters)
     {
         ArgumentNullException.ThrowIfNull(settings);
         ArgumentNullException.ThrowIfNull(settings.Values);

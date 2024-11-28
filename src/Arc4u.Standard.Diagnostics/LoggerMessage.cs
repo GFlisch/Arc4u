@@ -1,6 +1,7 @@
-﻿using System.Diagnostics;
 using Microsoft.Extensions.Logging;
-
+#if NETSTANDARD2_0
+using System.Diagnostics;
+#endif
 namespace Arc4u.Diagnostics;
 
 public class LoggerMessage
@@ -9,7 +10,11 @@ public class LoggerMessage
     {
         try
         {
+#if NET8_0_OR_GREATER
+            ProcessId = Environment.ProcessId;
+#else
             ProcessId = Process.GetCurrentProcess().Id;
+#endif
         }
         catch (PlatformNotSupportedException)
         {
@@ -26,7 +31,11 @@ public class LoggerMessage
         MethodName = methodName;
         TypeClass = typeClass;
         Category = category;
-        Properties = new Dictionary<string, object>();
+        Properties = [];
+        Text = string.Empty;
+        StackTrace = string.Empty;
+        Args = [];
+        Exception = default!;
     }
 
     public MessageCategory Category { get; }
@@ -39,7 +48,7 @@ public class LoggerMessage
     public object[] Args { get; set; }
 
     internal Dictionary<string, object> Properties { get; }
-    internal Exception Exception { get; set; }
+    internal Exception? Exception { get; set; }
 
     internal void Log()
     {
@@ -62,7 +71,7 @@ public class LoggerMessage
         }
 
         Properties.AddIfNotExist(LoggingConstants.Application, LoggerBase.Application);
-        Properties.AddIfNotExist(LoggingConstants.ThreadId, Thread.CurrentThread.ManagedThreadId);
+        Properties.AddIfNotExist(LoggingConstants.ThreadId, Environment.CurrentManagedThreadId);
         Properties.AddIfNotExist(LoggingConstants.Class, TypeClass);
         Properties.AddIfNotExist(LoggingConstants.MethodName, MethodName);
         Properties.AddIfNotExist(LoggingConstants.ProcessId, ProcessId);
@@ -107,8 +116,13 @@ class StateLogger : ILogger
         _logger = logger;
     }
 
-    public IDisposable BeginScope<TState>(TState state)
+    IDisposable? ILogger.BeginScope<TState>(TState state)
     {
+#if NET8_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(state);
+#else
+    
+#endif
         throw new NotImplementedException();
     }
 
@@ -117,11 +131,11 @@ class StateLogger : ILogger
         throw new NotImplementedException();
     }
 
-    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
         if (state is IEnumerable<KeyValuePair<string, object>> pairs)
         {
-            Dictionary<string, object> mergedState = new();
+            Dictionary<string, object> mergedState = [];
             foreach (KeyValuePair<string, object> pair in pairs)
             {
                 mergedState[pair.Key] = pair.Value;
@@ -135,7 +149,7 @@ class StateLogger : ILogger
             _logger.Log(logLevel, eventId, mergedState, exception, LocalFormatter);
 
             // we can do this since the template is not aware of the internal Arc4u properties.
-            string LocalFormatter(Dictionary<string, object> extendedState, Exception e) => formatter(state, exception);
+            string LocalFormatter(Dictionary<string, object> extendedState, Exception? e) => formatter(state, exception);
         }
         else
         {

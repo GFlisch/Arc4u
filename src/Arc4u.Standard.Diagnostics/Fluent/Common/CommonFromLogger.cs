@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 
 namespace Arc4u.Diagnostics;
@@ -16,16 +16,16 @@ public class CommonFromLogger
 
     public CommonMessageLogger From<T>([CallerMemberName] string methodName = "")
     {
-        return new CommonMessageLogger(_logger, Category, typeof(T).FullName, methodName);
+        return new CommonMessageLogger(_logger, Category, typeof(T).FullName ?? throw new InvalidOperationException("Type fullname doesn't exist"), methodName);
     }
 
     public CommonMessageLogger From(object This, [CallerMemberName] string methodName = "")
     {
-        return new CommonMessageLogger(_logger, Category, This?.GetType()?.FullName, methodName);
+        return new CommonMessageLogger(_logger, Category, This.GetType().FullName ?? throw new InvalidOperationException("Type fullname doesn't exist"), methodName);
     }
 
     public CommonMessageLogger From(Type type, [CallerMemberName] string methodName = "")
     {
-        return new CommonMessageLogger(_logger, Category, type?.FullName, methodName);
+        return new CommonMessageLogger(_logger, Category, type.FullName ?? throw new InvalidOperationException("Type fullname doesn't exist"), methodName);
     }
 }

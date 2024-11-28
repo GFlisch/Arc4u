@@ -42,7 +42,7 @@ public class AzureADOboTokenProvider : ITokenProvider
     private readonly AuthorityOptions _defaultAuthority;
     private readonly IApplicationContext _applicationContext;
 
-    public async Task<TokenInfo> GetTokenAsync(IKeyValueSettings? settings, object? _)
+    public async Task<TokenInfo?> GetTokenAsync(IKeyValueSettings? settings, object? _)
     {
         ArgumentNullException.ThrowIfNull(settings);
 

@@ -166,14 +166,14 @@ public class CommonLoggerProperties : BaseLoggerProperties, ILoggerProperties<Co
     /// <returns>the cleaned-up stack trace</returns>
     internal static string CleanupStackTrace(string stackTrace)
     {
-        var traces = new StringReader(stackTrace);
+        StringReader traces = new(stackTrace);
         var output = new StringBuilder();
-        string trace;
+        string? trace;
         while (null != (trace = traces.ReadLine()))
         {
-            bool skip = trace.Contains("System.Environment")
-                || trace.Contains("Arc4u.Logging")
-                || trace.Contains("System.Diagnostics");
+            var skip = trace.Contains("System.Environment") ||
+                       trace.Contains("Arc4u.Logging") ||
+                       trace.Contains("System.Diagnostics");
             if (!skip)
             {
                 output.AppendLine(trace);

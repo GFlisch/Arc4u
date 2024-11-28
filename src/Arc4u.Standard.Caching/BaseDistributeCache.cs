@@ -45,7 +45,7 @@ public abstract class BaseDistributeCache<T> : ICache
 
         if (container.TryResolve<IActivitySourceFactory>(out var activitySourceFactory))
         {
-            _activitySource = activitySourceFactory.GetArc4u();
+            _activitySource = activitySourceFactory!.GetArc4u();
         }
     }
 

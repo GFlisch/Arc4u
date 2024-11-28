@@ -51,15 +51,21 @@ public static class TimeSpanExtensions
         //consider daylight saving time for now
         if (TimeZoneContext.Current.TimeZoneInfo.IsDaylightSavingTime(now))
         {
-            var delta = TimeZoneContext.Current.GetDaylightChanges(now.Year).Delta;
-            dueTime = dueTime.Add(delta);
+            var delta = TimeZoneContext.Current.GetDaylightChanges(now.Year)?.Delta;
+            if (delta.HasValue)
+            {
+                dueTime = dueTime.Add(delta.Value);
+            }
         }
 
         //consider daylight saving time for dueDate
         if (TimeZoneContext.Current.TimeZoneInfo.IsDaylightSavingTime(dueDate))
         {
-            var delta = TimeZoneContext.Current.GetDaylightChanges(dueDate.Year).Delta;
-            dueTime = dueTime.Add(-delta);
+            var delta = TimeZoneContext.Current.GetDaylightChanges(dueDate.Year)?.Delta;
+            if (delta.HasValue)
+            {
+                dueTime = dueTime.Add(-delta.Value);
+            }
         }
 
         Debug.Assert(dueTime == dueDate.SubtractWithDaylightTime(now));

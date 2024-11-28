@@ -15,7 +15,7 @@ public class Operation
     /// </summary>
     /// <value>The name.</value>
     [DataMember(EmitDefaultValue = false)]
-    public string Name { get; set; }
+    public string Name { get; set; } = default!;
 
     /// <summary>
     /// Gets or sets the ID.
@@ -42,14 +42,14 @@ public class ScopedRoles
     /// </summary>
     /// <value>The scope.</value>
     [DataMember(EmitDefaultValue = false)]
-    public string Scope { get; set; }
+    public string Scope { get; set; } = default!;
 
     /// <summary>
     /// Gets or sets the roles defined in the scope.
     /// </summary>
     /// <value>The roles.</value>
     [DataMember(EmitDefaultValue = false)]
-    public List<string> Roles { get; set; }
+    public List<string> Roles { get; set; } = default!;
 }
 /// <summary>
 ///  The ScopedOperations are the operations defined for a specific scope.
@@ -63,14 +63,14 @@ public class ScopedOperations
     /// </summary>
     /// <value>The scope.</value>
     [DataMember(EmitDefaultValue = false)]
-    public string Scope { get; set; }
+    public string Scope { get; set; } = default!;
 
     /// <summary>
     /// Gets or sets the operations defined for the scope.
     /// </summary>
     /// <value>The operations.</value>
     [DataMember(EmitDefaultValue = false)]
-    public List<int> Operations { get; set; }
+    public List<int> Operations { get; set; } = default!;   
 
 }
 

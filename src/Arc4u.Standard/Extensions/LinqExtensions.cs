@@ -8,13 +8,13 @@ public class Switch<TSource, TResult> : IEnumerable<TResult>
     #region nested classes
     private class CaseSelector<TSelectorSource, TSelectorResult>
     {
-        private readonly Func<TSource, bool> predicate;
-        private readonly Func<TSource, TResult> selector;
+        private readonly Func<TSource, bool> predicate = default!;
+        private readonly Func<TSource, TResult> selector = default!;
 
         public CaseSelector(Func<TSource, bool> predicate, Func<TSource, TResult> selector)
         {
-            predicate = predicate;
-            selector = selector;
+            this.predicate = predicate;
+            this.selector = selector;
         }
 
         public bool CanSelect(TSource source) { return predicate(source); }
@@ -30,14 +30,14 @@ public class Switch<TSource, TResult> : IEnumerable<TResult>
         )
         { }
     }
-    #endregion
+#endregion
 
-    private readonly IEnumerable<TSource> source;
-    private readonly IList<CaseSelector<TSource, TResult>> casePredicates = new List<CaseSelector<TSource, TResult>>();
+    private readonly IEnumerable<TSource> _source = [];
+    private readonly IList<CaseSelector<TSource, TResult>> casePredicates = [];
 
     public Switch(IEnumerable<TSource> source)
     {
-        source = source;
+        _source = source;
     }
 
     public Switch<TSource, TResult> Case(Func<TSource, bool> predicate, Func<TSource, TResult> selector)
@@ -103,7 +103,7 @@ public class Switch<TSource, TResult> : IEnumerable<TResult>
     #region IEnumerable<TResult> Members
     public IEnumerator<TResult> GetEnumerator()
     {
-        foreach (var item in source)
+        foreach (var item in _source)
         {
             var switchCase = casePredicates.FirstOrDefault(x => x.CanSelect(item));
 

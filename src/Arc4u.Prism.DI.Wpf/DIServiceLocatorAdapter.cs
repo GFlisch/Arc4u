@@ -21,12 +21,9 @@ public class DIServiceLocatorAdapter : ServiceLocatorImplBase
     /// <param name="serviceType">Service type to resolve.</param>
     /// <param name="key">(optional) Service key to resolve.</param>
     /// <returns>Resolved service object.</returns>
-    protected override object DoGetInstance(Type serviceType, string key)
+    protected override object? DoGetInstance(Type serviceType, string key)
     {
-        if (serviceType == null)
-        {
-            throw new ArgumentNullException(nameof(serviceType));
-        }
+        ArgumentNullException.ThrowIfNull(serviceType);
 
         var result = string.IsNullOrWhiteSpace(key) ? Container.Resolve(serviceType) : Container.Resolve(serviceType, key);
         return result;
@@ -37,12 +34,9 @@ public class DIServiceLocatorAdapter : ServiceLocatorImplBase
     /// If no services resolved when enumerable accessed, no exception is thrown - enumerable is empty.</summary>
     /// <param name="serviceType">Service type to resolve.</param>
     /// <returns>Returns enumerable which will return resolved service objects.</returns>
-    protected override IEnumerable<object> DoGetAllInstances(Type serviceType)
+    protected override IEnumerable<object?> DoGetAllInstances(Type serviceType)
     {
-        if (serviceType == null)
-        {
-            throw new ArgumentNullException(nameof(serviceType));
-        }
+        ArgumentNullException.ThrowIfNull(serviceType);
 
         return Container.ResolveAll(serviceType);
     }

@@ -30,9 +30,11 @@ public static class ProblemDetailsExtensions
 
     public static ProblemDetails WithCode(this ProblemDetails problemDetails, string code)
     {
-        if (!string.IsNullOrWhiteSpace(code))
+        ArgumentNullException.ThrowIfNull(problemDetails);
+
+        if (!string.IsNullOrWhiteSpace(code) && null != problemDetails.Extensions)
         {
-            problemDetails.Extensions.AddOrReplace("Code", code);
+            problemDetails.Extensions!.AddOrReplace("Code", code);
         }
 
         return problemDetails;
@@ -40,13 +42,25 @@ public static class ProblemDetailsExtensions
 
     public static ProblemDetails WithSeverity(this ProblemDetails problemDetails, string severity)
     {
-        problemDetails.Extensions.AddOrReplace("Severity", severity);
+        ArgumentNullException.ThrowIfNull(problemDetails);
+
+        if (!string.IsNullOrWhiteSpace(severity) && null != problemDetails.Extensions)
+        {
+            problemDetails.Extensions!.AddOrReplace("Severity", severity);
+        }
+
         return problemDetails;
     }
 
     public static ProblemDetails WithMetadata(this ProblemDetails problemDetails, string key, object value)
     {
-        problemDetails.Extensions.AddOrReplace(key, value);
+        ArgumentNullException.ThrowIfNull(problemDetails);
+
+        if (!string.IsNullOrWhiteSpace(key) && null != problemDetails.Extensions && null != value)
+        {
+            problemDetails.Extensions!.AddOrReplace(key, value);
+        }
+
         return problemDetails;
     }
 }

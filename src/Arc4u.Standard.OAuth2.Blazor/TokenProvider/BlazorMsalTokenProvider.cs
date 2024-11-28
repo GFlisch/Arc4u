@@ -36,7 +36,7 @@ public class BlazorMsalTokenProvider : ITokenProvider
     /// <param name="platformParameters">The platform-specific parameters, if any (not used in this implementation).</param>
     /// <returns>A task representing the asynchronous operation, containing the requested <see cref="TokenInfo"/> if successful.</returns>
     /// <exception cref="ArgumentNullException">Thrown when the settings parameter is null.</exception>
-    public async Task<TokenInfo> GetTokenAsync(IKeyValueSettings? settings, object? platformParameters)
+    public async Task<TokenInfo?> GetTokenAsync(IKeyValueSettings? settings, object? platformParameters)
     {
         ArgumentNullException.ThrowIfNull(settings);
         ArgumentNullException.ThrowIfNull(_applicationContext.Principal);
@@ -53,7 +53,7 @@ public class BlazorMsalTokenProvider : ITokenProvider
 
                 if (jwt.ValidTo > DateTime.UtcNow)
                 {
-                    return new TokenInfo("Bearer", token, jwt.ValidTo);
+                    return new TokenInfo("Bearer", token!, jwt.ValidTo);
                 }
             }
 

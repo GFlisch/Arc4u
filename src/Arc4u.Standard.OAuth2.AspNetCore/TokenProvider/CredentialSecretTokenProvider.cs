@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using Arc4u.Configuration;
 using Arc4u.Dependency;
 using Arc4u.Dependency.Attribute;
@@ -29,7 +28,7 @@ public class CredentialSecretTokenProvider : ITokenProvider
     private readonly IContainerResolve _containerResolve;
     private readonly ILogger<CredentialSecretTokenProvider> _logger;
 
-    public async Task<TokenInfo> GetTokenAsync([DisallowNull] IKeyValueSettings settings, object? _)
+    public async Task<TokenInfo?> GetTokenAsync(IKeyValueSettings? settings, object? _)
     {
         ArgumentNullException.ThrowIfNull(settings);
 

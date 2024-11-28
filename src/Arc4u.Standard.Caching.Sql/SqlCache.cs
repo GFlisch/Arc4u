@@ -64,13 +64,19 @@ public class SqlCache : BaseDistributeCache<SqlCache>, ICache
                 if (!string.IsNullOrWhiteSpace(config.SerializerName))
                 {
                     IsInitialized = Container.TryResolve<IObjectSerialization>(config.SerializerName!, out var serializerFactory);
-                    SerializerFactory = serializerFactory;
+                    if (IsInitialized)
+                    {
+                        SerializerFactory = serializerFactory!;
+                    }
                 }
 
                 if (!IsInitialized)
                 {
                     IsInitialized = Container.TryResolve<IObjectSerialization>(out var serializerFactory);
-                    SerializerFactory = serializerFactory;
+                    if (IsInitialized)
+                    {
+                        SerializerFactory = serializerFactory!;
+                    }
                 }
 
                 if (!IsInitialized)

@@ -41,7 +41,7 @@ public class RefreshTokenProvider : ITokenRefreshProvider
     private readonly ILogger<RefreshTokenProvider> _logger;
     private readonly ActivitySource? _activitySource;
 
-    public async Task<TokenInfo> GetTokenAsync(IKeyValueSettings? settings, object? platformParameters)
+    public async Task<TokenInfo?> GetTokenAsync(IKeyValueSettings? settings, object? platformParameters)
     {
         ArgumentNullException.ThrowIfNull(_tokenRefreshInfo);
         ArgumentNullException.ThrowIfNull(_openIdConnectOptions);

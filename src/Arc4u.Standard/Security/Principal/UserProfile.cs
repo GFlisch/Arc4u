@@ -29,7 +29,29 @@ public sealed class UserProfile : IXmlSerializable
     // XmlSerializable
     public UserProfile()
     {
-
+        DisplayName = string.Empty;
+        Email = string.Empty;
+        Department = string.Empty;
+        Company = string.Empty;
+        GivenName = string.Empty;
+        SurName = string.Empty;
+        Sid = string.Empty;
+        State = string.Empty;
+        Mobile = string.Empty;
+        Telephone = string.Empty;
+        InternalPhone = string.Empty;
+        Fax = string.Empty;
+        PrincipalName = string.Empty;
+        PostalCode = string.Empty;
+        Street = string.Empty;
+        Room = string.Empty;
+        Initials = string.Empty;
+        SamAccountName = string.Empty;
+        Domain = string.Empty;
+        _culture = CultureInfo.InvariantCulture.Name;
+        _currentCulture = CultureInfo.InvariantCulture.Name;
+        CommonName = string.Empty;
+        Description = string.Empty;
     }
 
     /// <summary>
@@ -119,6 +141,8 @@ public sealed class UserProfile : IXmlSerializable
         CurrentCulture = culture;
         CommonName = commonName;
         Description = description;
+        _culture = culture.Name;
+        _currentCulture = culture.Name;
     }
 
     #region IProfile Members

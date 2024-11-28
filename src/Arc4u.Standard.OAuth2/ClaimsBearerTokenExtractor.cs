@@ -26,7 +26,7 @@ public class ClaimsBearerTokenExtractor : IClaimsFiller
     private readonly IContainerResolve _container;
     private readonly ILogger<ClaimsBearerTokenExtractor> _logger;
 
-    public async Task<IEnumerable<ClaimDto>> GetAsync(IIdentity identity, IEnumerable<IKeyValueSettings> settings, object parameter)
+    public async Task<IEnumerable<ClaimDto>> GetAsync(IIdentity identity, IEnumerable<IKeyValueSettings> settings, object? parameter)
     {
         var result = new List<ClaimDto>();
 
@@ -75,6 +75,12 @@ public class ClaimsBearerTokenExtractor : IClaimsFiller
 
                 _logger.Technical().System("Requesting an authentication token.").Log();
                 var tokenInfo = await provider.GetTokenAsync(providerSettings, claimsIdentity).ConfigureAwait(false);
+
+                if (null == tokenInfo)
+                {
+                    _logger.Technical().LogError("No token received from the provider.");
+                    return result;
+                }
 
                 bearerToken = new JwtSecurityToken(tokenInfo.Token);
             }

@@ -9,7 +9,7 @@ public class RemoteClientSecretTokenProvider : ITokenProvider
 {
     public const string ProviderName = "RemoteSecret";
 
-    public Task<TokenInfo> GetTokenAsync(IKeyValueSettings settings, object? _)
+    public Task<TokenInfo?> GetTokenAsync(IKeyValueSettings? settings, object? _)
     {
         ArgumentNullException.ThrowIfNull(settings);
 
@@ -29,7 +29,7 @@ public class RemoteClientSecretTokenProvider : ITokenProvider
 
         var clientSecret = settings.Values[TokenKeys.ClientSecret];
 
-        return Task.FromResult(new TokenInfo(settings.Values[TokenKeys.ClientSecretHeader], clientSecret, DateTime.UtcNow + TimeSpan.FromHours(1)));
+        return Task.FromResult<TokenInfo?>(new TokenInfo(settings.Values[TokenKeys.ClientSecretHeader], clientSecret, DateTime.UtcNow + TimeSpan.FromHours(1)));
 
     }
 

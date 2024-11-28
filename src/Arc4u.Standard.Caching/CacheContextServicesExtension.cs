@@ -70,7 +70,7 @@ public static class CacheContextServicesExtension
         return $"{rootSectionName}:Caches:{idx}:Settings";
     }
 
-    public static ICacheContext GetCacheContext(this IContainerResolve container)
+    public static ICacheContext? GetCacheContext(this IContainerResolve container)
     {
         return container.Resolve<ICacheContext>();
     }
