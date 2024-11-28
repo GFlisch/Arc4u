@@ -1,8 +1,7 @@
-﻿namespace Arc4u.UnitTest.Infrastructure
-{
+﻿namespace Arc4u.UnitTest.Infrastructure;
 
-    public class BasicFixture : ContainerFixture
-    {
-        public override string ConfigFile => @"Configs\Basic.json";
-    }
+
+public class BasicFixture : ContainerFixture
+{
+    public override string ConfigFile => @"Configs\Basic.json";
 }

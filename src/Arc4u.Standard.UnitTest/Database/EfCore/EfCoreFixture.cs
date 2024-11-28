@@ -3,26 +3,25 @@ using Arc4u.UnitTest.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
-namespace Arc4u.UnitTest.Database.EfCore
+namespace Arc4u.UnitTest.Database.EfCore;
+
+public class EfCoreFixture : ContainerFixture
 {
-    public class EfCoreFixture : ContainerFixture
+
+    public override string ConfigFile => @"Configs\EfCore.json";
+
+    protected override void AddToContainer(IContainerRegistry containerRegistry, IConfiguration configuration)
     {
-
-        public override string ConfigFile => @"Configs\EfCore.json";
-
-        protected override void AddToContainer(IContainerRegistry containerRegistry, IConfiguration configuration)
+        containerRegistry.RegisterSingletonFactory(() =>
         {
-            containerRegistry.RegisterSingletonFactory(() =>
-            {
-                var optionsBuilder = new DbContextOptionsBuilder<DatabaseContext>();
+            var optionsBuilder = new DbContextOptionsBuilder<DatabaseContext>();
 
-                optionsBuilder.UseInMemoryDatabase("EfCore")
-                              .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+            optionsBuilder.UseInMemoryDatabase("EfCore")
+                          .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 
-                return optionsBuilder.Options;
-            });
+            return optionsBuilder.Options;
+        });
 
-            containerRegistry.RegisterScoped<DatabaseContext, DatabaseContext>();
-        }
+        containerRegistry.RegisterScoped<DatabaseContext, DatabaseContext>();
     }
 }

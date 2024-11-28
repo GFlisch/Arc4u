@@ -1,14 +1,13 @@
 using Arc4u.Dependency;
 using Arc4u.Security.Principal;
 
-namespace Arc4u.UnitTest.Infrastructure
+namespace Arc4u.UnitTest.Infrastructure;
+
+public interface IContainerFixture
 {
-    public interface IContainerFixture
-    {
-        IContainerResolve CreateScope();
+    IContainerResolve CreateScope();
 
-        IContainerResolve SharedContainer { get; }
+    IContainerResolve SharedContainer { get; }
 
-        AppPrincipal GetPrincipal();
-    }
+    AppPrincipal GetPrincipal();
 }

@@ -2,17 +2,15 @@
 using Realms;
 using Serilog;
 
-namespace Arc4u.Diagnostics.Serilog.Sinks.RealmDb
+namespace Arc4u.Diagnostics.Serilog.Sinks.RealmDb;
+
+public static class ServicesRealmDBRegistrationExtension
 {
-    public static class ServicesRealmDBRegistrationExtension
+    public static IServiceCollection AddRealmDBLog(this IServiceCollection services)
     {
-        public static IServiceCollection AddRealmDBLog(this IServiceCollection services)
-        {
-            services.AddSingleton<RealmConfiguration>(RealmDBExtension.DefaultConfig());
-            services.AddSingleton<ILogStore, RealmLoggingDbCtx>();
+        services.AddSingleton<RealmConfiguration>(RealmDBExtension.DefaultConfig());
+        services.AddSingleton<ILogStore, RealmLoggingDbCtx>();
 
-            return services;
-        }
+        return services;
     }
-
 }

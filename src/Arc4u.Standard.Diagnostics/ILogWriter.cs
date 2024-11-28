@@ -1,8 +1,7 @@
-﻿namespace Arc4u.Diagnostics
-{
-    public interface ILogWriter : IDisposable
-    {
+﻿namespace Arc4u.Diagnostics;
 
-        void Initialize();
-    }
+public interface ILogWriter : IDisposable
+{
+
+    void Initialize();
 }

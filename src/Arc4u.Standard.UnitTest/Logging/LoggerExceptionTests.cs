@@ -7,113 +7,112 @@ using Serilog.Core;
 using Serilog.Events;
 using Xunit;
 
-namespace Arc4u.UnitTest.Logging
+namespace Arc4u.UnitTest.Logging;
+
+[Trait("Category", "CI")]
+public class LoggerSimpleExceptionTests : BaseSinkContainerFixture<CategorySerilogTesters, ExceptionFixture>
 {
-    [Trait("Category", "CI")]
-    public class LoggerSimpleExceptionTests : BaseSinkContainerFixture<CategorySerilogTesters, ExceptionFixture>
+    public LoggerSimpleExceptionTests(ExceptionFixture containerFixture) : base(containerFixture)
     {
-        public LoggerSimpleExceptionTests(ExceptionFixture containerFixture) : base(containerFixture)
-        {
-        }
-
-        [Fact]
-        public void ExceptionTest()
-        {
-            using var container = Fixture.CreateScope();
-            var logger = container.Resolve<ILogger<LoggerSimpleExceptionTests>>();
-
-            var sink = (ExceptionSinkTest)Fixture.Sink;
-
-            logger.Technical().Exception(new StackOverflowException("Overflow", new DivideByZeroException())).Log();
-
-            Assert.True(sink.HasException);
-            Assert.Single(sink.Exceptions);
-            Assert.IsType<StackOverflowException>(sink.Exceptions.First());
-            Assert.IsType<DivideByZeroException>(sink.Exceptions.First().InnerException);
-        }
     }
 
-    [Trait("Category", "CI")]
-    public class LoggerAggregateExceptionTests : BaseSinkContainerFixture<CategorySerilogTesters, ExceptionFixture>
+    [Fact]
+    public void ExceptionTest()
     {
-        public LoggerAggregateExceptionTests(ExceptionFixture containerFixture) : base(containerFixture)
-        {
-        }
+        using var container = Fixture.CreateScope();
+        var logger = container.Resolve<ILogger<LoggerSimpleExceptionTests>>();
 
-        [Fact]
-        public void TestAggregateException()
-        {
-            using var container = Fixture.CreateScope();
-            var logger = container.Resolve<ILogger<LoggerAggregateExceptionTests>>();
+        var sink = (ExceptionSinkTest)Fixture.Sink;
 
-            var sink = (ExceptionSinkTest)Fixture.Sink;
+        logger.Technical().Exception(new StackOverflowException("Overflow", new DivideByZeroException())).Log();
 
-            logger.Technical().Exception(new AggregateException("Aggregated",
-                                            new DivideByZeroException("Go back to school", new OutOfMemoryException("Out of memory")),
-                                            new ArgumentNullException("null"),
-                                            new AggregateException(
-                                                new AppDomainUnloadedException("Houston, we have a problem.")))).Log();
+        Assert.True(sink.HasException);
+        Assert.Single(sink.Exceptions);
+        Assert.IsType<StackOverflowException>(sink.Exceptions.First());
+        Assert.IsType<DivideByZeroException>(sink.Exceptions.First().InnerException);
+    }
+}
 
-            Assert.True(sink.HasException);
-            Assert.Collection(sink.Exceptions,
-                                    e => Assert.IsType<AggregateException>(e),
-                                    e => Assert.IsType<DivideByZeroException>(e),
-                                    e => Assert.IsType<ArgumentNullException>(e),
-                                    e => Assert.IsType<AppDomainUnloadedException>(e));
-
-            Assert.IsType<OutOfMemoryException>(sink.Exceptions[1].InnerException);
-
-        }
+[Trait("Category", "CI")]
+public class LoggerAggregateExceptionTests : BaseSinkContainerFixture<CategorySerilogTesters, ExceptionFixture>
+{
+    public LoggerAggregateExceptionTests(ExceptionFixture containerFixture) : base(containerFixture)
+    {
     }
 
-    public class LoggerExceptionSinkTest : SerilogWriter
+    [Fact]
+    public void TestAggregateException()
     {
-        public ExceptionSinkTest Sink { get; set; }
+        using var container = Fixture.CreateScope();
+        var logger = container.Resolve<ILogger<LoggerAggregateExceptionTests>>();
 
-        public override void Configure(LoggerConfiguration configurator)
-        {
-            Sink = new ExceptionSinkTest();
+        var sink = (ExceptionSinkTest)Fixture.Sink;
 
-            configurator.WriteTo.Sink(Sink);
-        }
+        logger.Technical().Exception(new AggregateException("Aggregated",
+                                        new DivideByZeroException("Go back to school", new OutOfMemoryException("Out of memory")),
+                                        new ArgumentNullException("null"),
+                                        new AggregateException(
+                                            new AppDomainUnloadedException("Houston, we have a problem.")))).Log();
+
+        Assert.True(sink.HasException);
+        Assert.Collection(sink.Exceptions,
+                                e => Assert.IsType<AggregateException>(e),
+                                e => Assert.IsType<DivideByZeroException>(e),
+                                e => Assert.IsType<ArgumentNullException>(e),
+                                e => Assert.IsType<AppDomainUnloadedException>(e));
+
+        Assert.IsType<OutOfMemoryException>(sink.Exceptions[1].InnerException);
+
+    }
+}
+
+public class LoggerExceptionSinkTest : SerilogWriter
+{
+    public ExceptionSinkTest Sink { get; set; }
+
+    public override void Configure(LoggerConfiguration configurator)
+    {
+        Sink = new ExceptionSinkTest();
+
+        configurator.WriteTo.Sink(Sink);
+    }
+}
+
+public sealed class ExceptionSinkTest : ILogEventSink, IDisposable
+{
+    public ExceptionSinkTest()
+    {
+        Exceptions = new List<Exception>();
+    }
+    public bool HasException { get; set; }
+
+    public List<Exception> Exceptions { get; set; }
+
+    public void Dispose()
+    {
     }
 
-    public sealed class ExceptionSinkTest : ILogEventSink, IDisposable
+    public void Emit(LogEvent logEvent)
     {
-        public ExceptionSinkTest()
-        {
-            Exceptions = new List<Exception>();
-        }
-        public bool HasException { get; set; }
+        HasException = null != logEvent.Exception;
+        Exceptions.Add(logEvent.Exception);
+    }
+}
 
-        public List<Exception> Exceptions { get; set; }
+public class ExceptionFixture : SinkContainerFixture
+{
+    protected override Serilog.Core.Logger BuildLogger(IConfiguration configuration)
+    {
+        _sink = new LoggerExceptionSinkTest();
+        _sink.Initialize();
 
-        public void Dispose()
-        {
-        }
-
-        public void Emit(LogEvent logEvent)
-        {
-            HasException = null != logEvent.Exception;
-            Exceptions.Add(logEvent.Exception);
-        }
+        return _sink.Logger;
     }
 
-    public class ExceptionFixture : SinkContainerFixture
-    {
-        protected override Serilog.Core.Logger BuildLogger(IConfiguration configuration)
-        {
-            _sink = new LoggerExceptionSinkTest();
-            _sink.Initialize();
+    private LoggerExceptionSinkTest _sink;
 
-            return _sink.Logger;
-        }
+    public override ExceptionSinkTest Sink => _sink.Sink;
 
-        private LoggerExceptionSinkTest _sink;
-
-        public override ExceptionSinkTest Sink => _sink.Sink;
-
-        public override string ConfigFile => @"Configs\Basic.json";
-    }
+    public override string ConfigFile => @"Configs\Basic.json";
 }
 

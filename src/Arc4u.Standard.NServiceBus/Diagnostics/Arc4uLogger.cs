@@ -1,15 +1,14 @@
 ﻿using NServiceBus.Logging;
 
-namespace Arc4u.NServiceBus.Diagnostics
+namespace Arc4u.NServiceBus.Diagnostics;
+
+/// <summary>
+/// Bring Arc4u logger to NServiceBus.
+/// </summary>
+public class Arc4uLogger : LoggingFactoryDefinition
 {
-    /// <summary>
-    /// Bring Arc4u logger to NServiceBus.
-    /// </summary>
-    public class Arc4uLogger : LoggingFactoryDefinition
+    protected override ILoggerFactory GetLoggingFactory()
     {
-        protected override ILoggerFactory GetLoggingFactory()
-        {
-            return new LoggerFactory();
-        }
+        return new LoggerFactory();
     }
 }

@@ -2,102 +2,101 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Arc4u.Diagnostics.Monitoring
+namespace Arc4u.Diagnostics.Monitoring;
+
+/// <summary>
+/// Monitor and log the information about the Process Cpu and Memory usage!
+/// </summary>
+public sealed class SystemResources : IHostedService, IDisposable
 {
-    /// <summary>
-    /// Monitor and log the information about the Process Cpu and Memory usage!
-    /// </summary>
-    public sealed class SystemResources : IHostedService, IDisposable
+    public SystemResources(ILogger logger, uint internalPeriodInSeconds = 10)
     {
-        public SystemResources(ILogger logger, uint internalPeriodInSeconds = 10)
+        if (null == logger)
         {
-            if (null == logger)
-            {
-                throw new ArgumentNullException(nameof(logger));
-            }
-
-            if (0 == internalPeriodInSeconds)
-            {
-                throw new ArgumentException("The interval must be bigger than 0!");
-            }
-
-            interval = internalPeriodInSeconds;
-            _lastTimeStamp = _process.StartTime.ToUniversalTime();
-            _logger = logger;
-
+            throw new ArgumentNullException(nameof(logger));
         }
 
-        private readonly uint interval;
-        private readonly ILogger _logger;
-
-        public Task StartAsync(CancellationToken cancellationToken)
+        if (0 == internalPeriodInSeconds)
         {
-            Scheduler = new Timer(CollectData, null, TimeSpan.FromSeconds(StartMonitoringDelayInSeconds), TimeSpan.FromSeconds(interval));
-
-            return Task.CompletedTask;
+            throw new ArgumentException("The interval must be bigger than 0!");
         }
 
-        private Process _process = Process.GetCurrentProcess();
-        private DateTime _lastTimeStamp;
-        private TimeSpan _lastTotalProcessorTime = TimeSpan.Zero;
-        private TimeSpan _lastUserProcessorTime = TimeSpan.Zero;
-        private TimeSpan _lastPrivilegedProcessorTime = TimeSpan.Zero;
+        interval = internalPeriodInSeconds;
+        _lastTimeStamp = _process.StartTime.ToUniversalTime();
+        _logger = logger;
 
-        private readonly CpuData _cpuData = new CpuData();
+    }
 
-        private void CollectData(object state)
-        {
-            _process = Process.GetCurrentProcess();
+    private readonly uint interval;
+    private readonly ILogger _logger;
 
-            double totalCpuTimeUsed = _process.TotalProcessorTime.TotalMilliseconds - _lastTotalProcessorTime.TotalMilliseconds;
-            double privilegedCpuTimeUsed = _process.PrivilegedProcessorTime.TotalMilliseconds - _lastPrivilegedProcessorTime.TotalMilliseconds;
-            double userCpuTimeUsed = _process.UserProcessorTime.TotalMilliseconds - _lastUserProcessorTime.TotalMilliseconds;
+    public Task StartAsync(CancellationToken cancellationToken)
+    {
+        Scheduler = new Timer(CollectData, null, TimeSpan.FromSeconds(StartMonitoringDelayInSeconds), TimeSpan.FromSeconds(interval));
 
-            _lastTotalProcessorTime = _process.TotalProcessorTime;
-            _lastPrivilegedProcessorTime = _process.PrivilegedProcessorTime;
-            _lastUserProcessorTime = _process.UserProcessorTime;
+        return Task.CompletedTask;
+    }
 
-            double cpuTimeElapsed = (DateTime.UtcNow - _lastTimeStamp).TotalMilliseconds * Environment.ProcessorCount;
-            _lastTimeStamp = DateTime.UtcNow;
+    private Process _process = Process.GetCurrentProcess();
+    private DateTime _lastTimeStamp;
+    private TimeSpan _lastTotalProcessorTime = TimeSpan.Zero;
+    private TimeSpan _lastUserProcessorTime = TimeSpan.Zero;
+    private TimeSpan _lastPrivilegedProcessorTime = TimeSpan.Zero;
 
-            _cpuData.TotalCpuUsed = totalCpuTimeUsed * 100 / cpuTimeElapsed;
-            _cpuData.PrivilegedCpuUsed = privilegedCpuTimeUsed * 100 / cpuTimeElapsed;
-            _cpuData.UserCpuUsed = userCpuTimeUsed * 100 / cpuTimeElapsed;
+    private readonly CpuData _cpuData = new CpuData();
 
-            _logger.Monitoring()
-                   .From<SystemResources>()
-                   .Information("Cpu & Memory")
-                   .Add("TotalCpuUsed", _cpuData.TotalCpuUsed)
-                   .Add("PrivilegedCpuUsed", _cpuData.PrivilegedCpuUsed)
-                   .Add("UserCpuUsed", _cpuData.UserCpuUsed)
-                   .Add("WorkingSet", _process.WorkingSet64)
-                   .Add("NonPagedSystemMemory", _process.NonpagedSystemMemorySize64)
-                   .Add("PagedMemory", _process.PagedMemorySize64)
-                   .Add("PagedSystemMemory", _process.PagedSystemMemorySize64)
-                   .Add("PrivateMemory", _process.PrivateMemorySize64)
-                   .Add("VirtualMemoryMemory", _process.VirtualMemorySize64)
-                   .Log();
-        }
+    private void CollectData(object state)
+    {
+        _process = Process.GetCurrentProcess();
 
-        public Task StopAsync(CancellationToken cancellationToken)
-        {
-            Scheduler?.Change(Timeout.Infinite, Timeout.Infinite);
+        double totalCpuTimeUsed = _process.TotalProcessorTime.TotalMilliseconds - _lastTotalProcessorTime.TotalMilliseconds;
+        double privilegedCpuTimeUsed = _process.PrivilegedProcessorTime.TotalMilliseconds - _lastPrivilegedProcessorTime.TotalMilliseconds;
+        double userCpuTimeUsed = _process.UserProcessorTime.TotalMilliseconds - _lastUserProcessorTime.TotalMilliseconds;
 
-            return Task.CompletedTask;
+        _lastTotalProcessorTime = _process.TotalProcessorTime;
+        _lastPrivilegedProcessorTime = _process.PrivilegedProcessorTime;
+        _lastUserProcessorTime = _process.UserProcessorTime;
 
-        }
+        double cpuTimeElapsed = (DateTime.UtcNow - _lastTimeStamp).TotalMilliseconds * Environment.ProcessorCount;
+        _lastTimeStamp = DateTime.UtcNow;
 
-        private Timer Scheduler { get; set; }
+        _cpuData.TotalCpuUsed = totalCpuTimeUsed * 100 / cpuTimeElapsed;
+        _cpuData.PrivilegedCpuUsed = privilegedCpuTimeUsed * 100 / cpuTimeElapsed;
+        _cpuData.UserCpuUsed = userCpuTimeUsed * 100 / cpuTimeElapsed;
 
-        /// <summary>
-        /// Define the delay the system will wait before starting the monitoring.
-        /// Default is 10.
-        /// </summary>
-        public uint StartMonitoringDelayInSeconds { get; set; } = 10;
+        _logger.Monitoring()
+               .From<SystemResources>()
+               .Information("Cpu & Memory")
+               .Add("TotalCpuUsed", _cpuData.TotalCpuUsed)
+               .Add("PrivilegedCpuUsed", _cpuData.PrivilegedCpuUsed)
+               .Add("UserCpuUsed", _cpuData.UserCpuUsed)
+               .Add("WorkingSet", _process.WorkingSet64)
+               .Add("NonPagedSystemMemory", _process.NonpagedSystemMemorySize64)
+               .Add("PagedMemory", _process.PagedMemorySize64)
+               .Add("PagedSystemMemory", _process.PagedSystemMemorySize64)
+               .Add("PrivateMemory", _process.PrivateMemorySize64)
+               .Add("VirtualMemoryMemory", _process.VirtualMemorySize64)
+               .Log();
+    }
 
-        public void Dispose()
-        {
-            Scheduler?.Dispose();
-        }
+    public Task StopAsync(CancellationToken cancellationToken)
+    {
+        Scheduler?.Change(Timeout.Infinite, Timeout.Infinite);
+
+        return Task.CompletedTask;
+
+    }
+
+    private Timer Scheduler { get; set; }
+
+    /// <summary>
+    /// Define the delay the system will wait before starting the monitoring.
+    /// Default is 10.
+    /// </summary>
+    public uint StartMonitoringDelayInSeconds { get; set; } = 10;
+
+    public void Dispose()
+    {
+        Scheduler?.Dispose();
     }
 }
