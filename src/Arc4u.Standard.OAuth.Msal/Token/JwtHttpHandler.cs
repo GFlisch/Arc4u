@@ -43,9 +43,9 @@ public class JwtHttpHandler : DelegatingHandler
         container.TryResolve(out _applicationContext);
     }
 
-    private readonly IKeyValueSettings _settings;
+    private readonly IKeyValueSettings? _settings;
     private readonly IContainerResolve _container;
-    private readonly IApplicationContext _applicationContext;
+    private readonly IApplicationContext? _applicationContext;
     private readonly ILogger<JwtHttpHandler> _logger;
 
     private IContainerResolve GetResolver() => _container;
@@ -76,6 +76,7 @@ public class JwtHttpHandler : DelegatingHandler
         // if we don't inject a bearer token, the AuthenticationType defined in the settings must be the same as the authentication type defined in the Identity.
         if (!inject
             && null != _applicationContext?.Principal?.Identity
+            && null != _applicationContext?.Principal?.Identity.AuthenticationType
             && !authenticationType.ToLowerInvariant().Contains(_applicationContext.Principal.Identity.AuthenticationType.ToLowerInvariant()))
         {
             _logger.Technical().System($"Authentication type is not the same as the Identity for {GetType().Name}, Check next Delegate Handler").Log();
@@ -93,13 +94,19 @@ public class JwtHttpHandler : DelegatingHandler
 
         var provider = GetResolver().Resolve<ITokenProvider>(_settings.Values[TokenKeys.ProviderIdKey]);
 
+        if (null == provider)
+        {
+            _logger.Technical().System($"No token provider is defined for {_settings.Values[TokenKeys.ProviderIdKey]}, Check next Delegate Handler").Log();
+            return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
+        }
+
         _logger.Technical().System("Requesting an authentication token.").Log();
         var tokenInfo = await provider.GetTokenAsync(_settings, null).ConfigureAwait(false);
 
         // check if the token is still valid.
         // This is due to gRPC. It is possible that a gRPC streaming call is not closed and the token in the HttpContext is expired.
         // It is also possible this with OAuth where the token is added to the Identity and used like this => no refresh of the token is possible.
-        if (tokenInfo.ExpiresOnUtc < DateTime.UtcNow)
+        if (null == tokenInfo || tokenInfo.ExpiresOnUtc < DateTime.UtcNow)
         {
             _logger.Technical().System($"Token is expired! Next Hanlder will be called.").Log();
             return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
@@ -129,7 +136,7 @@ public class JwtHttpHandler : DelegatingHandler
                 request.Headers.Add("activityid", _applicationContext.ActivityID);
             }
 
-            _logger.Technical().System($"Add the current culture to the request: {_applicationContext.Principal.Profile?.CurrentCulture?.TwoLetterISOLanguageName}").Log();
+            _logger.Technical().System($"Add the current culture to the request: {_applicationContext!.Principal.Profile?.CurrentCulture?.TwoLetterISOLanguageName}").Log();
             var culture = _applicationContext.Principal.Profile?.CurrentCulture?.TwoLetterISOLanguageName;
             if (null != culture)
             {

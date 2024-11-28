@@ -8,120 +8,114 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensibility;
 
-namespace Arc4u.OAuth2.Msal.TokenProvider.Client
-{
-    [Export(ProviderName, typeof(ITokenProvider))]
-    public class MsalTokenProvider : ITokenProvider
-    {
-        public const string ProviderName = "clientApplication";
+namespace Arc4u.OAuth2.Msal.TokenProvider.Client;
 
-        public MsalTokenProvider(PublicClientApp clientApp, IApplicationContext applicationContext, ILogger<MsalTokenProvider> logger)
+[Export(ProviderName, typeof(ITokenProvider))]
+public class MsalTokenProvider : ITokenProvider
+{
+    public const string ProviderName = "clientApplication";
+
+    public MsalTokenProvider(PublicClientApp clientApp, IApplicationContext applicationContext, ILogger<MsalTokenProvider> logger)
+    {
+        _publicClientApplication = clientApp;
+        _applicationContext = applicationContext;
+        _logger = logger;
+    }
+
+    private readonly PublicClientApp _publicClientApplication;
+    private readonly IApplicationContext _applicationContext;
+    private readonly ILogger<MsalTokenProvider> _logger;
+
+    public async Task<TokenInfo?> GetTokenAsync(IKeyValueSettings? settings, object? platformParameters)
+    {
+        ArgumentNullException.ThrowIfNull(settings);
+
+        if (null != _applicationContext.Principal)
         {
-            _publicClientApplication = clientApp;
-            _applicationContext = applicationContext;
-            _logger = logger;
+            var identity = _applicationContext.Principal.Identity as ClaimsIdentity;
+
+            if (null != identity && !string.IsNullOrWhiteSpace(identity?.BootstrapContext?.ToString()))
+            {
+                var token = identity.BootstrapContext.ToString();
+
+                JwtSecurityToken jwt = new(token);
+
+                if (jwt.ValidTo > DateTime.UtcNow)
+                {
+                    return new TokenInfo("Bearer", token!, jwt.ValidTo);
+                }
+            }
         }
 
-        private readonly PublicClientApp _publicClientApplication;
-        private readonly IApplicationContext _applicationContext;
-        private readonly ILogger<MsalTokenProvider> _logger;
-
-        public async Task<TokenInfo> GetTokenAsync(IKeyValueSettings settings, object platformParameters)
+        if (null == _publicClientApplication)
         {
-            if (null == settings)
-            {
-                throw new ArgumentNullException(nameof(settings));
-            }
+            return null;
+        }
 
-            if (null != _applicationContext.Principal)
-            {
-                var identity = (ClaimsIdentity)_applicationContext.Principal.Identity;
+        var accounts = await _publicClientApplication.PublicClient.GetAccountsAsync().ConfigureAwait(false);
+        var firstAccount = accounts.FirstOrDefault();
 
-                if (!string.IsNullOrWhiteSpace(identity.BootstrapContext.ToString()))
-                {
-                    var token = identity.BootstrapContext.ToString();
+        var scopes = settings.Values[TokenKeys.Scopes].Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+        AuthenticationResult authResult;
+        try
+        {
+            authResult = await _publicClientApplication.PublicClient.AcquireTokenSilent(scopes, firstAccount).ExecuteAsync().ConfigureAwait(false);
 
-                    JwtSecurityToken jwt = new(token);
+            JwtSecurityToken jwt = new(authResult.AccessToken);
+            return new TokenInfo("Bearer", authResult.AccessToken, jwt.ValidTo);
+        }
+        catch (MsalUiRequiredException ex)
+        {
+            // A MsalUiRequiredException happened on AcquireTokenSilent.
+            // This indicates you need to call AcquireTokenInteractive to acquire a token
+            _logger.Technical().System($"MsalUiRequiredException: {ex.Message}").Log();
 
-                    if (jwt.ValidTo > DateTime.UtcNow)
-                    {
-                        return new TokenInfo("Bearer", token, jwt.ValidTo);
-                    }
-                }
-
-            }
-
-            if (null == _publicClientApplication)
-            {
-                return null;
-            }
-
-            var accounts = await _publicClientApplication.PublicClient.GetAccountsAsync();
-            var firstAccount = accounts.FirstOrDefault();
-
-            var scopes = settings.Values[TokenKeys.Scopes].Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-            AuthenticationResult authResult = null;
             try
             {
-                authResult = await _publicClientApplication.PublicClient.AcquireTokenSilent(scopes, firstAccount).ExecuteAsync();
+                var builder = _publicClientApplication.PublicClient
+                                                      .AcquireTokenInteractive(scopes)
+                                                      .WithAccount(accounts.FirstOrDefault())
+                                                      .WithPrompt(Prompt.SelectAccount);
+
+                if (_publicClientApplication.HasCustomWebUi)
+                {
+                    builder.WithCustomWebUi(_publicClientApplication.CustomWebUi);
+                }
+
+                authResult = await builder.ExecuteAsync().ConfigureAwait(false);
 
                 JwtSecurityToken jwt = new(authResult.AccessToken);
                 return new TokenInfo("Bearer", authResult.AccessToken, jwt.ValidTo);
             }
-            catch (MsalUiRequiredException ex)
+            catch (MsalException msalex)
             {
-                // A MsalUiRequiredException happened on AcquireTokenSilent.
-                // This indicates you need to call AcquireTokenInteractive to acquire a token
-                _logger.Technical().System($"MsalUiRequiredException: {ex.Message}").Log();
+                _logger.Technical().Exception(msalex).Log();
+            }
+        }
+        catch
+        {
+            return null;
+        }
 
+        return null;
+    }
+
+    public async ValueTask SignOutAsync(IKeyValueSettings settings, CancellationToken cancellationToken)
+    {
+        if (null != _publicClientApplication)
+        {
+            var accounts = await _publicClientApplication.PublicClient.GetAccountsAsync().ConfigureAwait(false);
+
+            if (accounts.Any())
+            {
                 try
                 {
-                    var builder = _publicClientApplication.PublicClient
-                                    .AcquireTokenInteractive(scopes)
-                                    .WithAccount(accounts.FirstOrDefault())
-                                    .WithPrompt(Prompt.SelectAccount);
-
-                    if (_publicClientApplication.HasCustomWebUi)
-                    {
-                        builder.WithCustomWebUi(_publicClientApplication.CustomWebUi);
-                    }
-
-                    authResult = await builder.ExecuteAsync();
-
-                    JwtSecurityToken jwt = new(authResult.AccessToken);
-                    return new TokenInfo("Bearer", authResult.AccessToken, jwt.ValidTo);
+                    await _publicClientApplication.PublicClient.RemoveAsync(accounts.FirstOrDefault()).ConfigureAwait(false);
                 }
                 catch (MsalException msalex)
                 {
                     _logger.Technical().Exception(msalex).Log();
                 }
-            }
-            catch
-            {
-                return null;
-            }
-
-            return null;
-        }
-
-        public async ValueTask SignOutAsync(IKeyValueSettings settings, CancellationToken cancellationToken)
-        {
-            if (null != _publicClientApplication)
-            {
-                var accounts = await _publicClientApplication.PublicClient.GetAccountsAsync().ConfigureAwait(false);
-
-                if (accounts.Any())
-                {
-                    try
-                    {
-                        await _publicClientApplication.PublicClient.RemoveAsync(accounts.FirstOrDefault()).ConfigureAwait(false);
-                    }
-                    catch (MsalException msalex)
-                    {
-                        _logger.Technical().Exception(msalex).Log();
-                    }
-                }
-
             }
         }
     }
