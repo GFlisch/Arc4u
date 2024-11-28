@@ -49,6 +49,11 @@ public class AppPrincipalFactory : IAppPrincipalFactory
     public async Task<AppPrincipal> CreatePrincipalAsync(string settingsResolveName, Messages messages, object? parameter = null)
     {
         var settings = _container.Resolve<IKeyValueSettings>(settingsResolveName);
+
+        if (settings == null)
+        {
+            throw new InvalidOperationException($"No section {settingsResolveName} was found.");
+        }
         return await CreatePrincipalAsync(settings, messages, parameter).ConfigureAwait(false);
     }
 
@@ -88,7 +93,7 @@ public class AppPrincipalFactory : IAppPrincipalFactory
         var authorization = BuildAuthorization(identity, messages);
         var profile = BuildProfile(identity, messages);
 
-        var principal = new AppPrincipal(authorization, identity, null)
+        var principal = new AppPrincipal(authorization, identity, "S-1-0-0")
         {
             Profile = profile
         };
@@ -100,16 +105,16 @@ public class AppPrincipalFactory : IAppPrincipalFactory
     private async Task BuildTheIdentityAsync(ClaimsIdentity identity, IKeyValueSettings settings, Messages messages, object? parameter = null)
     {
         // Check if we have a provider registered.
-        if (!_container.TryResolve(settings.Values[ProviderKey], out ITokenProvider provider))
+        if (!_container.TryResolve(settings.Values[ProviderKey], out ITokenProvider? provider))
         {
             throw new NotSupportedException($"The principal cannot be created. We are missing an account provider: {settings.Values[ProviderKey]}");
         }
 
         // Check the settings contains the service url.
-        TokenInfo token = null;
+        TokenInfo? token = null;
         try
         {
-            token = await provider.GetTokenAsync(settings, parameter).ConfigureAwait(true);
+            token = await provider!.GetTokenAsync(settings, parameter).ConfigureAwait(true);
         }
         catch (Exception ex)
         {
@@ -146,7 +151,7 @@ public class AppPrincipalFactory : IAppPrincipalFactory
             }
 
             // we only call the backend if the ticks are not the same.
-            bool copyClaimsFromCache = cachedExpiredTicks > 0 && expTokenTicks > 0 && cachedClaims.Count > 0 && cachedExpiredTicks == expTokenTicks;
+            var copyClaimsFromCache = cachedExpiredTicks > 0 && expTokenTicks > 0 && cachedClaims.Count > 0 && cachedExpiredTicks == expTokenTicks;
 
             if (copyClaimsFromCache)
             {
@@ -157,14 +162,17 @@ public class AppPrincipalFactory : IAppPrincipalFactory
             {
                 // Fill the claims based on the token and the backend call
                 identity.AddClaims(jwtToken.Claims.Where(c => !ClaimsToExclude.Any(arg => arg.Equals(c.Type))).Select(c => new Claim(c.Type, c.Value)));
-                identity.AddClaim(expTokenClaim);
+                if (null != expTokenClaim)
+                {
+                    identity.AddClaim(expTokenClaim);
+                }
 
-                if (_container.TryResolve(out IClaimsFiller claimFiller)) // Fill the claims with more information.
+                if (_container.TryResolve(out IClaimsFiller? claimFiller)) // Fill the claims with more information.
                 {
                     try
                     {
                         // Get the claims and clean any technical claims in case of.
-                        var claims = (await claimFiller.GetAsync(identity, new List<IKeyValueSettings> { settings }, parameter).ConfigureAwait(false))
+                        var claims = (await claimFiller!.GetAsync(identity, new List<IKeyValueSettings> { settings }, parameter).ConfigureAwait(false))
                                         .Where(c => !ClaimsToExclude.Any(arg => arg.Equals(c.ClaimType))).ToList();
 
                         // We copy the claims from the backend but the exp claim will be the value of the token (front end definition) and not the backend one. Otherwhise there will be always a difference.
@@ -197,9 +205,9 @@ public class AppPrincipalFactory : IAppPrincipalFactory
     {
         var authorization = new Authorization();
         // We need to fill the authorization and user profile from the provider!
-        if (_container.TryResolve(out IClaimAuthorizationFiller claimAuthorizationFiller))
+        if (_container.TryResolve(out IClaimAuthorizationFiller? claimAuthorizationFiller))
         {
-            authorization = claimAuthorizationFiller.GetAuthorization(identity);
+            authorization = claimAuthorizationFiller!.GetAuthorization(identity);
             messages.Add(new Message(ServiceModel.MessageCategory.Technical, MessageType.Information, $"Fill the authorization information to the principal."));
         }
         else
@@ -213,9 +221,9 @@ public class AppPrincipalFactory : IAppPrincipalFactory
     private UserProfile BuildProfile(ClaimsIdentity identity, Messages messages)
     {
         UserProfile profile = UserProfile.Empty;
-        if (_container.TryResolve(out IClaimProfileFiller profileFiller))
+        if (_container.TryResolve(out IClaimProfileFiller? profileFiller))
         {
-            profile = profileFiller.GetProfile(identity);
+            profile = profileFiller!.GetProfile(identity);
             messages.Add(new Message(ServiceModel.MessageCategory.Technical, MessageType.Information, $"Fill the profile information to the principal."));
         }
         else
@@ -271,15 +279,21 @@ public class AppPrincipalFactory : IAppPrincipalFactory
     public ValueTask SignOutUserAsync(CancellationToken cancellationToken)
     {
         var settings = _container.Resolve<IKeyValueSettings>(DefaultSettingsResolveName);
+
+        if (null == settings)
+        {
+            throw new InvalidOperationException($"No section {DefaultSettingsResolveName} was found.");
+        }
+
         return SignOutUserAsync(settings, cancellationToken);
     }
 
     public async ValueTask SignOutUserAsync(IKeyValueSettings settings, CancellationToken cancellationToken)
     {
         RemoveClaimsCache();
-        if (_container.TryResolve(settings.Values[ProviderKey], out ITokenProvider provider))
+        if (_container.TryResolve(settings.Values[ProviderKey], out ITokenProvider? provider))
         {
-            await provider.SignOutAsync(settings, cancellationToken).ConfigureAwait(false);
+            await provider!.SignOutAsync(settings, cancellationToken).ConfigureAwait(false);
         }
     }
 }

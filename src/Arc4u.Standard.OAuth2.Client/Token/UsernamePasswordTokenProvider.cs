@@ -16,34 +16,42 @@ public class UsernamePasswordTokenProvider : ITokenProvider
 {
     public UsernamePasswordTokenProvider(ISecureCache secureCache, INetworkInformation networkStatus, ILogger<UsernamePasswordTokenProvider> logger, IContainerResolve container)
     {
-        secureCache = secureCache;
-        networkStatus = networkStatus;
+        _secureCache = secureCache;
+        _networkStatus = networkStatus;
         Container = container;
         _logger = logger;
     }
 
     public const string ProviderName = "usernamePassword";
 
-    private readonly ICache secureCache;
-    private readonly INetworkInformation networkStatus;
+    private readonly ICache _secureCache;
+    private readonly INetworkInformation _networkStatus;
     private readonly IContainerResolve Container;
     private readonly ILogger<UsernamePasswordTokenProvider> _logger;
 
-    private string userkey;
-    private string pwdkey;
-    private string serviceId;
-    private string authority;
-    private string passwordStoreKey;
-    private IKeyValueSettings Settings;
+    private string userkey = default!;
+    private string pwdkey = default!;
+    private string serviceId = default!;
+    private string authority = default!;
+    private string passwordStoreKey = default!;
+    private IKeyValueSettings Settings = default!;
 
-    public async Task<TokenInfo> GetTokenAsync(IKeyValueSettings settings, object platformParameters)
+    public async Task<TokenInfo?> GetTokenAsync(IKeyValueSettings? settings, object? platformParameters)
     {
+#if NET8_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(settings);
+#else
+        if (null == settings)
+        {
+            throw new ArgumentNullException(nameof(settings));
+        }
+#endif
         // Take settings info.
         GetSettings(settings, out serviceId, out authority, out passwordStoreKey);
 
         Settings = settings;
 
-        secureCache.TryGetValue<TokenInfo>(serviceId, out var tokenInfo);
+        _secureCache.TryGetValue<TokenInfo>(serviceId, out var tokenInfo);
 
         // Make the token expired 1 minute before a usage so we will not given back a token close to the expiration.
         if (null != tokenInfo && tokenInfo.ExpiresOnUtc > DateTime.UtcNow.AddMinutes(1))
@@ -58,8 +66,8 @@ public class UsernamePasswordTokenProvider : ITokenProvider
         userkey = passwordStoreKey + "_upn";
         pwdkey = passwordStoreKey + "_pwd";
 
-        secureCache.TryGetValue<string>(userkey, out var upn);
-        secureCache.TryGetValue<string>(pwdkey, out var pwd);
+        _secureCache.TryGetValue<string>(userkey, out var upn);
+        _secureCache.TryGetValue<string>(pwdkey, out var pwd);
 
         if (string.IsNullOrWhiteSpace(upn) || string.IsNullOrWhiteSpace(pwd))
         {
@@ -70,7 +78,7 @@ public class UsernamePasswordTokenProvider : ITokenProvider
 
             // Ask for the credentials and the await is blocked until the user has entered the information.
             // The page must be a modal one.
-            var hasCredential = await usernamePasswordProvider.GetCredentials(upn, CheckCredentialsAsync).ConfigureAwait(false);
+            var hasCredential = await usernamePasswordProvider!.GetCredentials(upn, CheckCredentialsAsync).ConfigureAwait(false);
             if (!hasCredential.CredentialsEntered)
             {
                 return null;
@@ -80,14 +88,14 @@ public class UsernamePasswordTokenProvider : ITokenProvider
             upn = hasCredential.Upn;
             pwd = hasCredential.Password;
             // Store the new User and password in the cache.
-            secureCache.Put(userkey, upn);
-            secureCache.Put(pwdkey, pwd);
+            _secureCache.Put(userkey, upn);
+            _secureCache.Put(pwdkey, pwd);
         }
 
         // Check before requesting a token we have a network connectivity!
-        if (networkStatus.Status == NetworkStatus.None)
+        if (_networkStatus.Status == NetworkStatus.None)
         {
-            throw new NetworkException(networkStatus.Status);
+            throw new NetworkException(_networkStatus.Status);
         }
 
         try
@@ -97,7 +105,7 @@ public class UsernamePasswordTokenProvider : ITokenProvider
             tokenInfo = await CreateBasicTokenInfoAsync(settings, new CredentialsResult(true, upn, pwd)).ConfigureAwait(false);
 
             // Store the tokenInfo
-            secureCache.Put(serviceId, tokenInfo);
+            _secureCache.Put(serviceId, tokenInfo);
 
             return tokenInfo;
         }
@@ -114,6 +122,11 @@ public class UsernamePasswordTokenProvider : ITokenProvider
     {
         var basicTokenProvider = Container.Resolve<ICredentialTokenProvider>(CredentialTokenProvider.ProviderName);
 
+        if (null == basicTokenProvider)
+        {
+            throw new InvalidOperationException("No basic token provider found!");
+        }
+
         return await basicTokenProvider.GetTokenAsync(settings, credential).ConfigureAwait(false);
     }
 
@@ -128,7 +141,7 @@ public class UsernamePasswordTokenProvider : ITokenProvider
             var tokenInfo = await CreateBasicTokenInfoAsync(Settings, new CredentialsResult(true, upn, password)).ConfigureAwait(false);
 
             // Store the tokenInfo
-            secureCache.Put(serviceId, tokenInfo);
+            _secureCache.Put(serviceId, tokenInfo);
 
             return true;
         }
@@ -156,16 +169,16 @@ public class UsernamePasswordTokenProvider : ITokenProvider
         authority = settings.Values[TokenKeys.AuthorityKey];
 
         // Check the information.
-        var messages = new Arc4u.ServiceModel.Messages();
+        var messages = new Messages();
 
         if (string.IsNullOrWhiteSpace(serviceId))
         {
-            messages.Add(new Message(ServiceModel.MessageCategory.Technical, ServiceModel.MessageType.Warning, $"No information from the application settings section about an entry: {TokenKeys.ServiceApplicationIdKey}."));
+            messages.Add(new Message(ServiceModel.MessageCategory.Technical, MessageType.Warning, $"No information from the application settings section about an entry: {TokenKeys.ServiceApplicationIdKey}."));
         }
 
         if (string.IsNullOrWhiteSpace(authority))
         {
-            messages.Add(new Message(ServiceModel.MessageCategory.Technical, ServiceModel.MessageType.Warning, $"{TokenKeys.AuthorityKey} is not defined in the configuration file."));
+            messages.Add(new Message(ServiceModel.MessageCategory.Technical, MessageType.Warning, $"{TokenKeys.AuthorityKey} is not defined in the configuration file."));
         }
 
         messages.LogAndThrowIfNecessary(_logger);
@@ -187,7 +200,7 @@ public class UsernamePasswordTokenProvider : ITokenProvider
         {
             // remove the passord information.
             var pwdkey = passwordStoreKey + "_pwd";
-            secureCache.Remove(pwdkey);
+            _secureCache.Remove(pwdkey);
         }
         catch (Exception ex)
         {
@@ -197,7 +210,7 @@ public class UsernamePasswordTokenProvider : ITokenProvider
         try
         {
             // remove de access token information.
-            secureCache.Remove(serviceId);
+            _secureCache.Remove(serviceId);
         }
         catch (Exception ex)
         {

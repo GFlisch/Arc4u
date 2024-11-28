@@ -1,41 +1,45 @@
-﻿using System.Text;
+using System.Text;
 using Arc4u.Caching;
 using Arc4u.Dependency.Attribute;
 using Arc4u.OAuth2.Token;
 
-namespace Arc4u.OAuth2.Net
+namespace Arc4u.OAuth2.Net;
+
+[Export(typeof(IBasicAuthorizationHeader)), Shared]
+public class BasicAuthorizationHeader : IBasicAuthorizationHeader
 {
-    [Export(typeof(IBasicAuthorizationHeader)), Shared]
-    public class BasicAuthorizationHeader : IBasicAuthorizationHeader
+    public BasicAuthorizationHeader(ISecureCache secureCache)
     {
-        public BasicAuthorizationHeader(ISecureCache secureCache)
+        _secureCache = secureCache;
+    }
+
+    private readonly ISecureCache _secureCache;
+
+    public string GetHeader(IKeyValueSettings settings)
+    {
+        ExtractFromSettings(settings, out var passwordStoreKey);
+
+        var userkey = passwordStoreKey + "_upn";
+        var pwdkey = passwordStoreKey + "_pwd";
+
+        _secureCache.TryGetValue<string>(userkey, out var upn);
+        _secureCache.TryGetValue<string>(pwdkey, out var pwd);
+
+        if (string.IsNullOrWhiteSpace(upn) || string.IsNullOrWhiteSpace(pwd))
         {
-            secureCache = secureCache;
+            throw new InvalidOperationException("The upn or password is not set in the cache!");
         }
 
-        private readonly ISecureCache secureCache;
+        return $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{upn!.Trim()}:{pwd!.Trim()}"))}";
+    }
 
-        public string GetHeader(IKeyValueSettings settings)
+    private static void ExtractFromSettings(IKeyValueSettings settings, out string passwordStoreKey)
+    {
+        passwordStoreKey = "secret";
+        if (settings.Values.ContainsKey(TokenKeys.PasswordStoreKey))
         {
-            ExtractFromSettings(settings, out var passwordStoreKey);
-
-            var userkey = passwordStoreKey + "_upn";
-            var pwdkey = passwordStoreKey + "_pwd";
-
-            secureCache.TryGetValue<string>(userkey, out var upn);
-            secureCache.TryGetValue<string>(pwdkey, out var pwd);
-
-            return $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{upn.Trim()}:{pwd.Trim()}"))}";
+            passwordStoreKey = string.IsNullOrWhiteSpace(settings.Values[TokenKeys.PasswordStoreKey]) ? passwordStoreKey : settings.Values[TokenKeys.PasswordStoreKey];
         }
 
-        private void ExtractFromSettings(IKeyValueSettings settings, out string passwordStoreKey)
-        {
-            passwordStoreKey = "secret";
-            if (settings.Values.ContainsKey(TokenKeys.PasswordStoreKey))
-            {
-                passwordStoreKey = string.IsNullOrWhiteSpace(settings.Values[TokenKeys.PasswordStoreKey]) ? passwordStoreKey : settings.Values[TokenKeys.PasswordStoreKey];
-            }
-
-        }
     }
 }
