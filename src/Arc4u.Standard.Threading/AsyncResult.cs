@@ -7,7 +7,7 @@ public class AsyncResult : IAsyncResult
 {
     private readonly AsyncCallback _cb;
     private readonly object _state;
-    private ManualResetEvent _event;
+    private ManualResetEvent? _event;
     private bool _completed;
     private readonly object _lock = new object();
 
@@ -27,7 +27,7 @@ public class AsyncResult : IAsyncResult
     /// </summary>
     /// <value></value>
     /// <returns>A user-defined object that qualifies or contains information about an asynchronous operation.</returns>
-    public Object AsyncState { get { return _state; } }
+    public object AsyncState { get { return _state; } }
 
     /// <summary>
     /// Gets an indication of whether the asynchronous operation completed synchronously.

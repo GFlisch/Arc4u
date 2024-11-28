@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 
 namespace Arc4u.Threading;
 
@@ -7,12 +7,7 @@ namespace Arc4u.Threading;
 /// </summary>
 public class Culture
 {
-    static Culture()
-    {
-        _neutral = new CultureInfo("en-GB");
-    }
-
-    private static readonly CultureInfo _neutral;
+    private static readonly CultureInfo _neutral = new CultureInfo("en-GB");
 
     /// <summary>
     ///  Get the Arc4u neutral culture info!
