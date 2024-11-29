@@ -139,6 +139,12 @@ public class JwtHttpHandler : DelegatingHandler
         _logger.Technical().System("Requesting an authentication token.").Log();
         var tokenInfo = await provider.GetTokenAsync(_settings, null).ConfigureAwait(false);
 
+        if (tokenInfo is null)
+        {
+            _logger.Technical().System($"No token is provided for {GetType().Name}, Check next Delegate Handler").Log();
+            return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
+        }
+
         // check if the token is still valid.
         // This is due to gRPC. It is possible that a gRPC streaming call is not closed and the token in the HttpContext is expired.
         // It is also possible this with OAuth where the token is added to the Identity and used like this => no refresh of the token is possible.

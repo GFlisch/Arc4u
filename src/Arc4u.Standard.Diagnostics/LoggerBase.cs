@@ -1,8 +1,7 @@
-﻿using Arc4u.Threading;
+using Arc4u.Threading;
 using Microsoft.Extensions.Logging;
 
 namespace Arc4u.Diagnostics;
-
 
 /// <summary>
 /// The class  is used to log any information on different media.
@@ -13,9 +12,9 @@ public abstract class LoggerBase
     /// Gets the application name used to log.
     /// </summary>
     /// <value>The application.</value>
-    public static string Application { get; set; }
+    public static string? Application { get; set; }
 
-    private static ILogger _loggerInstance;
+    private static ILogger? _loggerInstance;
     protected static ILogger LoggerInstance
     {
         get
@@ -25,7 +24,7 @@ public abstract class LoggerBase
                 return Scope<ILogger>.Current;
             }
 
-            return _loggerInstance;
+            return _loggerInstance ?? throw new InvalidOperationException("LoggerInstance cannot be null");
         }
 
         set { _loggerInstance = value; }

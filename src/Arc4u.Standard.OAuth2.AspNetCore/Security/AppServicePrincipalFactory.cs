@@ -101,6 +101,10 @@ public class AppServicePrincipalFactory : IAppPrincipalFactory
         try
         {
             token = await provider!.GetTokenAsync(settings, parameter).ConfigureAwait(true);
+            if (null == token)
+            {
+                throw new InvalidOperationException("The token is null.");
+            }
             identity.BootstrapContext = token.Token;
             var jwtToken = new JwtSecurityToken(token.Token);
             identity.AddClaims(jwtToken.Claims.Where(c => !ClaimsToExclude.Any(arg => arg.Equals(c.Type))).Select(c => new Claim(c.Type, c.Value)));

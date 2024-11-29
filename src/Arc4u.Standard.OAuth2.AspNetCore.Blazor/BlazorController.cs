@@ -62,7 +62,7 @@ public class BlazorController : ControllerBase
                 {
                     if (containerResolve.TryResolve<ITokenProvider>(settings!.Values[TokenKeys.ProviderIdKey], out var tokenProvider))
                     {
-                        accessToken = (await tokenProvider!.GetTokenAsync(settings, claimsIdentity).ConfigureAwait(false)).Token;
+                        accessToken = (await tokenProvider!.GetTokenAsync(settings, claimsIdentity).ConfigureAwait(false))?.Token;
                     }
                 }
             }

@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace Arc4u.Diagnostics;
 
@@ -11,11 +11,11 @@ public class CommonMessageLogger
         MessageLogger = new LoggerMessage(logger, category, methodName, typeClass);
     }
 
-    private CommonLoggerProperties AddEntry(LogLevel logLevel, string message, Exception exception = null, object[] args = null)
+    private CommonLoggerProperties AddEntry(LogLevel logLevel, string message, Exception? exception = null,params object[] args)
     {
         MessageLogger.LogLevel = logLevel;
         MessageLogger.Text = message;
-        MessageLogger.Args = args;
+        MessageLogger.Args = args ?? [];
         MessageLogger.Exception = exception;
 
         return new CommonLoggerProperties(MessageLogger);

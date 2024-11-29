@@ -1,3 +1,4 @@
+using System.Globalization;
 using Arc4u.Diagnostics;
 using NServiceBus.Logging;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
@@ -29,7 +30,7 @@ public class LoggerBridge : ILog
 
     public void DebugFormat(string format, params object[] args)
     {
-        LoggerBase.Technical.From<LoggerBridge>().Debug(string.Format(format, args)).Log();
+        LoggerBase.Technical.From<LoggerBridge>().Debug(string.Format(CultureInfo.InvariantCulture ,format, args)).Log();
     }
 
     public void Error(string message)
@@ -45,7 +46,7 @@ public class LoggerBridge : ILog
 
     public void ErrorFormat(string format, params object[] args)
     {
-        LoggerBase.Technical.From<LoggerBridge>().Error(string.Format(format, args)).Log();
+        LoggerBase.Technical.From<LoggerBridge>().Error(string.Format(CultureInfo.InvariantCulture, format, args)).Log();
     }
 
     public void Fatal(string message)
@@ -61,7 +62,7 @@ public class LoggerBridge : ILog
 
     public void FatalFormat(string format, params object[] args)
     {
-        LoggerBase.Technical.From<LoggerBridge>().Fatal(string.Format(format, args)).Log();
+        LoggerBase.Technical.From<LoggerBridge>().Fatal(string.Format(CultureInfo.InvariantCulture, format, args)).Log();
     }
 
     public void Info(string message)
@@ -77,7 +78,7 @@ public class LoggerBridge : ILog
 
     public void InfoFormat(string format, params object[] args)
     {
-        LoggerBase.Technical.From<LoggerBridge>().Information(string.Format(format, args)).Log();
+        LoggerBase.Technical.From<LoggerBridge>().Information(string.Format(CultureInfo.InvariantCulture, format, args)).Log();
     }
 
     public void Warn(string message)
@@ -93,6 +94,6 @@ public class LoggerBridge : ILog
 
     public void WarnFormat(string format, params object[] args)
     {
-        LoggerBase.Technical.From<LoggerBridge>().Warning(string.Format(format, args)).Log();
+        LoggerBase.Technical.From<LoggerBridge>().Warning(string.Format(CultureInfo.InvariantCulture, format, args)).Log();
     }
 }

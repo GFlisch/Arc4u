@@ -1688,7 +1688,7 @@ if (entities == null)
             throw new ArgumentNullException(nameof(items));
         }
 #endif
-        return items.ConvertAll<TEntity>(converter => converter);
+        return items.ConvertAll<TEntity>(converter => converter!);
     }
 
     /// <summary>

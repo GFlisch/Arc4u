@@ -22,14 +22,14 @@ public class DefaultActivitySourceFactory : IActivitySourceFactory
     /// <param name="name">The name of the <see cref="ActivitySource"/>.</param>
     /// <param name="version">An optinal parameter to add a version to an <see cref="ActivitySource"/>.</param>
     /// <returns>A specific instance of an <see cref="ActivitySource"/>.</returns>
-    public ActivitySource Get(string name, string version = null)
+    public ActivitySource Get(string name, string? version = null)
     {
         if (string.IsNullOrWhiteSpace(name))
         {
             throw new ArgumentNullException(name);
         }
 
-        var key = string.IsNullOrWhiteSpace(version) ? name.Trim() : $"{name.Trim()}_{version.Trim()}";
+        var key = string.IsNullOrWhiteSpace(version) ? name.Trim() : $"{name.Trim()}_{version!.Trim()}";
 
         return _activitySources.GetOrAdd(key, _ => new ActivitySource(name, version));
     }

@@ -52,7 +52,7 @@ public abstract class JsonCompressedStreamSerialization : JsonCompressedStreamSe
         return output.ToArray();
     }
 
-    public T Deserialize<T>(byte[] data)
+    public T? Deserialize<T>(byte[] data)
     {
         Activity.Current?.SetTag("SerializerType", SerializerType);
 
@@ -61,7 +61,7 @@ public abstract class JsonCompressedStreamSerialization : JsonCompressedStreamSe
         return InternalDeserialize<T>(uncompressed);
     }
 
-    public object Deserialize(byte[] data, Type objectType)
+    public object? Deserialize(byte[] data, Type objectType)
     {
         Activity.Current?.SetTag("SerializerType", SerializerType);
 

@@ -1,10 +1,12 @@
-﻿namespace Arc4u.Diagnostics;
+namespace Arc4u.Diagnostics;
 
 public class OpenTelemetrySettings
 {
     public OpenTelemetrySettings()
     {
-        Attributes = new Dictionary<string, object>();
+        Attributes = [];
+        Address = string.Empty;
+        Sources = [];
     }
     public string Address { get; set; }
 

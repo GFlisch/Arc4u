@@ -4,7 +4,7 @@ using FluentValidation.Validators;
 
 namespace Arc4u.FluentValidation.Rules;
 
-internal class IsUtcDateTimeRuleValidator<T, TProperty> : PropertyValidator<T, TProperty> where T : class where TProperty : struct
+internal sealed class IsUtcDateTimeRuleValidator<T, TProperty> : PropertyValidator<T, TProperty> where T : class where TProperty : struct
 {
 
     const string ruleName = "IsUtcDateTimeRuleValidator";

@@ -1,4 +1,4 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Arc4u.Blazor;
 using Arc4u.OAuth2.Token;
@@ -42,7 +42,7 @@ public class BlazorTokenProviderTests
     public async Task GetValidTokenShoud()
     {
         // Arrange
-        JwtSecurityToken jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
+        var jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
 
         var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
         var tokenInfo = new TokenInfo("Bearer", accessToken, DateTime.UtcNow);

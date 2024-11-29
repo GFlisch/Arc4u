@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -11,11 +11,14 @@ public sealed class SystemResources : IHostedService, IDisposable
 {
     public SystemResources(ILogger logger, uint internalPeriodInSeconds = 10)
     {
+#if NET8_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(logger);
+#else
         if (null == logger)
         {
             throw new ArgumentNullException(nameof(logger));
         }
-
+#endif
         if (0 == internalPeriodInSeconds)
         {
             throw new ArgumentException("The interval must be bigger than 0!");
@@ -24,7 +27,6 @@ public sealed class SystemResources : IHostedService, IDisposable
         interval = internalPeriodInSeconds;
         _lastTimeStamp = _process.StartTime.ToUniversalTime();
         _logger = logger;
-
     }
 
     private readonly uint interval;
@@ -45,7 +47,7 @@ public sealed class SystemResources : IHostedService, IDisposable
 
     private readonly CpuData _cpuData = new CpuData();
 
-    private void CollectData(object state)
+    private void CollectData(object? state)
     {
         _process = Process.GetCurrentProcess();
 
@@ -87,7 +89,7 @@ public sealed class SystemResources : IHostedService, IDisposable
 
     }
 
-    private Timer Scheduler { get; set; }
+    private Timer? Scheduler { get; set; }
 
     /// <summary>
     /// Define the delay the system will wait before starting the monitoring.

@@ -44,8 +44,8 @@ public class OAuth2Interceptor : Interceptor
 
     private readonly IKeyValueSettings _settings;
     private readonly ILogger<OAuth2Interceptor> _logger;
-    private readonly IScopedServiceProviderAccessor? _serviceProviderAccessor = null;
-    private readonly IContainerResolve? _containerResolve = null;
+    private readonly IScopedServiceProviderAccessor? _serviceProviderAccessor;
+    private readonly IContainerResolve? _containerResolve ;
 
     private IContainerResolve? GetResolver() => _containerResolve ?? _serviceProviderAccessor?.ServiceProvider?.GetService<IContainerResolve>();
 
@@ -121,17 +121,24 @@ public class OAuth2Interceptor : Interceptor
 
         var inject = authenticationType.Equals("inject", StringComparison.InvariantCultureIgnoreCase);
 
-        // Skip (BE scenario) if the parameter is an identity and the settings doesn't correspond to the identity's type.
-        if (!inject
-            &&
-            applicationContext.Principal.Identity is ClaimsIdentity claimsIdentity
-            &&
-            !claimsIdentity.AuthenticationType.Equals(_settings.Values[TokenKeys.AuthenticationTypeKey], StringComparison.InvariantCultureIgnoreCase))
+        if (null == applicationContext.Principal)
         {
+            _logger.Technical().System($"No user context. Next Interceptor will be called.").Log();
             return;
         }
 
-        claimsIdentity = applicationContext.Principal?.Identity as ClaimsIdentity;
+        var claimsIdentity  = applicationContext.Principal?.Identity as ClaimsIdentity;
+        // Skip (BE scenario) if the parameter is an identity and the settings doesn't correspond to the identity's type.
+        if (!inject
+            &&
+            claimsIdentity is not null
+            &&
+            claimsIdentity.AuthenticationType != null
+            &&
+            claimsIdentity.AuthenticationType.Equals(_settings.Values[TokenKeys.AuthenticationTypeKey], StringComparison.InvariantCultureIgnoreCase))
+        {
+            return;
+        }
 
         // But in case we inject we need something in the identity!
         if (claimsIdentity is null && !inject)
@@ -142,7 +149,20 @@ public class OAuth2Interceptor : Interceptor
         try
         {
             var provider = containerResolve.Resolve<ITokenProvider>(_settings.Values[TokenKeys.ProviderIdKey]);
+
+            if (provider is null)
+            {
+                _logger.Technical().System($"No token provider is defined for {GetType().Name}, Check next Interceptor").Log();
+                return;
+            }
+
             var tokenInfo = provider.GetTokenAsync(_settings, claimsIdentity).Result;
+
+            if (tokenInfo is null)
+            {
+                _logger.Technical().System($"No token is provided for {GetType().Name}, Check next Interceptor").Log();
+                return;
+            }
 
             if (tokenInfo.ExpiresOnUtc < DateTime.UtcNow)
             {

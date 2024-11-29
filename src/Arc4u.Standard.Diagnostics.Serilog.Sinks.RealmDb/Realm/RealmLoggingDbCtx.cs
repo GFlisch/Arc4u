@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Microsoft.Extensions.Logging;
 using Realms;
 
@@ -6,11 +6,6 @@ namespace Arc4u.Diagnostics.Serilog.Sinks.RealmDb;
 
 public class RealmLoggingDbCtx : ILogStore
 {
-
-    static RealmLoggingDbCtx()
-    {
-        _mapper = CreateMapping();
-    }
     public RealmLoggingDbCtx(RealmConfiguration config)
     {
         _realm = Realm.GetInstance(config);
@@ -18,7 +13,7 @@ public class RealmLoggingDbCtx : ILogStore
 
     public void RemoveAll()
     {
-        _realm.Write(() => _realm.RemoveAll<LogDBMessage>());
+        _realm.Write(_realm.RemoveAll<LogDBMessage>);
     }
 
     public List<LogMessage> GetLogs(string criteria, int skip, int take)
@@ -26,7 +21,7 @@ public class RealmLoggingDbCtx : ILogStore
         var hasCriteria = !string.IsNullOrWhiteSpace(criteria);
         var searchText = hasCriteria ? criteria.ToLowerInvariant() : "";
 
-        IOrderedQueryable<LogDBMessage> queryable = _realm.All<LogDBMessage>().OrderByDescending(msg => msg.Timestamp);
+        var queryable = _realm.All<LogDBMessage>().OrderByDescending(msg => msg.Timestamp);
 
         var enumerator = queryable.GetEnumerator();
 
@@ -60,7 +55,7 @@ public class RealmLoggingDbCtx : ILogStore
     private readonly Realm _realm;
     public Realm Realm { get { return _realm; } }
 
-    private static readonly IMapper _mapper;
+    private static readonly IMapper _mapper = CreateMapping();
     public static IMapper Mapper { get { return _mapper; } }
 
     public static IMapper CreateMapping()
@@ -69,8 +64,8 @@ public class RealmLoggingDbCtx : ILogStore
         {
             // cfg.AddCollectionMappers();
             cfg.CreateMap<LogDBMessage, LogMessage>()
-            .ForMember(dest => dest.MessageCategory, opts => opts.MapFrom(src => ((MessageCategory)src.MessageCategory).ToString()))
-            .ForMember(dest => dest.MessageType, opts => opts.MapFrom(src => ((LogLevel)src.MessageType).ToString()));
+               .ForMember(dest => dest.MessageCategory, opts => opts.MapFrom(src => ((MessageCategory)src.MessageCategory).ToString()))
+               .ForMember(dest => dest.MessageType, opts => opts.MapFrom(src => ((LogLevel)src.MessageType).ToString()));
         });
 
         return config.CreateMapper();

@@ -1,7 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace Arc4u.Diagnostics;
-
 
 public class MonitoringMessageLogger
 {
@@ -15,7 +14,7 @@ public class MonitoringMessageLogger
         MessageLogger = new LoggerMessage(logger, MessageCategory.Monitoring, methodName, typeClass);
     }
 
-    private MonitoringLoggerProperties AddEntry(LogLevel logLevel, string message, Exception exception = null)
+    private MonitoringLoggerProperties AddEntry(LogLevel logLevel, string message, Exception? exception = null)
     {
         MessageLogger.LogLevel = logLevel;
         MessageLogger.Text = message;

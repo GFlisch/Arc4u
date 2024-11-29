@@ -56,7 +56,7 @@ public class RealmDBSink : IBatchedLogEventSink
                 await DB.WriteAsync(() =>
                 {
                     DB.Add(logMsg);
-                });
+                }).ConfigureAwait(false);
             }
             catch (Exception)
             {
