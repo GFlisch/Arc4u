@@ -121,19 +121,19 @@ public class GRpcInterceptorTests
         // Create a scope to be in the context majority of the time a business code is.
         using var scopedContainer = container.CreateScope();
         var scopedServiceAccessor = scopedContainer.Resolve<IScopedServiceProviderAccessor>();
-        scopedServiceAccessor.ServiceProvider = scopedContainer.ServiceProvider;
+        scopedServiceAccessor!.ServiceProvider = scopedContainer.ServiceProvider;
 
         var tokenRefresh = scopedContainer.Resolve<TokenRefreshInfo>();
-        tokenRefresh.RefreshToken = new TokenInfo("refresh_token", Guid.NewGuid().ToString(), DateTime.UtcNow.AddHours(1));
+        tokenRefresh!.RefreshToken = new TokenInfo("refresh_token", Guid.NewGuid().ToString(), DateTime.UtcNow.AddHours(1));
         tokenRefresh.AccessToken = new TokenInfo("access_token", accessToken);
 
-        var principal = new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.CookiesAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0")
+        var principal = new AppPrincipal(new Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0")
         {
             Profile = UserProfile.Empty
         };
 
         // Define a Principal with no OAuth2Bearer token here => we test the injection.
-        var appContext = scopedServiceAccessor.ServiceProvider.GetService<IApplicationContext>();
+        var appContext = scopedContainer.Resolve<IApplicationContext>();
         appContext!.SetPrincipal(principal);
 
         var setingsOptions = scopedContainer.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
@@ -199,14 +199,14 @@ public class GRpcInterceptorTests
 
         scopedServiceAccessor.ServiceProvider = scopedContainer.ServiceProvider;
 
-        var principal = new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0")
+        var principal = new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.CookiesAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0")
         {
             Profile = UserProfile.Empty
         };
 
         // Define a Principal with no OAuth2Bearer token here => we test the injection.
         var appContext = scopedContainer.Resolve<IApplicationContext>();
-        appContext.SetPrincipal(principal);
+        appContext!.SetPrincipal(principal);
 
         var setingsOptions = scopedContainer.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
 
@@ -272,7 +272,7 @@ public class GRpcInterceptorTests
 
         // Mock the cache used by the Credential token provider.
         var mockTokenCache = _fixture.Freeze<Mock<ITokenCache>>();
-        mockTokenCache.Setup(m => m.Get<TokenInfo>(It.IsAny<string>())).Returns((TokenInfo)null);
+        mockTokenCache.Setup(m => m.Get<TokenInfo?>(It.IsAny<string>())).Returns((TokenInfo?)null);
         mockTokenCache.Setup(m => m.Put<TokenInfo>(It.IsAny<string>(), It.IsAny<TokenInfo>()));
 
         // Register the different TokenProvider and CredentialTokenProviders.
@@ -290,7 +290,16 @@ public class GRpcInterceptorTests
         // Create a scope to be in the context majority of the time a business code is.
         using var scopedContainer = container.CreateScope();
 
-        scopedServiceAccessor.ServiceProvider = scopedContainer.ServiceProvider;
+        var principal = new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.CookiesAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0")
+        {
+            Profile = UserProfile.Empty
+        };
+
+        // Define a Principal with no OAuth2Bearer token here => we test the injection.
+        var appContext = scopedContainer.Resolve<IApplicationContext>();
+        appContext!.SetPrincipal(principal);
+
+        scopedServiceAccessor!.ServiceProvider = scopedContainer.ServiceProvider;
 
         var setingsOptions = scopedContainer.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
 
@@ -349,6 +358,15 @@ public class GRpcInterceptorTests
 
         // Create a scope to be in the context majority of the time a business code is.
         using var scopedContainer = container.CreateScope();
+
+        var principal = new AppPrincipal(new Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = string.Empty }, "S-1-0-0")
+        {
+            Profile = UserProfile.Empty
+        };
+
+        // Define a Principal with no OAuth2Bearer token here => we test the injection.
+        var appContext = scopedContainer.Resolve<IApplicationContext>();
+        appContext!.SetPrincipal(principal);
 
         scopedServiceAccessor.ServiceProvider = scopedContainer.ServiceProvider;
 
@@ -409,6 +427,15 @@ public class GRpcInterceptorTests
 
         // Create a scope to be in the context majority of the time a business code is.
         using var scopedContainer = container.CreateScope();
+
+        var principal = new AppPrincipal(new Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = string.Empty }, "S-1-0-0")
+        {
+            Profile = UserProfile.Empty
+        };
+
+        // Define a Principal with no OAuth2Bearer token here => we test the injection.
+        var appContext = scopedContainer.Resolve<IApplicationContext>();
+        appContext!.SetPrincipal(principal);
 
         scopedServiceAccessor.ServiceProvider = scopedContainer.ServiceProvider;
 
@@ -552,12 +579,14 @@ public class GRpcInterceptorTests
         container.Register<ITokenProvider, BootstrapContextTokenProvider>("Bootstrap");
         container.CreateContainer();
 
-        var principal = new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0");
-        principal.Profile = UserProfile.Empty;
+        var principal = new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.CookiesAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0")
+        {
+            Profile = UserProfile.Empty
+        };
 
         // Define a Principal with no OAuth2Bearer token here => we test the injection.
         var appContext = container.Resolve<IApplicationContext>();
-        appContext.SetPrincipal(principal);
+        appContext!.SetPrincipal(principal);
 
         var setingsOptions = container.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
 

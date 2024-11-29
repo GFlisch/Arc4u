@@ -502,7 +502,7 @@ public class ComponentModelContainer : IContainer
 
     private bool InternalTryResolve<T>(string? name, bool throwIfError, out T? value)
     {
-        value = default(T);
+        value = default(T)!;
         if (null == Instance)
         {
             if (throwIfError)

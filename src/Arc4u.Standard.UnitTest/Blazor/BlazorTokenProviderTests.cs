@@ -69,7 +69,7 @@ public class BlazorTokenProviderTests
 
         // assert
         token.Should().NotBeNull();
-        token.Token.Should().Be(accessToken);
+        token!.Token.Should().Be(accessToken);
 
         mockInterop.Verify(m => m.OpenWindowAsync(It.IsAny<IJSRuntime>(), It.IsAny<ILocalStorageService>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
         mockLocalStorage.Verify(p => p.GetItemAsStringAsync("token", It.IsAny<CancellationToken>()), Times.Once);

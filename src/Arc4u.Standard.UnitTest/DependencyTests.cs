@@ -521,8 +521,8 @@ public class DependencyTests
         container.CreateContainer();
 
         Assert.NotNull(container.Resolve<IGenerator>());
-        var id1 = container.Resolve<IGenerator>().Id;
-        var id2 = container.Resolve<IGenerator>().Id;
+        var id1 = container.Resolve<IGenerator>()?.Id;
+        var id2 = container.Resolve<IGenerator>()?.Id;
         Assert.Equal(id1, id2);
     }
 
@@ -536,8 +536,8 @@ public class DependencyTests
         container.TryResolve<IGenerator>(out var gen);
         Assert.Null(gen);
         Assert.NotNull(container.Resolve<IGenerator>("Generator2"));
-        var id1 = container.Resolve<IGenerator>("Generator2").Id;
-        var id2 = container.Resolve<IGenerator>("Generator2").Id;
+        var id1 = container.Resolve<IGenerator>("Generator2")?.Id;
+        var id2 = container.Resolve<IGenerator>("Generator2")?.Id;
         Assert.Equal(id1, id2);
     }
 
