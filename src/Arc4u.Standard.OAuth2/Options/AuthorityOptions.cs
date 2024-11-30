@@ -1,12 +1,8 @@
-using System;
-using System.Net.Http;
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
 using System.Net.Http.Json;
 #else
 using System.Text.Json;
 #endif
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Arc4u.OAuth2.Options;
 
@@ -65,14 +61,13 @@ public class AuthorityOptions
         return MetaDataAddress;
     }
 
-
     public async Task<Uri> GetEndpointAsync(CancellationToken cancellationToken)
     {
         if (TokenEndpoint is null)
         {
             using var client = new HttpClient();
             OpenIdConfiguration? openIdConfiguration;
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
             openIdConfiguration = await client.GetFromJsonAsync<OpenIdConfiguration>(GetMetaDataAddress(), cancellationToken).ConfigureAwait(false);
 #else
             using var stream = await client.GetStreamAsync(GetMetaDataAddress()).ConfigureAwait(false);

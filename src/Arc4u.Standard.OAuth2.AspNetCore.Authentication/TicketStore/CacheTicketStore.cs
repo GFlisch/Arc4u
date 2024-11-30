@@ -1,5 +1,3 @@
-using System;
-using System.Threading.Tasks;
 using Arc4u.Caching;
 using Arc4u.Diagnostics;
 using Microsoft.AspNetCore.Authentication;
@@ -66,6 +64,12 @@ public class CacheTicketStore : ITicketStore
         try
         {
             var content = await _cache.GetAsync<byte[]>(key).ConfigureAwait(false);
+
+            if (content is null)
+            {
+                _logger.Technical().LogError($"No Authentication ticket from the cache with key {key}.");
+                return null;
+            }
 
             var ticket = TicketSerializer.Default.Deserialize(content);
             if (ticket is null)

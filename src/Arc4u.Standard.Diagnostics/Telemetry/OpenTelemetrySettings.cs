@@ -1,17 +1,16 @@
-﻿using System.Collections.Generic;
+namespace Arc4u.Diagnostics;
 
-namespace Arc4u.Diagnostics
+public class OpenTelemetrySettings
 {
-    public class OpenTelemetrySettings
+    public OpenTelemetrySettings()
     {
-        public OpenTelemetrySettings()
-        {
-            Attributes = new Dictionary<string, object>();
-        }
-        public string Address { get; set; }
-
-        public Dictionary<string, object> Attributes { get; set; }
-
-        public List<string> Sources { get; set; }
+        Attributes = [];
+        Address = string.Empty;
+        Sources = [];
     }
+    public string Address { get; set; }
+
+    public Dictionary<string, object> Attributes { get; set; }
+
+    public List<string> Sources { get; set; }
 }

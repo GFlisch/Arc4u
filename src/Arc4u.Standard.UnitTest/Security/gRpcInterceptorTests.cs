@@ -1,9 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Threading;
 using Arc4u.Caching;
 using Arc4u.Configuration;
 using Arc4u.Dependency;
@@ -11,7 +7,9 @@ using Arc4u.Dependency.ComponentModel;
 using Arc4u.Diagnostics;
 using Arc4u.gRPC.Interceptors;
 using Arc4u.OAuth2;
+using Arc4u.OAuth2.AspNetCore;
 using Arc4u.OAuth2.Extensions;
+using Arc4u.OAuth2.Options;
 using Arc4u.OAuth2.Security.Principal;
 using Arc4u.OAuth2.Token;
 using Arc4u.OAuth2.TokenProvider;
@@ -20,7 +18,9 @@ using Arc4u.Security.Principal;
 using AutoFixture;
 using AutoFixture.AutoMoq;
 using FluentAssertions;
+using Grpc.Core;
 using Grpc.Core.Interceptors;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -29,10 +29,6 @@ using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
 using static Grpc.Core.Interceptors.Interceptor;
-using Grpc.Core;
-using Arc4u.OAuth2.Options;
-using Microsoft.AspNetCore.Http;
-using Arc4u.OAuth2.AspNetCore;
 
 namespace Arc4u.UnitTest.Security;
 
@@ -93,7 +89,7 @@ public class GRpcInterceptorTests
                          }).Build();
 
         // Define an access token that will be used as the return of the call to the CredentialDirect token credential provider.
-        var jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
+        var jwt = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
         var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
@@ -119,30 +115,33 @@ public class GRpcInterceptorTests
         container.RegisterInstance<IHttpContextAccessor>(mockHttpContextAccessor.Object);
         container.CreateContainer();
 
-        var scopedServiceAccessor = container.Resolve<IScopedServiceProviderAccessor>();
-
         // Create a scope to be in the context majority of the time a business code is.
         using var scopedContainer = container.CreateScope();
-
-        scopedServiceAccessor.ServiceProvider = scopedContainer.ServiceProvider;
+        var scopedServiceAccessor = scopedContainer.Resolve<IScopedServiceProviderAccessor>();
+        scopedServiceAccessor!.ServiceProvider = scopedContainer.ServiceProvider;
 
         var tokenRefresh = scopedContainer.Resolve<TokenRefreshInfo>();
-        tokenRefresh.RefreshToken = new TokenInfo("refresh_token", Guid.NewGuid().ToString(), DateTime.UtcNow.AddHours(1));
-        tokenRefresh.AccessToken = new TokenInfo("access_token", accessToken);
+        tokenRefresh!.RefreshToken = new TokenInfo("refresh_token", Guid.NewGuid().ToString(), DateTime.UtcNow.AddHours(1));
+        tokenRefresh!.AccessToken = new TokenInfo("access_token", accessToken);
+
+        var principal = new AppPrincipal(new Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0")
+        {
+            Profile = UserProfile.Empty
+        };
 
         // Define a Principal with no OAuth2Bearer token here => we test the injection.
         var appContext = scopedContainer.Resolve<IApplicationContext>();
-        appContext.SetPrincipal(new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.CookiesAuthenticationType), "S-1-0-0"));
+        appContext!.SetPrincipal(principal);
 
         var setingsOptions = scopedContainer.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
 
         var mockMethod = _fixture.Freeze<Mock<Method<string, string>>>();
 
-        var mockClientInterceptorContext = new ClientInterceptorContext<string, string>(mockMethod.Object, "host", new CallOptions(new Metadata()));
+        var mockClientInterceptorContext = new ClientInterceptorContext<string, string>(mockMethod.Object, "host", new CallOptions([]));
         var mock = _fixture.Freeze<Mock<BlockingUnaryCallContinuation<string, string>>>();
 
         // Act
-        var sut = new InterceptorTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<InterceptorTest>>(), setingsOptions, Constants.OpenIdOptionsName);
+        var sut = new InterceptorTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<InterceptorTest>>()!, setingsOptions!, Constants.OpenIdOptionsName);
 
         sut.BlockingUnaryCall<string, string>("Test", mockClientInterceptorContext, mock.Object);
 
@@ -167,7 +166,7 @@ public class GRpcInterceptorTests
                          }).Build();
 
         // Define an access token that will be used as the return of the call to the CredentialDirect token credential provider.
-        var jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
+        var jwt = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
         var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
@@ -195,21 +194,26 @@ public class GRpcInterceptorTests
         // Create a scope to be in the context majority of the time a business code is.
         using var scopedContainer = container.CreateScope();
 
-        scopedServiceAccessor.ServiceProvider = scopedContainer.ServiceProvider;
+        scopedServiceAccessor!.ServiceProvider = scopedContainer.ServiceProvider;
+
+        var principal = new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.CookiesAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0")
+        {
+            Profile = UserProfile.Empty
+        };
 
         // Define a Principal with no OAuth2Bearer token here => we test the injection.
         var appContext = scopedContainer.Resolve<IApplicationContext>();
-        appContext.SetPrincipal(new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0"));
+        appContext!.SetPrincipal(principal);
 
         var setingsOptions = scopedContainer.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
 
         var mockMethod = _fixture.Freeze<Mock<Method<string, string>>>();
 
-        var mockClientInterceptorContext = new ClientInterceptorContext<string, string>(mockMethod.Object, "host", new CallOptions(new Metadata()));
+        var mockClientInterceptorContext = new ClientInterceptorContext<string, string>(mockMethod.Object, "host", new CallOptions([]));
         var mock = _fixture.Freeze<Mock<BlockingUnaryCallContinuation<string, string>>>();
 
         // Act
-        var sut = new InterceptorTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<InterceptorTest>>(), setingsOptions, "OAuth2");
+        var sut = new InterceptorTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<InterceptorTest>>()!, setingsOptions!, "OAuth2");
 
         sut.BlockingUnaryCall<string, string>("Test", mockClientInterceptorContext, mock.Object);
 
@@ -233,7 +237,7 @@ public class GRpcInterceptorTests
             ["Authentication:ClientSecrets:Client1:Credential"] = $"{options.User}:password",
             ["Authentication:DefaultAuthority:Url"] = "https://login.microsoft.com"
         };
-        foreach(var scope in options.Scopes)
+        foreach (var scope in options.Scopes)
         {
             configDic.Add($"Authentication:ClientSecrets:Client1:Scopes:{options.Scopes.IndexOf(scope)}", scope);
         }
@@ -241,7 +245,7 @@ public class GRpcInterceptorTests
                      .AddInMemoryCollection(configDic).Build();
 
         // Define an access token that will be used as the return of the call to the CredentialDirect token credential provider.
-        var jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
+        var jwt = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
         var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
@@ -265,7 +269,7 @@ public class GRpcInterceptorTests
 
         // Mock the cache used by the Credential token provider.
         var mockTokenCache = _fixture.Freeze<Mock<ITokenCache>>();
-        mockTokenCache.Setup(m => m.Get<TokenInfo>(It.IsAny<string>())).Returns((TokenInfo)null);
+        mockTokenCache.Setup(m => m.Get<TokenInfo?>(It.IsAny<string>())).Returns((TokenInfo?)null);
         mockTokenCache.Setup(m => m.Put<TokenInfo>(It.IsAny<string>(), It.IsAny<TokenInfo>()));
 
         // Register the different TokenProvider and CredentialTokenProviders.
@@ -283,17 +287,26 @@ public class GRpcInterceptorTests
         // Create a scope to be in the context majority of the time a business code is.
         using var scopedContainer = container.CreateScope();
 
-        scopedServiceAccessor.ServiceProvider = scopedContainer.ServiceProvider;
+        var principal = new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.CookiesAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0")
+        {
+            Profile = UserProfile.Empty
+        };
+
+        // Define a Principal with no OAuth2Bearer token here => we test the injection.
+        var appContext = scopedContainer.Resolve<IApplicationContext>();
+        appContext!.SetPrincipal(principal);
+
+        scopedServiceAccessor!.ServiceProvider = scopedContainer.ServiceProvider;
 
         var setingsOptions = scopedContainer.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
 
         var mockMethod = _fixture.Freeze<Mock<Method<string, string>>>();
 
-        var mockClientInterceptorContext = new ClientInterceptorContext<string, string>(mockMethod.Object, "host", new CallOptions(new Metadata()));
+        var mockClientInterceptorContext = new ClientInterceptorContext<string, string>(mockMethod.Object, "host", new CallOptions([]));
         var mock = _fixture.Freeze<Mock<BlockingUnaryCallContinuation<string, string>>>();
 
         // Act
-        var sut = new InterceptorTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<InterceptorTest>>(), setingsOptions, "Client1");
+        var sut = new InterceptorTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<InterceptorTest>>()!, setingsOptions!, "Client1");
 
         sut.BlockingUnaryCall<string, string>("Test", mockClientInterceptorContext, mock.Object);
 
@@ -343,17 +356,26 @@ public class GRpcInterceptorTests
         // Create a scope to be in the context majority of the time a business code is.
         using var scopedContainer = container.CreateScope();
 
-        scopedServiceAccessor.ServiceProvider = scopedContainer.ServiceProvider;
+        var principal = new AppPrincipal(new Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = string.Empty }, "S-1-0-0")
+        {
+            Profile = UserProfile.Empty
+        };
+
+        // Define a Principal with no OAuth2Bearer token here => we test the injection.
+        var appContext = scopedContainer.Resolve<IApplicationContext>();
+        appContext!.SetPrincipal(principal);
+
+        scopedServiceAccessor!.ServiceProvider = scopedContainer.ServiceProvider;
 
         var setingsOptions = scopedContainer.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
 
         var mockMethod = _fixture.Freeze<Mock<Method<string, string>>>();
 
-        var mockClientInterceptorContext = new ClientInterceptorContext<string, string>(mockMethod.Object, "host", new CallOptions(new Metadata()));
+        var mockClientInterceptorContext = new ClientInterceptorContext<string, string>(mockMethod.Object, "host", new CallOptions([]));
         var mock = _fixture.Freeze<Mock<BlockingUnaryCallContinuation<string, string>>>();
 
         // Act
-        var sut = new InterceptorTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<InterceptorTest>>(), setingsOptions, "Remote1");
+        var sut = new InterceptorTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<InterceptorTest>>()!, setingsOptions!, "Remote1");
 
         sut.BlockingUnaryCall<string, string>("Test", mockClientInterceptorContext, mock.Object);
 
@@ -403,17 +425,26 @@ public class GRpcInterceptorTests
         // Create a scope to be in the context majority of the time a business code is.
         using var scopedContainer = container.CreateScope();
 
-        scopedServiceAccessor.ServiceProvider = scopedContainer.ServiceProvider;
+        var principal = new AppPrincipal(new Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = string.Empty }, "S-1-0-0")
+        {
+            Profile = UserProfile.Empty
+        };
+
+        // Define a Principal with no OAuth2Bearer token here => we test the injection.
+        var appContext = scopedContainer.Resolve<IApplicationContext>();
+        appContext!.SetPrincipal(principal);
+
+        scopedServiceAccessor!.ServiceProvider = scopedContainer.ServiceProvider;
 
         var setingsOptions = scopedContainer.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
 
         var mockMethod = _fixture.Freeze<Mock<Method<string, string>>>();
 
-        var mockClientInterceptorContext = new ClientInterceptorContext<string, string>(mockMethod.Object, "host", new CallOptions(new Metadata()));
+        var mockClientInterceptorContext = new ClientInterceptorContext<string, string>(mockMethod.Object, "host", new CallOptions([]));
         var mock = _fixture.Freeze<Mock<BlockingUnaryCallContinuation<string, string>>>();
 
         // Act
-        var sut = new InterceptorTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<InterceptorTest>>(), setingsOptions, "Remote1");
+        var sut = new InterceptorTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<InterceptorTest>>()!, setingsOptions!, "Remote1");
 
         sut.BlockingUnaryCall<string, string>("Test", mockClientInterceptorContext, mock.Object);
 
@@ -442,7 +473,7 @@ public class GRpcInterceptorTests
                          }).Build();
 
         // Define an access token that will be used as the return of the call to the CredentialDirect token credential provider.
-        var jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
+        var jwt = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
         var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
@@ -460,9 +491,8 @@ public class GRpcInterceptorTests
         services.AddScoped<TokenRefreshInfo>();
         services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
 
-
         var mockActivitySourceFactory = new Mock<IActivitySourceFactory>();
-        mockActivitySourceFactory.Setup(m => m.Get("Arc4u", null)).Returns((ActivitySource)null);
+        mockActivitySourceFactory.Setup(m => m.Get("Arc4u", null)).Returns<string?>(default!);
         services.AddSingleton<IActivitySourceFactory>(mockActivitySourceFactory.Object);
 
         // Used the cache to return the access token in the Obo provider => avoid any call to the Authority!
@@ -486,21 +516,23 @@ public class GRpcInterceptorTests
         // Create a scope to be in the context majority of the time a business code is.
         using var scopedContainer = container.CreateScope();
 
-        scopedServiceAccessor.ServiceProvider = scopedContainer.ServiceProvider;
+        scopedServiceAccessor!.ServiceProvider = scopedContainer.ServiceProvider;
 
+        var principal = new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0");
+        principal.Profile = UserProfile.Empty;
         // Define a Principal with no OAuth2Bearer token here => we test the injection.
         var appContext = scopedContainer.Resolve<IApplicationContext>();
-        appContext.SetPrincipal(new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0"));
+        appContext!.SetPrincipal(principal);
 
         var setingsOptions = scopedContainer.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
 
         var mockMethod = _fixture.Freeze<Mock<Method<string, string>>>();
 
-        var mockClientInterceptorContext = new ClientInterceptorContext<string, string>(mockMethod.Object, "host", new CallOptions(new Metadata()));
+        var mockClientInterceptorContext = new ClientInterceptorContext<string, string>(mockMethod.Object, "host", new CallOptions([]));
         var mock = _fixture.Freeze<Mock<BlockingUnaryCallContinuation<string, string>>>();
 
         // Act
-        var sut = new InterceptorTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<InterceptorTest>>(), setingsOptions, "Obo");
+        var sut = new InterceptorTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<InterceptorTest>>()!, setingsOptions!, "Obo");
 
         sut.BlockingUnaryCall<string, string>("Test", mockClientInterceptorContext, mock.Object);
 
@@ -525,7 +557,7 @@ public class GRpcInterceptorTests
                          }).Build();
 
         // Define an access token that will be used as the return of the call to the CredentialDirect token credential provider.
-        var jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
+        var jwt = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
         var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
@@ -539,24 +571,29 @@ public class GRpcInterceptorTests
         services.AddScoped<IApplicationContext, ApplicationInstanceContext>();
         services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
 
-                // Register the different TokenProvider and CredentialTokenProviders.
+        // Register the different TokenProvider and CredentialTokenProviders.
         var container = new ComponentModelContainer(services);
         container.Register<ITokenProvider, BootstrapContextTokenProvider>("Bootstrap");
         container.CreateContainer();
 
+        var principal = new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.CookiesAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0")
+        {
+            Profile = UserProfile.Empty
+        };
+
         // Define a Principal with no OAuth2Bearer token here => we test the injection.
         var appContext = container.Resolve<IApplicationContext>();
-        appContext.SetPrincipal(new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0"));
+        appContext!.SetPrincipal(principal);
 
         var setingsOptions = container.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
 
         var mockMethod = _fixture.Freeze<Mock<Method<string, string>>>();
 
-        var mockClientInterceptorContext = new ClientInterceptorContext<string, string>(mockMethod.Object, "host", new CallOptions(new Metadata()));
+        var mockClientInterceptorContext = new ClientInterceptorContext<string, string>(mockMethod.Object, "host", new CallOptions([]));
         var mock = _fixture.Freeze<Mock<BlockingUnaryCallContinuation<string, string>>>();
 
         // Act
-        var sut = new InterceptorClientTest(container, container.Resolve<ILogger<InterceptorTest>>(), setingsOptions, "OAuth2");
+        var sut = new InterceptorClientTest(container, container.Resolve<ILogger<InterceptorTest>>()!, setingsOptions!, "OAuth2");
 
         sut.BlockingUnaryCall<string, string>("Test", mockClientInterceptorContext, mock.Object);
 

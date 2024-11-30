@@ -1,17 +1,15 @@
-using AutoFixture.AutoMoq;
+using Arc4u.Configuration;
+using Arc4u.OAuth2;
+using Arc4u.OAuth2.Middleware;
+using Arc4u.OAuth2.Options;
+using Arc4u.OAuth2.Token;
 using AutoFixture;
-using Xunit;
+using AutoFixture.AutoMoq;
+using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using System.Collections.Generic;
-using Arc4u.OAuth2;
-using FluentAssertions;
-using Arc4u.OAuth2.Token;
-using Arc4u.OAuth2.Middleware;
-using Arc4u.OAuth2.Options;
-using System.Linq;
-using Arc4u.Configuration;
+using Xunit;
 
 namespace Arc4u.UnitTest;
 
@@ -54,9 +52,7 @@ public class BasicSettingsOptionsTests
     {
         var config = new ConfigurationBuilder()
                      .AddInMemoryCollection(
-                         new Dictionary<string, string?>
-                         {
-                         }).Build();
+                         []).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -73,9 +69,7 @@ public class BasicSettingsOptionsTests
     {
         var config = new ConfigurationBuilder()
                      .AddInMemoryCollection(
-                         new Dictionary<string, string?>
-                         {
-                         }).Build();
+                         []).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -141,7 +135,7 @@ public class BasicSettingsOptionsTests
             ["Authentication:Basic:Settings:AuthenticationType"] = options.AuthenticationType,
             ["Authentication:Basic:DefaultUpn"] = "@arc4u.net",
         };
-        foreach(var scope in options.Scopes)
+        foreach (var scope in options.Scopes)
         {
             configDic.Add($"Authentication:Basic:Settings:Scopes:{options.Scopes.IndexOf(scope)}", scope);
         }
@@ -177,7 +171,7 @@ public class BasicSettingsOptionsTests
             ["Authentication:Basic:Certificates:Cert1:File:Cert"] = @".\Configs\cert.pem",
             ["Authentication:Basic:Certificates:Cert1:File:Key"] = @".\Configs\key.pem",
         };
-        foreach(var scope in options.Scopes)
+        foreach (var scope in options.Scopes)
         {
             configDic.Add($"Authentication:Basic:Settings:Scopes:{options.Scopes.IndexOf(scope)}", scope);
         }

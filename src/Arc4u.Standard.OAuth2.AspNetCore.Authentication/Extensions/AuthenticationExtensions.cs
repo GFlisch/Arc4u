@@ -18,6 +18,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
+using X509CertificateLoader = Arc4u.Security.Cryptography.X509CertificateLoader;
 
 namespace Arc4u.OAuth2.Extensions;
 
@@ -31,30 +32,12 @@ public static partial class AuthenticationExtensions
         var oidcOptions = new OidcAuthenticationOptions();
         authenticationOptions(oidcOptions);
 
-        if (oidcOptions.OAuth2SettingsOptions is null)
-        {
-            throw new ArgumentNullException(nameof(authenticationOptions), $"{nameof(oidcOptions.OAuth2SettingsOptions)} is not defined");
-        }
-        if (oidcOptions.OpenIdSettingsOptions is null)
-        {
-            throw new ArgumentNullException(nameof(authenticationOptions), $"{nameof(oidcOptions.OpenIdSettingsOptions)} is not defined");
-        }
+        ValidateOidcOptions(oidcOptions);
 
         if (oidcOptions.AuthenticationCacheTicketStoreOption is not null)
         {
             services.AddCacheTicketStore(oidcOptions.AuthenticationCacheTicketStoreOption);
         }
-
-        // We want to protect keys with a certificate, which can be either provided via configuration, or explicitly.
-        // It is an error if no certificate was provided either way
-        if (oidcOptions.Certificate is null)
-        {
-            throw new ConfigurationException("No certificate was provided for data protection");
-        }
-
-        // The Metadata address is retrieved from the DefaultAuthority!
-        ArgumentNullException.ThrowIfNull(oidcOptions.DefaultAuthority.GetMetaDataAddress());
-        ArgumentNullException.ThrowIfNull(oidcOptions.DefaultAuthority.MetaDataAddress); // should never be the case!
 
         services.AddDataProtection()
           .PersistKeysToCache(oidcOptions.DataProtectionCacheStoreOption)
@@ -64,22 +47,20 @@ public static partial class AuthenticationExtensions
 
         services.Configure(authenticationOptions);
         services.AddClaimsIdentifier(oidcOptions.ClaimsIdentifierOptions);
-        // Will keep in memory the AccessToken and Refresh token for the time of the request...
         services.AddScoped<TokenRefreshInfo>();
         services.AddAuthorizationCore();
-        services.AddHttpContextAccessor(); // give access to the HttpContext if requested by an external packages.
+        services.AddHttpContextAccessor();
         services.AddTransient(oidcOptions.CookieAuthenticationEventsType);
         services.AddTransient(oidcOptions.JwtBearerEventsType);
         services.AddTransient(oidcOptions.OpenIdConnectEventsType);
-        services.AddSingleton(typeof(IPostConfigureOptions<CookieAuthenticationOptions>), oidcOptions.CookiesConfigureOptionsType);
+        services.AddSingleton(typeof(IPostConfigureOptions<CookieAuthenticationOptions>), oidcOptions.CookiesConfigureOptionsType!);
 
         services.AddDefaultAuthority(options =>
         {
             options.SetData(oidcOptions.DefaultAuthority.Url, oidcOptions.DefaultAuthority.TokenEndpoint, oidcOptions.DefaultAuthority.MetaDataAddress);
         });
-        // store the configuration => this will be used by the AddCookies to define the ITicketStore implementation.
-        services.Configure<OidcAuthenticationOptions>(authenticationOptions);
 
+        services.Configure<OidcAuthenticationOptions>(authenticationOptions);
         services.ConfigureOAuth2Settings(oidcOptions.OAuth2SettingsOptions, oidcOptions.OAuth2SettingsKey);
         services.ConfigureOpenIdSettings(oidcOptions.OpenIdSettingsOptions, oidcOptions.OpenIdSettingsKey);
 
@@ -89,7 +70,6 @@ public static partial class AuthenticationExtensions
         var openIdOptions = new OpenIdSettingsOption();
         oidcOptions.OpenIdSettingsOptions(openIdOptions);
 
-        // OAuth2.
         SecurityKey? securityKey = oidcOptions.CertSecurityKey is not null ? new X509SecurityKey(oidcOptions.CertSecurityKey) : null;
 
         var authenticationBuilder = services
@@ -110,65 +90,78 @@ public static partial class AuthenticationExtensions
                         }
 
                         return OpenIdConnectDefaults.AuthenticationScheme;
-
                     };
                 })
                 .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
                 {
-                    // cookie will not be limited in time by the life time of the access token.
-                    options.UsePkce = true; // Impact on the security. It is best to do this...
-                    options.UseTokenLifetime = false;
-                    options.SaveTokens = false;
-                    options.Authority = openIdOptions.Authority is null ? oidcOptions.DefaultAuthority.Url.ToString() : openIdOptions.Authority.Url.ToString();
-                    options.RequireHttpsMetadata = oidcOptions.DefaultAuthority.MetaDataAddress.Scheme.Equals(Uri.UriSchemeHttps, StringComparison.InvariantCultureIgnoreCase);
-                    options.MetadataAddress = oidcOptions.DefaultAuthority.MetaDataAddress.ToString();
-                    options.ResponseType = oidcOptions.ResponseType;
-                    options.CallbackPath = oidcOptions.CallbackPath;
-                    options.Scope.Clear();
-                    openIdOptions.Scopes.ForEach((scope) => options.Scope.Add(scope));
-                    options.ClientId = openIdOptions.ClientId;
-                    options.ClientSecret = openIdOptions.ClientSecret;
-                    // we don't call the user info endpoint => On AzureAd the user.read scope is needed.
-                    options.GetClaimsFromUserInfoEndpoint = false;
-
-                    options.TokenValidationParameters.SaveSigninToken = false;
-                    options.TokenValidationParameters.AuthenticationType = openIdOptions.AuthenticationType;
-                    options.TokenValidationParameters.ValidateAudience = oidcOptions.ValidateAudience;
-                    options.TokenValidationParameters.ValidAudiences = openIdOptions.Audiences;
-
-                    // we will use the same key to generate and validate so we can use this also in the different services...
-                    if (securityKey is not null)
-                    {
-                        options.TokenValidationParameters.IssuerSigningKey = securityKey;
-                    }
-                    options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                    options.SaveTokens = true;
-                    options.AuthenticationMethod = OpenIdConnectRedirectBehavior.FormPost;
-                    // AzureAD
-                    options.ResponseMode = OpenIdConnectResponseMode.FormPost;
-
-                    options.EventsType = oidcOptions.OpenIdConnectEventsType;
+                    ConfigureOpenIdConnectOptions(options, oidcOptions, openIdOptions, securityKey);
                 })
                 .AddJwtBearer(option =>
                 {
-                    option.RequireHttpsMetadata = oidcOptions.DefaultAuthority.MetaDataAddress.Scheme.Equals(Uri.UriSchemeHttps, StringComparison.InvariantCultureIgnoreCase);
-                    option.Authority = oauth2Options.Authority is null ? oidcOptions.DefaultAuthority.Url.ToString() : oauth2Options.Authority.Url.ToString();
-                    option.MetadataAddress = oidcOptions.DefaultAuthority.MetaDataAddress.ToString();
-                    option.SaveToken = true;
-                    option.TokenValidationParameters.SaveSigninToken = false;
-                    option.TokenValidationParameters.AuthenticationType = oauth2Options.AuthenticationType;
-                    option.TokenValidationParameters.ValidateIssuer = false;
-                    option.TokenValidationParameters.ValidateAudience = oauth2Options.ValidateAudience;
-                    option.TokenValidationParameters.ValidAudiences = oauth2Options.Audiences;
-                    if (securityKey is not null)
-                    {
-                        option.TokenValidationParameters.IssuerSigningKey = securityKey;
-                    }
-                    option.EventsType = oidcOptions.JwtBearerEventsType;
-                }).AddCookie(); // => by injection!
+                    ConfigureJwtBearerOptions(option, oidcOptions, oauth2Options, securityKey);
+                }).AddCookie();
 
         return authenticationBuilder;
+    }
 
+    private static void ValidateOidcOptions(OidcAuthenticationOptions oidcOptions)
+    {
+        ArgumentNullException.ThrowIfNull(oidcOptions.OAuth2SettingsOptions);
+        ArgumentNullException.ThrowIfNull(oidcOptions.OpenIdSettingsOptions);
+        ArgumentNullException.ThrowIfNull(oidcOptions.Certificate);
+        ArgumentNullException.ThrowIfNull(oidcOptions.DefaultAuthority.MetaDataAddress);
+    }
+
+    private static void ConfigureOpenIdConnectOptions(OpenIdConnectOptions options, OidcAuthenticationOptions oidcOptions, OpenIdSettingsOption openIdOptions, SecurityKey? securityKey)
+    {
+        ArgumentNullException.ThrowIfNull(oidcOptions.DefaultAuthority.MetaDataAddress);
+
+        options.UsePkce = true;
+        options.UseTokenLifetime = false;
+        options.SaveTokens = false;
+        options.Authority = openIdOptions.Authority is null ? oidcOptions.DefaultAuthority.Url.ToString() : openIdOptions.Authority.Url.ToString();
+        options.RequireHttpsMetadata = oidcOptions.DefaultAuthority.MetaDataAddress.Scheme.Equals(Uri.UriSchemeHttps, StringComparison.InvariantCultureIgnoreCase);
+        options.MetadataAddress = oidcOptions.DefaultAuthority.MetaDataAddress.ToString();
+        options.ResponseType = oidcOptions.ResponseType;
+        options.CallbackPath = oidcOptions.CallbackPath;
+        options.Scope.Clear();
+        openIdOptions.Scopes.ForEach(options.Scope.Add);
+        options.ClientId = openIdOptions.ClientId;
+        options.ClientSecret = openIdOptions.ClientSecret;
+        options.GetClaimsFromUserInfoEndpoint = false;
+        options.TokenValidationParameters.SaveSigninToken = false;
+        options.TokenValidationParameters.AuthenticationType = openIdOptions.AuthenticationType;
+        options.TokenValidationParameters.ValidateAudience = oidcOptions.ValidateAudience;
+        options.TokenValidationParameters.ValidAudiences = openIdOptions.Audiences;
+        if (securityKey is not null)
+        {
+            options.TokenValidationParameters.IssuerSigningKey = securityKey;
+        }
+        options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        options.SaveTokens = true;
+        options.AuthenticationMethod = OpenIdConnectRedirectBehavior.FormPost;
+        options.ResponseMode = OpenIdConnectResponseMode.FormPost;
+        options.EventsType = oidcOptions.OpenIdConnectEventsType;
+    }
+
+    private static void ConfigureJwtBearerOptions(JwtBearerOptions option, OidcAuthenticationOptions oidcOptions, OAuth2SettingsOption oauth2Options, SecurityKey? securityKey)
+    {
+        ArgumentNullException.ThrowIfNull(oidcOptions.DefaultAuthority.MetaDataAddress);
+
+        option.RequireHttpsMetadata = oidcOptions.DefaultAuthority.MetaDataAddress.Scheme.Equals(Uri.UriSchemeHttps, StringComparison.InvariantCultureIgnoreCase);
+        option.Authority = oauth2Options.Authority is null ? oidcOptions.DefaultAuthority.Url.ToString() : oauth2Options.Authority.Url.ToString();
+        option.MetadataAddress = oidcOptions.DefaultAuthority.MetaDataAddress.ToString();
+        option.SaveToken = true;
+        option.TokenValidationParameters.SaveSigninToken = false;
+        option.TokenValidationParameters.AuthenticationType = oauth2Options.AuthenticationType;
+        option.TokenValidationParameters.ValidateIssuer = false;
+        option.TokenValidationParameters.ValidateAudience = oauth2Options.ValidateAudience;
+        option.TokenValidationParameters.ValidAudiences = oauth2Options.Audiences;
+        if (securityKey is not null)
+        {
+            option.TokenValidationParameters.IssuerSigningKey = securityKey;
+        }
+        option.EventsType = oidcOptions.JwtBearerEventsType;
     }
 
     public static AuthenticationBuilder AddOidcAuthentication(this IServiceCollection services, IConfiguration configuration, [DisallowNull] string authenticationSectionName = "Authentication", IX509CertificateLoader? certificateLoader = null)
@@ -238,17 +231,27 @@ public static partial class AuthenticationExtensions
 
         var jwtBearerEventsType = Type.GetType(settings.JwtBearerEventsType, false);
 
+        if (null == jwtBearerEventsType)
+        {
+            throw new MissingFieldException("The JwtBearerEventsType must be defined.");
+        }
+
         if (string.IsNullOrWhiteSpace(settings.CookieAuthenticationEventsType))
         {
             throw new MissingFieldException("The CookieAuthenticationEventsType must be defined.");
         }
-        var cookieAuthenticationEventsType = Type.GetType(settings.CookieAuthenticationEventsType, true);
+        var cookieAuthenticationEventsType = Type.GetType(settings.CookieAuthenticationEventsType, false);
+
+        if (null == cookieAuthenticationEventsType)
+        {
+            throw new MissingFieldException("The CookieAuthenticationEventsType must be defined.");
+        }
 
         if (string.IsNullOrWhiteSpace(settings.OpenIdConnectEventsType))
         {
             throw new MissingFieldException("The OpenIdConnectEventsType must be defined.");
         }
-        var openIdConnectEventsType = Type.GetType(settings.OpenIdConnectEventsType, false);
+        var openIdConnectEventsType = Type.GetType(settings.OpenIdConnectEventsType, false) ?? throw new MissingFieldException("The OpenIdConnectEventsType must be defined.");
 
         certificateLoader ??= new X509CertificateLoader(null);
         var certSecurityKey = string.IsNullOrWhiteSpace(settings.CertSecurityKeyPath) ? null : certificateLoader.FindCertificate(configuration, settings.CertSecurityKeyPath) ?? throw new MissingFieldException($"No certificate was found based on the configuration section: {settings.CertSecurityKeyPath}.");
@@ -256,6 +259,10 @@ public static partial class AuthenticationExtensions
         var cert = certificateLoader.FindCertificate(configuration, settings.CertificateSectionPath) ?? throw new MissingFieldException($"No certificate was found based on the configuration section: {settings.CertificateSectionPath}.");
 
         var ticketStoreAction = CacheTicketStoreExtension.PrepareAction(configuration, settings.AuthenticationCacheTicketStorePath);
+        if (null == ticketStoreAction)
+        {
+            throw new MissingFieldException("A TicketStore is mandatory to store the authentication ticket.");
+        }
 
         Type? cookiesConfigureOptionsType;
         if (string.IsNullOrWhiteSpace(settings.CookiesConfigureOptionsType))
@@ -277,7 +284,7 @@ public static partial class AuthenticationExtensions
             options.DefaultAuthority = settings.DefaultAuthority!;
             options.CookieName = settings.CookieName;
             options.ValidateAuthority = settings.ValidateAuthority;
-            options.AuthenticationCacheTicketStoreOption = ticketStoreAction;
+            options.AuthenticationCacheTicketStoreOption = ticketStoreAction!;
             options.OpenIdSettingsKey = settings.OpenIdSettingsKey;
             options.OpenIdSettingsOptions = OpenIdSettingsExtension.PrepareAction(configuration, settings.OpenIdSettingsSectionPath);
             options.OAuth2SettingsKey = settings.OAuth2SettingsKey;
@@ -285,7 +292,7 @@ public static partial class AuthenticationExtensions
             options.Certificate = cert;
             options.CallbackPath = settings.CallbackPath;
             options.DefaultKeyLifetime = settings.DefaultKeyLifetime;
-            options.ApplicationName = configuration[settings.ApplicationNameSectionPath];
+            options.ApplicationName = configuration[settings.ApplicationNameSectionPath]!;
             options.JwtBearerEventsType = jwtBearerEventsType;
             options.CookieAuthenticationEventsType = cookieAuthenticationEventsType;
             options.OpenIdConnectEventsType = openIdConnectEventsType;
@@ -381,19 +388,8 @@ public static partial class AuthenticationExtensions
         ArgumentNullException.ThrowIfNull(configuration);
         ArgumentNullException.ThrowIfNull(authenticationSectionName);
 
-        var section = configuration.GetSection(authenticationSectionName);
-
-        if (section is null)
-        {
-            throw new NullReferenceException($"No section exists with name {authenticationSectionName} in the configuration providers for OAuth2 Connect authentication.");
-        }
-
-        var settings = section.Get<JwtAuthenticationSectionOptions>();
-
-        if (settings is null)
-        {
-            throw new NullReferenceException($"No section exists with name {authenticationSectionName} in the configuration providers for OAuth2 Connect authentication.");
-        }
+        var section = configuration.GetSection(authenticationSectionName) ?? throw new NullReferenceException($"No section exists with name {authenticationSectionName} in the configuration providers for OAuth2 Connect authentication.");
+        var settings = section.Get<JwtAuthenticationSectionOptions>() ?? throw new NullReferenceException($"No section exists with name {authenticationSectionName} in the configuration providers for OAuth2 Connect authentication.");
 
         if (settings.DefaultAuthority is null)
         {
@@ -413,7 +409,9 @@ public static partial class AuthenticationExtensions
         X509Certificate2? certSecurityKey;
 
         if (string.IsNullOrWhiteSpace(settings.CertSecurityKeyPath))
+        {
             certSecurityKey = null;
+        }
         else
         {
             // we only need a non-null loader in this case

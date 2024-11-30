@@ -1,11 +1,7 @@
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Runtime.Serialization.Json;
 using System.Security.Claims;
 using System.Security.Principal;
-using System.Threading.Tasks;
 using Arc4u.Dependency;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
@@ -30,7 +26,7 @@ public class ClaimsBearerTokenExtractor : IClaimsFiller
     private readonly IContainerResolve _container;
     private readonly ILogger<ClaimsBearerTokenExtractor> _logger;
 
-    public async Task<IEnumerable<ClaimDto>> GetAsync(IIdentity identity, IEnumerable<IKeyValueSettings> settings, object parameter)
+    public async Task<IEnumerable<ClaimDto>> GetAsync(IIdentity identity, IEnumerable<IKeyValueSettings> settings, object? parameter)
     {
         var result = new List<ClaimDto>();
 
@@ -59,7 +55,7 @@ public class ClaimsBearerTokenExtractor : IClaimsFiller
 
         try
         {
-            JwtSecurityToken bearerToken = null;
+            JwtSecurityToken? bearerToken = null;
             if (null != claimsIdentity.BootstrapContext)
             {
                 bearerToken = new JwtSecurityToken(claimsIdentity.BootstrapContext.ToString());
@@ -72,8 +68,19 @@ public class ClaimsBearerTokenExtractor : IClaimsFiller
 
                 var provider = _container.Resolve<ITokenProvider>(providerSettings.Values[TokenKeys.ProviderIdKey]);
 
+                if (null == provider)
+                {
+                    throw new InvalidOperationException($"No token provider named: {providerSettings.Values[TokenKeys.ProviderIdKey]} is registered.");
+                }
+
                 _logger.Technical().System("Requesting an authentication token.").Log();
                 var tokenInfo = await provider.GetTokenAsync(providerSettings, claimsIdentity).ConfigureAwait(false);
+
+                if (null == tokenInfo)
+                {
+                    _logger.Technical().LogError("No token received from the provider.");
+                    return result;
+                }
 
                 bearerToken = new JwtSecurityToken(tokenInfo.Token);
             }

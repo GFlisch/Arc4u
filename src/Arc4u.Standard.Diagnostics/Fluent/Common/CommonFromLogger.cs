@@ -1,33 +1,31 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
 using System.Runtime.CompilerServices;
+using Microsoft.Extensions.Logging;
 
-namespace Arc4u.Diagnostics
+namespace Arc4u.Diagnostics;
+
+public class CommonFromLogger
 {
-    public class CommonFromLogger
+    internal CommonFromLogger(ILogger logger, MessageCategory category)
     {
-        internal CommonFromLogger(ILogger logger, MessageCategory category)
-        {
-            _logger = logger;
-            Category = category;
-        }
+        _logger = logger;
+        Category = category;
+    }
 
-        private readonly ILogger _logger;
-        private MessageCategory Category { get; set; }
+    private readonly ILogger _logger;
+    private MessageCategory Category { get; set; }
 
-        public CommonMessageLogger From<T>([CallerMemberName] string methodName = "")
-        {
-            return new CommonMessageLogger(_logger, Category, typeof(T).FullName, methodName);
-        }
+    public CommonMessageLogger From<T>([CallerMemberName] string methodName = "")
+    {
+        return new CommonMessageLogger(_logger, Category, typeof(T).FullName ?? throw new InvalidOperationException("Type fullname doesn't exist"), methodName);
+    }
 
-        public CommonMessageLogger From(object This, [CallerMemberName] string methodName = "")
-        {
-            return new CommonMessageLogger(_logger, Category, This?.GetType()?.FullName, methodName);
-        }
+    public CommonMessageLogger From(object This, [CallerMemberName] string methodName = "")
+    {
+        return new CommonMessageLogger(_logger, Category, This.GetType().FullName ?? throw new InvalidOperationException("Type fullname doesn't exist"), methodName);
+    }
 
-        public CommonMessageLogger From(Type type, [CallerMemberName] string methodName = "")
-        {
-            return new CommonMessageLogger(_logger, Category, type?.FullName, methodName);
-        }
+    public CommonMessageLogger From(Type type, [CallerMemberName] string methodName = "")
+    {
+        return new CommonMessageLogger(_logger, Category, type.FullName ?? throw new InvalidOperationException("Type fullname doesn't exist"), methodName);
     }
 }

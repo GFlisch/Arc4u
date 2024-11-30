@@ -1,19 +1,15 @@
+using System.Globalization;
 using Arc4u.Configuration.Dapr;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Dapr.Client;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Arc4u.Caching.Dapr;
 
 [Export("Dapr", typeof(ICache))]
-public class DaprCache : ICache
+public sealed class DaprCache : ICache
 {
     public DaprCache(ILogger<DaprCache> logger, IOptionsMonitor<DaprCacheOption> options)
     {
@@ -25,14 +21,14 @@ public class DaprCache : ICache
     private readonly IOptionsMonitor<DaprCacheOption> _options;
 
     private DaprClient? _daprClient;
-    private string _storeName;
+    private string _storeName = string.Empty;
 
     public void Dispose()
     {
         _daprClient?.Dispose();
     }
 
-    public TValue Get<TValue>(string key)
+    public TValue? Get<TValue>(string key)
     {
         if (_daprClient is null)
         {
@@ -42,7 +38,7 @@ public class DaprCache : ICache
         return _daprClient.GetStateAsync<TValue>(_storeName, key).GetAwaiter().GetResult();
     }
 
-    public async Task<TValue> GetAsync<TValue>(string key, CancellationToken cancellation = default)
+    public async Task<TValue?> GetAsync<TValue>(string key, CancellationToken cancellation = default)
     {
         if (_daprClient is null)
         {
@@ -82,10 +78,9 @@ public class DaprCache : ICache
 
                     throw;
                 }
-                
+
             }
         }
-
     }
 
     public void Put<T>(string key, T value)
@@ -104,7 +99,7 @@ public class DaprCache : ICache
             throw new NotSupportedException("Sliding is not supported in Dapr State.");
         }
 
-        _daprClient!.SaveStateAsync(_storeName, key, value, metadata: new Dictionary<string, string> { { "ttlInSeconds", timeout.TotalSeconds.ToString() } }).GetAwaiter().GetResult();
+        _daprClient!.SaveStateAsync(_storeName, key, value, metadata: new Dictionary<string, string> { { "ttlInSeconds", timeout.TotalSeconds.ToString(CultureInfo.InvariantCulture) } }).GetAwaiter().GetResult();
     }
 
     public async Task PutAsync<T>(string key, T value, CancellationToken cancellation = default)
@@ -122,7 +117,7 @@ public class DaprCache : ICache
         {
             throw new NotSupportedException("Sliding is not supported in Dapr State.");
         }
-        
+
         await _daprClient!.SaveStateAsync(_storeName, key, value, metadata: new Dictionary<string, string> { { "ttlInSeconds", timeout.TotalSeconds.ToString(CultureInfo.InvariantCulture) } }, cancellationToken: cancellation).ConfigureAwait(false);
     }
 
@@ -160,7 +155,7 @@ public class DaprCache : ICache
         return true;
     }
 
-    public bool TryGetValue<TValue>(string key, out TValue value)
+    public bool TryGetValue<TValue>(string key, out TValue? value)
     {
         CheckIfInitialized();
 
@@ -176,7 +171,7 @@ public class DaprCache : ICache
         }
     }
 
-    public async Task<TValue> TryGetValueAsync<TValue>(string key, CancellationToken cancellation = default)
+    public async Task<TValue?> TryGetValueAsync<TValue>(string key, CancellationToken cancellation = default)
     {
         CheckIfInitialized();
 
@@ -191,13 +186,15 @@ public class DaprCache : ICache
     }
 
     // The reason why the cache is not initialized, this will be used when an exception is thrown.
-    protected string NotInitializedReason { get; set; }
+    string NotInitializedReason { get; set; } = string.Empty;
 
-    protected void CheckIfInitialized()
+    void CheckIfInitialized()
     {
         if (_daprClient is null)
         {
             throw new CacheNotInitializedException(NotInitializedReason);
         }
     }
+
+    public override string ToString() => _storeName ?? throw new InvalidOperationException("The Store name parameter must not be null.");
 }

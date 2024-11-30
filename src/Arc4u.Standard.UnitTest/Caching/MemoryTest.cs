@@ -1,19 +1,17 @@
-using AutoFixture.AutoMoq;
+using System.Globalization;
+using Arc4u.Caching;
+using Arc4u.Caching.Memory;
+using Arc4u.Configuration.Memory;
+using Arc4u.Dependency;
+using Arc4u.Serializer;
 using AutoFixture;
+using AutoFixture.AutoMoq;
+using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using System.Collections.Generic;
-using Xunit;
-using Arc4u.Caching.Memory;
-using System.Globalization;
-using FluentAssertions;
 using Moq;
-using Arc4u.Serializer;
-using Arc4u.Dependency;
-using System;
-using Arc4u.Configuration.Memory;
-using Arc4u.Caching;
+using Xunit;
 
 namespace Arc4u.UnitTest.Caching;
 
@@ -109,7 +107,7 @@ public class MemoryTest
         var serviceProvider = services.BuildServiceProvider();
 
         var mockIContainer = _fixture.Freeze<Mock<IContainerResolve>>();
-        IObjectSerialization serializer = serviceProvider.GetRequiredService<IObjectSerialization>();
+        var serializer = serviceProvider.GetRequiredService<IObjectSerialization>();
         mockIContainer.Setup(m => m.TryResolve<IObjectSerialization>(out serializer)).Returns(true);
 
         var mockIOptions = _fixture.Freeze<Mock<IOptionsMonitor<MemoryCacheOption>>>();
@@ -190,9 +188,9 @@ public class MemoryTest
         var serviceProvider = services.BuildServiceProvider();
 
         var mockIContainer = _fixture.Freeze<Mock<IContainerResolve>>();
-        IObjectSerialization serializer = serviceProvider.GetRequiredService<IObjectSerialization>();
+        var serializer = serviceProvider.GetRequiredService<IObjectSerialization>();
         mockIContainer.Setup(m => m.TryResolve<IObjectSerialization>(out serializer)).Returns(true);
-        
+
         var mockIOptions = _fixture.Freeze<Mock<IOptionsMonitor<MemoryCacheOption>>>();
         mockIOptions.Setup(m => m.Get("Store")).Returns(serviceProvider.GetService<IOptionsMonitor<MemoryCacheOption>>()!.Get("Store"));
 
@@ -206,7 +204,6 @@ public class MemoryTest
 
         exception = Record.Exception(() => cache.Put("test", "test"));
 
-        
         exception.Message.Should().StartWith("Memory Cache Store is not initialized. With exception: value must be non-negative.");
 
     }

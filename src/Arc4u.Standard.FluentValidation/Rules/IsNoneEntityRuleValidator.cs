@@ -1,30 +1,27 @@
-﻿using Arc4u.Data;
+using Arc4u.Data;
 using FluentValidation;
 using FluentValidation.Resources;
 using FluentValidation.Validators;
-using System;
-using System.Collections.Concurrent;
 
-namespace Arc4u.FluentValidation.Rules
+namespace Arc4u.FluentValidation.Rules;
+
+public class IsNoneEntityRuleValidator<T, TProperty> : PropertyValidator<T, TProperty> where T : IPersistEntity where TProperty : Enum
 {
-    public class IsNoneEntityRuleValidator<T, TProperty> : PropertyValidator<T, TProperty> where T : IPersistEntity where TProperty : Enum
+    const string ruleName = "IsNoneRuleValidator";
+    public override string Name => ruleName;
+
+    static IsNoneEntityRuleValidator()
     {
-        static string ruleName = "IsNoneRuleValidator";
-        public override string Name => ruleName;
+        var lgMgr = ValidatorOptions.Global.LanguageManager as LanguageManager;
+        lgMgr?.AddTranslation("en", ruleName, "PersistEntity is expected to be set as None and is {PropertyValue}.");
+    }
+    public override bool IsValid(ValidationContext<T> context, TProperty value)
+    {
+        return value.Equals(PersistChange.None);
+    }
 
-        static IsNoneEntityRuleValidator()
-        {
-            var lgMgr = ValidatorOptions.Global.LanguageManager as LanguageManager;
-            lgMgr?.AddTranslation("en", ruleName, "PersistEntity is expected to be set as None and is {PropertyValue}.");
-        }
-        public override bool IsValid(ValidationContext<T> context, TProperty value)
-        {
-            return value.Equals(PersistChange.None);
-        }
-
-        protected override string GetDefaultMessageTemplate(string errorCode)
-        {
-            return Localized(errorCode, Name);
-        }
+    protected override string GetDefaultMessageTemplate(string errorCode)
+    {
+        return Localized(errorCode, Name);
     }
 }

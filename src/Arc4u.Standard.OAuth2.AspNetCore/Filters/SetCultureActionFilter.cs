@@ -1,5 +1,3 @@
-using System.Threading;
-using System.Threading.Tasks;
 using Arc4u.Diagnostics;
 using Arc4u.Security.Principal;
 using Microsoft.AspNetCore.Mvc.Controllers;
@@ -27,7 +25,7 @@ public class SetCultureActionFilter : IAsyncActionFilter
 
             if (context.ActionDescriptor is ControllerActionDescriptor descriptor)
             {
-                _logger.Technical().From(descriptor.MethodInfo.DeclaringType, descriptor.MethodInfo.Name).Debug($"Thread UI Culture is set to {_application.Principal.Profile.CurrentCulture.Name}").Log();
+                _logger.Technical().From(descriptor.MethodInfo?.DeclaringType?.ToString() ?? "DeclaringType", descriptor.MethodInfo?.Name ?? "MethodInfo Name").Debug($"Thread UI Culture is set to {_application.Principal.Profile.CurrentCulture.Name}").Log();
             }
         }
 

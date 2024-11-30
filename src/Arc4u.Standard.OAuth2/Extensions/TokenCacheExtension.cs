@@ -1,4 +1,3 @@
-using System;
 using Arc4u.Configuration;
 using Arc4u.OAuth2.Options;
 using Microsoft.Extensions.Configuration;
@@ -9,15 +8,14 @@ public static class TokenCacheExtension
 {
     public static void AddTokenCache(this IServiceCollection services, Action<TokenCacheOptions> options)
     {
-        if (services is null)
-        {
-            throw new ArgumentNullException(nameof(services));
-        }
+#if NET8_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(options);
+#else
         if (options is null)
         {
             throw new ArgumentNullException(nameof(options));
         }
-
+#endif
         var tokenCacheOptions = new TokenCacheOptions();
         options(tokenCacheOptions);
 
@@ -26,10 +24,10 @@ public static class TokenCacheExtension
     }
     public static void AddTokenCache(this IServiceCollection services, IConfiguration configuration, string sectionName = "Authentication:TokenCache")
     {
-        if (services is null)
-        {
-            throw new ArgumentNullException(nameof(services));
-        }
+#if NET8_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(configuration);
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(sectionName);
+#else
         if (configuration is null)
         {
             throw new ArgumentNullException(nameof(configuration));
@@ -38,8 +36,9 @@ public static class TokenCacheExtension
         {
             throw new ArgumentNullException(sectionName);
         }
-
-        AddTokenCache(services, configuration.GetSection(sectionName).Get<TokenCacheOptions>());
+#endif
+        AddTokenCache(services,
+                      configuration.GetSection(sectionName)?.Get<TokenCacheOptions>() ?? throw new InvalidOperationException($"Section {sectionName} is not a valid one."));
     }
 
     private static void AddTokenCache(IServiceCollection services, TokenCacheOptions tokenCacheOptions)
@@ -49,7 +48,7 @@ public static class TokenCacheExtension
             throw new ConfigurationException("TokenCacheOptions is not defined in the configuration file.");
         }
 
-        if (String.IsNullOrWhiteSpace(tokenCacheOptions.CacheName))
+        if (string.IsNullOrWhiteSpace(tokenCacheOptions.CacheName))
         {
             throw new ConfigurationException("TokenCacheOptions.CacheName is not defined in the configuration file.");
         }

@@ -63,7 +63,7 @@ public static class FromResultToActionResultExtension
 
         ActionResult objectResult = new BadRequestResult();
         res
-#if NET8_0
+#if NET8_0_OR_GREATER
             .OnSuccessNotNull(value => objectResult = new CreatedResult(location, mapper(value)))
 #else
             .OnSuccessNotNull(value =>
@@ -407,8 +407,6 @@ public static class FromResultToActionResultExtension
 
         return objectResult;
     }
-
-
 
     public static ActionResult<T>
     ToActionCreatedResult<TResult, T>(this Result<TResult> result, Uri? location, [DisallowNull] Func<TResult, T> mapper)

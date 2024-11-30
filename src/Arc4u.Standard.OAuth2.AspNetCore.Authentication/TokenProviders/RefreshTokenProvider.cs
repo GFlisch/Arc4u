@@ -1,10 +1,5 @@
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Net.Http;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Options;
@@ -46,7 +41,7 @@ public class RefreshTokenProvider : ITokenRefreshProvider
     private readonly ILogger<RefreshTokenProvider> _logger;
     private readonly ActivitySource? _activitySource;
 
-    public async Task<TokenInfo> GetTokenAsync(IKeyValueSettings settings, object platformParameters)
+    public async Task<TokenInfo?> GetTokenAsync(IKeyValueSettings? settings, object? platformParameters)
     {
         ArgumentNullException.ThrowIfNull(_tokenRefreshInfo);
         ArgumentNullException.ThrowIfNull(_openIdConnectOptions);
@@ -62,13 +57,13 @@ public class RefreshTokenProvider : ITokenRefreshProvider
             throw new InvalidOperationException("Refreshing the token is impossible, validity date is expired.");
         }
 
-        var options = _openIdConnectOptions.Get(OpenIdConnectDefaults.AuthenticationScheme);
+        var options = _openIdConnectOptions.Get(OpenIdConnectDefaults.AuthenticationScheme) ?? throw new InvalidCastException("The OpenIdConnectOptions is not found!");
         var metadata = await options!.ConfigurationManager!.GetConfigurationAsync(CancellationToken.None).ConfigureAwait(false);
 
         var pairs = new Dictionary<string, string>()
                                     {
-                                            { "client_id", options.ClientId },
-                                            { "client_secret", options.ClientSecret },
+                                            { "client_id", options.ClientId ?? string.Empty},
+                                            { "client_secret", options.ClientSecret ?? string.Empty },
                                             { "grant_type", "refresh_token" },
                                             { "refresh_token", _tokenRefreshInfo.RefreshToken.Token }
                                     };
@@ -92,23 +87,25 @@ public class RefreshTokenProvider : ITokenRefreshProvider
 
         if (tokenResponse.IsSuccessStatusCode)
         {
-            using (var payload = JsonDocument.Parse(await tokenResponse.Content.ReadAsStringAsync().ConfigureAwait(false)))
+            using var payload = JsonDocument.Parse(await tokenResponse.Content.ReadAsStringAsync().ConfigureAwait(false));
+            // Persist the new acess token
+            var refresh_token = payload!.RootElement!.GetString("refresh_token");
+            var access_token = payload!.RootElement!.GetString("access_token")!;
+            if (payload.RootElement.TryGetProperty("expires_in", out var property) && property.TryGetInt32(out var seconds))
             {
-                // Persist the new acess token
-                var refresh_token = payload!.RootElement!.GetString("refresh_token");
-                var access_token = payload!.RootElement!.GetString("access_token")!;
-                if (payload.RootElement.TryGetProperty("expires_in", out var property) && property.TryGetInt32(out var seconds))
+                var expirationAt = DateTimeOffset.UtcNow.AddSeconds(seconds).DateTime.ToUniversalTime();
+                _tokenRefreshInfo.AccessToken = new Token.TokenInfo("access_token", access_token, expirationAt);
+                if (!string.IsNullOrEmpty(refresh_token))
                 {
-                    var expirationAt = DateTimeOffset.UtcNow.AddSeconds(seconds).DateTime.ToUniversalTime();
-                    _tokenRefreshInfo.AccessToken = new Token.TokenInfo("access_token", access_token, expirationAt);
-                    if (!string.IsNullOrEmpty(refresh_token))
-                        _tokenRefreshInfo.RefreshToken = new Token.TokenInfo("refresh_token", refresh_token, expirationAt);
+                    _tokenRefreshInfo.RefreshToken = new Token.TokenInfo("refresh_token", refresh_token, expirationAt);
                 }
-                else
+            }
+            else
+            {
+                _tokenRefreshInfo.AccessToken = new Token.TokenInfo("access_token", access_token);
+                if (!string.IsNullOrEmpty(refresh_token))
                 {
-                    _tokenRefreshInfo.AccessToken = new Token.TokenInfo("access_token", access_token);
-                    if (!string.IsNullOrEmpty(refresh_token))
-                        _tokenRefreshInfo.RefreshToken = new Token.TokenInfo("refresh_token", refresh_token, _tokenRefreshInfo.RefreshToken.ExpiresOnUtc);
+                    _tokenRefreshInfo.RefreshToken = new Token.TokenInfo("refresh_token", refresh_token, _tokenRefreshInfo.RefreshToken.ExpiresOnUtc);
                 }
             }
         }

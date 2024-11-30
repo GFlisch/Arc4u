@@ -1,12 +1,10 @@
+using System.Text.Json;
 using Arc4u.Dependency.Attribute;
 using Arc4u.ServiceModel;
 using Google.Rpc;
 using Grpc.Core;
 using Grpc.Core.Interceptors;
 using GrpcRichError;
-using System;
-using System.Collections.Generic;
-using System.Text.Json;
 
 namespace Arc4u.gRPC.Interceptors;
 
@@ -16,13 +14,13 @@ namespace Arc4u.gRPC.Interceptors;
 [Export]
 public class ClientErrorInterceptor : Interceptor
 {
-    private void HandleException(RpcException rpc)
+    private static void HandleException(RpcException rpc)
     {
         var error = rpc.GetDetail<ErrorInfo>();
 
         if (null != error && rpc.Message.Equals("AppSettings", StringComparison.InvariantCultureIgnoreCase))
         {
-            var messages = JsonSerializer.Deserialize<List<Message>>(error.Reason);
+            var messages = JsonSerializer.Deserialize<List<Message>>(error.Reason) ?? [];
             throw new AppException(messages);
         }
 
@@ -34,14 +32,14 @@ public class ClientErrorInterceptor : Interceptor
         throw new AppException(rpc.Message, rpc);
     }
 
-    private void HandleException(AggregateException ag)
+    private static void HandleException(AggregateException ag)
     {
         if (ag?.InnerException is RpcException rpc)
         {
             HandleException(rpc);
         }
 
-        throw new AppException("Unknown", ag);
+        throw new AppException("Unknown", ag!);
     }
 
     #region UnaryCall
@@ -67,8 +65,9 @@ public class ClientErrorInterceptor : Interceptor
         {
             HandleException(rpc);
         }
+
         // never reached
-        return null;
+        return default!;
     }
 
     #endregion
@@ -103,7 +102,7 @@ public class ClientErrorInterceptor : Interceptor
             HandleException(ag);
         }
         // never reached
-        return null;
+        return default!;
     }
 
     #endregion
@@ -137,13 +136,10 @@ public class ClientErrorInterceptor : Interceptor
             HandleException(ag);
         }
         // never reached
-        return null;
+        return default!;
     }
 
     #endregion
 
 }
-
-
-
 

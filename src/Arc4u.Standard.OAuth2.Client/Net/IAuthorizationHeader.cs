@@ -1,7 +1,6 @@
-﻿namespace Arc4u.OAuth2.Net
+namespace Arc4u.OAuth2.Net;
+
+public interface IAuthorizationHeader
 {
-    public interface IAuthorizationHeader
-    {
-        string GetHeader(IKeyValueSettings settings);
-    }
+    string GetHeader(IKeyValueSettings settings);
 }

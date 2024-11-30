@@ -1,78 +1,74 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Microsoft.Extensions.Logging;
 using Realms;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
-namespace Arc4u.Diagnostics.Serilog.Sinks.RealmDb
+namespace Arc4u.Diagnostics.Serilog.Sinks.RealmDb;
+
+public class RealmLoggingDbCtx : ILogStore
 {
-    public class RealmLoggingDbCtx : ILogStore
+    public RealmLoggingDbCtx(RealmConfiguration config)
     {
+        _realm = Realm.GetInstance(config);
+    }
 
-        static RealmLoggingDbCtx()
+    public void RemoveAll()
+    {
+        _realm.Write(_realm.RemoveAll<LogDBMessage>);
+    }
+
+    public List<LogMessage> GetLogs(string criteria, int skip, int take)
+    {
+        var hasCriteria = !string.IsNullOrWhiteSpace(criteria);
+        var searchText = hasCriteria ? criteria.ToLowerInvariant() : "";
+
+        var queryable = _realm.All<LogDBMessage>().OrderByDescending(msg => msg.Timestamp);
+
+        var enumerator = queryable.GetEnumerator();
+
+        var i = 0;
+        while (i < skip && enumerator.MoveNext())
         {
-            _mapper = CreateMapping();
+            i++;
         }
-        public RealmLoggingDbCtx(RealmConfiguration config)
+
+        var result = new List<LogDBMessage>(take);
+        i = 0;
+
+        while (i < take && enumerator.MoveNext())
         {
-            _realm = Realm.GetInstance(config);
-        }
-
-        public void RemoveAll()
-        {
-            _realm.Write(() => _realm.RemoveAll<LogDBMessage>());
-        }
-
-        public List<LogMessage> GetLogs(String criteria, int skip, int take)
-        {
-            var hasCriteria = !String.IsNullOrWhiteSpace(criteria);
-            var searchText = hasCriteria ? criteria.ToLowerInvariant() : "";
-
-            IOrderedQueryable<LogDBMessage> queryable = _realm.All<LogDBMessage>().OrderByDescending(msg => msg.Timestamp);
-
-            var enumerator = queryable.GetEnumerator();
-
-            int i = 0;
-            while (i < skip && enumerator.MoveNext())
+            if (hasCriteria && enumerator.Current.Message.ToLowerInvariant().Contains(searchText))
             {
-                i++;
+                result.Add(enumerator.Current);
             }
 
-            var result = new List<LogDBMessage>(take);
-            i = 0;
-
-            while (i < take && enumerator.MoveNext())
+            if (!hasCriteria)
             {
-                if (hasCriteria && enumerator.Current.Message.ToLowerInvariant().Contains(searchText))
-                    result.Add(enumerator.Current);
-                if (!hasCriteria)
-                    result.Add(enumerator.Current);
-
-                i++;
+                result.Add(enumerator.Current);
             }
 
-            return Mapper.Map<List<LogMessage>>(result);
+            i++;
         }
 
-        private Realm _realm;
-        public Realm Realm { get { return _realm; } }
+        return Mapper.Map<List<LogMessage>>(result);
+    }
 
-        private static IMapper _mapper;
-        public static IMapper Mapper { get { return _mapper; } }
+    private readonly Realm _realm;
+    public Realm Realm { get { return _realm; } }
 
-        public static IMapper CreateMapping()
+    private static readonly IMapper _mapper = CreateMapping();
+    public static IMapper Mapper { get { return _mapper; } }
+
+    public static IMapper CreateMapping()
+    {
+        var config = new MapperConfiguration(cfg =>
         {
-            var config = new MapperConfiguration(cfg =>
-            {
-                // cfg.AddCollectionMappers();
-                cfg.CreateMap<LogDBMessage, LogMessage>()
-                .ForMember(dest => dest.MessageCategory, opts => opts.MapFrom(src => ((MessageCategory)src.MessageCategory).ToString()))
-                .ForMember(dest => dest.MessageType, opts => opts.MapFrom(src => ((LogLevel)src.MessageType).ToString()));
-            });
+            // cfg.AddCollectionMappers();
+            cfg.CreateMap<LogDBMessage, LogMessage>()
+               .ForMember(dest => dest.MessageCategory, opts => opts.MapFrom(src => ((MessageCategory)src.MessageCategory).ToString()))
+               .ForMember(dest => dest.MessageType, opts => opts.MapFrom(src => ((LogLevel)src.MessageType).ToString()));
+        });
 
-            return config.CreateMapper();
+        return config.CreateMapper();
 
-        }
     }
 }

@@ -1,13 +1,7 @@
-using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
-using System.Threading;
-using System.Threading.Tasks;
 using Arc4u.Caching;
-using Arc4u.Configuration;
 using Arc4u.Dependency;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
@@ -17,7 +11,6 @@ using Arc4u.OAuth2.Token;
 using Arc4u.Security.Principal;
 using Arc4u.ServiceModel;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace Arc4u.OAuth2.Client.Security.Principal;
 
@@ -37,7 +30,6 @@ public class AppPrincipalFactory : IAppPrincipalFactory
     private readonly ICacheKeyGenerator _cacheKeyGenerator;
     private readonly IApplicationContext _applicationContext;
     private readonly ILogger<AppPrincipalFactory> _logger;
-    private readonly IOptionsMonitor<SimpleKeyValueSettings> _optionsSettings;
 
     public AppPrincipalFactory(IContainerResolve container, INetworkInformation networkInformation, ISecureCache claimsCache, ICacheKeyGenerator cacheKeyGenerator, IApplicationContext applicationContext, ILogger<AppPrincipalFactory> logger)
     {
@@ -49,25 +41,41 @@ public class AppPrincipalFactory : IAppPrincipalFactory
         _logger = logger;
     }
 
-    public async Task<AppPrincipal> CreatePrincipal(Messages messages, object parameter = null)
+    public async Task<AppPrincipal> CreatePrincipalAsync(Messages messages, object? parameter = null)
     {
-        return await CreatePrincipal(DefaultSettingsResolveName, messages, parameter).ConfigureAwait(true);
+        return await CreatePrincipalAsync(DefaultSettingsResolveName, messages, parameter).ConfigureAwait(true);
     }
 
-    public async Task<AppPrincipal> CreatePrincipal(string settingsResolveName, Messages messages, object parameter = null)
+    public async Task<AppPrincipal> CreatePrincipalAsync(string settingsResolveName, Messages messages, object? parameter = null)
     {
         var settings = _container.Resolve<IKeyValueSettings>(settingsResolveName);
-        return await CreatePrincipal(settings, messages, parameter);
+
+        if (settings == null)
+        {
+            throw new InvalidOperationException($"No section {settingsResolveName} was found.");
+        }
+        return await CreatePrincipalAsync(settings, messages, parameter).ConfigureAwait(false);
     }
 
-    public async Task<AppPrincipal> CreatePrincipal(IKeyValueSettings settings, Messages messages, object parameter = null)
+    public async Task<AppPrincipal> CreatePrincipalAsync(IKeyValueSettings settings, Messages messages, object? parameter = null)
     {
         var identity = new ClaimsIdentity("OAuth2Bearer", System.Security.Claims.ClaimTypes.Upn, ClaimsIdentity.DefaultRoleClaimType);
 
-        if (null == settings) throw new ArgumentNullException(nameof(settings));
+#if NET8_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(settings);
 
-        if (null == messages) throw new ArgumentNullException(nameof(messages));
+        ArgumentNullException.ThrowIfNull(messages);
+#else
+        if (null == settings)
+        {
+            throw new ArgumentNullException(nameof(settings));
+        }
 
+        if (null == messages)
+        {
+            throw new ArgumentNullException(nameof(messages));
+        }
+#endif
         /// when we have no internet connectivity may be we have claims in cache.
         if (NetworkStatus.None == _networkInformation.Status)
         {
@@ -79,13 +87,13 @@ public class AppPrincipalFactory : IAppPrincipalFactory
         }
         else
         {
-            await BuildTheIdentity(identity, settings, messages, parameter);
+            await BuildTheIdentityAsync(identity, settings, messages, parameter).ConfigureAwait(false);
         }
 
         var authorization = BuildAuthorization(identity, messages);
         var profile = BuildProfile(identity, messages);
 
-        var principal = new AppPrincipal(authorization, identity, null)
+        var principal = new AppPrincipal(authorization, identity, "S-1-0-0")
         {
             Profile = profile
         };
@@ -94,19 +102,19 @@ public class AppPrincipalFactory : IAppPrincipalFactory
         return principal;
     }
 
-    private async Task BuildTheIdentity(ClaimsIdentity identity, IKeyValueSettings settings, Messages messages, object parameter = null)
+    private async Task BuildTheIdentityAsync(ClaimsIdentity identity, IKeyValueSettings settings, Messages messages, object? parameter = null)
     {
         // Check if we have a provider registered.
-        if (!_container.TryResolve(settings.Values[ProviderKey], out ITokenProvider provider))
+        if (!_container.TryResolve(settings.Values[ProviderKey], out ITokenProvider? provider))
         {
             throw new NotSupportedException($"The principal cannot be created. We are missing an account provider: {settings.Values[ProviderKey]}");
         }
 
         // Check the settings contains the service url.
-        TokenInfo token = null;
+        TokenInfo? token = null;
         try
         {
-            token = await provider.GetTokenAsync(settings, parameter).ConfigureAwait(true);
+            token = await provider!.GetTokenAsync(settings, parameter).ConfigureAwait(true);
         }
         catch (Exception ex)
         {
@@ -121,7 +129,9 @@ public class AppPrincipalFactory : IAppPrincipalFactory
             var expTokenClaim = jwtToken.Claims.FirstOrDefault(c => c.Type.Equals(tokenExpirationClaimType, StringComparison.InvariantCultureIgnoreCase));
             long expTokenTicks = 0;
             if (null != expTokenClaim)
+            {
                 long.TryParse(expTokenClaim.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out expTokenTicks);
+            }
 
             // The key for the cache is based on the claims from a ClaimsIdentity => build a dummy identity with the claim from the token.
             var dummyIdentity = new ClaimsIdentity(jwtToken.Claims);
@@ -136,10 +146,12 @@ public class AppPrincipalFactory : IAppPrincipalFactory
             long cachedExpiredTicks = 0;
 
             if (null != cachedExpiredClaim)
+            {
                 long.TryParse(cachedExpiredClaim.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out cachedExpiredTicks);
+            }
 
             // we only call the backend if the ticks are not the same.
-            bool copyClaimsFromCache = cachedExpiredTicks > 0 && expTokenTicks > 0 && cachedClaims.Count > 0 && cachedExpiredTicks == expTokenTicks;
+            var copyClaimsFromCache = cachedExpiredTicks > 0 && expTokenTicks > 0 && cachedClaims.Count > 0 && cachedExpiredTicks == expTokenTicks;
 
             if (copyClaimsFromCache)
             {
@@ -150,20 +162,23 @@ public class AppPrincipalFactory : IAppPrincipalFactory
             {
                 // Fill the claims based on the token and the backend call
                 identity.AddClaims(jwtToken.Claims.Where(c => !ClaimsToExclude.Any(arg => arg.Equals(c.Type))).Select(c => new Claim(c.Type, c.Value)));
-                identity.AddClaim(expTokenClaim);
+                if (null != expTokenClaim)
+                {
+                    identity.AddClaim(expTokenClaim);
+                }
 
-                if (_container.TryResolve(out IClaimsFiller claimFiller)) // Fill the claims with more information.
+                if (_container.TryResolve(out IClaimsFiller? claimFiller)) // Fill the claims with more information.
                 {
                     try
                     {
                         // Get the claims and clean any technical claims in case of.
-                        var claims = (await claimFiller.GetAsync(identity, new List<IKeyValueSettings> { settings }, parameter))
+                        var claims = (await claimFiller!.GetAsync(identity, new List<IKeyValueSettings> { settings }, parameter).ConfigureAwait(false))
                                         .Where(c => !ClaimsToExclude.Any(arg => arg.Equals(c.ClaimType))).ToList();
 
                         // We copy the claims from the backend but the exp claim will be the value of the token (front end definition) and not the backend one. Otherwhise there will be always a difference.
                         identity.AddClaims(claims.Where(c => !identity.Claims.Any(c1 => c1.Type == c.ClaimType)).Select(c => new Claim(c.ClaimType, c.Value)));
 
-                        messages.Add(new Message(ServiceModel.MessageCategory.Technical, MessageType.Information, $"Add {claims.Count()} claims to the principal."));
+                        messages.Add(new Message(ServiceModel.MessageCategory.Technical, MessageType.Information, $"Add {claims.Count} claims to the principal."));
                         messages.Add(new Message(ServiceModel.MessageCategory.Technical, MessageType.Information, $"Save claims to the cache."));
                     }
                     catch (Exception e)
@@ -190,9 +205,9 @@ public class AppPrincipalFactory : IAppPrincipalFactory
     {
         var authorization = new Authorization();
         // We need to fill the authorization and user profile from the provider!
-        if (_container.TryResolve(out IClaimAuthorizationFiller claimAuthorizationFiller))
+        if (_container.TryResolve(out IClaimAuthorizationFiller? claimAuthorizationFiller))
         {
-            authorization = claimAuthorizationFiller.GetAuthorization(identity);
+            authorization = claimAuthorizationFiller!.GetAuthorization(identity);
             messages.Add(new Message(ServiceModel.MessageCategory.Technical, MessageType.Information, $"Fill the authorization information to the principal."));
         }
         else
@@ -205,10 +220,10 @@ public class AppPrincipalFactory : IAppPrincipalFactory
 
     private UserProfile BuildProfile(ClaimsIdentity identity, Messages messages)
     {
-        UserProfile profile = UserProfile.Empty;
-        if (_container.TryResolve(out IClaimProfileFiller profileFiller))
+        var profile = UserProfile.Empty;
+        if (_container.TryResolve(out IClaimProfileFiller? profileFiller))
         {
-            profile = profileFiller.GetProfile(identity);
+            profile = profileFiller!.GetProfile(identity);
             messages.Add(new Message(ServiceModel.MessageCategory.Technical, MessageType.Information, $"Fill the profile information to the principal."));
         }
         else
@@ -264,15 +279,21 @@ public class AppPrincipalFactory : IAppPrincipalFactory
     public ValueTask SignOutUserAsync(CancellationToken cancellationToken)
     {
         var settings = _container.Resolve<IKeyValueSettings>(DefaultSettingsResolveName);
+
+        if (null == settings)
+        {
+            throw new InvalidOperationException($"No section {DefaultSettingsResolveName} was found.");
+        }
+
         return SignOutUserAsync(settings, cancellationToken);
     }
 
     public async ValueTask SignOutUserAsync(IKeyValueSettings settings, CancellationToken cancellationToken)
     {
         RemoveClaimsCache();
-        if (_container.TryResolve(settings.Values[ProviderKey], out ITokenProvider provider))
+        if (_container.TryResolve(settings.Values[ProviderKey], out ITokenProvider? provider))
         {
-            await provider.SignOutAsync(settings, cancellationToken).ConfigureAwait(false);
+            await provider!.SignOutAsync(settings, cancellationToken).ConfigureAwait(false);
         }
     }
 }

@@ -1,9 +1,6 @@
-﻿using System.Collections.Generic;
+﻿namespace Arc4u.Diagnostics;
 
-namespace Arc4u.Diagnostics
+public interface IAddPropertiesToLog
 {
-    public interface IAddPropertiesToLog
-    {
-        IDictionary<string, object> GetProperties();
-    }
+    IDictionary<string, object> GetProperties();
 }

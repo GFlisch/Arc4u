@@ -1,21 +1,19 @@
-﻿using System.Collections.Generic;
+namespace Arc4u.Diagnostics;
 
-namespace Arc4u.Diagnostics
+public static class MessagePropertyEx
 {
-    public static class MessagePropertyEx
+    public static void AddIfNotExist(this IDictionary<string, object> properties, string key, object value)
     {
-        public static void AddIfNotExist(this IDictionary<string, object> properties, string key, object value)
+        if (value == null || properties.ContainsKey(key))
         {
-            if (value == null || properties.ContainsKey(key))
-                return;
-            properties[key] = value;
+            return;
         }
 
-        public static void AddOrReplace(this IDictionary<string, object> properties, string key, object value)
-        {
-            properties[key] = value;
-        }
+        properties[key] = value;
     }
 
-
+    public static void AddOrReplace(this IDictionary<string, object> properties, string key, object value)
+    {
+        properties[key] = value;
+    }
 }

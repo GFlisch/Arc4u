@@ -1,8 +1,7 @@
-﻿namespace Arc4u.Diagnostics
+namespace Arc4u.Diagnostics;
+
+public enum PropertyFilter
 {
-    public enum PropertyFilter
-    {
-        None,
-        All
-    }
+    None,
+    All
 }

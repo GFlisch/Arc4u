@@ -1,22 +1,21 @@
-﻿using System.Runtime.Serialization;
+using System.Runtime.Serialization;
 
-namespace Arc4u.ServiceModel
+namespace Arc4u.ServiceModel;
+
+/// <summary>
+/// Specifies the different categories of a <see cref="FaultMessage"/>.
+/// </summary>
+[DataContract]
+public enum MessageCategory : short
 {
     /// <summary>
-    /// Specifies the different categories of a <see cref="FaultMessage"/>.
+    /// A message dedicates for IT people.
     /// </summary>
-    [DataContract]
-    public enum MessageCategory : short
-    {
-        /// <summary>
-        /// A message dedicates for IT people.
-        /// </summary>
-        [EnumMember]
-        Technical = 0,
-        /// <summary>
-        /// A message dedicates for IT and Business people.
-        /// </summary>
-        [EnumMember]
-        Business = 1,
-    }
+    [EnumMember]
+    Technical = 0,
+    /// <summary>
+    /// A message dedicates for IT and Business people.
+    /// </summary>
+    [EnumMember]
+    Business = 1,
 }

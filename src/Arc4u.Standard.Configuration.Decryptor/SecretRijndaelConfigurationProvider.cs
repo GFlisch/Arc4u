@@ -28,7 +28,6 @@ public class SecretRijndaelConfigurationProvider : ConfigurationProvider
     private readonly IList<IConfigurationSource> _sources;
     private readonly SecretRijndaelOptions _rijndaelOptions;
 
-
     /// <summary>
     /// The Load method does the different steps.
     /// - Check if a configuration section exists defining the key/iv to use.
@@ -69,7 +68,7 @@ public class SecretRijndaelConfigurationProvider : ConfigurationProvider
             {
                 var cypher = item.Value.Substring(_rijndaelOptions.Prefix.Length);
 
-                data.Add(item.Key, CypherCodec.DecodeCypherString(cypher, rijndaelkeys.Item1, rijndaelkeys.Item2));
+                data.Add(item.Key, CypherCodec.DecodeCypherstring(cypher, rijndaelkeys.Item1, rijndaelkeys.Item2));
             }
         }
 

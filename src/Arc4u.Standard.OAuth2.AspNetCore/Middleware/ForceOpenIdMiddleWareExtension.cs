@@ -1,4 +1,3 @@
-using System;
 using Arc4u.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;

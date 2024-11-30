@@ -9,7 +9,7 @@ public interface INotificationHandler<T>
     Task HandleAsync(T entity, CancellationToken cancellationToken);
 }
 
-public interface INotificationHandler<T1,T2>
+public interface INotificationHandler<T1, T2>
 {
     Task HandleAsync(T1 param1, T2 param2, CancellationToken cancellationToken);
 }

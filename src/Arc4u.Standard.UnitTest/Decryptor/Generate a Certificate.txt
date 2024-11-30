@@ -15,7 +15,7 @@ The output will be the thumbprit => in this case it was C442DDA851E6BF96E6818C31
 
 You have to replace the {thumbprint} by the output, in this case it was C442DDA851E6BF96E6818C3160EA5D692841CF0B
 
-$password = ConvertTo-SecureString -String "Password" -Force -AsPlainText
+$password = ConvertTo-Securestring -string "Password" -Force -AsPlainText
 Export-PfxCertificate -cert cert:\currentuser\my\{thumbprint} -FilePath $env:USERPROFILE\Desktop\MySelfSignedCertificate.pfx -Password $password
 
 -3 Get the content as a byte array in a variable

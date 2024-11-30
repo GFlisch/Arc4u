@@ -11,7 +11,6 @@ public static class ISectionStoreExtensions
     /// <returns></returns>
     public static Task UpdateAsync(this ISectionStore sectionStore, SectionEntity entity, CancellationToken cancellationToken) => sectionStore.UpdateAsync(new[] { entity }, cancellationToken);
 
-
     /// <summary>
     /// Try to get a value of type <typeparamref name="TValue"/> from the section named <paramref name="key"/>
     /// </summary>
@@ -24,7 +23,10 @@ public static class ISectionStoreExtensions
     {
         var sectionEntity = await sectionStore.GetAsync(key, cancellationToken).ConfigureAwait(false);
         if (sectionEntity is null)
+        {
             return (false, default(TValue));
+        }
+
         return (true, sectionEntity.GetValue<TValue>());
     }
 
@@ -41,7 +43,10 @@ public static class ISectionStoreExtensions
     {
         var sectionEntity = await sectionStore.GetAsync(key, cancellationToken).ConfigureAwait(false);
         if (sectionEntity is null)
+        {
             return false;
+        }
+
         sectionEntity.SetValue(value);
         await sectionStore.UpdateAsync(sectionEntity, cancellationToken).ConfigureAwait(false);
         return true;

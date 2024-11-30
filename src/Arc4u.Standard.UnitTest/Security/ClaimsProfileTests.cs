@@ -1,17 +1,15 @@
-using AutoFixture.AutoMoq;
-using AutoFixture;
-using Xunit;
-using Microsoft.Extensions.Options;
-using Moq;
-using Arc4u.Configuration;
-using System.Collections.Generic;
-using Arc4u.Security.Principal;
 using System.Security.Claims;
-using System;
+using Arc4u.Configuration;
+using Arc4u.OAuth2.Extensions;
+using Arc4u.Security.Principal;
+using AutoFixture;
+using AutoFixture.AutoMoq;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Arc4u.OAuth2.Extensions;
+using Microsoft.Extensions.Options;
+using Moq;
+using Xunit;
 
 namespace Arc4u.UnitTest.Security;
 
@@ -54,8 +52,8 @@ public class ClaimsProfileTests
 
         var profileFiller = _fixture.Create<ClaimsProfileFiller>();
 
-        var identity = new ClaimsIdentity(new List<Claim>()
-        {
+        var identity = new ClaimsIdentity(
+        [
             new Claim(IdentityModel.Claims.ClaimTypes.Culture, "fr-BE"),
             new Claim(IdentityModel.Claims.ClaimTypes.Name, "Flisch"),
             new Claim(IdentityModel.Claims.ClaimTypes.GivenName, "Gilles"),
@@ -63,7 +61,7 @@ public class ClaimsProfileTests
             new Claim(IdentityModel.Claims.ClaimTypes.Upn, "info@arc4u.net"),
             new Claim(IdentityModel.Claims.ClaimTypes.Company, "Arc4u"),
             new Claim(IdentityModel.Claims.ClaimTypes.Sid, Guid.NewGuid().ToS19())
-        }, "TestType");
+        ], "TestType");
 
         var sut = profileFiller.GetProfile(identity);
 
@@ -99,8 +97,8 @@ public class ClaimsProfileTests
 
         var profileFiller = _fixture.Create<ClaimsProfileFiller>();
 
-        var identity = new ClaimsIdentity(new List<Claim>()
-        {
+        var identity = new ClaimsIdentity(
+        [
             new Claim(IdentityModel.Claims.ClaimTypes.Culture, "fr-BE"),
             new Claim(IdentityModel.Claims.ClaimTypes.Name, "Flisch"),
             new Claim(IdentityModel.Claims.ClaimTypes.GivenName, "Gilles"),
@@ -108,7 +106,7 @@ public class ClaimsProfileTests
             new Claim(IdentityModel.Claims.ClaimTypes.Upn, "Arc4u\\info"),
             new Claim(IdentityModel.Claims.ClaimTypes.Company, "Arc4u"),
             new Claim(IdentityModel.Claims.ClaimTypes.Sid, Guid.NewGuid().ToS19())
-        }, "TestType");
+        ], "TestType");
 
         var sut = profileFiller.GetProfile(identity);
 
@@ -122,10 +120,7 @@ public class ClaimsProfileTests
     {
         var config = new ConfigurationBuilder()
              .AddInMemoryCollection(
-        new Dictionary<string, string?>
-        {
-
-        }).Build();
+        []).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -142,8 +137,8 @@ public class ClaimsProfileTests
 
         var profileFiller = _fixture.Create<ClaimsProfileFiller>();
 
-        var identity = new ClaimsIdentity(new List<Claim>()
-        {
+        var identity = new ClaimsIdentity(
+        [
             new Claim(IdentityModel.Claims.ClaimTypes.Culture, "fr-BE"),
             new Claim(IdentityModel.Claims.ClaimTypes.Name, "Flisch"),
             new Claim(IdentityModel.Claims.ClaimTypes.GivenName, "Gilles"),
@@ -151,7 +146,7 @@ public class ClaimsProfileTests
             new Claim(IdentityModel.Claims.ClaimTypes.Upn, "info@arc4u.net"),
             new Claim(IdentityModel.Claims.ClaimTypes.Company, "Arc4u"),
             new Claim(IdentityModel.Claims.ClaimTypes.Sid, Guid.NewGuid().ToS19())
-        }, "TestType");
+        ], "TestType");
 
         var sut = profileFiller.GetProfile(identity);
 

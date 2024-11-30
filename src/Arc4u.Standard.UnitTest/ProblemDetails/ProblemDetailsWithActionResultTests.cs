@@ -1,15 +1,15 @@
-using AutoFixture.AutoMoq;
-using AutoFixture;
-using Xunit;
-using FluentResults;
-using FluentAssertions;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
-using FluentValidation;
-using Arc4u.Results.Validation;
-using Arc4u.Results;
-using Microsoft.EntityFrameworkCore;
 using Arc4u.AspNetCore.Results;
+using Arc4u.Results;
+using Arc4u.Results.Validation;
+using AutoFixture;
+using AutoFixture.AutoMoq;
+using FluentAssertions;
+using FluentResults;
+using FluentValidation;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Xunit;
 
 namespace Arc4u.UnitTest.ProblemDetail;
 
@@ -53,7 +53,7 @@ public class ProblemDetailsWithActionResultTests
         // assert
         sut.Value.Should().BeNull();
         sut.Result.Should().BeOfType<CreatedResult>();
-        var createdResult = (CreatedResult)sut.Result;
+        var createdResult = (CreatedResult)sut.Result!;
         createdResult!.Value.Should().Be($"{value} Arc4u");
         createdResult.Location.Should().Be(uri.ToString());
         createdResult.StatusCode.Should().Be(StatusCodes.Status201Created);
@@ -69,8 +69,8 @@ public class ProblemDetailsWithActionResultTests
         var okUri = _fixture.Create<Uri>();
 
         var result = Result.Ok(value);
-        
-        Func<ValueTask<Result<string?>>> valueTask = () => ValueTask.FromResult(result);
+
+        Func<ValueTask<Result<string>>> valueTask = () => ValueTask.FromResult(result);
 
         // act
         var sut = await valueTask()
@@ -80,7 +80,7 @@ public class ProblemDetailsWithActionResultTests
         // assert
         sut.Value.Should().BeNull();
         sut.Result.Should().BeOfType<CreatedResult>();
-        var createdResult = (CreatedResult)sut.Result;
+        var createdResult = (CreatedResult)sut.Result!;
         createdResult!.Value.Should().Be($"{value} Arc4u");
         createdResult.Location.Should().Be(okUri.ToString());
         createdResult.StatusCode.Should().Be(StatusCodes.Status201Created);
@@ -103,13 +103,9 @@ public class ProblemDetailsWithActionResultTests
 
         // assert
         sut.Value.Should().BeNull();
-#if NET8_0
         sut.Result.Should().BeOfType<CreatedResult>();
-        var createdResult = (CreatedResult)sut.Result;
-#else
-        sut.Result.Should().BeOfType<ObjectResult>();
-        var createdResult = (ObjectResult)sut.Result;
-#endif
+        var createdResult = (CreatedResult)sut.Result!;
+
         createdResult!.Value.Should().Be($"{value} Arc4u");
         createdResult.StatusCode.Should().Be(StatusCodes.Status201Created);
     }
@@ -134,7 +130,7 @@ public class ProblemDetailsWithActionResultTests
         var actionResult = sut.Result as OkObjectResult;
         actionResult.Should().NotBeNull();
         actionResult!.Value.Should().Be($"{value} Arc4u");
-        
+
     }
 
     [Fact]
@@ -144,7 +140,7 @@ public class ProblemDetailsWithActionResultTests
         // arrange
         var value = Guid.NewGuid().ToString();
 
-        var result = Result.Ok<string?>(null);
+        var result = Result.Ok<string?>(default!);
 
         Func<ValueTask<Result<string?>>> valueTask = () => ValueTask.FromResult(result);
 
@@ -177,10 +173,10 @@ public class ProblemDetailsWithActionResultTests
         // assert
         sut.Value.Should().BeNull();
         sut.Result.Should().BeOfType<ObjectResult>();
-        ((ObjectResult)sut.Result).Value.Should().BeOfType<ProblemDetails>();
-        var problem = (ProblemDetails)((ObjectResult)sut.Result).Value;
+        ((ObjectResult)sut.Result!).Value.Should().BeOfType<ProblemDetails>();
+        var problem = (ProblemDetails)((ObjectResult)sut.Result!).Value!;
         problem.Should().NotBeNull();
-        problem.Title.Should().Be("Error.");
+        problem!.Title.Should().Be("Error.");
         problem.Detail.Should().Be(value);
         problem.Status.Should().Be(StatusCodes.Status500InternalServerError);
     }
@@ -204,21 +200,13 @@ public class ProblemDetailsWithActionResultTests
         // assert
         sut.Value.Should().BeNull();
         sut.Result.Should().BeOfType<ObjectResult>();
-        ((ObjectResult)sut.Result).Value.Should().BeOfType<ProblemDetails>();
-        var problem = (ProblemDetails)((ObjectResult)sut.Result).Value;
+        ((ObjectResult)sut.Result!).Value!.Should().BeOfType<ProblemDetails>();
+        var problem = (ProblemDetails)((ObjectResult)sut.Result).Value!;
         problem.Should().NotBeNull();
         problem.Should().NotBeNull();
         problem.Title.Should().Be("Error.");
         problem.Detail.Should().Be(msg1);
         problem.Status.Should().Be(StatusCodes.Status500InternalServerError);
-
-        //problem = problems[1];
-        //problem.Should().NotBeNull();
-        //problem.Title.Should().Be("Error.");
-        //problem.Detail.Should().Be(msg2);
-        //problem.Status.Should().Be(StatusCodes.Status500InternalServerError);
-        //problem.Extensions.Count.Should().Be(2);
-        //problem.Extensions["Code"].Should().Be("100");
     }
 
     [Fact]
@@ -238,7 +226,7 @@ public class ProblemDetailsWithActionResultTests
         // assert
         sut.Value.Should().BeNull();
         sut.Result.Should().BeOfType<OkObjectResult>();
-        ((OkObjectResult)sut.Result).Value.Should().Be(value);
+        ((OkObjectResult)sut.Result!).Value.Should().Be(value);
 
     }
 
@@ -259,15 +247,15 @@ public class ProblemDetailsWithActionResultTests
         // assert
         sut.Value.Should().BeNull();
         sut.Result.Should().BeOfType<ObjectResult>();
-        ((ObjectResult)sut.Result).Value.Should().BeOfType<ProblemDetails>();
-        var problem = (ProblemDetails)((ObjectResult)sut.Result).Value;
+        ((ObjectResult)sut.Result!).Value.Should().BeOfType<ProblemDetails>();
+        var problem = (ProblemDetails)((ObjectResult)sut.Result).Value!;
         problem.Should().NotBeNull();
         problem.Title.Should().Be("Error.");
         problem.Detail.Should().Be(value);
         problem.Status.Should().Be(StatusCodes.Status500InternalServerError);
     }
 
-#endregion
+    #endregion
 
     #region Task<Result>
 
@@ -289,7 +277,7 @@ public class ProblemDetailsWithActionResultTests
         sut.Should().NotBeNull();
         sut.Should().BeOfType<ObjectResult>();
         ((ObjectResult)sut).Value.Should().BeOfType<ProblemDetails>();
-        var problem = (ProblemDetails)((ObjectResult)sut).Value;
+        var problem = (ProblemDetails)((ObjectResult)sut).Value!;
         problem.Should().NotBeNull();
         problem.Title.Should().Be("Error.");
         problem.Detail.Should().Be(value);
@@ -319,7 +307,7 @@ public class ProblemDetailsWithActionResultTests
 
     [Fact]
     [Trait("Category", "CI")]
-    public async Task Test_Result_To_OnSuccess_Created_With_Mapping_Should()
+    public void Test_Result_To_OnSuccess_Created_With_Mapping_Should()
     {
         // arrange
         var value = Guid.NewGuid().ToString();
@@ -329,14 +317,14 @@ public class ProblemDetailsWithActionResultTests
         var result = Result.Ok<string>(value);
 
         // act
-        var sut =  result
+        var sut = result
                     .OnSuccess(() => uri = okUri)
                     .ToActionCreatedResult(uri, (v) => $"{v} Arc4u");
 
         // assert
         sut.Value.Should().BeNull();
         sut.Result.Should().BeOfType<CreatedResult>();
-        var createdResult = (CreatedResult)sut.Result;
+        var createdResult = (CreatedResult)sut.Result!;
         createdResult!.Value.Should().Be($"{value} Arc4u");
         //createdResult!.Value.Should().Be(value);
         createdResult.Location.Should().Be(okUri.ToString());
@@ -345,7 +333,7 @@ public class ProblemDetailsWithActionResultTests
 
     [Fact]
     [Trait("Category", "CI")]
-    public async Task Test_Task_Result_To_OnSuccess_Created_With_Uri_Dynamic_With_Mapping_Should()
+    public void Test_Task_Result_To_OnSuccess_Created_With_Uri_Dynamic_With_Mapping_Should()
     {
         // arrange
         var value = Guid.NewGuid().ToString();
@@ -355,14 +343,14 @@ public class ProblemDetailsWithActionResultTests
         var result = Result.Ok<string>(value);
 
         // act
-        var sut =  result
+        var sut = result
                             .OnSuccess(() => uri = okUri)
                             .ToActionCreatedResult(uri, (v) => $"{v} Arc4u");
 
         // assert
         sut.Value.Should().BeNull();
         sut.Result.Should().BeOfType<CreatedResult>();
-        var createdResult = (CreatedResult)sut.Result;
+        var createdResult = (CreatedResult)sut.Result!;
         createdResult!.Value.Should().Be($"{value} Arc4u");
         createdResult.Location.Should().Be(okUri.ToString());
         createdResult.StatusCode.Should().Be(StatusCodes.Status201Created);
@@ -386,7 +374,7 @@ public class ProblemDetailsWithActionResultTests
         // assert
         sut.Value.Should().BeNull();
         sut.Result.Should().BeOfType<OkObjectResult>();
-        ((OkObjectResult)sut.Result).Value.Should().Be(value);
+        ((OkObjectResult)sut.Result!).Value.Should().Be(value);
 
     }
 
@@ -408,8 +396,8 @@ public class ProblemDetailsWithActionResultTests
         // assert
         sut.Value.Should().BeNull();
         sut.Result.Should().BeOfType<ObjectResult>();
-        ((ObjectResult)sut.Result).Value.Should().BeOfType<ProblemDetails>();
-        var problem = (ProblemDetails)((ObjectResult)sut.Result).Value;
+        ((ObjectResult)sut.Result!).Value.Should().BeOfType<ProblemDetails>();
+        var problem = (ProblemDetails)((ObjectResult)sut.Result).Value!;
         problem.Should().NotBeNull();
         problem.Title.Should().Be("Error.");
         problem.Detail.Should().Be(value);
@@ -433,13 +421,13 @@ public class ProblemDetailsWithActionResultTests
         // assert
         sut.Value.Should().BeNull();
         sut.Result.Should().BeOfType<OkObjectResult>();
-        ((OkObjectResult)sut.Result).Value.Should().Be($"{value} Arc4u");
+        ((OkObjectResult)sut.Result!).Value.Should().Be($"{value} Arc4u");
 
     }
 
     [Fact]
     [Trait("Category", "CI")]
-    public async Task Test_Result_T_To_OnFailed_With_Mapping_Should()
+    public void Test_Result_T_To_OnFailed_With_Mapping_Should()
     {
         // arrange
         var value = Guid.NewGuid().ToString();
@@ -452,8 +440,8 @@ public class ProblemDetailsWithActionResultTests
         // assert
         sut.Value.Should().BeNull();
         sut.Result.Should().BeOfType<ObjectResult>();
-        ((ObjectResult)sut.Result).Value.Should().BeOfType<ProblemDetails>();
-        var problem = (ProblemDetails)((ObjectResult)sut.Result).Value;
+        ((ObjectResult)sut.Result!).Value.Should().BeOfType<ProblemDetails>();
+        var problem = (ProblemDetails)((ObjectResult)sut.Result).Value!;
         problem.Should().NotBeNull();
         problem.Should().NotBeNull();
         problem.Title.Should().Be("Error.");
@@ -475,8 +463,8 @@ public class ProblemDetailsWithActionResultTests
         // assert
         sut.Value.Should().BeNull();
         sut.Result.Should().BeOfType<ObjectResult>();
-        ((ObjectResult)sut.Result).Value.Should().BeOfType<ValidationProblemDetails>();
-        var problem = (ValidationProblemDetails)((ObjectResult)sut.Result).Value;
+        ((ObjectResult)sut.Result!).Value.Should().BeOfType<ValidationProblemDetails>();
+        var problem = (ValidationProblemDetails)((ObjectResult)sut.Result).Value!;
         problem.Should().NotBeNull();
         problem.Title.Should().Be("Error from validation.");
         problem.Detail.Should().BeNull();
@@ -488,20 +476,20 @@ public class ProblemDetailsWithActionResultTests
 
     [Fact]
     [Trait("Category", "CI")]
-    public async Task Test_Result_To_OnFailed_With_Validation_Not_Specific_Should()
+    public void Test_Result_To_OnFailed_With_Validation_Not_Specific_Should()
     {
         // arrange
         var value = string.Empty;
         var validation = new ValidatorExample();
         var result = validation.ValidateWithResult(value);
         // act
-        var sut =  result.ToActionOkResult();
+        var sut = result.ToActionOkResult();
 
         // assert
         sut.Value.Should().BeNull();
         sut.Result.Should().BeOfType<ObjectResult>();
-        ((ObjectResult)sut.Result).Value.Should().BeOfType<ValidationProblemDetails>();
-        var problem = (ValidationProblemDetails)((ObjectResult)sut.Result).Value;
+        ((ObjectResult)sut.Result!).Value.Should().BeOfType<ValidationProblemDetails>();
+        var problem = (ValidationProblemDetails)((ObjectResult)sut.Result).Value!;
         problem.Should().NotBeNull();
         problem.Title.Should().Be("Error from validation.");
         problem.Detail.Should().BeNull();
@@ -527,7 +515,7 @@ public class ProblemDetailsWithActionResultTests
         sut.Should().NotBeNull();
         sut.Should().BeOfType<ObjectResult>();
         ((ObjectResult)sut).Value.Should().BeOfType<ProblemDetails>();
-        var problem = (ProblemDetails)((ObjectResult)sut).Value;
+        var problem = (ProblemDetails)((ObjectResult)sut).Value!;
         problem.Should().NotBeNull();
         problem.Title.Should().Be(title);
         problem.Detail.Should().Be(detail);
@@ -556,8 +544,8 @@ public class ProblemDetailsWithActionResultTests
         // assert
         sut.Should().NotBeNull();
         sut.Result.Should().BeOfType<ObjectResult>();
-        ((ObjectResult)sut.Result).Value.Should().BeOfType<ProblemDetails>();
-        var problem = (ProblemDetails)((ObjectResult)sut.Result).Value;
+        ((ObjectResult)sut.Result!).Value.Should().BeOfType<ProblemDetails>();
+        var problem = (ProblemDetails)((ObjectResult)sut.Result).Value!;
         problem.Detail.Should().Be(message);
         problem.Title.Should().Be(title);
         problem.Type.Should().Be(uri.ToString());
@@ -581,8 +569,8 @@ public class ProblemDetailsWithActionResultTests
         // assert
         sut.Should().NotBeNull();
         sut.Result.Should().BeOfType<ObjectResult>();
-        ((ObjectResult)sut.Result).Value.Should().BeOfType<ProblemDetails>();
-        var problem = (ProblemDetails)((ObjectResult)sut.Result).Value;
+        ((ObjectResult)sut.Result!).Value.Should().BeOfType<ProblemDetails>();
+        var problem = (ProblemDetails)((ObjectResult)sut.Result).Value!;
         problem.Type.Should().Be("about:blank");
         problem.Instance.Should().BeNull();
         problem.Title.Should().NotBeEmpty();
@@ -597,8 +585,6 @@ public class ProblemDetailsWithActionResultTests
     public async Task Test_Result_To_OnSuccess_Should()
     {
         // arrange
-        var value = Guid.NewGuid().ToString();
-
         var result = Result.Ok();
 
         // act
@@ -624,7 +610,7 @@ public class ProblemDetailsWithActionResultTests
         sut.Should().NotBeNull();
         sut.Should().BeOfType<ObjectResult>();
         ((ObjectResult)sut).Value.Should().BeOfType<ProblemDetails>();
-        var problem = (ProblemDetails)((ObjectResult)sut).Value;
+        var problem = (ProblemDetails)((ObjectResult)sut).Value!;
         problem.Should().NotBeNull();
         problem.Title.Should().Be("Error.");
         problem.Detail.Should().Be(value);
@@ -633,7 +619,7 @@ public class ProblemDetailsWithActionResultTests
 
     [Fact]
     [Trait("Category", "CI")]
-    public async Task Test_Result_To_OnFailed_With_Validation_Specific_Should()
+    public void Test_Result_To_OnFailed_With_Validation_Specific_Should()
     {
         // arrange
         var value = Guid.NewGuid().ToString();
@@ -646,8 +632,8 @@ public class ProblemDetailsWithActionResultTests
         // assert
         sut.Should().NotBeNull();
         sut.Result.Should().BeOfType<ObjectResult>();
-        ((ObjectResult)sut.Result).Value.Should().BeOfType<ValidationProblemDetails>();
-        var problem = (ValidationProblemDetails)((ObjectResult)sut.Result).Value;
+        ((ObjectResult)sut.Result!).Value.Should().BeOfType<ValidationProblemDetails>();
+        var problem = (ValidationProblemDetails)((ObjectResult)sut.Result).Value!;
         problem.Should().NotBeNull();
         problem.Title.Should().Be("Error from validation.");
         problem.Detail.Should().BeNull();

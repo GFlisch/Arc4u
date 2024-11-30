@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Text;
 using Arc4u.Configuration;
 using AutoFixture;
@@ -27,7 +24,7 @@ public class SettingsOptionTests
     /// <summary>
     /// This simulates a configuration section with some non-string values
     /// </summary>
-    private static readonly string _json = @"{
+    private const string _json = @"{
     ""OAuth2.Settings"": {
         ""ProviderId"": ""Oidc"",
         ""AuthenticationType"": ""OAuth2Bearer"",
@@ -52,7 +49,7 @@ public class SettingsOptionTests
         {
             foreach (var kv in dic!)
             {
-                settings.Add(kv.Key, kv.Value);
+                settings.Add(kv.Key, kv.Value!);
             }
         }
 

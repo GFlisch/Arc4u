@@ -1,13 +1,12 @@
-using System.Collections.Generic;
-using AutoFixture.AutoMoq;
+using Arc4u.OAuth2.Configuration;
+using Arc4u.OAuth2.Extensions;
 using AutoFixture;
-using Xunit;
+using AutoFixture.AutoMoq;
+using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Arc4u.OAuth2.Configuration;
 using Microsoft.Extensions.Options;
-using FluentAssertions;
-using Arc4u.OAuth2.Extensions;
+using Xunit;
 
 namespace Arc4u.UnitTest;
 
@@ -46,19 +45,16 @@ public class ClaimsIdentifierTests
         var sut = serviceProvider.GetService<IOptions<ClaimsIdentifierOption>>();
 
         sut.Should().NotBeNull();
-        sut.Value.Should().HaveCount(2);
-        sut.Value.Should().Equal(i1,i2);
+        sut!.Value.Should().HaveCount(2);
+        sut.Value.Should().Equal(i1, i2);
     }
 
     [Fact]
     public void StandardClaimsShould()
     {
- 
+
         var config = new ConfigurationBuilder()
-                        .AddInMemoryCollection(
-          new Dictionary<string, string?>
-          {
-          }).Build();
+                        .AddInMemoryCollection([]).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
         IServiceCollection services = new ServiceCollection();
@@ -70,7 +66,7 @@ public class ClaimsIdentifierTests
         var sut = serviceProvider.GetService<IOptions<ClaimsIdentifierOption>>();
 
         sut.Should().NotBeNull();
-        sut.Value.Should().HaveCount(2);
+        sut!.Value.Should().HaveCount(2);
         sut.Value.Should().Equal("http://schemas.microsoft.com/identity/claims/objectidentifier", "oid");
     }
 }

@@ -1,17 +1,17 @@
-using System.Collections.Generic;
-using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using Arc4u.Dependency.Attribute;
-using Arc4u.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+#if NET8_0_OR_GREATER
+using Arc4u.Diagnostics;
+#endif
 
 namespace Arc4u.Security.Cryptography;
 
 [Export(typeof(IX509CertificateLoader))]
 public class X509CertificateLoader : IX509CertificateLoader
 {
-    public X509CertificateLoader(ILogger<X509CertificateLoader> logger)
+    public X509CertificateLoader(ILogger<X509CertificateLoader>? logger)
     {
         _logger = logger;
     }
@@ -51,6 +51,11 @@ public class X509CertificateLoader : IX509CertificateLoader
     /// <returns></returns>
     public X509Certificate2 FindCertificate(CertificateInfo certificateInfo)
     {
+        if (certificateInfo.Name is null)
+        {
+            throw new InvalidOperationException("Certificate name cannot be null.");
+        }
+
         var certificate = FindCertificate(
                             certificateInfo.Name,
                             certificateInfo.FindType,
@@ -60,11 +65,10 @@ public class X509CertificateLoader : IX509CertificateLoader
         return certificate;
     }
 
-
     /// <summary>
     /// Read the current section and identify if the section contains a CertificateStore entry.
     /// If yes, the Certificate will be retrieve based on the <see cref="CertificateInfo"/> object.
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
     /// If no CertificateStore section exists, the File is checked and a certificate will be created bqsed
     /// on the pem files (private and public keys).
 #endif
@@ -79,23 +83,21 @@ public class X509CertificateLoader : IX509CertificateLoader
         return this.FindCertificate(certificate);
     }
 
-#if NET6_0_OR_GREATER
-    public X509Certificate2? FindCertificate(CertificateFilePathInfo certificateFilePathInfo)
+#if NET8_0_OR_GREATER
+    public X509Certificate2 FindCertificate(CertificateFilePathInfo? certificateFilePathInfo)
     {
-        if (certificateFilePathInfo is null)
-        {
-            return null;
-        }
+        ArgumentNullException.ThrowIfNull(certificateFilePathInfo);
+
         if (!File.Exists(certificateFilePathInfo.Cert))
         {
             _logger?.Technical().LogError($"Public key file doesn't exist.");
-            return null;
+            throw new FileNotFoundException("Public key file doesn't exist.", certificateFilePathInfo.Cert);
         }
 
         if (!File.Exists(certificateFilePathInfo.Key))
         {
             _logger?.Technical().LogError($"Private key file doesn't exist.");
-            return null;
+            throw new FileNotFoundException("Private key file doesn't exist.", certificateFilePathInfo.Key);
         }
 
         return X509Certificate2.CreateFromPemFile(certificateFilePathInfo.Cert, certificateFilePathInfo.Key);

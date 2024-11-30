@@ -1,12 +1,8 @@
-﻿using System;
+namespace Arc4u.Diagnostics;
 
-namespace Arc4u.Diagnostics
+public class ReservedLoggingKeyException : Exception
 {
-    public class ReservedLoggingKeyException : Exception
+    public ReservedLoggingKeyException(string key) : base(key)
     {
-        public ReservedLoggingKeyException(string key) : base(key)
-        {
-
-        }
     }
 }

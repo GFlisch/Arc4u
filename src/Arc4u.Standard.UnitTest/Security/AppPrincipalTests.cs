@@ -1,11 +1,9 @@
-using AutoFixture.AutoMoq;
-using AutoFixture;
-using Xunit;
-using Arc4u.Security.Principal;
-using System.Collections.Generic;
-using System.Linq;
 using Arc4u.Extensions;
+using Arc4u.Security.Principal;
+using AutoFixture;
+using AutoFixture.AutoMoq;
 using FluentAssertions;
+using Xunit;
 
 namespace Arc4u.UnitTest.Security;
 
@@ -58,14 +56,14 @@ public class AppPrincipalTests
 
     private static Authorization GetAuthorization()
     {
-        var defaultScopedOperations = new ScopedOperations { Operations = new List<int> { (int)Access.AccessApplication }, Scope = "" };
-        var specificScope = new ScopedOperations { Operations = new List<int> { (int)Access.AccessApplication, (int)Access.CanSeeSwaggerFacadeApi }, Scope = "Specific" };
+        var defaultScopedOperations = new ScopedOperations { Operations = [(int)Access.AccessApplication], Scope = "" };
+        var specificScope = new ScopedOperations { Operations = [(int)Access.AccessApplication, (int)Access.CanSeeSwaggerFacadeApi], Scope = "Specific" };
         var authorization = new Authorization
         {
-            Operations = new List<ScopedOperations> { defaultScopedOperations, specificScope },
+            Operations = [defaultScopedOperations, specificScope],
             AllOperations = AllOperations,
-            Roles = new List<ScopedRoles> { new ScopedRoles { Roles = new List<string> { "User" }, Scope = "" } },
-            Scopes = new List<string> { "", "Specific" }
+            Roles = [new ScopedRoles { Roles = ["User"], Scope = "" }],
+            Scopes = ["", "Specific"]
         };
 
         return authorization;

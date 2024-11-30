@@ -1,17 +1,17 @@
 #if NET8_0_OR_GREATER
 
-using AutoFixture.AutoMoq;
+using Arc4u.AspNetCore.Results;
+using Arc4u.Results;
+using Arc4u.Results.Validation;
+using Arc4u.UnitTest.ProblemDetail;
 using AutoFixture;
-using Xunit;
+using AutoFixture.AutoMoq;
+using FluentAssertions;
 using FluentResults;
 using Microsoft.AspNetCore.Http;
-using Arc4u.AspNetCore.Results;
-using FluentAssertions;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Arc4u.Results;
-using Arc4u.UnitTest.ProblemDetail;
 using Microsoft.AspNetCore.Mvc;
-using Arc4u.Results.Validation;
+using Xunit;
 
 namespace Arc4u.Standard.UnitTest.ProblemDetails;
 
@@ -60,7 +60,7 @@ public class ProblemDetailsWithIResultTests
         var uri = new Uri("about:blank");
         var okUri = _fixture.Create<Uri>();
 
-        var result = Result.Ok(value);
+        var result = Result.Ok<string?>(value);
 
         Func<ValueTask<Result<string?>>> valueTask = () => ValueTask.FromResult(result);
 
@@ -130,7 +130,7 @@ public class ProblemDetailsWithIResultTests
         // arrange
         var value = Guid.NewGuid().ToString();
 
-        var result = Result.Ok<string>(null);
+        var result = Result.Ok<string>(default!);
 
         Func<ValueTask<Result<string>>> valueTask = () => ValueTask.FromResult(result);
 
@@ -327,9 +327,9 @@ public class ProblemDetailsWithIResultTests
         var uri = new Uri("about:blank");
         var okUri = _fixture.Create<Uri>();
 
-        var result = Result.Ok(value);
+        var result = Result.Ok<string?>(value);
 
-        Func<Task<Result<string?>>> task = () => Task.FromResult(result);
+        Task<Result<string?>> task() => Task.FromResult<Result<string?>>(result);
 
         // act
         var sut = await task()
@@ -397,7 +397,7 @@ public class ProblemDetailsWithIResultTests
         // arrange
         var value = Guid.NewGuid().ToString();
 
-        var result = Result.Ok<string>(null);
+        var result = Result.Ok<string>(default!);
 
         Func<Task<Result<string>>> task = () => Task.FromResult(result);
 
@@ -655,7 +655,7 @@ public class ProblemDetailsWithIResultTests
         // arrange
         var value = Guid.NewGuid().ToString();
 
-        var result = Result.Ok<string>(null);
+        var result = Result.Ok<string>(default!);
 
         // act
         var sut = result.ToHttpOkResult((v) => $"{v} Arc4u");

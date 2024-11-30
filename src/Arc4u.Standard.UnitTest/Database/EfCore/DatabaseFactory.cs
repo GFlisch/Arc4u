@@ -1,20 +1,19 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace Arc4u.UnitTest.Database.EfCore
+namespace Arc4u.UnitTest.Database.EfCore;
+
+public class DatabaseFactory : IDesignTimeDbContextFactory<DatabaseContext>
 {
-    public class DatabaseFactory : IDesignTimeDbContextFactory<DatabaseContext>
+    public DatabaseFactory(DbContextOptions<DatabaseContext> dbContextOptions)
     {
-        public DatabaseFactory(DbContextOptions<DatabaseContext> dbContextOptions)
-        {
-            Options = dbContextOptions;
-        }
+        Options = dbContextOptions;
+    }
 
-        private readonly DbContextOptions<DatabaseContext> Options;
+    private readonly DbContextOptions<DatabaseContext> Options;
 
-        public DatabaseContext CreateDbContext(string[] args)
-        {
-            return new DatabaseContext(Options);
-        }
+    public DatabaseContext CreateDbContext(string[] args)
+    {
+        return new DatabaseContext(Options);
     }
 }

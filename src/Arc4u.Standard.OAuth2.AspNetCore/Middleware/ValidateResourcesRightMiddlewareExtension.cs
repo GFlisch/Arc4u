@@ -3,7 +3,6 @@ using Arc4u.OAuth2.Options;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System;
 
 namespace Arc4u.OAuth2.Middleware;
 
@@ -81,6 +80,11 @@ public static class ValidateResourcesRightMiddlewareExtension
         app.UseResourcesRightValidationFor(options =>
         {
             var resources = section.Get<ValidateResourcesRightMiddlewareOptions>();
+
+            if (resources is null)
+            {
+                return;
+            }
 
             options.DefaultContent = resources.DefaultContent;
             options.ResourcesPolicies = resources.ResourcesPolicies;

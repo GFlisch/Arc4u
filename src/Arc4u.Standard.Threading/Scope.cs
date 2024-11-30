@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading;
+using System.Globalization;
 
 namespace Arc4u.Threading;
 
@@ -9,20 +8,20 @@ namespace Arc4u.Threading;
 /// <typeparam name="T">Any type.</typeparam>
 public class Scope<T> : IDisposable
 {
-    //private static AsyncLocal<T> _instance = new AsyncLocal<T>();
-    private static AsyncLocal<Scope<T>> _instance = new AsyncLocal<Scope<T>>();
+    private static readonly AsyncLocal<Scope<T>?> _instance = new AsyncLocal<Scope<T>?>();
 
     private bool Disposed { get; set; }
     private bool ToDispose { get; set; }
-    private Scope<T> Parent { get; set; }
+    private Scope<T>? Parent { get; set; }
 
-    private T Value = default(T);
+    private T Value;
 
     /// <summary>
     /// Prevents a default instance of the <see cref="Scope&lt;T&gt;"/> class from being created.
     /// </summary>
-    protected Scope()
+    private Scope()
     {
+        Value = default!;
     }
 
     /// <summary>
@@ -38,7 +37,7 @@ public class Scope<T> : IDisposable
     /// Initializes a new instance of the <see cref="Scope&lt;T&gt;"/> class.
     /// </summary>
     /// <param name="instance">The instance.</param>
-    /// <param name="dispose">Indicates if the scoped <paramref name="instance"/> is disposed when its scope is disposed.</param>
+    /// <param name="toDispose">Indicates if the scoped <paramref name="instance"/> is disposed when its scope is disposed.</param>
     public Scope(T instance, bool toDispose)
     {
         Value = instance;
@@ -51,24 +50,25 @@ public class Scope<T> : IDisposable
     /// Gets the current instance of T in the ambient scope.
     /// </summary>
     /// <value>The current instance of T.</value>
-    public static T Current
+    public static T? Current
     {
-        get
-        {
-            return null == _instance.Value ? default(T) : _instance.Value.Value;
-        }
+        get => _instance.Value == null ? default : _instance.Value.Value;
+
         set
         {
-            _instance.Value.Value = value;
+            if (_instance.Value != null && null != value)
+            {
+                _instance.Value.Value = value;
+            }
         }
     }
 
-    protected static Scope<T> Ambient
+    protected static Scope<T>? Ambient
     {
         get { return _instance.Value; }
     }
 
-    protected T ParentValue
+    protected T? ParentValue
     {
         get { return null == Parent ? default(T) : Parent.Value; }
     }
@@ -76,33 +76,44 @@ public class Scope<T> : IDisposable
     /// <summary>
     /// Disposes the ambient scope and its current instance when applicable.
     /// </summary>
-    public virtual void Dispose()
+    public void Dispose()
     {
-        if (!Disposed)
-        {
-            Disposed = true;
-
-            if (ToDispose)
-            {
-                var disposable = Current as IDisposable;
-                if (disposable != null)
-                    disposable.Dispose();
-            }
-        }
-
-        _instance.Value = Parent;
+        Dispose(true);
+        GC.SuppressFinalize(this);
     }
 
     /// <summary>
-    /// Returns a <see cref="System.String"/> that represents this instance.
+    /// Disposes the ambient scope and its current instance when applicable.
+    /// </summary>
+    /// <param name="disposing"></param>
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!Disposed)
+        {
+            if (disposing)
+            {
+                if (ToDispose)
+                {
+                    var disposable = Current as IDisposable;
+                    disposable?.Dispose();
+                }
+            }
+
+            _instance.Value = Parent;
+            Disposed = true;
+        }
+    }
+
+    /// <summary>
+    /// Returns a <see cref="System.string"/> that represents this instance.
     /// </summary>
     /// <returns>
-    /// A <see cref="System.String"/> that represents this instance.
+    /// A <see cref="System.string"/> that represents this instance.
     /// </returns>
     public override string ToString()
     {
         return Current != null
-            ? string.Format("Scoping: {0}", Current)
-            : base.ToString();
+            ? string.Format(CultureInfo.InvariantCulture, "Scoping: {0}", Current)
+            : base.ToString()!;
     }
 }

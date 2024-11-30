@@ -3,15 +3,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Threading;
 
 namespace Arc4u.OAuth2.Aspect
 {
     [Obsolete("Use ManageExceptionsFilter and SetCultureActionFilter instead.")]
     public class OperationCheckAttribute : ServiceAspectBase
     {
-        public OperationCheckAttribute(ILogger logger, IHttpContextAccessor httpContextAccessor, String scope, params int[] operations) : base(logger, httpContextAccessor, scope, operations)
+        public OperationCheckAttribute(ILogger logger, IHttpContextAccessor httpContextAccessor, string scope, params int[] operations) : base(logger, httpContextAccessor, scope, operations)
         {
         }
 

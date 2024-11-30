@@ -29,7 +29,6 @@
 [assembly: InternalsVisibleTo("Arc4u.Xamarin.Forms.Mvvm")]
 [assembly: InternalsVisibleTo("Arc4u.Standard.KubeMQ.AspNetCore")]
 
-
 [assembly: InternalsVisibleTo("Arc4u")]
 [assembly: InternalsVisibleTo("Arc4u.OAuth2")]
 [assembly: InternalsVisibleTo("Arc4u.OAuth2.Owin")]

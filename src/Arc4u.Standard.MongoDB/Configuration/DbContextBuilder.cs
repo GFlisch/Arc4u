@@ -1,22 +1,21 @@
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
 
 namespace Arc4u.MongoDB.Configuration;
 
 public class DbContextBuilder
 {
-    public DbContextBuilder(IServiceCollection services, string databaseName, string connectionStringKey)
+    public DbContextBuilder(IServiceCollection services, string databaseName)
     {
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(databaseName);
+
         Services = services;
         DatabaseName = databaseName;
-        ConnectionStringKey = connectionStringKey;
         EntityCollectionTypes = [];
     }
 
     internal readonly IServiceCollection Services;
     internal readonly string DatabaseName;
-    internal readonly string ConnectionStringKey;
 
     internal readonly Dictionary<Type, List<string>> EntityCollectionTypes;
 

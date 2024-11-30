@@ -1,6 +1,4 @@
-using System;
-using System.Threading.Tasks;
-using Arc4u.Configuration;
+using System.Globalization;
 using Arc4u.Dependency;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
@@ -33,7 +31,7 @@ public class CredentialTokenCacheTokenProvider : ICredentialTokenProvider
 
     public async Task<TokenInfo> GetTokenAsync(IKeyValueSettings settings, CredentialsResult credential)
     {
-        var messages = GetContext(settings, out AuthorityOptions? authority, out string scope);
+        var messages = GetContext(settings, out var authority, out var scope);
 
         if (string.IsNullOrWhiteSpace(credential.Upn))
         {
@@ -106,12 +104,22 @@ public class CredentialTokenCacheTokenProvider : ICredentialTokenProvider
     {
         var basicTokenProvider = Container.Resolve<ICredentialTokenProvider>(CredentialTokenProvider.ProviderName);
 
+        if (basicTokenProvider == null)
+        {
+            _logger.Technical().LogError($"No token provider found for {CredentialTokenProvider.ProviderName}.");
+            throw new InvalidOperationException($"No token provider found for {CredentialTokenProvider.ProviderName}.");
+        }
+
         return await basicTokenProvider.GetTokenAsync(settings, credential).ConfigureAwait(false);
     }
 
     private static string BuildKey(CredentialsResult credential, AuthorityOptions authority, string audience)
     {
-        return authority.Url + "_" + audience + "_Password_" + credential.Upn + "_" + credential.Password.GetHashCode().ToString();
+        if (null == credential?.Password)
+        {
+            throw new InvalidOperationException("The password cannot be null.");
+        }
+        return authority.Url + "_" + audience + "_Password_" + credential.Upn + "_" + credential.Password.GetHashCode().ToString(CultureInfo.InvariantCulture);
     }
 
     private Messages GetContext(IKeyValueSettings settings, out AuthorityOptions? authority, out string scope)
@@ -122,7 +130,7 @@ public class CredentialTokenCacheTokenProvider : ICredentialTokenProvider
         if (null == settings)
         {
             messages.Add(new Message(ServiceModel.MessageCategory.Technical,
-                                     ServiceModel.MessageType.Error,
+                                     MessageType.Error,
                                      "Settings parameter cannot be null."));
             authority = null;
             scope = string.Empty;

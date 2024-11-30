@@ -1,37 +1,33 @@
-﻿using Serilog.Events;
+using Serilog.Events;
 using Serilog.Formatting.Json;
-using System;
-using System.Collections.Generic;
-using System.IO;
 
-namespace Arc4u.Diagnostics.Formatter
+namespace Arc4u.Diagnostics.Formatter;
+
+/// <summary>
+/// Build a json output of the properties added!
+/// </summary>
+public class JsonPropertiesFormatter
 {
-    /// <summary>
-    /// Build a json output of the properties added!
-    /// </summary>
-    public class JsonPropertiesFormatter
+    public JsonPropertiesFormatter()
     {
-        public JsonPropertiesFormatter()
-        {
-            Formatter = new JsonValueFormatter();
-        }
+        Formatter = new JsonValueFormatter();
+    }
 
-        private JsonValueFormatter Formatter { get; set; }
+    private JsonValueFormatter Formatter { get; set; }
 
-        public void Format(List<LogEventProperty> properties, TextWriter output)
+    public void Format(List<LogEventProperty> properties, TextWriter output)
+    {
+        if (properties.Count > 0)
         {
-            if (properties.Count > 0)
+            output.Write("{");
+            var separator = string.Empty;
+            foreach (var property in properties)
             {
-                output.Write("{");
-                var separator = String.Empty;
-                foreach (var property in properties)
-                {
-                    output.Write($"{separator}\"{property.Name}\":");
-                    Formatter.Format(property.Value, output);
-                    separator = ",";
-                }
-                output.Write("}");
+                output.Write($"{separator}\"{property.Name}\":");
+                Formatter.Format(property.Value, output);
+                separator = ",";
             }
+            output.Write("}");
         }
     }
 }

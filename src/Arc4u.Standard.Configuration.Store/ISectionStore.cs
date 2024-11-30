@@ -13,7 +13,6 @@ public interface ISectionStore
     /// <returns>the specific <see cref="SectionEntity"/> or null if there is no such section.</returns>
     Task<SectionEntity?> GetAsync(string key, CancellationToken cancellationToken);
 
-
     /// <summary>
     /// Get all sections in the database for a specific version
     /// </summary>

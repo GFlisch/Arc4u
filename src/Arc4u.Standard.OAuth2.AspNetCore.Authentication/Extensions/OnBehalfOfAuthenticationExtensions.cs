@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using Arc4u.Configuration;
 using Arc4u.OAuth2.Options;
 using Arc4u.OAuth2.Token;
@@ -46,6 +42,10 @@ public static class OnBehalfOfAuthenticationExtensions
         }
 
         var options = section.Get<Dictionary<string, OnBehalfOfSettingsOptions>>();
+        if (null == options)
+        {
+            return;
+        }
 
         foreach (var settingsOptions in options)
         {

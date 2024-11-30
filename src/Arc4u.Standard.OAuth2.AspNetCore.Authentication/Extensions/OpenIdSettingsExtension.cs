@@ -62,7 +62,7 @@ public static class OpenIdSettingsExtension
             {
                 keyOptions.Add(TokenKeys.Audiences, string.Join(' ', validate.Audiences));
             }
-            keyOptions.Add(TokenKeys.Scope, string.Join(' ',validate.Scopes));
+            keyOptions.Add(TokenKeys.Scope, string.Join(' ', validate.Scopes));
         }
 
         services.Configure<SimpleKeyValueSettings>(sectionKey, SettingsFiller);
@@ -83,15 +83,8 @@ public static class OpenIdSettingsExtension
 
     internal static Action<OpenIdSettingsOption> PrepareAction(IConfiguration configuration, [DisallowNull] string sectionName)
     {
-        if (string.IsNullOrEmpty(sectionName))
-        {
-            throw new ArgumentNullException(nameof(sectionName));
-        }
-
-        if (configuration is null)
-        {
-            throw new ArgumentNullException(nameof(configuration));
-        }
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(sectionName);
+        ArgumentNullException.ThrowIfNull(configuration);
 
         var section = configuration.GetSection(sectionName) ?? throw new NullReferenceException($"No section exists with name {sectionName}");
 

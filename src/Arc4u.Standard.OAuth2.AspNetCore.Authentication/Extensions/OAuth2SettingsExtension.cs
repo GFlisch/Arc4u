@@ -1,6 +1,4 @@
-using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using Arc4u.Configuration;
 using Arc4u.OAuth2.Options;
 using Arc4u.OAuth2.Token;
@@ -39,7 +37,7 @@ public static class OAuth2SettingsExtension
         }
 
         // We map this to a IKeyValuesSettings dictionary.
-        // The TokenProviders are based on this.
+        // The TokenProviders are based on 
 
         void SettingsFiller(SimpleKeyValueSettings keyOptions)
         {
@@ -58,7 +56,7 @@ public static class OAuth2SettingsExtension
             // Build the list of Audiences as a string.
             keyOptions.Add(TokenKeys.Audiences, string.Join(' ', validate.Audiences));
             keyOptions.Add(TokenKeys.Scope, string.Join(' ', validate.Scopes));
-            
+
         }
 
         services.Configure<SimpleKeyValueSettings>(sectionKey, SettingsFiller);
@@ -80,15 +78,8 @@ public static class OAuth2SettingsExtension
 
     internal static Action<OAuth2SettingsOption> PrepareAction(IConfiguration configuration, [DisallowNull] string sectionName)
     {
-        if (string.IsNullOrEmpty(sectionName))
-        {
-            throw new ArgumentNullException(nameof(sectionName));
-        }
-
-        if (configuration is null)
-        {
-            throw new ArgumentNullException(nameof(configuration));
-        }
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(sectionName);
+        ArgumentNullException.ThrowIfNull(configuration);
 
         var section = configuration.GetSection(sectionName);
 

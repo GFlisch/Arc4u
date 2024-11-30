@@ -1,6 +1,5 @@
-﻿namespace Arc4u.OAuth2.Net
+namespace Arc4u.OAuth2.Net;
+
+public interface IBasicAuthorizationHeader : IAuthorizationHeader
 {
-    public interface IBasicAuthorizationHeader : IAuthorizationHeader
-    {
-    }
 }

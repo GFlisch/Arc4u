@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Arc4u.Dependency.Attribute;
@@ -28,11 +26,14 @@ public class RootPemCertificates
 
     public string GetPemFor(Uri rootUri)
     {
+#if NET8_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(rootUri);
+#else
         if (rootUri is null)
         {
             throw new ArgumentNullException(nameof(rootUri));
         }
-
+#endif
         if (_pemsCollections.TryGetValue(rootUri.Host, out var pem))
         {
             return pem;

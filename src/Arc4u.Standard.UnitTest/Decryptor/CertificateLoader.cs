@@ -1,12 +1,10 @@
-using System.Collections.Generic;
-using AutoFixture.AutoMoq;
-using AutoFixture;
-using Xunit;
-using Microsoft.Extensions.Configuration;
 using Arc4u.Security.Cryptography;
+using AutoFixture;
+using AutoFixture.AutoMoq;
 using FluentAssertions;
-using System.Security.Cryptography.X509Certificates;
-using Moq;
+using Microsoft.Extensions.Configuration;
+using Xunit;
+using X509CertificateLoader = Arc4u.Security.Cryptography.X509CertificateLoader;
 
 namespace Arc4u.UnitTest.Decryptor;
 
@@ -44,7 +42,7 @@ public class CertificateLoader
 
         // assert
         configCert.Should().NotBeNull();
-        plainText.Should().Be(configCert.Decrypt(cypherText));
+        plainText.Should().Be(configCert!.Decrypt(cypherText));
     }
 
     [Fact]
@@ -58,14 +56,13 @@ public class CertificateLoader
                     ["EncryptionCertificate:File:Key"] = @".\key.pem",
                 }).Build();
 
-
         var sut = _fixture.Create<X509CertificateLoader>();
 
         // act
-        var configCert = sut.FindCertificate(config, "EncryptionCertificate");
+        var exception = Record.Exception(() => sut.FindCertificate(config, "EncryptionCertificate"));
 
         // assert
-        configCert.Should().BeNull();
+        exception.Should().BeOfType<FileNotFoundException>();
     }
 
     [Fact]

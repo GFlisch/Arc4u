@@ -1,9 +1,6 @@
-using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Net.Http.Headers;
-using System.Threading.Tasks;
 using Arc4u.Dependency;
 using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Token;
@@ -26,7 +23,7 @@ public class OpenIdBearerInjectorMiddleware
     private readonly OpenIdBearerInjectorSettingsOptions _options;
     private readonly RequestDelegate _next;
     private ActivitySource? _activitySource;
-    private ILogger<OpenIdBearerInjectorMiddleware> _logger = null;
+    private ILogger<OpenIdBearerInjectorMiddleware>? _logger = default!;
 
     public async Task Invoke([DisallowNull] HttpContext context)
     {
@@ -36,7 +33,7 @@ public class OpenIdBearerInjectorMiddleware
             {
                 if (null != principal?.Profile?.CurrentCulture)
                 {
-                    context.Request?.Headers?.Add("culture", principal.Profile.CurrentCulture.TwoLetterISOLanguageName);
+                    context.Request?.Headers?.Append("culture", principal.Profile.CurrentCulture.TwoLetterISOLanguageName);
                 }
             }
 
@@ -45,45 +42,54 @@ public class OpenIdBearerInjectorMiddleware
             _activitySource ??= container.Resolve<IActivitySourceFactory>()?.GetArc4u();
             _logger ??= container.Resolve<ILogger<OpenIdBearerInjectorMiddleware>>();
 
+            using var activity = _activitySource?.StartActivity("Inject bearer token in header", ActivityKind.Producer);
+            TokenInfo? tokenInfo = null;
 
-            using (var activity = _activitySource?.StartActivity("Inject bearer token in header", ActivityKind.Producer))
+            if (_options.OnBehalfOfOpenIdSettings is not null && _options.OnBehalfOfOpenIdSettings.Values.Any())
             {
-                TokenInfo? tokenInfo = null;
-
-                if (_options.OnBehalfOfOpenIdSettings is not null && _options.OnBehalfOfOpenIdSettings.Values.Any())
+                try
                 {
-                    try
-                    {
-                        var provider = container.Resolve<ITokenProvider>(_options.OboProviderKey);
+                    var provider = container.Resolve<ITokenProvider>(_options.OboProviderKey);
 
-                        tokenInfo = await provider.GetTokenAsync(_options.OnBehalfOfOpenIdSettings, null).ConfigureAwait(false);
-                    }
-                    catch (Exception ex)
+                    if (provider is null)
                     {
-                        _logger.Technical().Exception(ex).Log();
+                        _logger?.Technical().LogError($"The token provider {_options.OboProviderKey} is not found!");
+                        return;
                     }
 
+                    tokenInfo = await provider.GetTokenAsync(_options.OnBehalfOfOpenIdSettings, null).ConfigureAwait(false);
                 }
-                else
+                catch (Exception ex)
                 {
-                    try
-                    {
-                        var provider = container.Resolve<ITokenProvider>(_options.OpenIdSettings.Values[TokenKeys.ProviderIdKey]);
-
-                        tokenInfo = await provider.GetTokenAsync(_options.OpenIdSettings, null).ConfigureAwait(false);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.Technical().Exception(ex).Log();
-                    }
+                    _logger?.Technical().Exception(ex).Log();
                 }
 
-                if (tokenInfo is not null)
+            }
+            else
+            {
+                try
                 {
-                    var authorization = new AuthenticationHeaderValue("Bearer", tokenInfo.Token).ToString();
-                    context.Request!.Headers.Remove("Authorization");
-                    context.Request.Headers.Add("Authorization", authorization);
+                    var provider = container.Resolve<ITokenProvider>(_options.OpenIdSettings.Values[TokenKeys.ProviderIdKey]);
+
+                    if (provider is null)
+                    {
+                        _logger?.Technical().LogError($"The token provider {_options.OpenIdSettings.Values[TokenKeys.ProviderIdKey]} is not found!");
+                        return;
+                    }
+
+                    tokenInfo = await provider.GetTokenAsync(_options.OpenIdSettings, null).ConfigureAwait(false);
                 }
+                catch (Exception ex)
+                {
+                    _logger?.Technical().Exception(ex).Log();
+                }
+            }
+
+            if (tokenInfo is not null)
+            {
+                var authorization = new AuthenticationHeaderValue("Bearer", tokenInfo.Token).ToString();
+                context.Request!.Headers.Remove("Authorization");
+                context.Request.Headers.Append("Authorization", authorization);
             }
         }
 

@@ -1,15 +1,13 @@
-using AutoFixture.AutoMoq;
-using AutoFixture;
-using Xunit;
-using Microsoft.Extensions.DependencyInjection;
+using Arc4u.Configuration;
 using Arc4u.OAuth2.Extensions;
 using Arc4u.OAuth2.Options;
-using Microsoft.Extensions.Options;
+using AutoFixture;
+using AutoFixture.AutoMoq;
 using FluentAssertions;
-using System;
 using Microsoft.Extensions.Configuration;
-using System.Collections.Generic;
-using Arc4u.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using Xunit;
 
 namespace Arc4u.UnitTest.Security;
 

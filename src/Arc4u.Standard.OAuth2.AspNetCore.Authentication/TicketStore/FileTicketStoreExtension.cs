@@ -1,4 +1,3 @@
-using System;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,7 +24,7 @@ public static class FileTicketStoreExtension
         }
 
         services.Configure<FileTicketStoreOptions>(action);
-        services.AddTransient(typeof(ITicketStore), type);
+        services.AddTransient(typeof(ITicketStore), type!);
     }
 
     public static void AddFileTicketStore(this IServiceCollection services, IConfiguration configuration, string sectionName = "AuthenticationFileTicketStore")

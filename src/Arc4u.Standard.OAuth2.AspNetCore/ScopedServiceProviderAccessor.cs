@@ -1,5 +1,3 @@
-using System;
-using System.Threading;
 using Arc4u.Dependency.Attribute;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -57,10 +55,8 @@ public class ScopedServiceProviderAccessor : IScopedServiceProviderAccessor
         }
         set
         {
-            if (value is null)
-            {
-                throw new ArgumentNullException(nameof(value));
-            }
+            ArgumentNullException.ThrowIfNull(value);
+
             if (value is not IServiceScope)
             {
                 throw new ArgumentException("The ServiceProvider must be a scoped one!");

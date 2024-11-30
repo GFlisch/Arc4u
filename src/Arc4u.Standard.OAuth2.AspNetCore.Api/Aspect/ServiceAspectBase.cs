@@ -5,9 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Arc4u.OAuth2.Aspect
 {
@@ -26,7 +23,7 @@ namespace Arc4u.OAuth2.Aspect
         /// The page used to render when you are unauthorized.
         /// </summary>
         private readonly int[] _operations;
-        private readonly String _scope = string.Empty;
+        private readonly string _scope = string.Empty;
         protected readonly ILogger Logger;
         protected readonly IHttpContextAccessor _httpContextAccessor;
 
@@ -73,9 +70,13 @@ namespace Arc4u.OAuth2.Aspect
         public void OnException(ExceptionContext context)
         {
             if (context.ActionDescriptor is ControllerActionDescriptor descriptor)
+            {
                 Logger.Technical().From(descriptor.MethodInfo.DeclaringType, descriptor.MethodInfo.Name).Exception(context.Exception).Log();
+            }
             else
+            {
                 Logger.Technical().From(typeof(ServiceAspectBase)).Exception(context.Exception).Log();
+            }
 
             Messages messages;
             if (context.Exception is AppException appException)

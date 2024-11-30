@@ -1,4 +1,3 @@
-using System;
 using System.Diagnostics.CodeAnalysis;
 using Arc4u.Configuration.Sql;
 using Arc4u.Dependency;
@@ -65,13 +64,19 @@ public class SqlCache : BaseDistributeCache<SqlCache>, ICache
                 if (!string.IsNullOrWhiteSpace(config.SerializerName))
                 {
                     IsInitialized = Container.TryResolve<IObjectSerialization>(config.SerializerName!, out var serializerFactory);
-                    SerializerFactory = serializerFactory;
+                    if (IsInitialized)
+                    {
+                        SerializerFactory = serializerFactory!;
+                    }
                 }
 
                 if (!IsInitialized)
                 {
                     IsInitialized = Container.TryResolve<IObjectSerialization>(out var serializerFactory);
-                    SerializerFactory = serializerFactory;
+                    if (IsInitialized)
+                    {
+                        SerializerFactory = serializerFactory!;
+                    }
                 }
 
                 if (!IsInitialized)
@@ -92,5 +97,5 @@ public class SqlCache : BaseDistributeCache<SqlCache>, ICache
             }
         }
     }
-    public override string ToString() => Name ?? throw new NullReferenceException();
+    public override string ToString() => Name ?? throw new InvalidOperationException("The 'Name' property must not be null.");
 }

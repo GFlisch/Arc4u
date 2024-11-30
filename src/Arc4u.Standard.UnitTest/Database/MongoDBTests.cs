@@ -1,17 +1,14 @@
-using AutoFixture.AutoMoq;
-using AutoFixture;
-using Xunit;
-using System.Collections.Generic;
-using System.Linq;
-using FluentAssertions;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
 using Arc4u.MongoDB;
 using Arc4u.MongoDB.Configuration;
-using System;
 using Arc4u.MongoDB.Exceptions;
+using AutoFixture;
+using AutoFixture.AutoMoq;
+using FluentAssertions;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Xunit;
 
-namespace Arc4u.UnitTest.Database.MongoDB;
+namespace Arc4u.Standard.UnitTest.Database;
 
 [Trait("Category", "CI")]
 public class MongoDBTests
@@ -27,19 +24,19 @@ public class MongoDBTests
     private class Contract
     {
         public Guid Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = default!;
     };
 
-    private class Company
+    private sealed class Company
     {
         public Guid Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = default!;
     };
 
-    private class NotMapped
+    private sealed class NotMapped
     {
         public Guid Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = default!;
     };
 
     private class DatabaseDbContext : DbContext
@@ -71,7 +68,7 @@ public class MongoDBTests
         var app = services.BuildServiceProvider();
 
         var factory = app.GetService<IMongoClientFactory<DatabaseDbContext>>();
-        var client = factory.CreateClient();
+        var client = factory!.CreateClient();
 
         client.Settings.Server.Host.Should().Be("localhost");
         client.Settings.Server.Port.Should().Be(27017);
@@ -97,7 +94,7 @@ public class MongoDBTests
         var app = services.BuildServiceProvider();
 
         var factory = app.GetService<IMongoClientFactory<DatabaseDbContext>>();
-        var client = factory.CreateClient();
+        var client = factory!.CreateClient();
 
         client.Settings.Servers.Should().HaveCount(2);
         client.Settings.Servers.First().Host.Should().Be("localhost");
@@ -126,7 +123,7 @@ public class MongoDBTests
         var app = services.BuildServiceProvider();
 
         var factory = app.GetService<IMongoClientFactory<DatabaseDbContext>>();
-        var client = factory.GetCollection<Contract>("Contracts");
+        var client = factory!.GetCollection<Contract>("Contracts");
         client.Should().NotBeNull();
     }
 

@@ -1,7 +1,6 @@
-using System.Collections.Generic;
 using Arc4u.Core;
-using AutoFixture.AutoMoq;
 using AutoFixture;
+using AutoFixture.AutoMoq;
 using FluentAssertions;
 using Xunit;
 
@@ -38,7 +37,7 @@ public class ValueObjectTests
     [Fact]
     public void Test_Null_NotEqual_Operator_Should()
     {
-        SimpleObject? o = _fixture.Create<SimpleObject>();
+        var o = _fixture.Create<SimpleObject>();
 
         (o != null).Should().BeTrue();
     }
@@ -46,8 +45,8 @@ public class ValueObjectTests
     [Fact]
     public void Test_Null_NotEqual_Should()
     {
-        SimpleObject? o1 = _fixture.Create<SimpleObject>();
-        SimpleObject? o2 = _fixture.Create<SimpleObject>();
+        var o1 = _fixture.Create<SimpleObject>();
+        var o2 = _fixture.Create<SimpleObject>();
 
         (o1 != o2).Should().BeTrue();
     }
@@ -71,7 +70,7 @@ public class ValueObjectTests
 
 }
 
-public class  SimpleObject : ValueObject
+public class SimpleObject : ValueObject
 {
     public int Counter { get; set; }
 

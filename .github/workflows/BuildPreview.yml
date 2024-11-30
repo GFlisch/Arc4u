@@ -7,7 +7,7 @@ on:
         description: 'nuget version number x.y.z'     
         required: false
         type: string
-        default: '8.2.0'
+        default: '8.3.0'
       nugetPreviewName:
         description: 'nuget preview ?'     
         required: true

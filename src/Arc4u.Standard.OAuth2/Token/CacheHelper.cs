@@ -4,7 +4,6 @@ using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Options;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System;
 
 namespace Arc4u.OAuth2.Token;
 

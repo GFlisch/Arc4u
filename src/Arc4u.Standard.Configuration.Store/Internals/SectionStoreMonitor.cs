@@ -1,7 +1,7 @@
+using Arc4u.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Arc4u.Diagnostics;
 
 namespace Arc4u.Configuration.Store.Internals;
 
@@ -24,7 +24,7 @@ sealed class SectionStoreMonitor : BackgroundService
         return base.StartAsync(cancellationToken);
     }
 
-    protected async override Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _logger.Technical().LogInformation($"{nameof(SectionStoreMonitor)} Service started");
         try

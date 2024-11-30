@@ -1,17 +1,17 @@
 #if NET8_0_OR_GREATER
 
-using AutoFixture.AutoMoq;
+using Arc4u.AspNetCore.Results;
+using Arc4u.Results;
+using Arc4u.Results.Validation;
+using Arc4u.UnitTest.ProblemDetail;
 using AutoFixture;
-using Xunit;
+using AutoFixture.AutoMoq;
+using FluentAssertions;
 using FluentResults;
 using Microsoft.AspNetCore.Http;
-using Arc4u.AspNetCore.Results;
-using FluentAssertions;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Arc4u.Results;
-using Arc4u.UnitTest.ProblemDetail;
 using Microsoft.AspNetCore.Mvc;
-using Arc4u.Results.Validation;
+using Xunit;
 
 namespace Arc4u.Standard.UnitTest.ProblemDetails;
 public class ProblemDetailsWithTypedResultTests
@@ -58,7 +58,7 @@ public class ProblemDetailsWithTypedResultTests
         var uri = new Uri("about:blank");
         var okUri = _fixture.Create<Uri>();
 
-        var result = Result.Ok(value);
+        var result = Result.Ok<string?>(value);
 
         Func<ValueTask<Result<string?>>> valueTask = () => ValueTask.FromResult(result);
 
@@ -128,7 +128,7 @@ public class ProblemDetailsWithTypedResultTests
         // arrange
         var value = Guid.NewGuid().ToString();
 
-        var result = Result.Ok<string>(null);
+        var result = Result.Ok<string>(default!);
 
         Func<ValueTask<Result<string>>> valueTask = () => ValueTask.FromResult(result);
 
@@ -327,7 +327,7 @@ public class ProblemDetailsWithTypedResultTests
         var uri = new Uri("about:blank");
         var okUri = _fixture.Create<Uri>();
 
-        var result = Result.Ok(value);
+        var result = Result.Ok<string?>(value);
 
         Func<ValueTask<Result<string?>>> task = () => ValueTask.FromResult(result);
 
@@ -397,7 +397,7 @@ public class ProblemDetailsWithTypedResultTests
         // arrange
         var value = Guid.NewGuid().ToString();
 
-        var result = Result.Ok<string>(null);
+        var result = Result.Ok<string>(default!);
 
         Func<ValueTask<Result<string>>> task = () => ValueTask.FromResult(result);
 
@@ -656,7 +656,7 @@ public class ProblemDetailsWithTypedResultTests
         // arrange
         var value = Guid.NewGuid().ToString();
 
-        var result = Result.Ok<string>(null);
+        var result = Result.Ok<string>(default!);
 
         // act
         var sut = result.ToTypedOkResult((v) => $"{v} Arc4u");

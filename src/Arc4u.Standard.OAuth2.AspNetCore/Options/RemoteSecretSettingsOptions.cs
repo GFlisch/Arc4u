@@ -7,7 +7,7 @@ public class RemoteSecretSettingsOptions
 
     public string HeaderKey { get; set; } = "SecretKey";
 
-    public string ClientSecret { get; set; }
+    public string ClientSecret { get; set; } = default!;
 
     public string AuthenticationType { get; set; } = Constants.InjectAuthenticationType;
 

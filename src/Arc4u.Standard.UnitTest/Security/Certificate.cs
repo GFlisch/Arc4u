@@ -1,10 +1,10 @@
-using AutoFixture.AutoMoq;
-using AutoFixture;
-using Xunit;
-using Arc4u.Security.Cryptography;
-using FluentAssertions;
 using System.Security.Cryptography.X509Certificates;
+using Arc4u.Security.Cryptography;
 using Arc4u.UnitTest.Decryptor;
+using AutoFixture;
+using AutoFixture.AutoMoq;
+using FluentAssertions;
+using Xunit;
 
 namespace Arc4u.UnitTest.Security;
 
@@ -32,7 +32,6 @@ public class CertificateTests
         var cypherText = certificate.Encrypt(plainText);
         var sut = certificate.Decrypt(cypherText);
 
-
         // assert
         certificate.Should().NotBeNull();
         sut.Should().Be(plainText);
@@ -51,7 +50,6 @@ public class CertificateTests
         var cypherText = certificate.Encrypt(plainText);
         var sut = certificate.Decrypt(cypherText);
 
-
         // assert
         certificate.Should().NotBeNull();
         cypherText.Should().NotContain(".");
@@ -67,7 +65,6 @@ public class CertificateTests
         // act
         var cypherText = certificate.Encrypt(plainText);
         var sut = certificate.Decrypt(cypherText);
-
 
         // assert
         certificate.Should().NotBeNull();

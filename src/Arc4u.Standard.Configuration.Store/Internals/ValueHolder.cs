@@ -24,7 +24,6 @@ sealed class ValueHolder<TValue> : IValueHolder
     public static TValue? Deserialize(string json) => JsonSerializer.Deserialize<ValueHolder<TValue>>(json)!.Value;
 }
 
-
 static class ValueHolder
 {
     public static ValueHolder<TValue> Create<TValue>(TValue? value) => new(value);

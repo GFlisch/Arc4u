@@ -1,13 +1,12 @@
-using System;
 using Arc4u.OAuth2.Events;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace Arc4u.OAuth2.Options;
 public class OidcAuthenticationSectionOptions
 {
-    public AuthorityOptions DefaultAuthority { get; set; }
+    public AuthorityOptions DefaultAuthority { get; set; } = default!;
 
-    public string CookieName { get; set; }
+    public string CookieName { get; set; } = default!;
 
     public bool ValidateAuthority { get; set; } = true;
 
@@ -49,7 +48,7 @@ public class OidcAuthenticationSectionOptions
 
     public string CallbackPath { get; set; } = "/signin-oidc";
 
-    public string? CertSecurityKeyPath { get; set; } = null;
+    public string? CertSecurityKeyPath { get; set; } = default!;
 
     /// <summary>
     /// The <see cref="IPostConfigureOptions<CookieAuthenticationOptions"/> type used to configure the <see cref="CookieAuthenticationOptions"/>.
@@ -69,7 +68,7 @@ public class OidcAuthenticationSectionOptions
     public TimeSpan AuthenticationTicketTTL { get; set; } = TimeSpan.FromDays(7);
 
     /// <summary>
-    /// By default the audience is validated. It is always better to do this.
+    /// By default the audience is validated. It is always better to do 
     /// On Keycloak audience doesn't exist by default, so it is needed to disable it.
     /// </summary>
     public bool ValidateAudience { get; set; } = true;

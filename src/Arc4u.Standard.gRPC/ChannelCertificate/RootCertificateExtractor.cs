@@ -1,6 +1,3 @@
-#nullable enable
-using System;
-using System.Net.Http;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using Arc4u.Dependency.Attribute;

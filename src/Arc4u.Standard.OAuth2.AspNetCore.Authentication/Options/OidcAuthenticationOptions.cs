@@ -1,4 +1,3 @@
-using System;
 using System.Security.Cryptography.X509Certificates;
 using Arc4u.OAuth2.Configuration;
 using Arc4u.OAuth2.DataProtection;
@@ -9,33 +8,33 @@ using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 namespace Arc4u.OAuth2.Options;
 public class OidcAuthenticationOptions
 {
-    public AuthorityOptions DefaultAuthority { get; set; }
+    public AuthorityOptions DefaultAuthority { get; set; } = default!;
 
-    public string CookieName { get; set; }
+    public string CookieName { get; set; } = default!;
 
     public bool ValidateAuthority { get; set; } = true;
 
     public string OpenIdSettingsKey { get; set; } = Constants.OpenIdOptionsName;
 
-    public Action<OpenIdSettingsOption> OpenIdSettingsOptions { get; set; }
+    public Action<OpenIdSettingsOption> OpenIdSettingsOptions { get; set; } = default!;
 
     public string OAuth2SettingsKey { get; set; } = Constants.OAuth2OptionsName;
 
-    public Action<OAuth2SettingsOption> OAuth2SettingsOptions { get; set; }
+    public Action<OAuth2SettingsOption> OAuth2SettingsOptions { get; set; } = default!;
 
-    public Action<ClaimsIdentifierOption> ClaimsIdentifierOptions { get; set; }
+    public Action<ClaimsIdentifierOption> ClaimsIdentifierOptions { get; set; } = default!;
 
-    public X509Certificate2 Certificate { get; set; }
+    public X509Certificate2 Certificate { get; set; } = default!;
 
-    public Action<CacheTicketStoreOptions> AuthenticationCacheTicketStoreOption { get; set; }
+    public Action<CacheTicketStoreOptions> AuthenticationCacheTicketStoreOption { get; set; } = default!;
 
-    public Action<CacheStoreOption> DataProtectionCacheStoreOption { get; set; }
+    public Action<CacheStoreOption> DataProtectionCacheStoreOption { get; set; } = default!;
 
     public TimeSpan DefaultKeyLifetime { get; set; } = TimeSpan.FromDays(365);
 
     public string CallbackPath { get; set; } = "/signin-oidc";
 
-    public string ApplicationName { get; set; }
+    public string ApplicationName { get; set; } = default!;
 
     public Type JwtBearerEventsType { get; set; } = typeof(StandardBearerEvents);
 
@@ -45,7 +44,7 @@ public class OidcAuthenticationOptions
 
     public TimeSpan ForceRefreshTimeoutTimeSpan { get; set; } = TimeSpan.FromMinutes(5);
 
-    public X509Certificate2? CertSecurityKey { get; set; }
+    public X509Certificate2? CertSecurityKey { get; set; } = default!;
 
     /// <summary>
     /// The <see cref="IPostConfigureOptions<CookieAuthenticationOptions"/> type used to configure the <see cref="CookieAuthenticationOptions"/>.
@@ -65,7 +64,7 @@ public class OidcAuthenticationOptions
     public TimeSpan AuthenticationTicketTTL { get; set; } = TimeSpan.FromDays(7);
 
     /// <summary>
-    /// By default the audience is validated. It is always better to do this.
+    /// By default the audience is validated. It is always better to do 
     /// On Keycloak audience doesn't exist by default, so it is needed to disable it.
     /// </summary>
     public bool ValidateAudience { get; set; } = true;

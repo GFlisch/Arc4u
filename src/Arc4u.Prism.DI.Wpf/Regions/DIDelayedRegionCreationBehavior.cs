@@ -2,13 +2,12 @@
 using Prism.Regions;
 using Prism.Regions.Behaviors;
 
-namespace Prism.DI.Regions
+namespace Prism.DI.Regions;
+
+[Export(typeof(DelayedRegionCreationBehavior))]
+public class DIDelayedRegionCreationBehavior : DelayedRegionCreationBehavior
 {
-    [Export(typeof(DelayedRegionCreationBehavior))]
-    public class DIDelayedRegionCreationBehavior : DelayedRegionCreationBehavior
+    public DIDelayedRegionCreationBehavior(RegionAdapterMappings regionAdapterMappings) : base(regionAdapterMappings)
     {
-        public DIDelayedRegionCreationBehavior(RegionAdapterMappings regionAdapterMappings) : base(regionAdapterMappings)
-        {
-        }
     }
 }

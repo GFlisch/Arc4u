@@ -1,47 +1,45 @@
-﻿using System;
-using System.Threading.Tasks;
 using Arc4u.Security.Principal;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace Arc4u.OAuth2.Middleware
+namespace Arc4u.OAuth2.Middleware;
+
+public class ValidateSwaggerRightMiddleware
 {
+    private readonly RequestDelegate _next;
+    private readonly ValidateSwaggerRightMiddlewareOption _option;
 
-    public class ValidateSwaggerRightMiddleware
+    public ValidateSwaggerRightMiddleware(RequestDelegate next, ValidateSwaggerRightMiddlewareOption option)
     {
-        private readonly RequestDelegate _next;
-        private readonly ValidateSwaggerRightMiddlewareOption _option;
+        ArgumentNullException.ThrowIfNull(option);
 
-        public ValidateSwaggerRightMiddleware(RequestDelegate next, ValidateSwaggerRightMiddlewareOption option)
+        _next = next ?? throw new ArgumentNullException(nameof(next));
+
+        _option = option;
+    }
+
+    public async Task Invoke(HttpContext context)
+    {
+        var applicationContext = context.RequestServices.GetRequiredService<IApplicationContext>();
+
+        if (context.Request.Path.HasValue &&
+            string.Equals(context.Request.Path.Value.Trim('/'), _option.Path.Trim('/'), StringComparison.OrdinalIgnoreCase) &&
+            applicationContext.Principal is not null)
         {
-            if (null == option)
-                throw new ArgumentNullException(nameof(option));
-
-            _next = next ?? throw new ArgumentNullException(nameof(next));
-
-            _option = option;
-        }
-
-        public async Task Invoke(HttpContext context)
-        {
-            var applicationContext = ((IApplicationContext)context.RequestServices.GetService(typeof(IApplicationContext)));
-
-            if (context.Request.Path.HasValue && string.Equals(context.Request.Path.Value.Trim('/'), _option.Path.Trim('/'), StringComparison.OrdinalIgnoreCase))
+            if (applicationContext.Principal.IsAuthorized(_option.Access))
             {
-                if (applicationContext.Principal.IsAuthorized(_option.Access))
-                {
-                    await _next.Invoke(context);
-                }
-                else
-                {
-                    context.Response.StatusCode = 200;
-                    await context.Response.WriteAsync(_option.ContentToDisplay);
-                }
+                await _next.Invoke(context).ConfigureAwait(false);
             }
             else
-                await _next.Invoke(context);
-
+            {
+                context.Response.StatusCode = 200;
+                await context.Response.WriteAsync(_option.ContentToDisplay).ConfigureAwait(false);
+            }
         }
-
-
+        else
+        {
+            await _next.Invoke(context).ConfigureAwait(false);
+        }
     }
+
 }

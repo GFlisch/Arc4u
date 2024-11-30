@@ -22,9 +22,9 @@ public class SecretBasicSettingsOptions : BasicSettingsOptions
     /// </summary>
     public string BasicProviderId { get; set; } = CredentialTokenCacheTokenProvider.ProviderName;
 
-    public string User { get; set; }
+    public string User { get; set; } = default!;
 
-    public string Password { get; set; }
+    public string Password { get; set; } = default!;
 
-    public string Credential { get; set; }
+    public string Credential { get; set; } = default!;
 }

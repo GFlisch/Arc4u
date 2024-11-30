@@ -1,7 +1,6 @@
 using Arc4u.MongoDB.Exceptions;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
-using System;
 
 namespace Arc4u.MongoDB;
 
@@ -10,11 +9,11 @@ public class DefaultMongoClientFactory<TContext> : IMongoClientFactory<TContext>
     public DefaultMongoClientFactory(IOptionsMonitor<MongoClientSettings> clientSettings, IServiceProvider serviceProvider)
     {
         _clientSettings = clientSettings;
-        _mongoContext = (TContext)serviceProvider.GetService(typeof(TContext));
+        _mongoContext = (TContext?)serviceProvider.GetService(typeof(TContext)) ?? throw new InvalidOperationException($"No registration exist for type {typeof(TContext).Name}");
     }
 
-    IMongoDatabase _database;
-    IMongoClient _client;
+    IMongoDatabase? _database;
+    IMongoClient? _client;
     private static readonly object _locker = new object();
     readonly IOptionsMonitor<MongoClientSettings> _clientSettings;
     readonly TContext _mongoContext;
@@ -43,7 +42,6 @@ public class DefaultMongoClientFactory<TContext> : IMongoClientFactory<TContext>
             }
             throw new MongoClientException($"No mongo client settings defined for key {_mongoContext.DatabaseName}");
         }
-
 
     }
 
@@ -79,12 +77,11 @@ public class DefaultMongoClientFactory<TContext> : IMongoClientFactory<TContext>
     public IMongoCollection<TEntity> GetCollection<TEntity>()
     {
         var type = typeof(TEntity);
-        if (!_mongoContext.EntityCollectionTypes.ContainsKey(type))
+        if (!_mongoContext.EntityCollectionTypes.TryGetValue(type, out var collectionNames))
         {
             throw new TypeNotMappedToCollectionException();
         }
 
-        var collectionNames = _mongoContext.EntityCollectionTypes[type];
         if (collectionNames.Count != 1)
         {
             throw new TypeMappedToMoreThanOneCollectionException<TEntity>(collectionNames.Count);
@@ -93,6 +90,5 @@ public class DefaultMongoClientFactory<TContext> : IMongoClientFactory<TContext>
         var db = GetDatabase();
 
         return db.GetCollection<TEntity>(collectionNames[0]);
-
     }
 }

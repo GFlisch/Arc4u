@@ -1,9 +1,6 @@
-﻿using System;
+namespace Arc4u.Dependency.Configuration;
 
-namespace Arc4u.Dependency.Configuration
+public class TypeConfig
 {
-    public class TypeConfig
-    {
-        public String Type { get; set; }
-    }
+    public string Type { get; set; } = String.Empty;
 }

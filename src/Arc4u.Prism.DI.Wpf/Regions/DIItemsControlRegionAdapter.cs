@@ -1,13 +1,12 @@
 ﻿using Arc4u.Dependency.Attribute;
 using Prism.Regions;
 
-namespace Prism.DI.Regions
+namespace Prism.DI.Regions;
+
+[Export(typeof(DIItemsControlRegionAdapter))]
+public class DIItemsControlRegionAdapter : ItemsControlRegionAdapter
 {
-    [Export(typeof(DIItemsControlRegionAdapter))]
-    public class DIItemsControlRegionAdapter : ItemsControlRegionAdapter
+    public DIItemsControlRegionAdapter(IRegionBehaviorFactory regionBehaviorFactory) : base(regionBehaviorFactory)
     {
-        public DIItemsControlRegionAdapter(IRegionBehaviorFactory regionBehaviorFactory) : base(regionBehaviorFactory)
-        {
-        }
     }
 }

@@ -1,12 +1,9 @@
-﻿using System;
+namespace Arc4u.Data;
 
-namespace Arc4u.Data
+[AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
+public class RelationAttribute : Attribute
 {
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-    public class RelationAttribute : Attribute
-    {
-        public String NavigationProperty { get; set; }
+    public string NavigationProperty { get; set; } = String.Empty;
 
-        public String TargetRelationProperty { get; set; }
-    }
+    public string TargetRelationProperty { get; set; } = String.Empty;
 }

@@ -1,6 +1,3 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Arc4u.Dependency.Attribute;
 using Arc4u.OAuth2.Options;
 using Arc4u.OAuth2.Token;
@@ -35,7 +32,7 @@ public class OidcTokenProvider : ITokenProvider
     /// <exception cref="ArgumentNullException"/>
     /// <exception cref="ArgumentException" />
     /// <returns><see cref="TokenInfo"/></returns>
-    public async Task<TokenInfo> GetTokenAsync(IKeyValueSettings settings, object platformParameters)
+    public async Task<TokenInfo?> GetTokenAsync(IKeyValueSettings? settings, object? platformParameters)
     {
         ArgumentNullException.ThrowIfNull(settings);
 

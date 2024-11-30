@@ -1,16 +1,15 @@
-using AutoFixture.AutoMoq;
-using AutoFixture;
 using Arc4u.Caching.Redis;
+using Arc4u.Configuration.Redis;
+using Arc4u.Dependency;
+using Arc4u.Serializer;
+using AutoFixture;
+using AutoFixture.AutoMoq;
+using FluentAssertions;
 using Microsoft.Extensions.Configuration;
-using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using FluentAssertions;
-using Xunit;
-using Arc4u.Serializer;
-using Arc4u.Dependency;
 using Moq;
-using Arc4u.Configuration.Redis;
+using Xunit;
 
 namespace Arc4u.UnitTest.Caching;
 
@@ -44,7 +43,7 @@ public class RedisTests
                                      ["Option2:SerializerName"] = option2.SerializerName,
                                  }).Build();
 
-        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+        var configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
         IServiceCollection services = new ServiceCollection();
 
@@ -84,7 +83,7 @@ public class RedisTests
                                      ["Option1:SerializerName"] = option1.SerializerName,
                                  }).Build();
 
-        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+        var configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
         IServiceCollection services = new ServiceCollection();
 
@@ -182,7 +181,7 @@ public class RedisTests
                                      ["Store:InstanceName"] = "db1"
                                  }).Build();
 
-        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+        var configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
         IServiceCollection services = new ServiceCollection();
 
@@ -193,7 +192,7 @@ public class RedisTests
         var serviceProvider = services.BuildServiceProvider();
 
         var mockIContainer = _fixture.Freeze<Mock<IContainerResolve>>();
-        IObjectSerialization serializer = serviceProvider.GetRequiredService<IObjectSerialization>();
+        var serializer = serviceProvider.GetRequiredService<IObjectSerialization>();
         mockIContainer.Setup(m => m.TryResolve<IObjectSerialization>(out serializer)).Returns(true);
 
         var mockIOptions = _fixture.Freeze<Mock<IOptionsMonitor<RedisCacheOption>>>();

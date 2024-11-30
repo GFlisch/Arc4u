@@ -1,11 +1,10 @@
-using AutoFixture.AutoMoq;
-using AutoFixture;
 using Arc4u.Results;
+using AutoFixture;
+using AutoFixture.AutoMoq;
 using FluentAssertions;
-using Xunit;
 using FluentResults;
-using System;
 using Microsoft.AspNetCore.Http;
+using Xunit;
 
 namespace Arc4u.UnitTest.ProblemDetail;
 public class ProblemDetailErrorTests
@@ -86,7 +85,6 @@ public class ProblemDetailErrorTests
         sut.Title.Should().BeNull();
         sut.Metadata.Should().BeEmpty();
     }
-
 
     [Fact]
     [Trait("Category", "CI")]
@@ -187,7 +185,7 @@ public class ProblemDetailErrorTests
         var key1 = "key1";
         // act
         var sut = ProblemDetailError.Create(detail).WithMetadata(key1, metaData).WithMetadata(key1, metaData2);
-        
+
         // assert
         sut.Should().NotBeNull();
         sut.Should().BeOfType<ProblemDetailError>();

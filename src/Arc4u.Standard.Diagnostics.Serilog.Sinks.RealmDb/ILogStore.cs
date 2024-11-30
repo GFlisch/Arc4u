@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+namespace Arc4u.Diagnostics.Serilog.Sinks;
 
-namespace Arc4u.Diagnostics.Serilog.Sinks
+public interface ILogStore
 {
-    public interface ILogStore
-    {
-        List<LogMessage> GetLogs(String criteria, int skip, int take);
+    List<LogMessage> GetLogs(string criteria, int skip, int take);
 
-        void RemoveAll();
-    }
+    void RemoveAll();
 }

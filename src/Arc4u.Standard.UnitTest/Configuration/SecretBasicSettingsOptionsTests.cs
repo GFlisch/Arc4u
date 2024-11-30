@@ -1,17 +1,15 @@
-using AutoFixture.AutoMoq;
+using Arc4u.Configuration;
+using Arc4u.OAuth2;
+using Arc4u.OAuth2.Extensions;
+using Arc4u.OAuth2.Options;
+using Arc4u.OAuth2.Token;
 using AutoFixture;
-using Xunit;
+using AutoFixture.AutoMoq;
+using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using System.Collections.Generic;
-using Arc4u.OAuth2;
-using Arc4u.OAuth2.Extensions;
-using FluentAssertions;
-using Arc4u.Configuration;
-using Arc4u.OAuth2.Token;
-using System;
-using Arc4u.OAuth2.Options;
+using Xunit;
 
 namespace Arc4u.UnitTest;
 
@@ -55,7 +53,7 @@ public class SecretBasicSettingsOptionsTests
         var sut = serviceProvider.GetService<IOptionsMonitor<SimpleKeyValueSettings>>()!.Get("Client1");
 
         sut.Should().NotBeNull();
-        
+
         sut.Values[TokenKeys.ClientIdKey].Should().Be(options.ClientId);
         sut.Values[TokenKeys.AuthorityKey].Should().Be("Client1");
         sut.Values[TokenKeys.ProviderIdKey].Should().Be(_default.ProviderId);
@@ -119,7 +117,6 @@ public class SecretBasicSettingsOptionsTests
     {
         var options = _fixture.Create<SecretBasicSettingsOptions>();
         var _default = new SecretBasicSettingsOptions();
-        var authUrl = _fixture.Create<Uri>().ToString();
 
         var config = new ConfigurationBuilder()
                      .AddInMemoryCollection(
@@ -143,7 +140,7 @@ public class SecretBasicSettingsOptionsTests
 
         sut.Should().NotBeNull();
 
-        sut.Values[TokenKeys.ClientIdKey].Should().Be(options.ClientId);
+        sut!.Values[TokenKeys.ClientIdKey].Should().Be(options.ClientId);
         sut.Values[TokenKeys.ProviderIdKey].Should().Be(_default.ProviderId);
         sut.Values[TokenKeys.AuthenticationTypeKey].Should().Be(_default.AuthenticationType);
         sut.Values[TokenKeys.Scope].Should().Be("openid");
@@ -161,10 +158,7 @@ public class SecretBasicSettingsOptionsTests
     public void No_Secret_Should()
     {
         var config = new ConfigurationBuilder()
-                     .AddInMemoryCollection(
-                         new Dictionary<string, string?>
-                         {
-                         }).Build();
+                     .AddInMemoryCollection([]).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 

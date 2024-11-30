@@ -1,7 +1,6 @@
-﻿namespace Arc4u.NServiceBus
+namespace Arc4u.NServiceBus;
+
+public interface IMessageScope
 {
-    public interface IMessageScope
-    {
-        void Complete();
-    }
+    void Complete();
 }

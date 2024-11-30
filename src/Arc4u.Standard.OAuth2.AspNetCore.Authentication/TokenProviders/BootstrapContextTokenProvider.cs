@@ -1,8 +1,5 @@
-using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Threading;
-using System.Threading.Tasks;
 using Arc4u.Dependency.Attribute;
 using Arc4u.OAuth2.Token;
 using Arc4u.Security.Principal;
@@ -30,7 +27,7 @@ public class BootstrapContextTokenProvider : ITokenProvider
     /// <exception cref="ArgumentException" />
     /// <exception cref="TimeoutException" />
     /// <returns><see cref="TokenInfo"/></returns>
-    public Task<TokenInfo> GetTokenAsync(IKeyValueSettings settings, object platformParameters)
+    public Task<TokenInfo?> GetTokenAsync(IKeyValueSettings? settings, object? platformParameters)
     {
         ArgumentNullException.ThrowIfNull(settings);
 
@@ -44,7 +41,7 @@ public class BootstrapContextTokenProvider : ITokenProvider
 
             if (jwt.ValidTo > DateTime.UtcNow)
             {
-                return Task.FromResult(new TokenInfo("Bearer", token, jwt.ValidTo));
+                return Task.FromResult<TokenInfo?>(new TokenInfo("Bearer", token!, jwt.ValidTo));
             }
 
             throw new TimeoutException("The token provided is expired.");

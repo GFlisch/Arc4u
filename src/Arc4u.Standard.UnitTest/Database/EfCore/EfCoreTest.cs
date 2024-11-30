@@ -3,9 +3,6 @@ using Arc4u.UnitTest.Database.EfCore.Model;
 using Arc4u.UnitTest.Infrastructure;
 using AutoFixture;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace Arc4u.UnitTest.Database.EfCore;
@@ -16,11 +13,9 @@ public class EfCoreTests : BaseContainerFixture<EfCoreTests, EfCoreFixture>
 {
     public EfCoreTests(EfCoreFixture fixture) : base(fixture)
     {
-        using (var container = fixture.CreateScope())
-        using (var db = container.Resolve<DatabaseContext>())
-        {
-            db.Database.EnsureCreated();
-        }
+        using var container = fixture.CreateScope();
+        using var db = container.Resolve<DatabaseContext>();
+        db!.Database.EnsureCreated();
     }
 
     [Fact]
@@ -29,46 +24,42 @@ public class EfCoreTests : BaseContainerFixture<EfCoreTests, EfCoreFixture>
     {
         var fixture = new Fixture();
 
-        using (var container = Fixture.CreateScope())
-        using (var db = container.Resolve<DatabaseContext>())
+        using var container = Fixture.CreateScope();
+        using var db = container.Resolve<DatabaseContext>();
+        for (var i = 0; i < 10; i++)
         {
-            for (int i = 0; i < 10; i++)
-            {
-                var contract = fixture.Create<Contract>();
-                contract.PersistChange = Data.PersistChange.Insert;
+            var contract = fixture.Create<Contract>();
+            contract.PersistChange = Data.PersistChange.Insert;
 
-                db.ChangeTracker.TrackGraph(contract, e => ChangeGraphTracker.Tracker(e));
+            db!.ChangeTracker.TrackGraph(contract, ChangeGraphTracker.Tracker);
 
-                await db.SaveChangesAsync(CancellationToken.None).ConfigureAwait(false);
+            await db.SaveChangesAsync(CancellationToken.None);
 
-            }
-
-            var result = await db.Contracts.ToListAsync();
-
-            Assert.True(10 == result.Count());
         }
+
+        var result = await db!.Contracts.ToListAsync();
+
+        Assert.Equal(10, result.Count);
     }
 
     [Fact]
     [TestPriority(2)]
     public async Task TestDelete()
     {
-        using (var container = Fixture.CreateScope())
-        using (var db = container.Resolve<DatabaseContext>())
-        {
-            var result = await db.Contracts.ToListAsync();
+        using var container = Fixture.CreateScope();
+        using var db = container.Resolve<DatabaseContext>();
+        var result = await db!.Contracts.ToListAsync();
 
-            var toDelete = result.First();
-            toDelete.PersistChange = Data.PersistChange.Delete;
+        var toDelete = result.First();
+        toDelete.PersistChange = Data.PersistChange.Delete;
 
-            db.ChangeTracker.TrackGraph(toDelete, e => ChangeGraphTracker.Tracker(e));
+        db.ChangeTracker.TrackGraph(toDelete, ChangeGraphTracker.Tracker);
 
-            await db.SaveChangesAsync(CancellationToken.None).ConfigureAwait(false);
+        await db.SaveChangesAsync(CancellationToken.None);
 
-            result = await db.Contracts.ToListAsync();
+        result = await db.Contracts.ToListAsync();
 
-            Assert.True(9 == result.Count());
-        }
+        Assert.Equal(9, result.Count);
     }
 
     [Fact]
@@ -77,36 +68,33 @@ public class EfCoreTests : BaseContainerFixture<EfCoreTests, EfCoreFixture>
     {
         var fixture = new Fixture();
 
-        using (var container = Fixture.CreateScope())
-        using (var db = container.Resolve<DatabaseContext>())
-        {
+        using var container = Fixture.CreateScope();
+        using var db = container.Resolve<DatabaseContext>();
 
-            var contract = fixture.Create<Contract>();
-            contract.PersistChange = Data.PersistChange.Insert;
+        var contract = fixture.Create<Contract>();
+        contract.PersistChange = Data.PersistChange.Insert;
 
-            var id = contract.Id;
+        var id = contract.Id;
 
-            db.ChangeTracker.TrackGraph(contract, e => ChangeGraphTracker.Tracker(e));
+        db!.ChangeTracker.TrackGraph(contract, ChangeGraphTracker.Tracker);
 
-            await db.SaveChangesAsync(CancellationToken.None).ConfigureAwait(false);
-            contract = null;
-            db.ChangeTracker.Clear();
+        await db.SaveChangesAsync(CancellationToken.None);
+        contract = null;
+        db.ChangeTracker.Clear();
 
+        contract = db.Contracts.First(c => c.Id == id);
 
-            contract = db.Contracts.First(c => c.Id == id);
+        Assert.Equal(Data.PersistChange.None, contract.PersistChange);
 
-            Assert.Equal(Data.PersistChange.None, contract.PersistChange);
+        contract.PersistChange = Data.PersistChange.Update;
 
-            contract.PersistChange = Data.PersistChange.Update;
+        contract.Name = "Updated";
 
-            contract.Name = "Updated";
+        Assert.Equal(EntityState.Detached, db.Entry(contract).State);
 
-            Assert.Equal(EntityState.Detached, db.Entry(contract).State);
+        db.ChangeTracker.TrackGraph(contract, ChangeGraphTracker.Tracker);
 
-            db.ChangeTracker.TrackGraph(contract, e => ChangeGraphTracker.Tracker(e));
-            
-            await db.SaveChangesAsync(CancellationToken.None).ConfigureAwait(false);
-            db.ChangeTracker.Clear();
-        }
+        await db.SaveChangesAsync(CancellationToken.None);
+        db.ChangeTracker.Clear();
     }
 }

@@ -10,4 +10,3 @@ interface IValueHolder
     void Serialize(Stream stream);
 }
 
-

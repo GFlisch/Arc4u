@@ -1,13 +1,7 @@
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Security.Claims;
-using System.Threading;
-using System.Threading.Tasks;
 using Arc4u.Caching;
 using Arc4u.Configuration;
 using Arc4u.Dependency.ComponentModel;
@@ -43,6 +37,13 @@ public class JwtHandlerToTest : JwtHttpHandler
     }
 }
 
+public class JwtHandlerToTest2 : JwtHttpHandler
+{
+    public JwtHandlerToTest2(IServiceProvider serviceProvider, ILogger<JwtHandlerToTest> logger, IOptionsMonitor<SimpleKeyValueSettings> keyValuesSettingsOption, string resolvingName)
+        : base(serviceProvider, logger, keyValuesSettingsOption.Get(resolvingName))
+    {
+    }
+}
 /// <summary>
 /// This test will control the different scenario defined for the usage of the JWtHttpHandler.
 /// The handler can be used in the following case:
@@ -85,7 +86,7 @@ public class JwtHttpHandlerTests
                          }).Build();
 
         // Define an access token that will be used as the return of the call to the CredentialDirect token credential provider.
-        var jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
+        var jwt = new JwtSecurityToken("issuer", "audience", claims: [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
         var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
@@ -108,23 +109,27 @@ public class JwtHttpHandlerTests
         var container = new ComponentModelContainer(services);
         container.Register<ITokenProvider, OidcTokenProvider>(OidcTokenProvider.ProviderName);
         container.RegisterInstance<IHttpContextAccessor>(mockHttpContextAccessor.Object);
-        container.RegisterInstance<ITokenRefreshProvider>(mockTokenRefresh.Object);
+        container.RegisterInstance<ITokenRefreshProvider>(mockTokenRefresh!.Object);
         container.CreateContainer();
-
-        var scopedServiceAccessor = container.Resolve<IScopedServiceProviderAccessor>();
 
         // Create a scope to be in the context majority of the time a business code is.
         using var scopedContainer = container.CreateScope();
-       
-        scopedServiceAccessor.ServiceProvider = scopedContainer.ServiceProvider;
+
+        var scopedServiceAccessor = scopedContainer.Resolve<IScopedServiceProviderAccessor>();
+        scopedServiceAccessor!.ServiceProvider = scopedContainer.ServiceProvider;
 
         var tokenRefresh = scopedContainer.Resolve<TokenRefreshInfo>();
-        tokenRefresh.RefreshToken = new TokenInfo("refresh_token", Guid.NewGuid().ToString(), DateTime.UtcNow.AddHours(1));
-        tokenRefresh.AccessToken = new TokenInfo("access_token", accessToken);
-       
+        tokenRefresh!.RefreshToken = new TokenInfo("refresh_token", Guid.NewGuid().ToString(), DateTime.UtcNow.AddHours(1));
+        tokenRefresh!.AccessToken = new TokenInfo("access_token", accessToken);
+
+        var principal = new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.CookiesAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0")
+        {
+            Profile = UserProfile.Empty
+        };
+
         // Define a Principal with no OAuth2Bearer token here => we test the injection.
         var appContext = scopedContainer.Resolve<IApplicationContext>();
-        appContext.SetPrincipal(new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.CookiesAuthenticationType), "S-1-0-0"));
+        appContext!.SetPrincipal(principal);
 
         var setingsOptions = scopedContainer.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
 
@@ -137,14 +142,14 @@ public class JwtHttpHandlerTests
             .Verifiable();
 
         // Act
-        var sut = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>(), setingsOptions, Constants.OpenIdOptionsName)
+        var sut = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>()!, setingsOptions!, Constants.OpenIdOptionsName)
         {
             InnerHandler = innerHandler.Object
         };
 
         var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://example.com/");
         var invoker = new HttpMessageInvoker(sut);
-        var response = await invoker.SendAsync(httpRequestMessage, new CancellationToken()).ConfigureAwait(false);
+        var response = await invoker.SendAsync(httpRequestMessage, new CancellationToken());
 
         // Assert
         response.Should().NotBeNull();
@@ -155,6 +160,99 @@ public class JwtHttpHandlerTests
         httpRequestMessage.Headers.Authorization!.Parameter.Should().Be(accessToken);
     }
 
+    [Fact]
+    // Scenario 1
+    public async Task Jwt_With_OAuth2_And_Principal_With_OIDC_Token_Should2()
+    {
+        // arrange
+        // arrange the configuration to setup the Client secret.
+        var config = new ConfigurationBuilder()
+                     .AddInMemoryCollection(
+                         new Dictionary<string, string?>
+                         {
+                             ["Authentication:OpenId.Settings:ClientId"] = "aa17786b-e33c-41ec-81cc-6063610aedeb",
+                             ["Authentication:OpenId.Settings:ClientSecret"] = "This is a secret",
+                             ["Authentication:OpenId.Settings:Audiences:0"] = "urn://audience.com",
+                             ["Authentication:OpenId.Settings:Scopes:0"] = "user.read",
+                             ["Authentication:OpenId.Settings:Scopes:1"] = "user.write",
+                             ["Authentication:DefaultAuthority:Url"] = "https://login.microsoft.com"
+                         }).Build();
+
+        // Define an access token that will be used as the return of the call to the CredentialDirect token credential provider.
+        var jwt = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
+        var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
+
+        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+
+        // Register the different services.
+        IServiceCollection services = new ServiceCollection();
+
+        services.AddSingleton<IScopedServiceProviderAccessor, ScopedServiceProviderAccessor>();
+        services.AddDefaultAuthority(configuration);
+        services.ConfigureOpenIdSettings(configuration, "Authentication:OpenId.Settings");
+        services.AddScoped<IApplicationContext, ApplicationInstanceContext>();
+        services.AddScoped<TokenRefreshInfo>();
+        services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
+
+        var mockHttpContextAccessor = _fixture.Freeze<Mock<IHttpContextAccessor>>();
+        mockHttpContextAccessor.SetupGet(x => x.HttpContext).Returns(() => null);
+
+        var mockTokenRefresh = _fixture.Freeze<Mock<ITokenRefreshProvider>>();
+        // Register the different TokenProvider and CredentialTokenProviders.
+        var container = new ComponentModelContainer(services);
+        container.Register<ITokenProvider, OidcTokenProvider>(OidcTokenProvider.ProviderName);
+        container.RegisterInstance<IHttpContextAccessor>(mockHttpContextAccessor.Object);
+        container.RegisterInstance<ITokenRefreshProvider>(mockTokenRefresh!.Object);
+        container.CreateContainer();
+
+        var scopedServiceAccessor = container.Resolve<IScopedServiceProviderAccessor>();
+
+        // Create a scope to be in the context majority of the time a business code is.
+        using var scopedContainer = container.CreateScope();
+
+        scopedServiceAccessor!.ServiceProvider = scopedContainer.ServiceProvider;
+
+        var tokenRefresh = scopedContainer.Resolve<TokenRefreshInfo>();
+        tokenRefresh!.RefreshToken = new TokenInfo("refresh_token", Guid.NewGuid().ToString(), DateTime.UtcNow.AddHours(1));
+        tokenRefresh!.AccessToken = new TokenInfo("access_token", accessToken);
+
+        var principal = new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.CookiesAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0")
+        {
+            Profile = UserProfile.Empty
+        };
+
+        // Define a Principal with no OAuth2Bearer token here => we test the injection.
+        var appContext = scopedContainer.Resolve<IApplicationContext>();
+        appContext!.SetPrincipal(principal);
+
+        var setingsOptions = scopedContainer.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
+
+        // Define the end handler that will simulate the call to the endpoint.
+        var innerHandler = new Mock<HttpMessageHandler>();
+        innerHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK))
+            .Verifiable();
+
+        // Act
+        var sut = new JwtHandlerToTest2(scopedContainer.ServiceProvider, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>()!, setingsOptions!, Constants.OpenIdOptionsName)
+        {
+            InnerHandler = innerHandler.Object
+        };
+
+        var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://example.com/");
+        var invoker = new HttpMessageInvoker(sut);
+        var response = await invoker.SendAsync(httpRequestMessage, new CancellationToken());
+
+        // Assert
+        response.Should().NotBeNull();
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        httpRequestMessage.Headers.Authorization.Should().NotBeNull();
+        // The request must have a Bearer token injected in the authohirzation header.
+        httpRequestMessage.Headers.Authorization!.Scheme.Should().Be("Bearer");
+        httpRequestMessage.Headers.Authorization!.Parameter.Should().Be(accessToken);
+    }
     [Fact]
     // Scenario 2
     public async Task Jwt_With_OAuth2_And_Principal_With_Bearer_Token_Should()
@@ -171,7 +269,7 @@ public class JwtHttpHandlerTests
                          }).Build();
 
         // Define an access token that will be used as the return of the call to the CredentialDirect token credential provider.
-        var jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
+        var jwt = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
         var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
@@ -197,11 +295,16 @@ public class JwtHttpHandlerTests
         // Create a scope to be in the context majority of the time a business code is.
         using var scopedContainer = container.CreateScope();
         var scopedServiceAccessor = container.Resolve<IScopedServiceProviderAccessor>();
-        scopedServiceAccessor.ServiceProvider = scopedContainer.ServiceProvider;
+        scopedServiceAccessor!.ServiceProvider = scopedContainer.ServiceProvider;
+
+        var principal = new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0")
+        {
+            Profile = UserProfile.Empty
+        };
 
         // Define a Principal with no OAuth2Bearer token here => we test the injection.
         var appContext = scopedContainer.Resolve<IApplicationContext>();
-        appContext.SetPrincipal(new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessToken}, "S-1-0-0"));
+        appContext!.SetPrincipal(principal);
 
         var setingsOptions = scopedContainer.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
 
@@ -214,14 +317,14 @@ public class JwtHttpHandlerTests
             .Verifiable();
 
         // Act
-        var sut = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>(), setingsOptions, "OAuth2")
+        var sut = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>()!, setingsOptions!, "OAuth2")
         {
             InnerHandler = innerHandler.Object
         };
 
         var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://example.com/");
         var invoker = new HttpMessageInvoker(sut);
-        var response = await invoker.SendAsync(httpRequestMessage, new CancellationToken()).ConfigureAwait(false);
+        var response = await invoker.SendAsync(httpRequestMessage, new CancellationToken());
 
         // Assert
         response.Should().NotBeNull();
@@ -247,7 +350,7 @@ public class JwtHttpHandlerTests
             ["Authentication:ClientSecrets:Client1:Credential"] = $"{options.User}:password",
             ["Authentication:DefaultAuthority:Url"] = "https://login.microsoft.com"
         };
-        foreach(var scope in options.Scopes)
+        foreach (var scope in options.Scopes)
         {
             configDic.Add($"Authentication:ClientSecrets:Client1:Scopes:{options.Scopes.IndexOf(scope)}", scope);
         }
@@ -255,7 +358,7 @@ public class JwtHttpHandlerTests
                      .AddInMemoryCollection(configDic).Build();
 
         // Define an access token that will be used as the return of the call to the CredentialDirect token credential provider.
-        var jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
+        var jwt = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
         var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
@@ -276,9 +379,8 @@ public class JwtHttpHandlerTests
 
         // Mock the cache used by the Credential token provider.
         var mockTokenCache = _fixture.Freeze<Mock<ITokenCache>>();
-        mockTokenCache.Setup(m => m.Get<TokenInfo>(It.IsAny<string>())).Returns((TokenInfo)null);
+        mockTokenCache.Setup(m => m.Get<TokenInfo>(It.IsAny<string>())).Returns(() => default);
         mockTokenCache.Setup(m => m.Put<TokenInfo>(It.IsAny<string>(), It.IsAny<TokenInfo>()));
-
 
         var mockHttpContextAccessor = _fixture.Freeze<Mock<IHttpContextAccessor>>();
         mockHttpContextAccessor.SetupGet(x => x.HttpContext).Returns(() => null);
@@ -296,7 +398,7 @@ public class JwtHttpHandlerTests
         // Create a scope to be in the context majority of the time a business code is.
         using var scopedContainer = container.CreateScope();
         var scopedServiceAccessor = container.Resolve<IScopedServiceProviderAccessor>();
-        scopedServiceAccessor.ServiceProvider = scopedContainer.ServiceProvider;
+        scopedServiceAccessor!.ServiceProvider = scopedContainer.ServiceProvider;
 
         var setingsOptions = scopedContainer.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
 
@@ -309,14 +411,14 @@ public class JwtHttpHandlerTests
             .Verifiable();
 
         // Act
-        var sut = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>(), setingsOptions, "Client1")
+        var sut = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>()!, setingsOptions!, "Client1")
         {
             InnerHandler = innerHandler.Object
         };
 
         var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://example.com/");
         var invoker = new HttpMessageInvoker(sut);
-        var response = await invoker.SendAsync(httpRequestMessage, new CancellationToken()).ConfigureAwait(false);
+        var response = await invoker.SendAsync(httpRequestMessage, new CancellationToken());
 
         // Assert
         response.Should().NotBeNull();
@@ -366,7 +468,7 @@ public class JwtHttpHandlerTests
         // Create a scope to be in the context majority of the time a business code is.
         using var scopedContainer = container.CreateScope();
         var scopedServiceAccessor = container.Resolve<IScopedServiceProviderAccessor>();
-        scopedServiceAccessor.ServiceProvider = scopedContainer.ServiceProvider;
+        scopedServiceAccessor!.ServiceProvider = scopedContainer.ServiceProvider;
 
         var setingsOptions = scopedContainer.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
 
@@ -379,14 +481,14 @@ public class JwtHttpHandlerTests
             .Verifiable();
 
         // Act
-        var sut = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>(), setingsOptions, "Remote1")
+        var sut = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>()!, setingsOptions!, "Remote1")
         {
             InnerHandler = innerHandler.Object
         };
 
         var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://example.com/");
         var invoker = new HttpMessageInvoker(sut);
-        var response = await invoker.SendAsync(httpRequestMessage, new CancellationToken()).ConfigureAwait(false);
+        var response = await invoker.SendAsync(httpRequestMessage, new CancellationToken());
 
         // Assert
         response.Should().NotBeNull();
@@ -436,7 +538,7 @@ public class JwtHttpHandlerTests
         // Create a scope to be in the context majority of the time a business code is.
         using var scopedContainer = container.CreateScope();
         var scopedServiceAccessor = container.Resolve<IScopedServiceProviderAccessor>();
-        scopedServiceAccessor.ServiceProvider = scopedContainer.ServiceProvider;
+        scopedServiceAccessor!.ServiceProvider = scopedContainer.ServiceProvider;
 
         var setingsOptions = scopedContainer.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
 
@@ -449,14 +551,14 @@ public class JwtHttpHandlerTests
             .Verifiable();
 
         // Act
-        var sut = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>(), setingsOptions, "Remote1")
+        var sut = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>()!, setingsOptions!, "Remote1")
         {
             InnerHandler = innerHandler.Object
         };
 
         var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://example.com/");
         var invoker = new HttpMessageInvoker(sut);
-        var response = await invoker.SendAsync(httpRequestMessage, new CancellationToken()).ConfigureAwait(false);
+        var response = await invoker.SendAsync(httpRequestMessage, new CancellationToken());
 
         // Assert
         response.Should().NotBeNull();
@@ -465,7 +567,6 @@ public class JwtHttpHandlerTests
         httpRequestMessage.Headers.Contains(options.HeaderKey).Should().BeTrue();
         httpRequestMessage.Headers.GetValues(options.HeaderKey).FirstOrDefault().Should().Be(options.ClientSecret);
     }
-
 
     [Fact]
     // Scenario 6
@@ -487,7 +588,7 @@ public class JwtHttpHandlerTests
                          }).Build();
 
         // Define an access token that will be used as the return of the call to the CredentialDirect token credential provider.
-        var jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
+        var jwt = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
         var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
@@ -506,7 +607,7 @@ public class JwtHttpHandlerTests
         mockHttpContextAccessor.SetupGet(x => x.HttpContext).Returns(() => null);
 
         var mockActivitySourceFactory = new Mock<IActivitySourceFactory>();
-        mockActivitySourceFactory.Setup(m => m.Get("Arc4u", null)).Returns((ActivitySource)null);
+        mockActivitySourceFactory.Setup(m => m.Get("Arc4u", null)).Returns<ActivitySource?>(default!);
         services.AddSingleton<IActivitySourceFactory>(mockActivitySourceFactory.Object);
 
         // Uses the cache to return the access token in the Obo provider => avoid any call to the Authority!
@@ -527,11 +628,16 @@ public class JwtHttpHandlerTests
         // Create a scope to be in the context majority of the time a business code is.
         using var scopedContainer = container.CreateScope();
         var scopedServiceAccessor = container.Resolve<IScopedServiceProviderAccessor>();
-        scopedServiceAccessor.ServiceProvider = scopedContainer.ServiceProvider;
+        scopedServiceAccessor!.ServiceProvider = scopedContainer.ServiceProvider;
+
+        var principal = new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0")
+        {
+            Profile = UserProfile.Empty
+        };
 
         // Define a Principal with no OAuth2Bearer token here => we test the injection.
         var appContext = scopedContainer.Resolve<IApplicationContext>();
-        appContext.SetPrincipal(new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0"));
+        appContext!.SetPrincipal(principal);
 
         var setingsOptions = scopedContainer.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
 
@@ -544,14 +650,14 @@ public class JwtHttpHandlerTests
             .Verifiable();
 
         // Act
-        var sut = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>(), setingsOptions, "Obo")
+        var sut = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>()!, setingsOptions!, "Obo")
         {
             InnerHandler = innerHandler.Object
         };
 
         var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://example.com/");
         var invoker = new HttpMessageInvoker(sut);
-        var response = await invoker.SendAsync(httpRequestMessage, new CancellationToken()).ConfigureAwait(false);
+        var response = await invoker.SendAsync(httpRequestMessage, new CancellationToken());
 
         // Assert
         response.Should().NotBeNull();
@@ -583,10 +689,10 @@ public class JwtHttpHandlerTests
                          }).Build();
 
         // Define an access token that will be used as the return of the call to the CredentialDirect token credential provider.
-        var jwtOAuth2 = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
+        var jwtOAuth2 = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
         var accessTokenOAuth2 = new JwtSecurityTokenHandler().WriteToken(jwtOAuth2);
 
-        var jwtCookies = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
+        var jwtCookies = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
         var accessTokenCookies = new JwtSecurityTokenHandler().WriteToken(jwtCookies);
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
@@ -615,15 +721,20 @@ public class JwtHttpHandlerTests
         // Create a scope to be in the context majority of the time a business code is.
         using var scopedContainer = container.CreateScope();
         var scopedServiceAccessor = container.Resolve<IScopedServiceProviderAccessor>();
-        scopedServiceAccessor.ServiceProvider = scopedContainer.ServiceProvider;
+        scopedServiceAccessor!.ServiceProvider = scopedContainer.ServiceProvider;
 
         var tokenRefresh = scopedContainer.Resolve<TokenRefreshInfo>();
-        tokenRefresh.RefreshToken = new TokenInfo("refresh_token", Guid.NewGuid().ToString(), DateTime.UtcNow.AddHours(1));
-        tokenRefresh.AccessToken = new TokenInfo("access_token", accessTokenCookies);
+        tokenRefresh!.RefreshToken = new TokenInfo("refresh_token", Guid.NewGuid().ToString(), DateTime.UtcNow.AddHours(1));
+        tokenRefresh!.AccessToken = new TokenInfo("access_token", accessTokenCookies);
+
+        var principal = new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessTokenOAuth2 }, "S-1-0-0")
+        {
+            Profile = UserProfile.Empty
+        };
 
         // Define a Principal with no OAuth2Bearer token here => we test the injection.
         var appContext = scopedContainer.Resolve<IApplicationContext>();
-        appContext.SetPrincipal(new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessTokenOAuth2 }, "S-1-0-0"));
+        appContext!.SetPrincipal(principal);
 
         var setingsOptions = scopedContainer.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
 
@@ -636,9 +747,9 @@ public class JwtHttpHandlerTests
             .Verifiable();
 
         // Act
-        var sut = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>(), setingsOptions, Constants.OAuth2OptionsName)
+        var sut = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>()!, setingsOptions!, Constants.OAuth2OptionsName)
         {
-            InnerHandler = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>(), setingsOptions, Constants.OpenIdOptionsName)
+            InnerHandler = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>()!, setingsOptions!, Constants.OpenIdOptionsName)
             {
                 InnerHandler = innerHandler.Object
             }
@@ -646,7 +757,7 @@ public class JwtHttpHandlerTests
 
         var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://example.com/");
         var invoker = new HttpMessageInvoker(sut);
-        var response = await invoker.SendAsync(httpRequestMessage, new CancellationToken()).ConfigureAwait(false);
+        var response = await invoker.SendAsync(httpRequestMessage, new CancellationToken());
 
         // Assert
         response.Should().NotBeNull();
@@ -678,10 +789,10 @@ public class JwtHttpHandlerTests
                          }).Build();
 
         // Define an access token that will be used as the return of the call to the CredentialDirect token credential provider.
-        var jwtOAuth2 = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
+        var jwtOAuth2 = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
         var accessTokenOAuth2 = new JwtSecurityTokenHandler().WriteToken(jwtOAuth2);
 
-        var jwtCookies = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
+        var jwtCookies = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
         var accessTokenCookies = new JwtSecurityTokenHandler().WriteToken(jwtCookies);
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
@@ -707,21 +818,26 @@ public class JwtHttpHandlerTests
         container.Register<ITokenProvider, OidcTokenProvider>(OidcTokenProvider.ProviderName);
         container.Register<ITokenProvider, BootstrapContextTokenProvider>(BootstrapContextTokenProvider.ProviderName);
         container.RegisterInstance<IHttpContextAccessor>(mockHttpContextAccessor.Object);
-        container.RegisterInstance<ITokenRefreshProvider>(mockTokenRefresh.Object);
+        container.RegisterInstance<ITokenRefreshProvider>(mockTokenRefresh!.Object);
         container.CreateContainer();
 
         // Create a scope to be in the context majority of the time a business code is.
         using var scopedContainer = container.CreateScope();
         var scopedServiceAccessor = container.Resolve<IScopedServiceProviderAccessor>();
-        scopedServiceAccessor.ServiceProvider = scopedContainer.ServiceProvider;
+        scopedServiceAccessor!.ServiceProvider = scopedContainer.ServiceProvider;
 
         var tokenRefresh = scopedContainer.Resolve<TokenRefreshInfo>();
-        tokenRefresh.RefreshToken = new TokenInfo("refresh_token", Guid.NewGuid().ToString(), DateTime.UtcNow.AddHours(1));
-        tokenRefresh.AccessToken = new TokenInfo("access_token", accessTokenCookies);
+        tokenRefresh!.RefreshToken = new TokenInfo("refresh_token", Guid.NewGuid().ToString(), DateTime.UtcNow.AddHours(1));
+        tokenRefresh!.AccessToken = new TokenInfo("access_token", accessTokenCookies);
+
+        var principal = new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessTokenOAuth2 }, "S-1-0-0")
+        {
+            Profile = UserProfile.Empty
+        };
 
         // Define a Principal with no OAuth2Bearer token here => we test the injection.
         var appContext = scopedContainer.Resolve<IApplicationContext>();
-        appContext.SetPrincipal(new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.CookiesAuthenticationType), "S-1-0-0"));
+        appContext!.SetPrincipal(principal);
 
         var setingsOptions = scopedContainer.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
 
@@ -734,9 +850,9 @@ public class JwtHttpHandlerTests
             .Verifiable();
 
         // Act
-        var sut = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>(), setingsOptions, Constants.OAuth2OptionsName)
+        var sut = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>()!, setingsOptions!, Constants.OAuth2OptionsName)
         {
-            InnerHandler = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>(), setingsOptions, Constants.OpenIdOptionsName)
+            InnerHandler = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>()!, setingsOptions!, Constants.OpenIdOptionsName)
             {
                 InnerHandler = innerHandler.Object
             }
@@ -744,7 +860,7 @@ public class JwtHttpHandlerTests
 
         var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://example.com/");
         var invoker = new HttpMessageInvoker(sut);
-        var response = await invoker.SendAsync(httpRequestMessage, new CancellationToken()).ConfigureAwait(false);
+        var response = await invoker.SendAsync(httpRequestMessage, new CancellationToken());
 
         // Assert
         response.Should().NotBeNull();
@@ -780,10 +896,10 @@ public class JwtHttpHandlerTests
                          }).Build();
 
         // Define an access token that will be used as the return of the call to the CredentialDirect token credential provider.
-        var jwtOAuth2 = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
+        var jwtOAuth2 = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
         var accessTokenOAuth2 = new JwtSecurityTokenHandler().WriteToken(jwtOAuth2);
 
-        var jwtCookies = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
+        var jwtCookies = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
         var accessTokenCookies = new JwtSecurityTokenHandler().WriteToken(jwtCookies);
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
@@ -815,15 +931,20 @@ public class JwtHttpHandlerTests
         // Create a scope to be in the context majority of the time a business code is.
         using var scopedContainer = container.CreateScope();
         var scopedServiceAccessor = container.Resolve<IScopedServiceProviderAccessor>();
-        scopedServiceAccessor.ServiceProvider = scopedContainer.ServiceProvider;
+        scopedServiceAccessor!.ServiceProvider = scopedContainer.ServiceProvider;
 
         var tokenRefresh = scopedContainer.Resolve<TokenRefreshInfo>();
-        tokenRefresh.RefreshToken = new TokenInfo("refresh_token", Guid.NewGuid().ToString(), DateTime.UtcNow.AddHours(1));
-        tokenRefresh.AccessToken = new TokenInfo("access_token", accessTokenCookies);
+        tokenRefresh!.RefreshToken = new TokenInfo("refresh_token", Guid.NewGuid().ToString(), DateTime.UtcNow.AddHours(1));
+        tokenRefresh!.AccessToken = new TokenInfo("access_token", accessTokenCookies);
+
+        var principal = new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessTokenOAuth2 }, "S-1-0-0")
+        {
+            Profile = UserProfile.Empty
+        };
 
         // Define a Principal with no OAuth2Bearer token here => we test the injection.
         var appContext = scopedContainer.Resolve<IApplicationContext>();
-        appContext.SetPrincipal(new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessTokenOAuth2 }, "S-1-0-0"));
+        appContext!.SetPrincipal(principal);
 
         var setingsOptions = scopedContainer.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
 
@@ -836,11 +957,11 @@ public class JwtHttpHandlerTests
             .Verifiable();
 
         // Act
-        var sut = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>(), setingsOptions, Constants.OAuth2OptionsName)
+        var sut = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>()!, setingsOptions!, Constants.OAuth2OptionsName)
         {
-            InnerHandler = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>(), setingsOptions, Constants.OpenIdOptionsName)
+            InnerHandler = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>()!, setingsOptions!, Constants.OpenIdOptionsName)
             {
-                InnerHandler = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>(), setingsOptions, "Remote1")
+                InnerHandler = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>()!, setingsOptions!, "Remote1")
                 {
                     InnerHandler = innerHandler.Object
                 }
@@ -849,7 +970,7 @@ public class JwtHttpHandlerTests
 
         var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://example.com/");
         var invoker = new HttpMessageInvoker(sut);
-        var response = await invoker.SendAsync(httpRequestMessage, new CancellationToken()).ConfigureAwait(false);
+        var response = await invoker.SendAsync(httpRequestMessage, new CancellationToken());
 
         // Assert
         response.Should().NotBeNull();

@@ -1,11 +1,7 @@
-using System;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
-using System.Threading.Tasks;
 using Arc4u.Configuration;
 using Arc4u.Dependency;
 using Arc4u.Diagnostics;
@@ -26,7 +22,6 @@ public class BasicAuthenticationMiddleware
     private readonly RequestDelegate _next;
     private readonly BasicAuthenticationSettingsOptions _options;
     private readonly ILogger<BasicAuthenticationMiddleware> _logger;
-    private readonly ActivitySource _activitySource;
 
     public BasicAuthenticationMiddleware(RequestDelegate next, IServiceProvider serviceProvider)
     {
@@ -60,8 +55,6 @@ public class BasicAuthenticationMiddleware
         {
             _logger.Technical().Error($"No token cache is defined for Basic Authentication.").Log();
         }
-
-        _activitySource = container.Resolve<IActivitySourceFactory>().GetArc4u();
     }
 
     public async Task Invoke(HttpContext context)
@@ -97,7 +90,7 @@ public class BasicAuthenticationMiddleware
                 // Replace the Basic Authorization by the access token in the header.
                 var authorization = new AuthenticationHeaderValue("Bearer", tokenInfo.Token).ToString();
                 context.Request.Headers.Remove("Authorization");
-                context.Request.Headers.Add("Authorization", authorization);
+                context.Request.Headers.Append("Authorization", authorization);
             }
             else
             {
@@ -119,6 +112,12 @@ public class BasicAuthenticationMiddleware
             var container = serviceProvider.GetRequiredService<IContainerResolve>();
 
             var provider = container.Resolve<ICredentialTokenProvider>(_options.BasicSettings.Values[TokenKeys.ProviderIdKey]);
+
+            if (null == provider)
+            {
+                _logger.Technical().LogError($"No token provider has been resolved with the ProviderId {_options.BasicSettings.Values[TokenKeys.ProviderIdKey]}.");
+                return null;
+            }
 
             // Get an Access Token.
             return await provider.GetTokenAsync(_options.BasicSettings, credential).ConfigureAwait(false);
@@ -182,10 +181,14 @@ public class BasicAuthenticationMiddleware
 
     private CredentialsResult GetBasicCredential([DisallowNull] HttpContext context)
     {
-        if (context.Request.Headers.TryGetValue("Authorization", out var authzValue) && authzValue.Any(value => value.Contains("Basic")))
+        if (context.Request.Headers.TryGetValue("Authorization", out var authzValue) && authzValue.Any(value => value is not null && value.Contains("Basic")))
         {
-            var authorization = authzValue.First(basic => basic.StartsWith("Basic ", StringComparison.OrdinalIgnoreCase));
+            var authorization = authzValue.First(basic => basic is not null && basic.StartsWith("Basic ", StringComparison.OrdinalIgnoreCase));
 
+            if (null == authorization)
+            {
+                return new CredentialsResult(false);
+            }
             // We have a Basic authentication.
             var token = authorization["Basic ".Length..].Trim();
 

@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+namespace Arc4u.Dependency.Configuration;
 
-namespace Arc4u.Dependency.Configuration
+public class AssemblyConfig
 {
-    public class AssemblyConfig
-    {
-        public String Assembly { get; set; }
+    public string Assembly { get; set; } = String.Empty;
 
-        public ICollection<String> RejectedTypes { get; set; }
-    }
+    public ICollection<string> RejectedTypes { get; set; } = [];
 }

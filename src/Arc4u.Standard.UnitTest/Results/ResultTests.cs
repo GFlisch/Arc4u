@@ -1,5 +1,3 @@
-using System;
-using System.Threading.Tasks;
 using Arc4u.Results;
 using Arc4u.Results.Validation;
 using AutoFixture;
@@ -49,7 +47,7 @@ public class ResultTests
         {
             await Task.Delay(1).ConfigureAwait(false);
             flag = true;
-        }).ConfigureAwait(false);
+        });
 
         flag.Should().BeTrue();
         sut.Should().BeSameAs(result.Result);
@@ -82,7 +80,7 @@ public class ResultTests
         {
             await Task.Delay(1).ConfigureAwait(false);
             flag = true;
-        }).ConfigureAwait(false);
+        });
 
         flag.Should().BeFalse();
         sut.Should().BeSameAs(result.Result);
@@ -116,12 +114,11 @@ public class ResultTests
             await Task.Delay(1000).ConfigureAwait(false);
             flag = true;
         })
-        .ConfigureAwait(false);
+;
 
         flag.Should().BeTrue();
         sut.Should().BeSameAs(result.Result);
     }
-
 
     [Fact]
     [Trait("Category", "CI")]
@@ -151,7 +148,7 @@ public class ResultTests
             await Task.Delay(1).ConfigureAwait(false);
             flag = true;
         })
-        .ConfigureAwait(false);
+;
 
         flag.Should().BeFalse();
         sut.Should().BeSameAs(result.Result);
@@ -181,7 +178,6 @@ public class ResultTests
 
         var sut = await result.LogIfFailed()
                               .OnFailed((errors) => globalResult.WithErrors(errors));
-                                
 
         sut.Should().BeSameAs(result.Result);
         globalResult.IsFailed.Should().BeTrue();
@@ -192,9 +188,9 @@ public class ResultTests
     [Trait("Category", "CI")]
     public async Task Test_Exception_Failed_Should()
     {
-        Result globalResult = Result.Ok();
+        var globalResult = Result.Ok();
 
-        Func<Task> error = () => throw new DbUpdateException(); 
+        Func<Task> error = () => throw new DbUpdateException();
 
         await Result.Try(() => error())
                     .OnFailed(globalResult);
@@ -211,11 +207,8 @@ public class ResultTests
     {
         ValidationError error = new ValidationFailure() { ErrorMessage = "A", ErrorCode = "Code" };
 
-        IError ierror = error;
-
-        ierror.Message.Should().Be("A");
+        error.Message.Should().Be("A");
     }
-
 
     [Fact]
     [Trait("Category", "CI")]
@@ -227,7 +220,7 @@ public class ResultTests
 
         sut.IsFailed.Should().BeTrue();
         sut.Errors.Count.Should().Be(1);
-        var error = sut.Errors[0].As<ValidationError>(); 
+        var error = sut.Errors[0].As<ValidationError>();
         error.Message.Should().Be("A");
         error.Code.Should().Be("Code");
         error.Metadata["Severity"].Should().Be(Severity.Warning);

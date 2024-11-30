@@ -1,6 +1,6 @@
 using System.Security.Cryptography.X509Certificates;
-using Arc4u.Security.Cryptography;
 using Microsoft.Extensions.Configuration;
+using X509CertificateLoader = Arc4u.Security.Cryptography.X509CertificateLoader;
 
 namespace Arc4u.Configuration.Decryptor;
 
@@ -43,6 +43,6 @@ public class SecretCertificateConfigurationSource : IConfigurationSource
     {
         var sources = builder.Sources.ToList();
         var index = sources.IndexOf(this);
-        return sources.Take(index).Where(s => s.GetType() != this.GetType()).ToList();
+        return sources.Take(index).Where(s => s.GetType() != GetType()).ToList();
     }
 }

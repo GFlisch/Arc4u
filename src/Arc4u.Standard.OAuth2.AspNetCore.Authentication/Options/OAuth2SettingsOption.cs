@@ -5,12 +5,12 @@ public class OAuth2SettingsOption
 
     public string AuthenticationType { get; set; } = Constants.BearerAuthenticationType;
 
-    public AuthorityOptions? Authority { get; set; }
+    public AuthorityOptions? Authority { get; set; } = default!;
 
-    public List<string> Audiences { get; set; } = new List<string>();
+    public List<string> Audiences { get; set; } = [];
 
     // use for Obo scenario.
-    public List<string> Scopes { get; set; } = new List<string>();
+    public List<string> Scopes { get; set; } = [];
 
     public bool ValidateAudience { get; set; } = true;
 

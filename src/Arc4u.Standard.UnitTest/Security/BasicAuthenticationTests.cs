@@ -1,18 +1,15 @@
-using AutoFixture.AutoMoq;
+using Arc4u.OAuth2;
+using Arc4u.OAuth2.Extensions;
+using Arc4u.OAuth2.Middleware;
+using Arc4u.OAuth2.Options;
+using Arc4u.OAuth2.Token;
 using AutoFixture;
-using Xunit;
+using AutoFixture.AutoMoq;
+using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System.Collections.Generic;
-using Arc4u.OAuth2.Options;
-using Arc4u.OAuth2.Extensions;
-using System;
 using Microsoft.Extensions.Options;
-using FluentAssertions;
-using Arc4u.OAuth2.Options;
-using Arc4u.OAuth2;
-using Arc4u.OAuth2.Middleware;
-using Arc4u.OAuth2.Token;
+using Xunit;
 
 namespace Arc4u.UnitTest.Security;
 
@@ -64,7 +61,7 @@ public class BasicAuthenticationTests
         {
             ["Authentication:Basic:Settings:ClientId"] = basicSettings.ClientId,
         };
-        foreach(var scope in basicSettings.Scopes)
+        foreach (var scope in basicSettings.Scopes)
         {
             configDic.Add($"Authentication:Basic:Settings:Scopes:{basicSettings.Scopes.IndexOf(scope)}", scope);
         }

@@ -1,13 +1,8 @@
-﻿
+namespace Arc4u.Network.Connectivity;
 
-using System;
-
-namespace Arc4u.Network.Connectivity
+public interface INetworkInformation
 {
-    public interface INetworkInformation
-    {
-        NetworkStatus Status { get; }
+    NetworkStatus Status { get; }
 
-        event EventHandler<NetworkInformationArgs> StatusMonitoring;
-    }
+    event EventHandler<NetworkInformationArgs> StatusMonitoring;
 }

@@ -1,16 +1,13 @@
-﻿using System;
+namespace Arc4u.Events;
 
-namespace Arc4u.Events
+public class ChangedEventArgs<TValue> : EventArgs
 {
-    public class ChangedEventArgs<TValue> : EventArgs
+    public ChangedEventArgs(TValue oldValue, TValue newValue)
     {
-        public ChangedEventArgs(TValue oldValue, TValue newValue)
-        {
-            OldValue = oldValue;
-            NewValue = newValue;
-        }
-
-        public TValue OldValue { get; }
-        public TValue NewValue { get; }
+        OldValue = oldValue;
+        NewValue = newValue;
     }
+
+    public TValue OldValue { get; }
+    public TValue NewValue { get; }
 }

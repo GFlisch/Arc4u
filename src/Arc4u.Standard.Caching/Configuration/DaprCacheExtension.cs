@@ -1,11 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Arc4u.Configuration.Dapr;
 
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
 public static class DaprCacheExtension
 {
     public static IServiceCollection AddDaprCache(this IServiceCollection services, [DisallowNull] string name, Action<DaprCacheOption> options)
@@ -17,14 +16,7 @@ public static class DaprCacheExtension
             o.Name = rawCacheOption.Name;
         });
 
-#if NET7_0_OR_GREATER
         ArgumentException.ThrowIfNullOrEmpty(name);
-#else
-        if (string.IsNullOrEmpty(name))
-        {
-            throw new ArgumentException("The value cannot be an empty string.", nameof(name));
-        }
-#endif
 
         services.Configure<DaprCacheOption>(name, action);
 

@@ -1,5 +1,4 @@
-#if NET6_0_OR_GREATER
-using System;
+#if NET8_0_OR_GREATER
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,14 +11,7 @@ public static class SqlCacheExtension
         var validate = new SqlCacheOption();
         new Action<SqlCacheOption>(options).Invoke(validate);
 
-#if NET7_0_OR_GREATER
         ArgumentException.ThrowIfNullOrEmpty(name);
-#else
-        if (string.IsNullOrEmpty(name))
-        {
-            throw new ArgumentException("The value cannot be an empty string.", nameof(name));
-        }
-#endif
 
         services.Configure<SqlCacheOption>(name, options);
 

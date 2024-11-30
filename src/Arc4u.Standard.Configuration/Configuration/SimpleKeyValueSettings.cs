@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 namespace Arc4u.Configuration;
 
 /// <summary>
@@ -39,7 +36,7 @@ public class SimpleKeyValueSettings : IKeyValueSettings, IEquatable<SimpleKeyVal
     {
         if (!string.IsNullOrWhiteSpace(value))
         {
-            _keyValues.Add(key, value);
+            _keyValues.Add(key, value!);
         }
     }
     private readonly Dictionary<string, string> _keyValues;
@@ -54,7 +51,7 @@ public class SimpleKeyValueSettings : IKeyValueSettings, IEquatable<SimpleKeyVal
             hashCode.Add(value);
         return hashCode.ToHashCode();
 #else
-        int hash = 0;
+        var hash = 0;
         foreach (var value in Values)
         {
             hash ^= value.GetHashCode();
@@ -64,7 +61,7 @@ public class SimpleKeyValueSettings : IKeyValueSettings, IEquatable<SimpleKeyVal
 #endif
     }
 
-    public bool Equals(SimpleKeyValueSettings other)
+    public bool Equals(SimpleKeyValueSettings? other)
     {
         if (other != null && other._keyValues.Count == _keyValues.Count)
         {
@@ -81,7 +78,7 @@ public class SimpleKeyValueSettings : IKeyValueSettings, IEquatable<SimpleKeyVal
         return false;
     }
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         return obj is SimpleKeyValueSettings other && Equals(other);
     }

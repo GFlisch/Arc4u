@@ -44,7 +44,7 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
            dotnet-version: |
-             8.0.100
+             9.0.100
 
       - name: Set the NuGet PackageId in the project files
         run: .\src\Builds\SetNuGetPackageIdPrefix.ps1 ".." "${{ github.event.inputs.nugetPackageIdPrefix }}"
@@ -54,12 +54,7 @@ jobs:
         uses: nuget/setup-nuget@v1
         with:
           nuget-version: latest
-      # - name: msbuild
-      #   uses: microsoft/setup-msbuild@v1.1
-      #   with:
-      #     vs-prerelease: true
-          # vs-version: '[17.3, 18.0)'
- 
+     
       - name: nuget restore
         run: dotnet restore .\src\arc4u.sln
  

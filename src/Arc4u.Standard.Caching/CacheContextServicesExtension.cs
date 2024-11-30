@@ -1,12 +1,14 @@
-using System;
-using Arc4u.Configuration.Dapr;
 using Arc4u.Configuration.Memory;
-using Arc4u.Configuration.Redis;
-using Arc4u.Configuration.Sql;
 using Arc4u.Dependency;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+
+#if NET8_0_OR_GREATER
+using Arc4u.Configuration.Redis;
+using Arc4u.Configuration.Sql;
+using Arc4u.Configuration.Dapr;
+#endif
 
 namespace Arc4u.Caching;
 
@@ -14,7 +16,7 @@ public static class CacheContextServicesExtension
 {
     public static void AddCacheContext(this IServiceCollection services, IConfiguration configuration, string sectionName = "Caching")
     {
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(configuration);
 #endif
 #if NETSTANDARD2_0_OR_GREATER
@@ -27,10 +29,14 @@ public static class CacheContextServicesExtension
 
         if (!section.Exists())
         {
-            throw new NullReferenceException($"Section {sectionName} in the configuration providers doesn't exists!");
+            throw new InvalidOperationException($"Section {sectionName} in the configuration providers doesn't exists!");
         }
 
         var config = section.Get<Configuration.Caching>();
+        if (config == null)
+        {
+            throw new InvalidOperationException("Configuration for caching is missing.");
+        }
 
         services.TryAddSingleton<ICacheContext, CacheContext>();
 
@@ -43,7 +49,7 @@ public static class CacheContextServicesExtension
                 case "memory":
                     services.AddMemoryCache(cache.Name, configuration, BuildCacheSettingsSectionPath(idx, sectionName));
                     break;
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
                 case "redis":
                     services.AddRedisCache(cache.Name, configuration, BuildCacheSettingsSectionPath(idx, sectionName));
                     break;
@@ -64,7 +70,7 @@ public static class CacheContextServicesExtension
         return $"{rootSectionName}:Caches:{idx}:Settings";
     }
 
-    public static ICacheContext GetCacheContext(this IContainerResolve container)
+    public static ICacheContext? GetCacheContext(this IContainerResolve container)
     {
         return container.Resolve<ICacheContext>();
     }

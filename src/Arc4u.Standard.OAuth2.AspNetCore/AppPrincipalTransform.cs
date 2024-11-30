@@ -1,11 +1,7 @@
-using System.Collections.Generic;
-using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using Arc4u.Configuration;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
@@ -14,9 +10,9 @@ using Arc4u.OAuth2.Options;
 using Arc4u.OAuth2.Token;
 using Arc4u.Security.Principal;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Arc4u.OAuth2;
 
@@ -71,6 +67,9 @@ public class AppPrincipalTransform : IClaimsTransformation
 
     public async Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
     {
+        ArgumentNullException.ThrowIfNull(principal);
+        ArgumentNullException.ThrowIfNull(principal.Identity);
+
         AppPrincipal appPrincipal;
 
         _logger.Technical().System("Create the principal.").Log();
@@ -91,9 +90,9 @@ public class AppPrincipalTransform : IClaimsTransformation
 
             // Build an AppPrincipal.
 
-            var authorization = _claimAuthorizationFiller.GetAuthorization(principal.Identity);
-            var profile = _claimProfileFiller.GetProfile(principal.Identity);
-            appPrincipal = new AppPrincipal(authorization, principal.Identity, profile.Sid) { Profile = profile };
+            var authorization = _claimAuthorizationFiller.GetAuthorization(principal.Identity!);
+            var profile = _claimProfileFiller.GetProfile(principal.Identity!);
+            appPrincipal = new AppPrincipal(authorization, principal.Identity!, profile.Sid) { Profile = profile };
 
             _applicationContext.SetPrincipal(appPrincipal);
         }

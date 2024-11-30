@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,7 +28,7 @@ public static class ConfigurationHelper
         var configBuilder = new ConfigurationBuilder();
 
         var disposables = new List<IDisposable>();
-        var assemblies = new Dictionary<String, Assembly>();
+        var assemblies = new Dictionary<string, Assembly>();
 
         foreach (var file in fileTypes)
         {
@@ -46,7 +43,9 @@ public static class ConfigurationHelper
             {
                 var a = Assembly.Load(assemblyName);
                 if (null != a)
+                {
                     assemblies.Add(assemblyName, a);
+                }
             }
 
             var stream = assemblies[assemblyName].GetManifestResourceStream(fileInfo[1].Trim());
@@ -60,18 +59,15 @@ public static class ConfigurationHelper
         var configuration = configBuilder.Build();
 
         foreach (var disp in disposables)
+        {
             disp.Dispose();
+        }
 
         return configuration;
     }
 
     public static void AddApplicationConfig(this IServiceCollection services, Action<ApplicationConfig> option)
     {
-        if (option is null)
-        {
-            throw new ArgumentNullException(nameof(option));
-        }
-
         var validate = new ApplicationConfig();
         option(validate);
 
@@ -109,27 +105,33 @@ public static class ConfigurationHelper
 
     public static void AddApplicationConfig(this IServiceCollection services, IConfiguration configuration, string sectionName = "Application.Configuration")
     {
-        if (string.IsNullOrEmpty(sectionName))
-        {
-            throw new ArgumentNullException(nameof(sectionName));
-        }
 
+#if NET8_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(configuration);
+        ArgumentNullException.ThrowIfNullOrEmpty(sectionName);
+#else
         if (configuration is null)
         {
             throw new ArgumentNullException(nameof(configuration));
         }
-
-        var section = configuration.GetSection(sectionName);
-
-        if (section is null)
+        if (string.IsNullOrEmpty(sectionName))
         {
-            throw new NullReferenceException($"No section exists with name {sectionName}");
+            throw new ArgumentNullException(nameof(sectionName));
         }
-
-        var config = section.Get<ApplicationConfig>();
+#endif
+        var section = configuration.GetSection(sectionName) ?? throw new NullReferenceException($"No section exists with name {sectionName}");
+        var config = section.Get<ApplicationConfig>() ?? throw new NullReferenceException($"section exists with name {sectionName} but it is not an ApplicationConfig object.");
 
         void OptionFiller(ApplicationConfig option)
         {
+#if NET8_0_OR_GREATER
+            ArgumentNullException.ThrowIfNull(option);
+#else
+            if (option is null)
+            {
+                throw new ArgumentNullException(nameof(option));
+            }
+#endif
             option.ApplicationName = config.ApplicationName;
             option.Environment.Name = config.Environment.Name;
             option.Environment.LoggingName = config.Environment.LoggingName;
@@ -138,5 +140,4 @@ public static class ConfigurationHelper
 
         AddApplicationConfig(services, OptionFiller);
     }
-
 }

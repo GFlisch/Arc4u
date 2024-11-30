@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Arc4u.Configuration;
 using Arc4u.OAuth2.Options;
 using Arc4u.OAuth2.Token;
@@ -39,11 +36,11 @@ public class RemoteSecretsTokenProviderTests
 
         // act
         var sut = _fixture.Create<RemoteClientSecretTokenProvider>();
-        var token = await sut.GetTokenAsync(settings, null).ConfigureAwait(false);
+        var token = await sut.GetTokenAsync(settings, null);
 
         // assert
         token.Should().NotBeNull();
-        token.Token.Should().Be(options.ClientSecret);
+        token!.Token.Should().Be(options.ClientSecret);
         token.TokenType.Should().Be(options.HeaderKey);
     }
 
@@ -51,10 +48,10 @@ public class RemoteSecretsTokenProviderTests
     public async Task RemoteSecrets_TokenProvider_With_No_Settings_Should()
     {
         // arrange
- 
+
         // act
         var sut = _fixture.Create<RemoteClientSecretTokenProvider>();
-        var exception = await Record.ExceptionAsync(async () => await sut.GetTokenAsync(null, null).ConfigureAwait(false)).ConfigureAwait(false);
+        var exception = await Record.ExceptionAsync(async () => await sut.GetTokenAsync(null, null).ConfigureAwait(false));
 
         // assert
         exception.Should().NotBeNull();
@@ -75,7 +72,7 @@ public class RemoteSecretsTokenProviderTests
 
         // act
         var sut = _fixture.Create<RemoteClientSecretTokenProvider>();
-        var exception = await Record.ExceptionAsync(async () => await sut.GetTokenAsync(settings, null).ConfigureAwait(false)).ConfigureAwait(false);
+        var exception = await Record.ExceptionAsync(async () => await sut.GetTokenAsync(settings, null).ConfigureAwait(false));
 
         // assert
         exception.Should().NotBeNull();
@@ -96,7 +93,7 @@ public class RemoteSecretsTokenProviderTests
 
         // act
         var sut = _fixture.Create<RemoteClientSecretTokenProvider>();
-        var exception = await Record.ExceptionAsync(async () => await sut.GetTokenAsync(settings, null).ConfigureAwait(false)).ConfigureAwait(false);
+        var exception = await Record.ExceptionAsync(async () => await sut.GetTokenAsync(settings, null).ConfigureAwait(false));
 
         // assert
         exception.Should().NotBeNull();

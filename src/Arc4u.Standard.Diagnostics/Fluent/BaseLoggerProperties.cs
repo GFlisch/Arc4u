@@ -1,26 +1,25 @@
-﻿namespace Arc4u.Diagnostics
+﻿namespace Arc4u.Diagnostics;
+
+public abstract class BaseLoggerProperties
 {
-    public abstract class BaseLoggerProperties
+    protected private readonly LoggerMessage LoggerMessage;
+
+    internal BaseLoggerProperties(LoggerMessage loggerMessage)
     {
-        protected private readonly LoggerMessage LoggerMessage;
+        LoggerMessage = loggerMessage;
+    }
 
-        internal BaseLoggerProperties(LoggerMessage loggerMessage)
-        {
-            LoggerMessage = loggerMessage;
-        }
+    internal void AddProperty(string key, object value)
+    {
+        // If the property already exists, it will be updated. Otherwise, it will be added
+        LoggerMessage.Properties[key] = value;
+    }
 
-        internal void AddProperty(string key, object value)
-        {
-            // If the property already exists, it will be updated. Otherwise, it will be added
-            LoggerMessage.Properties[key] = value;
-        }
-
-        /// <summary>
-        /// Log the message.
-        /// </summary>
-        public void Log()
-        {
-            LoggerMessage.Log();
-        }
+    /// <summary>
+    /// Log the message.
+    /// </summary>
+    public void Log()
+    {
+        LoggerMessage.Log();
     }
 }

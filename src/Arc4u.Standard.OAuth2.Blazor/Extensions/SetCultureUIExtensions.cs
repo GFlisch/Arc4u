@@ -1,42 +1,44 @@
-﻿using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using Microsoft.Extensions.DependencyInjection;
-using System;
 using System.Globalization;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace Arc4u.Blazor
+namespace Arc4u.Blazor;
+
+/// <summary>
+/// Provides extension methods for setting the default culture.
+/// </summary>
+public static class SetCultureUIExtensions
 {
     /// <summary>
-    /// Provides extension methods for setting the default culture.
+    /// Sets the default culture for the application from local storage.
     /// </summary>
-    public static class SetCultureUIExtensions
+    /// <param name="host">The WebAssemblyHost instance on which to set the default culture.</param>
+    /// <returns>A Task that represents the asynchronous operation.</returns>
+    /// <remarks>If no culture is found in local storage or an error occurs, this method will fail silently.</remarks>
+    public static async Task SetDefaultCulture(this WebAssemblyHost host)
     {
-        /// <summary>
-        /// Sets the default culture for the application from local storage.
-        /// </summary>
-        /// <param name="host">The WebAssemblyHost instance on which to set the default culture.</param>
-        /// <returns>A Task that represents the asynchronous operation.</returns>
-        /// <remarks>If no culture is found in local storage or an error occurs, this method will fail silently.</remarks>
-        public static async Task SetDefaultCulture(this WebAssemblyHost host)
+        try
         {
-            try
+            var localStorage = host.Services.GetService<Blazored.LocalStorage.ILocalStorageService>();
+
+            if (null == localStorage)
             {
-                var localStorage = host.Services.GetService<Blazored.LocalStorage.ILocalStorageService>();
-
-                var culture = await localStorage.GetItemAsync<string>("uiculture");
-
-                if (!string.IsNullOrEmpty(culture))
-                {
-                    var cultureInfo = new CultureInfo(culture);
-                    CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
-                    CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
-                }
-
+                throw new InvalidOperationException("Localstorage doesn't exist.");
             }
-            catch (Exception)
+
+            var culture = await localStorage.GetItemAsync<string>("uiculture").ConfigureAwait(false);
+
+            if (!string.IsNullOrEmpty(culture))
             {
-                // ignored
+                var cultureInfo = new CultureInfo(culture);
+                CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+                CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
             }
+
+        }
+        catch (Exception)
+        {
+            // ignored
         }
     }
 }

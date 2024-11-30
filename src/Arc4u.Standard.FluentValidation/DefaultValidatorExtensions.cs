@@ -3,7 +3,6 @@ using Arc4u.FluentValidation.Rules;
 using Arc4u.ServiceModel;
 using FluentValidation;
 using FluentValidation.Results;
-using System;
 
 namespace Arc4u.FluentValidation;
 

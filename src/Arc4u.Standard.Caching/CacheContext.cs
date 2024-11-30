@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using Arc4u.Configuration;
 using Arc4u.Dependency;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
@@ -27,16 +23,14 @@ public class CacheContext : ICacheContext
 
     public const string Dapr = "Dapr";
 
-    private Dictionary<string, ICache> _caches = new();
-    private Dictionary<string, string> _uninitializedCaches = new();
-    private string _cacheConfigName;
+    private Dictionary<string, ICache> _caches = [];
+    private Dictionary<string, string> _uninitializedCaches = [];
+    private string _cacheConfigName = string.Empty;
 
     private static readonly object _lock = new();
 
     private readonly IContainerResolve _dependency;
     private readonly ILogger<CacheContext> _logger;
-
-//    public CachingPrincipal Principal { get; set; }
 
     /// <summary>
     /// Initialise the cache following the caching config section.
@@ -81,7 +75,7 @@ public class CacheContext : ICacheContext
                         {
                             if (_dependency.TryResolve<ICache>(cacheConfig.Kind, out var cache))
                             {
-                                cache.Initialize(cacheConfig.Name);
+                                cache!.Initialize(cacheConfig.Name);
 
                                 _caches.Add(cacheConfig.Name, cache);
 
@@ -131,25 +125,26 @@ public class CacheContext : ICacheContext
                 {
                     try
                     {
-                        var cache = _dependency.Resolve<ICache>(cacheKind);
+                        if (_dependency.TryResolve<ICache>(cacheKind, out var cache))
+                        {
+                            cache!.Initialize(cacheName);
 
-                        cache.Initialize(cacheName);
+                            _caches.Add(cacheName, cache);
 
-                        _caches.Add(cacheName, cache);
+                            // thread-safe update of the _cache and _uninitializedCaches is required because they can be accessed by other threads outside the lock
+                            // (both in calls to this[string] as in Exists(string))
+                            // To avoid locks, we use a copy+atomic exchange method. Since we are not dealing with a large number of items, this is still efficient.
+                            var caches = new Dictionary<string, ICache>(_caches);
+                            var uninitializedCaches = new Dictionary<string, string>(_uninitializedCaches);
+                            caches.Add(cacheName, cache);
+                            uninitializedCaches.Remove(cacheName);
 
-                        // thread-safe update of the _cache and _uninitializedCaches is required because they can be accessed by other threads outside the lock
-                        // (both in calls to this[string] as in Exists(string))
-                        // To avoid locks, we use a copy+atomic exchange method. Since we are not dealing with a large number of items, this is still efficient.
-                        var caches = new Dictionary<string, ICache>(_caches);
-                        var uninitializedCaches = new Dictionary<string, string>(_uninitializedCaches);
-                        caches.Add(cacheName, cache);
-                        uninitializedCaches.Remove(cacheName);
+                            // atomic exchange of object state. 
+                            Interlocked.Exchange(ref _caches, caches);
+                            Interlocked.Exchange(ref _uninitializedCaches, uninitializedCaches);
 
-                        // atomic exchange of object state. 
-                        Interlocked.Exchange(ref _caches, caches);
-                        Interlocked.Exchange(ref _uninitializedCaches, uninitializedCaches);
-
-                        return cache;
+                            return cache;
+                        }
                     }
                     catch (Exception ex)
                     {

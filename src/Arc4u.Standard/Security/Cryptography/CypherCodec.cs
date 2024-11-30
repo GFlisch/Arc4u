@@ -1,5 +1,3 @@
-using System;
-using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -19,7 +17,7 @@ public static class CypherCodec
     /// <param name="rgbKey">The RGB key.</param>
     /// <param name="rgbIV">The RGB IV.</param>
     /// <returns>the clear text.</returns>
-    public static string DecodeCypherString(string cypherText, byte[] rgbKey, byte[] rgbIV)
+    public static string DecodeCypherstring(string cypherText, byte[] rgbKey, byte[] rgbIV)
     {
         using var aes = Aes.Create();
         using var decryptor = aes.CreateDecryptor(rgbKey, rgbIV);

@@ -1,9 +1,9 @@
+using System.Diagnostics;
 using Arc4u.Dependency;
 using Arc4u.Diagnostics;
 using Arc4u.Serializer;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics;
 
 namespace Arc4u.Caching;
 
@@ -11,18 +11,22 @@ public abstract class BaseDistributeCache<T> : ICache
 {
     private bool disposed;
 
-    protected IDistributedCache DistributeCache { get; set; }
+    protected DistributedCacheEntryOptions DefaultOption = new DistributedCacheEntryOptions();
+    private IObjectSerialization? _serializerFactory;
+    private readonly ILogger<T> _logger;
+
+    protected IDistributedCache? DistributeCache { get; set; }
 
     protected readonly object _lock = new object();
     protected bool IsInitialized { get; set; }
 
     // The reason why the cache is not initialized, this will be used when an exception is thrown.
-    protected string NotInitializedReason { get; set; }
+    protected string NotInitializedReason { get; set; } = string.Empty;
 
     protected readonly IContainerResolve _container;
 
     protected IContainerResolve Container => _container;
-    private readonly ActivitySource _activitySource;
+    private readonly ActivitySource? _activitySource;
 
     public BaseDistributeCache(ILogger<T> logger, IContainerResolve container)
     {
@@ -41,7 +45,7 @@ public abstract class BaseDistributeCache<T> : ICache
 
         if (container.TryResolve<IActivitySourceFactory>(out var activitySourceFactory))
         {
-            _activitySource = activitySourceFactory.GetArc4u();
+            _activitySource = activitySourceFactory!.GetArc4u();
         }
     }
 
@@ -68,28 +72,24 @@ public abstract class BaseDistributeCache<T> : ICache
         }
     }
 
-    public TValue Get<TValue>(string key)
+    public TValue? Get<TValue>(string key)
     {
         CheckIfInitialized();
 
         try
         {
-            byte[] blob = null;
-            using (var activity = _activitySource?.StartActivity("Get from cache.", ActivityKind.Producer))
+            byte[]? blob = [];
+            using var activity = _activitySource?.StartActivity("Get from cache.", ActivityKind.Producer);
+            activity?.SetTag("cacheKey", key);
+
+            blob = DistributeCache?.Get(key);
+            if (null == blob)
             {
-                activity?.SetTag("cacheKey", key);
-
-                blob = DistributeCache?.Get(key);
-                if (null == blob)
-                {
-                    return default(TValue);
-                }
-
-                using (var serializerActivity = _activitySource?.StartActivity("Deserialize.", ActivityKind.Producer))
-                {
-                    return SerializerFactory.Deserialize<TValue>(blob);
-                }
+                return default(TValue);
             }
+
+            using var serializerActivity = _activitySource?.StartActivity("Deserialize.", ActivityKind.Producer);
+            return SerializerFactory.Deserialize<TValue>(blob);
         }
         catch (Exception ex)
         {
@@ -97,29 +97,24 @@ public abstract class BaseDistributeCache<T> : ICache
         }
     }
 
-
-    public async Task<TValue> GetAsync<TValue>(string key, CancellationToken cancellation = default(CancellationToken))
+    public async Task<TValue?> GetAsync<TValue>(string key, CancellationToken cancellation = default(CancellationToken))
     {
         CheckIfInitialized();
 
         try
         {
             byte[]? blob = null;
-            using (var activity = _activitySource?.StartActivity("Get from cache.", ActivityKind.Producer))
+            using var activity = _activitySource?.StartActivity("Get from cache.", ActivityKind.Producer);
+            activity?.SetTag("cacheKey", key);
+
+            blob = DistributeCache is null ? null : await DistributeCache.GetAsync(key, cancellation).ConfigureAwait(false);
+            if (null == blob)
             {
-                activity?.SetTag("cacheKey", key);
-
-                blob = DistributeCache is null ? null : await DistributeCache.GetAsync(key, cancellation).ConfigureAwait(false);
-                if (null == blob)
-                {
-                    return default(TValue);
-                }
-
-                using (var serializerActivity = _activitySource?.StartActivity("Deserialize.", ActivityKind.Producer))
-                {
-                    return SerializerFactory.Deserialize<TValue>(blob);
-                }
+                return default(TValue);
             }
+
+            using var serializerActivity = _activitySource?.StartActivity("Deserialize.", ActivityKind.Producer);
+            return SerializerFactory.Deserialize<TValue>(blob);
 
         }
         catch (Exception ex)
@@ -131,46 +126,45 @@ public abstract class BaseDistributeCache<T> : ICache
     public virtual void Initialize(string store) { }
 
     protected IObjectSerialization SerializerFactory
-                {
-                    get
-                    {
-                        if (null == _serializerFactory)
-                        {
-                            _logger.Technical().LogError("A strong dependency on IObjectSerialization exists in Arc4u and distribute caching!");
-                        }
-
-                        return _serializerFactory;
-                    }
-                    set => _serializerFactory = value; }
-
-    protected DistributedCacheEntryOptions DefaultOption = new DistributedCacheEntryOptions();
-    private IObjectSerialization _serializerFactory;
-    private ILogger<T> _logger;
-
-    public void Put<T>(string key, T value)
     {
-        CheckIfInitialized();
-
-        if (value == null)
+        get
         {
-            throw new ArgumentNullException(nameof(value));
-        }
-
-        using (var activity = _activitySource?.StartActivity("Put to cache.", ActivityKind.Producer))
-        {
-            byte[] blob = null;
-
-            using (var serializerActivity = _activitySource?.StartActivity("Serialize.", ActivityKind.Producer))
+            if (null == _serializerFactory)
             {
-                blob = SerializerFactory.Serialize<T>(value);
+                _logger.Technical().LogError("A strong dependency on IObjectSerialization exists in Arc4u and distribute caching!");
             }
 
-            activity?.SetTag("cacheKey", key);
-            DistributeCache?.Set(key, blob, DefaultOption);
+            return _serializerFactory ?? throw new NullReferenceException("No serializer exists!");
         }
-
+        set => _serializerFactory = value;
     }
-    public async Task PutAsync<T>(string key, T value, CancellationToken cancellation = default(CancellationToken))
+
+    public void Put<TValue>(string key, TValue value)
+    {
+        CheckIfInitialized();
+
+#if NET8_0_OR_GREATER
+        if (EqualityComparer<TValue>.Default.Equals(value, default(TValue)))
+#else
+        if (value == null)
+#endif
+        {
+            throw new ArgumentNullException(nameof(value));
+        }
+
+        using var activity = _activitySource?.StartActivity("Put to cache.", ActivityKind.Producer);
+        byte[] blob = [];
+
+        using (var serializerActivity = _activitySource?.StartActivity("Serialize.", ActivityKind.Producer))
+        {
+            blob = SerializerFactory.Serialize<TValue>(value);
+        }
+
+        activity?.SetTag("cacheKey", key);
+        DistributeCache?.Set(key, blob, DefaultOption);
+    }
+
+    public async Task PutAsync<TValue>(string key, TValue value, CancellationToken cancellation = default(CancellationToken))
     {
         CheckIfInitialized();
 
@@ -179,22 +173,23 @@ public abstract class BaseDistributeCache<T> : ICache
             throw new ArgumentNullException(nameof(value));
         }
 
-        using (var activity = _activitySource?.StartActivity("Put to cache.", ActivityKind.Producer))
+        using var activity = _activitySource?.StartActivity("Put to cache.", ActivityKind.Producer);
+        byte[] blob = [];
+
+        using (var serializerActivity = _activitySource?.StartActivity("Serialize.", ActivityKind.Producer))
         {
-            byte[] blob = null;
+            blob = SerializerFactory.Serialize<TValue>(value);
+        }
 
-            using (var serializerActivity = _activitySource?.StartActivity("Serialize.", ActivityKind.Producer))
-            {
-                blob = SerializerFactory.Serialize<T>(value);
-            }
+        activity?.SetTag("cacheKey", key);
 
-            activity?.SetTag("cacheKey", key);
-
+        if (null != DistributeCache)
+        {
             await DistributeCache.SetAsync(key, blob, DefaultOption, cancellation).ConfigureAwait(false);
         }
     }
 
-    public void Put<T>(string key, TimeSpan timeout, T value, bool isSlided = false)
+    public void Put<TValue>(string key, TimeSpan timeout, TValue value, bool isSlided = false)
     {
         CheckIfInitialized();
 
@@ -203,47 +198,12 @@ public abstract class BaseDistributeCache<T> : ICache
             throw new ArgumentNullException(nameof(value));
         }
 
-        byte[] blob = null;
-
-        using (var activity = _activitySource?.StartActivity("Put to cache.", ActivityKind.Producer))
-        {
-            using (var serializerActivity = _activitySource?.StartActivity("Serialize.", ActivityKind.Producer))
-            {
-                blob = SerializerFactory.Serialize<T>(value);
-            }
-
-            var dceo = new DistributedCacheEntryOptions();
-            if (isSlided)
-            {
-                dceo.SetSlidingExpiration(timeout);
-            }
-            else
-            {
-                dceo.SetAbsoluteExpiration(timeout);
-            }
-
-            activity?.SetTag("cacheKey", key);
-
-            DistributeCache?.Set(key, blob, dceo);
-        }
-    }
-
-    public async Task PutAsync<T>(string key, TimeSpan timeout, T value, bool isSlided = false, CancellationToken cancellation = default(CancellationToken))
-    {
-        CheckIfInitialized();
-
-        if (value == null)
-        {
-            throw new ArgumentNullException(nameof(value));
-        }
-
-        byte[]? blob = null;
+        byte[] blob = [];
 
         using var activity = _activitySource?.StartActivity("Put to cache.", ActivityKind.Producer);
-
         using (var serializerActivity = _activitySource?.StartActivity("Serialize.", ActivityKind.Producer))
         {
-            blob = SerializerFactory.Serialize<T>(value);
+            blob = SerializerFactory.Serialize<TValue>(value);
         }
 
         var dceo = new DistributedCacheEntryOptions();
@@ -258,10 +218,44 @@ public abstract class BaseDistributeCache<T> : ICache
 
         activity?.SetTag("cacheKey", key);
 
-
-        await DistributeCache.SetAsync(key, blob, dceo, cancellation).ConfigureAwait(false);
+        DistributeCache?.Set(key, blob, dceo);
     }
 
+    public async Task PutAsync<TValue>(string key, TimeSpan timeout, TValue value, bool isSlided = false, CancellationToken cancellation = default)
+    {
+        CheckIfInitialized();
+
+        if (value == null)
+        {
+            throw new ArgumentNullException(nameof(value));
+        }
+
+        byte[] blob = [];
+
+        using var activity = _activitySource?.StartActivity("Put to cache.", ActivityKind.Producer);
+
+        using (var serializerActivity = _activitySource?.StartActivity("Serialize.", ActivityKind.Producer))
+        {
+            blob = SerializerFactory.Serialize<TValue>(value);
+        }
+
+        var dceo = new DistributedCacheEntryOptions();
+        if (isSlided)
+        {
+            dceo.SetSlidingExpiration(timeout);
+        }
+        else
+        {
+            dceo.SetAbsoluteExpiration(timeout);
+        }
+
+        activity?.SetTag("cacheKey", key);
+
+        if (null != DistributeCache)
+        {
+            await DistributeCache.SetAsync(key, blob, dceo, cancellation).ConfigureAwait(false);
+        }
+    }
 
     public bool Remove(string key)
     {
@@ -273,7 +267,7 @@ public abstract class BaseDistributeCache<T> : ICache
 
         try
         {
-            DistributeCache.Remove(key);
+            DistributeCache?.Remove(key);
             return true;
         }
         catch (Exception)
@@ -291,7 +285,11 @@ public abstract class BaseDistributeCache<T> : ICache
 
         try
         {
-            await DistributeCache.RemoveAsync(key, cancellation).ConfigureAwait(false);
+            if (null != DistributeCache)
+            {
+                await DistributeCache.RemoveAsync(key, cancellation).ConfigureAwait(false);
+            }
+
             return true;
         }
         catch (Exception)
@@ -300,15 +298,14 @@ public abstract class BaseDistributeCache<T> : ICache
         }
     }
 
-
-    public bool TryGetValue<TValue>(string key, out TValue value)
+    public bool TryGetValue<TValue>(string key, out TValue? value)
     {
         CheckIfInitialized();
 
         try
         {
             value = Get<TValue>(key);
-            return value.Equals(default(TValue)) ? false : true;
+            return null != value;
         }
         catch (Exception)
         {
@@ -318,7 +315,7 @@ public abstract class BaseDistributeCache<T> : ICache
 
     }
 
-    public async Task<TValue> TryGetValueAsync<TValue>(string key, CancellationToken cancellation = default(CancellationToken))
+    public async Task<TValue?> TryGetValueAsync<TValue>(string key, CancellationToken cancellation = default(CancellationToken))
     {
         CheckIfInitialized();
 
@@ -338,6 +335,11 @@ public abstract class BaseDistributeCache<T> : ICache
         {
             throw new CacheNotInitializedException(NotInitializedReason);
         }
+    }
+
+    public override string ToString()
+    {
+        return typeof(T).Name;
     }
 }
 
