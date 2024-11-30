@@ -95,7 +95,7 @@ public class AppAuthorization : IAuthorization
     {
         if (_operations.ContainsKey(scope))
         {
-            foreach (int i in operations)
+            foreach (var i in operations)
             {
                 if (!_operations[scope].ContainsKey(i))
                 {
@@ -115,7 +115,7 @@ public class AppAuthorization : IAuthorization
     {
         if (_operationsName.ContainsKey(scope))
         {
-            foreach (string o in operations)
+            foreach (var o in operations)
             {
                 if (!_operationsName[scope].ContainsKey(o))
                 {
@@ -141,7 +141,7 @@ public class AppAuthorization : IAuthorization
     {
         var ids = new int[operations.Length];
 
-        for (int index = 0; index < operations.Length; ++index)
+        for (var index = 0; index < operations.Length; ++index)
         {
             ids[index] = Convert.ToInt32(operations[index], CultureInfo.InvariantCulture);
         }

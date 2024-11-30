@@ -79,7 +79,7 @@ public class ClaimsProxy : IClaimsFiller
             if (response.IsSuccessStatusCode)
             {
                 _logger.Technical().System($"Call service {_url} succeeds.").Log();
-                string responsestring = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                var responsestring = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 // Add the claims.
                 var claims = _jsonSerializer.ReadObject<IEnumerable<ClaimDto>>(responsestring);
                 if (claims != null)
@@ -97,7 +97,7 @@ public class ClaimsProxy : IClaimsFiller
         }
         catch (Exception exception)
         {
-            Exception? inner = exception.InnerException;
+            var inner = exception.InnerException;
             while (null != inner)
             {
                 _logger.Technical().LogException(inner);

@@ -31,7 +31,7 @@ public class CredentialTokenCacheTokenProvider : ICredentialTokenProvider
 
     public async Task<TokenInfo> GetTokenAsync(IKeyValueSettings settings, CredentialsResult credential)
     {
-        var messages = GetContext(settings, out AuthorityOptions? authority, out string scope);
+        var messages = GetContext(settings, out var authority, out var scope);
 
         if (string.IsNullOrWhiteSpace(credential.Upn))
         {

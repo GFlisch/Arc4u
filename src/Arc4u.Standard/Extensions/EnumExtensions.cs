@@ -9,7 +9,7 @@ public static class EnumExtentions
     public static string GetDisplayName(this Enum value)
     {
         var type = value.GetType();
-        TypeInfo ti = type.GetTypeInfo();
+        var ti = type.GetTypeInfo();
         if (!ti.IsEnum)
         {
             throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Type '{0}' is not Enum", type));
@@ -62,7 +62,7 @@ public static class EnumExtentions
 
     public static Dictionary<Enum, string> ToTranslationDictionary(this Type enumType)
     {
-        TypeInfo ti = enumType.GetTypeInfo();
+        var ti = enumType.GetTypeInfo();
 
         if (!ti.IsEnum)
         {

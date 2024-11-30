@@ -139,7 +139,7 @@ class StateLogger : ILogger
         if (state is IEnumerable<KeyValuePair<string, object>> pairs)
         {
             Dictionary<string, object> mergedState = [];
-            foreach (KeyValuePair<string, object> pair in pairs)
+            foreach (var pair in pairs)
             {
                 mergedState[pair.Key] = pair.Value;
             }

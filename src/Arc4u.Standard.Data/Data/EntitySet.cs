@@ -12,7 +12,6 @@ namespace Arc4u.Data;
 /// <summary>
 /// <para>Represents a strongly typed set of entities supporting change tracking, change notification.</para>
 /// <para>Change tracking support concerns entities removed from the set. 
-/// When the <see cref="ChangeTracking"/> is <see cref="ChangeTracking.Enabled"/> which is the case by default,
 /// an inserted entity removed from the set will be physically removed 
 /// whereas any other entities will be marked as deleted.</para>
 /// </summary>
@@ -23,11 +22,7 @@ public sealed class EntitySet<TEntity>
     : INotifyCollectionChanged
     , INotifyPropertyChanged
     , IList<TEntity>
-    , ICollection<TEntity>
-    , IEnumerable<TEntity>
     , IList
-    , ICollection
-    , IEnumerable
     where TEntity : IPersistEntity
 {
     #region string Constants
@@ -53,6 +48,7 @@ public sealed class EntitySet<TEntity>
     private object? _syncRoot;
     private int _version;
     private readonly SimpleMonitor _monitor;
+    private const string ItemPropertyName = "Item[]";
 
     #region INotifyPropertyChanged Members
 
@@ -167,7 +163,7 @@ public sealed class EntitySet<TEntity>
         var entity = this[oldIndex];
         BaseRemoveAt(oldIndex);
         InsertItem(newIndex, entity);
-        OnPropertyChanged("Item[]");
+        OnPropertyChanged(ItemPropertyName);
         OnCollectionChanged(NotifyCollectionChangedAction.Move, entity, newIndex, oldIndex);
     }
 
@@ -261,7 +257,7 @@ public sealed class EntitySet<TEntity>
         var index = _size;
         AddItem(entity);
         OnPropertyChanged(nameof(Count));
-        OnPropertyChanged("Item[]");
+        OnPropertyChanged(ItemPropertyName);
         OnCollectionChanged(NotifyCollectionChangedAction.Add, entity, index);
     }
 
@@ -345,7 +341,7 @@ public sealed class EntitySet<TEntity>
         CheckReentrancy();
         ClearItems();
         OnPropertyChanged(nameof(Count));
-        OnPropertyChanged("Item[]");
+        OnPropertyChanged(ItemPropertyName);
         OnCollectionReset();
     }
 
@@ -862,7 +858,7 @@ public sealed class EntitySet<TEntity>
         CheckReentrancy();
         InsertItem(index, entity);
         OnPropertyChanged(nameof(Count));
-        OnPropertyChanged("Item[]");
+        OnPropertyChanged(ItemPropertyName);
         OnCollectionChanged(NotifyCollectionChangedAction.Add, entity, index);
     }
 
@@ -945,7 +941,7 @@ public sealed class EntitySet<TEntity>
 
         _version++;
         OnPropertyChanged(nameof(Count));
-        OnPropertyChanged("Item[]");
+        OnPropertyChanged(ItemPropertyName);
         OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
     }
 
@@ -1072,7 +1068,7 @@ public sealed class EntitySet<TEntity>
         }
         _version++;
         OnPropertyChanged(nameof(Count));
-        OnPropertyChanged("Item[]");
+        OnPropertyChanged(ItemPropertyName);
         OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         return count;
     }
@@ -1108,7 +1104,7 @@ public sealed class EntitySet<TEntity>
         {
             BaseRemoveAt(index);
             OnPropertyChanged(nameof(Count));
-            OnPropertyChanged("Item[]");
+            OnPropertyChanged(ItemPropertyName);
             OnCollectionChanged(NotifyCollectionChangedAction.Remove, entity, index);
         }
         else
@@ -1123,7 +1119,7 @@ public sealed class EntitySet<TEntity>
                 case PersistChange.Insert:
                     BaseRemoveAt(index);
                     OnPropertyChanged(nameof(Count));
-                    OnPropertyChanged("Item[]");
+                    OnPropertyChanged(ItemPropertyName);
                     OnCollectionChanged(NotifyCollectionChangedAction.Remove, entity, index);
                     break;
                 case PersistChange.Delete:
@@ -1178,7 +1174,7 @@ public sealed class EntitySet<TEntity>
         }
 
         OnPropertyChanged(nameof(Count));
-        OnPropertyChanged("Item[]");
+        OnPropertyChanged(ItemPropertyName);
         OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
 
     }
@@ -1208,7 +1204,7 @@ public sealed class EntitySet<TEntity>
         }
         Array.Reverse(_items, index, count);
         _version++;
-        OnPropertyChanged("Item[]");
+        OnPropertyChanged(ItemPropertyName);
         OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
     }
 
@@ -1247,7 +1243,7 @@ public sealed class EntitySet<TEntity>
             IComparer<TEntity> comparer = new FunctorComparer<TEntity>(comparison);
             Array.Sort<TEntity>(_items, 0, _size, comparer);
             _version++;
-            OnPropertyChanged("Item[]");
+            OnPropertyChanged(ItemPropertyName);
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
     }
@@ -1271,7 +1267,7 @@ public sealed class EntitySet<TEntity>
         }
         Array.Sort<TEntity>(_items, index, count, comparer);
         _version++;
-        OnPropertyChanged("Item[]");
+        OnPropertyChanged(ItemPropertyName);
         OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
     }
 
@@ -1536,7 +1532,7 @@ public sealed class EntitySet<TEntity>
             CheckReentrancy();
             var oldItem = this[index];
             SetItem(index, value);
-            OnPropertyChanged("Item[]");
+            OnPropertyChanged(ItemPropertyName);
             OnCollectionChanged(NotifyCollectionChangedAction.Replace, oldItem, value, index);
         }
     }
@@ -1780,7 +1776,7 @@ public sealed class EntitySet<TEntity>
         }
     }
 
-    private class SimpleMonitor : IDisposable
+    private sealed class SimpleMonitor : IDisposable
     {
         private int _busyCount;
 

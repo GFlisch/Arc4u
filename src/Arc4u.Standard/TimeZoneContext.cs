@@ -95,7 +95,7 @@ namespace Arc4u
                 return null;
             }
 
-            DaylightTime outDaylightTime = new DaylightTime(GetDateTime(inYear, ruleFound.DaylightTransitionStart),
+            var outDaylightTime = new DaylightTime(GetDateTime(inYear, ruleFound.DaylightTransitionStart),
                                                             GetDateTime(inYear, ruleFound.DaylightTransitionEnd),
                                                             ruleFound.DaylightDelta);
 
@@ -113,7 +113,7 @@ namespace Arc4u
             var firstDayOfWeek = (int)cal.GetDayOfWeek(new DateTime(year, transition.Month, 1));
             // Determine how much start date has to be adjusted
             int transitionDay;
-            int changeDayOfWeek = (int)transition.DayOfWeek;
+            var changeDayOfWeek = (int)transition.DayOfWeek;
 
             if (firstDayOfWeek <= changeDayOfWeek)
             {

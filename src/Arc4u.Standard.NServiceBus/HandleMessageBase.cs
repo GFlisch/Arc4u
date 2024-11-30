@@ -36,7 +36,7 @@ public abstract class HandleMessageBase<T> : IHandleMessages<T>
             await Handle(message).ConfigureAwait(false);
 
             // Publish events.
-            foreach (object _event in MessagesToPublish.Events)
+            foreach (var _event in MessagesToPublish.Events)
             {
                 try
                 {
@@ -49,7 +49,7 @@ public abstract class HandleMessageBase<T> : IHandleMessages<T>
             }
 
             // Send commands.
-            foreach (Object command in MessagesToPublish.Commands)
+            foreach (var command in MessagesToPublish.Commands)
             {
                 try
                 {

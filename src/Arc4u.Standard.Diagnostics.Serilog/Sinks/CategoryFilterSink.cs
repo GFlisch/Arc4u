@@ -32,10 +32,10 @@ public class CategoryFilterSink : ILogEventSink, IDisposable
     {
         if (logEvent.Properties.TryGetValue(LoggingConstants.Category, out var propertyValue))
         {
-            short iCategory = Helper.GetValue<short>(propertyValue, -1);
+            var iCategory = Helper.GetValue<short>(propertyValue, -1);
             if (typeof(MessageCategory).IsEnumDefined(iCategory))
             {
-                MessageCategory category = (MessageCategory)iCategory;
+                var category = (MessageCategory)iCategory;
                 if (Categories.HasFlag(category))
                 {
                     Sink?.Emit(logEvent);

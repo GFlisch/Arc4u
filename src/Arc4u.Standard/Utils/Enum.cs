@@ -4,14 +4,10 @@ using System.Reflection;
 
 namespace Arc4u.Utils;
 
-public struct Enum<T> : IEnumerable<T>, IEnumerable
-    where T : struct, IComparable, IFormattable, IConvertible
+public readonly struct Enum<T>(T value) : IEnumerable<T>
+                                            where T : struct, IComparable, IFormattable, IConvertible
 {
-    private readonly T _value;
-    public Enum(T value)
-    {
-        _value = value;
-    }
+    private readonly T _value = value;
 
     #region Operator Members
     public static implicit operator T(Enum<T> e)
@@ -26,17 +22,17 @@ public struct Enum<T> : IEnumerable<T>, IEnumerable
     #endregion
 
     #region Overriden Members
-    public override string ToString()
+    public override readonly string ToString()
     {
         return _value.ToString() ?? string.Empty;
     }
 
-    public override bool Equals(object? obj)
+    public override readonly bool Equals(object? obj)
     {
         return _value.Equals(obj);
     }
 
-    public override int GetHashCode()
+    public override readonly int GetHashCode()
     {
         return _value.GetHashCode();
     }
@@ -44,7 +40,7 @@ public struct Enum<T> : IEnumerable<T>, IEnumerable
 
     #region IEnumerable Members
 
-    IEnumerator IEnumerable.GetEnumerator()
+    readonly IEnumerator IEnumerable.GetEnumerator()
     {
         return (this as IEnumerable<T>).GetEnumerator();
     }
@@ -53,9 +49,9 @@ public struct Enum<T> : IEnumerable<T>, IEnumerable
 
     #region IEnumerable<T> Members
 
-    IEnumerator<T> IEnumerable<T>.GetEnumerator()
+    readonly IEnumerator<T> IEnumerable<T>.GetEnumerator()
     {
-        foreach (Enum value in EnumUtil.GetValues(typeof(T), true))
+        foreach (var value in EnumUtil.GetValues(typeof(T), true))
         {
             switch (Convert.GetTypeCode(_value))
             {
@@ -155,6 +151,16 @@ public struct Enum<T> : IEnumerable<T>, IEnumerable
     {
         return EnumUtil.TryParse(value, ignoreCase, out result);
     }
+
+    public static bool operator ==(Enum<T> left, Enum<T> right)
+    {
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(Enum<T> left, Enum<T> right)
+    {
+        return !(left == right);
+    }
     #endregion
 }
 
@@ -193,12 +199,11 @@ public struct EnumUtil
         ulong maxValue = 0;
 
         //add single values
-        IList<Enum> values = new List<Enum>(enumValues.Length);
+        var values = new List<Enum>(enumValues.Length);
         foreach (Enum value in enumValues)
         {
             values.Add(value);
-            ulong result;
-            if (ulong.TryParse(value.ToString("D"), out result) && result > maxValue)
+            if (ulong.TryParse(value.ToString("D"), out var result) && result > maxValue)
             {
                 maxValue = result;
             }
@@ -209,7 +214,7 @@ public struct EnumUtil
         {
             for (ulong i = 0; i < maxValue * 2; i++)
             {
-                Enum value = (Enum)Enum.ToObject(enumType, i);
+                var value = (Enum)Enum.ToObject(enumType, i);
                 if (value.ToString("G") != value.ToString("D") && values.IndexOf(value) == -1)
                 {
                     values.Add(value);
@@ -218,11 +223,11 @@ public struct EnumUtil
         }
 
         //sort values
-        for (int j = 1; j < values.Count; j++)
+        for (var j = 1; j < values.Count; j++)
         {
-            int index = j;
-            Enum value = values[j];
-            bool flag = false;
+            var index = j;
+            var value = values[j];
+            var flag = false;
             while (values[index - 1].CompareTo(value) > 0)
             {
                 values[index] = values[index - 1];
@@ -251,7 +256,7 @@ public struct EnumUtil
     public static IEnumerable<T> GetValues<T>(bool ignoreFlags)
         where T : struct, IComparable, IFormattable, IConvertible
     {
-        foreach (Enum value in GetValues(typeof(T), ignoreFlags))
+        foreach (var value in GetValues(typeof(T), ignoreFlags))
         {
             yield return (T)Enum.ToObject(typeof(T), value);
         }
@@ -278,13 +283,13 @@ public struct EnumUtil
     public static IEnumerable<string> GetNames<T>(string format)
         where T : struct, IComparable, IFormattable, IConvertible
     {
-        return GetNames(typeof(T), format, false);
+        return GetNames<T>(format, false);
     }
 
     public static IEnumerable<string> GetNames<T>(string format, bool ignoreFlags)
         where T : struct, IComparable, IFormattable, IConvertible
     {
-        return GetNames(typeof(T), format, ignoreFlags);
+        return GetNames<T>(format, ignoreFlags);
     }
 
     public static bool IsDefined<T>(object value)
@@ -329,8 +334,7 @@ public struct EnumUtil
     public static T? TryParse<T>(object value, bool ignoreCase)
         where T : struct, IComparable, IFormattable, IConvertible
     {
-        T? result;
-        TryParse(value, ignoreCase, out result);
+        TryParse(value, ignoreCase, out T? result);
         return result;
     }
 
@@ -402,7 +406,7 @@ public struct EnumUtil
                 case TypeCode.Int16:
                 case TypeCode.Int32:
                 case TypeCode.Int64:
-                    long lng = Convert.ToInt64(value, CultureInfo.InvariantCulture);
+                    var lng = Convert.ToInt64(value, CultureInfo.InvariantCulture);
                     foreach (var val in GetValues(typeof(T), false))
                     {
                         if (lng == Convert.ToInt64(val, CultureInfo.InvariantCulture))
@@ -444,7 +448,7 @@ public struct EnumUtil
             case TypeCode.Int32:
             case TypeCode.Int64:
                 long val = 0;
-                foreach (T t in value)
+                foreach (var t in value)
                 {
                     val |= Convert.ToInt64(t, CultureInfo.InvariantCulture);
                 }
@@ -454,7 +458,7 @@ public struct EnumUtil
             case TypeCode.UInt32:
             case TypeCode.UInt64:
                 ulong uval = 0;
-                foreach (T t in value)
+                foreach (var t in value)
                 {
                     uval |= Convert.ToUInt64(t, CultureInfo.InvariantCulture);
                 }

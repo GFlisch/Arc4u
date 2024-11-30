@@ -81,7 +81,7 @@ public static class Helper
             }
         }
 
-        MessageCategory _category = MessageCategory.Technical;
+        var _category = MessageCategory.Technical;
         if (Enum.IsDefined(typeof(MessageCategory), category))
         {
             _category = (MessageCategory)Enum.ToObject(typeof(MessageCategory), category);

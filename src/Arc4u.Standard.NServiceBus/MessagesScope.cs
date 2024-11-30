@@ -46,7 +46,7 @@ public class MessagesScope : IDisposable
         }
 
         // Publish events.
-        foreach (object _event in MessagesToPublish.Events)
+        foreach (var _event in MessagesToPublish.Events)
         {
             try
             {
@@ -60,7 +60,7 @@ public class MessagesScope : IDisposable
         }
 
         // Send commands.
-        foreach (Object command in MessagesToPublish.Commands)
+        foreach (var command in MessagesToPublish.Commands)
         {
             try
             {

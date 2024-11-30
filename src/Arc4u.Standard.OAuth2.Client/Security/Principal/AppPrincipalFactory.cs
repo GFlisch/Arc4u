@@ -220,7 +220,7 @@ public class AppPrincipalFactory : IAppPrincipalFactory
 
     private UserProfile BuildProfile(ClaimsIdentity identity, Messages messages)
     {
-        UserProfile profile = UserProfile.Empty;
+        var profile = UserProfile.Empty;
         if (_container.TryResolve(out IClaimProfileFiller? profileFiller))
         {
             profile = profileFiller!.GetProfile(identity);

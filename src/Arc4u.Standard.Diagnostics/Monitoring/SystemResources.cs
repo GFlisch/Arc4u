@@ -51,15 +51,15 @@ public sealed class SystemResources : IHostedService, IDisposable
     {
         _process = Process.GetCurrentProcess();
 
-        double totalCpuTimeUsed = _process.TotalProcessorTime.TotalMilliseconds - _lastTotalProcessorTime.TotalMilliseconds;
-        double privilegedCpuTimeUsed = _process.PrivilegedProcessorTime.TotalMilliseconds - _lastPrivilegedProcessorTime.TotalMilliseconds;
-        double userCpuTimeUsed = _process.UserProcessorTime.TotalMilliseconds - _lastUserProcessorTime.TotalMilliseconds;
+        var totalCpuTimeUsed = _process.TotalProcessorTime.TotalMilliseconds - _lastTotalProcessorTime.TotalMilliseconds;
+        var privilegedCpuTimeUsed = _process.PrivilegedProcessorTime.TotalMilliseconds - _lastPrivilegedProcessorTime.TotalMilliseconds;
+        var userCpuTimeUsed = _process.UserProcessorTime.TotalMilliseconds - _lastUserProcessorTime.TotalMilliseconds;
 
         _lastTotalProcessorTime = _process.TotalProcessorTime;
         _lastPrivilegedProcessorTime = _process.PrivilegedProcessorTime;
         _lastUserProcessorTime = _process.UserProcessorTime;
 
-        double cpuTimeElapsed = (DateTime.UtcNow - _lastTimeStamp).TotalMilliseconds * Environment.ProcessorCount;
+        var cpuTimeElapsed = (DateTime.UtcNow - _lastTimeStamp).TotalMilliseconds * Environment.ProcessorCount;
         _lastTimeStamp = DateTime.UtcNow;
 
         _cpuData.TotalCpuUsed = totalCpuTimeUsed * 100 / cpuTimeElapsed;

@@ -23,7 +23,7 @@ public class RealmDBSink : IBatchedLogEventSink
 
     public async Task EmitBatchAsync(IEnumerable<LogEvent> events)
     {
-        Realm DB = await Realm.GetInstanceAsync(Config).ConfigureAwait(false);
+        var DB = await Realm.GetInstanceAsync(Config).ConfigureAwait(false);
 
         foreach (var _event in events)
         {

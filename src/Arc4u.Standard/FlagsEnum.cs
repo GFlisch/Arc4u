@@ -291,7 +291,7 @@ public class FlagsEnum
         //for each flag value consider continuity with the ones following cyclically (modulo)
         //for example Sunday|Monday|Tuesday|Friday|Saturday is continuous 
         //when considering Friday with the flag values following: Saturday, Sunday, Monday, Tuesday
-        for (int i = 0; i < array.Length; i++)
+        for (var i = 0; i < array.Length; i++)
         {
             var continuous = true;
             var item1 = array[i];

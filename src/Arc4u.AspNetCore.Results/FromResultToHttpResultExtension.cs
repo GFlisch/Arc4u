@@ -19,7 +19,7 @@ public static class FromResultToHttpResultExtension
     {
         var res = await result.ConfigureAwait(false);
 
-        IResult objectResult = HttpResults.BadRequest();
+        var objectResult = HttpResults.BadRequest();
         res
             .OnSuccessNotNull(value => objectResult = HttpResults.Ok(value))
             .OnSuccessNull(() => objectResult = HttpResults.Ok())
@@ -35,7 +35,7 @@ public static class FromResultToHttpResultExtension
 
         var res = await result.ConfigureAwait(false);
 
-        IResult objectResult = HttpResults.BadRequest();
+        var objectResult = HttpResults.BadRequest();
         res
             .OnSuccessNotNull(value => objectResult = HttpResults.Ok(mapper(value)))
             .OnSuccessNull(() => objectResult = HttpResults.Ok())
@@ -49,7 +49,7 @@ public static class FromResultToHttpResultExtension
     {
         var res = await result.ConfigureAwait(false);
 
-        IResult objectResult = HttpResults.BadRequest();
+        var objectResult = HttpResults.BadRequest();
         res
             .OnSuccess(() => objectResult = HttpResults.NoContent())
             .OnFailed(_ => objectResult = HttpResults.Problem(res.ToProblemDetails()));
@@ -64,7 +64,7 @@ public static class FromResultToHttpResultExtension
 
         var res = await result.ConfigureAwait(false);
 
-        IResult objectResult = HttpResults.BadRequest();
+        var objectResult = HttpResults.BadRequest();
         res
             .OnSuccessNotNull(value => objectResult = HttpResults.Created(location, mapper(value)))
             .OnSuccessNull(() => objectResult = HttpResults.Created((Uri?)null, default(T)))
@@ -78,7 +78,7 @@ public static class FromResultToHttpResultExtension
     {
         var res = await result.ConfigureAwait(false);
 
-        IResult objectResult = HttpResults.BadRequest();
+        var objectResult = HttpResults.BadRequest();
         res
             .OnSuccessNotNull(value => objectResult = HttpResults.Created(location, value))
             .OnSuccessNull(() => objectResult = HttpResults.Created((Uri?)null, default(TResult)))
@@ -96,7 +96,7 @@ public static class FromResultToHttpResultExtension
     {
         var res = await result.ConfigureAwait(false);
 
-        IResult objectResult = HttpResults.BadRequest();
+        var objectResult = HttpResults.BadRequest();
         res
             .OnSuccessNotNull(value => objectResult = HttpResults.Ok(value))
             .OnSuccessNull(() => objectResult = HttpResults.Ok())
@@ -112,7 +112,7 @@ public static class FromResultToHttpResultExtension
 
         var res = await result.ConfigureAwait(false);
 
-        IResult objectResult = HttpResults.BadRequest();
+        var objectResult = HttpResults.BadRequest();
         res
             .OnSuccessNotNull(value => objectResult = HttpResults.Ok(mapper(value)))
             .OnSuccessNull(() => objectResult = HttpResults.Ok())
@@ -126,7 +126,7 @@ public static class FromResultToHttpResultExtension
     {
         var res = await result.ConfigureAwait(false);
 
-        IResult objectResult = HttpResults.BadRequest();
+        var objectResult = HttpResults.BadRequest();
         res
             .OnSuccess(() => objectResult = HttpResults.NoContent())
             .OnFailed(_ => objectResult = HttpResults.Problem(res.ToProblemDetails()));
@@ -137,7 +137,7 @@ public static class FromResultToHttpResultExtension
     public static Task<IResult>
     ToHttpOkResultAsync(this Result result)
     {
-        IResult objectResult = HttpResults.BadRequest();
+        var objectResult = HttpResults.BadRequest();
 
         result
             .OnSuccess(() => objectResult = HttpResults.NoContent())
@@ -153,7 +153,7 @@ public static class FromResultToHttpResultExtension
 
         var res = await result.ConfigureAwait(false);
 
-        IResult objectResult = HttpResults.BadRequest();
+        var objectResult = HttpResults.BadRequest();
         res
             .OnSuccessNotNull(value => objectResult = HttpResults.Created(location, mapper(value)))
             .OnSuccessNull(() => objectResult = HttpResults.Created((Uri?)null, default(T)))
@@ -167,7 +167,7 @@ public static class FromResultToHttpResultExtension
     {
         var res = await result.ConfigureAwait(false);
 
-        IResult objectResult = HttpResults.BadRequest();
+        var objectResult = HttpResults.BadRequest();
         res
             .OnSuccessNotNull(value => objectResult = HttpResults.Created(location, value))
             .OnSuccessNull(() => objectResult = HttpResults.Created((Uri?)null, default(TResult)))
@@ -181,7 +181,7 @@ public static class FromResultToHttpResultExtension
     {
         ArgumentNullException.ThrowIfNull(mapper);
 
-        IResult objectResult = HttpResults.BadRequest();
+        var objectResult = HttpResults.BadRequest();
         result
             .OnSuccessNotNull(value => objectResult = TypedResults.Created(location, mapper(value)))
             .OnSuccessNull(() => objectResult = TypedResults.Created((Uri?)null, default(T)))
@@ -193,7 +193,7 @@ public static class FromResultToHttpResultExtension
     public static Task<IResult>
     ToHttpCreatedResultAsync<TResult>(this Result<TResult> result, Uri? location)
     {
-        IResult objectResult = HttpResults.BadRequest();
+        var objectResult = HttpResults.BadRequest();
         result
             .OnSuccessNotNull(value => objectResult = TypedResults.Created(location, value))
             .OnSuccessNull(() => objectResult = TypedResults.Created((Uri?)null, default(TResult)))
@@ -207,7 +207,7 @@ public static class FromResultToHttpResultExtension
     {
         var res = await result.ConfigureAwait(false);
 
-        IResult objectResult = HttpResults.BadRequest();
+        var objectResult = HttpResults.BadRequest();
         res
             .OnSuccess(() => objectResult = TypedResults.Created(location))
             .OnFailed(errors => objectResult = TypedResults.Problem(res.ToProblemDetails()));
@@ -218,7 +218,7 @@ public static class FromResultToHttpResultExtension
     public static Task<IResult>
     ToHttpCreatedResultAsync<TResult>(this Result result, Uri? location)
     {
-        IResult objectResult = HttpResults.BadRequest();
+        var objectResult = HttpResults.BadRequest();
         result
             .OnSuccess(() => objectResult = TypedResults.Created(location))
             .OnFailed(errors => objectResult = TypedResults.Problem(result.ToProblemDetails()));
@@ -233,7 +233,7 @@ public static class FromResultToHttpResultExtension
     public static IResult
     ToHttpOkResult<TResult>(this Result<TResult> result)
     {
-        IResult objectResult = HttpResults.BadRequest();
+        var objectResult = HttpResults.BadRequest();
         result
             .OnSuccessNotNull(value => objectResult = HttpResults.Ok(value))
             .OnSuccessNull(() => objectResult = HttpResults.Ok())
@@ -247,7 +247,7 @@ public static class FromResultToHttpResultExtension
     {
         ArgumentNullException.ThrowIfNull(mapper);
 
-        IResult objectResult = HttpResults.BadRequest();
+        var objectResult = HttpResults.BadRequest();
         result
             .OnSuccessNotNull(value => objectResult = HttpResults.Ok(mapper(value)))
             .OnSuccessNull(() => objectResult = HttpResults.Ok())
@@ -261,7 +261,7 @@ public static class FromResultToHttpResultExtension
     {
         ArgumentNullException.ThrowIfNull(mapper);
 
-        IResult objectResult = HttpResults.BadRequest();
+        var objectResult = HttpResults.BadRequest();
         result
             .OnSuccessNotNull(value => objectResult = HttpResults.Created(location, mapper(value)))
             .OnSuccessNull(() => objectResult = HttpResults.Created((Uri?)null, default(T)))
@@ -273,7 +273,7 @@ public static class FromResultToHttpResultExtension
     public static IResult
     ToHttpCreatedResult<TResult>(this Result<TResult> result, Uri? location)
     {
-        IResult objectResult = HttpResults.BadRequest();
+        var objectResult = HttpResults.BadRequest();
         result
             .OnSuccessNotNull(value => objectResult = HttpResults.Created(location, value))
             .OnSuccessNull(() => objectResult = HttpResults.Created((Uri?)null, default(TResult)))
@@ -289,7 +289,7 @@ public static class FromResultToHttpResultExtension
     public static IResult
     ToHttpOkResult(this Result result)
     {
-        IResult objectResult = HttpResults.BadRequest();
+        var objectResult = HttpResults.BadRequest();
 
         result
             .OnSuccess(() => objectResult = HttpResults.NoContent())
@@ -301,7 +301,7 @@ public static class FromResultToHttpResultExtension
     public static IResult
     ToHttpCreatedResult(this Result result, Uri? location)
     {
-        IResult objectResult = HttpResults.BadRequest();
+        var objectResult = HttpResults.BadRequest();
         result
             .OnSuccess(() => objectResult = TypedResults.Created(location))
             .OnFailed(_ => objectResult = TypedResults.Problem(result.ToProblemDetails()));

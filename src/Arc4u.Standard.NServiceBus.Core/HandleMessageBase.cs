@@ -40,7 +40,7 @@ public abstract class HandleMessageBase<T> : IHandleMessages<T>
             var messagesNotProcessed = new MessagesToPublish();
 
             // Publish events.
-            foreach (object _event in messages?.Events ?? [])
+            foreach (var _event in messages?.Events ?? [])
             {
                 try
                 {
@@ -54,7 +54,7 @@ public abstract class HandleMessageBase<T> : IHandleMessages<T>
             }
 
             // Send commands.
-            foreach (object command in messages?.Commands ?? [])
+            foreach (var command in messages?.Commands ?? [])
             {
                 try
                 {

@@ -51,7 +51,7 @@ public class SimpleKeyValueSettings : IKeyValueSettings, IEquatable<SimpleKeyVal
             hashCode.Add(value);
         return hashCode.ToHashCode();
 #else
-        int hash = 0;
+        var hash = 0;
         foreach (var value in Values)
         {
             hash ^= value.GetHashCode();

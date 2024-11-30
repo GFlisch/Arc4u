@@ -85,7 +85,7 @@ public static class Certificate
     {
         if (base64Cypherstring.Contains('.'))
         {
-            string[] parts = base64Cypherstring.Split('.');
+            var parts = base64Cypherstring.Split('.');
             if (parts.Length != 3)
             {
                 throw new ApplicationException("Invalid encrypted string format");

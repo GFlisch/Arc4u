@@ -180,7 +180,7 @@ public sealed class Bound<T> : IEquatable<Bound<T>>, IComparable<Bound<T>>
 #if NETSTANDARD2_1_OR_GREATER
         return HashCode.Combine(Type, Direction, Value);
 #else
-        int hash = 0x4043ed47;
+        var hash = 0x4043ed47;
         hash = (hash * -1521134295) + Type.GetHashCode();
         hash = (hash * -1521134295) + Direction.GetHashCode();
         hash = (hash * -1521134295) + (object.Equals(Value, default(T)) ? 0 : Value!.GetHashCode());

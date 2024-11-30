@@ -27,7 +27,7 @@ public static class SecurityIdentifierExt
     /// <returns>A S-1-9 <see cref="SecurityIdentifier"/></returns>
     public static string S19(Guid guid)
     {
-        byte[] guidArray = guid.ToByteArray();
+        var guidArray = guid.ToByteArray();
         var SidArray = new byte[16];
 
         Array.Copy(guidArray, 0, SidArray, 0, 16);

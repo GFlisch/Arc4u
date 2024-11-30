@@ -33,7 +33,7 @@ sealed class SectionStoreConfigurationProvider : ConfigurationProvider
                 else
                 {
                     // a complex type
-                    int p = item.Key.IndexOf(':');
+                    var p = item.Key.IndexOf(':');
                     if (p <= 0 || p != ValuePropertyName.Length || !item.Key.StartsWith(ValuePropertyName))
                     {
                         throw new InvalidOperationException($"The format of the key {item.Key} is not expected");

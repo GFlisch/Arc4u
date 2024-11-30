@@ -270,7 +270,7 @@ public static class LinqExtensions
 
         // Go through the input enumerable looking for children,
         // and add those if we have them
-        foreach (TSource element in source)
+        foreach (var element in source)
         {
             flattenedList = flattenedList.Concat(
               getChildrenFunction(element).Flatten(getChildrenFunction)

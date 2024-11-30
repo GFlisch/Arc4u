@@ -27,7 +27,7 @@ public class MongoDBTests
         public string Name { get; set; } = default!;
     };
 
-    private class Company
+    private sealed class Company
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = default!;

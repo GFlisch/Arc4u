@@ -139,7 +139,7 @@ public static class GraphExtension
         var basePropertyType = propertyType.IsGenericType ? propertyType.GetGenericArguments().First() : propertyType;
         subPropertyType = basePropertyType.GetProperty(subProperty)!.PropertyType;
 
-        ParameterExpression pe = Expression.Parameter(basePropertyType, "p");
+        var pe = Expression.Parameter(basePropertyType, "p");
         var expr = Expression.Lambda(Expression.Property(pe, subProperty), pe);
 
         var l = typeof(EntityFrameworkQueryableExtensions)

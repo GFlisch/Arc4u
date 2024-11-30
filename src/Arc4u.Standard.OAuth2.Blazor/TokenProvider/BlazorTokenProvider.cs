@@ -57,7 +57,7 @@ public class BlazorTokenProvider : ITokenProvider
         var authority = settings.Values.ContainsKey(TokenKeys.AuthorityKey) ? settings.Values[TokenKeys.AuthorityKey] : throw new ArgumentNullException(nameof(settings), TokenKeys.AuthorityKey);
         var redirectUrl = settings.Values.ContainsKey(TokenKeys.RedirectUrl) ? settings.Values[TokenKeys.RedirectUrl] : throw new ArgumentNullException(nameof(settings), TokenKeys.RedirectUrl);
 
-        var result = Uri.TryCreate(redirectUrl, UriKind.Absolute, out Uri? redirectUri);
+        var result = Uri.TryCreate(redirectUrl, UriKind.Absolute, out var redirectUri);
 
         if (!result)
         {

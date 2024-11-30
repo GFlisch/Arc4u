@@ -25,7 +25,7 @@ public class RealmLoggingDbCtx : ILogStore
 
         var enumerator = queryable.GetEnumerator();
 
-        int i = 0;
+        var i = 0;
         while (i < skip && enumerator.MoveNext())
         {
             i++;

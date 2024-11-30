@@ -27,7 +27,7 @@ public class AppException : Exception
 
         var builder = new StringBuilder();
 
-        foreach (Message message in messages)
+        foreach (var message in messages)
         {
             builder.AppendLine(message.ToString());
         }

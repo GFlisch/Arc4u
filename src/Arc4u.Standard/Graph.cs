@@ -151,7 +151,7 @@ public class Graph<T> where T : class
             {
                 info.Append(includes[0]);
                 info.Append(", ");
-                for (int i = 1; i < includes.Count - 1; i++)
+                for (var i = 1; i < includes.Count - 1; i++)
                 {
                     info.Append(string.Format(CultureInfo.InvariantCulture, "{0}, ", includes[i]));
                 }

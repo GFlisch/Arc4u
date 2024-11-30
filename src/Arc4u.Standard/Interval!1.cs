@@ -226,7 +226,7 @@ public class Interval<T>
 #if NETSTANDARD2_1_OR_GREATER
         return HashCode.Combine(LowerBound, UpperBound);
 #else
-        int hash = 0x4043ed47;
+        var hash = 0x4043ed47;
         hash = (hash * -1521134295) + (object.Equals(LowerBound, default(Bound<T>)) ? 0 : LowerBound.GetHashCode());
         hash = (hash * -1521134295) + (object.Equals(UpperBound, default(Bound<T>)) ? 0 : UpperBound.GetHashCode());
         return hash;

@@ -22,7 +22,7 @@ public class MessageScope : IMessageScope
     {
 
         //await _messageSession.Send(command, sendOptions);
-        foreach (Object _event in _messages.Events)
+        foreach (var _event in _messages.Events)
         {
             try
             {
@@ -36,7 +36,7 @@ public class MessageScope : IMessageScope
         }
 
         // Send commands.
-        foreach (Object command in _messages.Commands)
+        foreach (var command in _messages.Commands)
         {
             try
             {

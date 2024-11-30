@@ -23,10 +23,10 @@ public static class HashAlgorithmExtensions
         }
 #endif
         //convert the string into an array of bytes.
-        byte[] messageBytes = encoding.GetBytes(input);
+        var messageBytes = encoding.GetBytes(input);
 
         //create the hash value from the array of bytes.
-        byte[] hashValue = algorithm.ComputeHash(messageBytes);
+        var hashValue = algorithm.ComputeHash(messageBytes);
 
         //convert the hash value to string
         return BitConverter.ToString(hashValue);
