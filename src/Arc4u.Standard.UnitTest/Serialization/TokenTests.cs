@@ -84,9 +84,9 @@ public class TokenTests
 
         var serviceProvider = services.BuildServiceProvider();
 
-        IObjectSerialization noSerializer = null;
+        IObjectSerialization? noSerializer = null;
         var mockIContainer = _fixture.Freeze<Mock<IContainerResolve>>();
-        IObjectSerialization serializer = serviceProvider.GetRequiredService<IObjectSerialization>();
+        IObjectSerialization? serializer = serviceProvider.GetRequiredService<IObjectSerialization>();
         mockIContainer.Setup(m => m.TryResolve<IObjectSerialization>(out serializer)).Returns(true);
         mockIContainer.Setup(m => m.TryResolve(storeName, out noSerializer)).Returns(false);
         var mockIOptions = _fixture.Freeze<Mock<IOptionsMonitor<MemoryCacheOption>>>();
@@ -102,7 +102,7 @@ public class TokenTests
 
         // assert
         cachedToken.Should().NotBeNull();
-        cachedToken.Token.Should().Be(jwt.EncodedPayload);
+        cachedToken!.Token.Should().Be(jwt.EncodedPayload);
         cachedToken.TokenType.Should().Be(tokenInfo.TokenType);
         cachedToken.ExpiresOnUtc.Should().Be(tokenInfo.ExpiresOnUtc);
     }
@@ -123,9 +123,9 @@ public class TokenTests
 
         var serviceProvider = services.BuildServiceProvider();
 
-        IObjectSerialization noSerializer = null;
+        IObjectSerialization? noSerializer = null;
         var mockIContainer = _fixture.Freeze<Mock<IContainerResolve>>();
-        IObjectSerialization serializer = serviceProvider.GetRequiredService<IObjectSerialization>();
+        IObjectSerialization? serializer = serviceProvider.GetRequiredService<IObjectSerialization>();
         mockIContainer.Setup(m => m.TryResolve<IObjectSerialization>(out serializer)).Returns(true);
         mockIContainer.Setup(m => m.TryResolve(storeName, out noSerializer)).Returns(false);
         var mockIOptions = _fixture.Freeze<Mock<IOptionsMonitor<MemoryCacheOption>>>();
@@ -141,7 +141,7 @@ public class TokenTests
 
         // assert
         cachedToken.Should().NotBeNull();
-        cachedToken.Token.Should().Be(jwt.EncodedPayload);
+        cachedToken!.Token.Should().Be(jwt.EncodedPayload);
         cachedToken.TokenType.Should().Be(tokenInfo.TokenType);
         cachedToken.ExpiresOnUtc.Should().Be(tokenInfo.ExpiresOnUtc);
     }

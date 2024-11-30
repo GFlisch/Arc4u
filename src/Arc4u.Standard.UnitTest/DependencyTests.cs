@@ -28,14 +28,14 @@ public class DependencyTests
 
         container.CreateContainer();
 
-        var id1 = container.Resolve<IGenerator>().Id;
+        var id1 = container.Resolve<IGenerator>()!.Id;
 
         using var c2 = container.CreateScope();
-        var id2 = c2.Resolve<IGenerator>().Id;
+        var id2 = c2.Resolve<IGenerator>()!.Id;
 
         Assert.NotEqual(id1, id2);
-        Assert.Equal(id2, c2.Resolve<IGenerator>().Id);
-        Assert.Equal(id1, container.Resolve<IGenerator>().Id);
+        Assert.Equal(id2, c2.Resolve<IGenerator>()!.Id);
+        Assert.Equal(id1, container.Resolve<IGenerator>()!.Id);
         Assert.True(container.CanCreateScope);
     }
 
@@ -53,14 +53,14 @@ public class DependencyTests
 
         container.CreateContainer();
 
-        var id1 = container.Resolve<IGenerator>("Named").Id;
+        var id1 = container.Resolve<IGenerator>("Named")!.Id;
 
         using var c2 = container.CreateScope();
-        var id2 = c2.Resolve<IGenerator>("Named").Id;
+        var id2 = c2.Resolve<IGenerator>("Named")!.Id;
 
         Assert.NotEqual(id1, id2);
-        Assert.Equal(id2, c2.Resolve<IGenerator>("Named").Id);
-        Assert.Equal(id1, container.Resolve<IGenerator>("Named").Id);
+        Assert.Equal(id2, c2.Resolve<IGenerator>("Named")!.Id);
+        Assert.Equal(id1, container.Resolve<IGenerator>("Named")!.Id);
         Assert.True(container.CanCreateScope);
     }
 
@@ -71,7 +71,7 @@ public class DependencyTests
 
         container.CreateContainer();
 
-        Assert.False(container.TryResolve<IGenerator>(out var generator));
+        Assert.False(container.TryResolve<IGenerator>(out var _));
 
     }
 
@@ -89,7 +89,7 @@ public class DependencyTests
         var config = container.Resolve<IOptions<ApplicationConfig>>();
 
         config.Should().NotBeNull();
-        config.Value.Should().NotBeNull();
+        config!.Value.Should().NotBeNull();
         Assert.Null(container.Resolve<IGenerator>());
     }
 
@@ -137,8 +137,8 @@ public class DependencyTests
 
         Assert.NotEqual(scopedByInterface.Id, byInterface.Id);
         Assert.NotEqual(scopedByType.Id, byType.Id);
-        Assert.Equal(scopedByInterface.Id, scope.Resolve<IGenerator>().Id);
-        Assert.Equal(scopedByType.Id, scope.Resolve<TestScopedParser>().Id);
+        Assert.Equal(scopedByInterface.Id, scope.Resolve<IGenerator>()!.Id);
+        Assert.Equal(scopedByType.Id, scope.Resolve<TestScopedParser>()!.Id);
     }
 
     [Fact]
@@ -170,7 +170,7 @@ public class DependencyTests
 
         var container = new ComponentModelContainer(services).InitializeFromConfig(configuration);
         container.RegisterInstance(configuration);
-        Assert.Throws<ArgumentNullException>(() => container.Register<IGenerator, IdGenerator>(null));
+        Assert.Throws<ArgumentNullException>(() => container.Register<IGenerator, IdGenerator>(default!));
     }
 
     [Fact]
@@ -187,18 +187,18 @@ public class DependencyTests
         container.CreateContainer();
 
         Assert.NotNull(container.Resolve<IGenerator>());
-        Assert.NotNull(container.Resolve<IGenerator>(null));
-        Assert.True(container.TryResolve<IGenerator>(out var gen1));
-        Assert.True(container.TryResolve<IGenerator>(null, out var gen2));
+        Assert.NotNull(container.Resolve<IGenerator>(default!));
+        Assert.True(container.TryResolve<IGenerator>(out _));
+        Assert.True(container.TryResolve<IGenerator>(default!, out _));
         Assert.NotNull(container.Resolve(typeof(IGenerator)));
-        Assert.NotNull(container.Resolve(typeof(IGenerator), null));
-        Assert.True(container.TryResolve(typeof(IGenerator), out var gen3));
-        Assert.True(container.TryResolve(typeof(IGenerator), null, out var gen4));
-        var t = container.ResolveAll<IGenerator>().ToList();
+        Assert.NotNull(container.Resolve(typeof(IGenerator), default!));
+        Assert.True(container.TryResolve(typeof(IGenerator), out _));
+        Assert.True(container.TryResolve(typeof(IGenerator), default!, out _));
+        container.ResolveAll<IGenerator>().ToList();
         Assert.True(container.ResolveAll<IGenerator>().Count() == 1);
-        Assert.True(container.ResolveAll<IGenerator>(null).Count() == 1);
+        Assert.True(container.ResolveAll<IGenerator>(default!).Count() == 1);
         Assert.True(container.ResolveAll(typeof(IGenerator)).Count() == 1);
-        Assert.True(container.ResolveAll(typeof(IGenerator), null).Count() == 1);
+        Assert.True(container.ResolveAll(typeof(IGenerator), default!).Count() == 1);
     }
 
     [Fact]
@@ -218,17 +218,9 @@ public class DependencyTests
         container.CreateContainer();
 
         Assert.True(container.ResolveAll<IGenerator>().Count() > 1);
-        Assert.True(container.ResolveAll<IGenerator>(null).Count() > 1);
+        Assert.True(container.ResolveAll<IGenerator>(default!).Count() > 1);
         Assert.True(container.ResolveAll(typeof(IGenerator)).Count() > 1);
-        Assert.True(container.ResolveAll(typeof(IGenerator), null).Count() > 1);
-        //Assert.Throws<MultipleRegistrationException<IGenerator>>(() => container.Resolve<IGenerator>());
-        //Assert.Throws<MultipleRegistrationException<IGenerator>>(() => container.Resolve<IGenerator>(null));
-        //Assert.False(container.TryResolve<IGenerator>(out var gen1));
-        //Assert.False(container.TryResolve<IGenerator>(null, out var gen2));
-        //Assert.Throws<MultipleRegistrationException>(() => container.Resolve(typeof(IGenerator)));
-        //Assert.Throws<MultipleRegistrationException>(() => container.Resolve(typeof(IGenerator), null));
-        //Assert.False(container.TryResolve(typeof(IGenerator), out var gen3));
-        //Assert.False(container.TryResolve(typeof(IGenerator), null, out var gen4));
+        Assert.True(container.ResolveAll(typeof(IGenerator), default!).Count() > 1);
     }
 
     [Fact]
@@ -245,9 +237,9 @@ public class DependencyTests
         var config = container.Resolve<IOptions<ApplicationConfig>>();
 
         config.Should().NotBeNull();
-        config.Value.Should().NotBeNull();
+        config!.Value.Should().NotBeNull();
         Assert.Null(container.Resolve<IGenerator>());
-        Assert.False(container.TryResolve<IGenerator>(out var gen));
+        Assert.False(container.TryResolve<IGenerator>(out _));
 
     }
 
@@ -271,7 +263,7 @@ public class DependencyTests
         var config = container.Resolve<IOptions<ApplicationConfig>>();
 
         config.Should().NotBeNull();
-        config.Value.Should().NotBeNull();
+        config!.Value.Should().NotBeNull();
 
         Assert.Null(container.Resolve<IGenerator>());
 
@@ -354,7 +346,7 @@ public class DependencyTests
         container.CreateContainer();
 
         var generators = container.ResolveAll<IGenerator>().ToList();
-        Assert.True(generators.Count() == 2);
+        Assert.True(generators.Count == 2);
         Assert.Collection(generators,
             type1 => Assert.IsType<NamedIdGenerator>(type1),
             type2 => Assert.IsType<IdGenerator>(type2));
@@ -372,7 +364,7 @@ public class DependencyTests
         container.CreateContainer();
 
         var generators = container.ResolveAll<IGenerator>().ToList();
-        Assert.True(generators.Count() == 2);
+        Assert.True(generators.Count == 2);
         Assert.Collection(generators,
             type1 => Assert.IsType<NamedIdGenerator>(type1),
             type2 => Assert.IsType<IdGenerator>(type2));
@@ -390,7 +382,7 @@ public class DependencyTests
         container.CreateContainer();
 
         var generators = container.ResolveAll<IGenerator>().ToList();
-        Assert.True(generators.Count() == 2);
+        Assert.True(generators.Count == 2);
         Assert.Collection(generators,
             type1 => Assert.IsType<NamedIdGenerator>(type1),
             type2 => Assert.IsType<IdGenerator>(type2));
@@ -408,7 +400,7 @@ public class DependencyTests
         container.CreateContainer();
 
         var generators = container.ResolveAll<IGenerator>().ToList();
-        Assert.True(generators.Count() == 2);
+        Assert.True(generators.Count == 2);
         Assert.Collection(generators,
             type1 => Assert.IsType<NamedIdGenerator>(type1),
             type2 => Assert.IsType<IdGenerator>(type2));
@@ -423,7 +415,7 @@ public class DependencyTests
 
         container.CreateContainer();
 
-        Assert.Equal(container.Resolve<IGenerator>().Id, container.Resolve<IGenerator>().Id);
+        Assert.Equal(container.Resolve<IGenerator>()!.Id, container.Resolve<IGenerator>()!.Id);
     }
 
     [Fact]
@@ -434,7 +426,7 @@ public class DependencyTests
 
         container.CreateContainer();
 
-        Assert.Equal(container.Resolve<IGenerator>().Id, container.Resolve<IGenerator>().Id);
+        Assert.Equal(container.Resolve<IGenerator>()!.Id, container.Resolve<IGenerator>()!.Id);
     }
     #endregion
 
@@ -493,8 +485,8 @@ public class DependencyTests
         container.CreateContainer();
 
         Assert.NotNull(container.Resolve<IGenerator>());
-        var id1 = container.Resolve<IGenerator>().Id;
-        var id2 = container.Resolve<IGenerator>().Id;
+        var id1 = container.Resolve<IGenerator>()!.Id;
+        var id2 = container.Resolve<IGenerator>()!.Id;
         Assert.NotEqual(id1, id2);
     }
 
@@ -508,8 +500,8 @@ public class DependencyTests
         container.TryResolve<IGenerator>(out var gen);
         Assert.Null(gen);
         Assert.NotNull(container.Resolve<IGenerator>("Generator1"));
-        var id1 = container.Resolve<IGenerator>("Generator1").Id;
-        var id2 = container.Resolve<IGenerator>("Generator1").Id;
+        var id1 = container.Resolve<IGenerator>("Generator1")!.Id;
+        var id2 = container.Resolve<IGenerator>("Generator1")!.Id;
         Assert.NotEqual(id1, id2);
     }
 
@@ -563,7 +555,7 @@ public class DependencyTests
         container.CreateContainer();
 
         var generators = container.ResolveAll<IGenerator>().ToList();
-        Assert.Equal(2, generators.Count());
+        Assert.Equal(2, generators.Count);
         Assert.NotEqual(generators[0].Id, generators[1].Id);
     }
 
@@ -577,7 +569,7 @@ public class DependencyTests
         container.CreateContainer();
 
         var generators = container.ResolveAll<IGenerator>().ToList();
-        Assert.Equal(2, generators.Count());
+        Assert.Equal(2, generators.Count);
         Assert.NotEqual(generators[0].Id, generators[1].Id);
     }
 
@@ -755,7 +747,7 @@ public class Constructor
     public Constructor(IGenerator generator)
     {
         _generator = generator;
-
+        Second = new Second();
     }
 
     private readonly IGenerator _generator;

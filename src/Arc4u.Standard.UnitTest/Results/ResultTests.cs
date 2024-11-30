@@ -47,7 +47,7 @@ public class ResultTests
         {
             await Task.Delay(1).ConfigureAwait(false);
             flag = true;
-        }).ConfigureAwait(false);
+        });
 
         flag.Should().BeTrue();
         sut.Should().BeSameAs(result.Result);
@@ -80,7 +80,7 @@ public class ResultTests
         {
             await Task.Delay(1).ConfigureAwait(false);
             flag = true;
-        }).ConfigureAwait(false);
+        });
 
         flag.Should().BeFalse();
         sut.Should().BeSameAs(result.Result);
@@ -114,7 +114,7 @@ public class ResultTests
             await Task.Delay(1000).ConfigureAwait(false);
             flag = true;
         })
-        .ConfigureAwait(false);
+;
 
         flag.Should().BeTrue();
         sut.Should().BeSameAs(result.Result);
@@ -148,7 +148,7 @@ public class ResultTests
             await Task.Delay(1).ConfigureAwait(false);
             flag = true;
         })
-        .ConfigureAwait(false);
+;
 
         flag.Should().BeFalse();
         sut.Should().BeSameAs(result.Result);

@@ -6,12 +6,7 @@ namespace Arc4u.UnitTest.Threading;
 
 public class Context
 {
-    private static readonly Context InnerContext;
-
-    static Context()
-    {
-        InnerContext = new Context();
-    }
+    private static readonly Context InnerContext = new Context();
 
     public static Context Current
     {
@@ -21,7 +16,7 @@ public class Context
         }
     }
 
-    public string Value { get; set; }
+    public string Value { get; set; } = default!;
 }
 
 public class ScopeTest
@@ -60,7 +55,7 @@ public class ScopeTest
         using (new Scope<Context>(new Context()))
         {
             Context.Current.Value = "Local";
-            Assert.Equal("Local", Scope<Context>.Current.Value);
+            Assert.Equal("Local", Scope<Context>.Current!.Value);
         }
 
         Assert.Equal("Global", Context.Current.Value);
@@ -68,7 +63,7 @@ public class ScopeTest
 
     [Trait("Category", "All")]
     [Fact]
-    public async void TestCultureContinueOnCurrentThread()
+    public async Task TestCultureContinueOnCurrentThread()
     {
         var frFR = new CultureInfo("fr-FR");
         var deDE = new CultureInfo("de-DE");
@@ -138,7 +133,7 @@ public class ScopeTest
         Assert.Null(Scope<string>.Current);
     }
 
-    private async Task<int> GetManageThreadIdAsync()
+    private static async Task<int> GetManageThreadIdAsync()
     {
         int threadId;
 
@@ -155,7 +150,7 @@ public class ScopeTest
         return threadId;
     }
 
-    private async Task<int> GetManageThreadIdAsync2()
+    private static async Task<int> GetManageThreadIdAsync2()
     {
         int threadId;
 

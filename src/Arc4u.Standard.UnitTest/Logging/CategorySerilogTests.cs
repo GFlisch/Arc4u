@@ -17,7 +17,7 @@ public class CategorySerilogTesters : BaseSinkContainerFixture<CategorySerilogTe
     public void LoggerTechnicalTest()
     {
         using var container = Fixture.CreateScope();
-        var logger = container.Resolve<ILogger<CategorySerilogTesters>>();
+        var logger = container.Resolve<ILogger<CategorySerilogTesters>>()!;
 
         ((SinkTest)Fixture.Sink).Emited = false;
         logger.Technical().Debug("Technical").Add("Code", "100").Log();
@@ -35,7 +35,7 @@ public class CategorySerilogTesters : BaseSinkContainerFixture<CategorySerilogTe
     public async Task LoggerSystemResourcesTest()
     {
         using var container = Fixture.CreateScope();
-        var logger = container.Resolve<ILogger<CategorySerilogTesters>>();
+        var logger = container.Resolve<ILogger<CategorySerilogTesters>>()!;
 
         var sink = (SinkTest)Fixture.Sink;
 
@@ -61,9 +61,9 @@ public class CategorySerilogTesters : BaseSinkContainerFixture<CategorySerilogTe
 
 public class LoggerCategorySinkTest : SerilogWriter
 {
-    public SinkTest Sink { get; set; }
+    public SinkTest? Sink { get; set; }
 
-    public FromSinkTest FromTest { get; set; }
+    public FromSinkTest? FromTest { get; set; }
 
     public override void Configure(LoggerConfiguration configurator)
     {

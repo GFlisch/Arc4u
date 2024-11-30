@@ -15,7 +15,7 @@ public class EfCoreTests : BaseContainerFixture<EfCoreTests, EfCoreFixture>
     {
         using var container = fixture.CreateScope();
         using var db = container.Resolve<DatabaseContext>();
-        db.Database.EnsureCreated();
+        db!.Database.EnsureCreated();
     }
 
     [Fact]
@@ -31,15 +31,15 @@ public class EfCoreTests : BaseContainerFixture<EfCoreTests, EfCoreFixture>
             var contract = fixture.Create<Contract>();
             contract.PersistChange = Data.PersistChange.Insert;
 
-            db.ChangeTracker.TrackGraph(contract, e => ChangeGraphTracker.Tracker(e));
+            db!.ChangeTracker.TrackGraph(contract, ChangeGraphTracker.Tracker);
 
-            await db.SaveChangesAsync(CancellationToken.None).ConfigureAwait(false);
+            await db.SaveChangesAsync(CancellationToken.None);
 
         }
 
-        var result = await db.Contracts.ToListAsync();
+        var result = await db!.Contracts.ToListAsync();
 
-        Assert.True(10 == result.Count());
+        Assert.True(10 == result.Count);
     }
 
     [Fact]
@@ -48,18 +48,18 @@ public class EfCoreTests : BaseContainerFixture<EfCoreTests, EfCoreFixture>
     {
         using var container = Fixture.CreateScope();
         using var db = container.Resolve<DatabaseContext>();
-        var result = await db.Contracts.ToListAsync();
+        var result = await db!.Contracts.ToListAsync();
 
         var toDelete = result.First();
         toDelete.PersistChange = Data.PersistChange.Delete;
 
-        db.ChangeTracker.TrackGraph(toDelete, e => ChangeGraphTracker.Tracker(e));
+        db.ChangeTracker.TrackGraph(toDelete, ChangeGraphTracker.Tracker);
 
-        await db.SaveChangesAsync(CancellationToken.None).ConfigureAwait(false);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         result = await db.Contracts.ToListAsync();
 
-        Assert.True(9 == result.Count());
+        Assert.True(9 == result.Count);
     }
 
     [Fact]
@@ -76,9 +76,9 @@ public class EfCoreTests : BaseContainerFixture<EfCoreTests, EfCoreFixture>
 
         var id = contract.Id;
 
-        db.ChangeTracker.TrackGraph(contract, e => ChangeGraphTracker.Tracker(e));
+        db!.ChangeTracker.TrackGraph(contract, ChangeGraphTracker.Tracker);
 
-        await db.SaveChangesAsync(CancellationToken.None).ConfigureAwait(false);
+        await db.SaveChangesAsync(CancellationToken.None);
         contract = null;
         db.ChangeTracker.Clear();
 
@@ -92,9 +92,9 @@ public class EfCoreTests : BaseContainerFixture<EfCoreTests, EfCoreFixture>
 
         Assert.Equal(EntityState.Detached, db.Entry(contract).State);
 
-        db.ChangeTracker.TrackGraph(contract, e => ChangeGraphTracker.Tracker(e));
+        db.ChangeTracker.TrackGraph(contract, ChangeGraphTracker.Tracker);
 
-        await db.SaveChangesAsync(CancellationToken.None).ConfigureAwait(false);
+        await db.SaveChangesAsync(CancellationToken.None);
         db.ChangeTracker.Clear();
     }
 }

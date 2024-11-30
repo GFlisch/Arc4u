@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
     <IsPackable>false</IsPackable>
-    <NoWarn>$(NoWarn);IDE0051</NoWarn>
+    <NoWarn>$(NoWarn);IDE0051;CA2012,xUnit1031</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

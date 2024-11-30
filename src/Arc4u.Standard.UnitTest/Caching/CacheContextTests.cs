@@ -149,23 +149,23 @@ public class CacheContextTests
         // assert
         // redis
         sutRedis.Should().NotBeNull();
-        sutRedis.InstanceName.Should().Be(redisSettings.InstanceName);
+        sutRedis!.InstanceName.Should().Be(redisSettings.InstanceName);
         sutRedis.ConnectionString.Should().Be(redisSettings.ConnectionString);
         sutRedis.SerializerName.Should().Be(redisSettings.SerializerName);
         // sql
 
-        sutSql.ConnectionString.Should().Be(sqlSettings.ConnectionString);
+        sutSql!.ConnectionString.Should().Be(sqlSettings.ConnectionString);
         sutSql.TableName.Should().Be(sqlSettings.TableName);
         sutSql.SchemaName.Should().Be(sqlSettings.SchemaName);
         sutSql.SerializerName.Should().Be(sqlSettings.SerializerName);
         // memory
         sutMemory.Should().NotBeNull();
-        sutMemory.SerializerName.Should().Be(memorySettings.SerializerName);
+        sutMemory!.SerializerName.Should().Be(memorySettings.SerializerName);
         sutMemory.SizeLimitInMB.Should().Be(memorySettings.SizeLimitInMB * 1024 * 1024);
         sutMemory.CompactionPercentage.Should().Be(memorySettings.CompactionPercentage);
         // dapr
         sutDapr.Should().NotBeNull();
-        sutDapr.Name.Should().Be(daprSettings.Name);
+        sutDapr!.Name.Should().Be(daprSettings.Name);
 
     }
 
@@ -207,10 +207,10 @@ public class CacheContextTests
         mockIOptions.Setup(m => m.Get("Volatile")).Returns(serviceProvider.GetService<IOptionsMonitor<MemoryCacheOption>>()!.Get("Volatile"));
 
         var mockIContainer = _fixture.Freeze<Mock<IContainerResolve>>();
-        IObjectSerialization serializer = new JsonSerialization();
+        IObjectSerialization? serializer = new JsonSerialization();
         mockIContainer.Setup(m => m.TryResolve<IObjectSerialization>(out serializer)).Returns(true);
 
-        ICache mockCache = _fixture.Create<MemoryCache>();
+        ICache? mockCache = _fixture.Create<MemoryCache>();
         mockIContainer.Setup(m => m.TryResolve<ICache>(CacheContext.Memory, out mockCache)).Returns(true);
 
         _fixture.Inject<IConfiguration>(configuration);

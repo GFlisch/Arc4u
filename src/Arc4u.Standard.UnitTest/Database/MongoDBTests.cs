@@ -24,19 +24,19 @@ public class MongoDBTests
     private class Contract
     {
         public Guid Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = default!;
     };
 
     private class Company
     {
         public Guid Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = default!;
     };
 
-    private class NotMapped
+    private sealed class NotMapped
     {
         public Guid Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = default!;
     };
 
     private class DatabaseDbContext : DbContext
@@ -68,7 +68,7 @@ public class MongoDBTests
         var app = services.BuildServiceProvider();
 
         var factory = app.GetService<IMongoClientFactory<DatabaseDbContext>>();
-        var client = factory.CreateClient();
+        var client = factory!.CreateClient();
 
         client.Settings.Server.Host.Should().Be("localhost");
         client.Settings.Server.Port.Should().Be(27017);
@@ -94,7 +94,7 @@ public class MongoDBTests
         var app = services.BuildServiceProvider();
 
         var factory = app.GetService<IMongoClientFactory<DatabaseDbContext>>();
-        var client = factory.CreateClient();
+        var client = factory!.CreateClient();
 
         client.Settings.Servers.Should().HaveCount(2);
         client.Settings.Servers.First().Host.Should().Be("localhost");
@@ -123,7 +123,7 @@ public class MongoDBTests
         var app = services.BuildServiceProvider();
 
         var factory = app.GetService<IMongoClientFactory<DatabaseDbContext>>();
-        var client = factory.GetCollection<Contract>("Contracts");
+        var client = factory!.GetCollection<Contract>("Contracts");
         client.Should().NotBeNull();
     }
 

@@ -52,7 +52,7 @@ public class BlazorTokenProviderTests
         keySettings.Add(TokenKeys.RedirectUrl, "https://localhost:44444/");
 
         var mockLocalStorage = fixture.Freeze<Mock<ILocalStorageService>>();
-        mockLocalStorage.Setup(p => p.GetItemAsStringAsync("token", It.IsAny<CancellationToken>())).Returns(ValueTask.FromResult(accessToken));
+        mockLocalStorage.Setup(p => p.GetItemAsStringAsync("token", It.IsAny<CancellationToken>())).Returns(ValueTask.FromResult<string?>(accessToken));
         mockLocalStorage.Setup(p => p.RemoveItemAsync("token", It.IsAny<CancellationToken>()));
 
         var mockInterop = fixture.Freeze<Mock<ITokenWindowInterop>>();
@@ -92,8 +92,8 @@ public class BlazorTokenProviderTests
 
         var mockLocalStorage = fixture.Freeze<Mock<ILocalStorageService>>();
         mockLocalStorage.SetupSequence(p => p.GetItemAsStringAsync("token", It.IsAny<CancellationToken>()))
-                        .Returns(ValueTask.FromResult(expiredAccessToken))
-                        .Returns(ValueTask.FromResult(accessToken));
+                        .Returns(ValueTask.FromResult<string?>(expiredAccessToken))
+                        .Returns(ValueTask.FromResult<string?>(accessToken));
         mockLocalStorage.Setup(p => p.RemoveItemAsync("token", It.IsAny<CancellationToken>()));
 
         var mockInterop = fixture.Freeze<Mock<ITokenWindowInterop>>();
@@ -110,7 +110,7 @@ public class BlazorTokenProviderTests
 
         // assert
         token.Should().NotBeNull();
-        token.Token.Should().Be(accessToken);
+        token!.Token.Should().Be(accessToken);
 
         mockInterop.Verify(m => m.OpenWindowAsync(It.IsAny<IJSRuntime>(), It.IsAny<ILocalStorageService>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
         mockLocalStorage.Verify(p => p.GetItemAsStringAsync("token", It.IsAny<CancellationToken>()), Times.Exactly(2));
@@ -132,8 +132,8 @@ public class BlazorTokenProviderTests
 
         var mockLocalStorage = fixture.Freeze<Mock<ILocalStorageService>>();
         mockLocalStorage.SetupSequence(p => p.GetItemAsStringAsync("token", It.IsAny<CancellationToken>()))
-                        .Returns(ValueTask.FromResult((string)null))
-                        .Returns(ValueTask.FromResult(accessToken));
+                        .Returns(ValueTask.FromResult<string?>(default!))
+                        .Returns(ValueTask.FromResult<string?>(accessToken));
         mockLocalStorage.Setup(p => p.RemoveItemAsync("token", It.IsAny<CancellationToken>()));
 
         var mockInterop = fixture.Freeze<Mock<ITokenWindowInterop>>();
@@ -150,7 +150,7 @@ public class BlazorTokenProviderTests
 
         // assert
         token.Should().NotBeNull();
-        token.Token.Should().Be(accessToken);
+        token!.Token.Should().Be(accessToken);
 
         mockInterop.Verify(m => m.OpenWindowAsync(It.IsAny<IJSRuntime>(), It.IsAny<ILocalStorageService>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
         mockLocalStorage.Verify(p => p.GetItemAsStringAsync("token", It.IsAny<CancellationToken>()), Times.Exactly(2));
@@ -171,8 +171,9 @@ public class BlazorTokenProviderTests
 
         var mockLocalStorage = fixture.Freeze<Mock<ILocalStorageService>>();
         mockLocalStorage.SetupSequence(p => p.GetItemAsStringAsync("token", It.IsAny<CancellationToken>()))
-                        .Returns(ValueTask.FromResult(jwt.EncodedPayload)) // wrong access token
-                        .Returns(ValueTask.FromResult(accessToken));
+                        .Returns(ValueTask.FromResult<string?>(jwt.EncodedPayload)) // wrong access token
+                        .Returns(ValueTask.FromResult<string?>(accessToken));
+
         mockLocalStorage.Setup(p => p.RemoveItemAsync("token", It.IsAny<CancellationToken>()));
 
         var mockInterop = fixture.Freeze<Mock<ITokenWindowInterop>>();
@@ -189,7 +190,7 @@ public class BlazorTokenProviderTests
 
         // assert
         token.Should().NotBeNull();
-        token.Token.Should().Be(accessToken);
+        token!.Token.Should().Be(accessToken);
 
         mockInterop.Verify(m => m.OpenWindowAsync(It.IsAny<IJSRuntime>(), It.IsAny<ILocalStorageService>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
         mockLocalStorage.Verify(p => p.GetItemAsStringAsync("token", It.IsAny<CancellationToken>()), Times.Exactly(2));
@@ -200,7 +201,7 @@ public class BlazorTokenProviderTests
     public async Task GetTokenWithNullSettingsValuesShoud()
     {
         // Arrange
-        Dictionary<string, string> keySettings = null;
+        Dictionary<string, string> keySettings = [];
 
         var mockKeyValueSettings = fixture.Freeze<Mock<IKeyValueSettings>>();
         mockKeyValueSettings.SetupGet(p => p.Values).Returns(keySettings);

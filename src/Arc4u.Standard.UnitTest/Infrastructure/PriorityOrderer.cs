@@ -1,4 +1,4 @@
-﻿using Xunit.Abstractions;
+using Xunit.Abstractions;
 using Xunit.Sdk;
 
 namespace Arc4u.UnitTest.Infrastructure;
@@ -33,7 +33,7 @@ public class PriorityOrderer : ITestCaseOrderer
         IDictionary<TKey, TValue> dictionary, TKey key)
         where TKey : struct
         where TValue : new() =>
-        dictionary.TryGetValue(key, out TValue result)
+        dictionary.TryGetValue(key, out TValue? result)
             ? result
             : (dictionary[key] = new TValue());
 }

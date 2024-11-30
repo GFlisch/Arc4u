@@ -21,7 +21,7 @@ public class CompressionAndSpeedTests
     }
     private readonly Fixture _fixture;
     private readonly ITestOutputHelper _output;
-    private static string[] _bearerTokens;
+    private static string[] _bearerTokens = [];
     /// <summary>
     /// A normal and a "zuppafat" bearer token
     /// </summary>
@@ -52,7 +52,7 @@ public class CompressionAndSpeedTests
 
     private sealed class Measurement
     {
-        public string Method { get; set; }
+        public string Method { get; set; } = default!;
         public TimeSpan TimeSpan { get; set; }
         public int Size { get; set; }
     }

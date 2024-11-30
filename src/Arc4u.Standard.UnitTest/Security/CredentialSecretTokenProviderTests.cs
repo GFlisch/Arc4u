@@ -38,7 +38,7 @@ public class CredentialSecretTokenProviderTests
 
         var mockCredentialTokenProvider = _fixture.Freeze<Mock<ICredentialTokenProvider>>();
         mockCredentialTokenProvider.Setup(m => m.GetTokenAsync(It.IsAny<SimpleKeyValueSettings>(), It.IsAny<CredentialsResult>())).ReturnsAsync(tokenTest).Verifiable();
-        ICredentialTokenProvider credentialProvider = mockCredentialTokenProvider.Object;
+        ICredentialTokenProvider? credentialProvider = mockCredentialTokenProvider.Object;
 
         var mockContainer = _fixture.Freeze<Mock<IContainerResolve>>();
         mockContainer.Setup(m => m.TryResolve<ICredentialTokenProvider>(CredentialTokenCacheTokenProvider.ProviderName, out credentialProvider)).Returns(true).Verifiable();
@@ -46,11 +46,11 @@ public class CredentialSecretTokenProviderTests
         // act.
         var sut = _fixture.Create<CredentialSecretTokenProvider>();
 
-        var token = await sut.GetTokenAsync(settings, null).ConfigureAwait(false);
+        var token = await sut.GetTokenAsync(settings, null);
 
         // assert.
         token.Should().NotBeNull();
-        token.Token.Should().Be(tokenTest.Token);
+        token!.Token.Should().Be(tokenTest.Token);
         token.TokenType.Should().Be(tokenTest.TokenType);
         token.ExpiresOnUtc.Should().Be(tokenTest.ExpiresOnUtc);
 
@@ -67,7 +67,7 @@ public class CredentialSecretTokenProviderTests
 
         var mockCredentialTokenProvider = _fixture.Freeze<Mock<ICredentialTokenProvider>>();
         mockCredentialTokenProvider.Setup(m => m.GetTokenAsync(It.IsAny<SimpleKeyValueSettings>(), It.IsAny<CredentialsResult>())).ReturnsAsync(tokenTest).Verifiable();
-        ICredentialTokenProvider credentialProvider = mockCredentialTokenProvider.Object;
+        ICredentialTokenProvider? credentialProvider = mockCredentialTokenProvider.Object;
 
         var mockContainer = _fixture.Freeze<Mock<IContainerResolve>>();
         mockContainer.Setup(m => m.TryResolve<ICredentialTokenProvider>(CredentialTokenCacheTokenProvider.ProviderName, out credentialProvider)).Returns(true).Verifiable();
@@ -75,7 +75,7 @@ public class CredentialSecretTokenProviderTests
         // act.
         var sut = _fixture.Create<CredentialSecretTokenProvider>();
 
-        var exception = await Record.ExceptionAsync(async () => await sut.GetTokenAsync(settings, null).ConfigureAwait(false)).ConfigureAwait(false);
+        var exception = await Record.ExceptionAsync(async () => await sut.GetTokenAsync(settings, null).ConfigureAwait(false));
 
         // assert.
         exception.Should().NotBeNull();
@@ -88,13 +88,13 @@ public class CredentialSecretTokenProviderTests
     public async Task SecretBasicTokenProviderWithNoSettingsShouldAsync()
     {
         // arrange.
-        SimpleKeyValueSettings settings = null;
+        SimpleKeyValueSettings? settings = null;
         var credential = new CredentialsResult(false);
         var tokenTest = new TokenInfo("TokenType", "AccessToken", DateTime.UtcNow.AddMinutes(60));
 
         var mockCredentialTokenProvider = _fixture.Freeze<Mock<ICredentialTokenProvider>>();
         mockCredentialTokenProvider.Setup(m => m.GetTokenAsync(It.IsAny<SimpleKeyValueSettings>(), It.IsAny<CredentialsResult>())).ReturnsAsync(tokenTest).Verifiable();
-        ICredentialTokenProvider credentialProvider = mockCredentialTokenProvider.Object;
+        ICredentialTokenProvider? credentialProvider = mockCredentialTokenProvider.Object;
 
         var mockContainer = _fixture.Freeze<Mock<IContainerResolve>>();
         mockContainer.Setup(m => m.TryResolve<ICredentialTokenProvider>(CredentialTokenCacheTokenProvider.ProviderName, out credentialProvider)).Returns(true).Verifiable();
@@ -102,7 +102,7 @@ public class CredentialSecretTokenProviderTests
         // act.
         var sut = _fixture.Create<CredentialSecretTokenProvider>();
 
-        var exception = await Record.ExceptionAsync(async () => await sut.GetTokenAsync(settings, null).ConfigureAwait(false)).ConfigureAwait(false);
+        var exception = await Record.ExceptionAsync(async () => await sut.GetTokenAsync(settings, null).ConfigureAwait(false));
 
         // assert.
         exception.Should().NotBeNull();

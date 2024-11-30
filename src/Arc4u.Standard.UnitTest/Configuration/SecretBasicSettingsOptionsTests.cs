@@ -117,7 +117,6 @@ public class SecretBasicSettingsOptionsTests
     {
         var options = _fixture.Create<SecretBasicSettingsOptions>();
         var _default = new SecretBasicSettingsOptions();
-        var authUrl = _fixture.Create<Uri>().ToString();
 
         var config = new ConfigurationBuilder()
                      .AddInMemoryCollection(
@@ -141,7 +140,7 @@ public class SecretBasicSettingsOptionsTests
 
         sut.Should().NotBeNull();
 
-        sut.Values[TokenKeys.ClientIdKey].Should().Be(options.ClientId);
+        sut!.Values[TokenKeys.ClientIdKey].Should().Be(options.ClientId);
         sut.Values[TokenKeys.ProviderIdKey].Should().Be(_default.ProviderId);
         sut.Values[TokenKeys.AuthenticationTypeKey].Should().Be(_default.AuthenticationType);
         sut.Values[TokenKeys.Scope].Should().Be("openid");

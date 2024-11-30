@@ -6,10 +6,10 @@ namespace Arc4u.Standard.UnitTest.Collections.Generic;
 
 public class MemberEqualityComparerTests
 {
-    private class TestClass
+    private sealed class TestClass
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = default!;
     }
 
     [Fact]

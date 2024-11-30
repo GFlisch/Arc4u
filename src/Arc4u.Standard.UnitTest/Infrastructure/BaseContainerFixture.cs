@@ -13,7 +13,7 @@ public abstract class BaseContainerFixture<T, TFixture> : IClassFixture<TFixture
     public BaseContainerFixture(TFixture containerFixture)
     {
         _containerFixture = containerFixture;
-        _logger = containerFixture.SharedContainer.Resolve<ILogger<T>>();
+        _logger = containerFixture.SharedContainer.Resolve<ILogger<T>>()!;
     }
 
     public ILogger<T> Logger => _logger;

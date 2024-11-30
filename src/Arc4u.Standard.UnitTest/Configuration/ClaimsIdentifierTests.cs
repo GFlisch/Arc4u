@@ -45,7 +45,7 @@ public class ClaimsIdentifierTests
         var sut = serviceProvider.GetService<IOptions<ClaimsIdentifierOption>>();
 
         sut.Should().NotBeNull();
-        sut.Value.Should().HaveCount(2);
+        sut!.Value.Should().HaveCount(2);
         sut.Value.Should().Equal(i1, i2);
     }
 
@@ -69,7 +69,7 @@ public class ClaimsIdentifierTests
         var sut = serviceProvider.GetService<IOptions<ClaimsIdentifierOption>>();
 
         sut.Should().NotBeNull();
-        sut.Value.Should().HaveCount(2);
+        sut!.Value.Should().HaveCount(2);
         sut.Value.Should().Equal("http://schemas.microsoft.com/identity/claims/objectidentifier", "oid");
     }
 }

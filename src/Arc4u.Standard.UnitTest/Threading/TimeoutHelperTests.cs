@@ -104,7 +104,7 @@ public class TimeoutHelperTests
             callbackInvoked = true;
         }
 
-        helper.SetTimer(Callback, null);
+        helper.SetTimer(Callback!, null);
 
         Thread.Sleep(1000);
 

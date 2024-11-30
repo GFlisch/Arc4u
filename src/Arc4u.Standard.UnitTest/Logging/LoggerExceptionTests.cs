@@ -20,7 +20,7 @@ public class LoggerSimpleExceptionTests : BaseSinkContainerFixture<CategorySeril
     public void ExceptionTest()
     {
         using var container = Fixture.CreateScope();
-        var logger = container.Resolve<ILogger<LoggerSimpleExceptionTests>>();
+        var logger = container.Resolve<ILogger<LoggerSimpleExceptionTests>>()!;
 
         var sink = (ExceptionSinkTest)Fixture.Sink;
 
@@ -44,7 +44,7 @@ public class LoggerAggregateExceptionTests : BaseSinkContainerFixture<CategorySe
     public void TestAggregateException()
     {
         using var container = Fixture.CreateScope();
-        var logger = container.Resolve<ILogger<LoggerAggregateExceptionTests>>();
+        var logger = container.Resolve<ILogger<LoggerAggregateExceptionTests>>()!;
 
         var sink = (ExceptionSinkTest)Fixture.Sink;
 
@@ -68,7 +68,7 @@ public class LoggerAggregateExceptionTests : BaseSinkContainerFixture<CategorySe
 
 public class LoggerExceptionSinkTest : SerilogWriter
 {
-    public ExceptionSinkTest Sink { get; set; }
+    public ExceptionSinkTest? Sink { get; set; }
 
     public override void Configure(LoggerConfiguration configurator)
     {
@@ -95,7 +95,10 @@ public sealed class ExceptionSinkTest : ILogEventSink, IDisposable
     public void Emit(LogEvent logEvent)
     {
         HasException = null != logEvent.Exception;
-        Exceptions.Add(logEvent.Exception);
+        if (HasException)
+        {
+            Exceptions.Add(logEvent.Exception!);
+        }
     }
 }
 
@@ -109,9 +112,9 @@ public class ExceptionFixture : SinkContainerFixture
         return _sink.Logger;
     }
 
-    private LoggerExceptionSinkTest _sink;
+    private LoggerExceptionSinkTest? _sink;
 
-    public override ExceptionSinkTest Sink => _sink.Sink;
+    public override ExceptionSinkTest Sink => _sink!.Sink!;
 
     public override string ConfigFile => @"Configs\Basic.json";
 }

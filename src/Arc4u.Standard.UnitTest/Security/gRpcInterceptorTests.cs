@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Arc4u.Caching;
@@ -18,7 +17,6 @@ using Arc4u.OAuth2.TokenProviders;
 using Arc4u.Security.Principal;
 using AutoFixture;
 using AutoFixture.AutoMoq;
-using Castle.Components.DictionaryAdapter;
 using FluentAssertions;
 using Grpc.Core;
 using Grpc.Core.Interceptors;
@@ -117,7 +115,6 @@ public class GRpcInterceptorTests
         container.RegisterInstance<IHttpContextAccessor>(mockHttpContextAccessor.Object);
         container.CreateContainer();
 
-
         // Create a scope to be in the context majority of the time a business code is.
         using var scopedContainer = container.CreateScope();
         var scopedServiceAccessor = scopedContainer.Resolve<IScopedServiceProviderAccessor>();
@@ -125,7 +122,7 @@ public class GRpcInterceptorTests
 
         var tokenRefresh = scopedContainer.Resolve<TokenRefreshInfo>();
         tokenRefresh!.RefreshToken = new TokenInfo("refresh_token", Guid.NewGuid().ToString(), DateTime.UtcNow.AddHours(1));
-        tokenRefresh.AccessToken = new TokenInfo("access_token", accessToken);
+        tokenRefresh!.AccessToken = new TokenInfo("access_token", accessToken);
 
         var principal = new AppPrincipal(new Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0")
         {
@@ -144,7 +141,7 @@ public class GRpcInterceptorTests
         var mock = _fixture.Freeze<Mock<BlockingUnaryCallContinuation<string, string>>>();
 
         // Act
-        var sut = new InterceptorTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<InterceptorTest>>(), setingsOptions, Constants.OpenIdOptionsName);
+        var sut = new InterceptorTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<InterceptorTest>>()!, setingsOptions!, Constants.OpenIdOptionsName);
 
         sut.BlockingUnaryCall<string, string>("Test", mockClientInterceptorContext, mock.Object);
 
@@ -197,7 +194,7 @@ public class GRpcInterceptorTests
         // Create a scope to be in the context majority of the time a business code is.
         using var scopedContainer = container.CreateScope();
 
-        scopedServiceAccessor.ServiceProvider = scopedContainer.ServiceProvider;
+        scopedServiceAccessor!.ServiceProvider = scopedContainer.ServiceProvider;
 
         var principal = new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.CookiesAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0")
         {
@@ -216,7 +213,7 @@ public class GRpcInterceptorTests
         var mock = _fixture.Freeze<Mock<BlockingUnaryCallContinuation<string, string>>>();
 
         // Act
-        var sut = new InterceptorTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<InterceptorTest>>(), setingsOptions, "OAuth2");
+        var sut = new InterceptorTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<InterceptorTest>>()!, setingsOptions!, "OAuth2");
 
         sut.BlockingUnaryCall<string, string>("Test", mockClientInterceptorContext, mock.Object);
 
@@ -309,7 +306,7 @@ public class GRpcInterceptorTests
         var mock = _fixture.Freeze<Mock<BlockingUnaryCallContinuation<string, string>>>();
 
         // Act
-        var sut = new InterceptorTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<InterceptorTest>>(), setingsOptions, "Client1");
+        var sut = new InterceptorTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<InterceptorTest>>()!, setingsOptions!, "Client1");
 
         sut.BlockingUnaryCall<string, string>("Test", mockClientInterceptorContext, mock.Object);
 
@@ -368,7 +365,7 @@ public class GRpcInterceptorTests
         var appContext = scopedContainer.Resolve<IApplicationContext>();
         appContext!.SetPrincipal(principal);
 
-        scopedServiceAccessor.ServiceProvider = scopedContainer.ServiceProvider;
+        scopedServiceAccessor!.ServiceProvider = scopedContainer.ServiceProvider;
 
         var setingsOptions = scopedContainer.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
 
@@ -378,7 +375,7 @@ public class GRpcInterceptorTests
         var mock = _fixture.Freeze<Mock<BlockingUnaryCallContinuation<string, string>>>();
 
         // Act
-        var sut = new InterceptorTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<InterceptorTest>>(), setingsOptions, "Remote1");
+        var sut = new InterceptorTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<InterceptorTest>>()!, setingsOptions!, "Remote1");
 
         sut.BlockingUnaryCall<string, string>("Test", mockClientInterceptorContext, mock.Object);
 
@@ -437,7 +434,7 @@ public class GRpcInterceptorTests
         var appContext = scopedContainer.Resolve<IApplicationContext>();
         appContext!.SetPrincipal(principal);
 
-        scopedServiceAccessor.ServiceProvider = scopedContainer.ServiceProvider;
+        scopedServiceAccessor!.ServiceProvider = scopedContainer.ServiceProvider;
 
         var setingsOptions = scopedContainer.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
 
@@ -447,7 +444,7 @@ public class GRpcInterceptorTests
         var mock = _fixture.Freeze<Mock<BlockingUnaryCallContinuation<string, string>>>();
 
         // Act
-        var sut = new InterceptorTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<InterceptorTest>>(), setingsOptions, "Remote1");
+        var sut = new InterceptorTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<InterceptorTest>>()!, setingsOptions!, "Remote1");
 
         sut.BlockingUnaryCall<string, string>("Test", mockClientInterceptorContext, mock.Object);
 
@@ -495,7 +492,7 @@ public class GRpcInterceptorTests
         services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
 
         var mockActivitySourceFactory = new Mock<IActivitySourceFactory>();
-        mockActivitySourceFactory.Setup(m => m.Get("Arc4u", null)).Returns((ActivitySource)null);
+        mockActivitySourceFactory.Setup(m => m.Get("Arc4u", null)).Returns<string?>(default!);
         services.AddSingleton<IActivitySourceFactory>(mockActivitySourceFactory.Object);
 
         // Used the cache to return the access token in the Obo provider => avoid any call to the Authority!
@@ -519,13 +516,13 @@ public class GRpcInterceptorTests
         // Create a scope to be in the context majority of the time a business code is.
         using var scopedContainer = container.CreateScope();
 
-        scopedServiceAccessor.ServiceProvider = scopedContainer.ServiceProvider;
+        scopedServiceAccessor!.ServiceProvider = scopedContainer.ServiceProvider;
 
         var principal = new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0");
         principal.Profile = UserProfile.Empty;
         // Define a Principal with no OAuth2Bearer token here => we test the injection.
         var appContext = scopedContainer.Resolve<IApplicationContext>();
-        appContext.SetPrincipal(principal);
+        appContext!.SetPrincipal(principal);
 
         var setingsOptions = scopedContainer.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
 
@@ -535,7 +532,7 @@ public class GRpcInterceptorTests
         var mock = _fixture.Freeze<Mock<BlockingUnaryCallContinuation<string, string>>>();
 
         // Act
-        var sut = new InterceptorTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<InterceptorTest>>(), setingsOptions, "Obo");
+        var sut = new InterceptorTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<InterceptorTest>>()!, setingsOptions!, "Obo");
 
         sut.BlockingUnaryCall<string, string>("Test", mockClientInterceptorContext, mock.Object);
 
@@ -596,7 +593,7 @@ public class GRpcInterceptorTests
         var mock = _fixture.Freeze<Mock<BlockingUnaryCallContinuation<string, string>>>();
 
         // Act
-        var sut = new InterceptorClientTest(container, container.Resolve<ILogger<InterceptorTest>>(), setingsOptions, "OAuth2");
+        var sut = new InterceptorClientTest(container, container.Resolve<ILogger<InterceptorTest>>()!, setingsOptions!, "OAuth2");
 
         sut.BlockingUnaryCall<string, string>("Test", mockClientInterceptorContext, mock.Object);
 

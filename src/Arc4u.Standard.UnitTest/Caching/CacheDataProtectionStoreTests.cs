@@ -33,7 +33,7 @@ public class CacheDataProtectionStoreTests
     public void CheckMemoryStoreShould()
     {
         // arrange
-        var (services, configuration) = BuiltContainer();
+        var (services, _) = BuiltContainer();
 
         var container = new ComponentModelContainer(services);
 
@@ -56,7 +56,7 @@ public class CacheDataProtectionStoreTests
     public void StoreXElementShould()
     {
         // arrange
-        var (services, configuration) = BuiltContainer();
+        var (services, _) = BuiltContainer();
 
         var container = new ComponentModelContainer(services);
 
@@ -85,7 +85,7 @@ public class CacheDataProtectionStoreTests
     public void StoreXElementWithNoCacheNameShould()
     {
         // arrange
-        var (services, configuration) = BuiltContainer();
+        var (services, _) = BuiltContainer();
 
         var container = new ComponentModelContainer(services);
 
@@ -127,7 +127,7 @@ public class CacheDataProtectionStoreTests
         var cacheContext = container.GetRequiredService<ICacheContext>();
 
         // act
-        var exception = Record.Exception(() => new CacheStore(cacheContext, loggerFactory, null));
+        var exception = Record.Exception(() => new CacheStore(cacheContext, loggerFactory, default!));
 
         // assert
         exception.Should().NotBeNull();

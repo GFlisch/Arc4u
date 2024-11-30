@@ -70,7 +70,7 @@ public class LoggerMessage
             }
         }
 
-        Properties.AddIfNotExist(LoggingConstants.Application, LoggerBase.Application);
+        Properties.AddIfNotExist(LoggingConstants.Application, LoggerBase.Application ?? "Unknown App");
         Properties.AddIfNotExist(LoggingConstants.ThreadId, Environment.CurrentManagedThreadId);
         Properties.AddIfNotExist(LoggingConstants.Class, TypeClass);
         Properties.AddIfNotExist(LoggingConstants.MethodName, MethodName);

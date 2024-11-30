@@ -26,14 +26,14 @@ public class SerilogTests : BaseContainerFixture<SerilogTests, BasicFixture>
 
         using (new LoggerContext())
         {
-            LoggerContext.Current.Add("Speed", 101011);
+            LoggerContext.Current!.Add("Speed", 101011);
 
-            logger.Technical().LogDebug("Debug {Code}", 100);
-            logger.Technical().LogInformation("Information {Code}", 101);
-            logger.Technical().LogWarning("Warning {Code}", 102);
-            logger.Technical().LogError("Error {Code}", 103);
-            logger.Technical().LogFatal("Fatal {Code}", 104);
-            logger.Technical().LogException(new DivideByZeroException("Cannot divide by zero"));
+            logger!.Technical().LogDebug("Debug {Code}", 100);
+            logger!.Technical().LogInformation("Information {Code}", 101);
+            logger!.Technical().LogWarning("Warning {Code}", 102);
+            logger!.Technical().LogError("Error {Code}", 103);
+            logger!.Technical().LogFatal("Fatal {Code}", 104);
+            logger!.Technical().LogException(new DivideByZeroException("Cannot divide by zero"));
 
             await Task.Delay(1000);
 
@@ -53,15 +53,15 @@ public class SerilogTests : BaseContainerFixture<SerilogTests, BasicFixture>
 
         using (new LoggerContext())
         {
-            LoggerContext.Current.Add("Speed", 101011);
+            LoggerContext.Current!.Add("Speed", 101011);
 
-            logger.Technical().Debug("Debug").Add("Code", "100").Log();
-            logger.Technical().Information("Information").Add("Code", "101").Log();
-            logger.Technical().Warning("Warning").Add("Code", "102").Log();
-            logger.Technical().Error("Error").Add("Code", "103").Log();
-            logger.Technical().Fatal("Fatal").Add("Code", "104").Log();
-            logger.Technical().Exception(new DivideByZeroException("Cannot divide by zero")).Log();
-            logger.Monitoring().Debug("Memory").AddMemoryUsage().Log();
+            logger!.Technical().Debug("Debug").Add("Code", "100").Log();
+            logger!.Technical().Information("Information").Add("Code", "101").Log();
+            logger!.Technical().Warning("Warning").Add("Code", "102").Log();
+            logger!.Technical().Error("Error").Add("Code", "103").Log();
+            logger!.Technical().Fatal("Fatal").Add("Code", "104").Log();
+            logger!.Technical().Exception(new DivideByZeroException("Cannot divide by zero")).Log();
+            logger!.Monitoring().Debug("Memory").AddMemoryUsage().Log();
 
             await Task.Delay(1000);
 
@@ -76,7 +76,7 @@ public class SerilogTests : BaseContainerFixture<SerilogTests, BasicFixture>
     {
         using (new LoggerContext())
         {
-            LoggerContext.Current.Add("Code", 100);
+            LoggerContext.Current!.Add("Code", 100);
 
             using (new LoggerContext())
             {
@@ -124,17 +124,17 @@ public sealed class SinkTest : ILogEventSink, IDisposable
 
 public sealed class FromSinkTest : ILogEventSink, IDisposable
 {
-    public string Class { get; set; }
+    public string Class { get; set; } = default!;
 
-    public string MethodName { get; set; }
+    public string MethodName { get; set; } = default!;
 
-    public string Application { get; set; }
+    public string Application { get; set; } = default!;
 
     public Diagnostics.MessageCategory Category { get; set; }
 
-    public string ActivityId { get; set; }
+    public string? ActivityId { get; set; } = default!;
 
-    public IReadOnlyDictionary<string, LogEventPropertyValue> Properties { get; set; }
+    public IReadOnlyDictionary<string, LogEventPropertyValue> Properties { get; set; } = default!;
 
     public void Dispose()
     {
@@ -144,12 +144,12 @@ public sealed class FromSinkTest : ILogEventSink, IDisposable
     {
         if (logEvent.Properties.TryGetValue(LoggingConstants.Class, out var classPropertyValue))
         {
-            Class = GetValue(classPropertyValue, "");
+            Class = GetValue(classPropertyValue, "")!;
         }
 
         if (logEvent.Properties.TryGetValue(LoggingConstants.MethodName, out var methodPropertyValue))
         {
-            MethodName = GetValue(methodPropertyValue, "");
+            MethodName = GetValue(methodPropertyValue, "")!;
         }
 
         if (logEvent.Properties.TryGetValue(LoggingConstants.Category, out var categoryPropertyValue))
@@ -159,7 +159,7 @@ public sealed class FromSinkTest : ILogEventSink, IDisposable
 
         if (logEvent.Properties.TryGetValue(LoggingConstants.Application, out var applicationName))
         {
-            Application = GetValue(applicationName, "");
+            Application = GetValue(applicationName, "")!;
         }
 
         if (logEvent.Properties.TryGetValue(LoggingConstants.ActivityId, out var activityId))
@@ -170,11 +170,11 @@ public sealed class FromSinkTest : ILogEventSink, IDisposable
         Properties = logEvent.Properties;
     }
 
-    public T GetValue<T>(LogEventPropertyValue pv, T defaultValue)
+    public T? GetValue<T>(LogEventPropertyValue pv, T defaultValue)
     {
         return pv.GetType().Name switch
         {
-            nameof(ScalarValue) => (T)((ScalarValue)pv).Value,
+            nameof(ScalarValue) => (T?)((ScalarValue)pv).Value,
             _ => defaultValue,
         };
     }
@@ -182,7 +182,7 @@ public sealed class FromSinkTest : ILogEventSink, IDisposable
 
 public class LoggerFromTest : SerilogWriter
 {
-    public FromSinkTest FromTest { get; set; }
+    public FromSinkTest FromTest { get; set; } = default!;
 
     public override void Configure(LoggerConfiguration configurator)
     {
@@ -194,7 +194,7 @@ public class LoggerFromTest : SerilogWriter
 
 public class LoggerFilterSinkTest : SerilogWriter
 {
-    public SinkTest Sink { get; set; }
+    public SinkTest? Sink { get; set; }
 
     public override void Configure(LoggerConfiguration configurator)
     {
@@ -206,7 +206,7 @@ public class LoggerFilterSinkTest : SerilogWriter
 
 public class LoggerAnonymousSinkTest : SerilogWriter
 {
-    public AnonymousSinkTest Sink { get; set; }
+    public AnonymousSinkTest? Sink { get; set; }
 
     public override void Configure(LoggerConfiguration configurator)
     {

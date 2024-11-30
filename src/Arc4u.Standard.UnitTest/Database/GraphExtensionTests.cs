@@ -1,22 +1,17 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using Arc4u.EfCore;
-using Microsoft.EntityFrameworkCore;
-using Moq;
 using Xunit;
 
 namespace Arc4u.Standard.UnitTest.Database;
 
 public class GraphExtensionTests
 {
-    private class TestEntity
+    private sealed class TestEntity
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-        public TestEntity RelatedEntity { get; set; }
-        public ICollection<TestEntity> RelatedEntities { get; set; }
+        public string Name { get; set; } = default!;
+        public TestEntity RelatedEntity { get; set; } = default!;
+        public ICollection<TestEntity> RelatedEntities { get; set; } = [];
     }
 
     [Fact]

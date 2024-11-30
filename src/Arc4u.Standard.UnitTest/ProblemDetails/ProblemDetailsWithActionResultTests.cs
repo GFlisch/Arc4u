@@ -140,7 +140,7 @@ public class ProblemDetailsWithActionResultTests
         // arrange
         var value = Guid.NewGuid().ToString();
 
-        var result = Result.Ok<string?>(null);
+        var result = Result.Ok<string?>(default!);
 
         Func<ValueTask<Result<string?>>> valueTask = () => ValueTask.FromResult(result);
 

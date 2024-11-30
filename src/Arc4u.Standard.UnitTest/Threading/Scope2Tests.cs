@@ -52,7 +52,7 @@ public class Scope2Tests
         Assert.Equal($"Scoping: {instance}", scope.ToString());
     }
 
-    private class TestInstance
+    private sealed class TestInstance
     {
         public override string ToString()
         {

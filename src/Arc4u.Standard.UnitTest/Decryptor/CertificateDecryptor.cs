@@ -34,7 +34,7 @@ public class CertificateDecryptor
                     ["EncryptionCertificate:Store:Name"] = "friendlyName"
                 });
 
-        var sut = new SecretConfigurationCertificateProvider(new SecretCertificateOptions { Prefix = "Prefix:", CertificateLoader = new X509CertificateLoader(null) }, config.Sources);
+        var sut = new SecretConfigurationCertificateProvider(new SecretCertificateOptions { Prefix = "Prefix:", CertificateLoader = new X509CertificateLoader(default!) }, config.Sources);
 
         // act
         var exception = Record.Exception(sut.Load);

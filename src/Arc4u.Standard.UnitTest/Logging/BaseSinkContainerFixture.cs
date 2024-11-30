@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 using Arc4u.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Serilog.Core;
@@ -14,7 +14,7 @@ public abstract class BaseSinkContainerFixture<T, TFixture> : IClassFixture<TFix
     public BaseSinkContainerFixture(TFixture containerFixture)
     {
         _containerFixture = containerFixture;
-        _logger = containerFixture.SharedContainer.Resolve<ILogger<T>>();
+        _logger = containerFixture.SharedContainer.Resolve<ILogger<T>>()!;
     }
 
     public ILogger<T> Logger => _logger;

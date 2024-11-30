@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.OData.Formatter.Serialization;
 
 namespace Arc4u.OData;
 
-internal class ODataSerializerProvider : Microsoft.AspNetCore.OData.Formatter.Serialization.ODataSerializerProvider
+internal sealed class ODataSerializerProvider : Microsoft.AspNetCore.OData.Formatter.Serialization.ODataSerializerProvider
 {
     private readonly Uri _odataBaseAddress;
 

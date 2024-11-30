@@ -21,7 +21,7 @@ public class MessagesLogTests : BaseContainerFixture<MessagesLogTests, BasicFixt
         var messages = new Messages();
         messages.Add(new Message(MessageCategory.Technical, MessageType.Error, "An error message."));
 
-        var logger = container.Resolve<ILogger<MessagesLogTests>>();
+        var logger = container.Resolve<ILogger<MessagesLogTests>>()!;
 
         messages.LogAll(logger);
 

@@ -22,7 +22,7 @@ public class Switch<TSource, TResult> : IEnumerable<TResult>
         public TResult Select(TSource source) { return selector(source); }
     }
 
-    private class CaseSelector<TSelectorSource, TCase, TSelectorResult> : CaseSelector<TSelectorSource, TSelectorResult>
+    private sealed class CaseSelector<TSelectorSource, TCase, TSelectorResult> : CaseSelector<TSelectorSource, TSelectorResult>
     {
         public CaseSelector(Func<TCase, TResult> selector) : base(
             x => x is TCase,
