@@ -26,7 +26,7 @@ public class EfCoreTests : BaseContainerFixture<EfCoreTests, EfCoreFixture>
 
         using var container = Fixture.CreateScope();
         using var db = container.Resolve<DatabaseContext>();
-        for (int i = 0; i < 10; i++)
+        for (var i = 0; i < 10; i++)
         {
             var contract = fixture.Create<Contract>();
             contract.PersistChange = Data.PersistChange.Insert;
@@ -39,7 +39,7 @@ public class EfCoreTests : BaseContainerFixture<EfCoreTests, EfCoreFixture>
 
         var result = await db!.Contracts.ToListAsync();
 
-        Assert.True(10 == result.Count);
+        Assert.Equal(10, result.Count);
     }
 
     [Fact]
@@ -59,7 +59,7 @@ public class EfCoreTests : BaseContainerFixture<EfCoreTests, EfCoreFixture>
 
         result = await db.Contracts.ToListAsync();
 
-        Assert.True(9 == result.Count);
+        Assert.Equal(9, result.Count);
     }
 
     [Fact]

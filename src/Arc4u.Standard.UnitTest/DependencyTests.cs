@@ -194,11 +194,10 @@ public class DependencyTests
         Assert.NotNull(container.Resolve(typeof(IGenerator), default!));
         Assert.True(container.TryResolve(typeof(IGenerator), out _));
         Assert.True(container.TryResolve(typeof(IGenerator), default!, out _));
-        container.ResolveAll<IGenerator>().ToList();
-        Assert.True(container.ResolveAll<IGenerator>().Count() == 1);
-        Assert.True(container.ResolveAll<IGenerator>(default!).Count() == 1);
-        Assert.True(container.ResolveAll(typeof(IGenerator)).Count() == 1);
-        Assert.True(container.ResolveAll(typeof(IGenerator), default!).Count() == 1);
+        Assert.Single(container.ResolveAll<IGenerator>());
+        Assert.Single(container.ResolveAll<IGenerator>(default!));
+        Assert.Single(container.ResolveAll(typeof(IGenerator)));
+        Assert.Single(container.ResolveAll(typeof(IGenerator), default!));
     }
 
     [Fact]
@@ -292,7 +291,7 @@ public class DependencyTests
         container.CreateContainer();
 
         var generators = container.ResolveAll<IGenerator>("Gen1");
-        Assert.True(generators.Count() == 2);
+        Assert.Equal(2, generators.Count());
         Assert.Collection(generators,
             type1 => Assert.IsType<NamedIdGenerator>(type1),
             type2 => Assert.IsType<IdGenerator>(type2));
@@ -312,7 +311,7 @@ public class DependencyTests
         Assert.Equal(2, container.ResolveAll<IGenerator>().Count());
 
         var generators = container.ResolveAll<IGenerator>("Gen1");
-        Assert.True(generators.Count() == 2);
+        Assert.Equal(2, generators.Count());
         Assert.Collection(generators,
             type1 => Assert.IsType<NamedIdGenerator>(type1),
             type2 => Assert.IsType<IdGenerator>(type2));
@@ -346,7 +345,7 @@ public class DependencyTests
         container.CreateContainer();
 
         var generators = container.ResolveAll<IGenerator>().ToList();
-        Assert.True(generators.Count == 2);
+        Assert.Equal(2, generators.Count);
         Assert.Collection(generators,
             type1 => Assert.IsType<NamedIdGenerator>(type1),
             type2 => Assert.IsType<IdGenerator>(type2));
@@ -364,7 +363,7 @@ public class DependencyTests
         container.CreateContainer();
 
         var generators = container.ResolveAll<IGenerator>().ToList();
-        Assert.True(generators.Count == 2);
+        Assert.Equal(2, generators.Count);
         Assert.Collection(generators,
             type1 => Assert.IsType<NamedIdGenerator>(type1),
             type2 => Assert.IsType<IdGenerator>(type2));
@@ -382,7 +381,7 @@ public class DependencyTests
         container.CreateContainer();
 
         var generators = container.ResolveAll<IGenerator>().ToList();
-        Assert.True(generators.Count == 2);
+        Assert.Equal(2, generators.Count);
         Assert.Collection(generators,
             type1 => Assert.IsType<NamedIdGenerator>(type1),
             type2 => Assert.IsType<IdGenerator>(type2));
@@ -400,7 +399,7 @@ public class DependencyTests
         container.CreateContainer();
 
         var generators = container.ResolveAll<IGenerator>().ToList();
-        Assert.True(generators.Count == 2);
+        Assert.Equal(2, generators.Count);
         Assert.Collection(generators,
             type1 => Assert.IsType<NamedIdGenerator>(type1),
             type2 => Assert.IsType<IdGenerator>(type2));
@@ -439,7 +438,7 @@ public class DependencyTests
         container.CreateContainer();
 
         var generators = container.ResolveAll<IGenerator>("Gen1");
-        Assert.True(generators.Count() == 2);
+        Assert.Equal(2, generators.Count());
         Assert.Collection(generators,
             type1 => Assert.IsType<NamedIdGenerator>(type1),
             type2 => Assert.IsType<IdGenerator>(type2));
@@ -471,7 +470,7 @@ public class DependencyTests
         Assert.Equal(2, container.ResolveAll<IGenerator>().Count());
 
         var generators = container.ResolveAll<IGenerator>("Gen1");
-        Assert.True(generators.Count() == 2);
+        Assert.Equal(2, generators.Count());
         Assert.Collection(generators,
             type1 => Assert.IsType<NamedIdGenerator>(type1),
             type2 => Assert.IsType<IdGenerator>(type2));
@@ -481,7 +480,7 @@ public class DependencyTests
     void TestDIRegisterMefAttribue1()
     {
         var container = new ComponentModelContainer();
-        container.Initialize(new[] { typeof(IdGenerator) });
+        container.Initialize([typeof(IdGenerator)]);
         container.CreateContainer();
 
         Assert.NotNull(container.Resolve<IGenerator>());
@@ -494,7 +493,7 @@ public class DependencyTests
     void TestDIRegisterMefNamedAttribue1()
     {
         var container = new ComponentModelContainer();
-        container.Initialize(new[] { typeof(NamedIdGenerator) });
+        container.Initialize([typeof(NamedIdGenerator)]);
         container.CreateContainer();
 
         container.TryResolve<IGenerator>(out var gen);
@@ -509,7 +508,7 @@ public class DependencyTests
     void TestDIRegisterMefSingletonAttribue1()
     {
         var container = new ComponentModelContainer();
-        container.Initialize(new[] { typeof(SingletonIdGenerator) });
+        container.Initialize([typeof(SingletonIdGenerator)]);
         container.CreateContainer();
 
         Assert.NotNull(container.Resolve<IGenerator>());
@@ -522,7 +521,7 @@ public class DependencyTests
     void TestDIRegisterMefNamedSingletonAttribue1()
     {
         var container = new ComponentModelContainer();
-        container.Initialize(new[] { typeof(NamedSingletonIdGenerator) });
+        container.Initialize([typeof(NamedSingletonIdGenerator)]);
         container.CreateContainer();
 
         container.TryResolve<IGenerator>(out var gen);
@@ -622,7 +621,7 @@ public class DependencyTests
         Assert.NotNull(container.Resolve<IGenerator>());
         container.Resolve(typeof(IGenerator), "Name").Should().NotBeNull();
         var instances = container.ResolveAll(typeof(IGenerator), "Name");
-        Assert.True(instances.Count() == 2);
+        Assert.Equal(2, instances.Count());
         Assert.NotEqual(instances.First(), instances.Last());
     }
 #endif

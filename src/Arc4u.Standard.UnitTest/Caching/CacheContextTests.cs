@@ -55,7 +55,7 @@ public class CacheContextTests
                              ["Caching:Caches:0:Settings:SerializerName"] = memorySettings.SerializerName,
                          }).Build();
 
-        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+        var configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
         var bindedCaching = new Configuration.Caching();
         configuration.GetSection("Caching").Bind(bindedCaching);

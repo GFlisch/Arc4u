@@ -86,7 +86,7 @@ public class JwtHttpHandlerTests
                          }).Build();
 
         // Define an access token that will be used as the return of the call to the CredentialDirect token credential provider.
-        var jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
+        var jwt = new JwtSecurityToken("issuer", "audience", claims: [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
         var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
@@ -179,7 +179,7 @@ public class JwtHttpHandlerTests
                          }).Build();
 
         // Define an access token that will be used as the return of the call to the CredentialDirect token credential provider.
-        var jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
+        var jwt = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
         var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
@@ -269,7 +269,7 @@ public class JwtHttpHandlerTests
                          }).Build();
 
         // Define an access token that will be used as the return of the call to the CredentialDirect token credential provider.
-        var jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
+        var jwt = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
         var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
@@ -358,7 +358,7 @@ public class JwtHttpHandlerTests
                      .AddInMemoryCollection(configDic).Build();
 
         // Define an access token that will be used as the return of the call to the CredentialDirect token credential provider.
-        var jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
+        var jwt = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
         var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
@@ -379,7 +379,7 @@ public class JwtHttpHandlerTests
 
         // Mock the cache used by the Credential token provider.
         var mockTokenCache = _fixture.Freeze<Mock<ITokenCache>>();
-        mockTokenCache.Setup(m => m.Get<TokenInfo>(It.IsAny<string>())).Returns(() => default(TokenInfo));
+        mockTokenCache.Setup(m => m.Get<TokenInfo>(It.IsAny<string>())).Returns(() => default);
         mockTokenCache.Setup(m => m.Put<TokenInfo>(It.IsAny<string>(), It.IsAny<TokenInfo>()));
 
         var mockHttpContextAccessor = _fixture.Freeze<Mock<IHttpContextAccessor>>();
@@ -588,7 +588,7 @@ public class JwtHttpHandlerTests
                          }).Build();
 
         // Define an access token that will be used as the return of the call to the CredentialDirect token credential provider.
-        var jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
+        var jwt = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
         var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
@@ -689,10 +689,10 @@ public class JwtHttpHandlerTests
                          }).Build();
 
         // Define an access token that will be used as the return of the call to the CredentialDirect token credential provider.
-        var jwtOAuth2 = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
+        var jwtOAuth2 = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
         var accessTokenOAuth2 = new JwtSecurityTokenHandler().WriteToken(jwtOAuth2);
 
-        var jwtCookies = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
+        var jwtCookies = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
         var accessTokenCookies = new JwtSecurityTokenHandler().WriteToken(jwtCookies);
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
@@ -789,10 +789,10 @@ public class JwtHttpHandlerTests
                          }).Build();
 
         // Define an access token that will be used as the return of the call to the CredentialDirect token credential provider.
-        var jwtOAuth2 = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
+        var jwtOAuth2 = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
         var accessTokenOAuth2 = new JwtSecurityTokenHandler().WriteToken(jwtOAuth2);
 
-        var jwtCookies = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
+        var jwtCookies = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
         var accessTokenCookies = new JwtSecurityTokenHandler().WriteToken(jwtCookies);
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
@@ -896,10 +896,10 @@ public class JwtHttpHandlerTests
                          }).Build();
 
         // Define an access token that will be used as the return of the call to the CredentialDirect token credential provider.
-        var jwtOAuth2 = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
+        var jwtOAuth2 = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
         var accessTokenOAuth2 = new JwtSecurityTokenHandler().WriteToken(jwtOAuth2);
 
-        var jwtCookies = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
+        var jwtCookies = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
         var accessTokenCookies = new JwtSecurityTokenHandler().WriteToken(jwtCookies);
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));

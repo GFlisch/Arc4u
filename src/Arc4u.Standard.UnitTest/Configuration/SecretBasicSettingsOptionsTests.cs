@@ -158,10 +158,7 @@ public class SecretBasicSettingsOptionsTests
     public void No_Secret_Should()
     {
         var config = new ConfigurationBuilder()
-                     .AddInMemoryCollection(
-                         new Dictionary<string, string?>
-                         {
-                         }).Build();
+                     .AddInMemoryCollection([]).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 

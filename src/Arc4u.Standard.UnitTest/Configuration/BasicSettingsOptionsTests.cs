@@ -52,9 +52,7 @@ public class BasicSettingsOptionsTests
     {
         var config = new ConfigurationBuilder()
                      .AddInMemoryCollection(
-                         new Dictionary<string, string?>
-                         {
-                         }).Build();
+                         []).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -71,9 +69,7 @@ public class BasicSettingsOptionsTests
     {
         var config = new ConfigurationBuilder()
                      .AddInMemoryCollection(
-                         new Dictionary<string, string?>
-                         {
-                         }).Build();
+                         []).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 

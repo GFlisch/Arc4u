@@ -30,7 +30,7 @@ public class LoggerBridge : ILog
 
     public void DebugFormat(string format, params object[] args)
     {
-        LoggerBase.Technical.From<LoggerBridge>().Debug(string.Format(CultureInfo.InvariantCulture ,format, args)).Log();
+        LoggerBase.Technical.From<LoggerBridge>().Debug(string.Format(CultureInfo.InvariantCulture, format, args)).Log();
     }
 
     public void Error(string message)

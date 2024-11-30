@@ -37,7 +37,7 @@ public class SerilogTests : BaseContainerFixture<SerilogTests, BasicFixture>
 
             await Task.Delay(1000);
 
-            Assert.True(1 == 1);
+            Assert.Equal(1, 1);
         }
 
         LogEndBanner();
@@ -65,7 +65,7 @@ public class SerilogTests : BaseContainerFixture<SerilogTests, BasicFixture>
 
             await Task.Delay(1000);
 
-            Assert.True(1 == 1);
+            Assert.Equal(1, 1);
         }
 
         LogEndBanner();

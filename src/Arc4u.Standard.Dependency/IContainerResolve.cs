@@ -10,7 +10,7 @@ public interface IContainerResolve : IDisposable
 
     bool TryResolve<T>(out T? value);
     bool TryResolve(Type type, out object? value);
-    
+
     bool TryResolve<T>(string name, out T? value);
     bool TryResolve(Type type, string name, out object? value);
 

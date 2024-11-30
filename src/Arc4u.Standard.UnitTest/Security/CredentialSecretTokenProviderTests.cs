@@ -38,7 +38,7 @@ public class CredentialSecretTokenProviderTests
 
         var mockCredentialTokenProvider = _fixture.Freeze<Mock<ICredentialTokenProvider>>();
         mockCredentialTokenProvider.Setup(m => m.GetTokenAsync(It.IsAny<SimpleKeyValueSettings>(), It.IsAny<CredentialsResult>())).ReturnsAsync(tokenTest).Verifiable();
-        ICredentialTokenProvider? credentialProvider = mockCredentialTokenProvider.Object;
+        var credentialProvider = mockCredentialTokenProvider.Object;
 
         var mockContainer = _fixture.Freeze<Mock<IContainerResolve>>();
         mockContainer.Setup(m => m.TryResolve<ICredentialTokenProvider>(CredentialTokenCacheTokenProvider.ProviderName, out credentialProvider)).Returns(true).Verifiable();
@@ -67,7 +67,7 @@ public class CredentialSecretTokenProviderTests
 
         var mockCredentialTokenProvider = _fixture.Freeze<Mock<ICredentialTokenProvider>>();
         mockCredentialTokenProvider.Setup(m => m.GetTokenAsync(It.IsAny<SimpleKeyValueSettings>(), It.IsAny<CredentialsResult>())).ReturnsAsync(tokenTest).Verifiable();
-        ICredentialTokenProvider? credentialProvider = mockCredentialTokenProvider.Object;
+        var credentialProvider = mockCredentialTokenProvider.Object;
 
         var mockContainer = _fixture.Freeze<Mock<IContainerResolve>>();
         mockContainer.Setup(m => m.TryResolve<ICredentialTokenProvider>(CredentialTokenCacheTokenProvider.ProviderName, out credentialProvider)).Returns(true).Verifiable();
@@ -94,7 +94,7 @@ public class CredentialSecretTokenProviderTests
 
         var mockCredentialTokenProvider = _fixture.Freeze<Mock<ICredentialTokenProvider>>();
         mockCredentialTokenProvider.Setup(m => m.GetTokenAsync(It.IsAny<SimpleKeyValueSettings>(), It.IsAny<CredentialsResult>())).ReturnsAsync(tokenTest).Verifiable();
-        ICredentialTokenProvider? credentialProvider = mockCredentialTokenProvider.Object;
+        var credentialProvider = mockCredentialTokenProvider.Object;
 
         var mockContainer = _fixture.Freeze<Mock<IContainerResolve>>();
         mockContainer.Setup(m => m.TryResolve<ICredentialTokenProvider>(CredentialTokenCacheTokenProvider.ProviderName, out credentialProvider)).Returns(true).Verifiable();

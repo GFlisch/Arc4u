@@ -39,7 +39,7 @@ public class ServerPrincipalCache : ISecureCache
         {
             return default;
         }
-        return _cache.Get<TValue>(key) ;
+        return _cache.Get<TValue>(key);
     }
 
     public async Task<TValue?> GetAsync<TValue>(string key, CancellationToken cancellation = default)

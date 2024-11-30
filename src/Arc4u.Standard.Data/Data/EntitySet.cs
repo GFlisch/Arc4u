@@ -77,11 +77,7 @@ public sealed class EntitySet<TEntity>
     void OnPropertyChanged(PropertyChangedEventArgs e)
     {
         //keep handler to avoid race codition
-        var handler = PropertyChanged;
-        if (handler != null)
-        {
-            handler(this, e);
-        }
+        PropertyChanged?.Invoke(this, e);
     }
 
     #endregion
@@ -139,7 +135,7 @@ public sealed class EntitySet<TEntity>
     /// Disallows reentrant attempts to change this collection.
     /// </summary>
     /// <returns>An <see cref="T:System.Idisposable"/> object that can be used to dispose of the object.</returns>
-    IDisposable BlockReentrancy()
+    SimpleMonitor BlockReentrancy()
     {
         _monitor.Enter();
         return _monitor;
@@ -168,7 +164,7 @@ public sealed class EntitySet<TEntity>
     public void Move(int oldIndex, int newIndex)
     {
         CheckReentrancy();
-        TEntity entity = this[oldIndex];
+        var entity = this[oldIndex];
         BaseRemoveAt(oldIndex);
         InsertItem(newIndex, entity);
         OnPropertyChanged("Item[]");
@@ -234,10 +230,9 @@ public sealed class EntitySet<TEntity>
 #endif
         _monitor = new SimpleMonitor();
 
-        var is2 = collection as ICollection<TEntity>;
-        if (is2 != null)
+        if (collection is ICollection<TEntity> is2)
         {
-            int count = is2.Count;
+            var count = is2.Count;
             _items = new TEntity[count];
             is2.CopyTo(_items, 0);
             _size = count;
@@ -253,8 +248,7 @@ public sealed class EntitySet<TEntity>
             }
         }
     }
-
-#endregion
+    #endregion
 
     /// <summary>Adds an object to the end of the <see cref="EntitySet&lt;TEntity&gt;"/>.</summary>
     /// <param name="entity">The object to be added to the end of the <see cref="EntitySet&lt;TEntity&gt;"/>. The value can be null for reference types.</param>
@@ -264,7 +258,7 @@ public sealed class EntitySet<TEntity>
     public void Add(TEntity entity)
     {
         CheckReentrancy();
-        int index = _size;
+        var index = _size;
         AddItem(entity);
         OnPropertyChanged(nameof(Count));
         OnPropertyChanged("Item[]");
@@ -372,7 +366,7 @@ public sealed class EntitySet<TEntity>
     {
         if (entity == null)
         {
-            for (int j = 0; j < _size; j++)
+            for (var j = 0; j < _size; j++)
             {
                 if (_items[j] == null)
                 {
@@ -382,11 +376,11 @@ public sealed class EntitySet<TEntity>
             return false;
         }
 
-        TEntity[] items = _items;
-        int size = _size; ;
+        var items = _items;
+        var size = _size; ;
 
-        EqualityComparer<TEntity> comparer = EqualityComparer<TEntity>.Default;
-        for (int i = 0; i < size; i++)
+        var comparer = EqualityComparer<TEntity>.Default;
+        for (var i = 0; i < size; i++)
         {
             if (comparer.Equals(items[i], entity))
             {
@@ -412,7 +406,7 @@ public sealed class EntitySet<TEntity>
             throw new ArgumentNullException(nameof(converter));
         }
 #endif
-        EntitySet<TOutput> list = new EntitySet<TOutput>(_size);
+        var list = new EntitySet<TOutput>(_size);
         for (var i = 0; i < _size; i++)
         {
             list._items[i] = converter(_items[i]);
@@ -462,7 +456,7 @@ public sealed class EntitySet<TEntity>
     {
         if (_items.Length < min)
         {
-            int num = (_items.Length == 0) ? 4 : (_items.Length * 2);
+            var num = (_items.Length == 0) ? 4 : (_items.Length * 2);
             if (num < min)
             {
                 num = min;
@@ -494,7 +488,7 @@ public sealed class EntitySet<TEntity>
             throw new ArgumentNullException(nameof(match));
         }
 #endif
-        TEntity[] items = _items;
+        var items = _items;
         var size = _size; ;
 
         for (var i = 0; i < size; i++)
@@ -504,7 +498,7 @@ public sealed class EntitySet<TEntity>
                 return items[i];
             }
         }
-        return default(TEntity);
+        return default;
     }
 
     private static TEntity[] FindAll(TEntity[] array, PersistChangeActions includedActions)
@@ -548,15 +542,15 @@ public sealed class EntitySet<TEntity>
             throw new ArgumentOutOfRangeException(nameof(endIndex), ArgumentOutOfRange_Index);
         }
 
-        List<TEntity> list = new List<TEntity>();
-        for (int i = 0; i <= endIndex; i++)
+        List<TEntity> list = [];
+        for (var i = 0; i <= endIndex; i++)
         {
             if (match(array[i]))
             {
                 list.Add(array[i]);
             }
         }
-        return list.ToArray();
+        return [.. list];
     }
 
     /// <summary>Retrieves all the entities that match the conditions defined by the specified predicate.</summary>
@@ -574,11 +568,11 @@ public sealed class EntitySet<TEntity>
         }
 #endif
 
-        TEntity[] items = _items;
-        int size = _size; ;
+        var items = _items;
+        var size = _size; ;
 
-        EntitySet<TEntity> list = new EntitySet<TEntity>();
-        for (int i = 0; i < size; i++)
+        EntitySet<TEntity> list = [];
+        for (var i = 0; i < size; i++)
         {
             if (match(items[i]))
             {
@@ -626,8 +620,8 @@ public sealed class EntitySet<TEntity>
         }
 #endif
 
-        TEntity[] items = _items;
-        int size = _size; ;
+        var items = _items;
+        var size = _size; ;
 
         if (startIndex > size)
         {
@@ -638,8 +632,8 @@ public sealed class EntitySet<TEntity>
             throw new ArgumentOutOfRangeException(nameof(count), ArgumentOutOfRange_Count);
         }
 
-        int num = startIndex + count;
-        for (int i = startIndex; i < num; i++)
+        var num = startIndex + count;
+        for (var i = startIndex; i < num; i++)
         {
             if (match(items[i]))
             {
@@ -676,7 +670,7 @@ public sealed class EntitySet<TEntity>
             }
         }
 
-        return default(TEntity);
+        return default;
     }
 
     /// <summary>Searches for an entity that matches the conditions defined by the specified predicate, and returns the zero-based index of the last occurrence within the entire <see cref="EntitySet&lt;TEntity&gt;"/>.</summary>
@@ -717,8 +711,8 @@ public sealed class EntitySet<TEntity>
         }
 #endif
 
-        TEntity[] items = _items;
-        int size = _size; ;
+        var items = _items;
+        var size = _size; ;
 
         if (size == 0)
         {
@@ -736,8 +730,8 @@ public sealed class EntitySet<TEntity>
             throw new ArgumentOutOfRangeException(nameof(count), ArgumentOutOfRange_Count);
         }
 
-        int num = startIndex - count;
-        for (int i = startIndex; i > num; i--)
+        var num = startIndex - count;
+        for (var i = startIndex; i > num; i--)
         {
             if (match(items[i]))
             {
@@ -762,10 +756,10 @@ public sealed class EntitySet<TEntity>
         }
 #endif
 
-        TEntity[] items = _items;
-        int size = _size; ;
+        var items = _items;
+        var size = _size; ;
 
-        for (int i = 0; i < size; i++)
+        for (var i = 0; i < size; i++)
         {
             action(items[i]);
         }
@@ -791,15 +785,15 @@ public sealed class EntitySet<TEntity>
             throw new ArgumentOutOfRangeException((index < 0) ? "index" : "count", ArgumentOutOfRange_NeedNonNegNum);
         }
 
-        TEntity[] items = _items;
-        int size = _size; ;
+        var items = _items;
+        var size = _size; ;
 
         if ((size - index) < count)
         {
             throw new ArgumentException(Argument_InvalidOffLen);
         }
 
-        EntitySet<TEntity> entitySet = new EntitySet<TEntity>(count);
+        var entitySet = new EntitySet<TEntity>(count);
         Array.Copy(items, index, entitySet._items, 0, count);
         entitySet._size = count;
         return entitySet;
@@ -810,8 +804,8 @@ public sealed class EntitySet<TEntity>
     /// <param name="entity">The object to locate in the <see cref="EntitySet&lt;TEntity&gt;"/>. The value can be null for reference types.</param>
     public int IndexOf(TEntity entity)
     {
-        TEntity[] items = _items;
-        int size = _size; ;
+        var items = _items;
+        var size = _size; ;
         return Array.IndexOf<TEntity>(items, entity, 0, size);
     }
 
@@ -822,8 +816,8 @@ public sealed class EntitySet<TEntity>
     /// <exception cref="T:System.ArgumentOutOfRangeException">index is outside the range of valid indexes for the <see cref="EntitySet&lt;TEntity&gt;"/>.</exception>
     public int IndexOf(TEntity entity, int index)
     {
-        TEntity[] items = _items;
-        int size = _size; ;
+        var items = _items;
+        var size = _size; ;
 
         if (index > size)
         {
@@ -841,8 +835,8 @@ public sealed class EntitySet<TEntity>
     /// <exception cref="T:System.ArgumentOutOfRangeException">index is outside the range of valid indexes for the <see cref="EntitySet&lt;TEntity&gt;"/>.<br/>-or-<br/>count is less than 0.<br/>-or-<br/>index and count do not specify a valid section in the <see cref="EntitySet&lt;TEntity&gt;"/>.</exception>
     public int IndexOf(TEntity entity, int index, int count)
     {
-        TEntity[] items = _items;
-        int size = _size; ;
+        var items = _items;
+        var size = _size; ;
 
         if (index > size)
         {
@@ -916,10 +910,9 @@ public sealed class EntitySet<TEntity>
         }
 #endif
 
-        ICollection<TEntity>? is2 = collection as ICollection<TEntity>;
-        if (is2 != null)
+        if (collection is ICollection<TEntity> is2)
         {
-            int count = is2.Count;
+            var count = is2.Count;
             if (count > 0)
             {
                 EnsureCapacity(_size + count);
@@ -934,7 +927,7 @@ public sealed class EntitySet<TEntity>
                 }
                 else
                 {
-                    TEntity[] array = new TEntity[count];
+                    var array = new TEntity[count];
                     is2.CopyTo(array, 0);
                     array.CopyTo(_items, index);
                 }
@@ -943,7 +936,7 @@ public sealed class EntitySet<TEntity>
         }
         else
         {
-            using IEnumerator<TEntity> enumerator = collection.GetEnumerator();
+            using var enumerator = collection.GetEnumerator();
             while (enumerator.MoveNext())
             {
                 InsertItem(index++, enumerator.Current);
@@ -958,7 +951,7 @@ public sealed class EntitySet<TEntity>
 
     private static bool IsCompatibleObject(object value)
     {
-        if (!(value is TEntity) && ((value != null) || typeof(TEntity).GetTypeInfo().IsValueType))
+        if (value is not TEntity && ((value != null) || typeof(TEntity).GetTypeInfo().IsValueType))
         {
             return false;
         }
@@ -995,8 +988,8 @@ public sealed class EntitySet<TEntity>
     /// <exception cref="T:System.ArgumentOutOfRangeException">index is outside the range of valid indexes for the <see cref="EntitySet&lt;TEntity&gt;"/>.<br/>-or-<br/>count is less than 0.<br/>-or-<br/>index and count do not specify a valid section in the <see cref="EntitySet&lt;TEntity&gt;"/>. </exception>
     public int LastIndexOf(TEntity entity, int index, int count)
     {
-        TEntity[] items = _items;
-        int size = _size; ;
+        var items = _items;
+        var size = _size; ;
 
         if (size == 0)
         {
@@ -1101,7 +1094,7 @@ public sealed class EntitySet<TEntity>
     void RemoveItemAt(int index)
     {
         CheckReentrancy();
-        TEntity entity = this[index];
+        var entity = this[index];
 
 #if NET8_0_OR_GREATER
         ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, _size);
@@ -1158,7 +1151,7 @@ public sealed class EntitySet<TEntity>
             throw new ArgumentException(Argument_InvalidOffLen);
         }
 
-        for (int i = index; i < index + count; i++)
+        for (var i = index; i < index + count; i++)
         {
             if (_items[i] == null)
             {
@@ -1377,7 +1370,7 @@ public sealed class EntitySet<TEntity>
     /// <returns>An array containing copies of the entities of the <see cref="EntitySet&lt;TEntity&gt;"/>.</returns>
     public TEntity[] ToArray()
     {
-        TEntity[] destinationArray = new TEntity[_size];
+        var destinationArray = new TEntity[_size];
         Array.Copy(_items, 0, destinationArray, 0, _size);
         return destinationArray;
     }
@@ -1387,8 +1380,8 @@ public sealed class EntitySet<TEntity>
     /// <returns>An array containing copies of the entities matching the specified actions.</returns>
     public TEntity[] ToArray(PersistChangeActions includedActions)
     {
-        TEntity[] sourceArray = FindAll(_items, includedActions);
-        TEntity[] destinationArray = new TEntity[sourceArray.Length];
+        var sourceArray = FindAll(_items, includedActions);
+        var destinationArray = new TEntity[sourceArray.Length];
         Array.Copy(sourceArray, 0, destinationArray, 0, sourceArray.Length);
         return destinationArray;
     }
@@ -1399,7 +1392,7 @@ public sealed class EntitySet<TEntity>
     /// </remarks>
     public void TrimExcess()
     {
-        int num = (int)(_items.Length * 0.9);
+        var num = (int)(_items.Length * 0.9);
         if (_size < num)
         {
             Capacity = _size;
@@ -1440,7 +1433,7 @@ public sealed class EntitySet<TEntity>
 #if NET8_0_OR_GREATER
         ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, _size);
 #else
-       if (index >= _size)
+        if (index >= _size)
         {
             throw new ArgumentOutOfRangeException();
         }
@@ -1450,7 +1443,7 @@ public sealed class EntitySet<TEntity>
         {
             Array.Copy(_items, index + 1, _items, index, _size - index);
         }
-        _items[_size] = default(TEntity)!;
+        _items[_size] = default!;
         _version++;
     }
 
@@ -1489,7 +1482,7 @@ public sealed class EntitySet<TEntity>
                 }
                 if (value > 0)
                 {
-                    TEntity[] destinationArray = new TEntity[value];
+                    var destinationArray = new TEntity[value];
                     if (_size > 0)
                     {
                         Array.Copy(_items, 0, destinationArray, 0, _size);
@@ -1525,13 +1518,13 @@ public sealed class EntitySet<TEntity>
     {
         get
         {
-            TEntity[] items = _items;
-            int size = _size; ;
+            var items = _items;
+            var size = _size; ;
 
 #if NET8_0_OR_GREATER
             ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, size);
 #else
-       if (index >= size)
+            if (index >= size)
             {
                 throw new ArgumentOutOfRangeException();
             }
@@ -1541,7 +1534,7 @@ public sealed class EntitySet<TEntity>
         set
         {
             CheckReentrancy();
-            TEntity oldItem = this[index];
+            var oldItem = this[index];
             SetItem(index, value);
             OnPropertyChanged("Item[]");
             OnCollectionChanged(NotifyCollectionChangedAction.Replace, oldItem, value, index);
@@ -1664,7 +1657,7 @@ public sealed class EntitySet<TEntity>
 #if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(entities);
 #else
-if (entities == null)
+        if (entities == null)
         {
             throw new ArgumentNullException(nameof(entities));
         }
@@ -1708,11 +1701,11 @@ if (entities == null)
             this.list = list;
             _index = 0;
             _version = list._version;
-            _current = default(TEntity);
+            _current = default;
         }
 
         /// <summary>Releases all resources used by the <see cref="EntitySet&lt;TEntity&gt;.Enumerator"/>.</summary>
-        public void Dispose()
+        public readonly void Dispose()
         {
         }
 
@@ -1734,13 +1727,13 @@ if (entities == null)
             }
 
             _index = list._size + 1;
-            _current = default(TEntity);
+            _current = default;
             return false;
         }
 
         /// <summary>Gets the entity at the current position of the enumerator.</summary>
         /// <returns>The entity in the <see cref="EntitySet&lt;TEntity&gt;"/> at the current position of the enumerator.</returns>
-        public TEntity Current
+        public readonly TEntity Current
         {
             get
             {
@@ -1748,7 +1741,7 @@ if (entities == null)
             }
         }
 
-        object IEnumerator.Current
+        readonly object IEnumerator.Current
         {
             get
             {
@@ -1767,19 +1760,12 @@ if (entities == null)
                 throw new InvalidOperationException(InvalidOperation_EnumFailedVersion);
             }
             _index = 0;
-            _current = default(TEntity);
+            _current = default;
         }
     }
 
-    internal sealed class FunctorComparer<T> : IComparer<T>
+    internal sealed class FunctorComparer<T>(Comparison<T> comparison) : IComparer<T>
     {
-        private readonly Comparison<T> _comparison;
-
-        public FunctorComparer(Comparison<T> comparison)
-        {
-            _comparison = comparison;
-        }
-
         public int Compare(T? x, T? y)
         {
             if (x == null)
@@ -1790,7 +1776,7 @@ if (entities == null)
             {
                 return 1;
             }
-            return _comparison(x, y);
+            return comparison(x, y);
         }
     }
 

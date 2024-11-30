@@ -89,5 +89,5 @@ internal static class Bound
         return value == BoundDirection.Closed ? BoundDirection.Opened : BoundDirection.Closed;
     }
 
-#endregion
+    #endregion
 }

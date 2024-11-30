@@ -1,5 +1,4 @@
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using Arc4u.Blazor;
 using Arc4u.OAuth2.Token;
 using Arc4u.OAuth2.TokenProvider;
@@ -28,7 +27,7 @@ public class BlazorTokenProviderTests
     public void JwtSecurityTokenShould()
     {
         // arrange
-        JwtSecurityToken jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
+        var jwt = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
 
         var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
         // act
@@ -42,12 +41,12 @@ public class BlazorTokenProviderTests
     public async Task GetValidTokenShoud()
     {
         // Arrange
-        var jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
+        var jwt = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
 
         var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
         var tokenInfo = new TokenInfo("Bearer", accessToken, DateTime.UtcNow);
 
-        Dictionary<string, string> keySettings = new();
+        Dictionary<string, string> keySettings = [];
         keySettings.Add(TokenKeys.AuthorityKey, "http://sts");
         keySettings.Add(TokenKeys.RedirectUrl, "https://localhost:44444/");
 
@@ -80,13 +79,13 @@ public class BlazorTokenProviderTests
     public async Task ObsoleteAccessTokenInTheCacheShoud()
     {
         // Arrange
-        JwtSecurityToken jwtExpired = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddMinutes(-10));
+        var jwtExpired = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddMinutes(-10));
         var expiredAccessToken = new JwtSecurityTokenHandler().WriteToken(jwtExpired);
 
-        JwtSecurityToken jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
+        var jwt = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
         var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
 
-        Dictionary<string, string> keySettings = new();
+        Dictionary<string, string> keySettings = [];
         keySettings.Add(TokenKeys.AuthorityKey, "http://sts");
         keySettings.Add(TokenKeys.RedirectUrl, "https://localhost:44444/");
 
@@ -121,12 +120,12 @@ public class BlazorTokenProviderTests
     public async Task NoTokenInTheCacheShoud()
     {
         // Arrange
-        JwtSecurityToken jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
+        var jwt = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
 
         var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
         var tokenInfo = new TokenInfo("Bearer", accessToken, DateTime.UtcNow);
 
-        Dictionary<string, string> keySettings = new();
+        Dictionary<string, string> keySettings = [];
         keySettings.Add(TokenKeys.AuthorityKey, "http://sts");
         keySettings.Add(TokenKeys.RedirectUrl, "https://localhost:44444/");
 
@@ -160,12 +159,12 @@ public class BlazorTokenProviderTests
     public async Task NoValidAccessTokenInTheCacheShoud()
     {
         // Arrange
-        JwtSecurityToken jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
+        var jwt = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
 
         var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
         var tokenInfo = new TokenInfo("Bearer", accessToken, DateTime.UtcNow);
 
-        Dictionary<string, string> keySettings = new();
+        Dictionary<string, string> keySettings = [];
         keySettings.Add(TokenKeys.AuthorityKey, "http://sts");
         keySettings.Add(TokenKeys.RedirectUrl, "https://localhost:44444/");
 

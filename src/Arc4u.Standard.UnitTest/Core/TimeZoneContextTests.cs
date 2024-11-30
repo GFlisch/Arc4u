@@ -90,7 +90,7 @@ public class TimeZoneContextTests
 
         // Assert
         Assert.Equal(DateTimeKind.Utc, utcTime.Kind);
-        Assert.Equal(pstUtcTime, utcTime); 
+        Assert.Equal(pstUtcTime, utcTime);
     }
 
     [Fact]
@@ -132,8 +132,8 @@ public class TimeZoneContextTests
                 new DateTime(2023, 3, 10),
                 new DateTime(2023, 11, 3),
                 TimeSpan.FromHours(1),
-                TimeZoneInfo.TransitionTime.CreateFixedDateRule(new DateTime(1, 1, 1, 2, 0, 0), 3, 10),  
-                TimeZoneInfo.TransitionTime.CreateFixedDateRule(new DateTime(1, 1, 1, 2, 0, 0), 11, 3)  
+                TimeZoneInfo.TransitionTime.CreateFixedDateRule(new DateTime(1, 1, 1, 2, 0, 0), 3, 10),
+                TimeZoneInfo.TransitionTime.CreateFixedDateRule(new DateTime(1, 1, 1, 2, 0, 0), 11, 3)
                 )
         };
 

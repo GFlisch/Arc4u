@@ -18,7 +18,7 @@ public class GraphExtensionTests
     public void ApplySingleReferences_ShouldIncludeSingleReferences()
     {
         // Arrange
-        var graph = new Graph<TestEntity>(new List<string> { "RelatedEntity" });
+        var graph = new Graph<TestEntity>(["RelatedEntity"]);
         var queryable = new List<TestEntity>().AsQueryable();
 
         // Act
@@ -32,7 +32,7 @@ public class GraphExtensionTests
     public void ApplySetReferences_ShouldIncludeAllReferences()
     {
         // Arrange
-        var graph = new Graph<TestEntity>(new List<string> { "RelatedEntity", "RelatedEntities" });
+        var graph = new Graph<TestEntity>(["RelatedEntity", "RelatedEntities"]);
         var queryable = new List<TestEntity>().AsQueryable();
 
         // Act
@@ -46,7 +46,7 @@ public class GraphExtensionTests
     public void ApplyReferences_ShouldThrowExceptionForMultiLevelReference()
     {
         // Arrange
-        var graph = new Graph<TestEntity>(new List<string> { "RelatedEntity.RelatedEntities" });
+        var graph = new Graph<TestEntity>(["RelatedEntity.RelatedEntities"]);
         var queryable = new List<TestEntity>().AsQueryable();
         Expression<Func<TestEntity, ICollection<TestEntity>>> path = e => e.RelatedEntities;
 

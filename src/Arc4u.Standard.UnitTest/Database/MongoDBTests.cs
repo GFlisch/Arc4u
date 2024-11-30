@@ -8,7 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace Arc4u.UnitTest.Database.MongoDB;
+namespace Arc4u.Standard.UnitTest.Database;
 
 [Trait("Category", "CI")]
 public class MongoDBTests

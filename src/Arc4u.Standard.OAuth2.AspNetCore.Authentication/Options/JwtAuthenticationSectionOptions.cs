@@ -12,7 +12,7 @@ public class JwtAuthenticationSectionOptions
 
     public string JwtBearerEventsType { get; set; } = typeof(StandardBearerEvents).AssemblyQualifiedName!;
 
-    public string? CertSecurityKeyPath { get; set; } = default!; 
+    public string? CertSecurityKeyPath { get; set; } = default!;
 
     public string ClaimsIdentifierSectionPath { get; set; } = "Authentication:ClaimsIdentifier";
 

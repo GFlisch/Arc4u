@@ -239,7 +239,7 @@ public static partial class AuthenticationExtensions
 
         var jwtBearerEventsType = Type.GetType(settings.JwtBearerEventsType, false);
 
-        if (null ==  jwtBearerEventsType)
+        if (null == jwtBearerEventsType)
         {
             throw new MissingFieldException("The JwtBearerEventsType must be defined.");
         }

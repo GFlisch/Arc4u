@@ -121,7 +121,10 @@ class StateLogger : ILogger
 #if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(state);
 #else
-    
+        if (null == state)
+        {
+            throw new ArgumentNullException(nameof(state));
+        }
 #endif
         throw new NotImplementedException();
     }

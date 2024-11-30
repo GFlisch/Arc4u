@@ -11,7 +11,7 @@ public class CommonMessageLogger
         MessageLogger = new LoggerMessage(logger, category, methodName, typeClass);
     }
 
-    private CommonLoggerProperties AddEntry(LogLevel logLevel, string message, Exception? exception = null,params object[] args)
+    private CommonLoggerProperties AddEntry(LogLevel logLevel, string message, Exception? exception = null, params object[] args)
     {
         MessageLogger.LogLevel = logLevel;
         MessageLogger.Text = message;

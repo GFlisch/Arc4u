@@ -30,7 +30,7 @@ public class Switch<TSource, TResult> : IEnumerable<TResult>
         )
         { }
     }
-#endregion
+    #endregion
 
     private readonly IEnumerable<TSource> _source = [];
     private readonly IList<CaseSelector<TSource, TResult>> casePredicates = [];
@@ -263,7 +263,7 @@ public static class LinqExtensions
     {
         if (null == source)
         {
-            return new List<TSource>();
+            return [];
         }
         // Add what we have to the stack
         var flattenedList = source;

@@ -54,10 +54,7 @@ public class ClaimsIdentifierTests
     {
 
         var config = new ConfigurationBuilder()
-                        .AddInMemoryCollection(
-          new Dictionary<string, string?>
-          {
-          }).Build();
+                        .AddInMemoryCollection([]).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
         IServiceCollection services = new ServiceCollection();

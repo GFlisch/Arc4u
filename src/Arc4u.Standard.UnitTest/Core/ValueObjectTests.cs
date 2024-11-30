@@ -37,7 +37,7 @@ public class ValueObjectTests
     [Fact]
     public void Test_Null_NotEqual_Operator_Should()
     {
-        SimpleObject? o = _fixture.Create<SimpleObject>();
+        var o = _fixture.Create<SimpleObject>();
 
         (o != null).Should().BeTrue();
     }
@@ -45,8 +45,8 @@ public class ValueObjectTests
     [Fact]
     public void Test_Null_NotEqual_Should()
     {
-        SimpleObject? o1 = _fixture.Create<SimpleObject>();
-        SimpleObject? o2 = _fixture.Create<SimpleObject>();
+        var o1 = _fixture.Create<SimpleObject>();
+        var o2 = _fixture.Create<SimpleObject>();
 
         (o1 != o2).Should().BeTrue();
     }

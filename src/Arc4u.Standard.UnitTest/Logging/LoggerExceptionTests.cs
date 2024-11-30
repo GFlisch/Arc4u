@@ -82,7 +82,7 @@ public sealed class ExceptionSinkTest : ILogEventSink, IDisposable
 {
     public ExceptionSinkTest()
     {
-        Exceptions = new List<Exception>();
+        Exceptions = [];
     }
     public bool HasException { get; set; }
 

@@ -136,7 +136,7 @@ public sealed class Bound<T> : IEquatable<Bound<T>>, IComparable<Bound<T>>
     {
     }
 
-#endregion
+    #endregion
 
     #region Overriden Members
 
@@ -533,5 +533,5 @@ public sealed class Bound<T> : IEquatable<Bound<T>>, IComparable<Bound<T>>
         return (left.CompareTo(right) >= 0);
     }
 
-#endregion
+    #endregion
 }

@@ -188,7 +188,7 @@ public class ResultTests
     [Trait("Category", "CI")]
     public async Task Test_Exception_Failed_Should()
     {
-        Result globalResult = Result.Ok();
+        var globalResult = Result.Ok();
 
         Func<Task> error = () => throw new DbUpdateException();
 
@@ -207,9 +207,7 @@ public class ResultTests
     {
         ValidationError error = new ValidationFailure() { ErrorMessage = "A", ErrorCode = "Code" };
 
-        IError ierror = error;
-
-        ierror.Message.Should().Be("A");
+        error.Message.Should().Be("A");
     }
 
     [Fact]

@@ -70,7 +70,7 @@ public class ScopedOperations
     /// </summary>
     /// <value>The operations.</value>
     [DataMember(EmitDefaultValue = false)]
-    public List<int> Operations { get; set; } = default!;   
+    public List<int> Operations { get; set; } = default!;
 
 }
 

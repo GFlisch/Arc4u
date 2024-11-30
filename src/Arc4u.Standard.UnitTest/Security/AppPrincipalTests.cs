@@ -56,14 +56,14 @@ public class AppPrincipalTests
 
     private static Authorization GetAuthorization()
     {
-        var defaultScopedOperations = new ScopedOperations { Operations = new List<int> { (int)Access.AccessApplication }, Scope = "" };
-        var specificScope = new ScopedOperations { Operations = new List<int> { (int)Access.AccessApplication, (int)Access.CanSeeSwaggerFacadeApi }, Scope = "Specific" };
+        var defaultScopedOperations = new ScopedOperations { Operations = [(int)Access.AccessApplication], Scope = "" };
+        var specificScope = new ScopedOperations { Operations = [(int)Access.AccessApplication, (int)Access.CanSeeSwaggerFacadeApi], Scope = "Specific" };
         var authorization = new Authorization
         {
-            Operations = new List<ScopedOperations> { defaultScopedOperations, specificScope },
+            Operations = [defaultScopedOperations, specificScope],
             AllOperations = AllOperations,
-            Roles = new List<ScopedRoles> { new ScopedRoles { Roles = new List<string> { "User" }, Scope = "" } },
-            Scopes = new List<string> { "", "Specific" }
+            Roles = [new ScopedRoles { Roles = ["User"], Scope = "" }],
+            Scopes = ["", "Specific"]
         };
 
         return authorization;

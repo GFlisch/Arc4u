@@ -6,7 +6,7 @@ namespace Arc4u.UnitTest.Threading;
 
 public class Context
 {
-    private static readonly Context InnerContext = new Context();
+    private static readonly Context InnerContext = new();
 
     public static Context Current
     {
@@ -69,7 +69,7 @@ public class ScopeTest
         var deDE = new CultureInfo("de-DE");
         var culture = Thread.CurrentThread.CurrentCulture;
 
-        int threadId = Environment.CurrentManagedThreadId;
+        var threadId = Environment.CurrentManagedThreadId;
 
         Assert.NotEqual(culture, frFR);
         Assert.NotEqual(culture, deDE);

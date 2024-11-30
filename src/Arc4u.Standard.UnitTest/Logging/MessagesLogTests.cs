@@ -18,8 +18,10 @@ public class MessagesLogTests : BaseContainerFixture<MessagesLogTests, BasicFixt
         using var container = Fixture.CreateScope();
         LogStartBanner();
 
-        var messages = new Messages();
-        messages.Add(new Message(MessageCategory.Technical, MessageType.Error, "An error message."));
+        var messages = new Messages
+        {
+            new Message(MessageCategory.Technical, MessageType.Error, "An error message.")
+        };
 
         var logger = container.Resolve<ILogger<MessagesLogTests>>()!;
 

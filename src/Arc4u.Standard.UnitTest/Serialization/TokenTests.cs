@@ -1,5 +1,4 @@
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using Arc4u.Caching.Memory;
 using Arc4u.Configuration.Memory;
 using Arc4u.Dependency;
@@ -30,7 +29,7 @@ public class TokenTests
     public void AccessTokenValidityShould()
     {
         // act
-        var sut = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow, expires: DateTime.UtcNow.AddHours(1));
+        var sut = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow, expires: DateTime.UtcNow.AddHours(1));
 
         // assert
         (sut.ValidTo > DateTime.UtcNow.AddMinutes(-5)).Should().BeTrue();
@@ -40,7 +39,7 @@ public class TokenTests
     public void AccessTokenValidityShouldNot()
     {
         // act
-        var sut = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddMinutes(-10));
+        var sut = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddMinutes(-10));
 
         // assert
         (sut.ValidTo > DateTime.UtcNow.AddMinutes(-5)).Should().BeFalse();
@@ -50,7 +49,7 @@ public class TokenTests
     public void AccessTokenBlazorSerializationShouldNot()
     {
         // Arrange
-        var jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddMinutes(-10));
+        var jwt = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddMinutes(-10));
 
         var tokenInfo = new TokenInfo("Bearer", jwt.EncodedPayload, DateTime.UtcNow);
 
@@ -72,7 +71,7 @@ public class TokenTests
     public void AccessTokenSerializationJsonShouldNot()
     {
         // Arrange
-        var jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddMinutes(-10));
+        var jwt = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddMinutes(-10));
 
         var tokenInfo = new TokenInfo("Bearer", jwt.EncodedPayload, DateTime.UtcNow);
         var storeName = "store name";
@@ -86,7 +85,7 @@ public class TokenTests
 
         IObjectSerialization? noSerializer = null;
         var mockIContainer = _fixture.Freeze<Mock<IContainerResolve>>();
-        IObjectSerialization? serializer = serviceProvider.GetRequiredService<IObjectSerialization>();
+        var serializer = serviceProvider.GetRequiredService<IObjectSerialization>();
         mockIContainer.Setup(m => m.TryResolve<IObjectSerialization>(out serializer)).Returns(true);
         mockIContainer.Setup(m => m.TryResolve(storeName, out noSerializer)).Returns(false);
         var mockIOptions = _fixture.Freeze<Mock<IOptionsMonitor<MemoryCacheOption>>>();
@@ -111,7 +110,7 @@ public class TokenTests
     public void AccessTokenSerializationProtobufShouldNot()
     {
         // Arrange
-        var jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddMinutes(-10));
+        var jwt = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddMinutes(-10));
 
         var tokenInfo = new TokenInfo("Bearer", jwt.EncodedPayload, DateTime.UtcNow);
 
@@ -125,7 +124,7 @@ public class TokenTests
 
         IObjectSerialization? noSerializer = null;
         var mockIContainer = _fixture.Freeze<Mock<IContainerResolve>>();
-        IObjectSerialization? serializer = serviceProvider.GetRequiredService<IObjectSerialization>();
+        var serializer = serviceProvider.GetRequiredService<IObjectSerialization>();
         mockIContainer.Setup(m => m.TryResolve<IObjectSerialization>(out serializer)).Returns(true);
         mockIContainer.Setup(m => m.TryResolve(storeName, out noSerializer)).Returns(false);
         var mockIOptions = _fixture.Freeze<Mock<IOptionsMonitor<MemoryCacheOption>>>();

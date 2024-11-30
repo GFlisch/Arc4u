@@ -29,8 +29,8 @@ public class CompressionAndSpeedTests
     {
         if (null == _bearerTokens)
         {
-            List<Claim> claims = new();
-            for (int i = 0; i < 150; i++)
+            List<Claim> claims = [];
+            for (var i = 0; i < 150; i++)
             {
                 claims.Add(new Claim(_fixture.Create<string>(), _fixture.Create<string>()));
             }
@@ -39,16 +39,16 @@ public class CompressionAndSpeedTests
 
             var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
 
-            _bearerTokens = new[] { accessToken, "Bearer " + accessToken };
+            _bearerTokens = [accessToken, "Bearer " + accessToken];
         }
 
         return _bearerTokens;
 
     }
 
-    private static readonly JwtSecurityToken _jwt = new JwtSecurityToken("issuer", "audience", new List<Claim> { new Claim("key", "value") }, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddMinutes(-10));
+    private static readonly JwtSecurityToken _jwt = new("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddMinutes(-10));
 
-    private static readonly TokenInfo _tokenInfo = new TokenInfo("Bearer", _jwt.EncodedPayload, DateTime.UtcNow);
+    private static readonly TokenInfo _tokenInfo = new("Bearer", _jwt.EncodedPayload, DateTime.UtcNow);
 
     private sealed class Measurement
     {
@@ -60,8 +60,8 @@ public class CompressionAndSpeedTests
     private Measurement Measure(IObjectSerialization objectSerialization, string method)
     {
         var sw = Stopwatch.StartNew();
-        int size = 0;
-        for (int iterations = 0; iterations < 10000; ++iterations)
+        var size = 0;
+        for (var iterations = 0; iterations < 10000; ++iterations)
         {
             size = 0;
 
@@ -111,12 +111,14 @@ public class CompressionAndSpeedTests
         var jsonZipSerialization = new JsonZipSerialization();
 
         // act
-        var list = new List<Measurement>();
-        list.Add(Measure(jsonSerialization, "Json"));
-        list.Add(Measure(jsonBrotliSerialization, "JSon+Brotli"));
-        list.Add(Measure(jsonDeflateSerialization, "Json+Deflate"));
-        list.Add(Measure(jsonGZipSerialization, "Json+GZip"));
-        list.Add(Measure(jsonZipSerialization, "Json+Zip"));
+        var list = new List<Measurement>
+        {
+            Measure(jsonSerialization, "Json"),
+            Measure(jsonBrotliSerialization, "JSon+Brotli"),
+            Measure(jsonDeflateSerialization, "Json+Deflate"),
+            Measure(jsonGZipSerialization, "Json+GZip"),
+            Measure(jsonZipSerialization, "Json+Zip")
+        };
 
         // sort by fastest compression
         list.Sort((item1, item2) => item1.TimeSpan.CompareTo(item2.TimeSpan));

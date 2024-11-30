@@ -124,7 +124,7 @@ public sealed class EntityItem<TEntity> : PersistEntity
     public EntityItem(EntityItem<TEntity> item)
     {
 #if NET8_0_OR_GREATER
-        ArgumentNullException.ThrowIfNull(item);    
+        ArgumentNullException.ThrowIfNull(item);
 #else
         if (item == null)
         {
@@ -136,7 +136,7 @@ public sealed class EntityItem<TEntity> : PersistEntity
         _persistEntity = item._persistEntity;
     }
 
-#endregion
+    #endregion
 
     private void Entity_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {

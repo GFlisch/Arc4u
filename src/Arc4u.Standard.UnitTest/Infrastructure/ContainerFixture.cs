@@ -57,10 +57,10 @@ public abstract class ContainerFixture : IDisposable, IContainerFixture
     {
         var authorization = new Authorization
         {
-            AllOperations = new(),
-            Roles = new List<ScopedRoles> { new ScopedRoles { Scope = "", Roles = new List<string> { "Admin" } } },
-            Scopes = new List<string> { "" },
-            Operations = new List<ScopedOperations> { new ScopedOperations { Operations = new() { 1 }, Scope = "" } }
+            AllOperations = [],
+            Roles = [new ScopedRoles { Scope = "", Roles = ["Admin"] }],
+            Scopes = [""],
+            Operations = [new ScopedOperations { Operations = [1], Scope = "" }]
         };
 
         authorization.AllOperations.Add(new Operation { ID = 1, Name = "AccessApplication" });

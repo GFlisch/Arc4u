@@ -52,7 +52,7 @@ public sealed class MessagesToPublish
         messages.Value?.Clear();
     }
 
-    internal static List<Object> Events => messages.Value is null ? [] :  messages.Value.Where((m) => EventsNamingConvention(m.GetType())).ToList();
+    internal static List<Object> Events => messages.Value is null ? [] : messages.Value.Where((m) => EventsNamingConvention(m.GetType())).ToList();
 
     internal static List<Object> Commands => messages.Value is null ? [] : messages.Value.Where((m) => CommandsNamingConvention(m.GetType())).ToList();
 }

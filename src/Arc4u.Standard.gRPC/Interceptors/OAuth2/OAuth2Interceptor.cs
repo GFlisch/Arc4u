@@ -45,7 +45,7 @@ public class OAuth2Interceptor : Interceptor
     private readonly IKeyValueSettings _settings;
     private readonly ILogger<OAuth2Interceptor> _logger;
     private readonly IScopedServiceProviderAccessor? _serviceProviderAccessor;
-    private readonly IContainerResolve? _containerResolve ;
+    private readonly IContainerResolve? _containerResolve;
 
     private IContainerResolve? GetResolver() => _containerResolve ?? _serviceProviderAccessor?.ServiceProvider?.GetService<IContainerResolve>();
 
@@ -127,7 +127,7 @@ public class OAuth2Interceptor : Interceptor
             return;
         }
 
-        var claimsIdentity  = applicationContext.Principal?.Identity as ClaimsIdentity;
+        var claimsIdentity = applicationContext.Principal?.Identity as ClaimsIdentity;
         // Skip (BE scenario) if the parameter is an identity and the settings doesn't correspond to the identity's type.
         if (!inject
             &&

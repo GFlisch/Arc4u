@@ -24,7 +24,7 @@ internal sealed class CollectionDebugView<T>
     {
         get
         {
-            T[] array = new T[collection.Count];
+            var array = new T[collection.Count];
             collection.CopyTo(array, 0);
             return array;
         }

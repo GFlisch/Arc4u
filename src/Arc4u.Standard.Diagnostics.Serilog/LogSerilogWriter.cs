@@ -7,7 +7,7 @@ public abstract class SerilogWriter : ILogWriter
 {
     private bool _isInitialized;
     private bool _disposed;
-    private static readonly object _locker = new object();
+    private static readonly object _locker = new();
     private Logger? _logger;
 
     public abstract void Configure(LoggerConfiguration configurator);

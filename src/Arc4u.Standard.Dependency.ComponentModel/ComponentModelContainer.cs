@@ -443,7 +443,7 @@ public class ComponentModelContainer : IContainer
                 }
             }
 
-            instances = _serviceProvider?.GetServices(to.First()).Where(x => x!= null).Cast<object>() ?? new List<object>();
+            instances = _serviceProvider?.GetServices(to.First()).Where(x => x != null).Cast<object>() ?? new List<object>();
         }
 
         return instances;
@@ -518,7 +518,7 @@ public class ComponentModelContainer : IContainer
         if (name == null)
         {
             try
-            {    
+            {
                 value = _serviceProvider!.GetService<T>();
             }
             catch
