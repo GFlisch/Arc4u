@@ -81,7 +81,7 @@ public sealed class Bound<T> : IEquatable<Bound<T>>, IComparable<Bound<T>>
         get
         {
             return new Bound<T>(BoundType.Upper
-                                , object.Equals(default(T), default(object))
+                                , object.Equals(default(T), default)
                                     ? BoundDirection.Opened
                                     : BoundDirection.Closed
                                 , Bound<T>.UpmostValue);
@@ -101,7 +101,7 @@ public sealed class Bound<T> : IEquatable<Bound<T>>, IComparable<Bound<T>>
 
     private Bound()
     {
-        Value = default(T)!;
+        Value = default!;
     }
 
     internal Bound(BoundType type, BoundDirection direction, T value, bool checkArguments)
@@ -148,7 +148,7 @@ public sealed class Bound<T> : IEquatable<Bound<T>>, IComparable<Bound<T>>
     /// </returns>
     /// <remarks>
     /// Type of <typeparamref name="T"/> is not considered for uniformity between types
-    /// and because it could result to non displayable string like with <see cref="Char"/> type.
+    /// and because it could result to non displayable string like with <see cref="char"/> type.
     /// </remarks>
     public override string ToString()
     {
@@ -197,9 +197,7 @@ public sealed class Bound<T> : IEquatable<Bound<T>>, IComparable<Bound<T>>
     /// </returns>
     public override bool Equals(object? obj)
     {
-        return (obj is Bound<T> bound)
-            ? Equals(bound)
-            : false;
+        return (obj is Bound<T> bound) && Equals(bound);
     }
 
     #endregion

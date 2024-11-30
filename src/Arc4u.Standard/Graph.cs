@@ -28,7 +28,7 @@ public class Graph<T> where T : class
     /// </summary>
     public Graph()
     {
-        _includes = new List<string>();
+        _includes = [];
     }
 
     /// <summary>
@@ -172,7 +172,11 @@ public class Graph<T> where T : class
 
         if (!string.IsNullOrWhiteSpace(stringPath) && stringPath[0] == '.')
         {
+#if NET8_0_OR_GREATER
+            stringPath = stringPath[1..];
+#else
             stringPath = stringPath.Substring(1);
+#endif
         }
 
         if (!string.IsNullOrWhiteSpace(stringPath) && !_includes.Exists(i => i == stringPath))

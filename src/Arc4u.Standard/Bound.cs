@@ -31,7 +31,7 @@ internal static class Bound
 
     internal static bool IsInfinity<T>(T value)
     {
-        return object.Equals(value, default(object));
+        return object.Equals(value, default);
     }
 
     internal static Bound<T> Min<T>(Bound<T> x, Bound<T> y)

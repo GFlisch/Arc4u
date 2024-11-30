@@ -6,7 +6,7 @@ namespace Arc4u;
 /// <summary>
 /// Provides extension methods for flags enumerations.
 /// </summary>
-public class FlagsEnum
+public static class FlagsEnum
 {
     /// <summary>
     /// Gets a value of <typeparamref name="TEnum"/> from two raised to the specified <paramref name="power"/>.
@@ -45,7 +45,7 @@ public class FlagsEnum
     public static bool TryPowerOfTwo<TEnum>(object power, out TEnum result)
         where TEnum : struct
     {
-        result = default(TEnum);
+        result = default;
         var type = typeof(TEnum);
         if (!type.GetTypeInfo().IsEnum)
         {

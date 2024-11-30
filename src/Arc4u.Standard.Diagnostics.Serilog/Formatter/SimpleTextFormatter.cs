@@ -13,16 +13,20 @@ public class SimpleTextFormatter : ITextFormatter
         MessageFormatter = new MessageTemplateTextFormatter("{Message}");
         PropertyFormatter = new JsonPropertiesFormatter();
 
+#if NET8_0_OR_GREATER
+        MessageCategoryMap = Enum.GetValues<MessageCategory>().ToDictionary(x => x, x => x.ToString());
+        MessageLogLevelMap = Enum.GetValues<LogEventLevel>().ToDictionary(x => x, x => x.ToMessageType().ToString());
+#else
         MessageCategoryMap = Enum.GetValues(typeof(MessageCategory)).Cast<MessageCategory>()
             .ToDictionary(x => x, x => x.ToString());
 
         MessageLogLevelMap = Enum.GetValues(typeof(LogEventLevel)).Cast<LogEventLevel>()
             .ToDictionary(x => x, x => x.ToMessageType().ToString());
+#endif
     }
+    private Dictionary<MessageCategory, string> MessageCategoryMap { get; }
 
-    private IDictionary<MessageCategory, string> MessageCategoryMap { get; }
-
-    private IDictionary<LogEventLevel, string> MessageLogLevelMap { get; }
+    private Dictionary<LogEventLevel, string> MessageLogLevelMap { get; }
 
     private MessageTemplateTextFormatter MessageFormatter { get; set; }
 
