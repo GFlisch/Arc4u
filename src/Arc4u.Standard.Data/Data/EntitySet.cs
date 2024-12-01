@@ -247,18 +247,18 @@ public sealed class EntitySet<TEntity>
     #endregion
 
     /// <summary>Adds an object to the end of the <see cref="EntitySet&lt;TEntity&gt;"/>.</summary>
-    /// <param name="entity">The object to be added to the end of the <see cref="EntitySet&lt;TEntity&gt;"/>. The value can be null for reference types.</param>
+    /// <param name="item">The object to be added to the end of the <see cref="EntitySet&lt;TEntity&gt;"/>. The value can be null for reference types.</param>
     /// <remarks>
     /// <para>This implementation raises the <see cref="CollectionChanged"/> event.</para>
     /// </remarks>
-    public void Add(TEntity entity)
+    public void Add(TEntity item)
     {
         CheckReentrancy();
         var index = _size;
-        AddItem(entity);
+        AddItem(item);
         OnPropertyChanged(nameof(Count));
         OnPropertyChanged(ItemPropertyName);
-        OnCollectionChanged(NotifyCollectionChangedAction.Add, entity, index);
+        OnCollectionChanged(NotifyCollectionChangedAction.Add, item, index);
     }
 
     /// <summary>Adds an object to the end of the <see cref="EntitySet&lt;TEntity&gt;"/>.</summary>
@@ -358,7 +358,7 @@ public sealed class EntitySet<TEntity>
     /// <summary>Determines whether an entity is in the <see cref="EntitySet&lt;TEntity&gt;"/>.</summary>
     /// <returns>true if entity is found in the <see cref="EntitySet&lt;TEntity&gt;"/>; otherwise, false.</returns>
     /// <param name="entity">The object to locate in the <see cref="EntitySet&lt;TEntity&gt;"/>. The value can be null for reference types.</param>
-    public bool Contains(TEntity entity)
+    public bool Contains(TEntity? entity)
     {
         if (entity == null)
         {
@@ -373,7 +373,7 @@ public sealed class EntitySet<TEntity>
         }
 
         var items = _items;
-        var size = _size; ;
+        var size = _size;
 
         var comparer = EqualityComparer<TEntity>.Default;
         for (var i = 0; i < size; i++)
@@ -485,7 +485,7 @@ public sealed class EntitySet<TEntity>
         }
 #endif
         var items = _items;
-        var size = _size; ;
+        var size = _size;
 
         for (var i = 0; i < size; i++)
         {
