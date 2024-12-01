@@ -15,7 +15,7 @@ public class Scope<TScope, TInstance> : IDisposable
     private bool ToDispose { get; set; }
     private Scope<TScope, TInstance>? Parent { get; set; }
 
-    private TInstance Value;
+    private TInstance? Value;
 
     /// <summary>
     /// Prevents a default instance of the <see cref="Scope&lt;T&gt;"/> class from being created.

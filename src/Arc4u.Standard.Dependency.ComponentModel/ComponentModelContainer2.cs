@@ -10,11 +10,11 @@ namespace Arc4u.Dependency.ComponentModel;
 
 public class ComponentModelContainer : IContainer
 {
-    public object Instance => _serviceProvider ?? throw new NullReferenceException("DI container is null.");
+    public object Instance => _serviceProvider ?? throw new InvalidOperationException("DI container is null.");
 
     public bool CanCreateScope => true;
 
-    public IServiceProvider ServiceProvider => _serviceProvider ?? throw new NullReferenceException("DI container is null.");
+    public IServiceProvider ServiceProvider => _serviceProvider ?? throw new InvalidOperationException("DI container is null.");
 
     readonly IServiceCollection? _collection;
     private readonly IServiceScope? _serviceScope;
@@ -43,7 +43,6 @@ public class ComponentModelContainer : IContainer
     /// <summary>
     /// Used when a specific call to create a scope instance is performed.
     /// </summary>
-    /// <param name="provider"></param>
     /// <param name="serviceScope"></param>
     protected ComponentModelContainer([DisallowNull] IServiceScope serviceScope)
     {

@@ -87,8 +87,8 @@ internal static class DumpException
         var i = 0;
         foreach (var message in messages)
         {
-            sb.Append("".PadLeft(i++ * 4));
-            sb.Append("|---".PadLeft(i > 0 ? 4 : 0));
+            sb.Append("".PadLeft(i * 4));
+            sb.Append("|---".PadLeft(i++ > 0 ? 4 : 0));
             sb.AppendLine(message);
         }
 

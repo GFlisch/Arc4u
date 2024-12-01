@@ -27,7 +27,7 @@ public interface ICache : IDisposable
     /// <param name="value">The object to save.</param>
     /// <returns>Return an <see cref="object"/> defining a version for the data added in the cache.</returns>
     /// <exception cref="DataCacheException">Thrown when the cache encounters a problem.</exception>
-    Task PutAsync<T>(string key, T value, CancellationToken cancellation = default(CancellationToken));
+    Task PutAsync<T>(string key, T value, CancellationToken cancellation = default);
 
     /// <summary>
     /// Add or set a value in the cache.
@@ -49,7 +49,7 @@ public interface ICache : IDisposable
     /// <param name="isSlided">A <see cref="bool"/> value indicating if the timeout period is reset again. If true, the data availability will be prolounge each time the data is accessed.</param>
     /// <returns>Return an <see cref="object"/> defining a version for the data added in the cache.</returns>
     /// <exception cref="DataCacheException">Thrown when the cache encounters a problem.</exception>
-    Task PutAsync<T>(string key, TimeSpan timeout, T value, bool isSlided = false, CancellationToken cancellation = default(CancellationToken));
+    Task PutAsync<T>(string key, TimeSpan timeout, T value, bool isSlided = false, CancellationToken cancellation = default);
 
     /// <summary>
     /// retrieve an <see cref="object"/> from the cache and cast it to the type of <see cref="TValue"/>.
@@ -69,7 +69,7 @@ public interface ICache : IDisposable
     /// <returns>An object typed to <see cref="TValue"/>, or the default value defined for the type <see cref="TValue"/> if no value exist for the specified key.</returns>
     /// <exception cref="DataCacheException">Thrown when the cache encounters a problem.</exception>
     /// <exception cref="InvalidCastException">Thrown when the <see cref="object"/> cannot be casted to the type <see cref="TValue"/> or when a cache has a problem.</exception>
-    Task<TValue?> GetAsync<TValue>(string key, CancellationToken cancellation = default(CancellationToken));
+    Task<TValue?> GetAsync<TValue>(string key, CancellationToken cancellation = default);
 
     /// <summary>
     /// Get a value from the cache, if a value exist for the specified key. Does not thrown an exception, if the cast to <see cref="TValue"/> is not possible.
@@ -86,7 +86,7 @@ public interface ICache : IDisposable
     /// <typeparam name="TValue">The type expected from the cache.</typeparam>
     /// <param name="key">The key used to identify the <see cref="object"/> in the cache.</param>
     /// <returns>An object typed to <see cref="TValue"/>. The default value defined for the type <see cref="TValue"/> if no value exist for the specified key or if the cast is not possible.</returns>
-    Task<TValue?> TryGetValueAsync<TValue>(string key, CancellationToken cancellation = default(CancellationToken));
+    Task<TValue?> TryGetValueAsync<TValue>(string key, CancellationToken cancellation = default);
 
     /// <summary>
     /// Rempve the data from the cache for the specified key.
@@ -100,5 +100,5 @@ public interface ICache : IDisposable
     /// </summary>
     /// <param name="key">The key used to identify the <see cref="object"/> in the cache.</param>
     /// <returns>True if the data was removed.</returns>
-    Task<bool> RemoveAsync(string key, CancellationToken cancellation = default(CancellationToken));
+    Task<bool> RemoveAsync(string key, CancellationToken cancellation = default);
 }

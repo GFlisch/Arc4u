@@ -11,13 +11,13 @@ public abstract class BaseDistributeCache<T> : ICache
 {
     private bool disposed;
 
-    protected DistributedCacheEntryOptions DefaultOption = new DistributedCacheEntryOptions();
+    protected DistributedCacheEntryOptions DefaultOption = new();
     private IObjectSerialization? _serializerFactory;
     private readonly ILogger<T> _logger;
 
     protected IDistributedCache? DistributeCache { get; set; }
 
-    protected readonly object _lock = new object();
+    protected readonly object _lock = new();
     protected bool IsInitialized { get; set; }
 
     // The reason why the cache is not initialized, this will be used when an exception is thrown.
@@ -28,7 +28,7 @@ public abstract class BaseDistributeCache<T> : ICache
     protected IContainerResolve Container => _container;
     private readonly ActivitySource? _activitySource;
 
-    public BaseDistributeCache(ILogger<T> logger, IContainerResolve container)
+    protected BaseDistributeCache(ILogger<T> logger, IContainerResolve container)
     {
 #if NETSTANDARD2_0
         if (null == container)
@@ -85,7 +85,7 @@ public abstract class BaseDistributeCache<T> : ICache
             blob = DistributeCache?.Get(key);
             if (null == blob)
             {
-                return default(TValue);
+                return default;
             }
 
             using var serializerActivity = _activitySource?.StartActivity("Deserialize.", ActivityKind.Producer);
@@ -97,7 +97,7 @@ public abstract class BaseDistributeCache<T> : ICache
         }
     }
 
-    public async Task<TValue?> GetAsync<TValue>(string key, CancellationToken cancellation = default(CancellationToken))
+    public async Task<TValue?> GetAsync<TValue>(string key, CancellationToken cancellation = default)
     {
         CheckIfInitialized();
 
@@ -110,7 +110,7 @@ public abstract class BaseDistributeCache<T> : ICache
             blob = DistributeCache is null ? null : await DistributeCache.GetAsync(key, cancellation).ConfigureAwait(false);
             if (null == blob)
             {
-                return default(TValue);
+                return default;
             }
 
             using var serializerActivity = _activitySource?.StartActivity("Deserialize.", ActivityKind.Producer);
@@ -144,7 +144,7 @@ public abstract class BaseDistributeCache<T> : ICache
         CheckIfInitialized();
 
 #if NET8_0_OR_GREATER
-        if (EqualityComparer<TValue>.Default.Equals(value, default(TValue)))
+        if (EqualityComparer<TValue>.Default.Equals(value, default))
 #else
         if (value == null)
 #endif
@@ -164,7 +164,7 @@ public abstract class BaseDistributeCache<T> : ICache
         DistributeCache?.Set(key, blob, DefaultOption);
     }
 
-    public async Task PutAsync<TValue>(string key, TValue value, CancellationToken cancellation = default(CancellationToken))
+    public async Task PutAsync<TValue>(string key, TValue value, CancellationToken cancellation = default)
     {
         CheckIfInitialized();
 
@@ -276,7 +276,7 @@ public abstract class BaseDistributeCache<T> : ICache
         }
 
     }
-    public async Task<bool> RemoveAsync(string key, CancellationToken cancellation = default(CancellationToken))
+    public async Task<bool> RemoveAsync(string key, CancellationToken cancellation = default)
     {
         using var activity = _activitySource?.StartActivity("Remove from cache.", ActivityKind.Producer);
 
@@ -309,13 +309,13 @@ public abstract class BaseDistributeCache<T> : ICache
         }
         catch (Exception)
         {
-            value = default(TValue);
+            value = default;
             return false;
         }
 
     }
 
-    public async Task<TValue?> TryGetValueAsync<TValue>(string key, CancellationToken cancellation = default(CancellationToken))
+    public async Task<TValue?> TryGetValueAsync<TValue>(string key, CancellationToken cancellation = default)
     {
         CheckIfInitialized();
 
@@ -325,7 +325,7 @@ public abstract class BaseDistributeCache<T> : ICache
         }
         catch (Exception)
         {
-            return default(TValue);
+            return default;
         }
     }
 

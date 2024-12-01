@@ -8,13 +8,13 @@ namespace Arc4u.Threading;
 /// <typeparam name="T">Any type.</typeparam>
 public class Scope<T> : IDisposable
 {
-    private static readonly AsyncLocal<Scope<T>?> _instance = new AsyncLocal<Scope<T>?>();
+    private static readonly AsyncLocal<Scope<T>?> _instance = new();
 
     private bool Disposed { get; set; }
     private bool ToDispose { get; set; }
     private Scope<T>? Parent { get; set; }
 
-    private T Value;
+    private T? Value;
 
     /// <summary>
     /// Prevents a default instance of the <see cref="Scope&lt;T&gt;"/> class from being created.
@@ -28,8 +28,7 @@ public class Scope<T> : IDisposable
     /// Initializes a new instance of the <see cref="Scope&lt;T&gt;"/> class.
     /// </summary>
     /// <param name="instance">The instance.</param>
-    public Scope(T instance)
-        : this(instance, true)
+    public Scope(T instance) : this(instance, true)
     {
     }
 
@@ -70,7 +69,7 @@ public class Scope<T> : IDisposable
 
     protected T? ParentValue
     {
-        get { return null == Parent ? default(T) : Parent.Value; }
+        get { return null == Parent ? default : Parent.Value; }
     }
 
     /// <summary>

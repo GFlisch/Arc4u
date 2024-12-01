@@ -24,7 +24,7 @@ public static class ISectionStoreExtensions
         var sectionEntity = await sectionStore.GetAsync(key, cancellationToken).ConfigureAwait(false);
         if (sectionEntity is null)
         {
-            return (false, default(TValue));
+            return (false, default);
         }
 
         return (true, sectionEntity.GetValue<TValue>());
