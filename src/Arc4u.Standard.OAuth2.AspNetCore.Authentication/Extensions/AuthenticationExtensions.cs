@@ -176,7 +176,7 @@ public static partial class AuthenticationExtensions
             throw new ConfigurationException($"No section exists with name {authenticationSectionName} in the configuration providers for OpenId Connect authentication.");
         }
 
-        var settings = section.Get<OidcAuthenticationSectionOptions>() ?? throw new NullReferenceException($"No section exists with name {authenticationSectionName} in the configuration providers for OpenId Connect authentication.");
+        var settings = section.Get<OidcAuthenticationSectionOptions>() ?? throw new InvalidOperationException($"No section exists with name {authenticationSectionName} in the configuration providers for OpenId Connect authentication.");
 
         string? configErrors = null;
         if (settings.DefaultAuthority is null)
@@ -259,10 +259,6 @@ public static partial class AuthenticationExtensions
         var cert = certificateLoader.FindCertificate(configuration, settings.CertificateSectionPath) ?? throw new MissingFieldException($"No certificate was found based on the configuration section: {settings.CertificateSectionPath}.");
 
         var ticketStoreAction = CacheTicketStoreExtension.PrepareAction(configuration, settings.AuthenticationCacheTicketStorePath);
-        if (null == ticketStoreAction)
-        {
-            throw new MissingFieldException("A TicketStore is mandatory to store the authentication ticket.");
-        }
 
         Type? cookiesConfigureOptionsType;
         if (string.IsNullOrWhiteSpace(settings.CookiesConfigureOptionsType))
@@ -388,8 +384,8 @@ public static partial class AuthenticationExtensions
         ArgumentNullException.ThrowIfNull(configuration);
         ArgumentNullException.ThrowIfNull(authenticationSectionName);
 
-        var section = configuration.GetSection(authenticationSectionName) ?? throw new NullReferenceException($"No section exists with name {authenticationSectionName} in the configuration providers for OAuth2 Connect authentication.");
-        var settings = section.Get<JwtAuthenticationSectionOptions>() ?? throw new NullReferenceException($"No section exists with name {authenticationSectionName} in the configuration providers for OAuth2 Connect authentication.");
+        var section = configuration.GetSection(authenticationSectionName) ?? throw new InvalidOperationException($"No section exists with name {authenticationSectionName} in the configuration providers for OAuth2 Connect authentication.");
+        var settings = section.Get<JwtAuthenticationSectionOptions>() ?? throw new InvalidOperationException($"No section exists with name {authenticationSectionName} in the configuration providers for OAuth2 Connect authentication.");
 
         if (settings.DefaultAuthority is null)
         {

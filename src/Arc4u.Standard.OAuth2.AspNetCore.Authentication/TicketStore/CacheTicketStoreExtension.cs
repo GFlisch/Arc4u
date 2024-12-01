@@ -47,7 +47,7 @@ public static class CacheTicketStoreExtension
 
             if (option is null)
             {
-                throw new NullReferenceException(nameof(option));
+                throw new InvalidOperationException($"Section nameof(option) cannot be deserialize to CacheTicketStoreOptions");
             }
 
             void options(CacheTicketStoreOptions o)

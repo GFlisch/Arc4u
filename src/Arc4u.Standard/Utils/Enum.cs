@@ -51,7 +51,7 @@ public readonly struct Enum<T>(T value) : IEnumerable<T>
 
     readonly IEnumerator<T> IEnumerable<T>.GetEnumerator()
     {
-        foreach (var value in EnumUtil.GetValues(typeof(T), true))
+        foreach (var item in EnumUtil.GetValues(typeof(T), true))
         {
             switch (Convert.GetTypeCode(_value))
             {
@@ -59,9 +59,9 @@ public readonly struct Enum<T>(T value) : IEnumerable<T>
                 case TypeCode.Int16:
                 case TypeCode.Int32:
                 case TypeCode.Int64:
-                    if ((Convert.ToInt64(_value, CultureInfo.InvariantCulture) & Convert.ToInt64(value, CultureInfo.InvariantCulture)) == Convert.ToInt64(value, CultureInfo.InvariantCulture))
+                    if ((Convert.ToInt64(_value, CultureInfo.InvariantCulture) & Convert.ToInt64(item, CultureInfo.InvariantCulture)) == Convert.ToInt64(item, CultureInfo.InvariantCulture))
                     {
-                        yield return (T)Enum.ToObject(typeof(T), value);
+                        yield return (T)Enum.ToObject(typeof(T), item);
                     }
 
                     break;
@@ -69,9 +69,9 @@ public readonly struct Enum<T>(T value) : IEnumerable<T>
                 case TypeCode.UInt16:
                 case TypeCode.UInt32:
                 case TypeCode.UInt64:
-                    if ((Convert.ToUInt64(_value, CultureInfo.InvariantCulture) & Convert.ToUInt64(value, CultureInfo.InvariantCulture)) != Convert.ToUInt64(value, CultureInfo.InvariantCulture))
+                    if ((Convert.ToUInt64(_value, CultureInfo.InvariantCulture) & Convert.ToUInt64(item, CultureInfo.InvariantCulture)) != Convert.ToUInt64(item, CultureInfo.InvariantCulture))
                     {
-                        yield return (T)Enum.ToObject(typeof(T), value);
+                        yield return (T)Enum.ToObject(typeof(T), item);
                     }
 
                     break;
@@ -361,7 +361,7 @@ public struct EnumUtil
         }
 
         var type = value.GetType();
-        if (!(type == typeof(string)) && !type.GetTypeInfo().IsSubclassOf(typeof(ValueType)))
+        if ((type != typeof(string)) && !type.GetTypeInfo().IsSubclassOf(typeof(ValueType)))
         {
             return new ArgumentException(Arg_MustBeValueTypeOrstring, nameof(value));
         }
@@ -371,13 +371,13 @@ public struct EnumUtil
         {
             if (type != typeof(T))
             {
-                return new ArgumentException(string.Format(CultureInfo.CurrentCulture, Arg_EnumAndObjectMustBeSameType, [type.ToString(), typeof(T).ToString()]));
+                return new ArgumentException(string.Format(CultureInfo.InvariantCulture, Arg_EnumAndObjectMustBeSameType, type.ToString(), typeof(T).ToString()));
             }
             type = Enum.GetUnderlyingType(type);
         }
         else if (type != underlyingType && !(type == typeof(string)))
         {
-            return new ArgumentException(string.Format(CultureInfo.CurrentCulture, Arg_EnumUnderlyingTypeAndObjectMustBeSameType, [type.ToString(), underlyingType.ToString()]));
+            return new ArgumentException(string.Format(CultureInfo.InvariantCulture, Arg_EnumUnderlyingTypeAndObjectMustBeSameType, type.ToString(), underlyingType.ToString()));
         }
 
         if (type == typeof(string))
