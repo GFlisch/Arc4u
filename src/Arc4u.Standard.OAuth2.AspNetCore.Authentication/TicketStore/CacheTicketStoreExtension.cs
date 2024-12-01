@@ -43,13 +43,7 @@ public static class CacheTicketStoreExtension
 
         if (section.Exists())
         {
-            var option = configuration.GetSection(sectionName).Get<CacheTicketStoreOptions>();
-
-            if (option is null)
-            {
-                throw new InvalidOperationException($"Section nameof(option) cannot be deserialize to CacheTicketStoreOptions");
-            }
-
+            var option = configuration.GetSection(sectionName).Get<CacheTicketStoreOptions>() ?? throw new InvalidOperationException($"Section nameof(option) cannot be deserialize to CacheTicketStoreOptions");
             void options(CacheTicketStoreOptions o)
             {
                 o.CacheName = option.CacheName;

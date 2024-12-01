@@ -21,7 +21,7 @@ public class MongoDBTests
 
     private readonly Fixture _fixture;
 
-    private class Contract
+    private sealed class Contract
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = default!;

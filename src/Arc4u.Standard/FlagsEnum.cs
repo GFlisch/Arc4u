@@ -18,13 +18,12 @@ public static class FlagsEnum
     /// <typeparamref name="TEnum"/> is not an enumeration type -or-
     /// no match found in the defined values of <typeparamref name="TEnum"/>.
     /// </exception>
-    public static TEnum PowerOfTwo<TEnum>(object power)
-        where TEnum : struct
+    public static TEnum PowerOfTwo<TEnum>(object power) where TEnum : struct
     {
         var type = typeof(TEnum);
         if (!type.GetTypeInfo().IsEnum)
         {
-            throw new ArgumentException("Type provided must be an enumeration.", "TEnum");
+            throw new InvalidOperationException($"Type {nameof(TEnum)} provided must be an enumeration.");
         }
 
         if (TryPowerOfTwo(power, out TEnum result))
@@ -43,7 +42,7 @@ public static class FlagsEnum
     /// <param name="result">When this methods returns, contains the matching value of <typeparamref name="TEnum"/>. This parameter is passed uninitialized.</param>        
     /// <returns><b>true</b> if a matching value of <typeparamref name="TEnum"/> is found; otherwise, <b>false</b>.</returns>
     public static bool TryPowerOfTwo<TEnum>(object power, out TEnum result)
-        where TEnum : struct
+                                            where TEnum : struct
     {
         result = default;
         var type = typeof(TEnum);

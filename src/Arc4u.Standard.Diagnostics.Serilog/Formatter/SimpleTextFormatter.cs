@@ -37,7 +37,7 @@ public class SimpleTextFormatter : ITextFormatter
     {
         try
         {
-            var (Category, Application, Identity, ClassType, MethodName, ActivityId, ProcessId, ThreadId, Stacktrace, Properties) = Helper.ExtractEventInfo(logEvent);
+            var (Category, _, Identity, ClassType, MethodName, ActivityId, ProcessId, ThreadId, Stacktrace, Properties) = Helper.ExtractEventInfo(logEvent);
 
             using var properties = new StringWriter();
             using var messageText = new StringWriter();
