@@ -69,9 +69,9 @@ public class SimpleTextFormatter : ITextFormatter
                 output.WriteLine(Stacktrace);
             }
         }
-        catch (Exception)
-        {
-        }
+        // We don't want to throw an exception and log this on the system who is assigned to log an information.
+        catch (Exception) { }
+
     }
 }
 

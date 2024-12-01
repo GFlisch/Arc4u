@@ -41,7 +41,7 @@ public static class FlagsEnum
     /// <param name="power">The raising power of two.</param>
     /// <param name="result">When this methods returns, contains the matching value of <typeparamref name="TEnum"/>. This parameter is passed uninitialized.</param>        
     /// <returns><b>true</b> if a matching value of <typeparamref name="TEnum"/> is found; otherwise, <b>false</b>.</returns>
-    public static bool TryPowerOfTwo<TEnum>(object power, out TEnum result)
+    public static bool TryPowerOfTwo<TEnum>(object power, out TEnum result, float epsilon = 0.0000001f)
                                             where TEnum : struct
     {
         result = default;
@@ -57,7 +57,7 @@ public static class FlagsEnum
         }
 
         var v = Math.Pow(2, Convert.ToDouble(power, CultureInfo.InvariantCulture));
-        if (Math.Floor(v) != v)
+        if (Math.Floor(v) - v > epsilon)
         {
             return false;
         }
@@ -140,7 +140,7 @@ public static class FlagsEnum
     /// <param name="value">A value.</param>
     /// <param name="result">When this methods returns, contains the power of two exponent from the specified <paramref name="value"/>. This parameter is passed uninitialized.</param>
     /// <returns><b>true</b> if the <paramref name="value"/> parameter is a power of two exponent; otherwise, <b>false</b>.</returns>
-    public static bool TryPowerOfTwoExponent(object? value, out int result)
+    public static bool TryPowerOfTwoExponent(object? value, out int result, float epsilon = 0.0000001f)
     {
         result = 0;
         if (value == null || !typeof(IConvertible).GetTypeInfo().IsAssignableFrom(value.GetType().GetTypeInfo()))
@@ -149,7 +149,7 @@ public static class FlagsEnum
         }
 
         var v = Math.Log(Convert.ToDouble(value, CultureInfo.InvariantCulture), 2);
-        if (Math.Floor(v) != v)
+        if (Math.Floor(v) - v > epsilon)
         {
             return false;
         }
@@ -170,7 +170,7 @@ public static class FlagsEnum
         var type = typeof(TEnum);
         if (!type.GetTypeInfo().IsEnum)
         {
-            throw new ArgumentException("Type provided must be an enumeration.", "TEnum");
+            throw new InvalidOperationException($"Type {nameof(TEnum)} provided must be an enumeration.");
         }
 
         // call an inner method to avoid deferred argument check
@@ -190,37 +190,6 @@ public static class FlagsEnum
     }
 
     /// <summary>
-    /// Gets the flagged values defined in <typeparamref name="TEnum"/>.
-    /// </summary>
-    /// <typeparam name="TEnum">An enumeration type.</typeparam>
-    /// <returns>The defined flagged values.</returns>
-    /// <exception cref="ArgumentException"><typeparamref name="TEnum"/> is not an enumeration type.</exception>
-    public static IEnumerable<TEnum> FlaggedValues<TEnum>()
-        where TEnum : struct
-    {
-        var type = typeof(TEnum);
-        if (!type.GetTypeInfo().IsEnum)
-        {
-            throw new ArgumentException("Type provided must be an enumeration.", "TEnum");
-        }
-
-        // call an inner method to avoid deferred argument check
-        return FlaggedValues<TEnum>(type);
-    }
-
-    static IEnumerable<TEnum> FlaggedValues<TEnum>(Type type)
-        where TEnum : struct
-    {
-        foreach (TEnum value in Enum.GetValues(type))
-        {
-            if (!TryPowerOfTwoExponent(value, out _))
-            {
-                yield return value;
-            }
-        }
-    }
-
-    /// <summary>
     /// Gets the flag values of the specified <paramref name="value"/>.
     /// </summary>
     /// <typeparam name="TEnum">An enumeration type.</typeparam>
@@ -233,7 +202,7 @@ public static class FlagsEnum
         var type = typeof(TEnum);
         if (!type.GetTypeInfo().IsEnum)
         {
-            throw new ArgumentException("Type provided must be an enumeration.", "TEnum");
+            throw new InvalidOperationException($"Type {nameof(TEnum)} provided must be an enumeration.");
         }
 
         // call an inner method to avoid deferred argument check
@@ -253,6 +222,37 @@ public static class FlagsEnum
     }
 
     /// <summary>
+    /// Gets the flagged values defined in <typeparamref name="TEnum"/>.
+    /// </summary>
+    /// <typeparam name="TEnum">An enumeration type.</typeparam>
+    /// <returns>The defined flagged values.</returns>
+    /// <exception cref="ArgumentException"><typeparamref name="TEnum"/> is not an enumeration type.</exception>
+    public static IEnumerable<TEnum> FlaggedValues<TEnum>()
+        where TEnum : struct
+    {
+        var type = typeof(TEnum);
+        if (!type.GetTypeInfo().IsEnum)
+        {
+            throw new InvalidOperationException($"Type {nameof(TEnum)} provided must be an enumeration.");
+        }
+
+        // call an inner method to avoid deferred argument check
+        return FlaggedValues<TEnum>(type);
+    }
+
+    static IEnumerable<TEnum> FlaggedValues<TEnum>(Type type)
+        where TEnum : struct
+    {
+        foreach (TEnum value in Enum.GetValues(type))
+        {
+            if (!TryPowerOfTwoExponent(value, out _))
+            {
+                yield return value;
+            }
+        }
+    }
+
+    /// <summary>
     /// Indicates if the flag values of the specified <paramref name="value"/> are continuous or not.
     /// </summary>
     /// <typeparam name="TEnum">An enumeration type.</typeparam>
@@ -265,7 +265,7 @@ public static class FlagsEnum
         var type = typeof(TEnum);
         if (!type.GetTypeInfo().IsEnum)
         {
-            throw new ArgumentException("Type provided must be an enumeration.", "TEnum");
+            throw new InvalidOperationException($"Type {nameof(TEnum)} provided must be an enumeration.");
         }
 
         // call an inner method to avoid deferred argument check
