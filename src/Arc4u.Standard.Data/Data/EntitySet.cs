@@ -357,10 +357,10 @@ public sealed class EntitySet<TEntity>
 
     /// <summary>Determines whether an entity is in the <see cref="EntitySet&lt;TEntity&gt;"/>.</summary>
     /// <returns>true if entity is found in the <see cref="EntitySet&lt;TEntity&gt;"/>; otherwise, false.</returns>
-    /// <param name="entity">The object to locate in the <see cref="EntitySet&lt;TEntity&gt;"/>. The value can be null for reference types.</param>
-    public bool Contains(TEntity? entity)
+    /// <param name="item">The object to locate in the <see cref="EntitySet&lt;TEntity&gt;"/>. The value can be null for reference types.</param>
+    public bool Contains(TEntity? item)
     {
-        if (entity == null)
+        if (item == null)
         {
             for (var j = 0; j < _size; j++)
             {
@@ -378,7 +378,7 @@ public sealed class EntitySet<TEntity>
         var comparer = EqualityComparer<TEntity>.Default;
         for (var i = 0; i < size; i++)
         {
-            if (comparer.Equals(items[i], entity))
+            if (comparer.Equals(items[i], item))
             {
                 return true;
             }
