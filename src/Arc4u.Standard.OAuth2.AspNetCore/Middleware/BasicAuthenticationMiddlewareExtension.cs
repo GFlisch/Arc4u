@@ -211,20 +211,8 @@ public static class BasicAuthenticationMiddlewareExtension
     }
     private static Action<BasicSettingsOptions> PrepareBasicAction(IConfiguration configuration, [DisallowNull] string sectionName)
     {
-#if NET8_0_OR_GREATER
         ArgumentException.ThrowIfNullOrWhiteSpace(sectionName);
         ArgumentNullException.ThrowIfNull(configuration);
-#else
-        if (string.IsNullOrEmpty(sectionName))
-        {
-            throw new ArgumentNullException(nameof(sectionName));
-        }
-
-        if (configuration is null)
-        {
-            throw new ArgumentNullException(nameof(configuration));
-        }
-#endif
 
         var section = configuration.GetSection(sectionName);
 

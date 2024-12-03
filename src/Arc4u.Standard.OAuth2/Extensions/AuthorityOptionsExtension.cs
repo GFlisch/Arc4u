@@ -14,20 +14,8 @@ public static class AuthorityOptionsExtension
 
     public static void AddDefaultAuthority(this IServiceCollection services, IConfiguration configuration, string sectionName = "Authentication:DefaultAuthority")
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(configuration);
         ArgumentNullException.ThrowIfNull(services);
-#endif
-#if NETSTANDARD2_0
-        if (services is null)
-        {
-            throw new ArgumentNullException(nameof(services));
-        }
-        if (configuration is null)
-        {
-            throw new ArgumentNullException(nameof(configuration));
-        }
-#endif
 
         if (string.IsNullOrWhiteSpace(sectionName))
         {
@@ -56,21 +44,9 @@ public static class AuthorityOptionsExtension
 
     public static void AddAuthority(this IServiceCollection services, Action<AuthorityOptions> options, string optionKey)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(options);
 
-#endif
-#if NETSTANDARD2_0
-        if (services is null)
-        {
-            throw new ArgumentNullException(nameof(services));
-        }
-        if (options is null)
-        {
-            throw new ArgumentNullException(nameof(options));
-        }
-#endif
         if (string.IsNullOrWhiteSpace(optionKey))
         {
             throw new ArgumentNullException(optionKey);

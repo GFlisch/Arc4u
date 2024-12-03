@@ -37,14 +37,8 @@ public class Graph<T> where T : class
     /// <param name="paths">The list of initials includes you want to predefined!</param>
     public Graph(IEnumerable<string> paths)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(paths);
-#else
-        if (null == paths)
-        {
-            throw new ArgumentNullException(nameof(paths));
-        }
-#endif
+
         Graph<T>.ValidatePaths(paths);
 
         _includes = new List<string>(paths);
@@ -172,11 +166,7 @@ public class Graph<T> where T : class
 
         if (!string.IsNullOrWhiteSpace(stringPath) && stringPath[0] == '.')
         {
-#if NET8_0_OR_GREATER
             stringPath = stringPath[1..];
-#else
-            stringPath = stringPath.Substring(1);
-#endif
         }
 
         if (!string.IsNullOrWhiteSpace(stringPath) && !_includes.Exists(i => i == stringPath))
@@ -190,17 +180,10 @@ public class Graph<T> where T : class
 
     public static string EvaluateExpression(Expression path)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(path);
-#else
-        if (null == path)
-        {
-            throw new ArgumentNullException(nameof(path));
-        }
-#endif
+
         var stringPath = string.Empty;
-        var memberExpression = path as MemberExpression;
-        if (null != memberExpression)
+        if (path is MemberExpression memberExpression)
         {
             // Check if type is System.string. because string is of type Class and the include allows to parse member of type Class. But we are not interested to see the string type.
             if (memberExpression.Type == typeof(string))
@@ -268,14 +251,8 @@ public class Graph<T> where T : class
     /// <returns>True if the path defined was included in the object's graph.</returns>
     public bool Exist<TProperty>(Expression<Func<T, TProperty>> path) where TProperty : class
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(path);
-#else
-        if (null == path)
-        {
-            throw new ArgumentNullException(nameof(path));
-        }
-#endif
+
         var stringPath = EvaluateExpression(path);
 
         if (!string.IsNullOrWhiteSpace(stringPath) && stringPath[0] == '.')
@@ -296,14 +273,7 @@ public class Graph<T> where T : class
     /// <returns>A new Graph instance with the type of the property selected in the path parameter.</returns>
     public Graph<TProperty> GetGraph<TProperty>(Expression<Func<T, TProperty>> path) where TProperty : class
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(path);
-#else
-        if (null == path)
-        {
-            throw new ArgumentNullException(nameof(path));
-        }
-#endif
 
         var stringPath = EvaluateExpression(path);
 
@@ -332,14 +302,8 @@ public class Graph<T> where T : class
     /// <returns>The Graph for the dedicated object parsed.</returns>
     public static Graph<T> Parse(T instance, bool shouldHaveElement = false)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(instance);
-#else
-        if (null == instance)
-        {
-            throw new ArgumentNullException(nameof(instance));
-        }
-#endif
+
         return shouldHaveElement ? new Graph<T>(ParseObject2(instance)) : new Graph<T>(ParseObject(instance));
     }
 
@@ -351,14 +315,7 @@ public class Graph<T> where T : class
     /// <returns>A copy of the graph with the removed path.</returns>
     public Graph<T> RemoveGraph<TProperty>(Expression<Func<T, TProperty>> path) where TProperty : class
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(path);
-#else
-        if (null == path)
-        {
-            throw new ArgumentNullException(nameof(path));
-        }
-#endif
 
         var stringPath = EvaluateExpression(path);
 
@@ -377,14 +334,7 @@ public class Graph<T> where T : class
     {
         var result = new List<string>();
 
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(o);
-#else
-        if (null == o)
-        {
-            throw new ArgumentNullException(nameof(o));
-        }
-#endif
 
         if (o is IEnumerable)
         {
@@ -526,14 +476,7 @@ public class Graph<T> where T : class
     {
         var result = new List<string>();
 
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(o);
-#else
-        if (null == o)
-        {
-            throw new ArgumentNullException(nameof(o));
-        }
-#endif
 
         if (o is IEnumerable)
         {
@@ -678,14 +621,8 @@ public class Graph<T> where T : class
         }
         set
         {
-#if NET8_0_OR_GREATER
             ArgumentNullException.ThrowIfNull(value);
-#else
-            if (value == null)
-            {
-                throw new ArgumentNullException(nameof(value));
-            }
-#endif
+
             Graph<T>.ValidatePaths(value);
 
             _includes = new List<string>(value);

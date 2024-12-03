@@ -17,11 +17,7 @@ public class RootCertificateExtractor : IRootCertificateExtractor, IDisposable
 
     private readonly ILogger<RootCertificateExtractor> _logger;
     private readonly HttpClient _httpClient;
-#if NETSTANDARD
-    private static readonly string _key = nameof(CertificateHolder);
-#else
     private static readonly HttpRequestOptionsKey<CertificateHolder> _key = new(nameof(CertificateHolder));
-#endif
 
     private sealed class CertificateHolder
     {
@@ -39,13 +35,9 @@ public class RootCertificateExtractor : IRootCertificateExtractor, IDisposable
         {
             var certificateHolder = new CertificateHolder();
             using var request = new HttpRequestMessage(HttpMethod.Get, rootUrl);
-#if NETSTANDARD
-            request.Properties[_key] = certificateHolder;
-            using var response = _httpClient.SendAsync(request).GetAwaiter().GetResult();
-#else
+
             request.Options.Set(_key, certificateHolder);
             using var response = _httpClient.Send(request);
-#endif
             // Note that this will oonly work once: next calls will not trigger ServerCertificateCustomValidationCallback because _httpClient will cache the response.
             return certificateHolder.Certificate;
         }
@@ -61,17 +53,11 @@ public class RootCertificateExtractor : IRootCertificateExtractor, IDisposable
         if (certificate is not null)
         {
             _logger.Technical().System($"Certificate callback received with Subject = {certificate.Subject}.").Log();
-#if NETSTANDARD
-            if (sender.Properties.TryGetValue(_key, out var certificateHolder))
-            {
-                ((CertificateHolder)certificateHolder).Certificate = new X509Certificate2(certificate);
-            }
-#else
+
             if (sender.Options.TryGetValue(_key, out var certificateHolder))
             {
                 certificateHolder.Certificate = new X509Certificate2(certificate);
             }
-#endif
         }
         else
         {

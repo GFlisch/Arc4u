@@ -216,14 +216,8 @@ public sealed class EntitySet<TEntity>
     public EntitySet(IEnumerable<TEntity> collection)
         : base()
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(collection);
-#else
-        if (collection == null)
-        {
-            throw new ArgumentNullException(nameof(collection));
-        }
-#endif
+
         _monitor = new SimpleMonitor();
 
         if (collection is ICollection<TEntity> is2)
@@ -394,14 +388,8 @@ public sealed class EntitySet<TEntity>
     public EntitySet<TOutput> ConvertAll<TOutput>(Func<TEntity, TOutput> converter)
         where TOutput : IPersistEntity
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(converter);
-#else
-        if (converter == null)
-        {
-            throw new ArgumentNullException(nameof(converter));
-        }
-#endif
+
         var list = new EntitySet<TOutput>(_size);
         for (var i = 0; i < _size; i++)
         {
@@ -476,14 +464,8 @@ public sealed class EntitySet<TEntity>
     /// <exception cref="T:System.ArgumentNullException">match is null.</exception>
     public TEntity? Find(Predicate<TEntity> match)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(match);
-#else
-        if (match == null)
-        {
-            throw new ArgumentNullException(nameof(match));
-        }
-#endif
+
         var items = _items;
         var size = _size;
 
@@ -499,14 +481,8 @@ public sealed class EntitySet<TEntity>
 
     private static TEntity[] FindAll(TEntity[] array, PersistChangeActions includedActions)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(array);
-#else
-        if (array == null)
-        {
-            throw new ArgumentNullException(nameof(array));
-        }
-#endif
+
         return FindAll(array, array.Length - 1, match =>
         {
             return (match != null)
@@ -519,20 +495,9 @@ public sealed class EntitySet<TEntity>
 
     private static TEntity[] FindAll(TEntity[] array, int endIndex, Predicate<TEntity> match)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(array);
         ArgumentNullException.ThrowIfNull(match);
-#else
-        if (array == null)
-        {
-            throw new ArgumentNullException("array");
-        }
 
-        if (match == null)
-        {
-            throw new ArgumentNullException("match");
-        }
-#endif
         if (endIndex >= array.Length)
         {
             throw new ArgumentOutOfRangeException(nameof(endIndex), ArgumentOutOfRange_Index);
@@ -555,14 +520,7 @@ public sealed class EntitySet<TEntity>
     /// <exception cref="T:System.ArgumentNullException">match is null.</exception>
     public EntitySet<TEntity> FindAll(Predicate<TEntity> match)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(match);
-#else
-        if (match == null)
-        {
-            throw new ArgumentNullException("match");
-        }
-#endif
 
         var items = _items;
         var size = _size; ;
@@ -607,14 +565,7 @@ public sealed class EntitySet<TEntity>
     /// <exception cref="T:System.ArgumentNullException">match is null.</exception>
     public int FindIndex(int startIndex, int count, Predicate<TEntity> match)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(match);
-#else
-        if (match == null)
-        {
-            throw new ArgumentNullException("match");
-        }
-#endif
 
         var items = _items;
         var size = _size; ;
@@ -646,14 +597,7 @@ public sealed class EntitySet<TEntity>
     /// <exception cref="T:System.ArgumentNullException">match is null.</exception>
     public TEntity? FindLast(Predicate<TEntity> match)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(match);
-#else
-        if (match == null)
-        {
-            throw new ArgumentNullException("match");
-        }
-#endif
 
         var items = _items;
         var size = _size; ;
@@ -698,14 +642,7 @@ public sealed class EntitySet<TEntity>
     /// <exception cref="T:System.ArgumentNullException">match is null.</exception>
     public int FindLastIndex(int startIndex, int count, Predicate<TEntity> match)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(match);
-#else
-        if (match == null)
-        {
-            throw new ArgumentNullException("match");
-        }
-#endif
 
         var items = _items;
         var size = _size; ;
@@ -743,14 +680,7 @@ public sealed class EntitySet<TEntity>
     /// <exception cref="T:System.ArgumentNullException">action is null.</exception>
     public void ForEach(Action<TEntity> action)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(action);
-#else
-        if (action == null)
-        {
-            throw new ArgumentNullException(nameof(action));
-        }
-#endif
 
         var items = _items;
         var size = _size; ;
@@ -897,14 +827,8 @@ public sealed class EntitySet<TEntity>
         {
             throw new ArgumentOutOfRangeException(nameof(index), ArgumentOutOfRange_Index);
         }
-#if NET8_0_OR_GREATER
+
         ArgumentNullException.ThrowIfNull(collection);
-#else
-        if (collection == null)
-        {
-            throw new ArgumentNullException(nameof(collection));
-        }
-#endif
 
         if (collection is ICollection<TEntity> is2)
         {
@@ -1027,14 +951,7 @@ public sealed class EntitySet<TEntity>
     /// <exception cref="T:System.ArgumentNullException">match is null.</exception>
     public int RemoveAll(Predicate<TEntity> match)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(match);
-#else
-        if (match == null)
-        {
-            throw new ArgumentNullException("match");
-        }
-#endif
 
         var count = 0;
         for (var i = _size - 1; i >= 0; i--)
@@ -1092,14 +1009,8 @@ public sealed class EntitySet<TEntity>
         CheckReentrancy();
         var entity = this[index];
 
-#if NET8_0_OR_GREATER
         ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, _size);
-#else
-        if (index >= _size)
-        {
-            throw new ArgumentOutOfRangeException();
-        }
-#endif
+
         if (_items[index] == null)
         {
             BaseRemoveAt(index);
@@ -1230,14 +1141,8 @@ public sealed class EntitySet<TEntity>
     /// <exception cref="T:System.ArgumentNullException">comparison is null.</exception>
     public void Sort(Comparison<TEntity> comparison)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(comparison);
-#else
-        if (comparison == null)
-        {
-            throw new ArgumentNullException(nameof(comparison));
-        }
-#endif
+
         if (_size > 0)
         {
             IComparer<TEntity> comparer = new FunctorComparer<TEntity>(comparison);
@@ -1278,14 +1183,8 @@ public sealed class EntitySet<TEntity>
 
     void ICollection.CopyTo(Array array, int arrayIndex)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(array);
-#else
-        if (array == null)
-        {
-            throw new ArgumentNullException(nameof(array));
-        }
-#endif
+
         if ((array != null) && (array.Rank != 1))
         {
             throw new ArgumentException(Arg_RankMultiDimNotSupported);
@@ -1307,14 +1206,8 @@ public sealed class EntitySet<TEntity>
 
     int IList.Add(object? item)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(item);
-#else
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(item));
-        }
-#endif
+
         EntitySet<TEntity>.VerifyValueType(item);
         Add((TEntity)item);
         return (Count - 1);
@@ -1401,14 +1294,7 @@ public sealed class EntitySet<TEntity>
     /// <exception cref="T:System.ArgumentNullException">match is null.</exception>
     public bool TrueForAll(Predicate<TEntity> match)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(match);
-#else
-        if (match == null)
-        {
-            throw new ArgumentNullException("match");
-        }
-#endif
 
         var items = _items;
         var size = _size; ;
@@ -1426,14 +1312,8 @@ public sealed class EntitySet<TEntity>
 
     private void BaseRemoveAt(int index)
     {
-#if NET8_0_OR_GREATER
         ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, _size);
-#else
-        if (index >= _size)
-        {
-            throw new ArgumentOutOfRangeException();
-        }
-#endif
+
         _size--;
         if (index < _size)
         {
@@ -1445,14 +1325,8 @@ public sealed class EntitySet<TEntity>
 
     private static void VerifyValueType(object? value)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(value);
-#else
-        if (value == null)
-        {
-            throw new ArgumentNullException(nameof(value));
-        }
-#endif
+
         if (!EntitySet<TEntity>.IsCompatibleObject(value))
         {
             throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, Arg_WrongType, value, typeof(TEntity)), nameof(value));
@@ -1517,14 +1391,8 @@ public sealed class EntitySet<TEntity>
             var items = _items;
             var size = _size; ;
 
-#if NET8_0_OR_GREATER
             ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, size);
-#else
-            if (index >= size)
-            {
-                throw new ArgumentOutOfRangeException();
-            }
-#endif
+
             return items[index];
         }
         set
@@ -1547,14 +1415,8 @@ public sealed class EntitySet<TEntity>
         var items = _items;
         var size = _size; ;
 
-#if NET8_0_OR_GREATER
         ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, size);
-#else
-        if (index >= size)
-        {
-            throw new ArgumentOutOfRangeException();
-        }
-#endif
+
         items[index] = entity;
         _version++;
     }
@@ -1629,14 +1491,8 @@ public sealed class EntitySet<TEntity>
         }
         set
         {
-#if NET8_0_OR_GREATER
             ArgumentNullException.ThrowIfNull(value);
-#else
-            if (value == null)
-            {
-                throw new ArgumentNullException(nameof(value));
-            }
-#endif
+
             EntitySet<TEntity>.VerifyValueType(value);
             this[index] = (TEntity)value;
         }
@@ -1650,14 +1506,8 @@ public sealed class EntitySet<TEntity>
     /// <exception cref="ArgumentNullException"><paramref name="entities"/> is <c>null</c>.</exception>
     public static implicit operator EntitySet<EntityItem<TEntity>>(EntitySet<TEntity> entities)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(entities);
-#else
-        if (entities == null)
-        {
-            throw new ArgumentNullException(nameof(entities));
-        }
-#endif
+
         return entities.ConvertAll<EntityItem<TEntity>>(converter => (EntityItem<TEntity>)converter);
     }
 
@@ -1669,14 +1519,8 @@ public sealed class EntitySet<TEntity>
     /// <exception cref="ArgumentNullException"><paramref name="items"/> is <c>null</c>.</exception>
     public static implicit operator EntitySet<TEntity>(EntitySet<EntityItem<TEntity>> items)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(items);
-#else
-        if (items == null)
-        {
-            throw new ArgumentNullException(nameof(items));
-        }
-#endif
+
         return items.ConvertAll<TEntity>(converter => converter!);
     }
 

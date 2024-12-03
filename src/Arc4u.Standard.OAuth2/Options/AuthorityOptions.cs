@@ -1,8 +1,4 @@
-#if NET8_0_OR_GREATER
 using System.Net.Http.Json;
-#else
-using System.Text.Json;
-#endif
 
 namespace Arc4u.OAuth2.Options;
 
@@ -67,12 +63,9 @@ public class AuthorityOptions
         {
             using var client = new HttpClient();
             OpenIdConfiguration? openIdConfiguration;
-#if NET8_0_OR_GREATER
+
             openIdConfiguration = await client.GetFromJsonAsync<OpenIdConfiguration>(GetMetaDataAddress(), cancellationToken).ConfigureAwait(false);
-#else
-            using var stream = await client.GetStreamAsync(GetMetaDataAddress()).ConfigureAwait(false);
-            openIdConfiguration = await JsonSerializer.DeserializeAsync<OpenIdConfiguration>(stream, cancellationToken: cancellationToken).ConfigureAwait(false);
-#endif
+
             TokenEndpoint = openIdConfiguration!.token_endpoint;
         }
         return TokenEndpoint;

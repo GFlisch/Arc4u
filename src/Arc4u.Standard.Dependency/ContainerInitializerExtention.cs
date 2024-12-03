@@ -21,14 +21,7 @@ public static class ContainerInitializerExtention
     private static void LoadFromConfig(Dependencies dependencies, IContainer container)
     {
         // Assert is not null.
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(dependencies);
-#else
-        if (null == dependencies)
-        {
-            throw new ArgumentNullException(nameof(dependencies));
-        }
-#endif
 
         lock (locker)
         {

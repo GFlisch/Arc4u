@@ -24,14 +24,8 @@ public class DependencyContext
     /// <param name="container"></param>
     public static void CreateContext(IContainer container)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(container);
-#else
-        if (null == container)
-        {
-            throw new ArgumentNullException(nameof(container));
-        }
-#endif
+
         // Do not replace once created.
         lock (_lock)
         {

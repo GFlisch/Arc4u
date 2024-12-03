@@ -1,4 +1,3 @@
-#if NET8_0_OR_GREATER
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -46,4 +45,3 @@ public static class SqlCacheExtension
     }
 
 }
-#endif

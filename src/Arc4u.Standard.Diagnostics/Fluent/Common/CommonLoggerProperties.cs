@@ -34,7 +34,7 @@ public class CommonLoggerProperties : BaseLoggerProperties, ILoggerProperties<Co
         AddProperty(key, value);
         return this;
     }
-#if NET8_0 || NETSTANDARD2_0
+#if NET8_0 
     [Obsolete("Use the Func<int> instead, this is improving performance. Will be removed on .NET9")]
     public CommonLoggerProperties AddIf(bool condition, string key, int value)
     {
@@ -57,7 +57,7 @@ public class CommonLoggerProperties : BaseLoggerProperties, ILoggerProperties<Co
         return this;
     }
 
-#if NET8_0 || NETSTANDARD2_0
+#if NET8_0 
     [Obsolete("Use the Func<double> instead, this is improving performance. Will be removed on .NET9")]
     public CommonLoggerProperties AddIf(bool condition, string key, double value)
     {
@@ -80,7 +80,7 @@ public class CommonLoggerProperties : BaseLoggerProperties, ILoggerProperties<Co
         return this;
     }
 
-#if NET8_0 || NETSTANDARD2_0
+#if NET8_0 
     [Obsolete("Use the Func<bool> instead, this is improving performance. Will be removed on .NET9")]
     public CommonLoggerProperties AddIf(bool condition, string key, bool value)
     {
@@ -102,7 +102,7 @@ public class CommonLoggerProperties : BaseLoggerProperties, ILoggerProperties<Co
         return this;
     }
 
-#if NET8_0 || NETSTANDARD2_0
+#if NET8_0 
     [Obsolete("Use the Func<long> instead, this is improving performance. Will be removed on .NET9")]
     public CommonLoggerProperties AddIf(bool condition, string key, long value)
     {
@@ -125,7 +125,7 @@ public class CommonLoggerProperties : BaseLoggerProperties, ILoggerProperties<Co
         return this;
     }
 
-#if NET8_0 || NETSTANDARD2_0
+#if NET8_0 
     [Obsolete("Use the Func<string> instead, this is improving performance. Will be removed on .NET9")]
     public CommonLoggerProperties AddIf(bool condition, string key, string value)
     {

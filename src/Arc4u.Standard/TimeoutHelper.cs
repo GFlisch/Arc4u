@@ -14,14 +14,8 @@ public struct TimeoutHelper
     /// <param name="timeout">The period.</param>
     public TimeoutHelper(TimeSpan timeout)
     {
-#if NET8_0_OR_GREATER
         ArgumentOutOfRangeException.ThrowIfLessThan(timeout, TimeSpan.Zero);
-#else
-        if (timeout < TimeSpan.Zero)
-        {
-            throw new ArgumentOutOfRangeException("timeout");
-        }
-#endif
+
         originalTimeout = timeout;
 
         if (timeout == TimeSpan.MaxValue)

@@ -12,14 +12,8 @@ public class ApplicationInstanceContext : IApplicationContext
 {
     public void SetPrincipal(AppPrincipal principal)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(principal);
-#else
-        if (null == principal)
-        {
-            throw new ArgumentNullException(nameof(principal));
-        }
-#endif
+
         Principal = principal;
     }
 

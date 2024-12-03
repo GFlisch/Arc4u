@@ -42,19 +42,9 @@ namespace Arc4u
 
         private void IntializeFromConfig(ApplicationConfig config, ILogger logger)
         {
-#if NET8_0_OR_GREATER
             ArgumentNullException.ThrowIfNull(config);
             ArgumentNullException.ThrowIfNull(logger);
-#else
-            if (null == config)
-            {
-                throw new ArgumentNullException(nameof(config));
-            }
-            if (null == logger)
-            {
-                throw new ArgumentNullException(nameof(logger));
-            }
-#endif
+
             try
             {
                 logger.Technical().From<TimeZoneContext>().System(config.Environment.TimeZone).Log();

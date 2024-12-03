@@ -8,14 +8,8 @@ internal sealed class CollectionDebugView<T>
 
     public CollectionDebugView(ICollection<T> collection)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(collection);
-#else
-        if (collection == null)
-        {
-            throw new ArgumentNullException("collection");
-        }
-#endif
+
         this.collection = collection;
     }
 

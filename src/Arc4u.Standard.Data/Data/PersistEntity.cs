@@ -79,14 +79,8 @@ public abstract class PersistEntity : NotifyEntity, IPersistEntity
     /// <exception cref="ArgumentNullException"><paramref name="e"/> is null.</exception>
     protected virtual bool IsTouchingProperty(PropertyChangedEventArgs e)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(e);
-#else
-        if (e is null)
-        {
-            throw new ArgumentNullException(nameof(e));
-        }
-#endif
+
         return !string.Equals(e.PropertyName, PersistChangePropertyName, StringComparison.Ordinal);
     }
 
@@ -146,14 +140,8 @@ public abstract class PersistEntity : NotifyEntity, IPersistEntity
     /// <exception cref="ArgumentNullException"><paramref name="entity"/> is null.</exception>
     protected PersistEntity(PersistEntity entity)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(entity);
-#else
-        if (entity == null)
-        {
-            throw new ArgumentNullException(nameof(entity));
-        }
-#endif
+
         _persistChange = entity._persistChange;
     }
 

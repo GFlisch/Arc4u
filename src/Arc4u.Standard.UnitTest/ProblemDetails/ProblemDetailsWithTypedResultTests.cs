@@ -1,5 +1,3 @@
-#if NET8_0_OR_GREATER
-
 using Arc4u.AspNetCore.Results;
 using Arc4u.Results;
 using Arc4u.Results.Validation;
@@ -801,4 +799,3 @@ public class ProblemDetailsWithTypedResultTests
     }
     #endregion
 }
-#endif

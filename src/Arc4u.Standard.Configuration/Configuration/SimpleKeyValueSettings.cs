@@ -45,12 +45,6 @@ public class SimpleKeyValueSettings : IKeyValueSettings, IEquatable<SimpleKeyVal
 
     public override int GetHashCode()
     {
-#if NETSTANDARD2_1_OR_GREATER
-        var hashCode = new HashCode();
-        foreach (var value in Values)
-            hashCode.Add(value);
-        return hashCode.ToHashCode();
-#else
         var hash = 0;
         foreach (var value in Values)
         {
@@ -58,7 +52,6 @@ public class SimpleKeyValueSettings : IKeyValueSettings, IEquatable<SimpleKeyVal
         }
 
         return hash;
-#endif
     }
 
     public bool Equals(SimpleKeyValueSettings? other)

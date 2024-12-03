@@ -127,20 +127,8 @@ public static class DataContractSerializerExtensions
     /// <exception cref="QuotaExceededException">the maximum number of objects to serialize has been exceeded. Check the <see cref="DataContractSerializer.MaxItemsInObjectGraph"/> property.</exception>     
     public static void WriteObject(this DataContractSerializer serializer, object obj, Stream stream)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(obj);
         ArgumentNullException.ThrowIfNull(stream);
-#else
-        if (obj == null)
-        {
-            throw new ArgumentNullException(nameof(obj));
-        }
-
-        if (null == stream)
-        {
-            throw new ArgumentNullException(nameof(stream));
-        }
-#endif
 
         using var writer = XmlDictionaryWriter.CreateTextWriter(stream);
         serializer.WriteObject(writer, obj);

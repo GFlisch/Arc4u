@@ -19,14 +19,8 @@ public class ClaimsProfileFiller : IClaimProfileFiller
 
     public UserProfile GetProfile(IIdentity identity)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(identity);
-#else
-        if (null == identity)
-        {
-            throw new ArgumentNullException(nameof(identity));
-        }
-#endif
+
         if (!(identity is ClaimsIdentity))
         {
             throw new NotSupportedException("Only identity from IClaimsIdentity are allowed.");

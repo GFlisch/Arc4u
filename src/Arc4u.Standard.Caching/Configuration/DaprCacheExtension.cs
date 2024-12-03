@@ -4,7 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Arc4u.Configuration.Dapr;
 
-#if NET8_0_OR_GREATER
 public static class DaprCacheExtension
 {
     public static IServiceCollection AddDaprCache(this IServiceCollection services, [DisallowNull] string name, Action<DaprCacheOption> options)
@@ -48,5 +47,3 @@ public static class DaprCacheExtension
     }
 
 }
-
-#endif

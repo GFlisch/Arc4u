@@ -1,7 +1,5 @@
 using Microsoft.Extensions.Logging;
-#if NETSTANDARD2_0
-using System.Diagnostics;
-#endif
+
 namespace Arc4u.Diagnostics;
 
 public class LoggerMessage
@@ -10,11 +8,7 @@ public class LoggerMessage
     {
         try
         {
-#if NET8_0_OR_GREATER
             ProcessId = Environment.ProcessId;
-#else
-            ProcessId = Process.GetCurrentProcess().Id;
-#endif
         }
         catch (PlatformNotSupportedException)
         {
@@ -118,14 +112,8 @@ class StateLogger : ILogger
 
     IDisposable? ILogger.BeginScope<TState>(TState state)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(state);
-#else
-        if (null == state)
-        {
-            throw new ArgumentNullException(nameof(state));
-        }
-#endif
+
         throw new NotImplementedException();
     }
 

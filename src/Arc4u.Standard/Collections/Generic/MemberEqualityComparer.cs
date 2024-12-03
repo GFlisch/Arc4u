@@ -11,14 +11,8 @@ public sealed class MemberEqualityComparer<T> : IEqualityComparer<T>
 
     MemberEqualityComparer(Func<T, object> selector)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(selector);
-#else
-        if (selector == null)
-        {
-            throw new ArgumentNullException(nameof(selector));
-        }
-#endif
+
         _selector = selector;
     }
 

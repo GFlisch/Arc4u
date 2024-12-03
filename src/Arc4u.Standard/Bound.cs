@@ -36,40 +36,16 @@ internal static class Bound
 
     internal static Bound<T> Min<T>(Bound<T> x, Bound<T> y)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(x);
         ArgumentNullException.ThrowIfNull(y);
-#else
-        if (x is null)
-        {
-            throw new ArgumentNullException(nameof(x));
-        }
-
-        if (y is null)
-        {
-            throw new ArgumentNullException(nameof(y));
-        }
-#endif
 
         return x.CompareTo(y) > 0 ? y : x;
     }
 
     internal static Bound<T> Max<T>(Bound<T> x, Bound<T> y)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(x);
         ArgumentNullException.ThrowIfNull(y);
-#else
-        if (x is null)
-        {
-            throw new ArgumentNullException(nameof(x));
-        }
-
-        if (y is null)
-        {
-            throw new ArgumentNullException(nameof(y));
-        }
-#endif
 
         return x.CompareTo(y) < 0 ? y : x;
     }

@@ -38,14 +38,8 @@ public class UsernamePasswordTokenProvider : ITokenProvider
 
     public async Task<TokenInfo?> GetTokenAsync(IKeyValueSettings? settings, object? platformParameters)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(settings);
-#else
-        if (null == settings)
-        {
-            throw new ArgumentNullException(nameof(settings));
-        }
-#endif
+
         // Take settings info.
         GetSettings(settings, out serviceId, out authority, out passwordStoreKey);
 
@@ -216,10 +210,7 @@ public class UsernamePasswordTokenProvider : ITokenProvider
         {
             _logger.Technical().LogException(ex);
         }
-#if NET6_0_OR_GREATER
+
         return ValueTask.CompletedTask;
-#else
-        return default;
-#endif
     }
 }

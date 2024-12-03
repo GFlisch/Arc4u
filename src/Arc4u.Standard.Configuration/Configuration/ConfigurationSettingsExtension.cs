@@ -16,29 +16,10 @@ public static class ConfigurationSettingsExtension
     /// <exception cref="ConfigurationException"></exception>
     public static IKeyValueSettings ConfigureSettings(this IServiceCollection services, string name, IConfiguration configuration, string sectionName)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNullOrWhiteSpace(name);
         ArgumentNullException.ThrowIfNull(configuration);
         ArgumentNullException.ThrowIfNullOrWhiteSpace(sectionName);
-#else
-        // Check if the `name` parameter is null or empty.
-        if (string.IsNullOrEmpty(name))
-        {
-            throw new ArgumentNullException(nameof(name));
-        }
 
-        // Check if the `sectionName` parameter is null or empty.
-        if (string.IsNullOrEmpty(sectionName))
-        {
-            throw new ArgumentNullException(nameof(sectionName));
-        }
-
-        // Check if the `configuration` parameter is null.
-        if (configuration is null)
-        {
-            throw new ArgumentNullException(nameof(configuration));
-        }
-#endif
         // Get the specified `sectionName` from the `configuration` parameter.
         var section = configuration.GetSection(sectionName);
 

@@ -77,19 +77,9 @@ public class MessageCategoryConverter : CustomCreationConverter<Message>
 
     public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(writer);
         ArgumentNullException.ThrowIfNull(serializer);
-#else
-        if (null == writer)
-        {
-            throw new ArgumentNullException(nameof(writer));
-        }
-        if (null == serializer)
-        {
-            throw new ArgumentNullException(nameof(serializer));
-        }
-#endif
+
         if (value is not Message message)
         {
             base.WriteJson(writer, value, serializer);

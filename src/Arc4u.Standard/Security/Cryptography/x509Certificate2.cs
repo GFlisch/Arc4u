@@ -56,14 +56,8 @@ public static class Certificate
     /// <exception cref="ArgumentNullException"></exception>
     private static string Encrypt(this X509Certificate2 x509, byte[] content)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(content);
-#else
-        if (null == content)
-        {
-            throw new ArgumentNullException(nameof(content));
-        }
-#endif
+
         byte[]? cipherBytes;
 
         using (var rsa = x509.GetRSAPublicKey())

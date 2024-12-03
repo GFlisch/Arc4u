@@ -181,14 +181,8 @@ public struct EnumUtil
 
     public static IEnumerable<Enum> GetValues(Type enumType, bool ignoreFlags)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(enumType);
-#else
-        if (enumType == null)
-        {
-            throw new ArgumentNullException(nameof(enumType));
-        }
-#endif
+
         if (!enumType.GetTypeInfo().IsEnum)
         {
             throw new ArgumentException(Arg_MustBeEnum, nameof(enumType));

@@ -1,5 +1,4 @@
-#if NETSTANDARD2_0
-
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using Arc4u.Dependency.Attribute;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,53 +8,47 @@ namespace Arc4u.Dependency.ComponentModel;
 
 public class ComponentModelContainer : IContainer
 {
-    private readonly NameResolver NameResolver;
-
-    public object Instance => _serviceProvider ?? throw new NullReferenceException(nameof(Instance));
+    public object Instance => _serviceProvider ?? throw new InvalidOperationException("DI container is null.");
 
     public bool CanCreateScope => true;
 
-    public IServiceProvider ServiceProvider => _serviceProvider ?? throw new NullReferenceException(nameof(ServiceProvider));
+    public IServiceProvider ServiceProvider => _serviceProvider ?? throw new InvalidOperationException("DI container is null.");
 
-    private readonly IServiceCollection? _collection = null;
-    private readonly IServiceScope? _serviceScope = null;
-    protected bool disposed = false;
+    readonly IServiceCollection? _collection;
+    private readonly IServiceScope? _serviceScope;
+    private IServiceProvider? _serviceProvider;
+
+    protected bool disposed;
 
     public ComponentModelContainer() : this(new ServiceCollection())
     {
     }
 
-    public ComponentModelContainer(IServiceCollection collection)
+    public ComponentModelContainer([DisallowNull] IServiceCollection collection)
     {
+        ArgumentNullException.ThrowIfNull(collection);
+
         _collection = collection;
-        NameResolver = new NameResolver();
-        // register the instance as a singleton. 
-        // So this is persisted and provided during the creation of a scope instance of the ComponentModelContainer.
-        collection.TryAddSingleton<NameResolver>(NameResolver);
         collection.TryAddScoped<IContainerResolve, ComponentModelContainer>();
     }
 
-    public ComponentModelContainer(IServiceProvider provider, NameResolver nameResolution)
+    [ActivatorUtilitiesConstructor]
+    public ComponentModelContainer(IServiceProvider provider)
     {
         _serviceProvider = provider;
-        NameResolver = nameResolution;
     }
 
     /// <summary>
     /// Used when a specific call to create a scope instance is performed.
     /// </summary>
-    /// <param name="provider"></param>
     /// <param name="serviceScope"></param>
-    protected ComponentModelContainer(IServiceScope serviceScope, NameResolver nameResolution)
+    protected ComponentModelContainer([DisallowNull] IServiceScope serviceScope)
     {
-        if (null == serviceScope)
-        {
-            throw new ArgumentNullException(nameof(serviceScope));
-        }
+        ArgumentNullException.ThrowIfNull(serviceScope);
 
         _serviceProvider = serviceScope.ServiceProvider;
         _serviceScope = serviceScope;
-        NameResolver = nameResolution;
+        _collection ??= new ServiceCollection();
     }
 
     public void Dispose()
@@ -76,15 +69,14 @@ public class ComponentModelContainer : IContainer
         }
     }
 
-    private IServiceProvider? _serviceProvider;
     public void CreateContainer()
     {
-        if (null != _serviceProvider)
+        if (_serviceProvider is not null)
         {
-            throw new InvalidOperationException("The container is already created.");
+            throw new InvalidOperationException("Service Provider already created.");
         }
 
-        if (null == _collection)
+        if (_collection is null)
         {
             throw new InvalidOperationException("No ServiceCollection exists.");
         }
@@ -94,13 +86,13 @@ public class ComponentModelContainer : IContainer
 
     public IContainerResolve CreateScope()
     {
-        if (null == _serviceProvider)
+        if (_serviceProvider is null)
         {
-            throw new InvalidOperationException("No ServiceProvider exists.");
+            throw new InvalidOperationException("No ServiceProvider exist.");
         }
 
         // As this must be used with a Using, the Dipose will dispose the Scope!
-        return new ComponentModelContainer(_serviceProvider.CreateScope(), NameResolver);
+        return new ComponentModelContainer(_serviceProvider.CreateScope());
     }
 
     public void Initialize(Type[] types, params Assembly[] assemblies)
@@ -123,41 +115,9 @@ public class ComponentModelContainer : IContainer
         }
     }
 
-    private void Add2NameResolution(Type from, Type to, string name)
-    {
-        var key = new Tuple<string, Type>(name, from);
-        if (NameResolver.NameResolution.ContainsKey(key))
-        {
-            if (!NameResolver.NameResolution[key].Contains(to))
-            {
-                NameResolver.NameResolution[key].Add(to);
-            }
-        }
-        else
-        {
-            NameResolver.NameResolution.Add(key, new List<Type> { to });
-        }
-    }
-
-    private void Add2InstanceNameResolution(Type from, object instance, string name)
-    {
-        var key = new Tuple<string, Type>(name, from);
-        if (NameResolver.InstanceNameResolution.ContainsKey(key))
-        {
-            if (!NameResolver.InstanceNameResolution[key].Contains(instance))
-            {
-                NameResolver.InstanceNameResolution[key].Add(instance);
-            }
-        }
-        else
-        {
-            NameResolver.InstanceNameResolution.Add(key, new List<object> { instance });
-        }
-    }
-
     public void Register(Type from, Type to)
     {
-        if (null == _collection)
+        if (_collection is null)
         {
             throw new InvalidOperationException("No ServiceCollection exists.");
         }
@@ -172,22 +132,21 @@ public class ComponentModelContainer : IContainer
         }
     }
 
-    public void Register(Type from, Type to, string name)
+    public void Register(Type from, Type to, [DisallowNull] string name)
     {
-        ThrowIfNameIsNull(name);
+        ArgumentNullException.ThrowIfNull(name);
 
-        if (null == _collection)
+        if (_collection is null)
         {
             throw new InvalidOperationException("No ServiceCollection exists.");
         }
-        _collection.TryAddTransient(to);
 
-        Add2NameResolution(from, to, name);
+        _collection.TryAddKeyedTransient(from, name, to);
     }
 
     public void RegisterInstance<T>(T instance) where T : class
     {
-        if (null == _collection)
+        if (_collection is null)
         {
             throw new InvalidOperationException("No ServiceCollection exists.");
         }
@@ -197,7 +156,7 @@ public class ComponentModelContainer : IContainer
 
     public void RegisterInstance(Type type, object instance)
     {
-        if (null == _collection)
+        if (_collection is null)
         {
             throw new InvalidOperationException("No ServiceCollection exists.");
         }
@@ -205,23 +164,33 @@ public class ComponentModelContainer : IContainer
         _collection.AddSingleton(type, instance);
     }
 
-    public void RegisterInstance<T>(T instance, string name) where T : class
+    public void RegisterInstance<T>(T instance, [DisallowNull] string name) where T : class
     {
-        ThrowIfNameIsNull(name);
+        ArgumentNullException.ThrowIfNull(name);
 
-        Add2InstanceNameResolution(typeof(T), instance, name);
+        if (_collection is null)
+        {
+            throw new InvalidOperationException("No ServiceCollection exists.");
+        }
+
+        _collection.AddKeyedSingleton<T>(name, instance);
     }
 
     public void RegisterInstance(Type type, object instance, string name)
     {
-        ThrowIfNameIsNull(name);
+        ArgumentNullException.ThrowIfNull(name);
 
-        Add2InstanceNameResolution(type, instance, name);
+        if (_collection is null)
+        {
+            throw new InvalidOperationException("No ServiceCollection exists.");
+        }
+
+        _collection.AddKeyedSingleton(type, name, instance);
     }
 
     public void RegisterSingleton(Type from, Type to)
     {
-        if (null == _collection)
+        if (_collection is null)
         {
             throw new InvalidOperationException("No ServiceCollection exists.");
         }
@@ -238,26 +207,22 @@ public class ComponentModelContainer : IContainer
 
     public void RegisterSingleton(Type from, Type to, string name)
     {
-        ThrowIfNameIsNull(name);
+        ArgumentNullException.ThrowIfNull(name);
 
-        if (null == _collection)
+        if (_collection is null)
         {
             throw new InvalidOperationException("No ServiceCollection exists.");
         }
 
-        _collection.TryAddSingleton(to);
-
-        // As we resolve by name, we don't register this to be resolvable by the engine directly!
-        Add2NameResolution(from, to, name);
+        _collection.AddKeyedSingleton(from, name, to);
     }
 
     public void Register<TFrom, To>() where TFrom : class where To : class, TFrom
     {
-        if (null == _collection)
+        if (_collection is null)
         {
             throw new InvalidOperationException("No ServiceCollection exists.");
         }
-
         if (typeof(TFrom) != typeof(To))
         {
             _collection.AddTransient<TFrom, To>();
@@ -268,23 +233,21 @@ public class ComponentModelContainer : IContainer
         }
     }
 
-    public void Register<TFrom, To>(string name) where TFrom : class where To : class, TFrom
+    public void Register<TFrom, To>([DisallowNull] string name) where TFrom : class where To : class, TFrom
     {
-        ThrowIfNameIsNull(name);
+        ArgumentNullException.ThrowIfNull(name);
 
-        if (null == _collection)
+        if (_collection is null)
         {
             throw new InvalidOperationException("No ServiceCollection exists.");
         }
 
-        _collection.TryAddTransient<To>();
-
-        Add2NameResolution(typeof(TFrom), typeof(To), name);
+        _collection.AddKeyedTransient<TFrom, To>(name);
     }
 
     public void RegisterScoped(Type from, Type to)
     {
-        if (null == _collection)
+        if (_collection is null)
         {
             throw new InvalidOperationException("No ServiceCollection exists.");
         }
@@ -300,7 +263,7 @@ public class ComponentModelContainer : IContainer
     }
     public void RegisterScoped<TFrom, To>() where TFrom : class where To : class, TFrom
     {
-        if (null == _collection)
+        if (_collection is null)
         {
             throw new InvalidOperationException("No ServiceCollection exists.");
         }
@@ -315,33 +278,27 @@ public class ComponentModelContainer : IContainer
         }
     }
 
-    public void RegisterScoped<TFrom, To>(string name) where TFrom : class where To : class, TFrom
+    public void RegisterScoped<TFrom, To>([DisallowNull] string name) where TFrom : class where To : class, TFrom
     {
-        ThrowIfNameIsNull(name);
+        ArgumentNullException.ThrowIfNull(name);
 
-        if (null == _collection)
+        if (_collection is null)
         {
             throw new InvalidOperationException("No ServiceCollection exists.");
         }
 
-        _collection.TryAddScoped<To>();
-
-        Add2NameResolution(typeof(TFrom), typeof(To), name);
+        _collection.AddKeyedScoped<TFrom, To>(name);
     }
 
-    public void RegisterScoped(Type from, Type to, string name)
+    public void RegisterScoped(Type from, Type to, [DisallowNull] string name)
     {
-        ThrowIfNameIsNull(name);
+        ArgumentNullException.ThrowIfNull(name);
 
-        if (null == _collection)
+        if (_collection is null)
         {
             throw new InvalidOperationException("No ServiceCollection exists.");
         }
-
-        _collection.TryAddScoped(to);
-
-        // As we resolve by name, we don't register this to be resolvable by the engine directly!
-        Add2NameResolution(from, to, name);
+        _collection.AddKeyedScoped(from, name, to);
     }
 
     /// <summary>
@@ -351,7 +308,7 @@ public class ComponentModelContainer : IContainer
     /// <typeparam name="To"></typeparam>
     public void RegisterSingleton<TFrom, To>() where TFrom : class where To : class, TFrom
     {
-        if (null == _collection)
+        if (_collection is null)
         {
             throw new InvalidOperationException("No ServiceCollection exists.");
         }
@@ -366,291 +323,127 @@ public class ComponentModelContainer : IContainer
         }
     }
 
-    public void RegisterSingleton<TFrom, To>(string name) where TFrom : class where To : class, TFrom
+    public void RegisterSingleton<TFrom, To>([DisallowNull] string name) where TFrom : class where To : class, TFrom
     {
-        ThrowIfNameIsNull(name);
+        ArgumentNullException.ThrowIfNull(name);
 
-        if (null == _collection)
+        if (_collection is null)
         {
             throw new InvalidOperationException("No ServiceCollection exists.");
         }
 
-        _collection.TryAddSingleton<To>();
-
-        Add2NameResolution(typeof(TFrom), typeof(To), name);
-    }
-
-    private void ThrowIfNameIsNull(string name)
-    {
-        if (null == name)
-        {
-            throw new ArgumentNullException(nameof(name));
-        }
-    }
-
-    private void ThrowIfNull()
-    {
-        if (null == Instance)
-        {
-            throw new NullReferenceException("DI container is null.");
-        }
-    }
-
-    private IEnumerable<object> GetNamedInstances(Type type, string name, bool throwIfError)
-    {
-        IEnumerable<object> instances;
-        var key = Tuple.Create(name, type);
-
-        if (NameResolver.InstanceNameResolution.TryGetValue(key, out var oto))
-        {
-            if (oto.Count != 1)
-            {
-                if (throwIfError)
-                {
-                    throw new IndexOutOfRangeException($"More than one instance type is registered for name {name}.");
-                }
-                else
-                {
-                    return new List<object>();
-                }
-            }
-
-            instances = oto;
-        }
-        else
-        {
-            if (!NameResolver.NameResolution.TryGetValue(key, out var to))
-            {
-                if (throwIfError)
-                {
-                    throw new NullReferenceException($"No type found registered with the name: {name}.");
-                }
-                else
-                {
-                    return new List<object>();
-                }
-            }
-
-            if (to.Count != 1)
-            {
-                if (throwIfError)
-                {
-                    throw new IndexOutOfRangeException($"More than one type is registered for name {name}.");
-                }
-                else
-                {
-                    return new List<object>();
-                }
-            }
-
-            instances = _serviceProvider?.GetServices(to.First()).Where(x => x != null).Cast<object>() ?? new List<object>();
-        }
-
-        return instances;
-    }
-
-    private bool InternalTryResolve(Type type, string? name, bool throwIfError, out object? value)
-    {
-        value = null;
-        if (null == Instance)
-        {
-            if (throwIfError)
-            {
-                throw new NullReferenceException("DI container is null.");
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        IEnumerable<object> instances;
-
-        if (name is null)
-        {
-            // On Blazor GetService<T> doesn't return null but throw a NullReferenceException...
-            try
-            {
-                value = _serviceProvider?.GetService(type);
-            }
-            catch
-            {
-                // value is already null.            
-            }
-
-        }
-        else
-        {
-            instances = GetNamedInstances(type, name, throwIfError);
-            if (instances.Count() > 1)
-            {
-                if (throwIfError)
-                {
-                    throw new MultipleRegistrationException(type, instances);
-                }
-                else
-                {
-                    return false;
-                }
-            }
-
-            value = instances.FirstOrDefault();
-        }
-
-        return value != null;
-    }
-
-    private bool InternalTryResolve<T>(string? name, bool throwIfError, out T? value)
-    {
-        value = default(T)!;
-        if (null == Instance)
-        {
-            if (throwIfError)
-            {
-                throw new NullReferenceException("DI container is null.");
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        if (name == null)
-        {
-            try
-            {
-                value = _serviceProvider!.GetService<T>();
-            }
-            catch
-            {
-                // value is already null.            
-            }
-        }
-        else
-        {
-            var instances = GetNamedInstances(typeof(T), name, throwIfError);
-            if (instances.Count() > 1)
-            {
-                if (throwIfError)
-                {
-                    throw new MultipleRegistrationException(typeof(T), instances);
-                }
-                else
-                {
-                    return false;
-                }
-            }
-
-            value = (T)instances.FirstOrDefault();
-        }
-
-        return value != null;
+        _collection.AddKeyedSingleton<TFrom, To>(name);
     }
 
     public T? Resolve<T>()
     {
-        InternalTryResolve<T>(null, true, out var value);
-        return value;
+        if (_serviceProvider is null)
+        {
+            throw new InvalidOperationException("No ServiceProvider exist.");
+        }
+
+        return ServiceProvider.GetService<T>();
     }
 
     public object? Resolve(Type type)
     {
-        InternalTryResolve(type, null, true, out var value);
-        return value;
+        return ServiceProvider.GetService(type); // ?? throw new NullReferenceException($"No registration exitst for {type}");
     }
 
     public T? Resolve<T>(string name)
     {
-        InternalTryResolve<T>(name, true, out var value);
-        return value;
+
+        return ServiceProvider.GetKeyedService<T>(name); // ?? throw new NullReferenceException($"No registration exitst for {typeof(T)}");
     }
 
     public object? Resolve(Type type, string name)
     {
-        InternalTryResolve(type, name, true, out var value);
-        return value;
+        if (ServiceProvider is IKeyedServiceProvider keyedServiceProvider)
+        {
+            return keyedServiceProvider.GetKeyedService(type, name) ?? throw new NullReferenceException($"No registration exitst for {type}");
+        }
+
+        throw new InvalidOperationException("Keyed service is not supported.");
     }
 
     public IEnumerable<T> ResolveAll<T>()
     {
-        ThrowIfNull();
 
         return _serviceProvider!.GetServices<T>();
     }
 
-    public IEnumerable<object?> ResolveAll(Type type)
+    public IEnumerable<object> ResolveAll(Type type)
     {
-        ThrowIfNull();
 
-        return _serviceProvider!.GetServices(type);
+        return ServiceProvider!.GetServices(type).Where(o => o is not null).Cast<object>();
     }
 
     public IEnumerable<T> ResolveAll<T>(string name)
     {
-        ThrowIfNull();
 
-        if (null == name)
-        {
-            return ResolveAll<T>();
-        }
-
-        if (NameResolver.InstanceNameResolution.TryGetValue(new Tuple<string, Type>(name, typeof(T)), out var oto))
-        {
-            return oto.Cast<T>();
-        }
-
-        if (!NameResolver.NameResolution.TryGetValue(new Tuple<string, Type>(name, typeof(T)), out var to))
-        {
-            throw new NullReferenceException($"No type found registered with the name: {name}.");
-        }
-
-        var instances = to.Select(type => _serviceProvider?.GetService(type)).Cast<T>();
-
-        return instances;
+        return ServiceProvider!.GetKeyedServices<T>(name);
     }
 
-    public IEnumerable<object?> ResolveAll(Type type, string name)
+    public IEnumerable<object> ResolveAll(Type type, string name)
     {
-        ThrowIfNull();
 
-        if (null == name)
-        {
-            return ResolveAll(type);
-        }
-
-        if (NameResolver.InstanceNameResolution.TryGetValue(new Tuple<string, Type>(name, type), out var oto))
-        {
-            return oto;
-        }
-
-        if (!NameResolver.NameResolution.TryGetValue(new Tuple<string, Type>(name, type), out var to))
-        {
-            throw new NullReferenceException($"No type found registered with the name: {name}.");
-        }
-
-        var instances = to.Select(_type => _serviceProvider?.GetService(_type));
-
-        return instances;
+        return ServiceProvider!.GetKeyedServices(type, name).Where(o => o is not null).Cast<object>();
     }
 
     public bool TryResolve<T>(out T? value)
     {
-        return InternalTryResolve(null, false, out value);
+        try
+        {
+            value = ServiceProvider!.GetService<T>();
+            return value is not null;
+        }
+        catch (Exception)
+        {
+            value = default;
+            return false;
+        }
     }
 
     public bool TryResolve(Type type, out object? value)
     {
-        return InternalTryResolve(type, null, false, out value);
+        try
+        {
+            value = ServiceProvider!.GetService(type);
+            return value is not null;
+        }
+        catch (Exception)
+        {
+            value = default;
+            return false;
+        }
     }
 
     public bool TryResolve<T>(string name, out T? value)
     {
-        return InternalTryResolve(name, false, out value);
+        try
+        {
+            value = ServiceProvider!.GetKeyedService<T>(name);
+            return value is not null;
+        }
+        catch (Exception)
+        {
+            value = default;
+            return false;
+        }
     }
 
     public bool TryResolve(Type type, string name, out object? value)
     {
-        return InternalTryResolve(type, name, false, out value);
+        try
+        {
+            value = ServiceProvider!.GetKeyedServices(type, name);
+            return value is not null;
+        }
+        catch (Exception)
+        {
+            value = null;
+            return false;
+        }
     }
 
     public void RegisterFactory<T>(Func<T> exportedInstanceFactory) where T : class
@@ -716,6 +509,4 @@ public class ComponentModelContainer : IContainer
     {
         return Resolve(serviceType);
     }
-
 }
-#endif

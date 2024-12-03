@@ -7,10 +7,7 @@ using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-
-#if NET8_0_OR_GREATER
 using System.Diagnostics.CodeAnalysis;
-#endif
 
 namespace Arc4u.Caching.Memory;
 
@@ -31,11 +28,7 @@ public class MemoryCache : BaseDistributeCache<MemoryCache>, ICache
         _options = options;
     }
 
-#if NET8_0_OR_GREATER
     public override void Initialize([DisallowNull] string store)
-#else
-    public override void Initialize(string store)
-#endif
     {
         if (string.IsNullOrEmpty(store))
         {

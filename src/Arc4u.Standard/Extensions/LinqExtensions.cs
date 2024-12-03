@@ -42,20 +42,9 @@ public class Switch<TSource, TResult> : IEnumerable<TResult>
 
     public Switch<TSource, TResult> Case(Func<TSource, bool> predicate, Func<TSource, TResult> selector)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(predicate, nameof(predicate));
         ArgumentNullException.ThrowIfNull(selector, nameof(selector));
-#else
-        if (predicate == null)
-        {
-            throw new ArgumentNullException(nameof(predicate));
-        }
 
-        if (selector == null)
-        {
-            throw new ArgumentNullException(nameof(selector));
-        }
-#endif
         casePredicates.Add(new CaseSelector<TSource, TResult>(predicate, selector));
 
         return this;
@@ -63,20 +52,8 @@ public class Switch<TSource, TResult> : IEnumerable<TResult>
 
     public Switch<TSource, TResult> Case(Type type, Func<TSource, TResult> selector)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(type, nameof(type));
         ArgumentNullException.ThrowIfNull(selector, nameof(selector));
-#else
-        if (type == null)
-        {
-            throw new ArgumentNullException(nameof(type));
-        }
-
-        if (selector == null)
-        {
-            throw new ArgumentNullException(nameof(selector));
-        }
-#endif
 
         casePredicates.Add(new CaseSelector<TSource, TResult>(
             x => type?.GetTypeInfo().IsAssignableFrom(x?.GetType().GetTypeInfo()) ?? false,
@@ -87,14 +64,8 @@ public class Switch<TSource, TResult> : IEnumerable<TResult>
 
     public Switch<TSource, TResult> Case<TCase>(Func<TCase, TResult> selector)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(selector, nameof(selector));
-#else
-        if (selector == null)
-        {
-            throw new ArgumentNullException(nameof(selector));
-        }
-#endif
+
         casePredicates.Add(new CaseSelector<TSource, TCase, TResult>(selector));
 
         return this;
@@ -129,26 +100,10 @@ public static class SwitchExtensions
         Func<TSource, bool> predicate,
         Func<TSource, TResult> selector)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(source, nameof(source));
         ArgumentNullException.ThrowIfNull(predicate, nameof(predicate));
         ArgumentNullException.ThrowIfNull(selector, nameof(selector));
-#else
-        if (source == null)
-        {
-            throw new ArgumentNullException(nameof(source));
-        }
 
-        if (predicate == null)
-        {
-            throw new ArgumentNullException(nameof(predicate));
-        }
-
-        if (selector == null)
-        {
-            throw new ArgumentNullException(nameof(selector));
-        }
-#endif
         return new Switch<TSource, TResult>(source).Case(predicate, selector);
     }
 
@@ -156,39 +111,17 @@ public static class SwitchExtensions
         Type type,
         Func<TSource, TResult> selector)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(source, nameof(source));
         ArgumentNullException.ThrowIfNull(type, nameof(type));
         ArgumentNullException.ThrowIfNull(selector, nameof(selector));
-#else
-        if (source == null)
-        {
-            throw new ArgumentNullException(nameof(source));
-        }
 
-        if (type == null)
-        {
-            throw new ArgumentNullException(nameof(type));
-        }
-
-        if (selector == null)
-        {
-            throw new ArgumentNullException(nameof(selector));
-        }
-#endif
         return new Switch<TSource, TResult>(source).Case(type, selector);
     }
 
     public static Switch<TSource, TResult> AsSwitch<TSource, TResult>(this IEnumerable<TSource> source)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(source);
-#else
-        if (source == null)
-        {
-            throw new ArgumentNullException(nameof(source));
-        }
-#endif
+
         return new Switch<TSource, TResult>(source);
     }
 }
@@ -210,26 +143,10 @@ public static class LinqExtensions
         , Func<TSource, bool> predicate
         , Func<TSource, IEnumerable<TSource>> selector)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(source);
         ArgumentNullException.ThrowIfNull(predicate);
         ArgumentNullException.ThrowIfNull(selector);
-#else
-        if (source == null)
-        {
-            throw new ArgumentNullException(nameof(source));
-        }
 
-        if (predicate == null)
-        {
-            throw new ArgumentNullException(nameof(predicate));
-        }
-
-        if (selector == null)
-        {
-            throw new ArgumentNullException(nameof(selector));
-        }
-#endif
         foreach (var item in source)
         {
             if (predicate(item))

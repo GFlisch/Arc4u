@@ -64,14 +64,8 @@ public class Messages : List<Message>
     /// </summary>
     public void LogAll<T>(ILogger<T> logger, [CallerMemberName] string methodName = "")
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(logger);
-#else
-        if (null == logger)
-        {
-            throw new ArgumentNullException(nameof(logger));
-        }
-#endif
+
         var _type = typeof(T);
 
         ForEach((m) =>

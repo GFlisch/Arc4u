@@ -16,18 +16,9 @@ public sealed partial class StandardOpenIdConnectEvents : OpenIdConnectEvents
         _logger = logger;
     }
 
-#if NET8_0_OR_GREATER
     [GeneratedRegex(@"\b(?:http:\/\/localhost|https:\/\/)\b", RegexOptions.IgnoreCase)]
     public static partial Regex HttpRegex();
-#endif
-#if NET6_0
-    private static readonly Regex httpRegex = new Regex(@"\b(?:http:\/\/localhost|https:\/\/)\b", RegexOptions.IgnoreCase);
 
-    public static Regex HttpRegex()
-    {
-        return httpRegex;
-    }
-#endif
     public override Task RedirectToIdentityProvider(RedirectContext context)
     {
         // force https for redirect uri but for localhost.

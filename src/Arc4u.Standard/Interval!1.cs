@@ -167,20 +167,8 @@ public class Interval<T>
     /// <param name="upperBound">The upper bound.</param>
     protected internal Interval(Bound<T>? lowerBound, Bound<T>? upperBound)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(lowerBound);
         ArgumentNullException.ThrowIfNull(upperBound);
-#else
-        if (lowerBound is null)
-        {
-            throw new ArgumentNullException(nameof(lowerBound));
-        }
-
-        if (upperBound is null)
-        {
-            throw new ArgumentNullException(nameof(upperBound));
-        }
-#endif
 
         if (lowerBound > upperBound)
         {
@@ -223,14 +211,10 @@ public class Interval<T>
     /// <returns>A 32-bit signed integer hash code.</returns>
     public override int GetHashCode()
     {
-#if NETSTANDARD2_1_OR_GREATER
-        return HashCode.Combine(LowerBound, UpperBound);
-#else
         var hash = 0x4043ed47;
         hash = (hash * -1521134295) + (object.Equals(LowerBound, default(Bound<T>)) ? 0 : LowerBound.GetHashCode());
         hash = (hash * -1521134295) + (object.Equals(UpperBound, default(Bound<T>)) ? 0 : UpperBound.GetHashCode());
         return hash;
-#endif
     }
 
     /// <summary>
@@ -300,14 +284,8 @@ public class Interval<T>
     /// <exception cref="ArgumentNullException"><paramref name="other"/> is null.</exception>
     public int CompareTo(Interval<T>? other)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(other);
-#else
-        if (other is null)
-        {
-            throw new ArgumentNullException("other");
-        }
-#endif
+
         if (IsEmpty && !other.IsEmpty)
         {
             return -1;

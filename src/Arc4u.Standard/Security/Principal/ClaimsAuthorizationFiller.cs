@@ -18,14 +18,8 @@ public class ClaimsAuthorizationFiller : IClaimAuthorizationFiller
 
     public Authorization GetAuthorization(System.Security.Principal.IIdentity identity)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(identity);
-#else
-        if (null == identity)
-        {
-            throw new ArgumentNullException("identity");
-        }
-#endif
+
         if (!(identity is ClaimsIdentity))
         {
             throw new NotSupportedException("Only identity from ClaimsIdentity are allowed.");

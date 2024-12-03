@@ -4,14 +4,7 @@ public class AsyncSemaphore
 {
     public AsyncSemaphore(int initialCount)
     {
-#if NET8_0_OR_GREATER
         ArgumentOutOfRangeException.ThrowIfNegative(initialCount);
-#else
-        if (initialCount < 0)
-        {
-            throw new ArgumentOutOfRangeException("initialCount");
-        }
-#endif
 
         m_currentCount = initialCount;
     }

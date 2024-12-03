@@ -607,7 +607,6 @@ public class DependencyTests
         Assert.NotEqual(n1, n2);
     }
 
-#if NET8_0_OR_GREATER
     [Fact]
     void TestDIRegisterInstances4()
     {
@@ -624,7 +623,6 @@ public class DependencyTests
         Assert.Equal(2, instances.Count());
         Assert.NotEqual(instances.First(), instances.Last());
     }
-#endif
 
     #endregion
 }

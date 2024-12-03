@@ -8,14 +8,8 @@ public static class TokenCacheExtension
 {
     public static void AddTokenCache(this IServiceCollection services, Action<TokenCacheOptions> options)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(options);
-#else
-        if (options is null)
-        {
-            throw new ArgumentNullException(nameof(options));
-        }
-#endif
+
         var tokenCacheOptions = new TokenCacheOptions();
         options(tokenCacheOptions);
 
@@ -24,19 +18,9 @@ public static class TokenCacheExtension
     }
     public static void AddTokenCache(this IServiceCollection services, IConfiguration configuration, string sectionName = "Authentication:TokenCache")
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(configuration);
         ArgumentNullException.ThrowIfNullOrWhiteSpace(sectionName);
-#else
-        if (configuration is null)
-        {
-            throw new ArgumentNullException(nameof(configuration));
-        }
-        if (string.IsNullOrWhiteSpace(sectionName))
-        {
-            throw new ArgumentNullException(sectionName);
-        }
-#endif
+
         AddTokenCache(services,
                       configuration.GetSection(sectionName)?.Get<TokenCacheOptions>() ?? throw new InvalidOperationException($"Section {sectionName} is not a valid one."));
     }

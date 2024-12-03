@@ -1,5 +1,3 @@
-#if NET8_0_OR_GREATER
-
 using System.IO.Compression;
 using System.Text.Json;
 
@@ -51,4 +49,3 @@ public class JsonBrotliSerialization : JsonCompressedStreamSerialization
         return new BrotliStream(stream, CompressionMode.Decompress);
     }
 }
-#endif

@@ -48,14 +48,7 @@ public static class Interval
     /// <seealso href="http://en.wikipedia.org/wiki/Singleton_(mathematics)">Singleton (mathematics)</seealso>
     public static Interval<T> SingletonOf<T>(T value)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(value);
-#else
-        if (Bound.IsInfinity(value))
-        {
-            throw new ArgumentNullException(nameof(value));
-        }
-#endif
 
         return new Interval<T>(BoundDirection.Closed
             , value
@@ -254,14 +247,8 @@ public static class Interval
     /// <exception cref="ArgumentNullException"><paramref name="args"/> is <c>null</c>.</exception>
     public static IntervalCollection<T> ComplementOf<T>(params Interval<T>[] args)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(args);
-#else
-        if (args == null)
-        {
-            throw new ArgumentNullException("args");
-        }
-#endif
+
         return Interval.ComplementOf(new IntervalCollection<T>(args));
 
     }
@@ -275,14 +262,7 @@ public static class Interval
     /// <exception cref="ArgumentNullException"><paramref name="collection"/> is <c>null</c>.</exception>
     internal static IntervalCollection<T> ComplementOf<T>(IntervalCollection<T> collection)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(collection);
-#else
-        if (collection == null)
-        {
-            throw new ArgumentNullException("collection");
-        }
-#endif
 
         if (collection.Count == 0)
         {
@@ -417,14 +397,8 @@ public static class Interval
     /// <exception cref="ArgumentNullException"><paramref name="args"/> is <c>null</c>.</exception>
     public static Interval<T> IntersectionOf<T>(params Interval<T>[] args)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(args);
-#else
-        if (args == null)
-        {
-            throw new ArgumentNullException(nameof(args));
-        }
-#endif
+
         return (args.Length == 2)
                   ? IntersectionOf(args[0], args[1])
                   : IntersectionOf(new IntervalCollection<T>(args));
@@ -555,14 +529,7 @@ public static class Interval
     /// <exception cref="ArgumentNullException"><paramref name="collection"/> is <c>null</c>.</exception>
     internal static Interval<T> IntersectionOf<T>(IntervalCollection<T> collection)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(collection);
-#else
-        if (collection == null)
-        {
-            throw new ArgumentNullException(nameof(collection));
-        }
-#endif
 
         if (collection.Count == 0)
         {
@@ -652,14 +619,7 @@ public static class Interval
     /// </remarks>
     public static IntervalCollection<T> UnionOf<T>(UnionDenominator denominator, params Interval<T>[] args)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(args);
-#else
-        if (args == null)
-        {
-            throw new ArgumentNullException(nameof(args));
-        }
-#endif
 
         return (args.Length == 2)
             ? (denominator == UnionDenominator.Lowest)
@@ -808,14 +768,7 @@ public static class Interval
 
     internal static IntervalCollection<T> LowUnionOf<T>(IntervalCollection<T> collection)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(collection);
-#else
-        if (collection == null)
-        {
-            throw new ArgumentNullException(nameof(collection));
-        }
-#endif
 
         if (collection.Count == 0)
         {
@@ -854,14 +807,7 @@ public static class Interval
 
     internal static IntervalCollection<T> HighUnionOf<T>(IntervalCollection<T> collection)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(collection);
-#else
-        if (collection == null)
-        {
-            throw new ArgumentNullException(nameof(collection));
-        }
-#endif
 
         if (collection.Count == 0)
         {

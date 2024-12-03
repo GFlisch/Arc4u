@@ -11,14 +11,8 @@ public sealed class SystemResources : IHostedService, IDisposable
 {
     public SystemResources(ILogger logger, uint internalPeriodInSeconds = 10)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(logger);
-#else
-        if (null == logger)
-        {
-            throw new ArgumentNullException(nameof(logger));
-        }
-#endif
+
         if (0 == internalPeriodInSeconds)
         {
             throw new ArgumentException("The interval must be bigger than 0!");

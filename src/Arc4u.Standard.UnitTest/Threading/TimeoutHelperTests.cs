@@ -59,11 +59,7 @@ public class TimeoutHelperTests
     [Fact]
     public void Constructor_ShouldThrowArgumentOutOfRangeException_ForNegativeTimeout()
     {
-#if NET8_0_OR_GREATER
         Assert.Throws<ArgumentOutOfRangeException>(() => new TimeoutHelper(TimeSpan.FromSeconds(-1)));
-#else
-            Assert.Throws<ArgumentOutOfRangeException>(() => new TimeoutHelper(TimeSpan.FromSeconds(-1)));
-#endif
     }
 
     [Fact]

@@ -123,14 +123,8 @@ public sealed class EntityItem<TEntity> : PersistEntity
     /// <exception cref="ArgumentNullException"><paramref name="item"/> is null.</exception>
     public EntityItem(EntityItem<TEntity> item)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(item);
-#else
-        if (item == null)
-        {
-            throw new ArgumentNullException("item");
-        }
-#endif
+
         _entity = item._entity;
         _persistChange = item._persistChange;
         _persistEntity = item._persistEntity;

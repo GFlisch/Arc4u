@@ -20,24 +20,10 @@ public class AppPrincipal : ClaimsPrincipal, IAuthorization
     /// <param name="sid">The sid.</param>
     public AppPrincipal(Authorization authorizationData, IIdentity identity, string sid) : base(identity)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(identity);
         ArgumentNullException.ThrowIfNull(sid);
         ArgumentNullException.ThrowIfNull(authorizationData);
-#else
-        if (null == identity)
-        {
-            throw new ArgumentNullException(nameof(identity));
-        }
-        if (null == sid)
-        {
-            throw new ArgumentNullException(nameof(sid));
-        }
-        if (null == authorizationData)
-        {
-            throw new ArgumentNullException(nameof(authorizationData));
-        }
-#endif
+
         _sid = sid;
         Authorization = authorizationData;
         _authorization = new AppAuthorization(authorizationData);

@@ -103,20 +103,8 @@ public sealed class UserProfile : IXmlSerializable
         string commonName,
         string description)
     {
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(sid);
         ArgumentNullException.ThrowIfNull(culture);
-#else
-        if (null == sid)
-        {
-            throw new ArgumentNullException(nameof(sid));
-        }
-
-        if (null == culture)
-        {
-            throw new ArgumentNullException(nameof(culture));
-        }
-#endif
 
         DisplayName = displayName;
         Email = email;

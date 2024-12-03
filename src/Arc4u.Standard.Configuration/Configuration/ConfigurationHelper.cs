@@ -106,32 +106,16 @@ public static class ConfigurationHelper
     public static void AddApplicationConfig(this IServiceCollection services, IConfiguration configuration, string sectionName = "Application.Configuration")
     {
 
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(configuration);
         ArgumentNullException.ThrowIfNullOrEmpty(sectionName);
-#else
-        if (configuration is null)
-        {
-            throw new ArgumentNullException(nameof(configuration));
-        }
-        if (string.IsNullOrEmpty(sectionName))
-        {
-            throw new ArgumentNullException(nameof(sectionName));
-        }
-#endif
+
         var section = configuration.GetSection(sectionName) ?? throw new NullReferenceException($"No section exists with name {sectionName}");
         var config = section.Get<ApplicationConfig>() ?? throw new NullReferenceException($"section exists with name {sectionName} but it is not an ApplicationConfig object.");
 
         void OptionFiller(ApplicationConfig option)
         {
-#if NET8_0_OR_GREATER
             ArgumentNullException.ThrowIfNull(option);
-#else
-            if (option is null)
-            {
-                throw new ArgumentNullException(nameof(option));
-            }
-#endif
+
             option.ApplicationName = config.ApplicationName;
             option.Environment.Name = config.Environment.Name;
             option.Environment.LoggingName = config.Environment.LoggingName;

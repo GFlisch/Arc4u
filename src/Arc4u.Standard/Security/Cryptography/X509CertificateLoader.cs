@@ -2,9 +2,7 @@ using System.Security.Cryptography.X509Certificates;
 using Arc4u.Dependency.Attribute;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-#if NET8_0_OR_GREATER
 using Arc4u.Diagnostics;
-#endif
 
 namespace Arc4u.Security.Cryptography;
 
@@ -68,10 +66,8 @@ public class X509CertificateLoader : IX509CertificateLoader
     /// <summary>
     /// Read the current section and identify if the section contains a CertificateStore entry.
     /// If yes, the Certificate will be retrieve based on the <see cref="CertificateInfo"/> object.
-#if NET8_0_OR_GREATER
     /// If no CertificateStore section exists, the File is checked and a certificate will be created bqsed
     /// on the pem files (private and public keys).
-#endif
     /// </summary>
     /// <param name="configuration"><see cref="IConfiguration"/></param>
     /// <param name="sectionName">The name of the section if the <see cref="IConfiguration"/></param>
@@ -83,7 +79,6 @@ public class X509CertificateLoader : IX509CertificateLoader
         return this.FindCertificate(certificate);
     }
 
-#if NET8_0_OR_GREATER
     public X509Certificate2 FindCertificate(CertificateFilePathInfo? certificateFilePathInfo)
     {
         ArgumentNullException.ThrowIfNull(certificateFilePathInfo);
@@ -102,5 +97,4 @@ public class X509CertificateLoader : IX509CertificateLoader
 
         return X509Certificate2.CreateFromPemFile(certificateFilePathInfo.Cert, certificateFilePathInfo.Key);
     }
-#endif
 }

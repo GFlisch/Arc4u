@@ -61,21 +61,9 @@ public class AppPrincipalFactory : IAppPrincipalFactory
     {
         var identity = new ClaimsIdentity("OAuth2Bearer", System.Security.Claims.ClaimTypes.Upn, ClaimsIdentity.DefaultRoleClaimType);
 
-#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(settings);
-
         ArgumentNullException.ThrowIfNull(messages);
-#else
-        if (null == settings)
-        {
-            throw new ArgumentNullException(nameof(settings));
-        }
 
-        if (null == messages)
-        {
-            throw new ArgumentNullException(nameof(messages));
-        }
-#endif
         /// when we have no internet connectivity may be we have claims in cache.
         if (NetworkStatus.None == _networkInformation.Status)
         {

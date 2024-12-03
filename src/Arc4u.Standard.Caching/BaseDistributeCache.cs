@@ -30,15 +30,8 @@ public abstract class BaseDistributeCache<T> : ICache
 
     protected BaseDistributeCache(ILogger<T> logger, IContainerResolve container)
     {
-#if NETSTANDARD2_0
-        if (null == container)
-        {
-            throw new ArgumentNullException(nameof(container));
-        }
-#else
         ArgumentNullException.ThrowIfNull(logger);
         ArgumentNullException.ThrowIfNull(container);
-#endif
 
         _container = container;
         _logger = logger;
@@ -143,11 +136,7 @@ public abstract class BaseDistributeCache<T> : ICache
     {
         CheckIfInitialized();
 
-#if NET8_0_OR_GREATER
         if (EqualityComparer<TValue>.Default.Equals(value, default))
-#else
-        if (value == null)
-#endif
         {
             throw new ArgumentNullException(nameof(value));
         }

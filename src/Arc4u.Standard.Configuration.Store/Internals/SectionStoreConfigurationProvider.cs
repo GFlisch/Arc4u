@@ -38,13 +38,7 @@ sealed class SectionStoreConfigurationProvider : ConfigurationProvider
                     {
                         throw new InvalidOperationException($"The format of the key {item.Key} is not expected");
                     }
-#if NETSTANDARD2_1_OR_GREATER
-                    output[key + item.Key[p..]] = item.Value;
-#elif NETSTANDARD
-                    output[key + item.Key.Substring(p)] = item.Value;
-#else
                     output[string.Concat(key, item.Key.AsSpan(p))] = item.Value;
-#endif
                 }
             }
         }
