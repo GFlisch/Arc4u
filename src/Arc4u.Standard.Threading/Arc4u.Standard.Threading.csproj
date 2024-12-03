@@ -1,8 +1,0 @@
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
-    <PackageId>Arc4u.Standard.Threading</PackageId>
-    <Description>Core threading Framework used to build application.</Description>
-    <NoWarn>$(NoWarn);IDE0130</NoWarn>
-  </PropertyGroup>
-</Project>

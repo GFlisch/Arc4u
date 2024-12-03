@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
-    <Description>Package used on Interface and Facade projects to return ProblemDetails based on Results.</Description>
-    <PackageId>Arc4u.AspNetCore.Results</PackageId>
+    <PackageId>Arc4u.MongoDB</PackageId>
   </PropertyGroup>
-
   <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <ProjectReference Include="..\Arc4u.Dependency\Arc4u.Dependency.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MongoDB.Driver" Version="3.0.0" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
@@ -17,7 +17,5 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.0" />
     <PackageReference Include="System.Text.Json" Version="9.0.0" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Arc4u.Results\Arc4u.Results.csproj" />
-  </ItemGroup>
+
 </Project>

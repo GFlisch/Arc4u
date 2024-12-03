@@ -1,13 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
-    <Description>Package used on Interface and Facade projects to return ProblemDetails based on Results.</Description>
-    <PackageId>Arc4u.AspNetCore.Results</PackageId>
+    <PackageId>Arc4u.Diagnostics.Serilog.Sinks.RealmDb</PackageId>
   </PropertyGroup>
-
   <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="AutoMapper" Version="13.0.1" />
+    <PackageReference Include="Realm" Version="20.0.0" />
+    <PackageReference Include="Serilog.Sinks.PeriodicBatching" Version="5.0.0" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
@@ -18,6 +17,8 @@
     <PackageReference Include="System.Text.Json" Version="9.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Arc4u.Results\Arc4u.Results.csproj" />
+    <ProjectReference Include="..\Arc4u.Diagnostics.Serilog\Arc4u.Diagnostics.Serilog.csproj" />
+    <ProjectReference Include="..\Arc4u.Diagnostics\Arc4u.Diagnostics.csproj" />
+    <ProjectReference Include="..\Arc4u\Arc4u.csproj" />
   </ItemGroup>
 </Project>
