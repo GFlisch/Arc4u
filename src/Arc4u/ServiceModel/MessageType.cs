@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 namespace Arc4u.ServiceModel;
 
 /// <summary>
-/// Specifies the different types of a <see cref="FaultMessage"/>.
+/// Specifies the different types of a <see cref="Message"/>.
 /// </summary>
 [DataContract]
 public enum MessageType

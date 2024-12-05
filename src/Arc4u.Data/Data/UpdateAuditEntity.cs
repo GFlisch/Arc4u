@@ -5,7 +5,7 @@ namespace Arc4u.Data;
 /// <summary>
 /// Represents a <see cref="PersistEntity"/> 
 /// identified with a <see cref="System.Guid"/>,
-/// auditing its creation and update information with <see cref="System.string"/> and <see cref="System.DateTimeOffset"/>.
+/// auditing its creation and update information with <see cref="string"/> and <see cref="DateTimeOffset"/>.
 /// </summary>    
 /// <remarks>Storage members are marked as protected in order to enable LinqToSql mappings.</remarks>
 [DataContract]
@@ -15,7 +15,7 @@ public class UpdateAuditEntity : UpdateAuditEntity<Guid, string, DateTimeOffset,
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UpdateAuditEntity"/> class 
-    /// or with an enabled <see cref="ChangeTracking"/>.
+    /// with a <see cref="PersistChange"/> set to None.
     /// </summary>
     public UpdateAuditEntity() : this(PersistChange.None)
     {

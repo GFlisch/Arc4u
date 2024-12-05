@@ -10,7 +10,7 @@ public class SecretCertificateOptions
     public string Prefix { get; set; } = SecretCertificateConfigurationSource.PrefixDefault;
 
     /// <summary>
-    /// A section define in a configuration provider containing the <see cref="CertificateInfo"/> keys.
+    /// A section define in a configuration provider containing the "CertificateInfo" keys.
     /// </summary>
     public string SecretSectionName { get; set; } = SecretCertificateConfigurationSource.SecretSectionNameDefault;
 

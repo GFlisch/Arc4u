@@ -47,7 +47,7 @@ public class OidcAuthenticationOptions
     public X509Certificate2? CertSecurityKey { get; set; } = default!;
 
     /// <summary>
-    /// The <see cref="IPostConfigureOptions<CookieAuthenticationOptions"/> type used to configure the <see cref="CookieAuthenticationOptions"/>.
+    /// Used to configure the OIDC. See <see cref="ConfigureCookieWithTicketStoreAuthenticationOptions"/>.
     /// </summary>
     public Type? CookiesConfigureOptionsType { get; set; } = typeof(ConfigureCookieWithTicketStoreAuthenticationOptions);
 

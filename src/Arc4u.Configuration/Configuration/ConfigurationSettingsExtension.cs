@@ -8,6 +8,7 @@ public static class ConfigurationSettingsExtension
 {
     /// <summary>
     /// Register a key/value collection with IOption model, only taking the properties that map to strings.
+    /// </summary>
     /// <param name="services">The service collection <see cref="IServiceCollection"/></param>
     /// <param name="name">The name to get the back the DIctionary.</param>
     /// <param name="configuration"><see cref="IConfiguration"/> to read the settings.</param>

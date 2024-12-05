@@ -107,7 +107,7 @@ public class CacheContext : ICacheContext
     /// </summary>
     /// <param name="cacheName"></param>
     /// <returns>An <see cref="ICache"/> implementation defined in the cache config section.</returns>
-    /// <exception cref="ConfigurationErrorsException">Throw the exception when the cache name does not exist in the caching config section.</exception>
+    /// <exception cref="InvalidOperationException">Throw the exception when the cache name does not exist in the caching config section.</exception>
     public ICache this[string cacheName]
     {
         get

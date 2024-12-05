@@ -9,10 +9,10 @@ namespace System;
 public static class DateTimeExtensions
 {
     /// <summary>
-    /// Converts the specified <paramref name="value"/> to local time when its <see cref="DateTime.Kind"/> is <see cref="DateTime.Kind.Unspecified"/>.
+    /// Converts the specified <paramref name="value"/> to local time when its <see cref="DateTime.Kind"/> is Unspecified".
     /// </summary>
     /// <param name="value">The value.</param>
-    /// <returns>A <see cref="DateTime"/> object whose <see cref="DateTime.Kind"/> property is <see cref="DateTime.Kind.Local"/>.</returns>
+    /// <returns>A <see cref="DateTime"/> object whose <see cref="DateTime.Kind"/> property is Local.</returns>
     public static DateTime AsLocalTime(this DateTime value)
     {
         if (DateTimeKind.Unspecified == value.Kind)
@@ -24,10 +24,10 @@ public static class DateTimeExtensions
     }
 
     /// <summary>
-    /// Converts the specified <paramref name="value"/> to Coordinated Universal Time (UTC) when its <see cref="DateTime.Kind"/> is <see cref="DateTime.Kind.Unspecified"/>.
+    /// Converts the specified <paramref name="value"/> to Coordinated Universal Time (UTC) when its <see cref="DateTime.Kind"/> is Unspecified.
     /// </summary>
     /// <param name="value">The value.</param>
-    /// <returns>A <see cref="DateTime"/> object whose <see cref="DateTime.Kind"/> property is <see cref="DateTime.Kind.Utc"/>.</returns>
+    /// <returns>A <see cref="DateTime"/> object whose <see cref="DateTime.Kind"/> property is Utc.</returns>
     public static DateTime AsUniversalTime(this DateTime value)
     {
         if (value.Kind == DateTimeKind.Local)
@@ -39,7 +39,7 @@ public static class DateTimeExtensions
     }
 
     /// <summary>
-    /// Subtracts the specified date and time from this <paramref name="instance"/> taking into account the <see cref="DaylightTime"/>.
+    /// Subtracts the specified date and time from this <paramref name="instance"/> taking into account the DaylightTime.
     /// </summary>
     /// <param name="instance">The <see cref="DateTime"/> instance assumed to be a local time.</param>
     /// <param name="value">The <see cref="DateTime"/> to substract assumed to be a local time.</param>

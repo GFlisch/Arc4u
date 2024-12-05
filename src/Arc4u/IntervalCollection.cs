@@ -152,7 +152,7 @@ public sealed class IntervalCollection<T> : ReadOnlyCollection<Interval<T>>
     /// <param name="denominator">The denominator considered while performing the union.</param>
     /// <value>The union.</value>
     /// <remarks>
-    /// While performing an <see cref="Interval.UnionOf&lt;T&gt;">UnionOf</see> intervals, depending of the specified <see cref="UnionDenominator"/>, the result will be different.
+    /// While performing an <see cref="Interval{T}">UnionOf</see> intervals, depending of the specified <see cref="UnionDenominator"/>, the result will be different.
     /// If you consider the following intervals:
     /// <list type="table">
     /// <item>

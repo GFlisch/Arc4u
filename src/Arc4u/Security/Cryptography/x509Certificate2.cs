@@ -50,7 +50,7 @@ public static class Certificate
     /// <summary>
     /// Encrypt a byte array and return an encrypted version formated in a 64string.
     /// </summary>
-    /// <param name="plainText">The plain text to encrypt.</param>
+    /// <param name="content">The binary content to encrypt.</param>
     /// <param name="x509">The certificate used to encrypt</param>
     /// <returns>The encrypted plain text.</returns>
     /// <exception cref="ArgumentNullException"></exception>
@@ -71,7 +71,7 @@ public static class Certificate
     /// <summary>
     /// Decrypt an formated 64 string encrypted and return the text in clear.
     /// </summary>
-    /// <param name="plainText">The plain text to encrypt.</param>
+    /// <param name="base64Cypherstring">The cypher text to decrypt in a base 64 format.</param>
     /// <param name="x509">The certificate used to encrypt</param>
     /// <returns>The decrypted text.</returns>
     /// <exception cref="ArgumentNullException"></exception>
@@ -97,7 +97,7 @@ public static class Certificate
     /// <summary>
     /// Decrypt an formated 64 string encrypted and return the array of bytes.
     /// </summary>
-    /// <param name="plainText">The plain text to encrypt.</param>
+    /// <param name="base64Cypherstring">The cypher text to decrypt in a base64 format.</param>
     /// <param name="x509">The certificate used to encrypt</param>
     /// <returns>The decrypted byte array.</returns>
     /// <exception cref="ArgumentNullException"></exception>

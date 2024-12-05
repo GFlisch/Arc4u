@@ -64,7 +64,7 @@ public class AppPrincipalFactory : IAppPrincipalFactory
         ArgumentNullException.ThrowIfNull(settings);
         ArgumentNullException.ThrowIfNull(messages);
 
-        /// when we have no internet connectivity may be we have claims in cache.
+        // when we have no internet connectivity may be we have claims in cache.
         if (NetworkStatus.None == _networkInformation.Status)
         {
             // In a scenario where the claims cached are always for one user like a UI, the identity is not used => so retrieving the claims in the cache is possible!

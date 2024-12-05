@@ -71,14 +71,14 @@ public sealed class UserProfile : IXmlSerializable
     /// <param name="fax">The fax.</param>
     /// <param name="principalName">Name of the principal.</param>
     /// <param name="postalCode">The postal code.</param>
+    /// <param name="street">Th street.</param>
     /// <param name="room">The room.</param>
     /// <param name="initials">The initials.</param>
     /// <param name="samAccountName">Name of the sam account.</param>
+    /// <param name="domain">The Active Directory name.</param>
     /// <param name="culture">The culture.</param>
     /// <param name="commonName">Name of the common.</param>
     /// <param name="description">The description.</param>
-    /// <param name="accessTokenExpiresOnTicks">Define when the token will be renew.</param>
-    /// <param name="refreshTokenExpiresOnTicks">Define when the refresh token expires.</param>
     public UserProfile(
         string displayName,
         string email,

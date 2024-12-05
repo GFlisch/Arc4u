@@ -130,7 +130,6 @@ public static class FromResultToProblemDetailExtension
     /// If Failure and no exceptions, return the Errors: Message, Code, Severity.
     /// If Failure and exceptions, Log and return the generic messages.
     /// </summary>
-    /// <typeparam name="TResult"></typeparam>
     /// <param name="result"></param>
     /// <returns></returns>
     public static ProblemDetails ToProblemDetails(this Result result)

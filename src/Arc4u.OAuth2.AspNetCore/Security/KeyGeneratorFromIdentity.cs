@@ -6,7 +6,6 @@ namespace Arc4u.OAuth2.Security.Principal;
 /// <summary>
 /// This class is intented to be used in a service scenario where multiple users are connected.
 /// The claims are cached based on a unique identifier from the claims in an identity.
-/// The claim used is define in the <see cref="ITokenUserCacheConfiguration"/> implementation.
 /// </summary>
 [Export(typeof(ICacheKeyGenerator)), Shared]
 public class KeyGeneratorFromIdentity : ICacheKeyGenerator

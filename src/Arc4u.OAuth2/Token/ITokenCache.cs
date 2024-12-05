@@ -5,7 +5,7 @@ public interface ITokenCache
     /// <summary>
     /// Delete a token based on its unique key.
     /// </summary>
-    /// <param name="Id"></param>
+    /// <param name="key"></param>
     void DeleteItem(string key);
 
     void Put<T>(string key, T data);

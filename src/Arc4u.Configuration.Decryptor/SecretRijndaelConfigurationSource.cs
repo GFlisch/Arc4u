@@ -14,9 +14,7 @@ public class SecretRijndaelConfigurationSource : IConfigurationSource
     /// Create a <see cref="IConfigurationSource"/> using the defaults.
     /// The Rijndael configuration is fetched from the previous providers.
     /// </summary>
-    /// <param name="prefix">The prefix to use, if null the <see cref="PrefixDefault"/> is used.</param>
-    /// <param name="secretSectionName">The section name to use, if null the <see cref="SecretSectionNameDefault"/> is used.</param>
-    /// </summary>
+    /// <param name="options"></param>
     public SecretRijndaelConfigurationSource(SecretRijndaelOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);

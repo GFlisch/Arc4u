@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 namespace Arc4u.Diagnostics;
 
 /// <summary>
-/// Specifies the different categories of a <see cref="FaultMessage"/>.
+/// Specifies the different categories.
 /// </summary>
 [DataContract]
 [Flags]

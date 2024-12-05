@@ -54,6 +54,7 @@ public class BootstrapContextTokenProvider : ITokenProvider
     /// There is no way to signout in this scenario.
     /// </summary>
     /// <param name="settings"></param>
+    /// <param name="cancellationToken"></param>
     /// <exception cref="NotImplementedException"></exception>
     public ValueTask SignOutAsync(IKeyValueSettings settings, CancellationToken cancellationToken)
     {

@@ -5,7 +5,7 @@ namespace Arc4u.Data;
 /// <summary>
 /// Represents a <see cref="PersistEntity"/> 
 /// identified with a <see cref="System.Guid"/>,
-/// auditing its audit information with <see cref="System.string"/> and <see cref="System.DateTimeOffset"/>.
+/// auditing its audit information with <see cref="string"/> and <see cref="DateTimeOffset"/>.
 /// </summary>
 /// <remarks>Storage members are marked as protected in order to enable LinqToSql mappings.</remarks>
 [DataContract]

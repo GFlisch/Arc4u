@@ -111,7 +111,7 @@ public class AppPrincipalTransform : IClaimsTransformation
     /// - Only the extra claims fetched are saved because on the server we will only have an identity if a network connectivity exist.
     ///     => we don't save the full claims identity like in a client where a disconnected scenario is possible!
     /// </summary>
-    /// <param name="context"></param>
+    /// <param name="identity"></param>
     private async Task LoadExtraClaimsAsync(ClaimsIdentity? identity)
     {
         if (identity is null)

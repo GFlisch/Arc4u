@@ -176,10 +176,10 @@ public sealed class Message : ICloneable
     /// <summary>
     /// Initializes a new instance of the <see cref="Message"/> class.The Category is Business
     /// </summary>
-    /// <param name="category">The category of the message <see cref="MessageCategory"/></param>
     /// <param name="type">The message type of the message <see cref="MessageType"/></param>
     /// <param name="message">The expression returning the field we want to display from a resource file.</param>
     /// <param name="args">arguments of the message.</param>
+    /// <remarks>Thecategory will be set to <see cref="MessageCategory.Business"/></remarks>
     public Message(MessageType type, Expression<Func<string>> message, params object[] args)
         : this(MessageCategory.Business, type, ConvertToCode(message, args))
     {
@@ -255,6 +255,7 @@ public sealed class Message : ICloneable
     /// <param name="level">Message level</param>
     /// <param name="message">The message.</param>
     /// <param name="stringFormatParameters">The parameters to inject into the message.</param>
+    /// <param name="logger">Logger to log messages if necessary <see cref="LogAndThrowIfNecessary{T}(ILogger{T}, MessageType, Expression{Func{string}}, object[])"/></param>
     public static void LogAndThrowIfNecessary<T>(ILogger<T> logger, MessageType level, Expression<Func<string>> message, params object[] stringFormatParameters)
     {
         var messages = new Messages { new Message(level, message, stringFormatParameters) };

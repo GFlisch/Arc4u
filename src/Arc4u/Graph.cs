@@ -9,7 +9,7 @@ using System.Text;
 namespace Arc4u;
 
 /// <summary>
-/// Helper class to specify and apply includes on a <see cref="IQueryable&gt;T&lt;"/> object.
+/// Helper class to specify and apply includes on a IQueryable&gt;T&lt; object.
 /// </summary>
 /// <typeparam name="T">A class of the domain model.</typeparam>
 [DataContract(Namespace = "uri://arc4u.graph", Name = "GraphOf{0}")]
@@ -299,6 +299,7 @@ public class Graph<T> where T : class
     /// Parse an existing graph based on a object instance.
     /// </summary>
     /// <param name="instance">The object to parse.</param>
+    /// <param name="shouldHaveElement"></param>
     /// <returns>The Graph for the dedicated object parsed.</returns>
     public static Graph<T> Parse(T instance, bool shouldHaveElement = false)
     {

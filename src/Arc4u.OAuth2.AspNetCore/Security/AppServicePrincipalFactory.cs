@@ -79,15 +79,6 @@ public class AppServicePrincipalFactory : IAppPrincipalFactory
 
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="identity"></param>
-    /// <param name="settings"></param>
-    /// <param name="messages"></param>
-    /// <param name="parameter"></param>
-    /// <returns></returns>
-    /// <exception cref="NotSupportedException">When the provider doesn't exists.</exception>
     private async Task BuildTheIdentity(ClaimsIdentity identity, IKeyValueSettings settings, object? parameter = null)
     {
         // Check if we have a provider registered.

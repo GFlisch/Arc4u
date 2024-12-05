@@ -13,10 +13,6 @@ public class SecretConfigurationCertificateProvider : ConfigurationProvider
     /// <summary>
     /// Create a <see cref="IConfigurationProvider"/> with a source based on the previous list of providers in the <see cref="IConfigurationRoot"/>.
     /// </summary>
-    /// <param name="prefix">Use to identify the values where a decription is needed.</param>
-    /// <param name="secretSectionName">Is used to identify the section, coming from the previous providers defined, to read the configuration needed to identify the certificate.</param>
-    /// <param name="certificate">An optional parameter, where the user of the class will inject by itself the certificate to use. In this case the secretSectionName parameter is not considered.</param>
-    /// <param name="configurationRoot">The <see cref="IConfigurationRoot"/>.</param>
     public SecretConfigurationCertificateProvider([DisallowNull] SecretCertificateOptions options, IList<IConfigurationSource> sources)
     {
         ArgumentNullException.ThrowIfNull(options);

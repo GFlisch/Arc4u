@@ -17,6 +17,7 @@ public class JwtHttpHandler : DelegatingHandler
     /// No inner handler is defined because this will be done via the AddHttpClient method in a service!
     /// </summary>
     /// <param name="container">The scoped container</param>
+    /// <param name="logger"></param>
     /// <param name="resolvingName">The name used to resolve the settings</param>
     public JwtHttpHandler(IContainerResolve container, ILogger<JwtHttpHandler> logger, string resolvingName)
     {

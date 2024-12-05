@@ -35,7 +35,7 @@ public class JwtHttpHandler : DelegatingHandler
     }
 
     /// <summary>
-    /// This is a ctor to use only in a backend scenario => where <see cref="IPlatformParameters"/> it is not used!
+    /// This is a ctor to use only in a backend scenario => where IPlatformParameters is not used!
     /// No inner handler is defined because this will be done via the AddHttpClient method in a service!
     /// </summary>
     /// <param name="serviceProvider"></param>

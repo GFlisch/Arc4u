@@ -570,7 +570,7 @@ public static class Interval
     /// <returns>An <see cref="IntervalCollection&lt;T&gt;"/> that contains all distinct elements of the specified intervals.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="args"/> is <c>null</c>.</exception>
     /// <remarks>
-    /// While performing an <see cref="Interval.UnionOf&lt;T&gt;">UnionOf</see> intervals, depending of the specified <see cref="UnionDenominator"/>, the result will be different.
+    /// While performing an <see cref="Interval.UnionOf{T}(Interval{T}[])">UnionOf</see> intervals, depending of the specified <see cref="UnionDenominator"/>, the result will be different.
     /// If you consider the following intervals:
     /// <list type="table">
     /// <item>

@@ -60,10 +60,10 @@ public abstract class NotifyEntity : INotifyPropertyChanged
     }
 
     /// <summary>
-    /// Returns a <see cref="System.string"/> that represents this instance.
+    /// Returns a <see cref="string"/> that represents this instance.
     /// </summary>
     /// <returns>
-    /// A <see cref="System.string"/> that represents this instance.
+    /// A <see cref="string"/> that represents this instance.
     /// </returns>
     public override string ToString()
     {

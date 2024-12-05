@@ -86,7 +86,7 @@ public class Interval<T>
     /// Gets a value indicating whether this instance represents an empty <see cref="Interval&lt;T&gt;"/>.
     /// </summary>
     /// <value><c>true</c> if this instance contains no element; otherwise, <c>false</c>.</value>        
-    /// <seealso cref="Empty"/>
+    /// <seealso cref="string.Empty"/>
     /// <seealso href="http://en.wikipedia.org/wiki/Empty_set">Empty Set (set theory)</seealso>        
     public bool IsEmpty
     {
@@ -104,7 +104,7 @@ public class Interval<T>
     /// 	<c>true</c> if this instance contains no element; otherwise, <c>false</c>.
     /// </returns>        
     /// <seealso cref="IsEmpty"/>
-    /// <seealso cref="Empty"/>
+    /// <seealso cref="string.Empty"/>
     /// <seealso cref="Interval.EmptyOf"/>
     /// <seealso href="http://en.wikipedia.org/wiki/Empty_set">Empty Set (set theory)</seealso>        
     protected internal bool IsEmptyOf(T value)
@@ -191,10 +191,10 @@ public class Interval<T>
     #region Overriden Members
 
     /// <summary>
-    /// Returns a <see cref="System.string"/> that represents this instance.
+    /// Returns a <see cref="string"/> that represents this instance.
     /// </summary>
     /// <returns>
-    /// A <see cref="System.string"/> that represents this instance.
+    /// A <see cref="string"/> that represents this instance.
     /// </returns>
     public override string ToString()
     {
@@ -433,7 +433,7 @@ public class Interval<T>
     /// <param name="other">Another <see cref="Interval&lt;T&gt;"/>.</param>
     /// <param name="intersection">When this method returns, contains the <see cref="Interval&lt;T&gt;"/> 
     /// that contains all elements of this instance that also belong to the <paramref name="other"/> one; 
-    /// otherwise, an <see cref="Empty"/> interval.</param>
+    /// otherwise, an <see cref="string.Empty"/> interval.</param>
     /// <returns><b>true</b> if the intersection is not empty; otherwise, <b>false</b>.</returns>
     public bool TryIntersectionWith(Interval<T> other, out Interval<T> intersection)
     {
@@ -477,7 +477,7 @@ public class Interval<T>
     /// <param name="other">Another <see cref="Interval&lt;T&gt;"/>.</param>        
     /// <returns>An <see cref="IntervalCollection&lt;T&gt;"/> that contains all distinct elements of this instance and the <paramref name="other"/> one.</returns>
     /// <remarks>
-    /// While performing an <see cref="Interval.UnionOf&lt;T&gt;">UnionOf</see> intervals, depending of the specified <see cref="UnionDenominator"/>, the result will be different.
+    /// While performing an Interval.UnionOf&lt;T&gt; UnionOf intervals, depending of the specified <see cref="UnionDenominator"/>, the result will be different.
     /// If you consider the following intervals:
     /// <list type="table">
     /// <item>

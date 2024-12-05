@@ -9,7 +9,7 @@ public static class SecurityIdentifierExt
     /// <summary>
     /// Generate a S-1-9 SecurityIdentifier based on a random <see cref="Guid"/>.
     /// </summary>
-    /// <returns>A S-1-9 <see cref="SecurityIdentifier"/></returns>
+    /// <returns>A S-1-9 <see cref="System.Security.Principal.SecurityIdentifier"/></returns>
     public static string S19()
     {
         return S19(Guid.NewGuid());
@@ -23,8 +23,8 @@ public static class SecurityIdentifierExt
     /// <summary>
     /// Generate a S-1-9 string SecurityIdentifier based on a given <see cref="Guid"/>.
     /// </summary>
-    /// <param name="guid">A specific <see cref="Guid"/> generating a constant <see cref="SecurityIdentifier"/></param>
-    /// <returns>A S-1-9 <see cref="SecurityIdentifier"/></returns>
+    /// <param name="guid">A specific <see cref="Guid"/> generating a constant <see cref="System.Security.Principal.SecurityIdentifier"/></param>
+    /// <returns>A S-1-9 <see cref="System.Security.Principal.SecurityIdentifier"/> in a string format.</returns>
     public static string S19(Guid guid)
     {
         var guidArray = guid.ToByteArray();

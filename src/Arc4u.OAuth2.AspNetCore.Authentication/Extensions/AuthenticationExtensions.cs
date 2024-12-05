@@ -317,7 +317,8 @@ public static partial class AuthenticationExtensions
     /// Until the yarp is there and support the Oidc scenario. We don't use this on the Yarp project.
     /// </summary>
     /// <param name="services">The collection ued to define the dependencies</param>
-    /// <param name="authenticationOptions"><see cref="JwtAuthenticationBuilderOptions"/></param>
+    /// <param name="configuration"></param>
+    /// <param name="authenticationOptions">Custom options</param>
     /// <returns></returns>
     public static AuthenticationBuilder AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration, Action<JwtAuthenticationOptions> authenticationOptions)
     {

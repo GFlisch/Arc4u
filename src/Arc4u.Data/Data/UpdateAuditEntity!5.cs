@@ -24,16 +24,16 @@ public abstract class UpdateAuditEntity<TId, TCreatedBy, TCreatedOn, TUpdatedBy,
     protected const string UpdatedOnPropertyName = "UpdatedOn";
 
     /// <summary>
-    /// Gets or sets a value indicating whether the <see cref="ChangingUpdatedBy"/> 
-    /// and <see cref="ChangingUpdatedOn"/> events are raised 
+    /// Gets or sets a value indicating whether the "ChangingUpdatedBy" 
+    /// and "ChangingUpdatedOn" events are raised 
     /// when creating new instances.
     /// </summary>
     /// <value>
-    /// <b>true</b> if the <see cref="ChangingUpdatedBy"/> 
-    /// and <see cref="ChangingUpdatedOn"/> events are raised 
+    /// <b>true</b> if the "ChangingUpdatedBy" 
+    /// and "ChangingUpdatedOn" events are raised 
     /// when creating new instances; otherwise, <b>false</b>.
     /// </value>
-    /// <remarks>The <see cref="ChangeTracking"/> must also be <see cref="ChangeTracking.Enabled"/>.</remarks>
+    /// <remarks>The "ChangeTracking" must also be "ChangeTracking.Enabled".</remarks>
     public static bool RaiseUpdateEventsOnCreation { get; set; }
 
     #region IEntityAudit Members
@@ -95,7 +95,6 @@ public abstract class UpdateAuditEntity<TId, TCreatedBy, TCreatedOn, TUpdatedBy,
     /// <summary>
     /// Initializes a new instance of the <see cref="UpdateAuditEntity&lt;TId,TCreatedBy,TCreatedOn,TUpdatedBy,TUpdatedOn&gt;"/> class 
     /// with the specified <see cref="PersistChange"/> 
-    /// and according to the specified <see cref="ChangeTracking"/>.
     /// </summary>
     /// <param name="persistChange">The persist change.</param>
     protected UpdateAuditEntity(PersistChange persistChange) : base(persistChange)

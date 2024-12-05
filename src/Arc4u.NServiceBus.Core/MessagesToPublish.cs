@@ -12,7 +12,7 @@ public class MessagesToPublish
     public static Func<Type, bool> CommandsNamingConvention = _ => false;
 
     /// <summary>
-    /// Register a <see cref="ICommand"/> or <see cref="IEvent"/> to publish.
+    /// Register a "ICommand" or "IEvent" to publish.
     /// </summary>
     /// <param name="message">Add a Command or event</param>
     public void Add(object message)

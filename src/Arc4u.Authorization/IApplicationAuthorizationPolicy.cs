@@ -7,6 +7,7 @@ public interface IApplicationAuthorizationPolicy
     /// Check if the user is authorized to access the resource based on the policy name.
     /// </summary>
     /// <param name="policyName">The name of the policy</param>
+    /// <param name="exceptionMessage"></param>
     /// <exception cref="UnauthorizedAccessException">If the user is not authorized.</exception>
     /// <returns>Nothing</returns>
     public Task AuthorizeAsync(string policyName, [AllowNull] string? exceptionMessage = null);

@@ -51,7 +51,7 @@ public class OidcAuthenticationSectionOptions
     public string? CertSecurityKeyPath { get; set; } = default!;
 
     /// <summary>
-    /// The <see cref="IPostConfigureOptions<CookieAuthenticationOptions"/> type used to configure the <see cref="CookieAuthenticationOptions"/>.
+    /// Give the custom OIDC configuration.
     /// </summary>
     public string? CookiesConfigureOptionsType { get; set; }
 

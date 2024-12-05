@@ -8,11 +8,12 @@ namespace Arc4u.Dependency;
 public static class ServicesRegistrationExtension
 {
     /// <summary>
-    /// Add to the <see cref="ServiceCollection"/> a singleton instance of ILogger<LoggerMessage> as ILogger.
-    /// This allow for static class to resolve base on ILogger and via the fluent API, the from() method replace
+    /// Add to the <see cref="IServiceCollection"/> a scoped instance of <see cref="ILogger{LoggerMessage}"/> as ILogger.
+    /// This allows for static classes to resolve based on ILogger and via the fluent API, the from() method replaces
     /// the class name.
     /// </summary>
     /// <param name="services"></param>
+    /// <returns><see cref="IServiceCollection"/></returns>
     public static IServiceCollection AddILogger(this IServiceCollection services)
     {
         // Add the Arc4u Logger<T> implementation.

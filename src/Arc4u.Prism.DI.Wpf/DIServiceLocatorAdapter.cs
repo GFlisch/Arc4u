@@ -4,7 +4,7 @@ using CommonServiceLocator;
 namespace Prism.DI;
 
 /// <summary>
-/// Defines a <see cref="DIModelContainer"/> adapter for the <see cref="IServiceLocator"/> interface to be used by the Prism Library.
+/// Defines a <see cref="ServiceLocatorImplBase"/> adapter for the <see cref="IServiceLocator"/> interface to be used by the Prism Library.
 /// </summary>
 public class DIServiceLocatorAdapter : ServiceLocatorImplBase
 {

@@ -75,7 +75,7 @@ public abstract class DeleteAuditEntity<TId, TCreatedBy, TCreatedOn, TUpdatedBy,
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DeleteAuditEntity&lt;TId,TCreatedBy,TCreatedOn,TUpdatedBy,TUpdatedOn,TDeletedBy,TDeletedOn&gt;"/> class 
-    /// or with an enabled <see cref="ChangeTracking"/>.
+    /// or with an enabled "ChangeTracking".
     /// </summary>
     public DeleteAuditEntity() : this(PersistChange.None)
     {
@@ -86,7 +86,6 @@ public abstract class DeleteAuditEntity<TId, TCreatedBy, TCreatedOn, TUpdatedBy,
     /// with the specified <see cref="PersistChange"/> 
     /// </summary>
     /// <param name="persistChange">The persist change.</param>
-    /// <param name="changeTracking">The change tracking.</param>
     protected DeleteAuditEntity(PersistChange persistChange) : base(persistChange)
     {
     }

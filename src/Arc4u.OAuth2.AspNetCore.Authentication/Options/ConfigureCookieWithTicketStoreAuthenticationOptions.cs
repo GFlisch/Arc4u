@@ -4,8 +4,8 @@ using Microsoft.Extensions.Options;
 namespace Arc4u.OAuth2.Options;
 
 /// <summary>
-/// This class is registered by default in the <see cref="AuthenticationExtensions"/>.
-/// This is possible to registe anothe one via the <see cref="OidcAuthenticationBuilderOptions"/>.
+/// This class is registered by default in the AuthenticationExtensions static class.
+/// This is possible to registe anothe one via the OidcAuthenticationBuilderOptions.
 /// </summary>
 public class ConfigureCookieWithTicketStoreAuthenticationOptions : IPostConfigureOptions<CookieAuthenticationOptions>
 {

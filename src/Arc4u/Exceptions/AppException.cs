@@ -71,6 +71,7 @@ public class AppException : Exception
     /// Initializes a new instance of the <see cref="AppException"/> class.
     /// </summary>
     /// <param name="messages">The messages.</param>
+    /// <param name="innerException">The inner exception.</param>
     public AppException(IEnumerable<Message> messages, Exception innerException)
         : base(ToString(messages), innerException)
     {

@@ -30,10 +30,10 @@ public class SecretCertificateConfigurationSource : IConfigurationSource
     private readonly SecretCertificateOptions _options;
 
     /// <summary>
-    /// Builds the <see cref="EnvironmentVariablesConfigurationProvider"/> for this source.
+    /// Builds the <see cref="IConfigurationProvider"/> for this source.
     /// </summary>
     /// <param name="builder">The <see cref="IConfigurationBuilder"/>.</param>
-    /// <returns>A <see cref="EnvironmentVariablesConfigurationProvider"/></returns>
+    /// <returns>A <see cref="IConfigurationProvider"/></returns>
     public IConfigurationProvider Build(IConfigurationBuilder builder)
     {
         return new SecretConfigurationCertificateProvider(_options, GetSources(builder));

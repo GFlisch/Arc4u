@@ -25,6 +25,7 @@ public interface ICache : IDisposable
     /// </summary>
     /// <param name="key">The key used to identify the <see cref="object"/> in the cache.</param>
     /// <param name="value">The object to save.</param>
+    /// <param name="cancellation">A <see cref="CancellationToken"/> to cancel the operation.</param>
     /// <returns>Return an <see cref="object"/> defining a version for the data added in the cache.</returns>
     /// <exception cref="DataCacheException">Thrown when the cache encounters a problem.</exception>
     Task PutAsync<T>(string key, T value, CancellationToken cancellation = default);
@@ -47,45 +48,48 @@ public interface ICache : IDisposable
     /// <param name="timeout">Define the period of validity for the data added to the cache. When the timeout is expired, the data is removed from the cache.</param>
     /// <param name="value">The object to save.</param>
     /// <param name="isSlided">A <see cref="bool"/> value indicating if the timeout period is reset again. If true, the data availability will be prolounge each time the data is accessed.</param>
+    /// <param name="cancellation">A <see cref="CancellationToken"/> to cancel the operation.</param>
     /// <returns>Return an <see cref="object"/> defining a version for the data added in the cache.</returns>
     /// <exception cref="DataCacheException">Thrown when the cache encounters a problem.</exception>
     Task PutAsync<T>(string key, TimeSpan timeout, T value, bool isSlided = false, CancellationToken cancellation = default);
 
     /// <summary>
-    /// retrieve an <see cref="object"/> from the cache and cast it to the type of <see cref="TValue"/>.
+    /// retrieve an <see cref="object"/> from the cache and cast it to the type of TValue.
     /// </summary>
     /// <typeparam name="TValue">The type used to cast the <see cref="object"/> from the cache.</typeparam>
     /// <param name="key">The key used to identify the <see cref="object"/> in the cache.</param>
-    /// <returns>An object typed to <see cref="TValue"/>, or the default value defined for the type <see cref="TValue"/> if no value exist for the specified key.</returns>
+    /// <returns>An object typed to TValue, or the default value defined for the type TValue if no value exist for the specified key.</returns>
     /// <exception cref="DataCacheException">Thrown when the cache encounters a problem.</exception>
-    /// <exception cref="InvalidCastException">Thrown when the <see cref="object"/> cannot be casted to the type <see cref="TValue"/> or when a cache has a problem.</exception>
+    /// <exception cref="InvalidCastException">Thrown when the <see cref="object"/> cannot be casted to the type TValue or when a cache has a problem.</exception>
     TValue? Get<TValue>(string key);
 
     /// <summary>
-    /// retrieve an <see cref="object"/> from the cache and cast it to the type of <see cref="TValue"/>.
+    /// retrieve an <see cref="object"/> from the cache and cast it to the type of TValue.
     /// </summary>
     /// <typeparam name="TValue">The type used to cast the <see cref="object"/> from the cache.</typeparam>
     /// <param name="key">The key used to identify the <see cref="object"/> in the cache.</param>
-    /// <returns>An object typed to <see cref="TValue"/>, or the default value defined for the type <see cref="TValue"/> if no value exist for the specified key.</returns>
+    /// <param name="cancellation"></param>
+    /// <returns>An object typed to TValue, or the default value defined for the type TValue if no value exist for the specified key.</returns>
     /// <exception cref="DataCacheException">Thrown when the cache encounters a problem.</exception>
-    /// <exception cref="InvalidCastException">Thrown when the <see cref="object"/> cannot be casted to the type <see cref="TValue"/> or when a cache has a problem.</exception>
+    /// <exception cref="InvalidCastException">Thrown when the <see cref="object"/> cannot be casted to the type TValue or when a cache has a problem.</exception>
     Task<TValue?> GetAsync<TValue>(string key, CancellationToken cancellation = default);
 
     /// <summary>
-    /// Get a value from the cache, if a value exist for the specified key. Does not thrown an exception, if the cast to <see cref="TValue"/> is not possible.
+    /// Get a value from the cache, if a value exist for the specified key. Does not thrown an exception, if the cast to TValue is not possible.
     /// </summary>
     /// <typeparam name="TValue">The type expected from the cache.</typeparam>
     /// <param name="key">The key used to identify the <see cref="object"/> in the cache.</param>
-    /// <param name="value">An object typed to <see cref="TValue"/>. The default value defined for the type <see cref="TValue"/> if no value exist for the specified key or if the cast is not possible.</param>
-    /// <returns>An object typed to <see cref="TValue"/>, or the default value defined for the type <see cref="TValue"/> if no value exist for the specified key.</returns>
+    /// <param name="value">An object typed to TValue. The default value defined for the type TValue if no value exist for the specified key or if the cast is not possible.</param>
+    /// <returns>An object typed to TValue, or the default value defined for the type TValue if no value exist for the specified key.</returns>
     bool TryGetValue<TValue>(string key, out TValue? value);
 
     /// <summary>
-    /// Get a value from the cache, if a value exist for the specified key. Does not thrown an exception, if the cast to <see cref="TValue"/> is not possible.
+    /// Get a value from the cache, if a value exist for the specified key. Does not thrown an exception, if the cast to TValue is not possible.
     /// </summary>
     /// <typeparam name="TValue">The type expected from the cache.</typeparam>
     /// <param name="key">The key used to identify the <see cref="object"/> in the cache.</param>
-    /// <returns>An object typed to <see cref="TValue"/>. The default value defined for the type <see cref="TValue"/> if no value exist for the specified key or if the cast is not possible.</returns>
+    /// <param name="cancellation">A <see cref="CancellationToken"/> to cancel the operation.</param>
+    /// <returns>An object typed to TValue. The default value defined for the type TValue if no value exist for the specified key or if the cast is not possible.</returns>
     Task<TValue?> TryGetValueAsync<TValue>(string key, CancellationToken cancellation = default);
 
     /// <summary>
@@ -99,6 +103,7 @@ public interface ICache : IDisposable
     /// Rempve the data from the cache for the specified key.
     /// </summary>
     /// <param name="key">The key used to identify the <see cref="object"/> in the cache.</param>
+    /// <param name="cancellation">A <see cref="CancellationToken"/> to cancel the operation.</param>
     /// <returns>True if the data was removed.</returns>
     Task<bool> RemoveAsync(string key, CancellationToken cancellation = default);
 }

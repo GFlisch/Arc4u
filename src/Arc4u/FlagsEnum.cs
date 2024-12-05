@@ -39,6 +39,7 @@ public static class FlagsEnum
     /// </summary>
     /// <typeparam name="TEnum">An enumeration type.</typeparam>
     /// <param name="power">The raising power of two.</param>
+    /// <param name="epsilon">The precision used to define the equality.</param>
     /// <param name="result">When this methods returns, contains the matching value of <typeparamref name="TEnum"/>. This parameter is passed uninitialized.</param>        
     /// <returns><b>true</b> if a matching value of <typeparamref name="TEnum"/> is found; otherwise, <b>false</b>.</returns>
     public static bool TryPowerOfTwo<TEnum>(object power, out TEnum result, float epsilon = 0.0000001f)
@@ -138,6 +139,7 @@ public static class FlagsEnum
     /// Tries to get the power of two exponent from the specified <paramref name="value"/>.
     /// </summary>        
     /// <param name="value">A value.</param>
+    /// <param name="epsilon">The precision used to define the equality.</param>
     /// <param name="result">When this methods returns, contains the power of two exponent from the specified <paramref name="value"/>. This parameter is passed uninitialized.</param>
     /// <returns><b>true</b> if the <paramref name="value"/> parameter is a power of two exponent; otherwise, <b>false</b>.</returns>
     public static bool TryPowerOfTwoExponent(object? value, out int result, float epsilon = 0.0000001f)

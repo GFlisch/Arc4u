@@ -10,10 +10,12 @@ public static class GraphExtension
     private const string OnlyLevelOneIsAllowed = "It is not allowed to check more than one level!";
 
     /// <summary>
-    /// Will apply the includes on the <see cref="IQueryable&gt;T&lt;"/> but the types having an assoication based on <see cref="IEnumerable"/>.
+    /// Will apply the includes on the IQueryable&lt;T&gt; but the types having an association based on <see cref="IEnumerable"/>.
     /// </summary>
-    /// <param name="query">A <see cref="IQueryable&gt;T&lt;"/> object where the Entity Framework adds an extension Include method.</param>
-    /// <returns>The <see cref="IQueryable&gt;T&lt;"/> object with all the includes applied but the types having an assoication based on <see cref="IEnumerable"/>.</returns>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="graph"></param>
+    /// <param name="query"></param>
+    /// <returns></returns>
     public static IQueryable<T> ApplySingleReferences<T>(this Graph<T> graph, IQueryable<T> query) where T : class
     {
         ArgumentNullException.ThrowIfNull(query);
@@ -66,10 +68,12 @@ public static class GraphExtension
     }
 
     /// <summary>
-    /// Will apply the includes on the <see cref="IQueryable&gt;T&lt;"/> without exceptions.
+    /// Will apply the includes on the IQueryable&gt;T&lt; but the types having an association based on <see cref="IEnumerable"/>.
     /// </summary>
-    /// <param name="query">A <see cref="IQueryable&gt;T&lt;"/> object where the Entity Framework adds an extension Include method.</param>
-    /// <returns>The <see cref="IQueryable&gt;T&lt;"/> object with all the includes applied.</returns>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="graph"></param>
+    /// <param name="query"></param>
+    /// <returns></returns>
     public static IQueryable<T> ApplySetReferences<T>(this Graph<T> graph, IQueryable<T> query) where T : class
     {
         return graph.Includes.Aggregate<string, IQueryable<T>>(query, (queryable, i) => queryable.BuildInclude(i) ?? queryable);
@@ -90,7 +94,7 @@ public static class GraphExtension
     }
 
     /// <summary>
-    /// Perform an Include<T> on the first property path and after a ThenInclude!
+    /// Perform an Include&lt;T&gt; on the first property path and after a ThenInclude!
     /// </summary>
     /// <typeparam name="T">The aggregate root object.</typeparam>
     /// <param name="queryable">Queryable object to include(s).</param>

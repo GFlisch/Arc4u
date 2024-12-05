@@ -16,21 +16,21 @@ public sealed class Bound<T> : IEquatable<Bound<T>>, IComparable<Bound<T>>
     /// <summary>
     /// Gets the bound type.
     /// </summary>        
-    /// accessing the property during serializing/deserializing operations.</remarks>
+    /// <remarks>accessing the property during serializing/deserializing operations.</remarks>
     [DataMember(EmitDefaultValue = false)]
     public BoundType Type { get; private set; }
 
     /// <summary>
     /// Gets the bound direction.
     /// </summary>
-    /// accessing the property during serializing/deserializing operations.</remarks>
+    /// <remarks>accessing the property during serializing/deserializing operations.</remarks>
     [DataMember(EmitDefaultValue = false)]
     public BoundDirection Direction { get; private set; }
 
     /// <summary>
     /// Gets the bound value.
     /// </summary>        
-    /// accessing the property during serializing/deserializing operations.</remarks>
+    /// <remarks>accessing the property during serializing/deserializing operations.</remarks>
     [DataMember(EmitDefaultValue = false)]
     public T Value { get; private set; }
 
@@ -135,10 +135,10 @@ public sealed class Bound<T> : IEquatable<Bound<T>>, IComparable<Bound<T>>
     #region Overriden Members
 
     /// <summary>
-    /// Returns a <see cref="System.string"/> that represents this instance.
+    /// Returns a <see cref="string"/> that represents this instance.
     /// </summary>
     /// <returns>
-    /// A <see cref="System.string"/> that represents this instance.
+    /// A <see cref="string"/> that represents this instance.
     /// </returns>
     /// <remarks>
     /// Type of <typeparamref name="T"/> is not considered for uniformity between types
