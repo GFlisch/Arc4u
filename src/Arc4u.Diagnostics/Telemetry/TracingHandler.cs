@@ -4,7 +4,7 @@ using OpenTelemetry;
 using OpenTelemetry.Context.Propagation;
 
 namespace Arc4u.Diagnostics.Telemetry;
-public sealed class TracingHandler(DefaultActivitySourceFactory defaultActivitySourceFactory, ILogger<TracingHandler> logger) : DelegatingHandler
+public sealed class TracingHandler(IActivitySourceFactory defaultActivitySourceFactory, ILogger<TracingHandler> logger) : DelegatingHandler
 {
     private readonly ActivitySource _activitySource = defaultActivitySourceFactory.GetArc4u();
     private readonly ILogger<TracingHandler> _logger = logger;
@@ -38,13 +38,7 @@ public sealed class TracingHandler(DefaultActivitySourceFactory defaultActivityS
                     request.Headers, (headers, name, value) => headers.Add(name, value));
             }
 
-            if (request.Headers.Contains(CorrelationIdActityExtensions.CorrelationIdKey))
-            {
-                request.Headers.Remove(CorrelationIdActityExtensions.CorrelationIdKey);
-            }
-
-            request.Headers.Add(CorrelationIdActityExtensions.CorrelationIdKey, correlationId);
-
+            request.Headers.Add(CorrelationIdHttpHeaders.CorrelationId, correlationId ?? Guid.NewGuid().ToString("D"));
 
             var response = await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
 
@@ -54,8 +48,11 @@ public sealed class TracingHandler(DefaultActivitySourceFactory defaultActivityS
                 var ctx =  Propagator.Extract(default, response, (response, name) =>
                     response.Headers.Contains(name)? response.Headers.GetValues(name) :
                     response.TrailingHeaders.Contains(name) ? response.TrailingHeaders.GetValues(name): []);
-                Baggage.SetBaggage(ctx.Baggage.GetBaggage());
+                Baggage.SetBaggage(ctx.Baggage.GetBaggage()!);
             }
+
+            //Propagate the correlationId in the response.
+            response.Headers.Add(CorrelationIdHttpHeaders.CorrelationId, correlationId);
 
             return response;
         }
@@ -67,57 +64,4 @@ public sealed class TracingHandler(DefaultActivitySourceFactory defaultActivityS
             }
         }
     }
-}
-
-public static class CorrelationIdActityExtensions
-{
-    public const string CorrelationIdKey = "CorrelationId";
-
-    /// <summary>
-    /// Adds a new correlationId to the activity.
-    /// </summary>
-    /// <param name="activity">The activity.</param>
-    /// <returns></returns>
-    public static Activity WithCorrelationId(this Activity activity)
-        => activity.WithCorrelationId(Guid.NewGuid().ToString());
-
-    /// <summary>
-    /// Adds a new correlationId to the activity.
-    /// </summary>
-    /// <param name="activity">The activity.</param>
-    /// <param name="correlationId">The correlation identifier.</param>
-    /// <returns></returns>
-    /// <exception cref="ArgumentNullException"></exception>
-    public static Activity WithCorrelationId(this Activity activity, string correlationId)
-    {
-        ArgumentNullException.ThrowIfNull(activity);
-        ArgumentNullException.ThrowIfNull(correlationId);
-
-        return activity.SetTag(CorrelationIdKey, correlationId);
-    }
-
-    /// <summary>
-    /// Gets the correlation identifier associated with <see cref="Activity"/>
-    /// </summary>
-    /// <param name="activity">The activity.</param>
-    /// <returns></returns>
-    public static string? GetCorrelationId(this Activity activity)
-    {
-        var currentActivity = activity;
-
-        while (currentActivity is not null)
-        {
-            var correlationId = (string?)currentActivity.GetTagItem(CorrelationIdKey);
-
-            if (correlationId != null)
-            {
-                return correlationId;
-            }
-
-            currentActivity = currentActivity.Parent;
-        }
-
-        return null;
-    }
-
 }
