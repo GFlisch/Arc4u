@@ -98,6 +98,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arc4u.Results", "Arc4u.Resu
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arc4u.AspNetCore.Results", "Arc4u.AspNetCore.Results\Arc4u.AspNetCore.Results.csproj", "{AE2BA9A5-AFCD-4D98-87DC-71D6DCBC2C21}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arc4u.Dependency.Tool", "Arc4u.Dependency.Tool\Arc4u.Dependency.Tool.csproj", "{2C83BE21-3C11-46B2-9831-5B84E4912BFB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -952,6 +954,26 @@ Global
 		{AE2BA9A5-AFCD-4D98-87DC-71D6DCBC2C21}.Release|x64.Build.0 = Release|Any CPU
 		{AE2BA9A5-AFCD-4D98-87DC-71D6DCBC2C21}.Release|x86.ActiveCfg = Release|Any CPU
 		{AE2BA9A5-AFCD-4D98-87DC-71D6DCBC2C21}.Release|x86.Build.0 = Release|Any CPU
+		{2C83BE21-3C11-46B2-9831-5B84E4912BFB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C83BE21-3C11-46B2-9831-5B84E4912BFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C83BE21-3C11-46B2-9831-5B84E4912BFB}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{2C83BE21-3C11-46B2-9831-5B84E4912BFB}.Debug|ARM.Build.0 = Debug|Any CPU
+		{2C83BE21-3C11-46B2-9831-5B84E4912BFB}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{2C83BE21-3C11-46B2-9831-5B84E4912BFB}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{2C83BE21-3C11-46B2-9831-5B84E4912BFB}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{2C83BE21-3C11-46B2-9831-5B84E4912BFB}.Debug|x64.Build.0 = Debug|Any CPU
+		{2C83BE21-3C11-46B2-9831-5B84E4912BFB}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{2C83BE21-3C11-46B2-9831-5B84E4912BFB}.Debug|x86.Build.0 = Debug|Any CPU
+		{2C83BE21-3C11-46B2-9831-5B84E4912BFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C83BE21-3C11-46B2-9831-5B84E4912BFB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2C83BE21-3C11-46B2-9831-5B84E4912BFB}.Release|ARM.ActiveCfg = Release|Any CPU
+		{2C83BE21-3C11-46B2-9831-5B84E4912BFB}.Release|ARM.Build.0 = Release|Any CPU
+		{2C83BE21-3C11-46B2-9831-5B84E4912BFB}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{2C83BE21-3C11-46B2-9831-5B84E4912BFB}.Release|ARM64.Build.0 = Release|Any CPU
+		{2C83BE21-3C11-46B2-9831-5B84E4912BFB}.Release|x64.ActiveCfg = Release|Any CPU
+		{2C83BE21-3C11-46B2-9831-5B84E4912BFB}.Release|x64.Build.0 = Release|Any CPU
+		{2C83BE21-3C11-46B2-9831-5B84E4912BFB}.Release|x86.ActiveCfg = Release|Any CPU
+		{2C83BE21-3C11-46B2-9831-5B84E4912BFB}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
