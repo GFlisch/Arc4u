@@ -35,6 +35,7 @@
     <PackageReference Include="AutoFixture.SeedExtensions" Version="4.18.1" />
     <PackageReference Include="AutoFixture.Xunit2" Version="4.18.1" />
     <PackageReference Include="Moq" Version="4.20.72" />
+    <PackageReference Include="RichardSzalay.MockHttp" Version="7.0.0" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
@@ -61,6 +62,7 @@
     <ProjectReference Include="..\Arc4u.Standard.Dependency.ComponentModel\Arc4u.Standard.Dependency.ComponentModel.csproj" />
     <ProjectReference Include="..\Arc4u.Standard.Dependency\Arc4u.Standard.Dependency.csproj" />
     <ProjectReference Include="..\Arc4u.Standard.Diagnostics.Serilog\Arc4u.Standard.Diagnostics.Serilog.csproj" />
+    <ProjectReference Include="..\Arc4u.Standard.Diagnostics\Arc4u.Standard.Diagnostics.csproj" />
     <ProjectReference Include="..\Arc4u.Standard.EfCore\Arc4u.Standard.EfCore.csproj" />
     <ProjectReference Include="..\Arc4u.Standard.gRPC\Arc4u.Standard.gRPC.csproj" />
     <ProjectReference Include="..\Arc4u.Standard.MongoDB\Arc4u.Standard.MongoDB.csproj" />
