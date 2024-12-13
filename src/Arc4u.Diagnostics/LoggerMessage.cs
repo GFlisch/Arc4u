@@ -69,7 +69,7 @@ public class LoggerMessage
         Properties.AddIfNotExist(LoggingConstants.Class, TypeClass);
         Properties.AddIfNotExist(LoggingConstants.MethodName, MethodName);
         Properties.AddIfNotExist(LoggingConstants.ProcessId, ProcessId);
-        Properties.AddIfNotExist(LoggingConstants.Category, (short)Category);
+        Properties.AddIfNotExist(LoggingConstants.Category, Category.ToString());
         Properties.AddIfNotExist(LoggingConstants.Stacktrace, StackTrace);
 
         // Add the internal Arc4u properties to whatever the TState provides already before logging

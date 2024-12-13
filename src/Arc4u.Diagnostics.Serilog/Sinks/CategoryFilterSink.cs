@@ -1,4 +1,4 @@
-﻿using Serilog.Core;
+using Serilog.Core;
 using Serilog.Events;
 
 namespace Arc4u.Diagnostics.Sinks;
@@ -16,9 +16,9 @@ public class CategoryFilterSink : ILogEventSink, IDisposable
 
     public void Dispose()
     {
-        if (Sink is IDisposable)
+        if (Sink is IDisposable disposable)
         {
-            ((IDisposable)Sink).Dispose();
+            disposable.Dispose();
         }
     }
 

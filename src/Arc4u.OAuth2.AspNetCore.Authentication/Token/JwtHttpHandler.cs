@@ -128,7 +128,6 @@ public class JwtHttpHandler : DelegatingHandler
 
         _logger.Technical().System($"{GetType().Name} token provider is called.").Log();
 
-
         var provider = containerResolve.Resolve<ITokenProvider>(_settings.Values[TokenKeys.ProviderIdKey]);
         if (provider is null)
         {

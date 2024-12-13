@@ -18,7 +18,7 @@ namespace Arc4u.ServiceModel;
 [Serializable]
 public sealed class Message : ICloneable
 {
-    private static readonly Dictionary<string, Type> TypeCache = new Dictionary<string, Type>();
+    private static readonly Dictionary<string, Type> TypeCache = new();
 
     /// <summary>
     /// Gets or sets the code of the current <see cref="Message"/> when applicable.
