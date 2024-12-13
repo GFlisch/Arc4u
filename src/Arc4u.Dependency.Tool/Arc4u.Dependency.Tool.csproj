@@ -6,6 +6,7 @@
     <langversion>latest</langversion>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>Arc4u.Dependency.Tool</PackageId>
     <Deterministic>true</Deterministic>
     <ImplicitUsings>true</ImplicitUsings>
     <Nullable>enable</Nullable>
