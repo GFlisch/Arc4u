@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Arc4u.Diagnostics;
 using Arc4u.Diagnostics.Telemetry;
+using Arc4u.Standard.Diagnostics.Telemetry;
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
