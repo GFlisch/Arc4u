@@ -34,7 +34,7 @@ public class DependencyToolGenerator : IIncrementalGenerator
                                      compilationAndData,
                                      (spc, source) =>
                                      {
-                                         spc.AddSource("Arc4u.Dependencies.g.cs", SourceText.From(GenerateRegisterTypes(source.Left.AssemblyName, source.Right), Encoding.UTF8));
+                                         spc.AddSource("Dependencies.g.cs", SourceText.From(GenerateRegisterTypes(source.Left.AssemblyName, source.Right), Encoding.UTF8));
                                      });
     }
 
@@ -51,7 +51,7 @@ public class DependencyToolGenerator : IIncrementalGenerator
         sb.AppendLine("{");
         if (assemblyName is not null)
         {
-            sb.AppendLine($"    public static void Register{assemblyName.Split('.').Last().Trim()}Types(this IServiceCollection services)");
+            sb.AppendLine($"    public static void Register{ExtractName(assemblyName)}Types(this IServiceCollection services)");
             sb.AppendLine("    {");
             foreach (var _class in classes)
             {
@@ -97,6 +97,10 @@ public class DependencyToolGenerator : IIncrementalGenerator
         return sb.ToString();
     }
 
+    private string ExtractName(string assemblyName)
+    {
+        return ClassNameCleaner.CleanClassName(assemblyName.Split('.').Last().Trim());
+    }
     // Fetch the ContractName property value from the Export attribute.
     private static (string? contractName, string? contractType) GetExportAttribute(AttributeData attribute)
     {
