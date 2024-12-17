@@ -2,34 +2,62 @@ using Arc4u.EfCore;
 using Arc4u.UnitTest.Database.EfCore.Model;
 using Arc4u.UnitTest.Infrastructure;
 using AutoFixture;
+using AutoFixture.AutoMoq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
 namespace Arc4u.UnitTest.Database.EfCore;
 
 [TestCaseOrderer("Arc4u.UnitTest.Infrastructure.PriorityOrderer", "Arc4u.UnitTest")]
 [Trait("Category", "CI")]
-public class EfCoreTests : BaseContainerFixture<EfCoreTests, EfCoreFixture>
+public class EfCoreTests // : BaseContainerFixture<EfCoreTests, EfCoreFixture>
 {
-    public EfCoreTests(EfCoreFixture fixture) : base(fixture)
+    //public EfCoreTests(EfCoreFixture fixture) : base(fixture)
+    //{
+    //    var container = fixture.CreateScope();
+    //    using var db = container.GetRequiredService<DatabaseContext>();
+    //    db!.Database.EnsureCreated();
+    //}
+
+    public EfCoreTests()
     {
-        var container = fixture.CreateScope();
-        using var db = container.GetRequiredService<DatabaseContext>();
-        db!.Database.EnsureCreated();
+        var services = new ServiceCollection();
+        services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
+        services.AddSingleton<DatabaseFactory>();
+        services.AddSingleton<DbContextOptions<DatabaseContext>>(_ =>
+        {
+            var optionsBuilder = new DbContextOptionsBuilder<DatabaseContext>();
+
+            optionsBuilder.UseInMemoryDatabase("EfCore")
+                          .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+
+            return optionsBuilder.Options;
+        });
+        services.AddScoped<DatabaseContext, DatabaseContext>();
+
+        _serviceProvider = services.BuildServiceProvider();
+        _fixture = new Fixture();
+        _fixture.Customize(new AutoMoqCustomization());
     }
+
+    readonly Fixture _fixture;
+    readonly IServiceProvider _serviceProvider;
 
     [Fact]
     [TestPriority(1)]
     public async Task TestTrackerInsertData()
     {
-        var fixture = new Fixture();
+        var container = _serviceProvider.CreateScope().ServiceProvider;
 
-        var container = Fixture.CreateScope();
         using var db = container.GetRequiredService<DatabaseContext>();
+        db.Database.EnsureCreated();
+
         for (var i = 0; i < 10; i++)
         {
-            var contract = fixture.Create<Contract>();
+            var contract = _fixture.Create<Contract>();
             contract.PersistChange = Data.PersistChange.Insert;
 
             db!.ChangeTracker.TrackGraph(contract, ChangeGraphTracker.Tracker);
@@ -47,7 +75,7 @@ public class EfCoreTests : BaseContainerFixture<EfCoreTests, EfCoreFixture>
     [TestPriority(2)]
     public async Task TestDelete()
     {
-        var container = Fixture.CreateScope();
+        var container = _serviceProvider.CreateScope().ServiceProvider;
         using var db = container.GetRequiredService<DatabaseContext>();
         var result = await db!.Contracts.ToListAsync();
 
@@ -69,7 +97,7 @@ public class EfCoreTests : BaseContainerFixture<EfCoreTests, EfCoreFixture>
     {
         var fixture = new Fixture();
 
-        var container = Fixture.CreateScope();
+        var container = _serviceProvider.CreateScope().ServiceProvider;
         using var db = container.GetRequiredService<DatabaseContext>();
 
         var contract = fixture.Create<Contract>();

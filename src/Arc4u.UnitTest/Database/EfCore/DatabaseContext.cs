@@ -1,13 +1,13 @@
-﻿using Arc4u.UnitTest.Database.EfCore.Model;
+using Arc4u.UnitTest.Database.EfCore.Model;
 using Microsoft.EntityFrameworkCore;
 
 namespace Arc4u.UnitTest.Database.EfCore;
 
 public partial class DatabaseContext : DbContext
 {
-    public DatabaseContext()
-    {
-    }
+    //public DatabaseContext()
+    //{
+    //}
 
     public DatabaseContext(DbContextOptions<DatabaseContext> options)
         : base(options)
