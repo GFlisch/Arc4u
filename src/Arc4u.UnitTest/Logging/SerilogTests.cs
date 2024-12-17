@@ -105,7 +105,7 @@ public sealed class AnonymousSinkTest : ILogEventSink, IDisposable
 
     public void Emit(LogEvent logEvent)
     {
-        IsAnonymous = !logEvent.Properties.ContainsKey(Diagnostics.LoggingConstants.Identity);
+        IsAnonymous = !logEvent.Properties.ContainsKey(LoggingConstants.Identity);
     }
 }
 
@@ -130,7 +130,7 @@ public sealed class FromSinkTest : ILogEventSink, IDisposable
 
     public string Application { get; set; } = default!;
 
-    public Diagnostics.MessageCategory Category { get; set; }
+    public MessageCategory Category { get; set; }
 
     public string? ActivityId { get; set; } = default!;
 
@@ -154,7 +154,7 @@ public sealed class FromSinkTest : ILogEventSink, IDisposable
 
         if (logEvent.Properties.TryGetValue(LoggingConstants.Category, out var categoryPropertyValue))
         {
-            Category = (Diagnostics.MessageCategory)GetValue<short>(categoryPropertyValue, 1);
+            Category = (MessageCategory)GetValue<short>(categoryPropertyValue, 1);
         }
 
         if (logEvent.Properties.TryGetValue(LoggingConstants.Application, out var applicationName))

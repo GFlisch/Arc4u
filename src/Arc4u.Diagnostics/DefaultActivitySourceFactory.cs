@@ -1,5 +1,8 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("Arc4u.UnitTest")]
 
 namespace Arc4u.Diagnostics;
 

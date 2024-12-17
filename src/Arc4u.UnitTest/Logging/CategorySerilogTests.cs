@@ -44,16 +44,16 @@ public class CategorySerilogTesters : BaseSinkContainerFixture<CategorySerilogTe
         Assert.True(sink.Emited);
         sink.Emited = false;
 
-        using var monitoring = new Diagnostics.Monitoring.SystemResources(logger, 1)
+        using var monitoring = new Arc4u.Diagnostics.Monitoring.SystemResources(logger, 1)
         {
             StartMonitoringDelayInSeconds = 1
         };
 
-        await monitoring.StartAsync(new System.Threading.CancellationToken());
+        await monitoring.StartAsync(new CancellationToken());
 
         await Task.Delay(1500);
 
-        await monitoring.StopAsync(new System.Threading.CancellationToken());
+        await monitoring.StopAsync(new CancellationToken());
 
         Assert.True(sink.Emited);
     }
@@ -70,7 +70,7 @@ public class LoggerCategorySinkTest : SerilogWriter
         Sink = new SinkTest();
         FromTest = new FromSinkTest();
 
-        configurator.WriteTo.CategoryFilter(Diagnostics.MessageCategory.Business | Diagnostics.MessageCategory.Monitoring, Sink);
+        configurator.WriteTo.CategoryFilter(MessageCategory.Business | MessageCategory.Monitoring, Sink);
         configurator.WriteTo.Sink(FromTest);
     }
 }
