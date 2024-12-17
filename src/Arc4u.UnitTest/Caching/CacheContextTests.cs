@@ -5,13 +5,13 @@ using Arc4u.Configuration.Dapr;
 using Arc4u.Configuration.Memory;
 using Arc4u.Configuration.Redis;
 using Arc4u.Configuration.Sql;
-using Arc4u.Dependency;
 using Arc4u.Serializer;
 using AutoFixture;
 using AutoFixture.AutoMoq;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
@@ -200,23 +200,25 @@ public class CacheContextTests
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
         services.AddCacheContext(configuration);
+        services.AddTransient<IObjectSerialization, JsonSerialization>();
+        services.AddKeyedTransient<ICache, MemoryCache>(CacheContext.Memory);
+
+        var mockLoggerCacheContext = new Mock<ILogger<CacheContext>>();
+        services.AddSingleton(mockLoggerCacheContext.Object);
+
+        var mockLoggerMemoryCache = new Mock<ILogger<MemoryCache>>();
+        services.AddSingleton(mockLoggerMemoryCache.Object);
 
         var serviceProvider = services.BuildServiceProvider();
 
         var mockIOptions = _fixture.Freeze<Mock<IOptionsMonitor<MemoryCacheOption>>>();
         mockIOptions.Setup(m => m.Get("Volatile")).Returns(serviceProvider.GetService<IOptionsMonitor<MemoryCacheOption>>()!.Get("Volatile"));
-
-        var mockIContainer = _fixture.Freeze<Mock<IContainerResolve>>();
-        IObjectSerialization? serializer = new JsonSerialization();
-        mockIContainer.Setup(m => m.TryResolve<IObjectSerialization>(out serializer)).Returns(true);
-
-        ICache? mockCache = _fixture.Create<MemoryCache>();
-        mockIContainer.Setup(m => m.TryResolve<ICache>(CacheContext.Memory, out mockCache)).Returns(true);
-
-        _fixture.Inject<IConfiguration>(configuration);
+        
+        _fixture.Inject(configuration);
+        _fixture.Inject<IServiceProvider>(serviceProvider);
 
         var sut = _fixture.Create<CacheContext>();
-
+        
         var cacheInstance = sut["Volatile"];
 
         cacheInstance.Put("key", "value");

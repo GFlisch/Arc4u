@@ -14,6 +14,13 @@ using Xunit;
 
 namespace Arc4u.UnitTest.Caching;
 
+/// <summary>
+/// To run the test all the tests, you need a sql server instance.
+/// To prepare the database install the followin dotnet tools.
+///  dotnet tool install --global dotnet-sql-cache
+/// Run this command:
+///  dotnet sql-cache create "Data Source=localhost;Initial Catalog=CacheTestDB;User ID=sa;Password=P@ssw0rd!;Connect Timeout=30;Encrypt=False" dbo TestCache
+/// </summary>
 public class SqlCacheTests
 {
     public SqlCacheTests()
@@ -94,25 +101,29 @@ public class SqlCacheTests
     {
         // arrange
         IServiceCollection services = new ServiceCollection();
-        var builder = new SqlConnectionStringBuilder();
-        builder.ConnectTimeout = 30;
-        builder.InitialCatalog = "CacheTestDB";
-        builder.Encrypt = false;
-        builder.Password = "P@ssword";
-        builder.UserID = "sa";
-        builder.DataSource = "localhost";
+
+        var builder = new SqlConnectionStringBuilder
+        {
+            ConnectTimeout = 30,
+            InitialCatalog = "CacheTestDB",
+            Encrypt = false,
+            Password = "P@ssw0rd!",
+            UserID = "sa",
+            DataSource = "localhost"
+        };
 
         services.AddSqlCache("storeName", options =>
         {
             options.ConnectionString = builder.ConnectionString;
+            options.SchemaName = "dbo";
+            options.TableName = "TestCache";
         });
 
         services.AddTransient<IObjectSerialization, JsonSerialization>();
 
         var serviceProvider = services.BuildServiceProvider();
 
-        var mockIContainer = _fixture.Freeze<Mock<IContainerResolve>>();
-        mockIContainer.Setup(m => m.Resolve<IObjectSerialization>()).Returns(serviceProvider.GetService<IObjectSerialization>()!);
+        _fixture.Inject<IServiceProvider>(serviceProvider);
 
         var mockIOptions = _fixture.Freeze<Mock<IOptionsMonitor<SqlCacheOption>>>();
         mockIOptions.Setup(m => m.Get("storeName")).Returns(serviceProvider.GetService<IOptionsMonitor<SqlCacheOption>>()!.Get("storeName"));

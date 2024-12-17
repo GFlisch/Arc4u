@@ -1,5 +1,6 @@
 using Arc4u.ServiceModel;
 using Arc4u.UnitTest.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
@@ -15,7 +16,7 @@ public class MessagesLogTests : BaseContainerFixture<MessagesLogTests, BasicFixt
     [Fact]
     public void TestLogAll()
     {
-        using var container = Fixture.CreateScope();
+        var container = Fixture.CreateScope();
         LogStartBanner();
 
         var messages = new Messages
@@ -23,7 +24,7 @@ public class MessagesLogTests : BaseContainerFixture<MessagesLogTests, BasicFixt
             new Message(MessageCategory.Technical, MessageType.Error, "An error message.")
         };
 
-        var logger = container.Resolve<ILogger<MessagesLogTests>>()!;
+        var logger = container.GetRequiredService<ILogger<MessagesLogTests>>()!;
 
         messages.LogAll(logger);
 

@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using Arc4u.Dependency;
 using Arc4u.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Controllers;
@@ -31,8 +30,7 @@ public class LogMonitoringTimeElapsedMiddleware
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        var container = context.RequestServices.GetRequiredService<IContainerResolve>();
-        var logger = container.Resolve<ILogger>();
+        var logger = context.RequestServices.GetService<ILogger>();
 
         var stopwatch = Stopwatch.StartNew();
 

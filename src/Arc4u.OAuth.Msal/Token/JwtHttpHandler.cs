@@ -3,6 +3,7 @@ using Arc4u.Dependency;
 using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Token;
 using Arc4u.Security.Principal;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Arc4u.OAuth2.Msal.Token;
@@ -19,21 +20,21 @@ public class JwtHttpHandler : DelegatingHandler
     /// <param name="container">The scoped container</param>
     /// <param name="logger"></param>
     /// <param name="resolvingName">The name used to resolve the settings</param>
-    public JwtHttpHandler(IContainerResolve container, ILogger<JwtHttpHandler> logger, string resolvingName)
+    public JwtHttpHandler(IServiceProvider container, ILogger<JwtHttpHandler> logger, string resolvingName)
     {
         _container = container ?? throw new ArgumentNullException(nameof(container));
 
         _logger = logger;
 
-        if (!container.TryResolve(resolvingName, out _settings))
+        if (!container.TryGetService(resolvingName, out _settings))
         {
             _logger.Technical().System($"No settings for {resolvingName} is found.").Log();
         }
 
-        container.TryResolve(out _applicationContext);
+        container.TryGetService(out _applicationContext);
     }
 
-    public JwtHttpHandler(IContainerResolve container, ILogger<JwtHttpHandler> logger, IKeyValueSettings settings)
+    public JwtHttpHandler(IServiceProvider container, ILogger<JwtHttpHandler> logger, IKeyValueSettings settings)
     {
         _container = container ?? throw new ArgumentNullException(nameof(container));
 
@@ -41,15 +42,15 @@ public class JwtHttpHandler : DelegatingHandler
 
         _logger = logger;
 
-        container.TryResolve(out _applicationContext);
+        container.TryGetService(out _applicationContext);
     }
 
     private readonly IKeyValueSettings? _settings;
-    private readonly IContainerResolve _container;
+    private readonly IServiceProvider _container;
     private readonly IApplicationContext? _applicationContext;
     private readonly ILogger<JwtHttpHandler> _logger;
 
-    private IContainerResolve GetResolver() => _container;
+    private IServiceProvider GetResolver() => _container;
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
@@ -93,7 +94,7 @@ public class JwtHttpHandler : DelegatingHandler
 
         _logger.Technical().System($"{GetType().Name} token provider is called.").Log();
 
-        var provider = GetResolver().Resolve<ITokenProvider>(_settings.Values[TokenKeys.ProviderIdKey]);
+        var provider = GetResolver().GetKeyedService<ITokenProvider>(_settings.Values[TokenKeys.ProviderIdKey]);
 
         if (null == provider)
         {

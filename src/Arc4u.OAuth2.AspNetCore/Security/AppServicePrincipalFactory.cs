@@ -9,6 +9,7 @@ using Arc4u.OAuth2.Token;
 using Arc4u.Security.Principal;
 using Arc4u.ServiceModel;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -22,7 +23,7 @@ public class AppServicePrincipalFactory : IAppPrincipalFactory
     public static readonly string tokenExpirationClaimType = "exp";
     public static readonly string[] ClaimsToExclude = { "exp", "aud", "iss", "iat", "nbf", "acr", "aio", "appidacr", "ipaddr", "scp", "sub", "tid", "uti", "unique_name", "apptype", "appid", "ver", "http://schemas.microsoft.com/ws/2008/06/identity/claims/authenticationinstant", "http://schemas.microsoft.com/identity/claims/scope" };
 
-    private readonly IContainerResolve _container;
+    private readonly IServiceProvider _container;
     private readonly ILogger<AppServicePrincipalFactory> _logger;
     private readonly IOptionsMonitor<SimpleKeyValueSettings> _settings;
     private readonly IClaimsTransformation _claimsTransformation;
@@ -33,7 +34,7 @@ public class AppServicePrincipalFactory : IAppPrincipalFactory
         throw new NotImplementedException();
     }
 
-    public AppServicePrincipalFactory(IContainerResolve container, ILogger<AppServicePrincipalFactory> logger, IOptionsMonitor<SimpleKeyValueSettings> settings, IClaimsTransformation claimsTransformation, IActivitySourceFactory activitySourceFactory)
+    public AppServicePrincipalFactory(IServiceProvider container, ILogger<AppServicePrincipalFactory> logger, IOptionsMonitor<SimpleKeyValueSettings> settings, IClaimsTransformation claimsTransformation, IActivitySourceFactory activitySourceFactory)
     {
         _container = container;
         _logger = logger;
@@ -82,7 +83,7 @@ public class AppServicePrincipalFactory : IAppPrincipalFactory
     private async Task BuildTheIdentity(ClaimsIdentity identity, IKeyValueSettings settings, object? parameter = null)
     {
         // Check if we have a provider registered.
-        if (!_container.TryResolve(settings.Values[ProviderKey], out ITokenProvider? provider))
+        if (!_container.TryGetService(settings.Values[ProviderKey], out ITokenProvider? provider))
         {
             throw new NotSupportedException($"The principal cannot be created. We are missing an account provider: {settings.Values[ProviderKey]}");
         }
@@ -108,12 +109,12 @@ public class AppServicePrincipalFactory : IAppPrincipalFactory
 
     private async ValueTask RemoveCacheFromUserAsync()
     {
-        if (_container.TryResolve<IApplicationContext>(out var appContext))
+        if (_container.TryGetService<IApplicationContext>(out var appContext))
         {
             if (appContext!.Principal is not null && appContext.Principal.Identity is not null && appContext.Principal.Identity is ClaimsIdentity claimsIdentity)
             {
-                var cacheHelper = _container.Resolve<ICacheHelper>();
-                var cacheKeyGenerator = _container.Resolve<ICacheKeyGenerator>();
+                var cacheHelper = _container.GetService<ICacheHelper>();
+                var cacheKeyGenerator = _container.GetService<ICacheKeyGenerator>();
 
                 if (null != cacheHelper && null != cacheKeyGenerator)
                 {

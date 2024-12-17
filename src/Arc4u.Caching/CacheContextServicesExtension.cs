@@ -1,5 +1,4 @@
 using Arc4u.Configuration.Memory;
-using Arc4u.Dependency;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -58,8 +57,8 @@ public static class CacheContextServicesExtension
         return $"{rootSectionName}:Caches:{idx}:Settings";
     }
 
-    public static ICacheContext? GetCacheContext(this IContainerResolve container)
+    public static ICacheContext? GetCacheContext(this IServiceProvider container)
     {
-        return container.Resolve<ICacheContext>();
+        return container.GetService<ICacheContext>();
     }
 }

@@ -39,7 +39,7 @@ public class BlazorController : ControllerBase
     [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
     [HttpGet("redirectTo/{redirectTo}/{id?}")]
-    public async Task<IActionResult> Get(int? id, string redirectTo, [FromServices] IApplicationContext applicationContext, [FromServices] IContainerResolve containerResolve, [FromServices] ILogger<BlazorController> logger)
+    public async Task<IActionResult> Get(int? id, string redirectTo, [FromServices] IApplicationContext applicationContext, [FromServices] IServiceProvider containerResolve, [FromServices] ILogger<BlazorController> logger)
     {
         if (applicationContext.Principal is null || applicationContext.Principal.Authorization.Operations.Count == 0)
         {
@@ -58,9 +58,9 @@ public class BlazorController : ControllerBase
             }
             else
             {
-                if (containerResolve.TryResolve<IKeyValueSettings>("OpenId", out var settings))
+                if (containerResolve.TryGetService<IKeyValueSettings>("OpenId", out var settings))
                 {
-                    if (containerResolve.TryResolve<ITokenProvider>(settings!.Values[TokenKeys.ProviderIdKey], out var tokenProvider))
+                    if (containerResolve.TryGetService<ITokenProvider>(settings!.Values[TokenKeys.ProviderIdKey], out var tokenProvider))
                     {
                         accessToken = (await tokenProvider!.GetTokenAsync(settings, claimsIdentity).ConfigureAwait(false))?.Token;
                     }
@@ -79,7 +79,7 @@ public class BlazorController : ControllerBase
 
         if (accessToken.Length > index * buffer)
         {
-            if (containerResolve.TryResolve<IKeyValueSettings>("OAuth2", out var settings))
+            if (containerResolve.TryGetService<IKeyValueSettings>("OAuth2", out var settings))
             {
                 var thisController = settings!.Values[TokenKeys.RootServiceUrlKey].TrimEnd('/') + $"/blazor/redirectto/{redirectTo}/{index + 1}&token={accessToken.Substring((index - 1) * buffer, buffer)}";
                 return Redirect(UriHelper.Encode(new Uri($"{redirectUri}?url={thisController}")));

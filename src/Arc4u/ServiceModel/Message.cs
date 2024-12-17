@@ -97,7 +97,7 @@ public sealed class Message : ICloneable
             builder.AppendFormat(CultureInfo.InvariantCulture, "{0} ", Subject);
         }
 
-        if (Text != null)
+        if (!string.IsNullOrWhiteSpace(Text))
         {
             builder.AppendFormat(CultureInfo.InvariantCulture, "{0} ", Text);
         }

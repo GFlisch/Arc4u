@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
-using Arc4u.Dependency;
 using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Token;
 using Arc4u.Security.Principal;
@@ -37,10 +36,8 @@ public class OpenIdBearerInjectorMiddleware
                 }
             }
 
-            var container = context.RequestServices.GetRequiredService<IContainerResolve>();
-
-            _activitySource ??= container.Resolve<IActivitySourceFactory>()?.GetArc4u();
-            _logger ??= container.Resolve<ILogger<OpenIdBearerInjectorMiddleware>>();
+            _activitySource ??= context.RequestServices.GetService<IActivitySourceFactory>()?.GetArc4u();
+            _logger ??= context.RequestServices.GetService<ILogger<OpenIdBearerInjectorMiddleware>>();
 
             using var activity = _activitySource?.StartActivity("Inject bearer token in header", ActivityKind.Producer);
             TokenInfo? tokenInfo = null;
@@ -49,7 +46,7 @@ public class OpenIdBearerInjectorMiddleware
             {
                 try
                 {
-                    var provider = container.Resolve<ITokenProvider>(_options.OboProviderKey);
+                    var provider = context.RequestServices.GetKeyedService<ITokenProvider>(_options.OboProviderKey);
 
                     if (provider is null)
                     {
@@ -69,7 +66,7 @@ public class OpenIdBearerInjectorMiddleware
             {
                 try
                 {
-                    var provider = container.Resolve<ITokenProvider>(_options.OpenIdSettings.Values[TokenKeys.ProviderIdKey]);
+                    var provider = context.RequestServices.GetKeyedService<ITokenProvider>(_options.OpenIdSettings.Values[TokenKeys.ProviderIdKey]);
 
                     if (provider is null)
                     {

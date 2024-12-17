@@ -19,13 +19,13 @@ public class CredentialSecretTokenProvider : ITokenProvider
     private const string Credential = "Credential";
     private const string BasicProviderId = "BasicProviderId";
 
-    public CredentialSecretTokenProvider(IContainerResolve container, ILogger<CredentialSecretTokenProvider> logger)
+    public CredentialSecretTokenProvider(IServiceProvider container, ILogger<CredentialSecretTokenProvider> logger)
     {
         _containerResolve = container;
         _logger = logger;
     }
 
-    private readonly IContainerResolve _containerResolve;
+    private readonly IServiceProvider _containerResolve;
     private readonly ILogger<CredentialSecretTokenProvider> _logger;
 
     public async Task<TokenInfo?> GetTokenAsync(IKeyValueSettings? settings, object? _)
@@ -48,7 +48,7 @@ public class CredentialSecretTokenProvider : ITokenProvider
             credential = new CredentialsResult(false).ExtractCredential(settings.Values[Credential], _logger);
         }
 
-        if (!settings.Values.ContainsKey(BasicProviderId) || !_containerResolve.TryResolve<ICredentialTokenProvider>(settings.Values[BasicProviderId], out var credentialToken))
+        if (!settings.Values.ContainsKey(BasicProviderId) || !_containerResolve.TryGetService<ICredentialTokenProvider>(settings.Values[BasicProviderId], out var credentialToken))
         {
             throw new ConfigurationException("No BasicProviderId exist to perform the request to the STS.");
         }

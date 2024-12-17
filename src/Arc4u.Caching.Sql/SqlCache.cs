@@ -24,7 +24,7 @@ public class SqlCache : BaseDistributeCache<SqlCache>, ICache
     /// </summary>
     private readonly IOptionsMonitor<SqlCacheOption> _options;
 
-    public SqlCache(ILogger<SqlCache> logger, IContainerResolve container, IOptionsMonitor<SqlCacheOption> options) : base(logger, container)
+    public SqlCache(ILogger<SqlCache> logger, IServiceProvider container, IOptionsMonitor<SqlCacheOption> options) : base(logger, container)
     {
         _logger = logger;
         _options = options;
@@ -63,7 +63,7 @@ public class SqlCache : BaseDistributeCache<SqlCache>, ICache
 
                 if (!string.IsNullOrWhiteSpace(config.SerializerName))
                 {
-                    IsInitialized = Container.TryResolve<IObjectSerialization>(config.SerializerName!, out var serializerFactory);
+                    IsInitialized = Container.TryGetService<IObjectSerialization>(config.SerializerName!, out var serializerFactory);
                     if (IsInitialized)
                     {
                         SerializerFactory = serializerFactory!;
@@ -72,7 +72,7 @@ public class SqlCache : BaseDistributeCache<SqlCache>, ICache
 
                 if (!IsInitialized)
                 {
-                    IsInitialized = Container.TryResolve<IObjectSerialization>(out var serializerFactory);
+                    IsInitialized = Container.TryGetService<IObjectSerialization>(out var serializerFactory);
                     if (IsInitialized)
                     {
                         SerializerFactory = serializerFactory!;

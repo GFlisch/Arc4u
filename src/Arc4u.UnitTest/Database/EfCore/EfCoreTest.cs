@@ -3,6 +3,7 @@ using Arc4u.UnitTest.Database.EfCore.Model;
 using Arc4u.UnitTest.Infrastructure;
 using AutoFixture;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Arc4u.UnitTest.Database.EfCore;
@@ -13,8 +14,8 @@ public class EfCoreTests : BaseContainerFixture<EfCoreTests, EfCoreFixture>
 {
     public EfCoreTests(EfCoreFixture fixture) : base(fixture)
     {
-        using var container = fixture.CreateScope();
-        using var db = container.Resolve<DatabaseContext>();
+        var container = fixture.CreateScope();
+        using var db = container.GetRequiredService<DatabaseContext>();
         db!.Database.EnsureCreated();
     }
 
@@ -24,8 +25,8 @@ public class EfCoreTests : BaseContainerFixture<EfCoreTests, EfCoreFixture>
     {
         var fixture = new Fixture();
 
-        using var container = Fixture.CreateScope();
-        using var db = container.Resolve<DatabaseContext>();
+        var container = Fixture.CreateScope();
+        using var db = container.GetRequiredService<DatabaseContext>();
         for (var i = 0; i < 10; i++)
         {
             var contract = fixture.Create<Contract>();
@@ -46,8 +47,8 @@ public class EfCoreTests : BaseContainerFixture<EfCoreTests, EfCoreFixture>
     [TestPriority(2)]
     public async Task TestDelete()
     {
-        using var container = Fixture.CreateScope();
-        using var db = container.Resolve<DatabaseContext>();
+        var container = Fixture.CreateScope();
+        using var db = container.GetRequiredService<DatabaseContext>();
         var result = await db!.Contracts.ToListAsync();
 
         var toDelete = result.First();
@@ -68,8 +69,8 @@ public class EfCoreTests : BaseContainerFixture<EfCoreTests, EfCoreFixture>
     {
         var fixture = new Fixture();
 
-        using var container = Fixture.CreateScope();
-        using var db = container.Resolve<DatabaseContext>();
+        var container = Fixture.CreateScope();
+        using var db = container.GetRequiredService<DatabaseContext>();
 
         var contract = fixture.Create<Contract>();
         contract.PersistChange = Data.PersistChange.Insert;

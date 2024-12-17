@@ -2,12 +2,12 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Runtime.Serialization.Json;
 using System.Security.Claims;
 using System.Security.Principal;
-using Arc4u.Dependency;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Arc4u.IdentityModel.Claims;
 using Arc4u.OAuth2.Token;
 using Arc4u.Security.Principal;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Arc4u.OAuth2.Security.Principal;
@@ -15,7 +15,7 @@ namespace Arc4u.OAuth2.Security.Principal;
 [Export(typeof(IClaimsFiller))]
 public class ClaimsBearerTokenExtractor : IClaimsFiller
 {
-    public ClaimsBearerTokenExtractor(IContainerResolve container, ILogger<ClaimsBearerTokenExtractor> logger)
+    public ClaimsBearerTokenExtractor(IServiceProvider container, ILogger<ClaimsBearerTokenExtractor> logger)
     {
         _container = container;
         _jsonSerializer = new DataContractJsonSerializer(typeof(IEnumerable<ClaimDto>));
@@ -23,7 +23,7 @@ public class ClaimsBearerTokenExtractor : IClaimsFiller
     }
 
     private readonly DataContractJsonSerializer _jsonSerializer;
-    private readonly IContainerResolve _container;
+    private readonly IServiceProvider _container;
     private readonly ILogger<ClaimsBearerTokenExtractor> _logger;
 
     public async Task<IEnumerable<ClaimDto>> GetAsync(IIdentity identity, IEnumerable<IKeyValueSettings> settings, object? parameter)
@@ -66,7 +66,7 @@ public class ClaimsBearerTokenExtractor : IClaimsFiller
                 // exist because tested in the constructor!
                 var providerSettings = settings.First(s => s.Values[TokenKeys.AuthenticationTypeKey].Equals(identity.AuthenticationType));
 
-                var provider = _container.Resolve<ITokenProvider>(providerSettings.Values[TokenKeys.ProviderIdKey]);
+                var provider = _container.GetKeyedService<ITokenProvider>(providerSettings.Values[TokenKeys.ProviderIdKey]);
 
                 if (null == provider)
                 {

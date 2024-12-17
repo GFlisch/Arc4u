@@ -2,13 +2,13 @@ using System.Globalization;
 using Arc4u.Caching;
 using Arc4u.Caching.Memory;
 using Arc4u.Configuration.Memory;
-using Arc4u.Dependency;
 using Arc4u.Serializer;
 using AutoFixture;
 using AutoFixture.AutoMoq;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
@@ -106,13 +106,11 @@ public class MemoryTest
 
         var serviceProvider = services.BuildServiceProvider();
 
-        var mockIContainer = _fixture.Freeze<Mock<IContainerResolve>>();
-        var serializer = serviceProvider.GetRequiredService<IObjectSerialization>();
-        mockIContainer.Setup(m => m.TryResolve<IObjectSerialization>(out serializer)).Returns(true);
-
         var mockIOptions = _fixture.Freeze<Mock<IOptionsMonitor<MemoryCacheOption>>>();
         mockIOptions.Setup(m => m.Get("Store")).Returns(serviceProvider.GetService<IOptionsMonitor<MemoryCacheOption>>()!.Get("Store"));
 
+        _fixture.Inject(configuration);
+        _fixture.Inject<IServiceProvider>(serviceProvider);
         // act
         var cache = _fixture.Create<MemoryCache>();
 
@@ -145,14 +143,16 @@ public class MemoryTest
         services.AddMemoryCache("Store", configuration, "Store");
         services.AddSingleton<IConfiguration>(configuration);
 
-        var serviceProvider = services.BuildServiceProvider();
+        var mockLoggerMemoryCache = new Mock<ILogger<MemoryCache>>();
+        services.AddSingleton(mockLoggerMemoryCache.Object);
 
-        var mockIContainer = _fixture.Freeze<Mock<IContainerResolve>>();
-        IObjectSerialization? serializer = null;
-        mockIContainer.Setup(m => m.TryResolve<IObjectSerialization>(out serializer)).Returns(false);
+        var serviceProvider = services.BuildServiceProvider();
 
         var mockIOptions = _fixture.Freeze<Mock<IOptionsMonitor<MemoryCacheOption>>>();
         mockIOptions.Setup(m => m.Get("Store")).Returns(serviceProvider.GetService<IOptionsMonitor<MemoryCacheOption>>()!.Get("Store"));
+
+        _fixture.Inject(configuration);
+        _fixture.Inject<IServiceProvider>(serviceProvider);
 
         // act
         var cache = _fixture.Create<MemoryCache>();
@@ -185,15 +185,16 @@ public class MemoryTest
         services.AddSingleton<IConfiguration>(configuration);
         services.AddTransient<IObjectSerialization, JsonSerialization>();
 
-        var serviceProvider = services.BuildServiceProvider();
+        var mockLoggerMemoryCache = new Mock<ILogger<MemoryCache>>();
+        services.AddSingleton(mockLoggerMemoryCache.Object);
 
-        var mockIContainer = _fixture.Freeze<Mock<IContainerResolve>>();
-        var serializer = serviceProvider.GetRequiredService<IObjectSerialization>();
-        mockIContainer.Setup(m => m.TryResolve<IObjectSerialization>(out serializer)).Returns(true);
+        var serviceProvider = services.BuildServiceProvider();
 
         var mockIOptions = _fixture.Freeze<Mock<IOptionsMonitor<MemoryCacheOption>>>();
         mockIOptions.Setup(m => m.Get("Store")).Returns(serviceProvider.GetService<IOptionsMonitor<MemoryCacheOption>>()!.Get("Store"));
 
+        _fixture.Inject(configuration);
+        _fixture.Inject<IServiceProvider>(serviceProvider);
         // act
         var cache = _fixture.Create<MemoryCache>();
 

@@ -7,6 +7,7 @@ using Arc4u.Network.Connectivity;
 using Arc4u.OAuth2.Security.Principal;
 using Arc4u.OAuth2.TokenProvider;
 using Arc4u.ServiceModel;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Arc4u.OAuth2.Token;
@@ -14,7 +15,7 @@ namespace Arc4u.OAuth2.Token;
 [Export(UsernamePasswordTokenProvider.ProviderName, typeof(ITokenProvider))]
 public class UsernamePasswordTokenProvider : ITokenProvider
 {
-    public UsernamePasswordTokenProvider(ISecureCache secureCache, INetworkInformation networkStatus, ILogger<UsernamePasswordTokenProvider> logger, IContainerResolve container)
+    public UsernamePasswordTokenProvider(ISecureCache secureCache, INetworkInformation networkStatus, ILogger<UsernamePasswordTokenProvider> logger, IServiceProvider container)
     {
         _secureCache = secureCache;
         _networkStatus = networkStatus;
@@ -26,7 +27,7 @@ public class UsernamePasswordTokenProvider : ITokenProvider
 
     private readonly ICache _secureCache;
     private readonly INetworkInformation _networkStatus;
-    private readonly IContainerResolve Container;
+    private readonly IServiceProvider Container;
     private readonly ILogger<UsernamePasswordTokenProvider> _logger;
 
     private string userkey = default!;
@@ -65,7 +66,7 @@ public class UsernamePasswordTokenProvider : ITokenProvider
 
         if (string.IsNullOrWhiteSpace(upn) || string.IsNullOrWhiteSpace(pwd))
         {
-            if (!Container.TryResolve<IUserNamePasswordProvider>(out var usernamePasswordProvider))
+            if (!Container.TryGetService<IUserNamePasswordProvider>(out var usernamePasswordProvider))
             {
                 throw new AppException("No Token provider found in the container.");
             }
@@ -114,7 +115,7 @@ public class UsernamePasswordTokenProvider : ITokenProvider
 
     protected async Task<TokenInfo> CreateBasicTokenInfoAsync(IKeyValueSettings settings, CredentialsResult credential)
     {
-        var basicTokenProvider = Container.Resolve<ICredentialTokenProvider>(CredentialTokenProvider.ProviderName);
+        var basicTokenProvider = Container.GetKeyedService<ICredentialTokenProvider>(CredentialTokenProvider.ProviderName);
 
         if (null == basicTokenProvider)
         {

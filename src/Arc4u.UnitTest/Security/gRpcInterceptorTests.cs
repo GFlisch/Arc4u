@@ -2,7 +2,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Arc4u.Caching;
 using Arc4u.Configuration;
-using Arc4u.Dependency;
 using Arc4u.Dependency.ComponentModel;
 using Arc4u.Diagnostics;
 using Arc4u.gRPC.Interceptors;
@@ -53,7 +52,7 @@ public class InterceptorTest : OAuth2Interceptor
 
 public class InterceptorClientTest : OAuth2Interceptor
 {
-    public InterceptorClientTest(IContainerResolve containerResolve, ILogger<OAuth2Interceptor> logger, IOptionsMonitor<SimpleKeyValueSettings> keyValuesSettingsOption, string settingsName) : base(containerResolve, logger, keyValuesSettingsOption.Get(settingsName))
+    public InterceptorClientTest(IServiceProvider containerResolve, ILogger<OAuth2Interceptor> logger, IOptionsMonitor<SimpleKeyValueSettings> keyValuesSettingsOption, string settingsName) : base(containerResolve, logger, keyValuesSettingsOption.Get(settingsName))
     {
     }
 }
@@ -570,11 +569,10 @@ public class GRpcInterceptorTests
         services.ConfigureOAuth2Settings(configuration, "Authentication:OAuth2.Settings");
         services.AddScoped<IApplicationContext, ApplicationInstanceContext>();
         services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
-
+        services.AddKeyedTransient<ITokenProvider, BootstrapContextTokenProvider>("Bootstrap");
         // Register the different TokenProvider and CredentialTokenProviders.
-        var container = new ComponentModelContainer(services);
-        container.Register<ITokenProvider, BootstrapContextTokenProvider>("Bootstrap");
-        container.CreateContainer();
+
+        var serviceProvider = services.BuildServiceProvider();
 
         var principal = new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.CookiesAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0")
         {
@@ -582,10 +580,10 @@ public class GRpcInterceptorTests
         };
 
         // Define a Principal with no OAuth2Bearer token here => we test the injection.
-        var appContext = container.Resolve<IApplicationContext>();
-        appContext!.SetPrincipal(principal);
+        var appContext = serviceProvider.GetRequiredService<IApplicationContext>();
+        appContext.SetPrincipal(principal);
 
-        var setingsOptions = container.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
+        var setingsOptions = serviceProvider.GetRequiredService<IOptionsMonitor<SimpleKeyValueSettings>>();
 
         var mockMethod = _fixture.Freeze<Mock<Method<string, string>>>();
 
@@ -593,7 +591,7 @@ public class GRpcInterceptorTests
         var mock = _fixture.Freeze<Mock<BlockingUnaryCallContinuation<string, string>>>();
 
         // Act
-        var sut = new InterceptorClientTest(container, container.Resolve<ILogger<InterceptorTest>>()!, setingsOptions!, "OAuth2");
+        var sut = new InterceptorClientTest(serviceProvider, serviceProvider.GetRequiredService<ILogger<InterceptorTest>>()!, setingsOptions!, "OAuth2");
 
         sut.BlockingUnaryCall<string, string>("Test", mockClientInterceptorContext, mock.Object);
 

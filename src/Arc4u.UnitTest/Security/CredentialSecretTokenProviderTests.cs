@@ -16,6 +16,24 @@ using Xunit;
 
 namespace Arc4u.UnitTest.Security;
 
+public class DI : IKeyedServiceProvider
+{
+    public object? GetKeyedService(Type serviceType, object? serviceKey)
+    {
+        throw new NotImplementedException();
+    }
+
+    public object GetRequiredKeyedService(Type serviceType, object? serviceKey)
+    {
+        throw new NotImplementedException();
+    }
+
+    public object? GetService(Type serviceType)
+    {
+        throw new NotImplementedException();
+    }
+}
+
 [Trait("Category", "CI")]
 
 public class CredentialSecretTokenProviderTests
@@ -40,8 +58,10 @@ public class CredentialSecretTokenProviderTests
         mockCredentialTokenProvider.Setup(m => m.GetTokenAsync(It.IsAny<SimpleKeyValueSettings>(), It.IsAny<CredentialsResult>())).ReturnsAsync(tokenTest).Verifiable();
         var credentialProvider = mockCredentialTokenProvider.Object;
 
-        var mockContainer = _fixture.Freeze<Mock<IContainerResolve>>();
-        mockContainer.Setup(m => m.TryResolve<ICredentialTokenProvider>(CredentialTokenCacheTokenProvider.ProviderName, out credentialProvider)).Returns(true).Verifiable();
+        var mockContainer = _fixture.Freeze<Mock<IKeyedServiceProvider>>();
+        mockContainer.Setup(m => m.GetKeyedService(typeof(ICredentialTokenProvider), It.IsAny<string>())).Returns(credentialProvider).Verifiable();
+
+        _fixture.Inject<IServiceProvider>(mockContainer.Object);
 
         // act.
         var sut = _fixture.Create<CredentialSecretTokenProvider>();
@@ -96,8 +116,8 @@ public class CredentialSecretTokenProviderTests
         mockCredentialTokenProvider.Setup(m => m.GetTokenAsync(It.IsAny<SimpleKeyValueSettings>(), It.IsAny<CredentialsResult>())).ReturnsAsync(tokenTest).Verifiable();
         var credentialProvider = mockCredentialTokenProvider.Object;
 
-        var mockContainer = _fixture.Freeze<Mock<IContainerResolve>>();
-        mockContainer.Setup(m => m.TryResolve<ICredentialTokenProvider>(CredentialTokenCacheTokenProvider.ProviderName, out credentialProvider)).Returns(true).Verifiable();
+        var mockContainer = _fixture.Freeze<Mock<IKeyedServiceProvider>>();
+        mockContainer.Setup(m => m.GetKeyedService(typeof(ICredentialTokenProvider), It.IsAny<string>())).Returns(credentialProvider).Verifiable();
 
         // act.
         var sut = _fixture.Create<CredentialSecretTokenProvider>();

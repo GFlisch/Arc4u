@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using Arc4u.Dependency;
 using Arc4u.Diagnostics;
 using Grpc.AspNetCore.Server;
 using Microsoft.AspNetCore.Http;
@@ -29,7 +28,7 @@ public class LogGrpcMonitoringTimeElapsedMiddleware
 
     public async Task Invoke(HttpContext context)
     {
-        var logger = context.RequestServices.GetService<IContainerResolve>()?.Resolve<ILogger>();
+        var logger = context.RequestServices.GetService<ILogger>();
 
         var stopwatch = Stopwatch.StartNew();
 

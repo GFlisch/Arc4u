@@ -61,7 +61,7 @@ public class ScopeTest
         Assert.Equal("Global", Context.Current.Value);
     }
 
-    [Trait("Category", "All")]
+    [Trait("Category", "CI")]
     [Fact]
     public async Task TestCultureContinueOnCurrentThread()
     {

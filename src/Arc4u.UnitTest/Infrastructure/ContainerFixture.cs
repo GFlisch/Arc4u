@@ -69,13 +69,13 @@ public abstract class ContainerFixture : IDisposable, IContainerFixture
 
     }
 
-    private IContainerResolve Container { get; set; }
+    private IServiceProvider Container { get; set; }
 
     #region IDisposable Support
     private bool disposedValue; // To detect redundant calls
-    public IContainerResolve CreateScope() => Container.CreateScope();
+    public IServiceProvider CreateScope() => Container.CreateScope().ServiceProvider;
 
-    public IContainerResolve SharedContainer => Container;
+    public IServiceProvider SharedContainer => Container;
 
     protected virtual void Dispose(bool disposing)
     {
@@ -84,12 +84,7 @@ public abstract class ContainerFixture : IDisposable, IContainerFixture
             if (disposing)
             {
                 _logger.Dispose();
-                // TODO: dispose managed state (managed objects).
-                Container.Dispose();
             }
-
-            // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
-            // TODO: set large fields to null.
 
             disposedValue = true;
         }

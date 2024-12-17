@@ -1,12 +1,17 @@
+using Arc4u.Caching;
 using Arc4u.Caching.Redis;
 using Arc4u.Configuration.Redis;
 using Arc4u.Dependency;
 using Arc4u.Serializer;
 using AutoFixture;
 using AutoFixture.AutoMoq;
+using Castle.Core.Logging;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
@@ -184,22 +189,16 @@ public class RedisTests
         var configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
         IServiceCollection services = new ServiceCollection();
-
-        services.Configure<RedisCacheOption>("Store", configuration.GetSection("Store"));
+        services.AddTransient<ICache, RedisCache>();
+        services.AddRedisCache("Store", configuration, "Store");
         services.AddSingleton<IConfiguration>(configuration);
         services.AddTransient<IObjectSerialization, JsonSerialization>();
+        services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
 
         var serviceProvider = services.BuildServiceProvider();
 
-        var mockIContainer = _fixture.Freeze<Mock<IContainerResolve>>();
-        var serializer = serviceProvider.GetRequiredService<IObjectSerialization>();
-        mockIContainer.Setup(m => m.TryResolve<IObjectSerialization>(out serializer)).Returns(true);
-
-        var mockIOptions = _fixture.Freeze<Mock<IOptionsMonitor<RedisCacheOption>>>();
-        mockIOptions.Setup(m => m.Get("Store")).Returns(serviceProvider.GetService<IOptionsMonitor<RedisCacheOption>>()!.Get("Store"));
-
         // act
-        var cache = _fixture.Create<RedisCache>();
+        var cache = serviceProvider.GetRequiredService<ICache>();
 
         cache.Initialize("Store");
 

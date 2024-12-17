@@ -1,13 +1,15 @@
 using System.IdentityModel.Tokens.Jwt;
+using Arc4u.Caching;
 using Arc4u.Caching.Memory;
 using Arc4u.Configuration.Memory;
-using Arc4u.Dependency;
 using Arc4u.OAuth2.Token;
 using Arc4u.Serializer;
 using AutoFixture;
 using AutoFixture.AutoMoq;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
@@ -78,20 +80,14 @@ public class TokenTests
 
         IServiceCollection services = new ServiceCollection();
 
+        services.AddTransient<ICache, MemoryCache>();
         services.AddMemoryCache(storeName, options => options.SizeLimitInMB = 10);
         services.AddTransient<IObjectSerialization, JsonSerialization>();
+        services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
 
         var serviceProvider = services.BuildServiceProvider();
 
-        IObjectSerialization? noSerializer = null;
-        var mockIContainer = _fixture.Freeze<Mock<IContainerResolve>>();
-        var serializer = serviceProvider.GetRequiredService<IObjectSerialization>();
-        mockIContainer.Setup(m => m.TryResolve<IObjectSerialization>(out serializer)).Returns(true);
-        mockIContainer.Setup(m => m.TryResolve(storeName, out noSerializer)).Returns(false);
-        var mockIOptions = _fixture.Freeze<Mock<IOptionsMonitor<MemoryCacheOption>>>();
-        mockIOptions.Setup(m => m.Get(storeName)).Returns(serviceProvider.GetService<IOptionsMonitor<MemoryCacheOption>>()!.Get(storeName));
-
-        var sut = _fixture.Create<MemoryCache>();
+        ICache sut = serviceProvider.GetRequiredService<ICache>();
         sut.Initialize(storeName);
 
         sut.Put("key", tokenInfo);
@@ -117,20 +113,14 @@ public class TokenTests
         var storeName = "store name";
         IServiceCollection services = new ServiceCollection();
 
+        services.AddTransient<ICache, MemoryCache>();
         services.AddMemoryCache(storeName, options => options.SizeLimitInMB = 10);
         services.AddTransient<IObjectSerialization, JsonSerialization>();
+        services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
 
         var serviceProvider = services.BuildServiceProvider();
 
-        IObjectSerialization? noSerializer = null;
-        var mockIContainer = _fixture.Freeze<Mock<IContainerResolve>>();
-        var serializer = serviceProvider.GetRequiredService<IObjectSerialization>();
-        mockIContainer.Setup(m => m.TryResolve<IObjectSerialization>(out serializer)).Returns(true);
-        mockIContainer.Setup(m => m.TryResolve(storeName, out noSerializer)).Returns(false);
-        var mockIOptions = _fixture.Freeze<Mock<IOptionsMonitor<MemoryCacheOption>>>();
-        mockIOptions.Setup(m => m.Get(storeName)).Returns(serviceProvider.GetService<IOptionsMonitor<MemoryCacheOption>>()!.Get(storeName));
-
-        var sut = _fixture.Create<MemoryCache>();
+        ICache sut = serviceProvider.GetRequiredService<ICache>();
         sut.Initialize(storeName);
 
         sut.Put("key", tokenInfo);

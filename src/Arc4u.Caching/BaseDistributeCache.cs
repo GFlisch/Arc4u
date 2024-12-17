@@ -23,12 +23,12 @@ public abstract class BaseDistributeCache<T> : ICache
     // The reason why the cache is not initialized, this will be used when an exception is thrown.
     protected string NotInitializedReason { get; set; } = string.Empty;
 
-    protected readonly IContainerResolve _container;
+    protected readonly IServiceProvider _container;
 
-    protected IContainerResolve Container => _container;
+    protected IServiceProvider Container => _container;
     private readonly ActivitySource? _activitySource;
 
-    protected BaseDistributeCache(ILogger<T> logger, IContainerResolve container)
+    protected BaseDistributeCache(ILogger<T> logger, IServiceProvider container)
     {
         ArgumentNullException.ThrowIfNull(logger);
         ArgumentNullException.ThrowIfNull(container);
@@ -36,7 +36,7 @@ public abstract class BaseDistributeCache<T> : ICache
         _container = container;
         _logger = logger;
 
-        if (container.TryResolve<IActivitySourceFactory>(out var activitySourceFactory))
+        if (container.TryGetService<IActivitySourceFactory>(out var activitySourceFactory))
         {
             _activitySource = activitySourceFactory!.GetArc4u();
         }

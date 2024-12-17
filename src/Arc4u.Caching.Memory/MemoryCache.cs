@@ -22,7 +22,7 @@ public class MemoryCache : BaseDistributeCache<MemoryCache>, ICache
     /// </summary>
     private readonly IOptionsMonitor<MemoryCacheOption> _options;
 
-    public MemoryCache(ILogger<MemoryCache> logger, IContainerResolve container, IOptionsMonitor<MemoryCacheOption> options) : base(logger, container)
+    public MemoryCache(ILogger<MemoryCache> logger, IServiceProvider container, IOptionsMonitor<MemoryCacheOption> options) : base(logger, container)
     {
         _logger = logger;
         _options = options;
@@ -60,7 +60,7 @@ public class MemoryCache : BaseDistributeCache<MemoryCache>, ICache
 
                 if (!string.IsNullOrWhiteSpace(config.SerializerName))
                 {
-                    IsInitialized = Container.TryResolve<IObjectSerialization>(config.SerializerName!, out var serializerFactory);
+                    IsInitialized = Container.TryGetService<IObjectSerialization>(config.SerializerName!, out var serializerFactory);
                     if (IsInitialized)
                     {
                         SerializerFactory = serializerFactory!;
@@ -69,7 +69,7 @@ public class MemoryCache : BaseDistributeCache<MemoryCache>, ICache
 
                 if (!IsInitialized)
                 {
-                    IsInitialized = Container.TryResolve<IObjectSerialization>(out var serializerFactory);
+                    IsInitialized = Container.TryGetService<IObjectSerialization>(out var serializerFactory);
                     if (IsInitialized)
                     {
                         SerializerFactory = serializerFactory!;

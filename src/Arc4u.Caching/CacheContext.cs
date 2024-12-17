@@ -29,13 +29,13 @@ public class CacheContext : ICacheContext
 
     private static readonly object _lock = new();
 
-    private readonly IContainerResolve _dependency;
+    private readonly IServiceProvider _dependency;
     private readonly ILogger<CacheContext> _logger;
 
     /// <summary>
     /// Initialise the cache following the caching config section.
     /// </summary>
-    public CacheContext(IConfiguration configuration, ILogger<CacheContext> logger, IContainerResolve dependency)
+    public CacheContext(IConfiguration configuration, ILogger<CacheContext> logger, IServiceProvider dependency)
     {
         _logger = logger;
         _dependency = dependency;
@@ -73,7 +73,7 @@ public class CacheContext : ICacheContext
                     {
                         if (cacheConfig.IsAutoStart)
                         {
-                            if (_dependency.TryResolve<ICache>(cacheConfig.Kind, out var cache))
+                            if (_dependency.TryGetService<ICache>(cacheConfig.Kind, out var cache))
                             {
                                 cache!.Initialize(cacheConfig.Name);
 
@@ -125,7 +125,7 @@ public class CacheContext : ICacheContext
                 {
                     try
                     {
-                        if (_dependency.TryResolve<ICache>(cacheKind, out var cache))
+                        if (_dependency.TryGetService<ICache>(cacheKind, out var cache))
                         {
                             cache!.Initialize(cacheName);
 

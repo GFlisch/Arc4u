@@ -1,6 +1,7 @@
 using Arc4u.Diagnostics;
 using Arc4u.Diagnostics.Serilog;
 using Arc4u.UnitTest.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Core;
@@ -19,10 +20,10 @@ public class SerilogTests : BaseContainerFixture<SerilogTests, BasicFixture>
     [Fact]
     public async Task LoggerArgumentTest()
     {
-        using var container = Fixture.CreateScope();
+        var container = Fixture.CreateScope();
         LogStartBanner();
 
-        var logger = container.Resolve<ILogger<SerilogTests>>();
+        var logger = container.GetRequiredService<ILogger<SerilogTests>>();
 
         using (new LoggerContext())
         {
@@ -46,10 +47,10 @@ public class SerilogTests : BaseContainerFixture<SerilogTests, BasicFixture>
     [Fact]
     public async Task LoggerTechnicalTest()
     {
-        using var container = Fixture.CreateScope();
+        var container = Fixture.CreateScope();
         LogStartBanner();
 
-        var logger = container.Resolve<ILogger<SerilogTests>>();
+        var logger = container.GetRequiredService<ILogger<SerilogTests>>();
 
         using (new LoggerContext())
         {
@@ -109,12 +110,9 @@ public sealed class AnonymousSinkTest : ILogEventSink, IDisposable
     }
 }
 
-public sealed class SinkTest : ILogEventSink, IDisposable
+public sealed class SinkTest : ILogEventSink
 {
     public bool Emited { get; set; }
-    public void Dispose()
-    {
-    }
 
     public void Emit(LogEvent logEvent)
     {
@@ -154,7 +152,7 @@ public sealed class FromSinkTest : ILogEventSink, IDisposable
 
         if (logEvent.Properties.TryGetValue(LoggingConstants.Category, out var categoryPropertyValue))
         {
-            Category = (Diagnostics.MessageCategory)GetValue<short>(categoryPropertyValue, 1);
+            Category = (MessageCategory)Enum.Parse(typeof(MessageCategory), GetValue(categoryPropertyValue, MessageCategory.Technical.ToString())!);
         }
 
         if (logEvent.Properties.TryGetValue(LoggingConstants.Application, out var applicationName))

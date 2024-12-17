@@ -1,11 +1,11 @@
 using System.Globalization;
-using Arc4u.Dependency;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Options;
 using Arc4u.OAuth2.Security.Principal;
 using Arc4u.OAuth2.Token;
 using Arc4u.ServiceModel;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -17,11 +17,11 @@ public class CredentialTokenCacheTokenProvider : ICredentialTokenProvider
     public const string ProviderName = "Credential";
 
     private readonly ITokenCache TokenCache;
-    private readonly IContainerResolve Container;
+    private readonly IServiceProvider Container;
     private readonly ILogger<CredentialTokenCacheTokenProvider> _logger;
     private readonly IOptionsMonitor<AuthorityOptions> _authorities;
 
-    public CredentialTokenCacheTokenProvider(ITokenCache tokenCache, ILogger<CredentialTokenCacheTokenProvider> logger, IContainerResolve container, IOptionsMonitor<AuthorityOptions> authorities)
+    public CredentialTokenCacheTokenProvider(ITokenCache tokenCache, ILogger<CredentialTokenCacheTokenProvider> logger, IServiceProvider container, IOptionsMonitor<AuthorityOptions> authorities)
     {
         TokenCache = tokenCache;
         _logger = logger;
@@ -102,7 +102,7 @@ public class CredentialTokenCacheTokenProvider : ICredentialTokenProvider
 
     protected async Task<TokenInfo> CreateBasicTokenInfoAsync(IKeyValueSettings settings, CredentialsResult credential)
     {
-        var basicTokenProvider = Container.Resolve<ICredentialTokenProvider>(CredentialTokenProvider.ProviderName);
+        var basicTokenProvider = Container.GetKeyedService<ICredentialTokenProvider>(CredentialTokenProvider.ProviderName);
 
         if (basicTokenProvider == null)
         {

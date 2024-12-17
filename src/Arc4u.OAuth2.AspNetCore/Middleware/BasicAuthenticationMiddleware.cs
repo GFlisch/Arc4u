@@ -38,11 +38,9 @@ public class BasicAuthenticationMiddleware
             throw new ConfigurationException("Settings collection for basic authentication cannot be null");
         }
 
-        var container = serviceProvider.GetRequiredService<IContainerResolve>();
-
         if (_options.BasicSettings.Values.ContainsKey(TokenKeys.ProviderIdKey))
         {
-            if (!container.TryResolve<ICredentialTokenProvider>(_options.BasicSettings.Values[TokenKeys.ProviderIdKey], out _))
+            if (!serviceProvider.TryGetService<ICredentialTokenProvider>(_options.BasicSettings.Values[TokenKeys.ProviderIdKey], out _))
             {
                 throw new ConfigurationException($"No token provider ICredentialTokenProvider is defined with ProviderId {_options.BasicSettings.Values[TokenKeys.ProviderIdKey]}!");
             }
@@ -51,7 +49,7 @@ public class BasicAuthenticationMiddleware
         {
             throw new ConfigurationException("No token provider resolution name is defined in your settings!");
         }
-        if (!container.TryResolve<ITokenCache>(out _))
+        if (!serviceProvider.TryGetService<ITokenCache>(out _))
         {
             _logger.Technical().Error($"No token cache is defined for Basic Authentication.").Log();
         }
@@ -109,9 +107,7 @@ public class BasicAuthenticationMiddleware
     {
         if (credential.CredentialsEntered)
         {
-            var container = serviceProvider.GetRequiredService<IContainerResolve>();
-
-            var provider = container.Resolve<ICredentialTokenProvider>(_options.BasicSettings.Values[TokenKeys.ProviderIdKey]);
+            var provider = serviceProvider.GetKeyedService<ICredentialTokenProvider>(_options.BasicSettings.Values[TokenKeys.ProviderIdKey]);
 
             if (null == provider)
             {

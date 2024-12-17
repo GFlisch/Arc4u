@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using Arc4u.Dependency;
 using Arc4u.Diagnostics;
 using Arc4u.OAuth2;
 using Arc4u.OAuth2.Token;
@@ -33,7 +32,7 @@ public class OAuth2Interceptor : Interceptor
     /// <param name="logger"><see cref="ILogger"/></param>
     /// <param name="keyValuesSettings">Property bag for the token povider.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public OAuth2Interceptor(IContainerResolve containerResolve, ILogger<OAuth2Interceptor> logger, IKeyValueSettings keyValuesSettings)
+    public OAuth2Interceptor(IServiceProvider containerResolve, ILogger<OAuth2Interceptor> logger, IKeyValueSettings keyValuesSettings)
     {
         _containerResolve = containerResolve ?? throw new ArgumentNullException(nameof(containerResolve));
 
@@ -45,9 +44,9 @@ public class OAuth2Interceptor : Interceptor
     private readonly IKeyValueSettings _settings;
     private readonly ILogger<OAuth2Interceptor> _logger;
     private readonly IScopedServiceProviderAccessor? _serviceProviderAccessor;
-    private readonly IContainerResolve? _containerResolve;
+    private readonly IServiceProvider? _containerResolve;
 
-    private IContainerResolve? GetResolver() => _containerResolve ?? _serviceProviderAccessor?.ServiceProvider?.GetService<IContainerResolve>();
+    private IServiceProvider? GetResolver() => _containerResolve ?? _serviceProviderAccessor?.ServiceProvider?.GetService<IServiceProvider>();
 
     public override AsyncUnaryCall<TResponse> AsyncUnaryCall<TRequest, TResponse>(TRequest request, ClientInterceptorContext<TRequest, TResponse> context, AsyncUnaryCallContinuation<TRequest, TResponse> continuation)
     {
@@ -148,7 +147,7 @@ public class OAuth2Interceptor : Interceptor
 
         try
         {
-            var provider = containerResolve.Resolve<ITokenProvider>(_settings.Values[TokenKeys.ProviderIdKey]);
+            var provider = containerResolve.GetKeyedService<ITokenProvider>(_settings.Values[TokenKeys.ProviderIdKey]);
 
             if (provider is null)
             {
@@ -199,10 +198,10 @@ public class OAuth2Interceptor : Interceptor
         }
     }
 
-    private IApplicationContext? GetCallContext(out IContainerResolve? containerResolve)
+    private IApplicationContext? GetCallContext(out IServiceProvider? containerResolve)
     {
         containerResolve = GetResolver();
 
-        return containerResolve?.Resolve<IApplicationContext>();
+        return containerResolve?.GetService<IApplicationContext>();
     }
 }

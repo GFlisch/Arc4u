@@ -1,6 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
-using Arc4u.Dependency;
 using Arc4u.Diagnostics;
 using Arc4u.Security.Principal;
 using Microsoft.Extensions.DependencyInjection;
@@ -57,7 +56,7 @@ public class JwtHttpHandler : DelegatingHandler
     private readonly IScopedServiceProviderAccessor _serviceProviderAccessor;
     private readonly ILogger<JwtHttpHandler> _logger;
 
-    private IContainerResolve? GetResolver()
+    private IServiceProvider? GetResolver()
     {
         IServiceProvider serviceProvider;
 
@@ -73,14 +72,14 @@ public class JwtHttpHandler : DelegatingHandler
             }
             serviceProvider = _serviceProvider;
         }
-        return serviceProvider.GetService<IContainerResolve>();
+        return serviceProvider;
     }
 
-    private IApplicationContext? GetCallContext(out IContainerResolve? containerResolve)
+    private IApplicationContext? GetCallContext(out IServiceProvider? containerResolve)
     {
         containerResolve = GetResolver();
 
-        return containerResolve?.Resolve<IApplicationContext>();
+        return containerResolve?.GetService<IApplicationContext>();
     }
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
@@ -128,7 +127,7 @@ public class JwtHttpHandler : DelegatingHandler
 
         _logger.Technical().System($"{GetType().Name} token provider is called.").Log();
 
-        var provider = containerResolve.Resolve<ITokenProvider>(_settings.Values[TokenKeys.ProviderIdKey]);
+        var provider = containerResolve.GetKeyedService<ITokenProvider>(_settings.Values[TokenKeys.ProviderIdKey]);
         if (provider is null)
         {
             _logger.Technical().System($"No token provider is defined for {GetType().Name}, Check next Delegate Handler").Log();

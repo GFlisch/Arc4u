@@ -10,6 +10,7 @@ using Arc4u.Network.Connectivity;
 using Arc4u.OAuth2.Token;
 using Arc4u.Security.Principal;
 using Arc4u.ServiceModel;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Arc4u.OAuth2.Client.Security.Principal;
@@ -24,14 +25,14 @@ public class AppPrincipalFactory : IAppPrincipalFactory
     public static readonly string tokenExpirationClaimType = "exp";
     public static readonly string[] ClaimsToExclude = { "exp", "aud", "iss", "iat", "nbf", "acr", "aio", "appidacr", "ipaddr", "scp", "sub", "tid", "uti", "unique_name", "apptype", "appid", "ver", "http://schemas.microsoft.com/ws/2008/06/identity/claims/authenticationinstant", "http://schemas.microsoft.com/identity/claims/scope" };
 
-    private readonly IContainerResolve _container;
+    private readonly IServiceProvider _container;
     private readonly INetworkInformation _networkInformation;
     private readonly ICache _claimsCache;
     private readonly ICacheKeyGenerator _cacheKeyGenerator;
     private readonly IApplicationContext _applicationContext;
     private readonly ILogger<AppPrincipalFactory> _logger;
 
-    public AppPrincipalFactory(IContainerResolve container, INetworkInformation networkInformation, ISecureCache claimsCache, ICacheKeyGenerator cacheKeyGenerator, IApplicationContext applicationContext, ILogger<AppPrincipalFactory> logger)
+    public AppPrincipalFactory(IServiceProvider container, INetworkInformation networkInformation, ISecureCache claimsCache, ICacheKeyGenerator cacheKeyGenerator, IApplicationContext applicationContext, ILogger<AppPrincipalFactory> logger)
     {
         _container = container;
         _networkInformation = networkInformation;
@@ -48,7 +49,7 @@ public class AppPrincipalFactory : IAppPrincipalFactory
 
     public async Task<AppPrincipal> CreatePrincipalAsync(string settingsResolveName, Messages messages, object? parameter = null)
     {
-        var settings = _container.Resolve<IKeyValueSettings>(settingsResolveName);
+        var settings = _container.GetKeyedService<IKeyValueSettings>(settingsResolveName);
 
         if (settings == null)
         {
@@ -93,7 +94,7 @@ public class AppPrincipalFactory : IAppPrincipalFactory
     private async Task BuildTheIdentityAsync(ClaimsIdentity identity, IKeyValueSettings settings, Messages messages, object? parameter = null)
     {
         // Check if we have a provider registered.
-        if (!_container.TryResolve(settings.Values[ProviderKey], out ITokenProvider? provider))
+        if (!_container.TryGetService(settings.Values[ProviderKey], out ITokenProvider? provider))
         {
             throw new NotSupportedException($"The principal cannot be created. We are missing an account provider: {settings.Values[ProviderKey]}");
         }
@@ -155,7 +156,7 @@ public class AppPrincipalFactory : IAppPrincipalFactory
                     identity.AddClaim(expTokenClaim);
                 }
 
-                if (_container.TryResolve(out IClaimsFiller? claimFiller)) // Fill the claims with more information.
+                if (_container.TryGetService(out IClaimsFiller? claimFiller)) // Fill the claims with more information.
                 {
                     try
                     {
@@ -193,7 +194,7 @@ public class AppPrincipalFactory : IAppPrincipalFactory
     {
         var authorization = new Authorization();
         // We need to fill the authorization and user profile from the provider!
-        if (_container.TryResolve(out IClaimAuthorizationFiller? claimAuthorizationFiller))
+        if (_container.TryGetService(out IClaimAuthorizationFiller? claimAuthorizationFiller))
         {
             authorization = claimAuthorizationFiller!.GetAuthorization(identity);
             messages.Add(new Message(ServiceModel.MessageCategory.Technical, MessageType.Information, $"Fill the authorization information to the principal."));
@@ -209,7 +210,7 @@ public class AppPrincipalFactory : IAppPrincipalFactory
     private UserProfile BuildProfile(ClaimsIdentity identity, Messages messages)
     {
         var profile = UserProfile.Empty;
-        if (_container.TryResolve(out IClaimProfileFiller? profileFiller))
+        if (_container.TryGetService(out IClaimProfileFiller? profileFiller))
         {
             profile = profileFiller!.GetProfile(identity);
             messages.Add(new Message(ServiceModel.MessageCategory.Technical, MessageType.Information, $"Fill the profile information to the principal."));
@@ -266,7 +267,7 @@ public class AppPrincipalFactory : IAppPrincipalFactory
 
     public ValueTask SignOutUserAsync(CancellationToken cancellationToken)
     {
-        var settings = _container.Resolve<IKeyValueSettings>(DefaultSettingsResolveName);
+        var settings = _container.GetKeyedService<IKeyValueSettings>(DefaultSettingsResolveName);
 
         if (null == settings)
         {
@@ -279,7 +280,7 @@ public class AppPrincipalFactory : IAppPrincipalFactory
     public async ValueTask SignOutUserAsync(IKeyValueSettings settings, CancellationToken cancellationToken)
     {
         RemoveClaimsCache();
-        if (_container.TryResolve(settings.Values[ProviderKey], out ITokenProvider? provider))
+        if (_container.TryGetService(settings.Values[ProviderKey], out ITokenProvider? provider))
         {
             await provider!.SignOutAsync(settings, cancellationToken).ConfigureAwait(false);
         }

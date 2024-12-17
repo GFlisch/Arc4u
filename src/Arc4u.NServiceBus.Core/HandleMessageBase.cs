@@ -1,5 +1,5 @@
-using Arc4u.Dependency;
 using Arc4u.Diagnostics;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
 
@@ -14,12 +14,12 @@ namespace Arc4u.NServiceBus;
 public abstract class HandleMessageBase<T> : IHandleMessages<T>
 {
 
-    public HandleMessageBase(IContainerResolve container)
+    public HandleMessageBase(IServiceProvider container)
     {
         _container = container;
     }
 
-    private readonly IContainerResolve _container;
+    private readonly IServiceProvider _container;
     /// <summary>
     /// Method that will be used by NServiceBus to process a message.
     /// The real work is implemented in the Handle(T message) abstract method.
@@ -29,8 +29,8 @@ public abstract class HandleMessageBase<T> : IHandleMessages<T>
     /// <returns></returns>
     public async Task Handle(T message, IMessageHandlerContext context)
     {
-        var messages = _container.Resolve<MessagesToPublish>();
-        var logger = _container.Resolve<ILogger<HandleMessageBase<T>>>();
+        var messages = _container.GetService<MessagesToPublish>();
+        var logger = _container.GetService<ILogger<HandleMessageBase<T>>>();
         try
         {
 

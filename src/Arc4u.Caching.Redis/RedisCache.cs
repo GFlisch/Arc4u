@@ -23,7 +23,7 @@ public class RedisCache : BaseDistributeCache<RedisCache>, ICache
     /// </summary>
     private readonly IOptionsMonitor<RedisCacheOption> _options;
 
-    public RedisCache(ILogger<RedisCache> logger, IContainerResolve container, IOptionsMonitor<RedisCacheOption> options) : base(logger, container)
+    public RedisCache(ILogger<RedisCache> logger, IServiceProvider container, IOptionsMonitor<RedisCacheOption> options) : base(logger, container)
     {
         _logger = logger;
         _options = options;
@@ -61,7 +61,7 @@ public class RedisCache : BaseDistributeCache<RedisCache>, ICache
 
                 if (!string.IsNullOrWhiteSpace(config.SerializerName))
                 {
-                    IsInitialized = Container.TryResolve<IObjectSerialization>(config.SerializerName!, out var serializerFactory);
+                    IsInitialized = Container.TryGetService<IObjectSerialization>(config.SerializerName!, out var serializerFactory);
                     if (IsInitialized)
                     {
                         SerializerFactory = serializerFactory!;
@@ -70,7 +70,7 @@ public class RedisCache : BaseDistributeCache<RedisCache>, ICache
 
                 if (!IsInitialized)
                 {
-                    IsInitialized = Container.TryResolve<IObjectSerialization>(out var serializerFactory);
+                    IsInitialized = Container.TryGetService<IObjectSerialization>(out var serializerFactory);
                     if (IsInitialized)
                     {
                         SerializerFactory = serializerFactory!;

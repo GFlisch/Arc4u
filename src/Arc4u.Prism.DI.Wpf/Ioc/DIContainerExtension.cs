@@ -1,18 +1,19 @@
-﻿using Arc4u.Dependency;
+using Arc4u.Dependency;
+using Microsoft.Extensions.DependencyInjection;
 using Prism.Ioc;
 using IContainerRegistry = Prism.Ioc.IContainerRegistry;
 
 namespace Prism.DI.Ioc;
 
-public abstract class DIContainerExtension : IContainerExtension<IContainer>
+public abstract class DIContainerExtension : IContainerExtension<IServiceProvider>
 {
-    protected IContainer Container { get; }
+    protected IServiceProvider Container { get; }
 
     public bool SupportsModules => true;
 
-    IContainer IContainerExtension<IContainer>.Instance => Container;
+    IServiceProvider IContainerExtension<IServiceProvider>.Instance => Container;
 
-    public DIContainerExtension(IContainer container)
+    public DIContainerExtension(IServiceProvider container)
     {
         Container = container;
     }
@@ -21,17 +22,17 @@ public abstract class DIContainerExtension : IContainerExtension<IContainer>
 
     public object? Resolve(Type type)
     {
-        return Container?.Resolve(type);
+        return Container?.GetService(type);
     }
 
     public object? Resolve(Type type, string name)
     {
-        return Container?.Resolve(type, name);
+        return Container?.GetRequiredKeyedService(type, name);
     }
 
     public object? ResolveViewModelForView(object view, Type viewModelType)
     {
-        return Container?.Resolve(viewModelType);
+        return Container?.GetService(viewModelType);
     }
 
     public object Resolve(Type type, params (Type Type, object Instance)[] parameters)

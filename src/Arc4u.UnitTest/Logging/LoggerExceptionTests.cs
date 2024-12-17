@@ -1,6 +1,7 @@
 using Arc4u.Diagnostics;
 using Arc4u.Diagnostics.Serilog;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Core;
@@ -19,8 +20,8 @@ public class LoggerSimpleExceptionTests : BaseSinkContainerFixture<CategorySeril
     [Fact]
     public void ExceptionTest()
     {
-        using var container = Fixture.CreateScope();
-        var logger = container.Resolve<ILogger<LoggerSimpleExceptionTests>>()!;
+        var container = Fixture.CreateScope();
+        var logger = container.GetRequiredService<ILogger<LoggerSimpleExceptionTests>>()!;
 
         var sink = (ExceptionSinkTest)Fixture.Sink;
 
@@ -43,8 +44,8 @@ public class LoggerAggregateExceptionTests : BaseSinkContainerFixture<CategorySe
     [Fact]
     public void TestAggregateException()
     {
-        using var container = Fixture.CreateScope();
-        var logger = container.Resolve<ILogger<LoggerAggregateExceptionTests>>()!;
+        var container = Fixture.CreateScope();
+        var logger = container.GetRequiredService<ILogger<LoggerAggregateExceptionTests>>()!;
 
         var sink = (ExceptionSinkTest)Fixture.Sink;
 
