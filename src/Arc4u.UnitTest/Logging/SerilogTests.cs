@@ -7,6 +7,7 @@ using Serilog.Core;
 using Serilog.Events;
 using Xunit;
 using Arc4u.Dependency;
+using FluentAssertions;
 
 namespace Arc4u.UnitTest.Logging;
 
@@ -14,12 +15,14 @@ namespace Arc4u.UnitTest.Logging;
 public class SerilogTests
 {
     [Fact]
-    public async Task LoggerArgumentTest()
+    public void LoggerArgumentTest()
     {
         var services = new ServiceCollection();
 
+        var sink = new SinkSpeedCategoryTest();
+
         var serilog = new LoggerConfiguration()
-                             .WriteTo.Debug(formatProvider: CultureInfo.InvariantCulture)
+                             .WriteTo.Sink(sink)
                              .MinimumLevel.Debug()
                              .CreateLogger();
 
@@ -32,53 +35,19 @@ public class SerilogTests
 
         using (new LoggerContext())
         {
-            LoggerContext.Current!.Add("Speed", 101011);
+            LoggerContext.Current!.Add("Speed", SinkSpeedCategoryTest.Value);
 
-            logger!.Technical().LogDebug("Debug {Code}", 100);
-            logger!.Technical().LogInformation("Information {Code}", 101);
-            logger!.Technical().LogWarning("Warning {Code}", 102);
-            logger!.Technical().LogError("Error {Code}", 103);
-            logger!.Technical().LogFatal("Fatal {Code}", 104);
-            logger!.Technical().LogException(new DivideByZeroException("Cannot divide by zero"));
-
-            await Task.Delay(1000);
-
-            Assert.Equal(1, 1);
-        }
-    }
-
-    [Fact]
-    public async Task LoggerTechnicalTest()
-    {
-        var services = new ServiceCollection();
-
-        var serilog = new LoggerConfiguration()
-                             .WriteTo.Debug(formatProvider: CultureInfo.InvariantCulture)
-                             .MinimumLevel.Debug()
-                             .CreateLogger();
-
-        services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(logger: serilog, dispose: false));
-        services.AddILogger();
-
-        var serviceProvider = services.BuildServiceProvider();
-
-        var logger = serviceProvider.GetRequiredService<ILogger<SerilogTests>>();
-
-        using (new LoggerContext())
-        {
-            LoggerContext.Current!.Add("Speed", 101011);
-
-            logger!.Technical().Debug("Debug").Add("Code", "100").Log();
-            logger!.Technical().Information("Information").Add("Code", "101").Log();
-            logger!.Technical().Warning("Warning").Add("Code", "102").Log();
-            logger!.Technical().Error("Error").Add("Code", "103").Log();
-            logger!.Technical().Fatal("Fatal").Add("Code", "104").Log();
-            logger!.Technical().Exception(new DivideByZeroException("Cannot divide by zero")).Log();
+            logger.Technical().LogDebug("Debug {Code}", 100);
+            logger.Technical().LogInformation("Information {Code}", 101);
+            logger.Technical().LogWarning("Warning {Code}", 102);
+            logger.Technical().LogError("Error {Code}", 103);
+            logger.Technical().LogFatal("Fatal {Code}", 104);
+            logger.Technical().LogException(new DivideByZeroException("Cannot divide by zero"));
             logger!.Monitoring().Debug("Memory").AddMemoryUsage().Log();
 
-            await Task.Delay(1000);
 
-            Assert.Equal(1, 1);
+            sink.HitCount.Should().Be(7);
+            sink.Emited.Should().BeTrue();
         }
     }
 
@@ -92,8 +61,10 @@ public class SerilogTests
             using (new LoggerContext())
             {
                 Assert.Equal(100, (int)(LoggerContext.Current.All().First(kv => kv.Key.Equals("Code")).Value));
+
                 LoggerContext.Current.Add("Code2", 101);
                 LoggerContext.Current.Add("Code", 101);
+
                 Assert.Contains(LoggerContext.Current.All(), kv => kv.Key.Equals("Code2"));
                 Assert.Equal(101, (int)(LoggerContext.Current.All().First(kv => kv.Key.Equals("Code2")).Value));
                 Assert.Contains(LoggerContext.Current.All(), kv => kv.Key.Equals("Code"));
@@ -107,6 +78,24 @@ public class SerilogTests
 }
 
 #region sinks and SerilogWriter
+
+public sealed class SinkSpeedCategoryTest : ILogEventSink
+{
+    public const int Value = 101011;
+    public bool Emited { get; set; }
+
+    public uint HitCount { get; private set; }
+
+    public void Emit(LogEvent logEvent)
+    {
+        if (Emited || HitCount == 0)
+        {
+            Emited = logEvent.Properties.TryGetValue("Speed", out var value) && value.ToString() == Value.ToString(CultureInfo.InvariantCulture);
+        }
+
+        HitCount++;
+    }
+}
 
 public sealed class SinkTest : ILogEventSink
 {
