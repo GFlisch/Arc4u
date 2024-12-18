@@ -9,7 +9,7 @@ public class LoggerContext : IDisposable
     /// the <see cref="PropertyFilter"></see> value.
     /// </summary>
     /// <param name="filter">All or None.</param>
-    public LoggerContext(PropertyFilter filter = PropertyFilter.All)
+    public LoggerContext(PropertyFilter filter = PropertyFilter.All) 
     {
         if (filter == PropertyFilter.All)
         {
@@ -27,7 +27,7 @@ public class LoggerContext : IDisposable
             Properties = [];
         }
 
-        toDispose = new Scope<LoggerContext>(this);
+        toDispose = new Scope<LoggerContext>(this, false);
     }
 
     /// <summary>
@@ -50,7 +50,7 @@ public class LoggerContext : IDisposable
             }
         }
 
-        toDispose = new Scope<LoggerContext>(this);
+        toDispose = new Scope<LoggerContext>(this, false);
 
     }
 

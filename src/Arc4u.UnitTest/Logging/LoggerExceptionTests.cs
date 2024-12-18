@@ -1,29 +1,35 @@
 using Arc4u.Diagnostics;
 using Arc4u.Diagnostics.Serilog;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
 using Xunit;
+using Arc4u.Dependency;
 
 namespace Arc4u.UnitTest.Logging;
 
 [Trait("Category", "CI")]
-public class LoggerSimpleExceptionTests : BaseSinkContainerFixture<CategorySerilogTesters, ExceptionFixture>
+public class LoggerSimpleExceptionTests 
 {
-    public LoggerSimpleExceptionTests(ExceptionFixture containerFixture) : base(containerFixture)
-    {
-    }
-
     [Fact]
     public void ExceptionTest()
     {
-        var container = Fixture.CreateScope();
-        var logger = container.GetRequiredService<ILogger<LoggerSimpleExceptionTests>>()!;
+        var services = new ServiceCollection();
 
-        var sink = (ExceptionSinkTest)Fixture.Sink;
+        var sink = new ExceptionSinkTest();
+
+        var serilog = new LoggerConfiguration()
+                             .WriteTo.Sink(sink)
+                             .MinimumLevel.Debug()
+                             .CreateLogger();
+
+        services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(logger: serilog, dispose: false));
+        services.AddILogger();
+
+        var serviceProvider = services.BuildServiceProvider();
+        var logger = serviceProvider.GetRequiredService<ILogger<LoggerSimpleExceptionTests>>()!;
 
         logger.Technical().Exception(new StackOverflowException("Overflow", new DivideByZeroException())).Log();
 
@@ -35,25 +41,33 @@ public class LoggerSimpleExceptionTests : BaseSinkContainerFixture<CategorySeril
 }
 
 [Trait("Category", "CI")]
-public class LoggerAggregateExceptionTests : BaseSinkContainerFixture<CategorySerilogTesters, ExceptionFixture>
+public class LoggerAggregateExceptionTests
 {
-    public LoggerAggregateExceptionTests(ExceptionFixture containerFixture) : base(containerFixture)
-    {
-    }
 
     [Fact]
     public void TestAggregateException()
     {
-        var container = Fixture.CreateScope();
-        var logger = container.GetRequiredService<ILogger<LoggerAggregateExceptionTests>>()!;
+        var services = new ServiceCollection();
 
-        var sink = (ExceptionSinkTest)Fixture.Sink;
+        var sink = new ExceptionSinkTest();
+
+        var serilog = new LoggerConfiguration()
+                             .WriteTo.Sink(sink)
+                             .MinimumLevel.Debug()
+                             .CreateLogger();
+
+        services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(logger: serilog, dispose: false));
+        services.AddILogger();
+
+        var serviceProvider = services.BuildServiceProvider();
+
+        var logger = serviceProvider.GetRequiredService<ILogger<LoggerAggregateExceptionTests>>()!;
 
         logger.Technical().Exception(new AggregateException("Aggregated",
                                         new DivideByZeroException("Go back to school", new OutOfMemoryException("Out of memory")),
                                         new ArgumentNullException("null"),
-                                        new AggregateException(
-                                            new AppDomainUnloadedException("Houston, we have a problem.")))).Log();
+                                        new AggregateException(new AppDomainUnloadedException("Houston, we have a problem."))))
+                          .Log();
 
         Assert.True(sink.HasException);
         Assert.Collection(sink.Exceptions,
@@ -101,22 +115,5 @@ public sealed class ExceptionSinkTest : ILogEventSink, IDisposable
             Exceptions.Add(logEvent.Exception!);
         }
     }
-}
-
-public class ExceptionFixture : SinkContainerFixture
-{
-    protected override Serilog.Core.Logger BuildLogger(IConfiguration configuration)
-    {
-        _sink = new LoggerExceptionSinkTest();
-        _sink.Initialize();
-
-        return _sink.Logger;
-    }
-
-    private LoggerExceptionSinkTest? _sink;
-
-    public override ExceptionSinkTest Sink => _sink!.Sink!;
-
-    public override string ConfigFile => @"Configs\Basic.json";
 }
 

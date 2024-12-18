@@ -12,12 +12,6 @@ namespace Arc4u.UnitTest.Logging;
 [Trait("Category", "CI")]
 public class CategorySerilogTesters 
 {
-    public CategorySerilogTesters()
-    {
-    }
-
-    static string ConfigFile => @"Configs\Basic.json";
-
     [Fact]
     public void LoggerTechnicalTest()
     {

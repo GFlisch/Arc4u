@@ -13,15 +13,8 @@ namespace Arc4u.UnitTest.Database.EfCore;
 
 [TestCaseOrderer("Arc4u.UnitTest.Infrastructure.PriorityOrderer", "Arc4u.UnitTest")]
 [Trait("Category", "CI")]
-public class EfCoreTests // : BaseContainerFixture<EfCoreTests, EfCoreFixture>
+public class EfCoreTests
 {
-    //public EfCoreTests(EfCoreFixture fixture) : base(fixture)
-    //{
-    //    var container = fixture.CreateScope();
-    //    using var db = container.GetRequiredService<DatabaseContext>();
-    //    db!.Database.EnsureCreated();
-    //}
-
     public EfCoreTests()
     {
         var services = new ServiceCollection();

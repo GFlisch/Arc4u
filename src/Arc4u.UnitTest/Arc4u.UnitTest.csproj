@@ -28,7 +28,7 @@
     <PackageReference Include="Serilog.Expressions" Version="5.0.0" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
     <PackageReference Include="Serilog.Sinks.Async" Version="2.1.0" />
-    <PackageReference Include="Serilog.Sinks.Seq" Version="8.0.0" />
+    <PackageReference Include="Serilog.Sinks.Debug" Version="3.0.0" />
     <PackageReference Include="Serilog.Exceptions" Version="8.4.0" />
     <PackageReference Include="Serilog.AspNetCore" Version="8.0.3" />
     <PackageReference Include="AutoFixture" Version="4.18.1" />
@@ -82,10 +82,6 @@
     </None>
     <None Update="Configs\cert.pem">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-
-    <None Update="Configs\EfCore.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
 
     <None Update="Configs\EmptyAssemblies.json">

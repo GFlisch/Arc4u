@@ -1,29 +1,34 @@
+using System.Globalization;
 using Arc4u.Diagnostics;
-using Arc4u.Diagnostics.Serilog;
-using Arc4u.UnitTest.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
 using Xunit;
+using Arc4u.Dependency;
 
 namespace Arc4u.UnitTest.Logging;
 
 [Trait("Category", "CI")]
-public class SerilogTests : BaseContainerFixture<SerilogTests, BasicFixture>
+public class SerilogTests
 {
-    public SerilogTests(BasicFixture containerFixture) : base(containerFixture)
-    {
-    }
-
     [Fact]
     public async Task LoggerArgumentTest()
     {
-        var container = Fixture.CreateScope();
-        LogStartBanner();
+        var services = new ServiceCollection();
 
-        var logger = container.GetRequiredService<ILogger<SerilogTests>>();
+        var serilog = new LoggerConfiguration()
+                             .WriteTo.Debug(formatProvider: CultureInfo.InvariantCulture)
+                             .MinimumLevel.Debug()
+                             .CreateLogger();
+
+        services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(logger: serilog, dispose: false));
+        services.AddILogger();
+
+        var serviceProvider = services.BuildServiceProvider();
+
+        var logger = serviceProvider.GetRequiredService<ILogger<SerilogTests>>();
 
         using (new LoggerContext())
         {
@@ -40,17 +45,24 @@ public class SerilogTests : BaseContainerFixture<SerilogTests, BasicFixture>
 
             Assert.Equal(1, 1);
         }
-
-        LogEndBanner();
     }
 
     [Fact]
     public async Task LoggerTechnicalTest()
     {
-        var container = Fixture.CreateScope();
-        LogStartBanner();
+        var services = new ServiceCollection();
 
-        var logger = container.GetRequiredService<ILogger<SerilogTests>>();
+        var serilog = new LoggerConfiguration()
+                             .WriteTo.Debug(formatProvider: CultureInfo.InvariantCulture)
+                             .MinimumLevel.Debug()
+                             .CreateLogger();
+
+        services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(logger: serilog, dispose: false));
+        services.AddILogger();
+
+        var serviceProvider = services.BuildServiceProvider();
+
+        var logger = serviceProvider.GetRequiredService<ILogger<SerilogTests>>();
 
         using (new LoggerContext())
         {
@@ -68,8 +80,6 @@ public class SerilogTests : BaseContainerFixture<SerilogTests, BasicFixture>
 
             Assert.Equal(1, 1);
         }
-
-        LogEndBanner();
     }
 
     [Fact]
@@ -97,18 +107,6 @@ public class SerilogTests : BaseContainerFixture<SerilogTests, BasicFixture>
 }
 
 #region sinks and SerilogWriter
-public sealed class AnonymousSinkTest : ILogEventSink, IDisposable
-{
-    public bool IsAnonymous { get; set; }
-    public void Dispose()
-    {
-    }
-
-    public void Emit(LogEvent logEvent)
-    {
-        IsAnonymous = !logEvent.Properties.ContainsKey(Diagnostics.LoggingConstants.Identity);
-    }
-}
 
 public sealed class SinkTest : ILogEventSink
 {
@@ -175,61 +173,6 @@ public sealed class FromSinkTest : ILogEventSink, IDisposable
             nameof(ScalarValue) => (T?)((ScalarValue)pv).Value,
             _ => defaultValue,
         };
-    }
-}
-
-public class LoggerFromTest : SerilogWriter
-{
-    public FromSinkTest FromTest { get; set; } = default!;
-
-    public override void Configure(LoggerConfiguration configurator)
-    {
-        FromTest = new FromSinkTest();
-
-        configurator.WriteTo.Sink(FromTest);
-    }
-}
-
-public class LoggerFilterSinkTest : SerilogWriter
-{
-    public SinkTest? Sink { get; set; }
-
-    public override void Configure(LoggerConfiguration configurator)
-    {
-        Sink = new SinkTest();
-
-        configurator.WriteTo.Sink(Sink);
-    }
-}
-
-public class LoggerAnonymousSinkTest : SerilogWriter
-{
-    public AnonymousSinkTest? Sink { get; set; }
-
-    public override void Configure(LoggerConfiguration configurator)
-    {
-        Sink = new AnonymousSinkTest();
-
-        configurator.WriteTo.Anonymizer(Sink);
-    }
-}
-
-//public class LoggerTest : SerilogWriter
-//{
-//    public override void Configure(LoggerConfiguration configurator)
-//    {
-//        RealmDBExtension.DefaultConfig = () => new RealmConfiguration(@"c:\temp\LoggingDB.realm") { SchemaVersion = 1 };
-//        configurator
-//            .WriteTo.File(new SimpleTextFormatter(), @"c:\temp\log-.txt"
-//                          , rollingInterval: RollingInterval.Minute)
-//            .WriteTo.RealmDB();
-//    }
-//}
-
-public class EmptyLogger : SerilogWriter
-{
-    public override void Configure(LoggerConfiguration configurator)
-    {
     }
 }
 
