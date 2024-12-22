@@ -1,6 +1,5 @@
 using System.Globalization;
 using Arc4u.Diagnostics;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Core;
@@ -8,6 +7,7 @@ using Serilog.Events;
 using Xunit;
 using Arc4u.Dependency;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Arc4u.UnitTest.Logging;
 

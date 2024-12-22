@@ -19,4 +19,6 @@ public static class LoggingConstants
     public const string Stacktrace = "Stacktrace";
 
     public const string Category = "Category";
+
+    public const string UnwrappedException = "UnwrappedException";
 }
