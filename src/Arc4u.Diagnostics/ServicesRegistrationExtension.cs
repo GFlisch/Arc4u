@@ -1,7 +1,7 @@
+using Arc4u.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
-using LoggerMessage = Arc4u.Diagnostics.LoggerMessage;
 
 namespace Arc4u.Dependency;
 
@@ -17,11 +17,9 @@ public static class ServicesRegistrationExtension
     public static IServiceCollection AddILogger(this IServiceCollection services)
     {
         // Add the Arc4u Logger<T> implementation.
-        // Scoped is used because the logger now is linked to the authenticated user which is set per scope in the backend.
-        services.TryAddTransient(typeof(ILogger<>), typeof(Diagnostics.Logger<>));
-
-        // this injection is to have a ILogger<T> and we will erase the className via the fluent API.
-        services.AddTransient<ILogger>((serviceProvider) => serviceProvider.GetRequiredService<ILogger<LoggerMessage>>());
+        services.TryAddTransient(typeof(ILogger<>), typeof(LoggerWrapper<>));
+        services.TryAddTransient(typeof(IArc4uLogger<>), typeof(LoggerWrapper<>));
+        services.AddTransient<ILogger>((serviceProvider) => serviceProvider.GetRequiredService<ILogger<DefaultLogger>>());
 
         return services;
     }

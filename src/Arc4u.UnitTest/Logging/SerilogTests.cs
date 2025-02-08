@@ -41,9 +41,9 @@ public class SerilogTests
             logger.Technical().LogInformation("Information {Code}", 101);
             logger.Technical().LogWarning("Warning {Code}", 102);
             logger.Technical().LogError("Error {Code}", 103);
-            logger.Technical().LogFatal("Fatal {Code}", 104);
+            logger.Technical().LogCritical("Fatal {Code}", 104);
             logger.Technical().LogException(new DivideByZeroException("Cannot divide by zero"));
-            logger!.Monitoring().Debug("Memory").AddMemoryUsage().Log();
+            logger.Monitoring().AddMemoryUsage().LogDebug("Memory");
 
 
             sink.HitCount.Should().Be(7);

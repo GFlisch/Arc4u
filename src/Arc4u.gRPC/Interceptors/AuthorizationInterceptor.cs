@@ -57,12 +57,12 @@ public class AuthorizationInterceptor(ILogger<AuthorizationInterceptor> logger,
         //}
         catch (RpcException rcp)
         {
-            logger.Technical().Exception(rcp).Log();
+            logger.Technical().LogException(rcp);
             throw;
         }
         catch (Exception ex)
         {
-            logger.Technical().Exception(ex).Log();
+            logger.Technical().LogException(ex);
             throw new RpcException(new Grpc.Core.Status(StatusCode.Internal, "An error occurs."));
         }
     }
@@ -133,12 +133,12 @@ public class AuthorizationInterceptor(ILogger<AuthorizationInterceptor> logger,
         //}
         catch (RpcException rcp)
         {
-            logger.Technical().Exception(rcp).Log();
+            logger.Technical().LogException(rcp);
             throw;
         }
         catch (Exception ex)
         {
-            logger.Technical().Exception(ex).Log();
+            logger.Technical().LogException(ex);
             throw new RpcException(new Grpc.Core.Status(StatusCode.Internal, "An error occurs."));
         }
     }
@@ -190,12 +190,12 @@ public class AuthorizationInterceptor(ILogger<AuthorizationInterceptor> logger,
         //}
         catch (RpcException rcp)
         {
-            logger.Technical().Exception(rcp).Log();
+            logger.Technical().LogException(rcp);
             throw;
         }
         catch (Exception ex)
         {
-            logger.Technical().Exception(ex).Log();
+            logger.Technical().LogException(ex);
             throw new RpcException(new Grpc.Core.Status(StatusCode.Internal, "An error occurs."));
         }
     }

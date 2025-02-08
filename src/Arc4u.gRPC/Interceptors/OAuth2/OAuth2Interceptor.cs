@@ -101,7 +101,7 @@ public class OAuth2Interceptor : Interceptor
         // if we have already an "Authorization" defined, we can skip the code here.
         if (null != headers.GetValue("authorization"))
         {
-            _logger.Technical().System($"Authorization header found. Skip adding a bearer token for AuthenticationType: {_settings.Values[TokenKeys.AuthenticationTypeKey]}.").Log();
+            _logger.Technical().LogSkipAddingBearerToken(_settings.Values[TokenKeys.AuthenticationTypeKey]);
             return;
         }
 
@@ -109,13 +109,13 @@ public class OAuth2Interceptor : Interceptor
 
         if (_settings is null || applicationContext is null || containerResolve is null)
         {
-            _logger.Technical().System($"No settings or application context is defined with {GetType().Name}, Check next Delegate Handler").Log();
+            _logger.Technical().LogNoApplicationContextIsDefined(GetType().Name);
             return;
         }
 
         if (!_settings.Values.TryGetValue(TokenKeys.AuthenticationTypeKey, out var authenticationType))
         {
-            _logger.Technical().System($"No authentication type for {GetType().Name}, Check next Interceptor").Log();
+            _logger.Technical().LogNoAuthenticationTypeIsDefined(GetType().Name);
             return;
         }
 
@@ -123,7 +123,7 @@ public class OAuth2Interceptor : Interceptor
 
         if (null == applicationContext.Principal)
         {
-            _logger.Technical().System($"No user context. Next Interceptor will be called.").Log();
+            _logger.Technical().LogNoUserContext();
             return;
         }
 
@@ -152,7 +152,7 @@ public class OAuth2Interceptor : Interceptor
 
             if (provider is null)
             {
-                _logger.Technical().System($"No token provider is defined for {GetType().Name}, Check next Interceptor").Log();
+                _logger.Technical().LogNoTokenProviderIsDefined(GetType().Name);
                 return;
             }
 
@@ -160,20 +160,20 @@ public class OAuth2Interceptor : Interceptor
 
             if (tokenInfoResult.IsFailed)
             {
-                _logger.Technical().System($"No token is provided for {GetType().Name}, Check next Interceptor").Log();
-                tokenInfoResult.Log();
+                _logger.Technical().LogNoTokenIsProvided(GetType().Name);
+                tokenInfoResult;
                 return;
             }
 
             var tokenInfo = tokenInfoResult.Value;
             if (tokenInfo.ExpiresOnUtc < DateTime.UtcNow)
             {
-                _logger.Technical().System($"Token is expired! Next Interceptor will be called.").Log();
+                _logger.Technical().LogTokenIsExpired();
                 return;
             }
 
             var scheme = inject ? tokenInfo.TokenType : "Bearer";
-            _logger.Technical().System($"Add the {scheme} token to provide authentication evidence.").Log();
+            _logger.Technical().LogAddSchemeToken(scheme);
 
             if (sourceArray.Any(s => s.Equals(scheme, StringComparison.InvariantCultureIgnoreCase)))
             {
@@ -186,7 +186,7 @@ public class OAuth2Interceptor : Interceptor
         }
         catch (Exception ex)
         {
-            _logger.Technical().Exception(ex).Log();
+            _logger.Technical().LogException(ex);
         }
 
         // Add culture and activityID if exists!
@@ -195,7 +195,7 @@ public class OAuth2Interceptor : Interceptor
             var culture = applicationContext.Principal.Profile?.CurrentCulture?.TwoLetterISOLanguageName;
             if (null != culture && null == headers.GetValue("culture"))
             {
-                _logger.Technical().System($"Add the current culture to the request: {applicationContext.Principal.Profile?.CurrentCulture?.TwoLetterISOLanguageName}").Log();
+                _logger.Technical().LogAddCurrentCulture(applicationContext.Principal.Profile?.CurrentCulture?.TwoLetterISOLanguageName ?? "No Culture found");
                 headers.Add("culture", culture);
             }
         }

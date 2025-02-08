@@ -18,14 +18,17 @@ public class SetCultureActionFilter : IAsyncActionFilter
 
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
-
         if (_application?.Principal?.Profile is not null)
         {
             Thread.CurrentThread.CurrentUICulture = _application.Principal.Profile.CurrentCulture;
 
             if (context.ActionDescriptor is ControllerActionDescriptor descriptor)
             {
-                _logger.Technical().From(descriptor.MethodInfo?.DeclaringType?.ToString() ?? "DeclaringType", descriptor.MethodInfo?.Name ?? "MethodInfo Name").Debug($"Thread UI Culture is set to {_application.Principal.Profile.CurrentCulture.Name}").Log();
+                if (null != descriptor.MethodInfo?.DeclaringType)
+                {
+                    _logger.Technical(descriptor.MethodInfo?.DeclaringType!, descriptor.MethodInfo?.Name ?? "MethodInfo Name")
+                           .LogThreadCultureName(_application.Principal.Profile.CurrentCulture.Name);
+                }
             }
         }
 

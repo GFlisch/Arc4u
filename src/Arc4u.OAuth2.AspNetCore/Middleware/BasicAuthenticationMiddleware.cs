@@ -51,7 +51,7 @@ public class BasicAuthenticationMiddleware
         }
         if (!serviceProvider.TryGetService<ITokenCache>(out _))
         {
-            _logger.Technical().Error($"No token cache is defined for Basic Authentication.").Log();
+            _logger.Technical().LogError($"No token cache is defined for Basic Authentication.");
         }
     }
 
@@ -97,7 +97,7 @@ public class BasicAuthenticationMiddleware
         }
         catch (Exception ex)
         {
-            _logger.Technical().Exception(ex).Log();
+            _logger.Technical().LogException(ex);
         }
 
         await _next(context).ConfigureAwait(false);

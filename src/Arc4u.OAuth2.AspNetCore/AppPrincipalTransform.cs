@@ -72,7 +72,7 @@ public class AppPrincipalTransform : IClaimsTransformation
 
         AppPrincipal appPrincipal;
 
-        _logger.Technical().System("Create the principal.").Log();
+        _logger.LogTrace("Create the principal.");
 
         // Add Telemetry.
         using (var activity = _activitySource?.StartActivity("Create Arc4u Principal", ActivityKind.Producer))
@@ -181,7 +181,7 @@ public class AppPrincipalTransform : IClaimsTransformation
         }
         catch (Exception ex)
         {
-            _logger.Technical().Exception(ex).Log();
+            _logger.Technical().Exception(ex);
         }
 
         return claims;
@@ -211,7 +211,7 @@ public class AppPrincipalTransform : IClaimsTransformation
         }
         catch (Exception ex)
         {
-            _logger.Technical().Exception(ex).Log();
+            _logger.Technical().Exception(ex);
         }
     }
     #endregion

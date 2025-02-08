@@ -45,7 +45,7 @@ public class ApplicationLocalDataCache : ITokenCache
         }
         catch (Exception ex)
         {
-            Logger.Technical().From<ApplicationLocalDataCache>().Exception(ex).Log();
+            Logger.Technical<ApplicationLocalDataCache>().LogException(ex);
         }
 
     }
@@ -72,7 +72,7 @@ public class ApplicationLocalDataCache : ITokenCache
         }
         catch (Exception ex)
         {
-            Logger.Technical().From<ApplicationLocalDataCache>().Exception(ex).Log();
+            Logger.Technical<ApplicationLocalDataCache>().LogException(ex);
         }
     }
 

@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Arc4u.Diagnostics.Monitoring;
 using Arc4u.Diagnostics;
 using Grpc.AspNetCore.Server;
 using Microsoft.AspNetCore.Http;
@@ -41,12 +42,10 @@ public class LogGrpcMonitoringTimeElapsedMiddleware
                 var descriptor = endpoint.Metadata.GetMetadata<GrpcMethodMetadata>();
                 if (descriptor != null)
                 {
-                    logger?.Monitoring()
-                           .From(descriptor.ServiceType, descriptor.Method.Name)
-                           .Information($"Time to complete method call")
+                    logger.Technical(descriptor.ServiceType, descriptor.Method.Name)
                            .Add("Elapsed", stopwatch.Elapsed.TotalMilliseconds)
                            .Add("StatusCode", context.Response.StatusCode)
-                           .Log();
+                           .LogTimeToCompleteCall();
 
                     _log?.Invoke(descriptor.ServiceType, stopwatch.Elapsed);
                 }
@@ -55,7 +54,7 @@ public class LogGrpcMonitoringTimeElapsedMiddleware
         }
         catch (Exception ex)
         {
-            logger?.Technical().From<LogGrpcMonitoringTimeElapsedMiddleware>().Exception(ex).Log();
+            logger.Technical<LogGrpcMonitoringTimeElapsedMiddleware>().LogException(ex);
         }
     }
 }

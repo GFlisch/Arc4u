@@ -5,6 +5,7 @@ using Arc4u.Configuration;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Arc4u.IdentityModel.Claims;
+using Arc4u.OAuth2.AspNetCore;
 using Arc4u.OAuth2.Token;
 using Arc4u.Security.Principal;
 using Microsoft.Extensions.Logging;
@@ -66,7 +67,7 @@ public class ClaimsProxy : IClaimsFiller
                 _url = string.Format(CultureInfo.InvariantCulture, _url, _applicationName);
             }
 
-            _logger.Technical().System($"Call back-end service for authorization, endpoint = {_url}.").Log();
+            _logger.Technical().LogCallBackendWithUrl(_url);
 
             // Check if we need to do something before calling the backend like force the start of a vpn.
             Network.Handler.OnCalling?.Invoke(new Uri(_url));
@@ -77,22 +78,20 @@ public class ClaimsProxy : IClaimsFiller
             var response = await client.GetAsync(_url).ConfigureAwait(false);
             if (response.IsSuccessStatusCode)
             {
-                _logger.Technical().System($"Call service {_url} succeeds.").Log();
+                _logger.Technical().LogCallBackendWithUrlSucceed(_url);
                 var responsestring = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 // Add the claims.
                 var claims = _jsonSerializer.ReadObject<IEnumerable<ClaimDto>>(responsestring);
                 if (claims != null)
                 {
                     result.AddRange(claims);
+                    _logger.Technical().LogClaims(claims.Count());
                 }
-                _logger.Technical().System($"{result.Count} claim(s) received.").Log();
             }
-
             else
             {
-                _logger.Technical().LogError($"Call service {_url} gives error status ${response.StatusCode}.");
+                _logger.Technical().LogHttpStatusErrorCode(_url, (int)response.StatusCode);
             }
-
         }
         catch (Exception exception)
         {
@@ -102,10 +101,8 @@ public class ClaimsProxy : IClaimsFiller
                 _logger.Technical().LogException(inner);
                 inner = inner.InnerException;
             }
-
             _logger.Technical().LogException(exception);
         }
-
         return result;
     }
 }

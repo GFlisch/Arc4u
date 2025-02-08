@@ -69,7 +69,7 @@ public class MsalTokenProvider : ITokenProvider
         {
             // A MsalUiRequiredException happened on AcquireTokenSilent.
             // This indicates you need to call AcquireTokenInteractive to acquire a token
-            _logger.Technical().System($"MsalUiRequiredException: {ex.Message}").Log();
+            _logger.LogTrace($"MsalUiRequiredException: {ex.Message}");
 
             try
             {
@@ -113,7 +113,7 @@ public class MsalTokenProvider : ITokenProvider
                 }
                 catch (MsalException msalex)
                 {
-                    _logger.Technical().Exception(msalex).Log();
+                    _logger.Technical().LogException(msalex);
                 }
             }
         }

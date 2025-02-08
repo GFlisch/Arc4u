@@ -54,7 +54,7 @@ public sealed class DaprCache : ICache
         {
             if (_daprClient is not null)
             {
-                _logger.Technical().Information($"Dapr caching for dapr state store {store} is already initialized.").Log();
+                _logger.Technical().LogCacheIsAlreadyInitialized(store);
             }
             else
             {
@@ -70,7 +70,7 @@ public sealed class DaprCache : ICache
 
                     _storeName = config.Name ?? throw new NullReferenceException("There is no name defined in the configuration for the Dapr section!");
                     _daprClient = new DaprClientBuilder().Build();
-                    _logger.Technical().Information($"Dapr caching for dapr state store {store} is initialized.").Log();
+                    _logger.Technical().LogCacheIsInitialized(store);
                 }
                 catch (Exception ex)
                 {

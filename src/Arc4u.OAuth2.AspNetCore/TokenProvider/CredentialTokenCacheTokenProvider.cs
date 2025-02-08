@@ -44,18 +44,18 @@ public class CredentialTokenCacheTokenProvider(ITokenCache tokenCache, ILogger<C
             // authority is not null here => messages log and throw will throw an exception if null.
             var cacheKey = BuildKey(credential, authority!, scope);
 
-            logger.Technical().System($"Check if the cache contains a token for {cacheKey}.").Log();
+            logger.Technical().LogTrace($"Check if the cache contains a token for {cacheKey}.");
             var tokenInfo = tokenCache.Get<TokenInfo>(cacheKey);
             var hasChanged = false;
 
             if (null != tokenInfo)
             {
                 tokenInfoResult = Result.Ok(tokenInfo);
-                logger.Technical().System($"Token loaded from the cache for {cacheKey}.").Log();
+                logger.Technical().LogTrace($"Token loaded from the cache for {cacheKey}.");
 
                 if (tokenInfo.ExpiresOnUtc < DateTime.UtcNow.AddMinutes(1))
                 {
-                    logger.Technical().System($"Token is expired for {cacheKey}.").Log();
+                    logger.Technical().LogTrace($"Token is expired for {cacheKey}.");
 
                     // We need to refresh the token.
                     tokenInfoResult = await CreateBasicTokenInfoAsync(settings, credential).ConfigureAwait(false);
@@ -64,7 +64,7 @@ public class CredentialTokenCacheTokenProvider(ITokenCache tokenCache, ILogger<C
             }
             else
             {
-                logger.Technical().System($"Contact the STS to create an access token for {cacheKey}.").Log();
+                logger.Technical().LogTrace($"Contact the STS to create an access token for {cacheKey}.");
                 tokenInfoResult = await CreateBasicTokenInfoAsync(settings, credential).ConfigureAwait(false);
                 hasChanged = true;
             }
@@ -73,7 +73,7 @@ public class CredentialTokenCacheTokenProvider(ITokenCache tokenCache, ILogger<C
             {
                 try
                 {
-                    logger.Technical().System($"Save the token in the cache for {cacheKey}, will expire at {tokenInfoResult.Value.ExpiresOnUtc} Utc.").Log();
+                    logger.Technical().LogTrace($"Save the token in the cache for {cacheKey}, will expire at {tokenInfoResult.Value.ExpiresOnUtc} Utc.");
                     tokenCache.Put(cacheKey, tokenInfoResult.Value);
                 }
                 catch (Exception ex)
@@ -86,7 +86,7 @@ public class CredentialTokenCacheTokenProvider(ITokenCache tokenCache, ILogger<C
         }
 
         // no cache, do a direct call on every calls.
-        logger.Technical().System($"No cache is defined. STS is called for every call.").Log();
+        logger.Technical().LogTrace($"No cache is defined. STS is called for every call.");
         return await CreateBasicTokenInfoAsync(settings, credential).ConfigureAwait(false);
 
     }
@@ -132,7 +132,7 @@ public class CredentialTokenCacheTokenProvider(ITokenCache tokenCache, ILogger<C
             result.WithError("Scope is missing. Cannot process the request.");
         }
 
-        logger.Technical().System($"Creating an authentication context for the request.").Log();
+        logger.Technical().LogTrace($"Creating an authentication context for the request.");
 
         if (!settings.Values.ContainsKey(TokenKeys.AuthorityKey))
         {

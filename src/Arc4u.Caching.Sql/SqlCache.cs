@@ -42,7 +42,7 @@ public class SqlCache : BaseDistributeCache<SqlCache>, ICache
         {
             if (IsInitialized)
             {
-                _logger.Technical().System($"Sql Cache {store} is already initialized.").Log();
+                _logger.Technical().LogCacheIsAlreadyInitialized(store);
                 return;
             }
 
@@ -88,7 +88,7 @@ public class SqlCache : BaseDistributeCache<SqlCache>, ICache
                     return;
                 }
 
-                _logger.Technical().System($"Sql Cache {store} is initialized.").Log();
+                _logger.Technical().LogCacheIsInitialized(store);
             }
             catch (Exception ex)
             {

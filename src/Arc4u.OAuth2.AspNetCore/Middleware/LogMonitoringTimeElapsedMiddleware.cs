@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Arc4u.Diagnostics;
+using Arc4u.Diagnostics.Monitoring;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.Logging;
@@ -42,13 +43,11 @@ public class LogMonitoringTimeElapsedMiddleware
             {
                 var descriptor = endpoint.Metadata.GetMetadata<ControllerActionDescriptor>();
                 if (descriptor != null && descriptor.MethodInfo.DeclaringType is not null)
-                {
-                    logger.Monitoring()
-                           .From(descriptor.MethodInfo.DeclaringType, descriptor.MethodInfo.Name)
-                           .Information($"Time to complete method call")
+                {               
+                    logger.Monitoring(descriptor.MethodInfo.DeclaringType, descriptor.MethodInfo.Name)
                            .Add("Elapsed", stopwatch.Elapsed.TotalMilliseconds)
                            .Add("StatusCode", context.Response.StatusCode)
-                           .Log();
+                           .LogTimeToCompleteCall();
 
                     _log?.Invoke(descriptor.MethodInfo.DeclaringType, stopwatch.Elapsed);
                 }
@@ -57,7 +56,7 @@ public class LogMonitoringTimeElapsedMiddleware
         }
         catch (Exception ex)
         {
-            logger.Technical().From<LogMonitoringTimeElapsedMiddleware>().Exception(ex).Log();
+            logger.Technical<LogMonitoringTimeElapsedMiddleware>().LogException(ex);
         }
     }
 }

@@ -12,7 +12,7 @@ public class TimeZoneContextTests
 {
     private readonly Mock<IOptionsMonitor<ApplicationConfig>> _mockConfigPST;
     private readonly Mock<IOptionsMonitor<ApplicationConfig>> _mockConfigBE;
-    private readonly Mock<ILogger> _mockLogger;
+    private readonly Mock<ILogger<TimeZoneContext>> _mockLogger;
     private readonly ApplicationConfig _appConfigPST;
     private readonly ApplicationConfig _appConfigBE;
 
@@ -20,7 +20,7 @@ public class TimeZoneContextTests
     {
         _mockConfigPST = new Mock<IOptionsMonitor<ApplicationConfig>>();
         _mockConfigBE = new Mock<IOptionsMonitor<ApplicationConfig>>();
-        _mockLogger = new Mock<ILogger>();
+        _mockLogger = new Mock<ILogger<TimeZoneContext>>();
         _appConfigPST = new ApplicationConfig
         {
             ApplicationName = "TestApp",

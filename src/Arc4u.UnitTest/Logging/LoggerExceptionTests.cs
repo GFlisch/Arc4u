@@ -31,7 +31,7 @@ public class LoggerSimpleExceptionTests
         var serviceProvider = services.BuildServiceProvider();
         var logger = serviceProvider.GetRequiredService<ILogger<LoggerSimpleExceptionTests>>()!;
 
-        logger.Technical().Exception(new StackOverflowException("Overflow", new DivideByZeroException())).Log();
+        logger.Technical().LogException(new StackOverflowException("Overflow", new DivideByZeroException()));
 
         Assert.True(sink.HasException);
         Assert.Single(sink.Exceptions);
@@ -63,11 +63,10 @@ public class LoggerAggregateExceptionTests
 
         var logger = serviceProvider.GetRequiredService<ILogger<LoggerAggregateExceptionTests>>()!;
 
-        logger.Technical().Exception(new AggregateException("Aggregated",
+        logger.Technical().LogException(new AggregateException("Aggregated",
                                         new DivideByZeroException("Go back to school", new OutOfMemoryException("Out of memory")),
                                         new ArgumentNullException("null"),
-                                        new AggregateException(new AppDomainUnloadedException("Houston, we have a problem."))))
-                          .Log();
+                                        new AggregateException(new AppDomainUnloadedException("Houston, we have a problem."))));
 
         Assert.True(sink.HasException);
         Assert.Collection(sink.Exceptions,

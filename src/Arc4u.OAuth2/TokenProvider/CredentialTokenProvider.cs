@@ -28,9 +28,10 @@ public class CredentialTokenProvider(ILogger<CredentialTokenProvider> logger, IO
         }
         var tokenEndpoint = await authority.GetEndpointAsync(CancellationToken.None).ConfigureAwait(false);
 
-        _logger.Technical().Debug($"ClientId = {clientId}.").Log();
-        _logger.Technical().Debug($"Scope = {scope}.").Log();
-        _logger.Technical().Debug($"Authority = {tokenEndpoint}.").Log();   // this should be called TokenEndpoint in the logs...
+        _logger.Technical().Add("ClientId", clientId)
+                           .Add("Scope", scope)
+                           .Add("Authority", tokenEndpoint)
+                           .LogGetEndpoint();
 
         if (string.IsNullOrWhiteSpace(credential.Upn))
         {
@@ -45,7 +46,7 @@ public class CredentialTokenProvider(ILogger<CredentialTokenProvider> logger, IO
         result.LogIfFailed();
 
         // no cache, do a direct call on every calls.
-        _logger.Technical().Debug($"Call STS: {authority} for user: {credential.Upn}").Log();
+        _logger.Technical().LogStsAndUser(authority.Url.ToString(), credential.Upn);
         return await GetTokenInfoAsync(clientSecret, clientId, tokenEndpoint, scope, credential.Upn!, credential.Password!).ConfigureAwait(false);
 
     }
@@ -83,7 +84,7 @@ public class CredentialTokenProvider(ILogger<CredentialTokenProvider> logger, IO
             return ValidationError.Create("ClientId is missing. Cannot process the request.");
         }
 
-        _logger.Technical().Debug($"Creating an authentication context for the request.").Log();
+        _logger.Technical().LogCreatingAuthenticationContext();
         clientId = settings.Values[TokenKeys.ClientIdKey];
         clientSecret = settings.Values.ContainsKey(TokenKeys.ClientSecret) ? settings.Values[TokenKeys.ClientSecret] : string.Empty;
         // More for backward compatibility! We should throw an error message if scope is not defined...
@@ -127,7 +128,7 @@ public class CredentialTokenProvider(ILogger<CredentialTokenProvider> logger, IO
                     loggedResponseBody = $"{responseBody.Substring(0, MaxResponseBodyLength)}...(response truncated, {loggedResponseBody.Length} total characters)";
                 }
 
-                var logger = _logger.Technical().Error($"Token endpoint for {upn} returned {response.StatusCode}: {loggedResponseBody}");
+                var logger = _logger.Technical();
 
                 // In case of error, any extra information should be in Json with string values, but we can't assume this is always the case!
                 Dictionary<string, string>? dictionary = null;
@@ -142,7 +143,7 @@ public class CredentialTokenProvider(ILogger<CredentialTokenProvider> logger, IO
                 // we cannot any any more meaningful information to the log if this is not a dictionary
                 if (dictionary == null)
                 {
-                    logger.Log();
+                    logger.LogCredentialToken(upn, response.StatusCode.ToString(), loggedResponseBody); ;
                 }
                 else
                 {
@@ -151,7 +152,7 @@ public class CredentialTokenProvider(ILogger<CredentialTokenProvider> logger, IO
                     {
                         logger.Add(kv.Key, kv.Value);
                     }
-                    logger.Log();
+                    logger.LogCredentialToken(upn, response.StatusCode.ToString(), loggedResponseBody);
 
                     if (dictionary.TryGetValue("error", out var tokenErrorCode))
                     {
@@ -187,7 +188,7 @@ public class CredentialTokenProvider(ILogger<CredentialTokenProvider> logger, IO
         }
         catch (Exception ex)
         {
-            _logger.Technical().Exception(ex).Log();
+            _logger.LogException(ex);
             return ValidationError.Create(ex.Message).WithCode("Rejected");
         }
     }

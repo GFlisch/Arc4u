@@ -23,9 +23,8 @@ public class ManageExceptionsFilter(ILogger<ManageExceptionsFilter> logger, IApp
 
         // First log the exception.
         logger.Technical()
-               .Exception(context.Exception)
-               .AddIf(string.IsNullOrEmpty(application?.ActivityID),
-                                           LoggingConstants.ActivityId, () => activityId!).Log();
+              .AddIf(string.IsNullOrEmpty(application?.ActivityID), LoggingConstants.ActivityId, () => activityId!)
+              .LogException(context.Exception);
 
         switch (context.Exception)
         {

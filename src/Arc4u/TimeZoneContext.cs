@@ -31,7 +31,7 @@ namespace Arc4u
         /// </summary>
         //internal bool _isSameTimeZoneInfo;
 
-        public TimeZoneContext(IOptionsMonitor<ApplicationConfig> config, ILogger logger)
+        public TimeZoneContext(IOptionsMonitor<ApplicationConfig> config, ILogger<TimeZoneContext> logger)
         {
             _timeZone = TimeZoneInfo.Local;
             IntializeFromConfig(config.CurrentValue, logger);
@@ -41,14 +41,14 @@ namespace Arc4u
         private static TimeZoneContext? _current;
         public static TimeZoneContext Current => _current ?? throw new InvalidOperationException("No timezone context is defined");
 
-        private void IntializeFromConfig(ApplicationConfig config, ILogger logger)
+        private void IntializeFromConfig(ApplicationConfig config, ILogger<TimeZoneContext> logger)
         {
             ArgumentNullException.ThrowIfNull(config);
             ArgumentNullException.ThrowIfNull(logger);
 
             try
             {
-                logger.Technical().From<TimeZoneContext>().System(config.Environment.TimeZone).Log();
+                logger.Technical().LogTryToUseTimeZone(config.Environment.TimeZone);
 
                 if (!string.IsNullOrWhiteSpace(config.Environment.TimeZone))
                 {
@@ -57,8 +57,8 @@ namespace Arc4u
             }
             catch (Exception ex)
             {
-                logger.Technical().From<TimeZoneContext>().Warning("Zone not found!").Log();
-                logger.Technical().From<TimeZoneContext>().Exception(ex).Log();
+                logger.Technical().LogZoneNotFound(config.Environment.TimeZone);
+                logger.Technical().LogException(ex);
             }
         }
 

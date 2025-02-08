@@ -19,13 +19,13 @@ public class NullTokenProvider : ITokenProvider
 
     public Task<Result<TokenInfo>> GetTokenAsync(IKeyValueSettings? settings, object? platformParameters)
     {
-        _logger.Technical().System("Null token provide is invoked.").Log();
+        _logger.Technical().LogTrace("Null token provide is invoked.");
         return Task.FromResult<Result<TokenInfo>>(new());
     }
 
     public ValueTask SignOutAsync(IKeyValueSettings settings, CancellationToken cancellationToken)
     {
-        _logger.Technical().System("Null token provider doesn't do anything.").Log();
+        _logger.Technical().LogTrace("Null token provider doesn't do anything.");
 
         return ValueTask.CompletedTask;
     }

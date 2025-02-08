@@ -2,6 +2,7 @@ using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
+using Arc4u.OAuth2;
 using Microsoft.Extensions.Logging;
 
 namespace Arc4u.gRPC.ChannelCertificate;
@@ -52,7 +53,7 @@ public class RootCertificateExtractor : IRootCertificateExtractor, IDisposable
     {
         if (certificate is not null)
         {
-            _logger.Technical().System($"Certificate callback received with Subject = {certificate.Subject}.").Log();
+            _logger.Technical().LogCertificateFeedBackReceived(certificate.Subject);
 
             if (sender.Options.TryGetValue(_key, out var certificateHolder))
             {
@@ -61,7 +62,7 @@ public class RootCertificateExtractor : IRootCertificateExtractor, IDisposable
         }
         else
         {
-            _logger.Technical().System($"Certificate callback received no certificate.").Log();
+            _logger.Technical().LogCertificateFeedBackWithNoCertificate();
         }
 
         return sslPolicyErrors == SslPolicyErrors.None;

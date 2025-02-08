@@ -34,7 +34,7 @@ public class UserObjectIdentifier : IUserObjectIdentifier
             return null;
         }
 
-        _logger.Technical().Debug($"Claim Type id used to identify the user is {id}.").Log();
+        _logger.Technical().LogDebug($"Claim Type id used to identify the user is {id}.");
 
         return id;
     }

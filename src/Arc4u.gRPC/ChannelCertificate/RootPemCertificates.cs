@@ -39,17 +39,17 @@ public class RootPemCertificates
 
             if (certificate is null)
             {
-                _logger.Technical().System($"Certificate was not retrieved from the uri.").Log();
+                _logger.Technical().LogCertificateUriError(rootUri.ToString());
                 throw new KeyNotFoundException(rootUri.ToString());
             }
 
-            _logger.Technical().System($"Certificate used is {certificate.Subject}.").Log();
+            _logger.Technical().LogCertificateUsed(certificate.Subject);
 
             pem = ExportToPem(certificate);
 
             if (string.IsNullOrWhiteSpace(pem))
             {
-                _logger.Technical().System($"Pem extaction is empty.").Log();
+                _logger.Technical().LogEmptyPemCertificate(certificate.Subject);
                 throw new KeyNotFoundException(rootUri.ToString());
             }
 
@@ -62,7 +62,7 @@ public class RootPemCertificates
         }
         catch (Exception ex)
         {
-            _logger.Technical().Exception(ex).Log();
+            _logger.Technical().LogException(ex);
 
             throw new KeyNotFoundException(rootUri.ToString());
         }
