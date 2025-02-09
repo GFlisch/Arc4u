@@ -16,6 +16,9 @@ public static class ServicesRegistrationExtension
     /// <returns><see cref="IServiceCollection"/></returns>
     public static IServiceCollection AddILogger(this IServiceCollection services)
     {
+        services.RemoveAll(typeof(ILogger<>));
+
+        services.TryAddScoped<IAddPropertiesToLog, NullLoggerProperties>();
         // Add the Arc4u Logger<T> implementation.
         services.TryAddTransient(typeof(ILogger<>), typeof(LoggerWrapper<>));
         services.TryAddTransient(typeof(IArc4uLogger<>), typeof(LoggerWrapper<>));

@@ -2,6 +2,7 @@ using System.Xml.Linq;
 using Arc4u.Caching;
 using Arc4u.Caching.Memory;
 using Arc4u.Dependency.ComponentModel;
+using Arc4u.Diagnostics;
 using Arc4u.OAuth2.DataProtection;
 using Arc4u.Serializer;
 using AutoFixture;
@@ -64,11 +65,19 @@ public class CacheDataProtectionStoreTests
 
         container.CreateContainer();
 
-        var loggerFactory = container.GetRequiredService<ILoggerFactory>();
+        var mockLoggerWrapperCacheStore = new Mock<ILoggerWrapper<CacheStore>>();
+        mockLoggerWrapperCacheStore.Setup(m => m.SetContext(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Type?>()))
+                                     .Returns(mockLoggerWrapperCacheStore.Object);
+
+        var mockLoggerCacheStore = mockLoggerWrapperCacheStore.As<ILogger<CacheStore>>();
+
+        var mockLoggerFactory = new Mock<ILoggerFactory>();
+        mockLoggerFactory.Setup(m => m.CreateLogger(It.IsAny<string>())).Returns(mockLoggerCacheStore.Object);
+
         var cacheContext = container.GetRequiredService<ICacheContext>();
         var serializer = container.GetRequiredService<IObjectSerialization>();
         // act
-        var sut = new CacheStore(cacheContext, loggerFactory, serializer, "DataProtection", "Volatile");
+        var sut = new CacheStore(cacheContext, mockLoggerFactory.Object, serializer, "DataProtection", "Volatile");
 
         var element = new XElement("Data", new XAttribute("CreationDate", DateTime.UtcNow),
                             new XElement("Cert", "Begin Certficate"));
@@ -94,11 +103,19 @@ public class CacheDataProtectionStoreTests
 
         container.CreateContainer();
 
-        var loggerFactory = container.GetRequiredService<ILoggerFactory>();
+        var mockLoggerWrapperCacheStore = new Mock<ILoggerWrapper<CacheStore>>();
+        mockLoggerWrapperCacheStore.Setup(m => m.SetContext(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Type?>()))
+                                     .Returns(mockLoggerWrapperCacheStore.Object);
+
+        var mockLoggerCacheStore = mockLoggerWrapperCacheStore.As<ILogger<CacheStore>>();
+
+        var mockLoggerFactory = new Mock<ILoggerFactory>();
+        mockLoggerFactory.Setup(m => m.CreateLogger(It.IsAny<string>())).Returns(mockLoggerCacheStore.Object);
+
         var cacheContext = container.GetRequiredService<ICacheContext>();
         var serializer = container.GetRequiredService<IObjectSerialization>();
         // act
-        var sut = new CacheStore(cacheContext, loggerFactory, serializer, "DataProtection");
+        var sut = new CacheStore(cacheContext, mockLoggerFactory.Object, serializer, "DataProtection");
 
         var element = new XElement("Data", new XAttribute("CreationDate", DateTime.UtcNow),
                             new XElement("Cert", "Begin Certficate"));
@@ -124,11 +141,11 @@ public class CacheDataProtectionStoreTests
 
         container.CreateContainer();
 
-        var loggerFactory = container.GetRequiredService<ILoggerFactory>();
+        var mockLoggerFactory = new Mock<ILoggerFactory>();
         var cacheContext = container.GetRequiredService<ICacheContext>();
         var serializer = container.GetRequiredService<IObjectSerialization>();
         // act
-        var exception = Record.Exception(() => new CacheStore(cacheContext, loggerFactory, serializer, default!));
+        var exception = Record.Exception(() => new CacheStore(cacheContext, mockLoggerFactory.Object, serializer, default!));
 
         // assert
         exception.Should().NotBeNull();
@@ -278,7 +295,18 @@ public class CacheDataProtectionStoreTests
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
-        services.AddLogging();
+        var mockLoggerWrapperCacheContext = new Mock<ILoggerWrapper<CacheContext>>();
+        mockLoggerWrapperCacheContext.Setup(m => m.SetContext(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Type?>()))
+                                     .Returns(mockLoggerWrapperCacheContext.Object);
+
+        services.AddSingleton<ILogger<CacheContext>>(mockLoggerWrapperCacheContext.Object);
+
+        var mockLoggerWrapperMemoryCache = new Mock<ILoggerWrapper<MemoryCache>>();
+        mockLoggerWrapperMemoryCache.Setup(m => m.SetContext(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Type?>()))
+                          .Returns(mockLoggerWrapperMemoryCache.Object);
+
+        services.AddSingleton<ILogger<MemoryCache>>(mockLoggerWrapperMemoryCache.Object);
+
         services.AddCacheContext(configuration);
         services.AddSingleton<IConfiguration>(configuration);
         services.AddTransient<IObjectSerialization, JsonSerialization>();

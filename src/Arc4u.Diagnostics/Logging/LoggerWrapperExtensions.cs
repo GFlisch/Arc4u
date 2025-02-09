@@ -12,9 +12,8 @@ public static class LoggerWrapperExtensions
     /// <param name="key">The key.</param>
     /// <param name="value">The value.</param>
     /// <returns></returns>
-    public static LoggerWrapper<T> Add<T>(this LoggerWrapper<T> logger, string key, object value)
+    public static ILoggerWrapper<T> Add<T>(this ILoggerWrapper<T> logger, string key, object value)
     {
-        logger.ThrowIfDisposed();
         logger.AdditionalFields[ValidateKey(key)] = value;
         return logger;
     }
@@ -28,9 +27,8 @@ public static class LoggerWrapperExtensions
     /// <param name="key">The key.</param>
     /// <param name="value">The value.</param>
     /// <returns></returns>
-    public static LoggerWrapper<T> AddIf<T>(this LoggerWrapper<T> logger, bool condition, string key, Func<object> value)
+    public static ILoggerWrapper<T> AddIf<T>(this ILoggerWrapper<T> logger, bool condition, string key, Func<object> value)
     {
-        logger.ThrowIfDisposed();
         if (condition)
         {
             logger.AdditionalFields[ValidateKey(key)] = value();
@@ -46,9 +44,8 @@ public static class LoggerWrapperExtensions
     /// <param name="key">The key.</param>
     /// <param name="value">The value.</param>
     /// <returns></returns>
-    public static LoggerWrapper<T> AddIfNotExist<T>(this LoggerWrapper<T> logger, string key, object? value)
+    public static ILoggerWrapper<T> AddIfNotExist<T>(this ILoggerWrapper<T> logger, string key, object? value)
     {
-        logger.ThrowIfDisposed();
         var validKey = ValidateKey(key);
 
         if (value == null || logger.AdditionalFields.ContainsKey(validKey))
@@ -56,7 +53,6 @@ public static class LoggerWrapperExtensions
             return logger;
         }
 
-        logger.AdditionalFields[validKey] = value;
         return logger;
     }
 
@@ -68,9 +64,8 @@ public static class LoggerWrapperExtensions
     /// <param name="key">The key.</param>
     /// <param name="value">The value.</param>
     /// <returns></returns>
-    public static LoggerWrapper<T> AddOrReplace<T>(this LoggerWrapper<T> logger, string key, object value)
+    public static ILoggerWrapper<T> AddOrReplace<T>(this ILoggerWrapper<T> logger, string key, object value)
     {
-        logger.ThrowIfDisposed();
         logger.AdditionalFields[ValidateKey(key)] = value;
         return logger;
     }
@@ -84,9 +79,8 @@ public static class LoggerWrapperExtensions
     /// <param name="key">The key.</param>
     /// <param name="value">The value.</param>
     /// <returns></returns>
-    public static LoggerWrapper<T> AddOrReplaceIf<T>(this LoggerWrapper<T> logger, bool condition, string key, Func<double> value)
+    public static ILoggerWrapper<T> AddOrReplaceIf<T>(this ILoggerWrapper<T> logger, bool condition, string key, Func<double> value)
     {
-        logger.ThrowIfDisposed();
 
         if (condition)
         {
@@ -101,9 +95,8 @@ public static class LoggerWrapperExtensions
     /// <typeparam name="T"></typeparam>
     /// <param name="logger">The logger.</param>
     /// <returns></returns>
-    public static LoggerWrapper<T> AddStackTrace<T>(this LoggerWrapper<T> logger)
+    public static ILoggerWrapper<T> AddStackTrace<T>(this ILoggerWrapper<T> logger)
     {
-        logger.ThrowIfDisposed();
         logger.IncludeStackTrace = true;
         return logger;
     }
@@ -114,7 +107,7 @@ public static class LoggerWrapperExtensions
     /// <typeparam name="T"></typeparam>
     /// <param name="logger">The logger.</param>
     /// <returns></returns>
-    public static LoggerWrapper<T> AddMemoryUsage<T>(this LoggerWrapper<T> logger)
+    public static ILoggerWrapper<T> AddMemoryUsage<T>(this ILoggerWrapper<T> logger)
     {
         return logger.Add("Memory", GC.GetTotalMemory(false));
     }

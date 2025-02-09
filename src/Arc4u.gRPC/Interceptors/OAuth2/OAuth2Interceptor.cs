@@ -161,7 +161,7 @@ public class OAuth2Interceptor : Interceptor
             if (tokenInfoResult.IsFailed)
             {
                 _logger.Technical().LogNoTokenIsProvided(GetType().Name);
-                tokenInfoResult;
+                tokenInfoResult.Log();
                 return;
             }
 

@@ -181,7 +181,7 @@ public class AppPrincipalTransform : IClaimsTransformation
         }
         catch (Exception ex)
         {
-            _logger.Technical().Exception(ex);
+            _logger.Technical().LogException(ex);
         }
 
         return claims;
@@ -211,7 +211,7 @@ public class AppPrincipalTransform : IClaimsTransformation
         }
         catch (Exception ex)
         {
-            _logger.Technical().Exception(ex);
+            _logger.Technical().LogException(ex);
         }
     }
     #endregion

@@ -114,7 +114,7 @@ public class UsernamePasswordTokenProvider(ISecureCache secureCache, INetworkInf
 
         if (result.IsFailed)
         {
-            result;
+            result.Log();
             throw new InvalidOperationException("No token received!");
         }
 

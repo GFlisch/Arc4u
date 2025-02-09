@@ -140,7 +140,7 @@ public class JwtHttpHandler : DelegatingHandler
         if (tokenInfoResult.IsFailed)
         {
             _logger.Technical().LogNoTokenProvider(GetType().Name);
-            tokenInfoResult;
+            tokenInfoResult.Log();
             return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
         }
 

@@ -3,7 +3,14 @@ using Microsoft.Extensions.Logging;
 
 namespace Arc4u.Diagnostics;
 
-public sealed class LoggerWrapper<T> : ILogger<T>, IArc4uLogger<T>, ILoggerCallerMember
+public interface ILoggerWrapper<T> : ILogger<T>, IArc4uLogger<T>, ILoggerCallerMember
+{
+    public Dictionary<string, object?> AdditionalFields { get; }
+
+    public bool IncludeStackTrace { set; }
+}
+
+public sealed class LoggerWrapper<T> : ILoggerWrapper<T>
 {
     internal readonly ILogger _logger;
     private string _category;
@@ -13,8 +20,8 @@ public sealed class LoggerWrapper<T> : ILogger<T>, IArc4uLogger<T>, ILoggerCalle
     private bool _disposed;
     private readonly IAddPropertiesToLog? _addPropertiesToLog;
 
-    internal Dictionary<string, object?> AdditionalFields => _additionalFields;
-    internal bool IncludeStackTrace { get; set; }
+    public Dictionary<string, object?> AdditionalFields => _additionalFields;
+    public bool IncludeStackTrace { private get; set; }
 
     internal static int ProcessId
     {
@@ -43,7 +50,7 @@ public sealed class LoggerWrapper<T> : ILogger<T>, IArc4uLogger<T>, ILoggerCalle
         _addPropertiesToLog = addPropertiesToLog;
     }
 
-    public  LoggerWrapper<T> SetContext(string category, string caller = "", Type? realType = null)
+    public  ILoggerWrapper<T> SetContext(string category, string caller = "", Type? realType = null)
     {
         _caller = caller;
         _category = category;
@@ -65,7 +72,15 @@ public sealed class LoggerWrapper<T> : ILogger<T>, IArc4uLogger<T>, ILoggerCalle
         try
         {
             var properties = AddAdditionalProperties();
-            
+
+            if (null != LoggerContext.Current?.All())
+            {
+                foreach (var property in LoggerContext.Current.All())
+                {
+                    properties.AddIfNotExist(property.Key, property.Value);
+                }
+            }
+
             if (IncludeStackTrace)
             {
                 properties.AddIfNotExist(LoggingConstants.Stacktrace, exception?.StackTrace ?? Environment.StackTrace);

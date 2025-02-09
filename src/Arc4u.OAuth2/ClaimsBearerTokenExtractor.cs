@@ -79,7 +79,7 @@ public class ClaimsBearerTokenExtractor : IClaimsFiller
                 if (tokenInfoResult.IsFailed)
                 {
                     _logger.Technical().LogNoToken();
-                    tokenInfoResult;
+                    tokenInfoResult.Log();
                     return result;
                 }
 

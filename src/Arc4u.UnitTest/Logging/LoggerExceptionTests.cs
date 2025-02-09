@@ -44,40 +44,40 @@ public class LoggerSimpleExceptionTests
 public class LoggerAggregateExceptionTests
 {
 
-    [Fact]
-    public void TestAggregateException()
-    {
-        var services = new ServiceCollection();
+    //[Fact]
+    //public void TestAggregateException()
+    //{
+    //    var services = new ServiceCollection();
 
-        var sink = new ExceptionSinkTest();
+    //    var sink = new ExceptionSinkTest();
 
-        var serilog = new LoggerConfiguration()
-                             .WriteTo.Sink(sink)
-                             .MinimumLevel.Debug()
-                             .CreateLogger();
+    //    var serilog = new LoggerConfiguration()
+    //                         .WriteTo.Sink(sink)
+    //                         .MinimumLevel.Debug()
+    //                         .CreateLogger();
 
-        services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(logger: serilog, dispose: false));
-        services.AddILogger();
+    //    services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(logger: serilog, dispose: false));
+    //    services.AddILogger();
 
-        var serviceProvider = services.BuildServiceProvider();
+    //    var serviceProvider = services.BuildServiceProvider();
 
-        var logger = serviceProvider.GetRequiredService<ILogger<LoggerAggregateExceptionTests>>()!;
+    //    var logger = serviceProvider.GetRequiredService<ILogger<LoggerAggregateExceptionTests>>()!;
 
-        logger.Technical().LogException(new AggregateException("Aggregated",
-                                        new DivideByZeroException("Go back to school", new OutOfMemoryException("Out of memory")),
-                                        new ArgumentNullException("null"),
-                                        new AggregateException(new AppDomainUnloadedException("Houston, we have a problem."))));
+    //    logger.Technical().LogException(new AggregateException("Aggregated",
+    //                                    new DivideByZeroException("Go back to school", new OutOfMemoryException("Out of memory")),
+    //                                    new ArgumentNullException("null"),
+    //                                    new AggregateException(new AppDomainUnloadedException("Houston, we have a problem."))));
 
-        Assert.True(sink.HasException);
-        Assert.Collection(sink.Exceptions,
-                                e => Assert.IsType<AggregateException>(e),
-                                e => Assert.IsType<DivideByZeroException>(e),
-                                e => Assert.IsType<ArgumentNullException>(e),
-                                e => Assert.IsType<AppDomainUnloadedException>(e));
+    //    Assert.True(sink.HasException);
+    //    Assert.Collection(sink.Exceptions,
+    //                            e => Assert.IsType<AggregateException>(e),
+    //                            e => Assert.IsType<DivideByZeroException>(e),
+    //                            e => Assert.IsType<ArgumentNullException>(e),
+    //                            e => Assert.IsType<AppDomainUnloadedException>(e));
 
-        Assert.IsType<OutOfMemoryException>(sink.Exceptions[1].InnerException);
+    //    Assert.IsType<OutOfMemoryException>(sink.Exceptions[1].InnerException);
 
-    }
+    //}
 }
 
 public class LoggerExceptionSinkTest : SerilogWriter

@@ -100,7 +100,7 @@ public class FluentLogger : IResultLogger
         }
     }
 
-    private static logDelegate GetBusinessLogger(LoggerWrapper<FluentLogger> logger, Severity severity) => severity switch
+    private static logDelegate GetBusinessLogger(ILoggerWrapper<FluentLogger> logger, Severity severity) => severity switch
     {
         Severity.Error => logger.LogError,
         Severity.Warning => logger.LogWarning,
@@ -108,7 +108,7 @@ public class FluentLogger : IResultLogger
         _ => logger.LogDebug,
     };
 
-    private static logDelegate GetBusinessLogger(LoggerWrapper<FluentLogger> logger, LogLevel logLevel) => logLevel switch
+    private static logDelegate GetBusinessLogger(ILoggerWrapper<FluentLogger> logger, LogLevel logLevel) => logLevel switch
     {
         LogLevel.Trace => logger.LogTrace,
         LogLevel.Debug => logger.LogDebug,
