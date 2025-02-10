@@ -107,8 +107,8 @@ public class GRpcInterceptorTests
                           .Returns(NullLogger.Instance);
 
         services.AddSingleton<ILoggerFactory>(mockILoggerFactory.Object);
-        services.AddTransient(typeof(ILogger<>), typeof(LoggerWrapper<>));
-        services.AddSingleton<IAddPropertiesToLog>(new NullLoggerProperties());
+        services.AddScoped(typeof(ILogger<>), typeof(LoggerWrapper<>));
+        services.AddKeyedTransient<IAddPropertiesToLog, NullLoggerProperties>("Scoped");
 
         var mockHttpContextAccessor = _fixture.Freeze<Mock<IHttpContextAccessor>>();
         mockHttpContextAccessor.SetupGet(x => x.HttpContext).Returns(() => null);
@@ -190,8 +190,8 @@ public class GRpcInterceptorTests
                           .Returns(NullLogger.Instance);
 
         services.AddSingleton<ILoggerFactory>(mockILoggerFactory.Object);
-        services.AddTransient(typeof(ILogger<>), typeof(LoggerWrapper<>));
-        services.AddSingleton<IAddPropertiesToLog>(new NullLoggerProperties());
+        services.AddScoped(typeof(ILogger<>), typeof(LoggerWrapper<>));
+        services.AddKeyedTransient<IAddPropertiesToLog, NullLoggerProperties>("Scoped");
 
         var mockHttpContextAccessor = _fixture.Freeze<Mock<IHttpContextAccessor>>();
         mockHttpContextAccessor.SetupGet(x => x.HttpContext).Returns(() => null);
@@ -271,8 +271,8 @@ public class GRpcInterceptorTests
                           .Returns(NullLogger.Instance);
 
         services.AddSingleton<ILoggerFactory>(mockILoggerFactory.Object);
-        services.AddTransient(typeof(ILogger<>), typeof(LoggerWrapper<>));
-        services.AddSingleton<IAddPropertiesToLog>(new NullLoggerProperties());
+        services.AddScoped(typeof(ILogger<>), typeof(LoggerWrapper<>));
+        services.AddKeyedTransient<IAddPropertiesToLog, NullLoggerProperties>("Scoped");
         services.AddSingleton<IScopedServiceProviderAccessor, ScopedServiceProviderAccessor>();
         services.AddSecretAuthentication(configuration);
         services.AddScoped<IApplicationContext, ApplicationInstanceContext>();
@@ -367,8 +367,8 @@ public class GRpcInterceptorTests
                           .Returns(NullLogger.Instance);
 
         services.AddSingleton<ILoggerFactory>(mockILoggerFactory.Object);
-        services.AddTransient(typeof(ILogger<>), typeof(LoggerWrapper<>));
-        services.AddSingleton<IAddPropertiesToLog>(new NullLoggerProperties());
+        services.AddScoped(typeof(ILogger<>), typeof(LoggerWrapper<>));
+        services.AddKeyedTransient<IAddPropertiesToLog, NullLoggerProperties>("Scoped");
 
         // Register the different TokenProvider and CredentialTokenProviders.
         var container = new ComponentModelContainer(services);
@@ -443,8 +443,8 @@ public class GRpcInterceptorTests
                           .Returns(NullLogger.Instance);
 
         services.AddSingleton<ILoggerFactory>(mockILoggerFactory.Object);
-        services.AddTransient(typeof(ILogger<>), typeof(LoggerWrapper<>));
-        services.AddSingleton<IAddPropertiesToLog>(new NullLoggerProperties());
+        services.AddScoped(typeof(ILogger<>), typeof(LoggerWrapper<>));
+        services.AddKeyedTransient<IAddPropertiesToLog, NullLoggerProperties>("Scoped");
 
         // Register the different TokenProvider and CredentialTokenProviders.
         var container = new ComponentModelContainer(services);
@@ -524,7 +524,7 @@ public class GRpcInterceptorTests
 
         services.AddSingleton<ILoggerFactory>(mockILoggerFactory.Object);
         services.AddScoped(typeof(ILogger<>), typeof(LoggerWrapper<>));
-        services.AddSingleton<IAddPropertiesToLog>(new NullLoggerProperties());
+        services.AddKeyedTransient<IAddPropertiesToLog, NullLoggerProperties>("Scoped");
         services.AddSingleton<IScopedServiceProviderAccessor, ScopedServiceProviderAccessor>();
         services.AddDefaultAuthority(configuration);
         services.AddOnBehalfOf(configuration);
@@ -611,8 +611,8 @@ public class GRpcInterceptorTests
                           .Returns(NullLogger.Instance);
 
         services.AddSingleton<ILoggerFactory>(mockILoggerFactory.Object);
-        services.AddTransient(typeof(ILogger<>), typeof(LoggerWrapper<>));
-        services.AddSingleton<IAddPropertiesToLog>(new NullLoggerProperties());
+        services.AddScoped(typeof(ILogger<>), typeof(LoggerWrapper<>));
+        services.AddKeyedTransient<IAddPropertiesToLog, NullLoggerProperties>("Scoped");
         services.AddSingleton<IScopedServiceProviderAccessor, ScopedServiceProviderAccessor>();
         services.AddDefaultAuthority(configuration);
         services.ConfigureOAuth2Settings(configuration, "Authentication:OAuth2.Settings");

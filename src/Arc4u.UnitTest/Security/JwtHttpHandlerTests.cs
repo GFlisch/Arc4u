@@ -98,8 +98,8 @@ public class JwtHttpHandlerTests
                           .Returns(NullLogger.Instance);
 
         services.AddSingleton<ILoggerFactory>(mockILoggerFactory.Object);
-        services.AddTransient(typeof(ILogger<>), typeof(LoggerWrapper<>));
-        services.AddSingleton<IAddPropertiesToLog>(new NullLoggerProperties());
+        services.AddScoped(typeof(ILogger<>), typeof(LoggerWrapper<>));
+        services.AddKeyedTransient<IAddPropertiesToLog, NullLoggerProperties>("Scoped");
 
         var mockHttpContextAccessor = _fixture.Freeze<Mock<IHttpContextAccessor>>();
         mockHttpContextAccessor.SetupGet(x => x.HttpContext).Returns(() => null);
@@ -198,8 +198,8 @@ public class JwtHttpHandlerTests
                           .Returns(NullLogger.Instance);
 
         services.AddSingleton<ILoggerFactory>(mockILoggerFactory.Object);
-        services.AddTransient(typeof(ILogger<>), typeof(LoggerWrapper<>));
-        services.AddSingleton<IAddPropertiesToLog>(new NullLoggerProperties());
+        services.AddScoped(typeof(ILogger<>), typeof(LoggerWrapper<>));
+        services.AddKeyedTransient<IAddPropertiesToLog, NullLoggerProperties>("Scoped");
 
         var mockHttpContextAccessor = _fixture.Freeze<Mock<IHttpContextAccessor>>();
         mockHttpContextAccessor.SetupGet(x => x.HttpContext).Returns(() => null);
@@ -294,8 +294,8 @@ public class JwtHttpHandlerTests
                           .Returns(NullLogger.Instance);
 
         services.AddSingleton<ILoggerFactory>(mockILoggerFactory.Object);
-        services.AddTransient(typeof(ILogger<>), typeof(LoggerWrapper<>));
-        services.AddSingleton<IAddPropertiesToLog>(new NullLoggerProperties());
+        services.AddScoped(typeof(ILogger<>), typeof(LoggerWrapper<>));
+        services.AddKeyedTransient<IAddPropertiesToLog, NullLoggerProperties>("Scoped");
 
         var mockHttpContextAccessor = _fixture.Freeze<Mock<IHttpContextAccessor>>();
         mockHttpContextAccessor.SetupGet(x => x.HttpContext).Returns(() => null);
@@ -390,8 +390,8 @@ public class JwtHttpHandlerTests
                           .Returns(NullLogger.Instance);
 
         services.AddSingleton<ILoggerFactory>(mockILoggerFactory.Object);
-        services.AddTransient(typeof(ILogger<>), typeof(LoggerWrapper<>));
-        services.AddSingleton<IAddPropertiesToLog>(new NullLoggerProperties());
+        services.AddScoped(typeof(ILogger<>), typeof(LoggerWrapper<>));
+        services.AddKeyedTransient<IAddPropertiesToLog, NullLoggerProperties>("Scoped");
 
         // Mock the CredentialDiect (Calling the authorize endpoint based on a user and password!)
         var mockSecretTokenProvider = _fixture.Freeze<Mock<ICredentialTokenProvider>>();
@@ -480,8 +480,8 @@ public class JwtHttpHandlerTests
                           .Returns(NullLogger.Instance);
 
         services.AddSingleton<ILoggerFactory>(mockILoggerFactory.Object);
-        services.AddTransient(typeof(ILogger<>), typeof(LoggerWrapper<>));
-        services.AddSingleton<IAddPropertiesToLog>(new NullLoggerProperties());
+        services.AddScoped(typeof(ILogger<>), typeof(LoggerWrapper<>));
+        services.AddKeyedTransient<IAddPropertiesToLog, NullLoggerProperties>("Scoped");
 
         var mockHttpContextAccessor = _fixture.Freeze<Mock<IHttpContextAccessor>>();
         mockHttpContextAccessor.SetupGet(x => x.HttpContext).Returns(() => null);
@@ -557,8 +557,8 @@ public class JwtHttpHandlerTests
                           .Returns(NullLogger.Instance);
 
         services.AddSingleton<ILoggerFactory>(mockILoggerFactory.Object);
-        services.AddTransient(typeof(ILogger<>), typeof(LoggerWrapper<>));
-        services.AddSingleton<IAddPropertiesToLog>(new NullLoggerProperties());
+        services.AddScoped(typeof(ILogger<>), typeof(LoggerWrapper<>));
+        services.AddKeyedTransient<IAddPropertiesToLog, NullLoggerProperties>("Scoped");
 
         var mockHttpContextAccessor = _fixture.Freeze<Mock<IHttpContextAccessor>>();
         mockHttpContextAccessor.SetupGet(x => x.HttpContext).Returns(() => null);
@@ -642,8 +642,8 @@ public class JwtHttpHandlerTests
                           .Returns(NullLogger.Instance);
 
         services.AddSingleton<ILoggerFactory>(mockILoggerFactory.Object);
-        services.AddTransient(typeof(ILogger<>), typeof(LoggerWrapper<>));
-        services.AddSingleton<IAddPropertiesToLog>(new NullLoggerProperties());
+        services.AddScoped(typeof(ILogger<>), typeof(LoggerWrapper<>));
+        services.AddKeyedTransient<IAddPropertiesToLog, NullLoggerProperties>("Scoped");
 
         var mockHttpContextAccessor = _fixture.Freeze<Mock<IHttpContextAccessor>>();
         mockHttpContextAccessor.SetupGet(x => x.HttpContext).Returns(() => null);
@@ -754,8 +754,8 @@ public class JwtHttpHandlerTests
                           .Returns(NullLogger.Instance);
 
         services.AddSingleton<ILoggerFactory>(mockILoggerFactory.Object);
-        services.AddTransient(typeof(ILogger<>), typeof(LoggerWrapper<>));
-        services.AddSingleton<IAddPropertiesToLog>(new NullLoggerProperties());
+        services.AddScoped(typeof(ILogger<>), typeof(LoggerWrapper<>));
+        services.AddKeyedTransient<IAddPropertiesToLog, NullLoggerProperties>("Scoped");
 
         var mockHttpContextAccessor = _fixture.Freeze<Mock<IHttpContextAccessor>>();
         mockHttpContextAccessor.SetupGet(x => x.HttpContext).Returns(() => null);
@@ -861,8 +861,8 @@ public class JwtHttpHandlerTests
                           .Returns(NullLogger.Instance);
 
         services.AddSingleton<ILoggerFactory>(mockILoggerFactory.Object);
-        services.AddTransient(typeof(ILogger<>), typeof(LoggerWrapper<>));
-        services.AddSingleton<IAddPropertiesToLog>(new NullLoggerProperties());
+        services.AddScoped(typeof(ILogger<>), typeof(LoggerWrapper<>));
+        services.AddKeyedTransient<IAddPropertiesToLog, NullLoggerProperties>("Scoped");
 
         var mockHttpContextAccessor = _fixture.Freeze<Mock<IHttpContextAccessor>>();
         mockHttpContextAccessor.SetupGet(x => x.HttpContext).Returns(() => null);
@@ -976,8 +976,8 @@ public class JwtHttpHandlerTests
                           .Returns(NullLogger.Instance);
 
         services.AddSingleton<ILoggerFactory>(mockILoggerFactory.Object);
-        services.AddTransient(typeof(ILogger<>), typeof(LoggerWrapper<>));
-        services.AddSingleton<IAddPropertiesToLog>(new NullLoggerProperties());
+        services.AddScoped(typeof(ILogger<>), typeof(LoggerWrapper<>));
+        services.AddKeyedTransient<IAddPropertiesToLog, NullLoggerProperties>("Scoped");
 
         var mockHttpContextAccessor = _fixture.Freeze<Mock<IHttpContextAccessor>>();
         mockHttpContextAccessor.SetupGet(x => x.HttpContext).Returns(() => null);

@@ -1,4 +1,5 @@
 using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Arc4u.Diagnostics;
@@ -10,7 +11,23 @@ public interface ILoggerWrapper<T> : ILogger<T>, IArc4uLogger<T>, ILoggerCallerM
     public bool IncludeStackTrace { set; }
 }
 
-public sealed class LoggerWrapper<T> : ILoggerWrapper<T>
+public sealed class LoggerWrapper<T> : LoggerBaseWrapper<T>
+{
+    public LoggerWrapper(ILoggerFactory loggerFactory, [FromKeyedServices("Scoped")] IAddPropertiesToLog addPropertiesToLog): base(loggerFactory, addPropertiesToLog)   
+    {
+        
+    }
+}
+
+public sealed class TransientLoggerWrapper<T> : LoggerBaseWrapper<T>
+{
+    public TransientLoggerWrapper(ILoggerFactory loggerFactory, [FromKeyedServices("Transient")] IAddPropertiesToLog addPropertiesToLog) : base(loggerFactory, addPropertiesToLog)
+    {
+
+    }
+}
+
+public abstract class LoggerBaseWrapper<T> : ILoggerWrapper<T>
 {
     internal readonly ILogger _logger;
     private string _category;
@@ -42,7 +59,7 @@ public sealed class LoggerWrapper<T> : ILoggerWrapper<T>
     /// Created by the IServiceProvider.
     /// </summary>
     /// <param name="loggerFactory"></param>
-    public LoggerWrapper(ILoggerFactory loggerFactory, IAddPropertiesToLog addPropertiesToLog)
+    public LoggerBaseWrapper(ILoggerFactory loggerFactory, IAddPropertiesToLog addPropertiesToLog)
     {
         _logger = loggerFactory.CreateLogger<T>();
         _category = nameof(MessageCategory.Technical);
