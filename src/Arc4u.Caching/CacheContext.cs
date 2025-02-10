@@ -2,6 +2,7 @@ using Arc4u.Dependency;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Arc4u.Caching;
@@ -35,7 +36,7 @@ public class CacheContext : ICacheContext
     /// <summary>
     /// Initialise the cache following the caching config section.
     /// </summary>
-    public CacheContext(IConfiguration configuration, ILogger<CacheContext> logger, IServiceProvider dependency)
+    public CacheContext(IConfiguration configuration, [FromKeyedServices("Transient")] ILogger<CacheContext> logger, IServiceProvider dependency)
     {
         _logger = logger;
         _dependency = dependency;

@@ -1,6 +1,7 @@
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using FluentResults;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Arc4u.OAuth2.Token;
@@ -8,7 +9,7 @@ namespace Arc4u.OAuth2.Token;
 [Export(NullTokenProvider.ProviderName, typeof(ITokenProvider)), Shared]
 public class NullTokenProvider : ITokenProvider
 {
-    public NullTokenProvider(ILogger<NullTokenProvider> logger)
+    public NullTokenProvider([FromKeyedServices("Transient")] ILogger<NullTokenProvider> logger)
     {
         _logger = logger;
     }

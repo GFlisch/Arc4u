@@ -299,7 +299,7 @@ public class CacheDataProtectionStoreTests
         mockLoggerWrapperCacheContext.Setup(m => m.SetContext(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Type?>()))
                                      .Returns(mockLoggerWrapperCacheContext.Object);
 
-        services.AddSingleton<ILogger<CacheContext>>(mockLoggerWrapperCacheContext.Object);
+        services.AddKeyedSingleton<ILogger<CacheContext>>("Transient", mockLoggerWrapperCacheContext.Object);
 
         var mockLoggerWrapperMemoryCache = new Mock<ILoggerWrapper<MemoryCache>>();
         mockLoggerWrapperMemoryCache.Setup(m => m.SetContext(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Type?>()))

@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -10,7 +11,7 @@ namespace Arc4u.OAuth2.Security;
 [Export(typeof(IUserObjectIdentifier)), Shared]
 public class UserObjectIdentifier : IUserObjectIdentifier
 {
-    public UserObjectIdentifier(IOptions<ClaimsIdentifierOption> identifierOptions, ILogger<UserObjectIdentifier> logger)
+    public UserObjectIdentifier(IOptions<ClaimsIdentifierOption> identifierOptions, [FromKeyedServices("Transient")] ILogger<UserObjectIdentifier> logger)
     {
         ArgumentNullException.ThrowIfNull(identifierOptions);
 

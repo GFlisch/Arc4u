@@ -2,6 +2,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Arc4u.gRPC.ChannelCertificate;
@@ -9,7 +10,7 @@ namespace Arc4u.gRPC.ChannelCertificate;
 [Export, Shared]
 public class RootPemCertificates
 {
-    public RootPemCertificates(IRootCertificateExtractor certificateExtractor, ILogger<RootPemCertificates> logger)
+    public RootPemCertificates(IRootCertificateExtractor certificateExtractor, [FromKeyedServices("Transient")] ILogger<RootPemCertificates> logger)
     {
         _certificateExtractor = certificateExtractor;
         _pemsCollections = new Dictionary<string, string>();

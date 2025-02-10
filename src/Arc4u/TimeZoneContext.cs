@@ -31,7 +31,7 @@ namespace Arc4u
         /// </summary>
         //internal bool _isSameTimeZoneInfo;
 
-        public TimeZoneContext(IOptionsMonitor<ApplicationConfig> config, ILogger<TimeZoneContext> logger)
+        public TimeZoneContext(IOptionsMonitor<ApplicationConfig> config, [FromKeyedServices("Transient")] ILogger<TimeZoneContext> logger)
         {
             _timeZone = TimeZoneInfo.Local;
             IntializeFromConfig(config.CurrentValue, logger);

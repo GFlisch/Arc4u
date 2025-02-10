@@ -6,13 +6,14 @@ using Arc4u.OAuth2.Security.Principal;
 using Arc4u.OAuth2.Token;
 using Arc4u.Results.Validation;
 using FluentResults;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Arc4u.OAuth2.TokenProvider;
 
 [Export(CredentialTokenProvider.ProviderName, typeof(ICredentialTokenProvider)), Shared]
-public class CredentialTokenProvider(ILogger<CredentialTokenProvider> logger, IOptionsMonitor<AuthorityOptions> authorityOptions) : ICredentialTokenProvider
+public class CredentialTokenProvider([FromKeyedServices("Transient")] ILogger<CredentialTokenProvider> logger, IOptionsMonitor<AuthorityOptions> authorityOptions) : ICredentialTokenProvider
 {
     public const string ProviderName = "CredentialDirect";
 

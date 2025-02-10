@@ -1,6 +1,7 @@
 using Arc4u.Caching;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Arc4u.OAuth2.Token;
@@ -15,7 +16,7 @@ public class ApplicationLocalDataCache : ITokenCache
     private readonly ICache Cache;
     private readonly ILogger Logger;
 
-    public ApplicationLocalDataCache(ISecureCache cache, ILogger logger)
+    public ApplicationLocalDataCache(ISecureCache cache, [FromKeyedServices("Transient")] ILogger logger)
     {
         Cache = cache;
         Logger = logger;

@@ -2,6 +2,7 @@ using System.Runtime.Serialization.Json;
 using System.Security.Claims;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Arc4u.Security.Principal;
@@ -9,7 +10,7 @@ namespace Arc4u.Security.Principal;
 [Export(typeof(IClaimAuthorizationFiller)), Shared]
 public class ClaimsAuthorizationFiller : IClaimAuthorizationFiller
 {
-    public ClaimsAuthorizationFiller(ILogger<ClaimsAuthorizationFiller> logger)
+    public ClaimsAuthorizationFiller([FromKeyedServices("Transient")] ILogger<ClaimsAuthorizationFiller> logger)
     {
         _logger = logger;
     }
