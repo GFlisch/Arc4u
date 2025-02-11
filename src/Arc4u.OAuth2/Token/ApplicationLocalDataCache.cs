@@ -16,7 +16,7 @@ public class ApplicationLocalDataCache : ITokenCache
     private readonly ICache Cache;
     private readonly ILogger Logger;
 
-    public ApplicationLocalDataCache(ISecureCache cache, [FromKeyedServices("Transient")] ILogger logger)
+    public ApplicationLocalDataCache(ISecureCache cache, ILogger logger)
     {
         Cache = cache;
         Logger = logger;

@@ -11,7 +11,7 @@ namespace Arc4u.OAuth2.Token;
 [Export(typeof(ICacheHelper)), Shared]
 public class CacheHelper : ICacheHelper
 {
-    public CacheHelper(ICacheContext cacheContext, [FromKeyedServices("Transient")] ILogger<CacheHelper> logger, IOptions<TokenCacheOptions> options)
+    public CacheHelper(ICacheContext cacheContext, ILogger<CacheHelper> logger, IOptions<TokenCacheOptions> options)
     {
         _cacheContext = cacheContext;
         _logger = logger;

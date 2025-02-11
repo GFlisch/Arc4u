@@ -10,7 +10,7 @@ namespace Arc4u.Security.Principal;
 [Export(typeof(IClaimAuthorizationFiller)), Shared]
 public class ClaimsAuthorizationFiller : IClaimAuthorizationFiller
 {
-    public ClaimsAuthorizationFiller([FromKeyedServices("Transient")] ILogger<ClaimsAuthorizationFiller> logger)
+    public ClaimsAuthorizationFiller(ILogger<ClaimsAuthorizationFiller> logger)
     {
         _logger = logger;
     }

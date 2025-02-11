@@ -13,7 +13,7 @@ using Microsoft.Extensions.Options;
 namespace Arc4u.OAuth2.TokenProvider;
 
 [Export(CredentialTokenProvider.ProviderName, typeof(ICredentialTokenProvider)), Shared]
-public class CredentialTokenProvider([FromKeyedServices("Transient")] ILogger<CredentialTokenProvider> logger, IOptionsMonitor<AuthorityOptions> authorityOptions) : ICredentialTokenProvider
+public class CredentialTokenProvider(ILogger<CredentialTokenProvider> logger, IOptionsMonitor<AuthorityOptions> authorityOptions) : ICredentialTokenProvider
 {
     public const string ProviderName = "CredentialDirect";
 

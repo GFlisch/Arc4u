@@ -10,7 +10,7 @@ namespace Arc4u.gRPC.ChannelCertificate;
 [Export, Shared]
 public class RootPemCertificates
 {
-    public RootPemCertificates(IRootCertificateExtractor certificateExtractor, [FromKeyedServices("Transient")] ILogger<RootPemCertificates> logger)
+    public RootPemCertificates(IRootCertificateExtractor certificateExtractor, ILogger<RootPemCertificates> logger)
     {
         _certificateExtractor = certificateExtractor;
         _pemsCollections = new Dictionary<string, string>();

@@ -12,7 +12,7 @@ namespace Arc4u.OAuth2.Token;
 /// Read the cache used to store the tokens! If nothing is identified, Default is used!
 /// </summary>
 [Export(typeof(ITokenCache)), Shared]
-public class ApplicationCache(ICacheHelper cacheHelper, [FromKeyedServices("Transient")] ILogger logger, IOptions<TokenCacheOptions> options) : ITokenCache
+public class ApplicationCache(ICacheHelper cacheHelper, ILogger logger, IOptions<TokenCacheOptions> options) : ITokenCache
 {
     private readonly ICache _cache = cacheHelper.GetCache();
     private readonly TokenCacheOptions _tokenCacheOptions = options.Value;

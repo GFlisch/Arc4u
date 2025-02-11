@@ -4,30 +4,38 @@ using Microsoft.Extensions.Logging;
 
 namespace Arc4u.Diagnostics;
 
-public interface ILoggerWrapper<T> : ILogger<T>, IArc4uLogger<T>, ILoggerCallerMember
+public interface ILoggerWrapper<T> : ILogger<T>, ILoggerCallerMember
 {
     public Dictionary<string, object?> AdditionalFields { get; }
 
     public bool IncludeStackTrace { set; }
+
+    ILoggerWrapper<T> SetContext(string category, string caller = "", Type? realType = null);
+
+}
+
+public interface IScopedLogger<T> : ILoggerWrapper<T>
+{
+
 }
 
 public sealed class LoggerWrapper<T> : LoggerBaseWrapper<T>
 {
-    public LoggerWrapper(ILoggerFactory loggerFactory, [FromKeyedServices("Scoped")] IAddPropertiesToLog addPropertiesToLog): base(loggerFactory, addPropertiesToLog)   
+    public LoggerWrapper(ILoggerFactory loggerFactory, [FromKeyedServices("Transient")] IAddPropertiesToLog addPropertiesToLog): base(loggerFactory, addPropertiesToLog)   
     {
         
     }
 }
 
-public sealed class TransientLoggerWrapper<T> : LoggerBaseWrapper<T>
+public sealed class ScopedLoggerWrapper<T> : LoggerBaseWrapper<T>
 {
-    public TransientLoggerWrapper(ILoggerFactory loggerFactory, [FromKeyedServices("Transient")] IAddPropertiesToLog addPropertiesToLog) : base(loggerFactory, addPropertiesToLog)
+    public ScopedLoggerWrapper(ILoggerFactory loggerFactory, [FromKeyedServices("Scoped")] IAddPropertiesToLog addPropertiesToLog) : base(loggerFactory, addPropertiesToLog)
     {
 
     }
 }
 
-public abstract class LoggerBaseWrapper<T> : ILoggerWrapper<T>
+public abstract class LoggerBaseWrapper<T> : IScopedLogger<T>
 {
     internal readonly ILogger _logger;
     private string _category;

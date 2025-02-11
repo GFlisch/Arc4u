@@ -9,7 +9,7 @@ namespace Arc4u.OAuth2.Token;
 [Export(NullTokenProvider.ProviderName, typeof(ITokenProvider)), Shared]
 public class NullTokenProvider : ITokenProvider
 {
-    public NullTokenProvider([FromKeyedServices("Transient")] ILogger<NullTokenProvider> logger)
+    public NullTokenProvider(ILogger<NullTokenProvider> logger)
     {
         _logger = logger;
     }

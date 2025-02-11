@@ -89,8 +89,8 @@ public class TokenTests
                           .Returns(NullLogger.Instance);
 
         services.AddSingleton<ILoggerFactory>(mockILoggerFactory.Object);
-        services.AddScoped(typeof(ILogger<>), typeof(LoggerWrapper<>));
-        services.AddKeyedTransient<IAddPropertiesToLog, NullLoggerProperties>("Scoped");
+        services.AddTransient(typeof(ILogger<>), typeof(LoggerWrapper<>));
+        services.AddKeyedTransient<IAddPropertiesToLog, NullLoggerProperties>("Transient");
 
         var serviceProvider = services.BuildServiceProvider();
 
@@ -129,8 +129,8 @@ public class TokenTests
                           .Returns(NullLogger.Instance);
 
         services.AddSingleton<ILoggerFactory>(mockILoggerFactory.Object);
-        services.AddScoped(typeof(ILogger<>), typeof(LoggerWrapper<>));
-        services.AddKeyedTransient<IAddPropertiesToLog, NullLoggerProperties>("Scoped");
+        services.AddTransient(typeof(ILogger<>), typeof(LoggerWrapper<>));
+        services.AddKeyedTransient<IAddPropertiesToLog, NullLoggerProperties>("Transient");
 
         var serviceProvider = services.BuildServiceProvider();
 

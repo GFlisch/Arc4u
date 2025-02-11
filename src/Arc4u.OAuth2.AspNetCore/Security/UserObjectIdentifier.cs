@@ -11,7 +11,7 @@ namespace Arc4u.OAuth2.Security;
 [Export(typeof(IUserObjectIdentifier)), Shared]
 public class UserObjectIdentifier : IUserObjectIdentifier
 {
-    public UserObjectIdentifier(IOptions<ClaimsIdentifierOption> identifierOptions, [FromKeyedServices("Transient")] ILogger<UserObjectIdentifier> logger)
+    public UserObjectIdentifier(IOptions<ClaimsIdentifierOption> identifierOptions, ILogger<UserObjectIdentifier> logger)
     {
         ArgumentNullException.ThrowIfNull(identifierOptions);
 

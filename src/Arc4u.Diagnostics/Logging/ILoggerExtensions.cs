@@ -13,15 +13,6 @@ public static class ILoggerExtensions
     public static ILoggerWrapper<T> Monitoring<T>(this ILogger<T> logger, [CallerMemberName] string methodName = "") =>
         logger is ILoggerWrapper<T> loggerWraper ? loggerWraper.SetContext(nameof(MessageCategory.Monitoring), methodName) : throw new InvalidOperationException("Bad Arc4u usage.");
 
-    public static ILoggerWrapper<T> Technical<T>(this IArc4uLogger<T> logger, [CallerMemberName] string methodName = "") =>
-        logger.SetContext(nameof(MessageCategory.Technical), methodName);
-
-    public static ILoggerWrapper<T> Business<T>(this IArc4uLogger<T> logger, [CallerMemberName] string methodName = "") =>
-        logger.SetContext(nameof(MessageCategory.Business), methodName);
-
-    public static ILoggerWrapper<T> Monitoring<T>(this IArc4uLogger<T> logger, [CallerMemberName] string methodName = "") =>
-        logger.SetContext(nameof(MessageCategory.Monitoring), methodName);
-
     public static ILoggerWrapper<DefaultLogger> Technical(this ILogger logger, Type specificType, [CallerMemberName] string methodName = "") =>
         logger is ILoggerWrapper<DefaultLogger> loggerWraper ? loggerWraper.SetContext(nameof(MessageCategory.Technical), methodName, specificType) : throw new InvalidOperationException("Bad Arc4u usage.");
 

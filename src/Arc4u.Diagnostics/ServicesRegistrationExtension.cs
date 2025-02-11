@@ -20,12 +20,10 @@ public static class ServicesRegistrationExtension
 
         services.TryAddKeyedScoped<IAddPropertiesToLog, NullLoggerProperties>("Scoped");
         services.TryAddKeyedTransient<IAddPropertiesToLog, NullLoggerProperties>("Transient");
-        // Add the Arc4u Logger<T> implementation.
-        services.TryAddScoped(typeof(ILogger<>), typeof(LoggerWrapper<>));
-        services.TryAddScoped(typeof(IArc4uLogger<>), typeof(LoggerWrapper<>));
 
-        services.TryAddKeyedTransient(typeof(ILogger<>), "Transient", typeof(LoggerWrapper<>));
-        services.TryAddKeyedTransient(typeof(IArc4uLogger<>), "Transient", typeof(LoggerWrapper<>));
+        // Add the Arc4u Logger<T> implementation.
+        services.TryAddScoped(typeof(IScopedLogger<>), typeof(ScopedLoggerWrapper<>));
+        services.TryAddTransient(typeof(ILogger<>), typeof(LoggerWrapper<>));
 
         services.AddTransient<ILogger>((serviceProvider) => serviceProvider.GetRequiredService<ILogger<DefaultLogger>>());
 

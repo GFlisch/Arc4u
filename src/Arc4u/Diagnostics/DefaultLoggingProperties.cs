@@ -3,7 +3,7 @@ using Arc4u.Security.Principal;
 
 namespace Arc4u.Diagnostics;
 
-[Export(typeof(IAddPropertiesToLog)), Scoped]
+[Export("Scoped", typeof(IAddPropertiesToLog)), Scoped]
 public class DefaultLoggingProperties : IAddPropertiesToLog
 {
     private readonly IApplicationContext applicationContext;
