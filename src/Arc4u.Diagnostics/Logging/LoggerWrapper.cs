@@ -112,14 +112,6 @@ public abstract class LoggerBaseWrapper<T> : IScopedLogger<T>
         {
             var properties = AddAdditionalProperties();
 
-            if (null != LoggerContext.Current?.All())
-            {
-                foreach (var property in LoggerContext.Current.All())
-                {
-                    properties.AddIfNotExist(property.Key, property.Value);
-                }
-            }
-
             if (IncludeStackTrace)
             {
                 properties.AddIfNotExist(LoggingConstants.Stacktrace, exception?.StackTrace ?? System.Environment.StackTrace);
