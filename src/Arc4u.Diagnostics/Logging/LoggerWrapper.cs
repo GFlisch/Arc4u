@@ -1,6 +1,8 @@
 using System.Reflection;
+using Arc4u.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Arc4u.Diagnostics;
 
@@ -21,7 +23,7 @@ public interface IScopedLogger<T> : ILoggerWrapper<T>
 
 public sealed class LoggerWrapper<T> : LoggerBaseWrapper<T>
 {
-    public LoggerWrapper(ILoggerFactory loggerFactory, [FromKeyedServices("Transient")] IAddPropertiesToLog addPropertiesToLog): base(loggerFactory, addPropertiesToLog)   
+    public LoggerWrapper(ILoggerFactory loggerFactory, [FromKeyedServices("Transient")] IAddPropertiesToLog addPropertiesToLog, IOptionsMonitor<ApplicationConfig> appConfig) : base(loggerFactory, addPropertiesToLog, appConfig)   
     {
         
     }
@@ -29,7 +31,7 @@ public sealed class LoggerWrapper<T> : LoggerBaseWrapper<T>
 
 public sealed class ScopedLoggerWrapper<T> : LoggerBaseWrapper<T>
 {
-    public ScopedLoggerWrapper(ILoggerFactory loggerFactory, [FromKeyedServices("Scoped")] IAddPropertiesToLog addPropertiesToLog) : base(loggerFactory, addPropertiesToLog)
+    public ScopedLoggerWrapper(ILoggerFactory loggerFactory, [FromKeyedServices("Scoped")] IAddPropertiesToLog addPropertiesToLog, IOptionsMonitor<ApplicationConfig> appConfig) : base(loggerFactory, addPropertiesToLog, appConfig)
     {
 
     }
@@ -44,6 +46,7 @@ public abstract class LoggerBaseWrapper<T> : IScopedLogger<T>
     private string _caller = string.Empty;
     private bool _disposed;
     private readonly IAddPropertiesToLog? _addPropertiesToLog;
+    private readonly ApplicationConfig _applicationConfig;
 
     public Dictionary<string, object?> AdditionalFields => _additionalFields;
     public bool IncludeStackTrace { private get; set; }
@@ -54,7 +57,7 @@ public abstract class LoggerBaseWrapper<T> : IScopedLogger<T>
         {
             try
             {
-                return Environment.ProcessId;
+                return System.Environment.ProcessId;
             }
             catch (PlatformNotSupportedException)
             {
@@ -67,12 +70,20 @@ public abstract class LoggerBaseWrapper<T> : IScopedLogger<T>
     /// Created by the IServiceProvider.
     /// </summary>
     /// <param name="loggerFactory"></param>
-    public LoggerBaseWrapper(ILoggerFactory loggerFactory, IAddPropertiesToLog addPropertiesToLog)
+    /// <param name="addPropertiesToLog"></param>
+    /// <param name="appConfig"></param>
+    public LoggerBaseWrapper(ILoggerFactory loggerFactory, IAddPropertiesToLog addPropertiesToLog, IOptionsMonitor<ApplicationConfig> appConfig)
     {
         _logger = loggerFactory.CreateLogger<T>();
         _category = nameof(MessageCategory.Technical);
         _contextType = typeof(T);
         _addPropertiesToLog = addPropertiesToLog;
+        _applicationConfig = appConfig.CurrentValue ?? new();
+
+        if (string.IsNullOrWhiteSpace(_applicationConfig.Environment.LoggingName))
+        {
+            _applicationConfig.Environment.LoggingName = ApplicationName;
+        }
     }
 
     public  ILoggerWrapper<T> SetContext(string category, string caller = "", Type? realType = null)
@@ -85,6 +96,9 @@ public abstract class LoggerBaseWrapper<T> : IScopedLogger<T>
         }
         return this;
     }
+
+    private static string ApplicationName => Assembly.GetEntryAssembly()?.GetName().Name ?? "Unknown App";
+
     private void Log(LogLevel level, string? message, Exception? exception = null)
     {
         ThrowIfDisposed();
@@ -108,14 +122,14 @@ public abstract class LoggerBaseWrapper<T> : IScopedLogger<T>
 
             if (IncludeStackTrace)
             {
-                properties.AddIfNotExist(LoggingConstants.Stacktrace, exception?.StackTrace ?? Environment.StackTrace);
+                properties.AddIfNotExist(LoggingConstants.Stacktrace, exception?.StackTrace ?? System.Environment.StackTrace);
             }
 
             properties.AddIfNotExist(LoggingConstants.MethodName, _caller);
             properties.AddIfNotExist(LoggingConstants.Class, _contextType?.FullName ?? nameof(_contextType));
             properties.AddIfNotExist(LoggingConstants.Category, _category);
-            properties.AddIfNotExist(LoggingConstants.Application, Assembly.GetEntryAssembly()?.GetName().Name ?? "Unknown App");
-            properties.AddIfNotExist(LoggingConstants.ThreadId, Environment.CurrentManagedThreadId);
+            properties.AddIfNotExist(LoggingConstants.Application, _applicationConfig.Environment.LoggingName);
+            properties.AddIfNotExist(LoggingConstants.ThreadId, System.Environment.CurrentManagedThreadId);
             properties.AddIfNotExist(LoggingConstants.ProcessId, ProcessId);
 
             _logger.Log(level, 0, properties, exception, (state, ex) => message);

@@ -105,7 +105,6 @@ public static class ConfigurationHelper
 
     public static void AddApplicationConfig(this IServiceCollection services, IConfiguration configuration, string sectionName = "Application.Configuration")
     {
-
         ArgumentNullException.ThrowIfNull(configuration);
         ArgumentNullException.ThrowIfNullOrEmpty(sectionName);
 
