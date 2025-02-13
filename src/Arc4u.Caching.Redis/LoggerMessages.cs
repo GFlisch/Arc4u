@@ -1,7 +1,7 @@
 
 using Microsoft.Extensions.Logging;
 
-namespace Arc4u.Caching.Memory;
+namespace Arc4u.Caching.Redis;
 public static partial class LoggerMessages
 {
     [LoggerMessage(EventId = 9020, Level = LogLevel.Warning,
