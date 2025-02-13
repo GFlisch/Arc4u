@@ -45,11 +45,78 @@ public static partial class LoggerMessages
     public static partial void LogRemoveAnyBearer(this ILogger logger);
 
     [LoggerMessage(EventId = 9131, Level = LogLevel.Trace,
-    Message = "Add the {Scheme} token to provide authentication evidence.")]
+        Message = "Add the {Scheme} token to provide authentication evidence.")]
     public static partial void LogAddSchentoToken(this ILogger logger, string scheme);
 
     [LoggerMessage(EventId = 9131, Level = LogLevel.Trace,
-Message = "Add the current culture to the request: {Culture}")]
+        Message = "Add the current culture to the request: {Culture}.")]
     public static partial void LogUseCurrentCulture(this ILogger logger, string culture);
 
+    [LoggerMessage(EventId = 9132, Level = LogLevel.Information,
+    Message = "Refresh the access token. Expired since {TimeExpired}.")]
+    public static partial void LogAccessTokenIsExpired(this ILogger logger, TimeSpan timeExpired);
+
+    [LoggerMessage(EventId = 9132, Level = LogLevel.Information,
+        Message = "Refresh the access token. Will expire in {TimeExpired}.")]
+    public static partial void LogAccessTokenIsExpiring(this ILogger logger, TimeSpan timeExpired);
+
+    [LoggerMessage(EventId = 9133, Level = LogLevel.Debug,
+        Message = "Extract token from the cookie cache.")]
+    public static partial void LogExtractCookieFromTokenCache(this ILogger logger);
+
+    [LoggerMessage(EventId = 9134, Level = LogLevel.Error,
+    Message = "No TokenRefreshInfo found in the service provider.")]
+    public static partial void LogNoTokenRefreshInfo(this ILogger logger);
+
+    [LoggerMessage(EventId = 9135, Level = LogLevel.Error,
+        Message = "Cannot refresh the token. See exception.")]
+    public static partial void LogCantRefreshToken(this ILogger logger);
+
+    [LoggerMessage(EventId = 9136, Level = LogLevel.Debug,
+        Message = "Cache with name {CacheName} is used for the Authentication tickets.")]
+    public static partial void LogCacheNameUsed(this ILogger logger, string cacheName);
+
+    [LoggerMessage(EventId = 9137, Level = LogLevel.Warning,
+    Message = "Cache with name {CacheName} doesn't exist, fallback on the default one for the Authentication tickets!")]
+    public static partial void LogNoCacheExist(this ILogger logger, string cacheName);
+
+    [LoggerMessage(EventId = 9138, Level = LogLevel.Debug,
+        Message = "Authentication ticket with key {Key} has been deleted.")]
+    public static partial void LogDeleteAuthenticationTicket(this ILogger logger, string key);
+
+    [LoggerMessage(EventId = 9139, Level = LogLevel.Debug,
+        Message = "Authentication ticket with key {Key} has been created with validity period of {period}.")]
+    public static partial void LogCreateAuthenticationTicket(this ILogger logger, string key, TimeSpan period);
+
+    [LoggerMessage(EventId = 9140, Level = LogLevel.Debug,
+        Message = "Authentication ticket with key {Key} has been created.")]
+    public static partial void LogAuthenticationTicketCreated(this ILogger logger, string key);
+
+    [LoggerMessage(EventId = 9141, Level = LogLevel.Error,
+        Message = "Authentication ticket from the cache is null!")]
+    public static partial void LogAuthenticationTicketIsNull(this ILogger logger);
+
+    [LoggerMessage(EventId = 9142, Level = LogLevel.Error,
+        Message = "No Authentication ticket from the cache.")]
+    public static partial void LogNoAuthenticationTicketFromCache(this ILogger logger);
+
+    [LoggerMessage(EventId = 9143, Level = LogLevel.Debug,
+        Message = "Remove ticket with key: {Key}.")]
+    public static partial void LogRemoveAuthenticationTicket(this ILogger logger, string key);
+
+    [LoggerMessage(EventId = 9144, Level = LogLevel.Debug,
+        Message = "Renew ticket with key: {Key} on path: {FullPath}.")]
+    public static partial void LogRenewAuthenticationTicket(this ILogger logger, string key, string fullPath);
+
+    [LoggerMessage(EventId = 9145, Level = LogLevel.Debug,
+        Message = "Get ticket with key: {Key} on path: {FullPath}.")]
+    public static partial void LogGetAuthenticationTicket(this ILogger logger, string key, string fullPath);
+
+    [LoggerMessage(EventId = 9145, Level = LogLevel.Error,
+    Message = "{FullPath} doesn't exist, can't retrieve an authentication ticket.")]
+    public static partial void LogNoFileExistForAuthenticationTicket(this ILogger logger, string fullPath);
+
+    [LoggerMessage(EventId = 9146, Level = LogLevel.Error,
+        Message = "Create ticket with key: {Key} on path: {FullPath}.")]
+    public static partial void LogCreateAuthenticationTicketOnFile(this ILogger logger, string key, string fullPath);
 }

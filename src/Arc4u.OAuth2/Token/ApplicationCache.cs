@@ -2,7 +2,6 @@ using Arc4u.Caching;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Options;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -23,32 +22,32 @@ public class ApplicationCache(ICacheHelper cacheHelper, ILogger logger, IOptions
     /// <param name="key"></param>
     public void DeleteItem(string key)
     {
-        logger.Technical<ApplicationCache>().LogTrace($"Deleting information from the token cache for the id: {key}.");
+        logger.Technical<ApplicationCache>().LogDeleteInTokenCache(key);
         _cache.Remove(ApplicationCache.GetKey(key));
-        logger.Technical<ApplicationCache>().LogTrace($"Deleted information from the token cache for the id: {key}.");
+        logger.Technical<ApplicationCache>().LogDeletedInTokenCache(key);
     }
 
     public void Put<T>(string key, T data)
     {
         if (null == data)
         {
-            logger.Technical<ApplicationCache>().LogTrace("A null token data information was provided to the cache. We skip this data from the cache.");
+            logger.Technical<ApplicationCache>().LogNullTokenData(key);
             return;
         }
 
-        logger.Technical<ApplicationCache>().LogTrace($"Adding token data information to the cache: {key}.");
+        logger.Technical<ApplicationCache>().LogAddingInTokenCache(key);
         _cache.Put(ApplicationCache.GetKey(key), _tokenCacheOptions.MaxTime, data);
-        logger.Technical<ApplicationCache>().LogTrace($"Added token data information to the cache: {key}.");
+        logger.Technical<ApplicationCache>().LogAddedInTokenCache(key);
     }
 
     public T? Get<T>(string key)
     {
-        logger.Technical<ApplicationCache>().LogTrace($"Retrieve token information for user: {key}.");
+        logger.Technical<ApplicationCache>().LogGetDataTokenCache(key);
         var data = _cache.Get<T>(ApplicationCache.GetKey(key));
 
         if (null == data)
         {
-            logger.Technical<ApplicationCache>().LogTrace($"The data in cache is null for user: {key}.");
+            logger.Technical<ApplicationCache>().LogGetNullDataTokenCache(key);
         }
 
         return data;
@@ -56,7 +55,7 @@ public class ApplicationCache(ICacheHelper cacheHelper, ILogger logger, IOptions
 
     public IEnumerable<byte[]> GetAll()
     {
-        logger.Technical<ApplicationCache>().LogWarning("Geting all data from the token cache is not implemented.");
+        logger.Technical<ApplicationCache>().LogTokenCacheNotImplemented();
 
         return [];
     }

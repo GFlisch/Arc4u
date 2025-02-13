@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Logging;
 using AuthenticationProperties = Microsoft.AspNetCore.Authentication.AuthenticationProperties;
+using Arc4u.OAuth2.AspNetCore;
 
 namespace Arc4u.OAuth2.Middleware;
 
@@ -58,7 +59,7 @@ public class ForceOpenIdMiddleWare
                     context.Request.Path.HasValue &&
                     _pathsRegex.IsMatch(context.Request.Path.Value))
                 {
-                    logger.Technical().LogDebug("Force an OpenId connection.");
+                    logger.Technical().LogForceOpenIdConnect();
                     var cleanUri = new Uri(new Uri(context.Request.GetEncodedUrl()).GetLeftPart(UriPartial.Path));
                     if (Uri.TryCreate(_options.RedirectUrlForAuthority, UriKind.Absolute, out var authority))
                     {

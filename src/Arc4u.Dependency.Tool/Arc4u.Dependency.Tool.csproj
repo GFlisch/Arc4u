@@ -14,6 +14,7 @@
     <!-- Generator specific settings -->
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     <IsRoslynComponent>true</IsRoslynComponent>
+    <IsAotCompatible>false</IsAotCompatible>
     <IncludeBuildOutput>true</IncludeBuildOutput>
     <DevelopmentDependency>true</DevelopmentDependency>
   </PropertyGroup>

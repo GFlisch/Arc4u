@@ -29,11 +29,11 @@ public class CacheTicketStore : ITicketStore
     {
         if (_cacheContext.Exist(key))
         {
-            _logger.Technical().LogDebug($"Cache with name {key} is used for the Authentication tickets.");
+            _logger.Technical().LogCacheNameUsed(key);
             return _cacheContext[key];
         }
 
-        _logger.Technical().LogWarning($"Cache with name {key} doesn't exist, fallback on the default one for the Authentication tickets!");
+        _logger.Technical().LogNoCacheExist(key);
         return _cacheContext.Default;
     }
 
@@ -41,7 +41,7 @@ public class CacheTicketStore : ITicketStore
     {
         await _cache.RemoveAsync(key).ConfigureAwait(false);
 
-        _logger.Technical().LogDebug($"Authentication ticket with key {key} has been deleted.");
+        _logger.Technical().LogDeleteAuthenticationTicket(key);
     }
 
     public async Task RenewAsync(string key, AuthenticationTicket ticket)
@@ -51,11 +51,11 @@ public class CacheTicketStore : ITicketStore
         {
             var time = expiresUtc - DateTime.UtcNow ?? TimeSpan.FromHours(4);
             await _cache.PutAsync<byte[]>(key, time, TicketSerializer.Default.Serialize(ticket)).ConfigureAwait(false);
-            _logger.Technical().LogDebug($"Authentication ticket with key {key} has been created with validity period of {{timeSpan}}.", time);
+            _logger.Technical().LogCreateAuthenticationTicket(key, time);
             return;
         }
         await _cache.PutAsync(key, TimeSpan.FromHours(4), TicketSerializer.Default.Serialize(ticket)).ConfigureAwait(false);
-        _logger.Technical().LogDebug($"Authentication ticket with key {key} has been created.");
+        _logger.Technical().LogAuthenticationTicketCreated(key);
 
     }
 
@@ -74,14 +74,14 @@ public class CacheTicketStore : ITicketStore
             var ticket = TicketSerializer.Default.Deserialize(content);
             if (ticket is null)
             {
-                _logger.Technical().LogError($"Authentication ticket from the cache is null!");
+                _logger.Technical().LogAuthenticationTicketIsNull();
             }
 
             return ticket;
         }
         catch (DataCacheException)
         {
-            _logger.Technical().LogError($"No Authentication ticket from the cache.");
+            _logger.Technical().LogNoAuthenticationTicketFromCache();
 
             return null;
         }

@@ -1,5 +1,6 @@
 using Arc4u.Dependency;
 using Arc4u.Diagnostics;
+using Arc4u.OAuth2;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
 
@@ -23,13 +24,13 @@ public class MessagesScope : IDisposable
         // scope. So if we have a resolving issue, we know it immediately (and not after the work is done.
         if (!container.TryGetService<IEndpointConfiguration>(iocResolveName, out var endpointConfig))
         {
-            logger.Technical<MessagesScope>().LogWarning($"Unable to resolve the IEndpointConfiguration with the name '{iocResolveName}'");
+            logger.Technical<MessagesScope>().LogNoEndpointConfiguration(iocResolveName);
             return;
         }
 
         if (null == endpointConfig!.Instance)
         {
-            logger.Technical<MessagesScope>().LogWarning($"Instance is null for the IEndpointConfiguration with the name '{iocResolveName}'");
+            logger.Technical<MessagesScope>().LogNullEndpointConfiguration(iocResolveName);
             return;
         }
 
@@ -41,7 +42,7 @@ public class MessagesScope : IDisposable
     {
         if (null == _instance)
         {
-            Logger.Technical<MessagesScope>().LogWarning($"Unable to send any events or commands to the IEndpointConfiguration with the name.");
+            Logger.Technical<MessagesScope>().LogCannotSendToEndpointConfiguration();
             return;
         }
 
@@ -50,7 +51,7 @@ public class MessagesScope : IDisposable
         {
             try
             {
-                Logger.Technical<MessagesScope>().LogTrace($"Publish event: {_event.GetType().FullName}.");
+                Logger.Technical<MessagesScope>().LogPublishEvent(_event.GetType().FullName ?? "No Event Name");
                 _instance.Publish(_event).Wait();
             }
             catch (Exception ex)
@@ -64,7 +65,7 @@ public class MessagesScope : IDisposable
         {
             try
             {
-                Logger.Technical<MessagesScope>().LogTrace($"Send command: {command.GetType().FullName}.");
+                Logger.Technical<MessagesScope>().LogSendCommand(command.GetType().FullName ?? "No Command Name");
                 _instance.Send(command).Wait();
             }
             catch (Exception ex)

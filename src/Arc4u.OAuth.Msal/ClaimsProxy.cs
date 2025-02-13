@@ -39,18 +39,18 @@ public class ClaimsProxy : IClaimsFiller
 
         if (null == identity)
         {
-            _logger.Technical().LogError($"A null identity was received. No Claims will be generated.");
+            _logger.Technical().LogNullIdentity();
             return result;
         }
 
         if (null == settings || !settings.Any())
         {
-            _logger.Technical().LogError($"We need token settings to call the backend.");
+            _logger.Technical().LogNoTokenSettings();
             return result;
         }
         if (!settings.Any(s => s.Values.ContainsKey(TokenKeys.AuthenticationTypeKey) && s.Values[TokenKeys.AuthenticationTypeKey].Equals(identity.AuthenticationType)))
         {
-            _logger.Technical().LogDebug($"Skip fetching claims, no setting found for authentication type {identity.AuthenticationType}.");
+            _logger.Technical().LogSkipFillingClaims(identity?.AuthenticationType ?? "No AuthenticationType");
             return result;
         }
 

@@ -1,19 +1,15 @@
 using Arc4u.Caching;
 using Arc4u.Caching.Redis;
 using Arc4u.Configuration.Redis;
-using Arc4u.Dependency;
 using Arc4u.Serializer;
 using AutoFixture;
 using AutoFixture.AutoMoq;
-using Castle.Core.Logging;
 using FluentAssertions;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
-using Moq;
 using Xunit;
 
 namespace Arc4u.UnitTest.Caching;

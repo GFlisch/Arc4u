@@ -1,6 +1,7 @@
 using System.Globalization;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
+using Arc4u.OAuth2.AspNetCore;
 using Arc4u.OAuth2.Options;
 using Arc4u.OAuth2.Security.Principal;
 using Arc4u.OAuth2.Token;
@@ -44,18 +45,18 @@ public class CredentialTokenCacheTokenProvider(ITokenCache tokenCache, ILogger<C
             // authority is not null here => messages log and throw will throw an exception if null.
             var cacheKey = BuildKey(credential, authority!, scope);
 
-            logger.Technical().LogTrace($"Check if the cache contains a token for {cacheKey}.");
+            logger.Technical().LogCheckContainsKeyInCache(cacheKey);
             var tokenInfo = tokenCache.Get<TokenInfo>(cacheKey);
             var hasChanged = false;
 
             if (null != tokenInfo)
             {
                 tokenInfoResult = Result.Ok(tokenInfo);
-                logger.Technical().LogTrace($"Token loaded from the cache for {cacheKey}.");
+                logger.Technical().LogTokenLoadedFromCache(cacheKey);
 
                 if (tokenInfo.ExpiresOnUtc < DateTime.UtcNow.AddMinutes(1))
                 {
-                    logger.Technical().LogTrace($"Token is expired for {cacheKey}.");
+                    logger.Technical().LogTokenExpiredLoadedFromCache(cacheKey);
 
                     // We need to refresh the token.
                     tokenInfoResult = await CreateBasicTokenInfoAsync(settings, credential).ConfigureAwait(false);
@@ -64,7 +65,7 @@ public class CredentialTokenCacheTokenProvider(ITokenCache tokenCache, ILogger<C
             }
             else
             {
-                logger.Technical().LogTrace($"Contact the STS to create an access token for {cacheKey}.");
+                logger.Technical().LogCallSTS(cacheKey);
                 tokenInfoResult = await CreateBasicTokenInfoAsync(settings, credential).ConfigureAwait(false);
                 hasChanged = true;
             }
@@ -73,7 +74,7 @@ public class CredentialTokenCacheTokenProvider(ITokenCache tokenCache, ILogger<C
             {
                 try
                 {
-                    logger.Technical().LogTrace($"Save the token in the cache for {cacheKey}, will expire at {tokenInfoResult.Value.ExpiresOnUtc} Utc.");
+                    logger.Technical().LogSaveTokenInCache(cacheKey, tokenInfoResult.Value.ExpiresOnUtc);
                     tokenCache.Put(cacheKey, tokenInfoResult.Value);
                 }
                 catch (Exception ex)
@@ -86,7 +87,7 @@ public class CredentialTokenCacheTokenProvider(ITokenCache tokenCache, ILogger<C
         }
 
         // no cache, do a direct call on every calls.
-        logger.Technical().LogTrace($"No cache is defined. STS is called for every call.");
+        logger.Technical().LogNoCachePerformance();
         return await CreateBasicTokenInfoAsync(settings, credential).ConfigureAwait(false);
 
     }
@@ -97,7 +98,7 @@ public class CredentialTokenCacheTokenProvider(ITokenCache tokenCache, ILogger<C
 
         if (basicTokenProvider == null)
         {
-            logger.Technical().LogError($"No token provider found for {CredentialTokenProvider.ProviderName}.");
+            logger.Technical().LogNoTokenProvider(CredentialTokenProvider.ProviderName);
             return Result.Fail($"No token provider found for {CredentialTokenProvider.ProviderName}.");
         }
 
@@ -132,7 +133,7 @@ public class CredentialTokenCacheTokenProvider(ITokenCache tokenCache, ILogger<C
             result.WithError("Scope is missing. Cannot process the request.");
         }
 
-        logger.Technical().LogTrace($"Creating an authentication context for the request.");
+        logger.Technical().LogCreateAuthenticationContext();
 
         if (!settings.Values.ContainsKey(TokenKeys.AuthorityKey))
         {

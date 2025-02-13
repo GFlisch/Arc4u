@@ -173,7 +173,7 @@ public class CredentialTokenProvider(ILogger<CredentialTokenProvider> logger, IO
             // at this point, we *must* have a valid Json response. The values are a mixture of strings and numbers, so we deserialize the JsonElements
             var responseValues = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(responseBody)!;
 
-            _logger.Technical().LogDebug($"Token is received for user {upn}.");
+            _logger.Technical().LogTokenReceived(upn);
 
             var accessToken = responseValues["access_token"].GetString()!;
             var tokenType = "Bearer"; //  responseValues["token_type"]; Issue on Adfs return bearer and not Bearer (ok in AzureAD).
@@ -183,7 +183,7 @@ public class CredentialTokenProvider(ILogger<CredentialTokenProvider> logger, IO
             // expiration lifetime in is in seconds.
             var dateUtc = DateTime.UtcNow.AddSeconds(offset);
 
-            _logger.Technical().LogDebug($"Access token will expire at {dateUtc} utc.");
+            _logger.Technical().LogTokenExpiration(dateUtc);
 
             return new TokenInfo(tokenType, accessToken, dateUtc);
         }

@@ -75,4 +75,20 @@ public static partial class LoggerMessages
     [LoggerMessage(EventId = 9137, Level = LogLevel.Trace,
        Message = "Add the current culture to the request: {CurrentCulture}.")]
     public static partial void LogAddCulture(this ILogger logger, string currentCulture);
+
+    [LoggerMessage(EventId = 9138, Level = LogLevel.Error,
+        Message = "No settings to retrieve the information to call the backend are defined.")]
+    public static partial void LogNoTokenSettings(this ILogger logger);
+
+    [LoggerMessage(EventId = 9139, Level = LogLevel.Debug,
+   Message = "Skip fetching claims, no setting found for authentication type {AuthenticationType}.")]
+    public static partial void LogSkipFillingClaims(this ILogger logger, string authenticationType);
+
+    [LoggerMessage(EventId = 9140, Level = LogLevel.Error,
+        Message = "A null identity was received. No Claims will be generated.")]
+    public static partial void LogNullIdentity(this ILogger logger);
+
+    [LoggerMessage(EventId = 9141, Level = LogLevel.Error,
+    Message = "MsalUiRequiredException: {ErrorMessage}")]
+    public static partial void LogMsalUiRequiredException(this ILogger logger, string errorMessage);
 }

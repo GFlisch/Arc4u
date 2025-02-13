@@ -124,7 +124,15 @@ public abstract class LoggerBaseWrapper<T> : IScopedLogger<T>
             properties.AddIfNotExist(LoggingConstants.ThreadId, System.Environment.CurrentManagedThreadId);
             properties.AddIfNotExist(LoggingConstants.ProcessId, ProcessId);
 
-            _logger.Log(level, 0, properties, exception, (state, ex) => message);
+            _logger.Log(level, 0, properties, exception, (state, ex) => message ?? "");
+
+            if (exception is AggregateException aggregateException)
+            {
+                foreach (var innerException in aggregateException.Flatten().InnerExceptions)
+                {
+                    _logger.Log(level, 0, properties, innerException, (state, ex) => message ?? "");
+                }
+            }
         }
         catch (Exception ex)
         {

@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
+using Arc4u.OAuth2.AspNetCore;
 using Arc4u.OAuth2.Token;
 using Arc4u.Security.Principal;
 using FluentResults;
@@ -69,7 +70,7 @@ public class MsalTokenProvider : ITokenProvider
         {
             // A MsalUiRequiredException happened on AcquireTokenSilent.
             // This indicates you need to call AcquireTokenInteractive to acquire a token
-            _logger.LogTrace($"MsalUiRequiredException: {ex.Message}");
+            _logger.Technical().LogMsalUiRequiredException(ex.Message);
 
             try
             {

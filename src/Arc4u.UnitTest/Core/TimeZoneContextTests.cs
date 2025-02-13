@@ -4,7 +4,6 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
-using Serilog.Core;
 using Xunit;
 using Environment = Arc4u.Configuration.Environment;
 
@@ -15,7 +14,6 @@ public class TimeZoneContextTests
     private readonly Mock<IOptionsMonitor<ApplicationConfig>> _mockConfigPST;
     private readonly Mock<IOptionsMonitor<ApplicationConfig>> _mockConfigBE;
     private readonly ILogger<TimeZoneContext> _mockLogger;
-    private readonly Mock<ILoggerWrapper<TimeZoneContext>> _mockILoggerWrapper;
     private readonly ApplicationConfig _appConfigPST;
     private readonly ApplicationConfig _appConfigBE;
 
@@ -119,7 +117,7 @@ public class TimeZoneContextTests
         var timeZoneContextBE = new TimeZoneContext(_mockConfigBE.Object, _mockLogger);
 
         var timeZoneInfo = TimeZoneInfo.CreateCustomTimeZone("TestZone", TimeSpan.Zero, "TestZone", "TestZone", "TestZone", Array.Empty<TimeZoneInfo.AdjustmentRule>());
-        timeZoneContextBE.GetType().GetField("_timeZone", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!.SetValue(timeZoneContextBE, timeZoneInfo);
+        typeof(TimeZoneContext).GetField("_timeZone", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!.SetValue(timeZoneContextBE, timeZoneInfo);
 
         // Act
         var result = timeZoneContextBE.GetDaylightChanges(2020);
@@ -146,7 +144,7 @@ public class TimeZoneContextTests
         var timeZoneContextBE = new TimeZoneContext(_mockConfigBE.Object, _mockLogger);
 
         var timeZoneInfo = TimeZoneInfo.CreateCustomTimeZone("TestZone", TimeSpan.Zero, "TestZone", "TestZone", "TestZone", adjustmentRules);
-        timeZoneContextBE.GetType().GetField("_timeZone", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!.SetValue(timeZoneContextBE, timeZoneInfo);
+       typeof(TimeZoneContext).GetField("_timeZone", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!.SetValue(timeZoneContextBE, timeZoneInfo);
 
         // Act
         var result = timeZoneContextBE.GetDaylightChanges(2023);
