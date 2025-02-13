@@ -68,15 +68,15 @@ public static partial class LoggerMessages
     Message = "Adding token data information to the cache with id: {TokenKey}.")]
     public static partial void LogAddingInTokenCache(this ILogger logger, string tokenKey);
 
-    [LoggerMessage(EventId = 9064, Level = LogLevel.Trace,
+    [LoggerMessage(EventId = 9065, Level = LogLevel.Trace,
         Message = "Added token data information to the cache with id: {TokenKey}.")]
     public static partial void LogAddedInTokenCache(this ILogger logger, string tokenKey);
 
-    [LoggerMessage(EventId = 9065, Level = LogLevel.Trace,
+    [LoggerMessage(EventId = 9066, Level = LogLevel.Trace,
         Message = "Retrieve token information for user: {TokenKey}.")]
     public static partial void LogGetDataTokenCache(this ILogger logger, string tokenKey);
 
-    [LoggerMessage(EventId = 9066, Level = LogLevel.Warning,
+    [LoggerMessage(EventId = 9067, Level = LogLevel.Warning,
         Message = "The data in cache is null for user: {TokenKey}.")]
     public static partial void LogGetNullDataTokenCache(this ILogger logger, string tokenKey);
 
