@@ -57,7 +57,7 @@ public class ApplicationCache(ICacheHelper cacheHelper, ILogger logger, IOptions
     {
         logger.Technical<ApplicationCache>().LogTokenCacheNotImplemented();
 
-        return [];
+        throw new NotImplementedException();
     }
 
     private static string GetKey(string id)
