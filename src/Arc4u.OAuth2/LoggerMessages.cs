@@ -56,27 +56,27 @@ public static partial class LoggerMessages
         Message = "Deleting information from the token cache for the id: {TokenKey}.")]
     public static partial void LogDeleteInTokenCache(this ILogger logger, string tokenKey);
 
-    [LoggerMessage(EventId = 9062, Level = LogLevel.Trace,
+    [LoggerMessage(EventId = 9063, Level = LogLevel.Trace,
         Message = "Deleted information from the token cache for the id: {TokenKey}.")]
     public static partial void LogDeletedInTokenCache(this ILogger logger, string tokenKey);
 
-    [LoggerMessage(EventId = 9063, Level = LogLevel.Warning,
+    [LoggerMessage(EventId = 9064, Level = LogLevel.Warning,
         Message = "A null token data information was provided to the cache, with an id: {TokenKey}.")]
     public static partial void LogNullTokenData(this ILogger logger, string tokenKey);
 
-    [LoggerMessage(EventId = 9064, Level = LogLevel.Trace,
+    [LoggerMessage(EventId = 9065, Level = LogLevel.Trace,
     Message = "Adding token data information to the cache with id: {TokenKey}.")]
     public static partial void LogAddingInTokenCache(this ILogger logger, string tokenKey);
 
-    [LoggerMessage(EventId = 9065, Level = LogLevel.Trace,
+    [LoggerMessage(EventId = 9066, Level = LogLevel.Trace,
         Message = "Added token data information to the cache with id: {TokenKey}.")]
     public static partial void LogAddedInTokenCache(this ILogger logger, string tokenKey);
 
-    [LoggerMessage(EventId = 9066, Level = LogLevel.Trace,
+    [LoggerMessage(EventId = 9067, Level = LogLevel.Trace,
         Message = "Retrieve token information for user: {TokenKey}.")]
     public static partial void LogGetDataTokenCache(this ILogger logger, string tokenKey);
 
-    [LoggerMessage(EventId = 9067, Level = LogLevel.Warning,
+    [LoggerMessage(EventId = 9068, Level = LogLevel.Warning,
         Message = "The data in cache is null for user: {TokenKey}.")]
     public static partial void LogGetNullDataTokenCache(this ILogger logger, string tokenKey);
 
