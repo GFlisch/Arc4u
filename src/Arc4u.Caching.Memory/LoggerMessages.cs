@@ -9,6 +9,6 @@ public static partial class LoggerMessages
     public static partial void LogCacheIsAlreadyInitialized(this ILogger logger, string store);
 
     [LoggerMessage(EventId = 9021, Level = LogLevel.Information,
-                  Message = "Dapr caching for dapr state store {store} is initialized.")]
+                  Message = "Memory caching for state store {store} is initialized.")]
     public static partial void LogCacheIsInitialized(this ILogger logger, string store);
 }
