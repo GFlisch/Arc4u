@@ -28,11 +28,11 @@ public class LogGrpcMonitoringTimeElapsedMiddleware
 
     public async Task Invoke(HttpContext context, ILogger logger)
     {
-        var stopwatch = Stopwatch.StartNew();
+        var startingTimestamp = Stopwatch.GetTimestamp();
 
         await _next(context).ConfigureAwait(false);
 
-        stopwatch.Stop();
+        var elapsed = Stopwatch.GetElapsedTime(startingTimestamp);
 
         try
         {
@@ -43,11 +43,11 @@ public class LogGrpcMonitoringTimeElapsedMiddleware
                 if (descriptor != null)
                 {
                     logger.Technical(descriptor.ServiceType, descriptor.Method.Name)
-                           .Add("Elapsed", stopwatch.Elapsed.TotalMilliseconds)
+                           .Add("Elapsed", elapsed.TotalMilliseconds)
                            .Add("StatusCode", context.Response.StatusCode)
                            .LogTimeToCompleteCall();
 
-                    _log?.Invoke(descriptor.ServiceType, stopwatch.Elapsed);
+                    _log?.Invoke(descriptor.ServiceType, elapsed);
                 }
             }
 

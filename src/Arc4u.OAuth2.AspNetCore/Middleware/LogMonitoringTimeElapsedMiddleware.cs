@@ -30,11 +30,11 @@ public class LogMonitoringTimeElapsedMiddleware
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        var stopwatch = Stopwatch.StartNew();
+        var startingTimestamp = Stopwatch.GetTimestamp();
 
         await _next(context).ConfigureAwait(false);
 
-        stopwatch.Stop();
+        var elapsed = Stopwatch.GetElapsedTime(startingTimestamp);
 
         try
         {
@@ -45,11 +45,11 @@ public class LogMonitoringTimeElapsedMiddleware
                 if (descriptor != null && descriptor.MethodInfo.DeclaringType is not null)
                 {               
                     logger.Monitoring(descriptor.MethodInfo.DeclaringType, descriptor.MethodInfo.Name)
-                           .Add("Elapsed", stopwatch.Elapsed.TotalMilliseconds)
+                           .Add("Elapsed", elapsed.TotalMilliseconds)
                            .Add("StatusCode", context.Response.StatusCode)
                            .LogTimeToCompleteCall();
 
-                    _log?.Invoke(descriptor.MethodInfo.DeclaringType, stopwatch.Elapsed);
+                    _log?.Invoke(descriptor.MethodInfo.DeclaringType, elapsed);
                 }
             }
 
