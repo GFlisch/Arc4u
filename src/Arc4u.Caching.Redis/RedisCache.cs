@@ -1,5 +1,4 @@
 using System.Diagnostics.CodeAnalysis;
-using Arc4u.Caching.Memory;
 using Arc4u.Configuration.Redis;
 using Arc4u.Dependency;
 using Arc4u.Dependency.Attribute;

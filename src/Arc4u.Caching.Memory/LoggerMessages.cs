@@ -11,4 +11,8 @@ public static partial class LoggerMessages
     [LoggerMessage(EventId = 9021, Level = LogLevel.Information,
                   Message = "Memory caching for state store {store} is initialized.")]
     public static partial void LogCacheIsInitialized(this ILogger logger, string store);
+
+    [LoggerMessage(EventId = 9022, Level = LogLevel.Warning,
+               Message = "The size limit for the {Store} cache is {SizeLimitInMB}.")]
+    public static partial void LogCacheSizeLimit(this ILogger logger, string store, long sizeLimitInMB);
 }

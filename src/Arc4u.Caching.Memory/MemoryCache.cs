@@ -51,7 +51,9 @@ public class MemoryCache : BaseDistributeCache<MemoryCache>, ICache
                 var config = _options.Get(store);
 
                 if (config.SizeLimitInMB <= 0)
-                    _logger.LogWarning("The size limit for the {store} cache is {sizeLimitInMB}.", store, config.SizeLimitInMB);
+                {
+                    _logger.LogCacheSizeLimit(store, config.SizeLimitInMB);
+                }
 
                 var option = new DistriOption(new MemoryDistributedCacheOptions
                 {
