@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
@@ -6,16 +7,17 @@ using Arc4u.OAuth2.Security.Principal;
 using Arc4u.OAuth2.Token;
 using Arc4u.Results.Validation;
 using FluentResults;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Arc4u.OAuth2.TokenProvider;
 
-[Export(CredentialTokenProvider.ProviderName, typeof(ICredentialTokenProvider)), Shared]
+[Export(ProviderName, typeof(ICredentialTokenProvider)), Shared]
 public class CredentialTokenProvider(ILogger<CredentialTokenProvider> logger, IOptionsMonitor<AuthorityOptions> authorityOptions) : ICredentialTokenProvider
 {
     public const string ProviderName = "CredentialDirect";
+
+    private static readonly TimeSpan DefaultRetryInterval = TimeSpan.FromSeconds(90);
 
     private readonly ILogger<CredentialTokenProvider> _logger = logger;
 
@@ -48,7 +50,7 @@ public class CredentialTokenProvider(ILogger<CredentialTokenProvider> logger, IO
 
         // no cache, do a direct call on every calls.
         _logger.Technical().LogStsAndUser(authority.Url.ToString(), credential.Upn);
-        return await GetTokenInfoAsync(clientSecret, clientId, tokenEndpoint, scope, credential.Upn!, credential.Password!).ConfigureAwait(false);
+        return await GetTokenInfoAsync(clientSecret, clientId, tokenEndpoint, scope, credential.Upn!, credential.Password!, authority.RetryInterval ?? DefaultRetryInterval).ConfigureAwait(false);
 
     }
 
@@ -93,10 +95,96 @@ public class CredentialTokenProvider(ILogger<CredentialTokenProvider> logger, IO
         return Result.Ok();
     }
 
-    private async Task<Result<TokenInfo>> GetTokenInfoAsync(string? clientSecret, string clientId, Uri tokenEndpoint, string scope, string upn, string pwd)
+    /// <summary>
+    /// If a request could not be made, we need to track the number of retries and the delay between them.
+    /// This is used in the logs and in the exception message, to allow for better diagnostics.
+    /// </summary>
+    private sealed class RetryInformation
     {
+        public int RetryCount;
+        public TimeSpan Delay;
+
+        public override string ToString()
+        {
+            return RetryCount == 0 ? "No retries" : $"Retried {RetryCount} times over {Delay}";
+        }
+    }
+
+    /// <summary>
+    /// We do this without Polly since this will need to be integrated in Arc4u at some point.
+    /// </summary>
+    private sealed class HttpRetryMessageHandler : DelegatingHandler
+    {
+        private readonly TimeSpan _retryInterval;
+        private readonly RetryInformation _retryInformation;
+
+        public HttpRetryMessageHandler(HttpMessageHandler innerHandler, TimeSpan retryInterval, RetryInformation retryInformation)
+            : base(innerHandler)
+        {
+            _retryInterval = retryInterval;
+            _retryInformation = retryInformation;
+        }
+
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            _retryInformation.RetryCount = 0;
+            var sw = Stopwatch.StartNew();
+            var random = new Random();
+            for (; ; )
+            {
+                HttpResponseMessage? response = null;
+                var delay = TimeSpan.FromMilliseconds(Math.Pow(4, random.Next(1, 6)));
+                try
+                {
+                    response = await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
+
+                    // we always return the response if it is successful or we have reached the retry timespan.
+                    if (response.IsSuccessStatusCode || sw.Elapsed >= _retryInterval)
+                    {
+                        sw.Stop();
+                        _retryInformation.Delay = sw.Elapsed;
+                        return response;
+                    }
+
+                    // Use "Retry-After" value, if available. Typically, this is sent with either a 503 (Service Unavailable) or 429 (Too Many Requests):
+                    // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Retry-After
+                    if (response.Headers.RetryAfter is not null)
+                    {
+                        if (response.Headers.RetryAfter.Date.HasValue)
+                        {
+                            delay = response.Headers.RetryAfter.Date.Value - DateTimeOffset.UtcNow;
+                        }
+                        else if (response.Headers.RetryAfter.Delta.HasValue)
+                        {
+                            delay = response.Headers.RetryAfter.Delta.Value;
+                        }
+                    }
+
+                    response.Dispose();
+                }
+                catch when (sw.Elapsed < _retryInterval)
+                {
+                    // Ignore the exception if we have retries left. But we need to dispose the response even though it's most likely null.
+                    response?.Dispose();
+                }
+                catch
+                {
+                    sw.Stop();
+                    _retryInformation.Delay = sw.Elapsed;
+                }
+                ++_retryInformation.RetryCount;
+                await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
+            }
+        }
+    }
+
+    private async Task<Result<TokenInfo>> GetTokenInfoAsync(string? clientSecret, string clientId, Uri tokenEndpoint, string scope, string upn, string pwd, TimeSpan retryInterval)
+    {
+        var retryInformation = new RetryInformation();
+
         using var handler = new HttpClientHandler { UseDefaultCredentials = true };
-        using var client = new HttpClient(handler);
+        using var client = new HttpClient(new HttpRetryMessageHandler(handler, retryInterval, retryInformation));
+
         try
         {
             var parameters = new Dictionary<string, string>
