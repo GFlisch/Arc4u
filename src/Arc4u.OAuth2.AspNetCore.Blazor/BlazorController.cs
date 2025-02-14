@@ -2,6 +2,8 @@ using System.Net;
 using System.Security.Claims;
 using Arc4u.Configuration;
 using Arc4u.Dependency;
+using Arc4u.Diagnostics;
+using Arc4u.OAuth2.AspNetCore.Blazor;
 using Arc4u.OAuth2.Token;
 using Arc4u.Security.Principal;
 using Microsoft.AspNetCore.Authorization;
@@ -41,9 +43,14 @@ public class BlazorController : ControllerBase
     private readonly ILogger<BlazorController> _logger;
     private readonly string _rootServiceUrl;
 
-    public BlazorController(ILogger<BlazorController> logger)
+    /// <summary>
+    /// Default constructor
+    /// </summary>
+    public BlazorController(IOptionsSnapshot<SimpleKeyValueSettings> options, IConfiguration configuration, ILogger<BlazorController> logger)
     {
         _logger = logger;
+        _settings = options.Get("OpenId");
+        _rootServiceUrl = configuration[RootServiceUrlKey] ?? throw new InvalidOperationException($"The root service URL is not defined in the configuration {RootServiceUrlKey}!");
     }
 
     /// <summary>
@@ -56,13 +63,13 @@ public class BlazorController : ControllerBase
     {
         if (applicationContext.Principal is null || applicationContext.Principal.Authorization.Operations.Count == 0)
         {
-            _logger.LogWarning("The user is not identified!");
+            _logger.LogUserNotIdentified();
             return Unauthorized();
         }
 
         string? accessToken = null;
 
-        int index = id ?? 1;
+        var index = id ?? 1;
 
         if (applicationContext.Principal.Identity is ClaimsIdentity claimsIdentity)
         {
@@ -72,12 +79,11 @@ public class BlazorController : ControllerBase
             }
             else
             {
-                if (containerResolve.TryResolve<IKeyValueSettings>("OpenId", out var settings))
+                if (containerResolve.TryGetService<ITokenProvider>(ProviderId, out var tokenProvider))
                 {
-                    if (containerResolve.TryResolve<ITokenProvider>(settings!.Values[TokenKeys.ProviderIdKey], out var tokenProvider))
-                    {
-                        accessToken = (await tokenProvider!.GetTokenAsync(settings, claimsIdentity).ConfigureAwait(false))?.Token;
-                    }
+                    var result = await tokenProvider!.GetTokenAsync(_settings, claimsIdentity).ConfigureAwait(false);
+                    result.LogIfFailed();
+                    accessToken = result.IsSuccess ? result.Value.Token : null;
                 }
             }
         }
@@ -85,23 +91,18 @@ public class BlazorController : ControllerBase
         // If the access token is null or empty, the user is not authenticated.
         if (string.IsNullOrEmpty(accessToken))
         {
-            _logger.LogWarning("No access token can be retrieved for the current user!");
+            _logger.Technical().LogNoAccessToken();
             return BadRequest();
         }
 
         // The redirect URL is decoded and the redirect URI is built.
         var redirectUrl = WebUtility.UrlDecode(redirectTo);
-
         var redirectUri = "https://" + redirectUrl.TrimEnd('/') + "/_content/Arc4u.Standard.OAuth2.Blazor/GetToken.html";
 
         if (accessToken.Length > index * Buffer)
         {
-            if (containerResolve.TryResolve<IKeyValueSettings>("OAuth2", out var settings))
-            {
-                var thisController = settings!.Values[TokenKeys.RootServiceUrlKey].TrimEnd('/') + $"/blazor/redirectto/{redirectTo}/{index + 1}&token={accessToken.Substring((index - 1) * buffer, buffer)}";
-                return Redirect(UriHelper.Encode(new Uri($"{redirectUri}?url={thisController}")));
-            }
-            return Unauthorized();
+            var thisController = _rootServiceUrl.TrimEnd('/') + $"/blazor/redirectto/{redirectTo}/{index + 1}&token={accessToken.Substring((index - 1) * Buffer, Buffer)}";
+            return Redirect(UriHelper.Encode(new Uri($"{redirectUri}?url={thisController}")));
         }
         else
         {
