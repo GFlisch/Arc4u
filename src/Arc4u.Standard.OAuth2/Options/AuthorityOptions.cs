@@ -43,6 +43,8 @@ public class AuthorityOptions
 
     public Uri? MetaDataAddress { get; set; }
 
+    public TimeSpan? RetryInterval { get; set; }
+
     /// <summary>
     /// Will retrieve the v2.0 openid connect discovery.
     /// If you want another one, just provide the full metadata address!

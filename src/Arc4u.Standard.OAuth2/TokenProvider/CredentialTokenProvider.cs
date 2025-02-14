@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
@@ -10,10 +11,12 @@ using Microsoft.Extensions.Options;
 
 namespace Arc4u.OAuth2.TokenProvider;
 
-[Export(CredentialTokenProvider.ProviderName, typeof(ICredentialTokenProvider)), Shared]
+[Export(ProviderName, typeof(ICredentialTokenProvider)), Shared]
 public class CredentialTokenProvider : ICredentialTokenProvider
 {
     public const string ProviderName = "CredentialDirect";
+
+    private static readonly TimeSpan DefaultRetryInterval = TimeSpan.FromSeconds(90);
 
     private readonly ILogger<CredentialTokenProvider> _logger;
     private readonly IOptionsMonitor<AuthorityOptions> _authorityOptions;
@@ -28,15 +31,8 @@ public class CredentialTokenProvider : ICredentialTokenProvider
     {
         var messages = GetContext(settings, out var clientId, out var authority, out var scope, out var clientSecret);
 
-        if (null == authority)
-        {
-            throw new NullReferenceException(nameof(authority));
-        }
-        var tokenEndpoint = await authority.GetEndpointAsync(CancellationToken.None).ConfigureAwait(false);
-
-        _logger.Technical().Debug($"ClientId = {clientId}.").Log();
-        _logger.Technical().Debug($"Scope = {scope}.").Log();
-        _logger.Technical().Debug($"Authority = {tokenEndpoint}.").Log();   // this should be called TokenEndpoint in the logs...
+        _logger.Technical().LogDebug($"ClientId = {clientId}.");
+        _logger.Technical().LogDebug($"Scope = {scope}.");
 
         if (string.IsNullOrWhiteSpace(credential.Upn))
         {
@@ -51,9 +47,13 @@ public class CredentialTokenProvider : ICredentialTokenProvider
         messages.LogAndThrowIfNecessary(_logger);
         messages.Clear();
 
+        var tokenEndpoint = await authority!.GetEndpointAsync(CancellationToken.None).ConfigureAwait(false);
+
+        _logger.Technical().LogDebug($"Authority = {tokenEndpoint}.");   // this should be called TokenEndpoint in the logs...
+
         // no cache, do a direct call on every calls.
         _logger.Technical().Debug($"Call STS: {authority} for user: {credential.Upn}").Log();
-        return await GetTokenInfoAsync(clientSecret, clientId, tokenEndpoint, scope, credential.Upn!, credential.Password!).ConfigureAwait(false);
+        return await GetTokenInfoAsync(clientSecret, clientId, tokenEndpoint, scope, credential.Upn!, credential.Password!, authority.RetryInterval ?? DefaultRetryInterval).ConfigureAwait(false);
 
     }
 
@@ -64,8 +64,8 @@ public class CredentialTokenProvider : ICredentialTokenProvider
 
         if (null == settings)
         {
-            messages.Add(new Message(Arc4u.ServiceModel.MessageCategory.Technical,
-                                     Arc4u.ServiceModel.MessageType.Error,
+            messages.Add(new Message(ServiceModel.MessageCategory.Technical,
+                                     MessageType.Error,
                                      "Settings parameter cannot be null."));
             clientId = string.Empty;
             authority = null;
@@ -87,8 +87,8 @@ public class CredentialTokenProvider : ICredentialTokenProvider
 
         if (!settings.Values.ContainsKey(TokenKeys.ClientIdKey))
         {
-            messages.Add(new Message(Arc4u.ServiceModel.MessageCategory.Technical,
-                     Arc4u.ServiceModel.MessageType.Error,
+            messages.Add(new Message(ServiceModel.MessageCategory.Technical,
+                     MessageType.Error,
                      "ClientId is missing. Cannot process the request."));
         }
         _logger.Technical().Debug($"Creating an authentication context for the request.").Log();
@@ -99,10 +99,95 @@ public class CredentialTokenProvider : ICredentialTokenProvider
         return messages;
     }
 
-    private async Task<TokenInfo> GetTokenInfoAsync(string? clientSecret, string clientId, Uri tokenEndpoint, string scope, string upn, string pwd)
+    /// <summary>
+    /// If a request could not be made, we need to track the number of retries and the delay between them.
+    /// This is used in the logs and in the exception message, to allow for better diagnostics.
+    /// </summary>
+    private sealed class RetryInformation
     {
+        public int RetryCount;
+        public TimeSpan Delay;
+
+        public override string ToString()
+        {
+            return RetryCount == 0 ? "No retries" : $"Retried {RetryCount} times over {Delay}";
+        }
+    }
+
+    /// <summary>
+    /// We do this without Polly since this will need to be integrated in Arc4u at some point.
+    /// </summary>
+    private sealed class HttpRetryMessageHandler : DelegatingHandler
+    {
+        private readonly TimeSpan _retryInterval;
+        private readonly RetryInformation _retryInformation;
+
+        public HttpRetryMessageHandler(HttpMessageHandler innerHandler, TimeSpan retryInterval, RetryInformation retryInformation)
+            : base(innerHandler)
+        {
+            _retryInterval = retryInterval;
+            _retryInformation = retryInformation;
+        }
+
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            _retryInformation.RetryCount = 0;
+            var sw = Stopwatch.StartNew();
+            var random = new Random();
+            for (; ; )
+            {
+                HttpResponseMessage? response = null;
+                var delay = TimeSpan.FromMilliseconds(Math.Pow(4, random.Next(1, 6)));
+                try
+                {
+                    response = await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
+
+                    // we always return the response if it is successful or we have reached the retry timespan.
+                    if (response.IsSuccessStatusCode || sw.Elapsed >= _retryInterval)
+                    {
+                        sw.Stop();
+                        _retryInformation.Delay = sw.Elapsed;
+                        return response;
+                    }
+
+                    // Use "Retry-After" value, if available. Typically, this is sent with either a 503 (Service Unavailable) or 429 (Too Many Requests):
+                    // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Retry-After
+                    if (response.Headers.RetryAfter is not null)
+                    {
+                        if (response.Headers.RetryAfter.Date.HasValue)
+                        {
+                            delay = response.Headers.RetryAfter.Date.Value - DateTimeOffset.UtcNow;
+                        }
+                        else if (response.Headers.RetryAfter.Delta.HasValue)
+                        {
+                            delay = response.Headers.RetryAfter.Delta.Value;
+                        }
+                    }
+
+                    response.Dispose();
+                }
+                catch when (sw.Elapsed < _retryInterval)
+                {
+                    // Ignore the exception if we have retries left. But we need to dispose the response even though it's most likely null.
+                    response?.Dispose();
+                }
+                catch
+                {
+                    sw.Stop();
+                    _retryInformation.Delay = sw.Elapsed;
+                }
+                ++_retryInformation.RetryCount;
+                await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
+            }
+        }
+    }
+
+    private async Task<TokenInfo> GetTokenInfoAsync(string? clientSecret, string clientId, Uri tokenEndpoint, string scope, string upn, string pwd, TimeSpan retryInterval)
+    {
+        var retryInformation = new RetryInformation();
         using var handler = new HttpClientHandler { UseDefaultCredentials = true };
-        using var client = new HttpClient(handler);
+        using var client = new HttpClient(new HttpRetryMessageHandler(handler, retryInterval, retryInformation));
+
         try
         {
             var parameters = new Dictionary<string, string>
@@ -135,7 +220,7 @@ public class CredentialTokenProvider : ICredentialTokenProvider
                     loggedResponseBody = $"{responseBody.Substring(0, MaxResponseBodyLength)}...(response truncated, {loggedResponseBody.Length} total characters)";
                 }
 
-                var logger = _logger.Technical().Error($"Token endpoint for {upn} returned {response.StatusCode}: {loggedResponseBody}");
+                var logger = _logger.Technical().Error($"Token endpoint for {upn} returned {response.StatusCode} after {retryInformation}: {loggedResponseBody}");
 
                 // In case of error, any extra information should be in Json with string values, but we can't assume this is always the case!
                 Dictionary<string, string>? dictionary = null;
@@ -170,17 +255,17 @@ public class CredentialTokenProvider : ICredentialTokenProvider
                             error_description = "No error description";
                         }
 
-                        throw new AppException(new Message(Arc4u.ServiceModel.MessageCategory.Technical, MessageType.Error, tokenErrorCode, response.StatusCode.ToString(), $"{error_description} ({upn})"));
+                        throw new AppException(new Message(ServiceModel.MessageCategory.Technical, MessageType.Error, tokenErrorCode, response.StatusCode.ToString(), $"{error_description} ({upn}, {retryInformation}"));
                     }
                 }
                 // if we can't write a better exception, issue a more general one
-                throw new AppException(new Message(Arc4u.ServiceModel.MessageCategory.Technical, MessageType.Error, "TokenError", response.StatusCode.ToString(), $"{response.StatusCode} occured while requesting a token for {upn}"));
+                throw new AppException(new Message(ServiceModel.MessageCategory.Technical, MessageType.Error, "TokenError", response.StatusCode.ToString(), $"{response.StatusCode} occured while requesting a token for {upn} ({retryInformation})"));
             }
 
             // at this point, we *must* have a valid Json response. The values are a mixture of strings and numbers, so we deserialize the JsonElements
             var responseValues = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(responseBody)!;
 
-            _logger.Technical().LogDebug($"Token is received for user {upn}.");
+            _logger.Technical().LogDebug($"Token is received for user {upn} after {retryInformation}.");
 
             var accessToken = responseValues["access_token"].GetString()!;
             var tokenType = "Bearer"; //  responseValues["token_type"]; Issue on Adfs return bearer and not Bearer (ok in AzureAD).
@@ -197,7 +282,7 @@ public class CredentialTokenProvider : ICredentialTokenProvider
         catch (Exception ex)
         {
             _logger.Technical().Exception(ex).Log();
-            throw new AppException(new Message(Arc4u.ServiceModel.MessageCategory.Technical, MessageType.Error, "Trust", "Rejected", ex.Message));
+            throw new AppException(new Message(ServiceModel.MessageCategory.Technical, MessageType.Error, "Trust", "Rejected", ex.Message));
         }
     }
 }
