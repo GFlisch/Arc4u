@@ -1,0 +1,65 @@
+using System.Diagnostics;
+using Arc4u.Dependency;
+using Arc4u.Diagnostics;
+using Grpc.AspNetCore.Server;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+
+namespace Arc4u.AspNetCore.Middleware;
+
+public class LogGrpcMonitoringTimeElapsedMiddleware
+{
+    private readonly RequestDelegate _next;
+    private readonly Action<Type, TimeSpan>? _log;
+
+    public LogGrpcMonitoringTimeElapsedMiddleware(RequestDelegate next)
+    {
+        _next = next ?? throw new ArgumentNullException(nameof(next));
+
+        _log = null;
+    }
+
+    public LogGrpcMonitoringTimeElapsedMiddleware(RequestDelegate next, Action<Type, TimeSpan> extraLog)
+    {
+        _next = next ?? throw new ArgumentNullException(nameof(next));
+
+        _log = extraLog;
+    }
+
+    public async Task Invoke(HttpContext context)
+    {
+        var logger = context.RequestServices.GetService<IContainerResolve>()?.Resolve<ILogger>();
+
+        var startingTimestamp = Stopwatch.GetTimestamp();
+
+        await _next(context).ConfigureAwait(false);
+
+        var elapsed = Stopwatch.GetElapsedTime(startingTimestamp);
+
+        try
+        {
+            var endpoint = context.GetEndpoint();
+            if (endpoint != null)
+            {
+                var descriptor = endpoint.Metadata.GetMetadata<GrpcMethodMetadata>();
+                if (descriptor != null)
+                {
+                    logger?.Monitoring()
+                           .From(descriptor.ServiceType, descriptor.Method.Name)
+                           .Information($"Time to complete method call")
+                           .Add("Elapsed", elapsed.TotalMilliseconds)
+                           .Add("StatusCode", context.Response.StatusCode)
+                           .Log();
+
+                    _log?.Invoke(descriptor.ServiceType, elapsed);
+                }
+            }
+
+        }
+        catch (Exception ex)
+        {
+            logger?.Technical().From<LogGrpcMonitoringTimeElapsedMiddleware>().Exception(ex).Log();
+        }
+    }
+}

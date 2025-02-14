@@ -9,7 +9,6 @@
     <IsPackable>true</IsPackable>
     <!-- But unit test project are not. -->
     <IsPackable Condition="$(MSBuildProjectName.EndsWith('Test'))">false</IsPackable>
-    <IsAotCompatible Condition="!$(MSBuildProjectName.EndsWith('ComponentModel')) OR !$(MSBuildProjectName.EndsWith('UnitTest')) OR '$(TargetFramework)' != 'netstandard2.0' ">true</IsAotCompatible>
   </PropertyGroup>
   
  <!-- Packaging -->

@@ -1,3 +1,5 @@
+#if NET8_0_OR_GREATER
+
 using System.Diagnostics.CodeAnalysis;
 using Arc4u.Results;
 using FluentResults;
@@ -312,3 +314,5 @@ public static class FromResultToHttpResultExtension
     #endregion
 
 }
+
+#endif

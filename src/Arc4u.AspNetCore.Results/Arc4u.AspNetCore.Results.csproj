@@ -18,6 +18,6 @@
     <PackageReference Include="System.Text.Json" Version="9.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Arc4u.Results\Arc4u.Results.csproj" />
+    <ProjectReference Include="..\Arc4u.Standard.Results\Arc4u.Standard.Results.csproj" />
   </ItemGroup>
 </Project>

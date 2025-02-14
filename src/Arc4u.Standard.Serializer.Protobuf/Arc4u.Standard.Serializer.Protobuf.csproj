@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
+    <PackageId>Arc4u.Standard.Serializer.Protobuf</PackageId>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="protobuf-net" Version="3.2.30" />
+    <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Arc4u.Standard.Diagnostics\Arc4u.Standard.Diagnostics.csproj" />
+    <ProjectReference Include="..\Arc4u.Standard.Serializer\Arc4u.Standard.Serializer.csproj" />
+  </ItemGroup>
+</Project>

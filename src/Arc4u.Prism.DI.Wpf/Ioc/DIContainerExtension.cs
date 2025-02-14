@@ -1,5 +1,4 @@
-using Arc4u.Dependency;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Arc4u.Dependency;
 using Prism.Ioc;
 using IContainerRegistry = Prism.Ioc.IContainerRegistry;
 
@@ -22,17 +21,17 @@ public abstract class DIContainerExtension : IContainerExtension<IContainer>
 
     public object? Resolve(Type type)
     {
-        return Container?.GetService(type);
+        return Container?.Resolve(type);
     }
 
     public object? Resolve(Type type, string name)
     {
-        return Container?.GetRequiredKeyedService(type, name);
+        return Container?.Resolve(type, name);
     }
 
     public object? ResolveViewModelForView(object view, Type viewModelType)
     {
-        return Container?.GetService(viewModelType);
+        return Container?.Resolve(viewModelType);
     }
 
     public object Resolve(Type type, params (Type Type, object Instance)[] parameters)
@@ -83,11 +82,11 @@ public abstract class DIContainerExtension : IContainerExtension<IContainer>
 
     public bool IsRegistered(Type type)
     {
-        return Container.TryResolve(type, out var _);
+        return Container.TryResolve(type, out var value);
     }
 
     public bool IsRegistered(Type type, string name)
     {
-        return Container.TryResolve(type, name, out var _);
+        return Container.TryResolve(type, name, out var value);
     }
 }

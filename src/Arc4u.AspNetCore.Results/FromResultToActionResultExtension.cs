@@ -63,7 +63,24 @@ public static class FromResultToActionResultExtension
 
         ActionResult objectResult = new BadRequestResult();
         res
+#if NET8_0_OR_GREATER
             .OnSuccessNotNull(value => objectResult = new CreatedResult(location, mapper(value)))
+#else
+            .OnSuccessNotNull(value =>
+            {
+                if (location is null)
+                {
+                    objectResult = new ObjectResult(mapper(value))
+                    {
+                        StatusCode = StatusCodes.Status201Created
+                    };
+                }
+                else
+                {
+                    objectResult = new CreatedResult(location, mapper(value));
+                }
+            })
+#endif
             .OnSuccessNull(() => objectResult = new ObjectResult(default(T))
             {
                 StatusCode = StatusCodes.Status201Created
@@ -80,7 +97,24 @@ public static class FromResultToActionResultExtension
 
         ActionResult objectResult = new BadRequestResult();
         res
+#if NET8_0
             .OnSuccessNotNull(value => objectResult = new CreatedResult(location, value))
+#else
+            .OnSuccessNotNull(value =>
+            {
+                if (location is null)
+                {
+                    objectResult = new ObjectResult(value)
+                    {
+                        StatusCode = StatusCodes.Status201Created
+                    };
+                }
+                else
+                {
+                    objectResult = new CreatedResult(location, value);
+                }
+            })
+#endif
             .OnSuccessNull(() => objectResult = new ObjectResult(default(TResult))
             {
                 StatusCode = StatusCodes.Status201Created
@@ -159,7 +193,24 @@ public static class FromResultToActionResultExtension
 
         ActionResult<T> objectResult = new BadRequestResult();
         res
+#if NET8_0
             .OnSuccessNotNull(value => objectResult = new CreatedResult(location, mapper(value)))
+#else
+            .OnSuccessNotNull(value =>
+            {
+                if (location is null)
+                {
+                    objectResult = new ObjectResult(mapper(value))
+                    {
+                        StatusCode = StatusCodes.Status201Created
+                    };
+                }
+                else
+                {
+                    objectResult = new CreatedResult(location, mapper(value));
+                }
+            })
+#endif
             .OnSuccessNull(() => objectResult = new ObjectResult(default(T))
             {
                 StatusCode = StatusCodes.Status201Created
@@ -176,7 +227,24 @@ public static class FromResultToActionResultExtension
 
         ActionResult<TResult> objectResult = new BadRequestResult();
         res
+#if NET8_0
             .OnSuccessNotNull(value => objectResult = new CreatedResult(location, value))
+#else
+            .OnSuccessNotNull(value =>
+            {
+                if (location is null)
+                {
+                    objectResult = new ObjectResult(value)
+                    {
+                        StatusCode = StatusCodes.Status201Created
+                    };
+                }
+                else
+                {
+                    objectResult = new CreatedResult(location, value);
+                }
+            })
+#endif
             .OnSuccessNull(() => objectResult = new ObjectResult(default(TResult))
             {
                 StatusCode = StatusCodes.Status201Created
@@ -193,7 +261,24 @@ public static class FromResultToActionResultExtension
 
         ActionResult objectResult = new BadRequestResult();
         result
+#if NET8_0
             .OnSuccessNotNull(value => objectResult = new CreatedResult(location, mapper(value)))
+#else
+            .OnSuccessNotNull(value =>
+            {
+                if (location is null)
+                {
+                    objectResult = new ObjectResult(mapper(value))
+                    {
+                        StatusCode = StatusCodes.Status201Created
+                    };
+                }
+                else
+                {
+                    objectResult = new CreatedResult(location, mapper(value));
+                }
+            })
+#endif
             .OnSuccessNull(() => objectResult = new ObjectResult(default(T))
             {
                 StatusCode = StatusCodes.Status201Created
@@ -208,7 +293,24 @@ public static class FromResultToActionResultExtension
     {
         ActionResult objectResult = new BadRequestResult();
         result
+#if NET8_0
             .OnSuccessNotNull(value => objectResult = new CreatedResult(location, value))
+#else
+            .OnSuccessNotNull(value =>
+            {
+                if (location is null)
+                {
+                    objectResult = new ObjectResult(value)
+                    {
+                        StatusCode = StatusCodes.Status201Created
+                    };
+                }
+                else
+                {
+                    objectResult = new CreatedResult(location, value);
+                }
+            })
+#endif
             .OnSuccessNull(() => objectResult = new ObjectResult(default(TResult))
             {
                 StatusCode = StatusCodes.Status201Created
@@ -225,7 +327,24 @@ public static class FromResultToActionResultExtension
 
         ActionResult objectResult = new BadRequestResult();
         res
+#if NET8_0
             .OnSuccess(() => objectResult = new CreatedResult(location, null))
+#else
+            .OnSuccess(() =>
+            {
+                if (location is null)
+                {
+                    objectResult = new ObjectResult(null)
+                    {
+                        StatusCode = StatusCodes.Status201Created
+                    };
+                }
+                else
+                {
+                    objectResult = new CreatedResult(location, null);
+                }
+            })
+#endif
             .OnFailed(_ => objectResult = new ObjectResult(res.ToProblemDetails()));
 
         return objectResult;
@@ -236,7 +355,24 @@ public static class FromResultToActionResultExtension
     {
         ActionResult objectResult = new BadRequestResult();
         result
+#if NET8_0
             .OnSuccess(() => objectResult = new CreatedResult(location, null))
+#else
+            .OnSuccess(() =>
+            {
+                if (location is null)
+                {
+                    objectResult = new ObjectResult(null)
+                    {
+                        StatusCode = StatusCodes.Status201Created
+                    };
+                }
+                else
+                {
+                    objectResult = new CreatedResult(location, null);
+                }
+            })
+#endif
             .OnFailed(_ => objectResult = new ObjectResult(result.ToProblemDetails()));
 
         return Task.FromResult(objectResult);
@@ -279,7 +415,24 @@ public static class FromResultToActionResultExtension
 
         ActionResult<T> objectResult = new BadRequestResult();
         result
+#if NET8_0
             .OnSuccessNotNull(value => objectResult = new CreatedResult(location, mapper(value)))
+#else
+            .OnSuccessNotNull(value =>
+            {
+                if (location is null)
+                {
+                    objectResult = new ObjectResult(mapper(value))
+                    {
+                        StatusCode = StatusCodes.Status201Created
+                    };
+                }
+                else
+                {
+                    objectResult = new CreatedResult(location, mapper(value));
+                }
+            })
+#endif
             .OnSuccessNull(() => objectResult = new ObjectResult(default(T))
             {
                 StatusCode = StatusCodes.Status201Created
@@ -294,7 +447,24 @@ public static class FromResultToActionResultExtension
     {
         ActionResult<TResult> objectResult = new BadRequestResult();
         result
+#if NET8_0
             .OnSuccessNotNull(value => objectResult = new CreatedResult(location, value))
+#else
+            .OnSuccessNotNull(value =>
+            {
+                if (location is null)
+                {
+                    objectResult = new ObjectResult(value)
+                    {
+                        StatusCode = StatusCodes.Status201Created
+                    };
+                }
+                else
+                {
+                    objectResult = new CreatedResult(location, value);
+                }
+            })
+#endif
             .OnSuccessNull(() => objectResult = new ObjectResult(default(TResult))
             {
                 StatusCode = StatusCodes.Status201Created
@@ -325,7 +495,25 @@ public static class FromResultToActionResultExtension
     {
         ActionResult objectResult = new BadRequestResult();
         result
+
+#if NET8_0
             .OnSuccess(() => objectResult = new CreatedResult(location, null))
+#else
+            .OnSuccess(() =>
+            {
+                if (location is null)
+                {
+                    objectResult = new OkObjectResult(null)
+                    {
+                        StatusCode = StatusCodes.Status201Created
+                    };
+                }
+                else
+                {
+                    objectResult = new CreatedResult(location, null);
+                }
+            })
+#endif
             .OnFailed(_ => objectResult = new ObjectResult(result.ToProblemDetails()));
 
         return objectResult;
