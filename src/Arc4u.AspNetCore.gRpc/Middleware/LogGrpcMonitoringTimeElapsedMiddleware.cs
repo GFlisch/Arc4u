@@ -27,6 +27,8 @@ public class LogGrpcMonitoringTimeElapsedMiddleware
 
     public async Task Invoke(HttpContext context, ILogger logger)
     {
+        var logger = context.RequestServices.GetService<IContainerResolve>()?.Resolve<ILogger>();
+
         var startingTimestamp = Stopwatch.GetTimestamp();
 
         await _next(context).ConfigureAwait(false);
