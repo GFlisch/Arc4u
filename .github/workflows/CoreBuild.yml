@@ -74,7 +74,7 @@ jobs:
  
       - name: Save nuget packages
         if: ${{ env.PublishToNuget == 'false'  }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: artifact
           path: |
