@@ -20,7 +20,7 @@ public static partial class LoggerMessages
                    Message = "Send command: {Command}.")]
     public static partial void LogSendCommand(this ILogger logger, string command);
 
-    [LoggerMessage(EventId = 9203, Level = LogLevel.Trace,
+    [LoggerMessage(EventId = 9204, Level = LogLevel.Trace,
                Message = "Publish event: {EventName}.")]
     public static partial void LogPublishEvent(this ILogger logger, string eventName);
 }
