@@ -32,7 +32,7 @@ public static partial class LoggerMessages
                    Message = "Token is expired! Next Interceptor will be called.")]
     public static partial void LogTokenIsExpired(this ILogger logger);
 
-    [LoggerMessage(EventId = 9076, Level = LogLevel.Trace,
+    [LoggerMessage(EventId = 9080, Level = LogLevel.Trace,
                    Message = "Add the {Scheme} token to provide authentication evidence.")]
     public static partial void LogAddSchemeToken(this ILogger logger, string scheme);
 
