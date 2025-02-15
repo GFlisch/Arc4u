@@ -27,7 +27,7 @@ public class LoggerContext : IDisposable
             Properties = [];
         }
 
-        toDispose = new Scope<LoggerContext>(this);
+        toDispose = new Scope<LoggerContext>(this, false);
     }
 
     /// <summary>
@@ -50,7 +50,7 @@ public class LoggerContext : IDisposable
             }
         }
 
-        toDispose = new Scope<LoggerContext>(this);
+        toDispose = new Scope<LoggerContext>(this, false);
 
     }
 
