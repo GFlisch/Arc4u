@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Arc4u.AspNetCore.Results;
 
 namespace Arc4u.Blazor;
 
@@ -103,7 +104,15 @@ public class BlazorController : ControllerBase
 
         // The redirect URL is decoded and the redirect URI is built.
         var redirectUrl = WebUtility.UrlDecode(redirectTo);
-        var redirectUri = "https://" + redirectUrl.TrimEnd('/') + "/_content/Arc4u.Standard.OAuth2.Blazor/GetToken.html";
+
+        var url = $"https://{redirectUrl.TrimEnd('/')}/_content/Arc4u.Standard.OAuth2.Blazor/GetToken.html";
+        if (!Uri.TryCreate(url, UriKind.Absolute, out var redirectUri))
+        {
+            return new ObjectResult(new ProblemDetails()
+                                            .WithTitle("Bad url.")
+                                            .WithDetail($"Url {url} is not a valid one.")
+                                            .WithStatusCode(StatusCodes.Status400BadRequest));
+        }
 
         if (accessToken.Length > index * Buffer)
         {
