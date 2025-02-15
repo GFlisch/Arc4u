@@ -1,8 +1,11 @@
+using Arc4u.Diagnostics;
 using Arc4u.Security.Cryptography;
 using AutoFixture;
 using AutoFixture.AutoMoq;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Moq;
 using Xunit;
 using X509CertificateLoader = Arc4u.Security.Cryptography.X509CertificateLoader;
 
@@ -56,6 +59,11 @@ public class CertificateLoader
                     ["EncryptionCertificate:File:Key"] = @".\key.pem",
                 }).Build();
 
+        var mockLoggerWrapperX509 = new Mock<ILoggerWrapper<X509CertificateLoader>>();
+        mockLoggerWrapperX509.Setup(m => m.SetContext(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Type?>()))
+                             .Returns(mockLoggerWrapperX509.Object);
+
+        _fixture.Inject<ILogger<X509CertificateLoader>>(mockLoggerWrapperX509.Object);
         var sut = _fixture.Create<X509CertificateLoader>();
 
         // act

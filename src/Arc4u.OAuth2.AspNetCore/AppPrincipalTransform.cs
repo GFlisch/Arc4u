@@ -6,6 +6,7 @@ using Arc4u.Configuration;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Arc4u.IdentityModel.Claims;
+using Arc4u.OAuth2.AspNetCore;
 using Arc4u.OAuth2.Options;
 using Arc4u.OAuth2.Token;
 using Arc4u.Security.Principal;
@@ -72,7 +73,7 @@ public class AppPrincipalTransform : IClaimsTransformation
 
         AppPrincipal appPrincipal;
 
-        _logger.Technical().System("Create the principal.").Log();
+        _logger.Technical().LogPrincipalCreation();
 
         // Add Telemetry.
         using (var activity = _activitySource?.StartActivity("Create Arc4u Principal", ActivityKind.Producer))
@@ -116,7 +117,7 @@ public class AppPrincipalTransform : IClaimsTransformation
     {
         if (identity is null)
         {
-            _logger.Technical().LogWarning("Loading extra claims needs an identity!");
+            _logger.Technical().LogNoIdentity();
             return;
         }
 
@@ -181,7 +182,7 @@ public class AppPrincipalTransform : IClaimsTransformation
         }
         catch (Exception ex)
         {
-            _logger.Technical().Exception(ex).Log();
+            _logger.Technical().LogException(ex);
         }
 
         return claims;
@@ -211,7 +212,7 @@ public class AppPrincipalTransform : IClaimsTransformation
         }
         catch (Exception ex)
         {
-            _logger.Technical().Exception(ex).Log();
+            _logger.Technical().LogException(ex);
         }
     }
     #endregion

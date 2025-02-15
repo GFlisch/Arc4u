@@ -11,17 +11,18 @@ public class FluentLogger : IResultLogger
     {
         _logger = logger;
     }
-    delegate CommonLoggerProperties logDelegate(string message, params object[] args);
+
+    delegate void logDelegate(string? message, params object?[] args);
 
     private readonly ILogger<FluentLogger> _logger;
     public void Log(string context, string content, ResultBase result, LogLevel logLevel)
     {
-        logDelegate? logger;
         if (!string.IsNullOrEmpty(context) && !string.IsNullOrEmpty(content))
         {
-            logger = GetBusinessLogger(logLevel);
+            var logger = _logger.Business()
+                                .AddIf(context is not null, "Context", () => context!);
 
-            logger(content).AddIf(context is not null, "Context", () => context!).Log();
+            GetBusinessLogger(logger, logLevel)(content);
         }
 
         if (result is not null && result.IsFailed && result.Errors is not null)
@@ -30,23 +31,21 @@ public class FluentLogger : IResultLogger
             {
                 if (error is ValidationError validationError)
                 {
-                    logger = GetBusinessLogger(validationError.Severity);
+                    var logger = _logger.Business()
+                                        .AddIf(validationError.Code is not null, "Code", () => validationError.Code!);
 
-                    logger(validationError.Message)
-                        .AddIf(validationError.Code is not null, "Code", () => validationError.Code!)
-                        .Log();
+                    GetBusinessLogger(logger, validationError.Severity)(validationError.Message); ;
 
                     LogReasons(result.Reasons);
                     continue;
                 }
                 if (error is IExceptionalError exceptionalError)
                 {
-                    _logger.Technical().Exception(exceptionalError.Exception).Log();
+                    _logger.LogException(exceptionalError.Exception);
                     continue;
                 }
 
-                logger = GetBusinessLogger(LogLevel.Error);
-                logger(error.Message).Log();
+                _logger.Business().LogError(error.Message);
             }
         }
 
@@ -58,12 +57,10 @@ public class FluentLogger : IResultLogger
 
     public void Log<TContext>(string content, ResultBase result, LogLevel logLevel)
     {
-        var logger = GetBusinessLogger(logLevel);
+        var logger = _logger.Business()
+                            .Add("Context", typeof(TContext).FullName!);
 
-        if (!string.IsNullOrEmpty(content))
-        {
-            logger(content).Add("Context", typeof(TContext).FullName!).Log();
-        }
+        GetBusinessLogger(logger, logLevel)(content);
 
         if (result is not null && result.IsFailed && result.Errors is not null)
         {
@@ -71,23 +68,21 @@ public class FluentLogger : IResultLogger
             {
                 if (error is ValidationError validationError)
                 {
-                    logger = GetBusinessLogger(validationError.Severity);
+                    logger = _logger.Business()
+                                    .AddIf(validationError.Code is not null, "Code", () => validationError.Code!);
 
-                    logger(validationError.Message)
-                        .AddIf(validationError.Code is not null, "Code", () => validationError.Code!)
-                        .Log();
+                    GetBusinessLogger(logger, validationError.Severity)(validationError.Message);
 
                     LogReasons(result.Reasons);
                     continue;
                 }
                 if (error is IExceptionalError exceptionalError)
                 {
-                    _logger.Technical().Exception(exceptionalError.Exception).Log();
+                    _logger.LogException(exceptionalError.Exception);
                     continue;
                 }
 
-                logger = GetBusinessLogger(LogLevel.Error);
-                logger(error.Message).Log();
+                _logger.Business().LogError(error.Message);
             }
         }
 
@@ -101,30 +96,27 @@ public class FluentLogger : IResultLogger
     {
         foreach (var reason in reasons)
         {
-            var logger = GetBusinessLogger(LogLevel.Information);
-
-            logger(reason.Message)
-                .Log();
+            _logger.Business().LogInformation(reason.Message);
         }
     }
 
-    private logDelegate GetBusinessLogger(Severity severity) => severity switch
+    private static logDelegate GetBusinessLogger(ILoggerWrapper<FluentLogger> logger, Severity severity) => severity switch
     {
-        Severity.Error => _logger.Business().Error,
-        Severity.Warning => _logger.Business().Warning,
-        Severity.Info => _logger.Business().Information,
-        _ => _logger.Business().Debug,
+        Severity.Error => logger.LogError,
+        Severity.Warning => logger.LogWarning,
+        Severity.Info => logger.LogInformation,
+        _ => logger.LogDebug,
     };
 
-    private logDelegate GetBusinessLogger(LogLevel logLevel) => logLevel switch
+    private static logDelegate GetBusinessLogger(ILoggerWrapper<FluentLogger> logger, LogLevel logLevel) => logLevel switch
     {
-        LogLevel.Trace => _logger.Business().Debug,
-        LogLevel.Debug => _logger.Business().Debug,
-        LogLevel.Information => _logger.Business().Information,
-        LogLevel.Warning => _logger.Business().Warning,
-        LogLevel.Error => _logger.Business().Error,
-        LogLevel.Critical => _logger.Business().Fatal,
-        LogLevel.None => _logger.Business().Debug,
-        _ => _logger.Business().Debug,
+        LogLevel.Trace => logger.LogTrace,
+        LogLevel.Debug => logger.LogDebug,
+        LogLevel.Information => logger.LogInformation,
+        LogLevel.Warning => logger.LogWarning,
+        LogLevel.Error => logger.LogError,
+        LogLevel.Critical => logger.LogCritical,
+        LogLevel.None => logger.LogTrace,
+        _ => logger.LogDebug,
     };
 }

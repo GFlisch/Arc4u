@@ -5,6 +5,7 @@ using Arc4u.Configuration.Dapr;
 using Arc4u.Configuration.Memory;
 using Arc4u.Configuration.Redis;
 using Arc4u.Configuration.Sql;
+using Arc4u.Diagnostics;
 using Arc4u.Serializer;
 using AutoFixture;
 using AutoFixture.AutoMoq;
@@ -188,7 +189,6 @@ public class CacheContextTests
                  new Dictionary<string, string?>
                  {
                      ["Caching:Default"] = cache.Default,
-
                      ["Caching:Caches:0:Name"] = cache.Caches[0].Name,
                      ["Caching:Caches:0:Kind"] = cache.Caches[0].Kind,
                      ["Caching:Caches:0:IsAutoStart"] = cache.Caches[0].IsAutoStart.ToString(),
@@ -202,18 +202,25 @@ public class CacheContextTests
         services.AddCacheContext(configuration);
         services.AddTransient<IObjectSerialization, JsonSerialization>();
         services.AddKeyedTransient<ICache, MemoryCache>(CacheContext.Memory);
+        
+        var mockLoggerWrapper = new Mock<ILoggerWrapper<CacheContext>>();
+        mockLoggerWrapper.Setup(m => m.SetContext(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Type?>()))           
+                         .Returns(mockLoggerWrapper.Object);
 
-        var mockLoggerCacheContext = new Mock<ILogger<CacheContext>>();
-        services.AddSingleton(mockLoggerCacheContext.Object);
+        var mockLoggerObject = mockLoggerWrapper.As<ILogger<CacheContext>>().Object;
 
-        var mockLoggerMemoryCache = new Mock<ILogger<MemoryCache>>();
-        services.AddSingleton(mockLoggerMemoryCache.Object);
+        var mockLoggerWrapperMemoryCache = new Mock<ILoggerWrapper<MemoryCache>>();
+        mockLoggerWrapperMemoryCache.Setup(m => m.SetContext(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Type?>()))
+                          .Returns(mockLoggerWrapperMemoryCache.Object);
+
+        services.AddTransient<ILogger<MemoryCache>>(_ => mockLoggerWrapperMemoryCache.Object);
 
         var serviceProvider = services.BuildServiceProvider();
 
         var mockIOptions = _fixture.Freeze<Mock<IOptionsMonitor<MemoryCacheOption>>>();
         mockIOptions.Setup(m => m.Get("Volatile")).Returns(serviceProvider.GetService<IOptionsMonitor<MemoryCacheOption>>()!.Get("Volatile"));
-        
+
+        _fixture.Inject<ILogger<CacheContext>>(mockLoggerObject);
         _fixture.Inject(configuration);
         _fixture.Inject<IServiceProvider>(serviceProvider);
 

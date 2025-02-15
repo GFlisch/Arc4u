@@ -22,32 +22,32 @@ public class ApplicationCache(ICacheHelper cacheHelper, ILogger logger, IOptions
     /// <param name="key"></param>
     public void DeleteItem(string key)
     {
-        logger.Technical().From<ApplicationCache>().System($"Deleting information from the token cache for the id: {key}.").Log();
+        logger.Technical<ApplicationCache>().LogDeleteInTokenCache(key);
         _cache.Remove(ApplicationCache.GetKey(key));
-        logger.Technical().From<ApplicationCache>().System($"Deleted information from the token cache for the id: {key}.").Log();
+        logger.Technical<ApplicationCache>().LogDeletedInTokenCache(key);
     }
 
     public void Put<T>(string key, T data)
     {
         if (null == data)
         {
-            logger.Technical().From<ApplicationCache>().System("A null token data information was provided to the cache. We skip this data from the cache.");
+            logger.Technical<ApplicationCache>().LogNullTokenData(key);
             return;
         }
 
-        logger.Technical().From<ApplicationCache>().System($"Adding token data information to the cache: {key}.").Log();
+        logger.Technical<ApplicationCache>().LogAddingInTokenCache(key);
         _cache.Put(ApplicationCache.GetKey(key), _tokenCacheOptions.MaxTime, data);
-        logger.Technical().From<ApplicationCache>().System($"Added token data information to the cache: {key}.").Log();
+        logger.Technical<ApplicationCache>().LogAddedInTokenCache(key);
     }
 
     public T? Get<T>(string key)
     {
-        logger.Technical().From<ApplicationCache>().System($"Retrieve token information for user: {key}.").Log();
+        logger.Technical<ApplicationCache>().LogGetDataTokenCache(key);
         var data = _cache.Get<T>(ApplicationCache.GetKey(key));
 
         if (null == data)
         {
-            logger.Technical().From<ApplicationCache>().System($"The data in cache is null for user: {key}.").Log();
+            logger.Technical<ApplicationCache>().LogGetNullDataTokenCache(key);
         }
 
         return data;
@@ -55,9 +55,9 @@ public class ApplicationCache(ICacheHelper cacheHelper, ILogger logger, IOptions
 
     public IEnumerable<byte[]> GetAll()
     {
-        logger.Technical().From<ApplicationCache>().Warning("Geting all data from the token cache is not implemented.").Log();
+        logger.Technical<ApplicationCache>().LogTokenCacheNotImplemented();
 
-        return [];
+        throw new NotImplementedException();
     }
 
     private static string GetKey(string id)

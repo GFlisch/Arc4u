@@ -49,7 +49,7 @@ public class ClaimsBearerTokenExtractor : IClaimsFiller
         }
         if (null == claimsIdentity.BootstrapContext && !settings.Any(s => s.Values.ContainsKey(TokenKeys.AuthenticationTypeKey) && s.Values[TokenKeys.AuthenticationTypeKey].Equals(identity.AuthenticationType)))
         {
-            _logger.Technical().System($"Skip fetching claims, no setting found for authentication type {identity.AuthenticationType}.").Log();
+            _logger.Technical().LogSkipFetchingClaims(identity.AuthenticationType ?? "No AuthenticationType.");
             return result;
         }
 
@@ -73,12 +73,12 @@ public class ClaimsBearerTokenExtractor : IClaimsFiller
                     throw new InvalidOperationException($"No token provider named: {providerSettings.Values[TokenKeys.ProviderIdKey]} is registered.");
                 }
 
-                _logger.Technical().System("Requesting an authentication token.").Log();
+                _logger.Technical().LogRequestingAuthenticationToken();
                 var tokenInfoResult = await provider.GetTokenAsync(providerSettings, claimsIdentity).ConfigureAwait(false);
 
                 if (tokenInfoResult.IsFailed)
                 {
-                    _logger.Technical().LogError("No token received from the provider.");
+                    _logger.Technical().LogNoToken();
                     tokenInfoResult.Log();
                     return result;
                 }

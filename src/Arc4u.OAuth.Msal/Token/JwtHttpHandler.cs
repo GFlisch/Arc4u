@@ -1,6 +1,7 @@
 using System.Net.Http.Headers;
 using Arc4u.Dependency;
 using Arc4u.Diagnostics;
+using Arc4u.OAuth2.AspNetCore;
 using Arc4u.OAuth2.Token;
 using Arc4u.Security.Principal;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,7 +29,7 @@ public class JwtHttpHandler : DelegatingHandler
 
         if (!container.TryGetService(resolvingName, out _settings))
         {
-            _logger.Technical().System($"No settings for {resolvingName} is found.").Log();
+            _logger.LogResolvingIssueSettingsByName(resolvingName);
         }
 
         container.TryGetService(out _applicationContext);
@@ -54,11 +55,11 @@ public class JwtHttpHandler : DelegatingHandler
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
-        _logger.Technical().System($"{GetType().Name} delegate handler is called.").Log();
+        _logger.Technical().LogHttpHandlerIsCalled(GetType().Name);
 
         if (null == _settings || null == _applicationContext)
         {
-            _logger.Technical().System($"{GetType().Name}, Check next Delegate Handler").Log();
+            _logger.Technical().LogCallNextHttpHandler(GetType().Name);
             return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
         }
 
@@ -69,7 +70,7 @@ public class JwtHttpHandler : DelegatingHandler
 
         if (!_settings.Values.TryGetValue(TokenKeys.AuthenticationTypeKey, out var authenticationType))
         {
-            _logger.Technical().System($"No antuentication type for {GetType().Name}, Check next Delegate Handler").Log();
+            _logger.Technical().LogNoAuthenticationTypeCallNextHttpHandler(GetType().Name);
             return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
         }
 
@@ -81,28 +82,28 @@ public class JwtHttpHandler : DelegatingHandler
             && null != _applicationContext?.Principal?.Identity.AuthenticationType
             && !authenticationType.ToLowerInvariant().Contains(_applicationContext.Principal.Identity.AuthenticationType.ToLowerInvariant()))
         {
-            _logger.Technical().System($"Authentication type is not the same as the Identity for {GetType().Name}, Check next Delegate Handler").Log();
+            _logger.Technical().LogDifferentAuthenticationTypeCallNextHttpHandler(GetType().Name);
             return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
         }
 
         // if we inject more than one bearer token do it only if no one exist already.
         if (null != request.Headers.Authorization)
         {
-            _logger.Technical().System($"An authorization header already exist for handler {GetType().Name}, Check next Delegate Handler").Log();
+            _logger.Technical().LogAlreadyHasAnAuthorizationHeaderCallNextHttpHandler(GetType().Name);
             return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
         }
 
-        _logger.Technical().System($"{GetType().Name} token provider is called.").Log();
+        _logger.Technical().LogGetTheTokenProvider(GetType().Name);
 
         var provider = GetResolver().GetKeyedService<ITokenProvider>(_settings.Values[TokenKeys.ProviderIdKey]);
 
         if (null == provider)
         {
-            _logger.Technical().System($"No token provider is defined for {_settings.Values[TokenKeys.ProviderIdKey]}, Check next Delegate Handler").Log();
+            _logger.Technical().LogNoTokenProviderDefined(_settings.Values[TokenKeys.ProviderIdKey]);
             return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
         }
 
-        _logger.Technical().System("Requesting an authentication token.").Log();
+        _logger.Technical().LogRequestingAuthenticationToken();
         var tokenInfoResult = await provider.GetTokenAsync(_settings, null).ConfigureAwait(false);
 
         // check if the token is still valid.
@@ -110,17 +111,17 @@ public class JwtHttpHandler : DelegatingHandler
         // It is also possible this with OAuth where the token is added to the Identity and used like this => no refresh of the token is possible.
         if (tokenInfoResult.IsFailed || (tokenInfoResult.IsSuccess && tokenInfoResult.Value.ExpiresOnUtc < DateTime.UtcNow))
         {
-            _logger.Technical().System($"Token is expired! Next Hanlder will be called.").Log();
+            _logger.Technical().LogExpiredToken();
             return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
         }
 
-        _logger.Technical().System("Remove any Bearer token attached.").Log();
+        _logger.Technical().LogRemoveBearerToken();
         request.Headers.Remove("Bearer");
 
         var tokenInfo = tokenInfoResult.Value;
 
         var scheme = inject ? tokenInfo.TokenType : "Bearer";
-        _logger.Technical().System($"Add the {scheme} token to provide authentication evidence.").Log();
+        _logger.Technical().LogAddSchemeToToken(scheme);
 
         if (new string[] { "Bearer", "Basic" }.Any(s => s.Equals(scheme, StringComparison.InvariantCultureIgnoreCase)))
         {
@@ -136,11 +137,11 @@ public class JwtHttpHandler : DelegatingHandler
         {
             if (null != _applicationContext?.ActivityID)
             {
-                _logger.Technical().System($"Add the activity id to the request for tracing purpose: {_applicationContext.ActivityID}.").Log();
+                _logger.Technical().LogAddActivityId(_applicationContext.ActivityID);
                 request.Headers.Add("activityid", _applicationContext.ActivityID);
             }
 
-            _logger.Technical().System($"Add the current culture to the request: {_applicationContext!.Principal.Profile?.CurrentCulture?.TwoLetterISOLanguageName}").Log();
+            _logger.Technical().LogAddCulture(_applicationContext!.Principal.Profile?.CurrentCulture?.TwoLetterISOLanguageName ?? "No Culture exists.");
             var culture = _applicationContext.Principal.Profile?.CurrentCulture?.TwoLetterISOLanguageName;
             if (null != culture)
             {

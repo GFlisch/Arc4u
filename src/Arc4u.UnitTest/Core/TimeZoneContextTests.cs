@@ -1,4 +1,5 @@
 using Arc4u.Configuration;
+using Arc4u.Diagnostics;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -12,7 +13,7 @@ public class TimeZoneContextTests
 {
     private readonly Mock<IOptionsMonitor<ApplicationConfig>> _mockConfigPST;
     private readonly Mock<IOptionsMonitor<ApplicationConfig>> _mockConfigBE;
-    private readonly Mock<ILogger> _mockLogger;
+    private readonly ILogger<TimeZoneContext> _mockLogger;
     private readonly ApplicationConfig _appConfigPST;
     private readonly ApplicationConfig _appConfigBE;
 
@@ -20,7 +21,10 @@ public class TimeZoneContextTests
     {
         _mockConfigPST = new Mock<IOptionsMonitor<ApplicationConfig>>();
         _mockConfigBE = new Mock<IOptionsMonitor<ApplicationConfig>>();
-        _mockLogger = new Mock<ILogger>();
+        var _mockLoggerWrapper = new Mock<ILoggerWrapper<TimeZoneContext>>();
+        _mockLoggerWrapper.Setup(m => m.SetContext(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Type?>()))
+                          .Returns(_mockLoggerWrapper.Object);
+        _mockLogger = _mockLoggerWrapper.As<ILogger<TimeZoneContext>>().Object;
         _appConfigPST = new ApplicationConfig
         {
             ApplicationName = "TestApp",
@@ -51,7 +55,7 @@ public class TimeZoneContextTests
     public void InitializeTimeZoneContext_ShouldSetTimeZone()
     {
         // Arrange
-        var timeZoneContext = new TimeZoneContext(_mockConfigPST.Object, _mockLogger.Object);
+        var timeZoneContext = new TimeZoneContext(_mockConfigPST.Object, _mockLogger);
 
         // Act
         var timeZoneInfo = timeZoneContext.TimeZoneInfo;
@@ -64,7 +68,7 @@ public class TimeZoneContextTests
     public void ConvertFromUtc_ShouldConvertToSpecifiedTimeZone()
     {
         // Arrange
-        var timeZoneContext = new TimeZoneContext(_mockConfigPST.Object, _mockLogger.Object);
+        var timeZoneContext = new TimeZoneContext(_mockConfigPST.Object, _mockLogger);
         var utcTime = new DateTime(2023, 1, 1, 12, 0, 0, DateTimeKind.Utc);
 
         // Act
@@ -79,8 +83,8 @@ public class TimeZoneContextTests
     public void ConvertToUtc_ShouldConvertToUtc()
     {
         // Arrange
-        var timeZoneContextPST = new TimeZoneContext(_mockConfigPST.Object, _mockLogger.Object);
-        var timeZoneContextBE = new TimeZoneContext(_mockConfigBE.Object, _mockLogger.Object);
+        var timeZoneContextPST = new TimeZoneContext(_mockConfigPST.Object, _mockLogger);
+        var timeZoneContextBE = new TimeZoneContext(_mockConfigBE.Object, _mockLogger   );
 
         var utcTime = new DateTime(2023, 1, 1, 12, 0, 0, DateTimeKind.Utc);
         var localTime = timeZoneContextBE.ConvertFromUtc(utcTime);
@@ -97,7 +101,7 @@ public class TimeZoneContextTests
     public void GetDaylightChanges_ShouldReturnDaylightTime()
     {
         // Arrange
-        var timeZoneContext = new TimeZoneContext(_mockConfigPST.Object, _mockLogger.Object);
+        var timeZoneContext = new TimeZoneContext(_mockConfigPST.Object, _mockLogger    );
 
         // Act
         var daylightChanges = timeZoneContext.GetDaylightChanges(2023);
@@ -110,10 +114,10 @@ public class TimeZoneContextTests
     public void GetDaylightChanges_NoAdjustmentRules_ReturnsNull()
     {
         // Arrange
-        var timeZoneContextBE = new TimeZoneContext(_mockConfigBE.Object, _mockLogger.Object);
+        var timeZoneContextBE = new TimeZoneContext(_mockConfigBE.Object, _mockLogger);
 
-        var timeZoneInfo = TimeZoneInfo.CreateCustomTimeZone("TestZone", TimeSpan.Zero, "TestZone", "TestZone", "TestZone", []);
-        timeZoneContextBE.GetType().GetField("_timeZone", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!.SetValue(timeZoneContextBE, timeZoneInfo);
+        var timeZoneInfo = TimeZoneInfo.CreateCustomTimeZone("TestZone", TimeSpan.Zero, "TestZone", "TestZone", "TestZone", Array.Empty<TimeZoneInfo.AdjustmentRule>());
+        typeof(TimeZoneContext).GetField("_timeZone", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!.SetValue(timeZoneContextBE, timeZoneInfo);
 
         // Act
         var result = timeZoneContextBE.GetDaylightChanges(2020);
@@ -137,10 +141,10 @@ public class TimeZoneContextTests
                 )
         };
 
-        var timeZoneContextBE = new TimeZoneContext(_mockConfigBE.Object, _mockLogger.Object);
+        var timeZoneContextBE = new TimeZoneContext(_mockConfigBE.Object, _mockLogger);
 
         var timeZoneInfo = TimeZoneInfo.CreateCustomTimeZone("TestZone", TimeSpan.Zero, "TestZone", "TestZone", "TestZone", adjustmentRules);
-        timeZoneContextBE.GetType().GetField("_timeZone", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!.SetValue(timeZoneContextBE, timeZoneInfo);
+       typeof(TimeZoneContext).GetField("_timeZone", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!.SetValue(timeZoneContextBE, timeZoneInfo);
 
         // Act
         var result = timeZoneContextBE.GetDaylightChanges(2023);

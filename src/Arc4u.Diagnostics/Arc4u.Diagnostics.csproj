@@ -12,6 +12,10 @@
     <PackageReference Include="System.Text.Json" Version="9.0.0" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Arc4u.Core\Arc4u.Core.csproj" />
     <ProjectReference Include="..\Arc4u.Threading\Arc4u.Threading.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Context\" />
   </ItemGroup>
 </Project>

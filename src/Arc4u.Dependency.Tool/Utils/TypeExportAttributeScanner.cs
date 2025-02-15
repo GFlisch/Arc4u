@@ -6,7 +6,7 @@ namespace Arc4u.Dependency.Tool;
 static class TypeExportAttributeScanner
 {
     private static readonly TypeInfo ExportAttribute = new("Arc4u.Dependency.Attribute", "ExportAttribute");
-    private static readonly TypeInfo ScopedAttribute = new("Arc4u.Dependency.Attribute", "ScopeAttribute");
+    private static readonly TypeInfo ScopedAttribute = new("Arc4u.Dependency.Attribute", "ScopedAttribute");
     private static readonly TypeInfo SharedAttribute = new("Arc4u.Dependency.Attribute", "SharedAttribute");
     
     /// <summary>

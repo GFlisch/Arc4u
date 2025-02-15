@@ -2,6 +2,7 @@ using Arc4u.Dependency;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Arc4u.Caching;
@@ -79,7 +80,7 @@ public class CacheContext : ICacheContext
 
                                 _caches.Add(cacheConfig.Name, cache);
 
-                                _logger.Technical().System($"Instantiate a new instance of a cache with a kind of {cacheConfig.Kind} and named {cacheConfig.Name}.").Log();
+                                _logger.Technical().LogNewCache(cacheConfig.Kind, cacheConfig.Name);
                             }
                             else
                             {
@@ -89,7 +90,7 @@ public class CacheContext : ICacheContext
                         else
                         {
                             _uninitializedCaches.Add(cacheConfig.Name, cacheConfig.Kind);
-                            _logger.Technical().System($"Register a cache with a kind of {cacheConfig.Kind} and named {cacheConfig.Name} for later.").Log();
+                            _logger.Technical().LogRegisterNewCache(cacheConfig.Kind, cacheConfig.Name);
                         }
                     }
                 }

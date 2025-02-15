@@ -15,6 +15,7 @@ namespace Arc4u.Data;
 [DataContract(Name = "AuditEntityOf{0}")]
 public abstract class AuditEntity<TId, TAuditedBy, TAuditedOn>
     : IdEntity<TId>
+    , IAuditEntity<TAuditedBy, TAuditedOn>
 {
     /// <ignore/>
     protected const string AuditedByPropertyName = "AuditedBy";

@@ -46,7 +46,7 @@ public class StandardCookieEvents : CookieAuthenticationEvents
         // => must be defined in the options
         var refreshThreshold = _oidcOptions.ForceRefreshTimeoutTimeSpan;
 
-        _logger.Technical().LogDebug("Extract token from the cookie cache.");
+        _logger.Technical().LogExtractCookieFromTokenCache();
 
         // Persist the Access and Refresh tokens.
         // TokenRefreshInfo is registered as Scoped and we create at this moment (by request) an instance to
@@ -56,7 +56,7 @@ public class StandardCookieEvents : CookieAuthenticationEvents
 
         if (null == tokensInfo)
         {
-            _logger.Technical().LogError("No TokenRefreshInfo found in the service provider.");
+            _logger.Technical().LogNoTokenRefreshInfo();
             cookieCtx.RejectPrincipal();
             await cookieCtx.HttpContext.SignOutAsync().ConfigureAwait(false);
             return;
@@ -78,11 +78,11 @@ public class StandardCookieEvents : CookieAuthenticationEvents
             {
                 if (timeRemaining < TimeSpan.Zero)
                 {
-                    _logger?.Technical().LogInformation("Refresh the access token. Expired since {TimeExpired}", timeRemaining.Multiply(-1));
+                    _logger?.Technical().LogAccessTokenIsExpired(timeRemaining.Multiply(-1));
                 }
                 else
                 {
-                    _logger?.Technical().LogInformation("Refresh the access token. Will expire in {TimeExpired}", timeRemaining);
+                    _logger?.Technical().LogAccessTokenIsExpiring(timeRemaining);
                 }
 
                 // throws an exception if the call failed.
@@ -98,7 +98,7 @@ public class StandardCookieEvents : CookieAuthenticationEvents
             }
             catch (Exception ex)
             {
-                _logger?.Technical().LogError("Cannot refresh the token. See exception.");
+                _logger?.Technical().LogCantRefreshToken();
                 _logger?.Technical().LogException(ex);
 
                 cookieCtx.RejectPrincipal();

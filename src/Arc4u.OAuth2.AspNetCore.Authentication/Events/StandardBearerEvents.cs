@@ -51,7 +51,7 @@ public class StandardBearerEvents : JwtBearerEvents
     /// <returns></returns>
     public override Task AuthenticationFailed(AuthenticationFailedContext context)
     {
-        _logger.Technical().Exception(context.Exception);
+        _logger.Technical().LogException(context.Exception);
 
         context.Fail(context.Exception);
         context.Response.Clear();

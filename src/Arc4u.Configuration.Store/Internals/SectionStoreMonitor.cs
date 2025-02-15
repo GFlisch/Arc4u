@@ -20,13 +20,13 @@ sealed class SectionStoreMonitor : BackgroundService
 
     public override Task StartAsync(CancellationToken cancellationToken)
     {
-        _logger.Technical().LogInformation($"{nameof(SectionStoreMonitor)} Service starting");
+        _logger.Technical().LogServiceStarting(nameof(SectionStoreMonitor));
         return base.StartAsync(cancellationToken);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.Technical().LogInformation($"{nameof(SectionStoreMonitor)} Service started");
+        _logger.Technical().LogServiceStarted(nameof(SectionStoreMonitor));
         try
         {
             do
@@ -53,12 +53,12 @@ sealed class SectionStoreMonitor : BackgroundService
         {
             _logger.Technical().LogException(e);
         }
-        _logger.Technical().LogInformation($"{nameof(SectionStoreMonitor)} Service stopped");
+        _logger.Technical().LogServiceStopped(nameof(SectionStoreMonitor));
     }
 
     public override Task StopAsync(CancellationToken cancellationToken)
     {
-        _logger.Technical().LogInformation($"{nameof(SectionStoreMonitor)} Service stopping");
+        _logger.Technical().LogServiceStopping(nameof(SectionStoreMonitor));
         return base.StopAsync(cancellationToken);
     }
 }

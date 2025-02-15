@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 using Arc4u.Diagnostics;
+using Arc4u.OAuth2.AspNetCore;
 using Arc4u.OAuth2.Security.Principal;
 using Microsoft.Extensions.Logging;
 
@@ -12,7 +13,7 @@ public static class CredentialResultExtension
         var ix = pair.IndexOf(':');
         if (ix == -1)
         {
-            logger.Technical().LogWarning($"Basic authentication is not well formed.");
+            logger.Technical().LogBasicAuthentityBadFormat();
 
             return new CredentialsResult(false);
         }
@@ -20,13 +21,14 @@ public static class CredentialResultExtension
         var username = pair.Substring(0, ix);
         var pwd = pair.Substring(ix + 1);
 
-        logger.Technical().LogDebug($@"Username receives is: {username}.");
+        logger.Technical().LogUserName(username);
 
         // is username format ok?
         if (!Regex.IsMatch(username, @"([a-zA-Z0-9]+@[a-zA-Z0-9]+\.[a-zA-Z0-9]+)|([a-zA-Z0-9]+\\[a-zA-Z0-9]+)|([a-zA-Z0-9]+/[a-zA-Z0-9]+)", RegexOptions.None, TimeSpan.FromMilliseconds(100)))
         {
+            var originalUserName = username;
             username = $"{username}{defaultUpn?.Trim()}";
-            logger.Technical().LogDebug($@"Username is changed to: {username}.");
+            logger.Technical().LogChangeUserName(originalUserName, username);
         }
 
         return new CredentialsResult(true, username, pwd);

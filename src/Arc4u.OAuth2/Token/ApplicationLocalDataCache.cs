@@ -1,6 +1,7 @@
 using Arc4u.Caching;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Arc4u.OAuth2.Token;
@@ -45,7 +46,7 @@ public class ApplicationLocalDataCache : ITokenCache
         }
         catch (Exception ex)
         {
-            Logger.Technical().From<ApplicationLocalDataCache>().Exception(ex).Log();
+            Logger.Technical<ApplicationLocalDataCache>().LogException(ex);
         }
 
     }
@@ -72,7 +73,7 @@ public class ApplicationLocalDataCache : ITokenCache
         }
         catch (Exception ex)
         {
-            Logger.Technical().From<ApplicationLocalDataCache>().Exception(ex).Log();
+            Logger.Technical<ApplicationLocalDataCache>().LogException(ex);
         }
     }
 

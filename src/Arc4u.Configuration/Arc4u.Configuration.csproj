@@ -14,6 +14,5 @@
   <ItemGroup>
     <ProjectReference Include="..\Arc4u.Core\Arc4u.Core.csproj" />
     <ProjectReference Include="..\Arc4u.Dependency\Arc4u.Dependency.csproj" />
-    <ProjectReference Include="..\Arc4u.Diagnostics\Arc4u.Diagnostics.csproj" />
   </ItemGroup>
 </Project>

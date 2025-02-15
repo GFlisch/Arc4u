@@ -27,7 +27,7 @@ public class FileTicketStore : ITicketStore
         lock (_lock)
         {
             File.Delete(fullPath);
-            _logger.Technical().LogDebug($"Remove ticket with key: {key}");
+            _logger.Technical().LogRemoveAuthenticationTicket(key);
         }
 
         return Task.CompletedTask;
@@ -41,7 +41,7 @@ public class FileTicketStore : ITicketStore
         lock (_lock)
         {
             File.WriteAllBytes(fullPath, TicketSerializer.Default.Serialize(ticket));
-            _logger.Technical().LogDebug($"Renew ticket with key: {key} on path: {fullPath}");
+            _logger.Technical().LogRenewAuthenticationTicket(key,fullPath);
         }
 
         return;
@@ -58,11 +58,11 @@ public class FileTicketStore : ITicketStore
             var content = File.ReadAllBytes(fullPath);
 
             ticket = TicketSerializer.Default.Deserialize(content);
-            _logger.Technical().LogDebug($"Get ticket with key: {key} on path: {fullPath}");
+            _logger.Technical().LogGetAuthenticationTicket(key, fullPath);
         }
         else
         {
-            _logger.Technical().LogDebug($"Get ticket with key: {key} on path: {fullPath}");
+            _logger.Technical().LogNoFileExistForAuthenticationTicket(fullPath);
         }
 
         return Task.FromResult(ticket);
@@ -78,7 +78,7 @@ public class FileTicketStore : ITicketStore
         lock (_lock)
         {
             File.WriteAllBytes(fullPath, TicketSerializer.Default.Serialize(ticket));
-            _logger.Technical().LogDebug($"Create ticket with key: {key} on path: {fullPath}");
+            _logger.Technical().LogCreateAuthenticationTicketOnFile(key, fullPath);
         }
 
         return Task.FromResult(key);

@@ -9,7 +9,7 @@ namespace Arc4u.Diagnostics.Monitoring;
 /// </summary>
 public sealed class SystemResources : IHostedService, IDisposable
 {
-    public SystemResources(ILogger logger, uint internalPeriodInSeconds = 10)
+    public SystemResources(ILogger<SystemResources> logger, uint internalPeriodInSeconds = 10)
     {
         ArgumentNullException.ThrowIfNull(logger);
 
@@ -24,7 +24,7 @@ public sealed class SystemResources : IHostedService, IDisposable
     }
 
     private readonly uint interval;
-    private readonly ILogger _logger;
+    private readonly ILogger<SystemResources> _logger;
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
@@ -61,8 +61,6 @@ public sealed class SystemResources : IHostedService, IDisposable
         _cpuData.UserCpuUsed = userCpuTimeUsed * 100 / cpuTimeElapsed;
 
         _logger.Monitoring()
-               .From<SystemResources>()
-               .Information("Cpu & Memory")
                .Add("TotalCpuUsed", _cpuData.TotalCpuUsed)
                .Add("PrivilegedCpuUsed", _cpuData.PrivilegedCpuUsed)
                .Add("UserCpuUsed", _cpuData.UserCpuUsed)
@@ -72,7 +70,7 @@ public sealed class SystemResources : IHostedService, IDisposable
                .Add("PagedSystemMemory", _process.PagedSystemMemorySize64)
                .Add("PrivateMemory", _process.PrivateMemorySize64)
                .Add("VirtualMemoryMemory", _process.VirtualMemorySize64)
-               .Log();
+               .LogMonitoring();
     }
 
     public Task StopAsync(CancellationToken cancellationToken)

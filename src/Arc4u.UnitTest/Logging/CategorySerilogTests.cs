@@ -1,5 +1,6 @@
 using Arc4u.Dependency;
 using Arc4u.Diagnostics;
+using Arc4u.Diagnostics.Monitoring;
 using Arc4u.Diagnostics.Serilog;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,14 +33,14 @@ public class CategorySerilogTesters
         var logger = serviceProvider.GetService<ILogger<CategorySerilogTesters>>()!;
 
         sink.Emited = false;
-        logger.Technical().Debug("Technical").Add("Code", "100").Log();
+        logger.Technical().Add("Code", "100").LogDebug("Technical");
         sink.Emited.Should().BeTrue();
 
-        logger.Business().Debug("Business").Add("Code", "100").Log();
+        logger.Business().Add("Code", "100").Add("Code", "100").LogDebug("Business");
         sink.Emited.Should().BeTrue();
         sink.Emited = false;
 
-        logger.Monitoring().Debug("Monitoring").AddMemoryUsage().Log();
+        logger.Monitoring().Add("Code", "100").AddMemoryUsage().LogDebug("Monitoring");
         sink.Emited.Should().BeTrue();
     }
 
@@ -60,14 +61,14 @@ public class CategorySerilogTesters
 
         var serviceProvider = services.BuildServiceProvider();
 
-        var logger = serviceProvider.GetService<ILogger<CategorySerilogTesters>>()!;
+        var logger = serviceProvider.GetService<ILogger<SystemResources>>()!;
 
-        logger.Monitoring().Information("Message monitoring").Add("Code", 100).Log();
+        logger.Monitoring().Add("Code", 100).LogInformation("Message monitoring");
 
         Assert.True(sink.Emited);
         sink.Emited = false;
 
-        using var monitoring = new Diagnostics.Monitoring.SystemResources(logger, 1)
+        using var monitoring = new SystemResources(logger, 1)
         {
             StartMonitoringDelayInSeconds = 1
         };

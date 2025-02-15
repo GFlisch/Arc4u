@@ -15,12 +15,10 @@ public static class ApplicationContextServiceCollectionExtension
     /// <returns></returns>
     public static IServiceCollection AddApplicationContext(this IServiceCollection services)
     {
-        services.RemoveAll(typeof(ILogger<>));
+        services.TryAddScoped<IAddPropertiesToLog, DefaultLoggingProperties>();
 
         // register the logger infrastructure as Scoped.
         services.AddILogger();
-
-        services.TryAddScoped<IAddPropertiesToLog, DefaultLoggingProperties>();
         services.TryAddScoped<IApplicationContext, ApplicationInstanceContext>();
         services.TryAddSingleton<IActivitySourceFactory, DefaultActivitySourceFactory>();
 

@@ -86,13 +86,13 @@ public class JwtHttpHandler : DelegatingHandler
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        _logger.Technical().System($"{GetType().Name} delegate handler is called.").Log();
+        _logger.Technical().LogHttpHandlerIsCalled(GetType().Name);
 
         var applicationContext = GetCallContext(out var containerResolve);
 
         if (_settings is null || applicationContext is null || containerResolve is null)
         {
-            _logger.Technical().System($"No settings or application context is defined with {GetType().Name}, Check next Delegate Handler").Log();
+            _logger.Technical().LogResolvingIssueSettingsByName(GetType().Name);
             return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
         }
 
@@ -103,7 +103,7 @@ public class JwtHttpHandler : DelegatingHandler
 
         if (!_settings.Values.TryGetValue(TokenKeys.AuthenticationTypeKey, out var authenticationType))
         {
-            _logger.Technical().System($"No authentication type for {GetType().Name}, Check next Delegate Handler").Log();
+            _logger.Technical().LogNoAuthenticationTypeCallNextHttpHandler(GetType().Name);
             return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
         }
 
@@ -114,32 +114,32 @@ public class JwtHttpHandler : DelegatingHandler
             && applicationContext?.Principal?.Identity?.AuthenticationType is not null
             && !authenticationType.Contains(applicationContext.Principal.Identity.AuthenticationType, StringComparison.OrdinalIgnoreCase))
         {
-            _logger.Technical().System($"Authentication type is not the same as the Identity for {GetType().Name}, Check next Delegate Handler").Log();
+            _logger.Technical().LogDifferentAuthenticationTypeCallNextHttpHandler(GetType().Name);
             return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
         }
 
         // if we inject more than one bearer token do it only if no one exist already.
         if (request.Headers.Authorization is not null)
         {
-            _logger.Technical().System($"An authorization header already exist for handler {GetType().Name}, Check next Delegate Handler").Log();
+            _logger.Technical().LogAlreadyHasAnAuthorizationHeaderCallNextHttpHandler(GetType().Name);
             return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
         }
 
-        _logger.Technical().System($"{GetType().Name} token provider is called.").Log();
+        _logger.Technical().LogGetTheTokenProvider(GetType().Name);
 
         var provider = containerResolve.GetKeyedService<ITokenProvider>(_settings.Values[TokenKeys.ProviderIdKey]);
         if (provider is null)
         {
-            _logger.Technical().System($"No token provider is defined for {GetType().Name}, Check next Delegate Handler").Log();
+            _logger.Technical().LogNoTokenProvider(GetType().Name);
             return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
         }
 
-        _logger.Technical().System("Requesting an authentication token.").Log();
+        _logger.Technical().LogRequestingToken();
         var tokenInfoResult = await provider.GetTokenAsync(_settings, null).ConfigureAwait(false);
 
         if (tokenInfoResult.IsFailed)
         {
-            _logger.Technical().System($"No token is provided for {GetType().Name}, Check next Delegate Handler").Log();
+            _logger.Technical().LogNoTokenProvider(GetType().Name);
             tokenInfoResult.Log();
             return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
         }
@@ -149,15 +149,15 @@ public class JwtHttpHandler : DelegatingHandler
         // It is also possible this with OAuth where the token is added to the Identity and used like this => no refresh of the token is possible.
         if (tokenInfoResult.Value.ExpiresOnUtc < DateTime.UtcNow)
         {
-            _logger.Technical().System($"Token is expired! Next Hanlder will be called.").Log();
+            _logger.Technical().LogTokenIsExpired();
             return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
         }
 
-        _logger.Technical().System("Remove any Bearer token attached.").Log();
+        _logger.Technical().LogRemoveAnyBearer();
         request.Headers.Remove("Bearer");
 
         var scheme = inject ? tokenInfoResult.Value.TokenType : "Bearer";
-        _logger.Technical().System($"Add the {scheme} token to provide authentication evidence.").Log();
+        _logger.Technical().LogAddSchentoToken(scheme);
 
         if (_supportedSchemes.Any(s => s.Equals(scheme, StringComparison.OrdinalIgnoreCase)))
         {
@@ -175,7 +175,7 @@ public class JwtHttpHandler : DelegatingHandler
             if (culture is not null)
             {
                 request.Headers.Add("culture", culture);
-                _logger.Technical().System($"Add the current culture to the request: {culture}").Log();
+                _logger.Technical().LogUseCurrentCulture(culture);
 
             }
         }

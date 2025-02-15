@@ -30,11 +30,11 @@ using Xunit;
 
 namespace Arc4u.UnitTest.Security;
 
-public class JwtHandlerToTest(IScopedServiceProviderAccessor scopedServiceProviderAccessor, ILogger<JwtHandlerToTest> logger, IOptionsMonitor<SimpleKeyValueSettings> keyValuesSettingsOption, string resolvingName) : JwtHttpHandler(scopedServiceProviderAccessor, logger, keyValuesSettingsOption.Get(resolvingName))
+public class JwtHandlerToTest(IScopedServiceProviderAccessor scopedServiceProviderAccessor, ILogger<JwtHttpHandler> logger, IOptionsMonitor<SimpleKeyValueSettings> keyValuesSettingsOption, string resolvingName) : JwtHttpHandler(scopedServiceProviderAccessor, logger, keyValuesSettingsOption.Get(resolvingName))
 {
 }
 
-public class JwtHandlerToTest2(IServiceProvider serviceProvider, ILogger<JwtHandlerToTest> logger, IOptionsMonitor<SimpleKeyValueSettings> keyValuesSettingsOption, string resolvingName) : JwtHttpHandler(serviceProvider, logger, keyValuesSettingsOption.Get(resolvingName))
+public class JwtHandlerToTest2(IServiceProvider serviceProvider, ILogger<JwtHttpHandler> logger, IOptionsMonitor<SimpleKeyValueSettings> keyValuesSettingsOption, string resolvingName) : JwtHttpHandler(serviceProvider, logger, keyValuesSettingsOption.Get(resolvingName))
 {
 }
 /// <summary>
@@ -92,7 +92,14 @@ public class JwtHttpHandlerTests
         services.ConfigureOpenIdSettings(configuration, "Authentication:OpenId.Settings");
         services.AddScoped<IApplicationContext, ApplicationInstanceContext>();
         services.AddScoped<TokenRefreshInfo>();
-        services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
+
+        var mockILoggerFactory = new Mock<ILoggerFactory>();
+        mockILoggerFactory.Setup(m => m.CreateLogger(It.IsAny<string>()))
+                          .Returns(NullLogger.Instance);
+
+        services.AddSingleton<ILoggerFactory>(mockILoggerFactory.Object);
+        services.AddTransient(typeof(ILogger<>), typeof(LoggerWrapper<>));
+        services.AddKeyedTransient<IAddPropertiesToLog, NullLoggerProperties>("Transient");
 
         var mockHttpContextAccessor = _fixture.Freeze<Mock<IHttpContextAccessor>>();
         mockHttpContextAccessor.SetupGet(x => x.HttpContext).Returns(() => null);
@@ -135,7 +142,7 @@ public class JwtHttpHandlerTests
             .Verifiable();
 
         // Act
-        var sut = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>()!, setingsOptions!, Constants.OpenIdOptionsName)
+        var sut = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHttpHandler>>()!, setingsOptions!, Constants.OpenIdOptionsName)
         {
             InnerHandler = innerHandler.Object
         };
@@ -185,7 +192,14 @@ public class JwtHttpHandlerTests
         services.ConfigureOpenIdSettings(configuration, "Authentication:OpenId.Settings");
         services.AddScoped<IApplicationContext, ApplicationInstanceContext>();
         services.AddScoped<TokenRefreshInfo>();
-        services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
+
+        var mockILoggerFactory = new Mock<ILoggerFactory>();
+        mockILoggerFactory.Setup(m => m.CreateLogger(It.IsAny<string>()))
+                          .Returns(NullLogger.Instance);
+
+        services.AddSingleton<ILoggerFactory>(mockILoggerFactory.Object);
+        services.AddTransient(typeof(ILogger<>), typeof(LoggerWrapper<>));
+        services.AddKeyedTransient<IAddPropertiesToLog, NullLoggerProperties>("Transient");
 
         var mockHttpContextAccessor = _fixture.Freeze<Mock<IHttpContextAccessor>>();
         mockHttpContextAccessor.SetupGet(x => x.HttpContext).Returns(() => null);
@@ -229,7 +243,7 @@ public class JwtHttpHandlerTests
             .Verifiable();
 
         // Act
-        var sut = new JwtHandlerToTest2(scopedContainer.ServiceProvider, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>()!, setingsOptions!, Constants.OpenIdOptionsName)
+        var sut = new JwtHandlerToTest2(scopedContainer.ServiceProvider, scopedContainer.Resolve<ILogger<JwtHttpHandler>>()!, setingsOptions!, Constants.OpenIdOptionsName)
         {
             InnerHandler = innerHandler.Object
         };
@@ -274,7 +288,14 @@ public class JwtHttpHandlerTests
         services.AddDefaultAuthority(configuration);
         services.ConfigureOAuth2Settings(configuration, "Authentication:OAuth2.Settings");
         services.AddScoped<IApplicationContext, ApplicationInstanceContext>();
-        services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
+
+        var mockILoggerFactory = new Mock<ILoggerFactory>();
+        mockILoggerFactory.Setup(m => m.CreateLogger(It.IsAny<string>()))
+                          .Returns(NullLogger.Instance);
+
+        services.AddSingleton<ILoggerFactory>(mockILoggerFactory.Object);
+        services.AddTransient(typeof(ILogger<>), typeof(LoggerWrapper<>));
+        services.AddKeyedTransient<IAddPropertiesToLog, NullLoggerProperties>("Transient");
 
         var mockHttpContextAccessor = _fixture.Freeze<Mock<IHttpContextAccessor>>();
         mockHttpContextAccessor.SetupGet(x => x.HttpContext).Returns(() => null);
@@ -310,7 +331,7 @@ public class JwtHttpHandlerTests
             .Verifiable();
 
         // Act
-        var sut = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>()!, setingsOptions!, "OAuth2")
+        var sut = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHttpHandler>>()!, setingsOptions!, "OAuth2")
         {
             InnerHandler = innerHandler.Object
         };
@@ -362,8 +383,15 @@ public class JwtHttpHandlerTests
         services.AddSingleton<IScopedServiceProviderAccessor, ScopedServiceProviderAccessor>();
         services.AddSecretAuthentication(configuration);
         services.AddScoped<IApplicationContext, ApplicationInstanceContext>();
-        services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
         services.AddDefaultAuthority(configuration);
+
+        var mockILoggerFactory = new Mock<ILoggerFactory>();
+        mockILoggerFactory.Setup(m => m.CreateLogger(It.IsAny<string>()))
+                          .Returns(NullLogger.Instance);
+
+        services.AddSingleton<ILoggerFactory>(mockILoggerFactory.Object);
+        services.AddTransient(typeof(ILogger<>), typeof(LoggerWrapper<>));
+        services.AddKeyedTransient<IAddPropertiesToLog, NullLoggerProperties>("Transient");
 
         // Mock the CredentialDiect (Calling the authorize endpoint based on a user and password!)
         var mockSecretTokenProvider = _fixture.Freeze<Mock<ICredentialTokenProvider>>();
@@ -404,7 +432,7 @@ public class JwtHttpHandlerTests
             .Verifiable();
 
         // Act
-        var sut = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>()!, setingsOptions!, "Client1")
+        var sut = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHttpHandler>>()!, setingsOptions!, "Client1")
         {
             InnerHandler = innerHandler.Object
         };
@@ -446,7 +474,14 @@ public class JwtHttpHandlerTests
         services.AddSingleton<IScopedServiceProviderAccessor, ScopedServiceProviderAccessor>();
         services.AddRemoteSecretsAuthentication(configuration);
         services.AddScoped<IApplicationContext, ApplicationInstanceContext>();
-        services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
+
+        var mockILoggerFactory = new Mock<ILoggerFactory>();
+        mockILoggerFactory.Setup(m => m.CreateLogger(It.IsAny<string>()))
+                          .Returns(NullLogger.Instance);
+
+        services.AddSingleton<ILoggerFactory>(mockILoggerFactory.Object);
+        services.AddTransient(typeof(ILogger<>), typeof(LoggerWrapper<>));
+        services.AddKeyedTransient<IAddPropertiesToLog, NullLoggerProperties>("Transient");
 
         var mockHttpContextAccessor = _fixture.Freeze<Mock<IHttpContextAccessor>>();
         mockHttpContextAccessor.SetupGet(x => x.HttpContext).Returns(() => null);
@@ -474,7 +509,7 @@ public class JwtHttpHandlerTests
             .Verifiable();
 
         // Act
-        var sut = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>()!, setingsOptions!, "Remote1")
+        var sut = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHttpHandler>>()!, setingsOptions!, "Remote1")
         {
             InnerHandler = innerHandler.Object
         };
@@ -516,7 +551,14 @@ public class JwtHttpHandlerTests
         services.AddSingleton<IScopedServiceProviderAccessor, ScopedServiceProviderAccessor>();
         services.AddRemoteSecretsAuthentication(configuration);
         services.AddScoped<IApplicationContext, ApplicationInstanceContext>();
-        services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
+
+        var mockILoggerFactory = new Mock<ILoggerFactory>();
+        mockILoggerFactory.Setup(m => m.CreateLogger(It.IsAny<string>()))
+                          .Returns(NullLogger.Instance);
+
+        services.AddSingleton<ILoggerFactory>(mockILoggerFactory.Object);
+        services.AddTransient(typeof(ILogger<>), typeof(LoggerWrapper<>));
+        services.AddKeyedTransient<IAddPropertiesToLog, NullLoggerProperties>("Transient");
 
         var mockHttpContextAccessor = _fixture.Freeze<Mock<IHttpContextAccessor>>();
         mockHttpContextAccessor.SetupGet(x => x.HttpContext).Returns(() => null);
@@ -544,7 +586,7 @@ public class JwtHttpHandlerTests
             .Verifiable();
 
         // Act
-        var sut = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>()!, setingsOptions!, "Remote1")
+        var sut = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHttpHandler>>()!, setingsOptions!, "Remote1")
         {
             InnerHandler = innerHandler.Object
         };
@@ -594,7 +636,14 @@ public class JwtHttpHandlerTests
         services.AddOnBehalfOf(configuration);
         services.AddScoped<IApplicationContext, ApplicationInstanceContext>();
         services.AddScoped<TokenRefreshInfo>();
-        services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
+
+        var mockILoggerFactory = new Mock<ILoggerFactory>();
+        mockILoggerFactory.Setup(m => m.CreateLogger(It.IsAny<string>()))
+                          .Returns(NullLogger.Instance);
+
+        services.AddSingleton<ILoggerFactory>(mockILoggerFactory.Object);
+        services.AddTransient(typeof(ILogger<>), typeof(LoggerWrapper<>));
+        services.AddKeyedTransient<IAddPropertiesToLog, NullLoggerProperties>("Transient");
 
         var mockHttpContextAccessor = _fixture.Freeze<Mock<IHttpContextAccessor>>();
         mockHttpContextAccessor.SetupGet(x => x.HttpContext).Returns(() => null);
@@ -643,7 +692,7 @@ public class JwtHttpHandlerTests
             .Verifiable();
 
         // Act
-        var sut = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>()!, setingsOptions!, "Obo")
+        var sut = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHttpHandler>>()!, setingsOptions!, "Obo")
         {
             InnerHandler = innerHandler.Object
         };
@@ -698,8 +747,15 @@ public class JwtHttpHandlerTests
         services.ConfigureOAuth2Settings(configuration, "Authentication:OAuth2.Settings");
         services.ConfigureOpenIdSettings(configuration, "Authentication:OpenId.Settings");
         services.AddScoped<IApplicationContext, ApplicationInstanceContext>();
-        services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
         services.AddScoped<TokenRefreshInfo>();
+
+        var mockILoggerFactory = new Mock<ILoggerFactory>();
+        mockILoggerFactory.Setup(m => m.CreateLogger(It.IsAny<string>()))
+                          .Returns(NullLogger.Instance);
+
+        services.AddSingleton<ILoggerFactory>(mockILoggerFactory.Object);
+        services.AddTransient(typeof(ILogger<>), typeof(LoggerWrapper<>));
+        services.AddKeyedTransient<IAddPropertiesToLog, NullLoggerProperties>("Transient");
 
         var mockHttpContextAccessor = _fixture.Freeze<Mock<IHttpContextAccessor>>();
         mockHttpContextAccessor.SetupGet(x => x.HttpContext).Returns(() => null);
@@ -740,9 +796,9 @@ public class JwtHttpHandlerTests
             .Verifiable();
 
         // Act
-        var sut = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>()!, setingsOptions!, Constants.OAuth2OptionsName)
+        var sut = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHttpHandler>>()!, setingsOptions!, Constants.OAuth2OptionsName)
         {
-            InnerHandler = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>()!, setingsOptions!, Constants.OpenIdOptionsName)
+            InnerHandler = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHttpHandler>>()!, setingsOptions!, Constants.OpenIdOptionsName)
             {
                 InnerHandler = innerHandler.Object
             }
@@ -798,8 +854,15 @@ public class JwtHttpHandlerTests
         services.ConfigureOAuth2Settings(configuration, "Authentication:OAuth2.Settings");
         services.ConfigureOpenIdSettings(configuration, "Authentication:OpenId.Settings");
         services.AddScoped<IApplicationContext, ApplicationInstanceContext>();
-        services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
         services.AddScoped<TokenRefreshInfo>();
+
+        var mockILoggerFactory = new Mock<ILoggerFactory>();
+        mockILoggerFactory.Setup(m => m.CreateLogger(It.IsAny<string>()))
+                          .Returns(NullLogger.Instance);
+
+        services.AddSingleton<ILoggerFactory>(mockILoggerFactory.Object);
+        services.AddTransient(typeof(ILogger<>), typeof(LoggerWrapper<>));
+        services.AddKeyedTransient<IAddPropertiesToLog, NullLoggerProperties>("Transient");
 
         var mockHttpContextAccessor = _fixture.Freeze<Mock<IHttpContextAccessor>>();
         mockHttpContextAccessor.SetupGet(x => x.HttpContext).Returns(() => null);
@@ -843,9 +906,9 @@ public class JwtHttpHandlerTests
             .Verifiable();
 
         // Act
-        var sut = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>()!, setingsOptions!, Constants.OAuth2OptionsName)
+        var sut = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHttpHandler>>()!, setingsOptions!, Constants.OAuth2OptionsName)
         {
-            InnerHandler = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>()!, setingsOptions!, Constants.OpenIdOptionsName)
+            InnerHandler = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHttpHandler>>()!, setingsOptions!, Constants.OpenIdOptionsName)
             {
                 InnerHandler = innerHandler.Object
             }
@@ -906,8 +969,15 @@ public class JwtHttpHandlerTests
         services.ConfigureOAuth2Settings(configuration, "Authentication:OAuth2.Settings");
         services.ConfigureOpenIdSettings(configuration, "Authentication:OpenId.Settings");
         services.AddScoped<IApplicationContext, ApplicationInstanceContext>();
-        services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
         services.AddScoped<TokenRefreshInfo>();
+
+        var mockILoggerFactory = new Mock<ILoggerFactory>();
+        mockILoggerFactory.Setup(m => m.CreateLogger(It.IsAny<string>()))
+                          .Returns(NullLogger.Instance);
+
+        services.AddSingleton<ILoggerFactory>(mockILoggerFactory.Object);
+        services.AddTransient(typeof(ILogger<>), typeof(LoggerWrapper<>));
+        services.AddKeyedTransient<IAddPropertiesToLog, NullLoggerProperties>("Transient");
 
         var mockHttpContextAccessor = _fixture.Freeze<Mock<IHttpContextAccessor>>();
         mockHttpContextAccessor.SetupGet(x => x.HttpContext).Returns(() => null);
@@ -950,11 +1020,11 @@ public class JwtHttpHandlerTests
             .Verifiable();
 
         // Act
-        var sut = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>()!, setingsOptions!, Constants.OAuth2OptionsName)
+        var sut = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHttpHandler>>()!, setingsOptions!, Constants.OAuth2OptionsName)
         {
-            InnerHandler = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>()!, setingsOptions!, Constants.OpenIdOptionsName)
+            InnerHandler = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHttpHandler>>()!, setingsOptions!, Constants.OpenIdOptionsName)
             {
-                InnerHandler = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHandlerToTest>>()!, setingsOptions!, "Remote1")
+                InnerHandler = new JwtHandlerToTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<JwtHttpHandler>>()!, setingsOptions!, "Remote1")
                 {
                     InnerHandler = innerHandler.Object
                 }

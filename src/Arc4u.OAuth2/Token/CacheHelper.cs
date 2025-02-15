@@ -2,6 +2,7 @@ using Arc4u.Caching;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Options;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -22,8 +23,8 @@ public class CacheHelper : ICacheHelper
         }
         catch (Exception ex)
         {
-            logger.Technical().Exception(ex).Log();
-            logger.Technical().System("Use the default cache!").Log();
+            logger.Technical().LogException(ex);
+            logger.Technical().LogDefaultTokenCache();
 
             _cache = cacheContext.Default;
         }
@@ -43,7 +44,7 @@ public class CacheHelper : ICacheHelper
 
         if (!string.IsNullOrWhiteSpace(cacheName) && _cacheContext.Exist(cacheName))
         {
-            _logger.Technical().System($"The token cache is {cacheName}.").Log();
+            _logger.Technical().LogTokenCacheName(cacheName);
 
             return _cacheContext[cacheName];
         }

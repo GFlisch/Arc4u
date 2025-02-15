@@ -40,7 +40,7 @@ public class MemoryCache : BaseDistributeCache<MemoryCache>, ICache
         {
             if (IsInitialized)
             {
-                _logger.Technical().System($"Memory Cache {store} is already initialized.").Log();
+                _logger.Technical().LogCacheIsAlreadyInitialized(store);
                 return;
             }
 
@@ -49,6 +49,11 @@ public class MemoryCache : BaseDistributeCache<MemoryCache>, ICache
                 Name = store;
 
                 var config = _options.Get(store);
+
+                if (config.SizeLimitInMB <= 0)
+                {
+                    _logger.LogCacheSizeLimit(store, config.SizeLimitInMB);
+                }
 
                 var option = new DistriOption(new MemoryDistributedCacheOptions
                 {
@@ -80,12 +85,12 @@ public class MemoryCache : BaseDistributeCache<MemoryCache>, ICache
                 {
                     NotInitializedReason = $"Memory Cache {store} is not initialized. An IObjectSerialization instance cannot be resolved via the Ioc.";
 
-                    _logger.Technical().LogError(NotInitializedReason);
+                    _logger.Technical().LogError(NotInitializedReason, store);
 
                     return;
                 }
 
-                _logger.Technical().System($"Memory Cache {store} is initialized.").Log();
+                _logger.Technical().LogCacheIsInitialized(store);
             }
             catch (Exception ex)
             {

@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using Arc4u.Caching;
 using Arc4u.Caching.Memory;
 using Arc4u.Configuration.Memory;
+using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Token;
 using Arc4u.Serializer;
 using AutoFixture;
@@ -10,6 +11,7 @@ using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Moq;
 using Xunit;
 
 namespace Arc4u.UnitTest.Serialization;
@@ -81,7 +83,14 @@ public class TokenTests
         services.AddTransient<ICache, MemoryCache>();
         services.AddMemoryCache(storeName, options => options.SizeLimitInMB = 10);
         services.AddTransient<IObjectSerialization, JsonSerialization>();
-        services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
+
+        var mockILoggerFactory = new Mock<ILoggerFactory>();
+        mockILoggerFactory.Setup(m => m.CreateLogger(It.IsAny<string>()))
+                          .Returns(NullLogger.Instance);
+
+        services.AddSingleton<ILoggerFactory>(mockILoggerFactory.Object);
+        services.AddTransient(typeof(ILogger<>), typeof(LoggerWrapper<>));
+        services.AddKeyedTransient<IAddPropertiesToLog, NullLoggerProperties>("Transient");
 
         var serviceProvider = services.BuildServiceProvider();
 
@@ -114,7 +123,14 @@ public class TokenTests
         services.AddTransient<ICache, MemoryCache>();
         services.AddMemoryCache(storeName, options => options.SizeLimitInMB = 10);
         services.AddTransient<IObjectSerialization, JsonSerialization>();
-        services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
+
+        var mockILoggerFactory = new Mock<ILoggerFactory>();
+        mockILoggerFactory.Setup(m => m.CreateLogger(It.IsAny<string>()))
+                          .Returns(NullLogger.Instance);
+
+        services.AddSingleton<ILoggerFactory>(mockILoggerFactory.Object);
+        services.AddTransient(typeof(ILogger<>), typeof(LoggerWrapper<>));
+        services.AddKeyedTransient<IAddPropertiesToLog, NullLoggerProperties>("Transient");
 
         var serviceProvider = services.BuildServiceProvider();
 

@@ -1,5 +1,6 @@
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
+using Arc4u.NServiceBus.Core;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
 
@@ -26,12 +27,12 @@ public class MessageScope : IMessageScope
         {
             try
             {
-                _logger.Technical().Information($"Publish event: {_event.GetType().FullName}.").Log();
+                _logger.Technical().LogPublishEvent(_event.GetType()?.FullName ?? "No event type");
                 _messageSession.Publish(_event).Wait();
             }
             catch (Exception ex)
             {
-                _logger.Technical().Exception(ex).Log();
+                _logger.Technical().LogException(ex);
             }
         }
 
@@ -40,12 +41,12 @@ public class MessageScope : IMessageScope
         {
             try
             {
-                _logger.Technical().Information($"Send command: {command.GetType().FullName}.").Log();
+                _logger.Technical().LogSendCommand(command.GetType().FullName ?? "No command name");
                 _messageSession.Send(command).Wait();
             }
             catch (Exception ex)
             {
-                _logger.Technical().Exception(ex).Log();
+                _logger.Technical().LogException(ex);
             }
         }
 

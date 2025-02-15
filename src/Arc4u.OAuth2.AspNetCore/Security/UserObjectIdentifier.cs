@@ -1,7 +1,9 @@
 using System.Security.Claims;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
+using Arc4u.OAuth2.AspNetCore;
 using Arc4u.OAuth2.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -30,11 +32,11 @@ public class UserObjectIdentifier : IUserObjectIdentifier
 
         if (string.IsNullOrEmpty(id))
         {
-            _logger.Technical().LogError($"No claim type found equal to {string.Join(",", _identifierOptions)} in the current identity.");
+            _logger.Technical().LogNoClaimTypeFound(string.Join(",", _identifierOptions));
             return null;
         }
 
-        _logger.Technical().Debug($"Claim Type id used to identify the user is {id}.").Log();
+        _logger.Technical().LogClaimTypeIdFound(id);
 
         return id;
     }
@@ -48,7 +50,7 @@ public class UserObjectIdentifier : IUserObjectIdentifier
             return userObjectIdClaim.Value;
         }
 
-        _logger.Technical().LogError($"No claims found with one of the keys: [{string.Join(",", _identifierOptions)}]");
+        _logger.Technical().LogNoClaimTypeFound(string.Join(",", _identifierOptions));
 
         return null;
     }

@@ -28,7 +28,7 @@ public static class FromResultToProblemDetailExtension
         {
             var exceptionalError = errors.OfType<IExceptionalError>().First();
             var result = Result.Fail(exceptionalError);
-            return result.ToGenericMessage(Activity.Current?.Id, false);
+            return result.ToGenericMessage(Activity.Current?.Id, true);
         }
 
         if (errors.OfType<ValidationError>().Any())

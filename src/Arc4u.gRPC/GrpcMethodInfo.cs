@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Arc4u.Dependency.Attribute;
 
 namespace Arc4u.gRPC;
@@ -18,7 +19,7 @@ public class GrpcMethodInfo
     /// <param name="method">The gRPC method called.</param>
     /// <param name="serviceType">The service implementing the method.</param>
     /// <returns>A service aspect, empty one if no service aspect is defined.</returns>
-    public ServiceAspectAttribute GetAttributeFor(string method, Type serviceType)
+    public ServiceAspectAttribute GetAttributeFor(string method, [DisallowNull, DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods)] Type serviceType)
     {
         ArgumentNullException.ThrowIfNullOrWhiteSpace(method);
         ArgumentNullException.ThrowIfNull(serviceType);

@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Arc4u.Diagnostics;
+using Arc4u.Diagnostics.Monitoring;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.Logging;
@@ -29,11 +30,11 @@ public class LogMonitoringTimeElapsedMiddleware
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        var stopwatch = Stopwatch.StartNew();
+        var startingTimestamp = Stopwatch.GetTimestamp();
 
         await _next(context).ConfigureAwait(false);
 
-        stopwatch.Stop();
+        var elapsed = Stopwatch.GetElapsedTime(startingTimestamp);
 
         try
         {
@@ -42,22 +43,20 @@ public class LogMonitoringTimeElapsedMiddleware
             {
                 var descriptor = endpoint.Metadata.GetMetadata<ControllerActionDescriptor>();
                 if (descriptor != null && descriptor.MethodInfo.DeclaringType is not null)
-                {
-                    logger.Monitoring()
-                           .From(descriptor.MethodInfo.DeclaringType, descriptor.MethodInfo.Name)
-                           .Information($"Time to complete method call")
-                           .Add("Elapsed", stopwatch.Elapsed.TotalMilliseconds)
+                {               
+                    logger.Monitoring(descriptor.MethodInfo.DeclaringType, descriptor.MethodInfo.Name)
+                           .Add("Elapsed", elapsed.TotalMilliseconds)
                            .Add("StatusCode", context.Response.StatusCode)
-                           .Log();
+                           .LogTimeToCompleteCall();
 
-                    _log?.Invoke(descriptor.MethodInfo.DeclaringType, stopwatch.Elapsed);
+                    _log?.Invoke(descriptor.MethodInfo.DeclaringType, elapsed);
                 }
             }
 
         }
         catch (Exception ex)
         {
-            logger.Technical().From<LogMonitoringTimeElapsedMiddleware>().Exception(ex).Log();
+            logger.Technical<LogMonitoringTimeElapsedMiddleware>().LogException(ex);
         }
     }
 }

@@ -2,6 +2,7 @@ using System.Runtime.Serialization.Json;
 using System.Security.Claims;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Arc4u.Security.Principal;

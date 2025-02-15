@@ -53,13 +53,13 @@ Example:
     "Assemblies": [
     ],
     "RegisterTypes": [
-      "Arc4u.Caching.Memory.MemoryCache, Arc4u.Standard.Caching.Memory"
+      "Arc4u.Caching.Memory.MemoryCache, Arc4u.Caching.Memory"
     ]
   }
 }
 ```
 
-The Arc4u MemoryCache is defined in the Arc4u.Standard.Caching.Memory package and contains the following ExportAttribute:
+The Arc4u MemoryCache is defined in the Arc4u.Caching.Memory package and contains the following ExportAttribute:
 
 ```csharp
 [Export("Memory", typeof(ICache))]

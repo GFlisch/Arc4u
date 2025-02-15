@@ -2,6 +2,7 @@ using System.Globalization;
 using Arc4u.Caching;
 using Arc4u.Caching.Memory;
 using Arc4u.Configuration.Memory;
+using Arc4u.Diagnostics;
 using Arc4u.Serializer;
 using AutoFixture;
 using AutoFixture.AutoMoq;
@@ -109,6 +110,12 @@ public class MemoryTest
         var mockIOptions = _fixture.Freeze<Mock<IOptionsMonitor<MemoryCacheOption>>>();
         mockIOptions.Setup(m => m.Get("Store")).Returns(serviceProvider.GetService<IOptionsMonitor<MemoryCacheOption>>()!.Get("Store"));
 
+        var mockLoggerWrapperMemoryCache = new Mock<ILoggerWrapper<MemoryCache>>();
+        mockLoggerWrapperMemoryCache.Setup(m => m.SetContext(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Type?>()))
+                                     .Returns(mockLoggerWrapperMemoryCache.Object);
+
+
+        _fixture.Inject<ILogger<MemoryCache>>(mockLoggerWrapperMemoryCache.Object);
         _fixture.Inject(configuration);
         _fixture.Inject<IServiceProvider>(serviceProvider);
         // act
@@ -143,14 +150,17 @@ public class MemoryTest
         services.AddMemoryCache("Store", configuration, "Store");
         services.AddSingleton<IConfiguration>(configuration);
 
-        var mockLoggerMemoryCache = new Mock<ILogger<MemoryCache>>();
-        services.AddSingleton(mockLoggerMemoryCache.Object);
-
         var serviceProvider = services.BuildServiceProvider();
+
+        var mockLoggerWrapperMemoryCache = new Mock<ILoggerWrapper<MemoryCache>>();
+        mockLoggerWrapperMemoryCache.Setup(m => m.SetContext(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Type?>()))
+                                     .Returns(mockLoggerWrapperMemoryCache.Object);
+
 
         var mockIOptions = _fixture.Freeze<Mock<IOptionsMonitor<MemoryCacheOption>>>();
         mockIOptions.Setup(m => m.Get("Store")).Returns(serviceProvider.GetService<IOptionsMonitor<MemoryCacheOption>>()!.Get("Store"));
 
+        _fixture.Inject<ILogger<MemoryCache>>(mockLoggerWrapperMemoryCache.Object);
         _fixture.Inject(configuration);
         _fixture.Inject<IServiceProvider>(serviceProvider);
 

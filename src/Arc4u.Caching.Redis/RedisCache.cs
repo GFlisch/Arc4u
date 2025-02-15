@@ -41,7 +41,7 @@ public class RedisCache : BaseDistributeCache<RedisCache>, ICache
         {
             if (IsInitialized)
             {
-                _logger.Technical().System($"Redis Cache {store} is already initialized.").Log();
+                _logger.Technical().LogCacheIsAlreadyInitialized(store);
                 return;
             }
 
@@ -81,12 +81,12 @@ public class RedisCache : BaseDistributeCache<RedisCache>, ICache
                 {
                     NotInitializedReason = $"Redis Cache {store} is not initialized. An IObjectSerialization instance cannot be resolved via the Ioc.";
 
-                    _logger.Technical().LogError(NotInitializedReason);
+                    _logger.Technical().LogError(NotInitializedReason, store);
 
                     return;
                 }
 
-                _logger.Technical().System($"Redis Cache {store} is initialized.").Log();
+                _logger.Technical().LogCacheIsInitialized(store);
             }
             catch (Exception ex)
             {
