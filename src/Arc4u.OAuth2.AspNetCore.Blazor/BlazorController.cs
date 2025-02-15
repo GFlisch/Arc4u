@@ -81,9 +81,15 @@ public class BlazorController : ControllerBase
             {
                 if (containerResolve.TryGetService<ITokenProvider>(ProviderId, out var tokenProvider))
                 {
+                    if (tokenProvider is null)
+                    {
+                        _logger.Technical().LogTokenProviderIsNull(ProviderId);
+                        return BadRequest();
+                    }
+
                     var result = await tokenProvider!.GetTokenAsync(_settings, claimsIdentity).ConfigureAwait(false);
                     result.LogIfFailed();
-                    accessToken = result.IsSuccess ? result.Value.Token : null;
+                    accessToken = result.IsSuccess ? result.Value.Token : string.Empty;
                 }
             }
         }
