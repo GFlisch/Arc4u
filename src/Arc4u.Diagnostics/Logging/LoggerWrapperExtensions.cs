@@ -52,7 +52,7 @@ public static class LoggerWrapperExtensions
         {
             return logger;
         }
-
+        logger.AdditionalFields[validKey] = value;
         return logger;
     }
 
