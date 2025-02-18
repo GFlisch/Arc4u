@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using Microsoft.IO;
 
@@ -19,6 +20,7 @@ public abstract class JsonCompressedStreamSerializationBase
     /// <summary>
     /// Construct an instance with default options
     /// </summary>
+    [RequiresUnreferencedCode("This constructor is not suitable for AOT. Use the constructor with JsonSerializerContext for AOT compatibility.")]
     protected JsonCompressedStreamSerializationBase()
     {
     }
@@ -27,6 +29,7 @@ public abstract class JsonCompressedStreamSerializationBase
     /// Construct an instance, optionally specifying compression and other Json serializer options
     /// </summary>
     /// <param name="options">Json serializer options</param>
+    [RequiresUnreferencedCode("This constructor is not suitable for AOT. Use the constructor with JsonSerializerContext for AOT compatibility.")]
     protected JsonCompressedStreamSerializationBase(JsonSerializerOptions options)
     {
         _options = options;
@@ -46,6 +49,8 @@ public abstract class JsonCompressedStreamSerializationBase
 
     protected virtual RecyclableMemoryStreamManager RecyclableMemoryStreamManager => _recyclableMemoryStreamManager ??= new RecyclableMemoryStreamManager();
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "The constructor is marked with RequiresUnreferencedCode.")]
+    [UnconditionalSuppressMessage("Trimming", "IL3050", Justification = "The constructor is marked with RequiresUnreferencedCode.")]
     protected void InternalSerialize<T>(Stream utf8json, T value)
     {
         if (_context != null)
@@ -58,6 +63,8 @@ public abstract class JsonCompressedStreamSerializationBase
         }
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "The constructor is marked with RequiresUnreferencedCode.")]
+    [UnconditionalSuppressMessage("Trimming", "IL3050", Justification = "The constructor is marked with RequiresUnreferencedCode.")]
     protected T? InternalDeserialize<T>(Stream utf8json)
     {
         if (_context != null)
@@ -70,6 +77,8 @@ public abstract class JsonCompressedStreamSerializationBase
         }
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "The constructor is marked with RequiresUnreferencedCode.")]
+    [UnconditionalSuppressMessage("Trimming", "IL3050", Justification = "The constructor is marked with RequiresUnreferencedCode.")]
     protected object? InternalDeserialize(Stream utf8json, Type returnType)
     {
         if (_context != null)

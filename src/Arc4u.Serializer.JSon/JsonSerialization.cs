@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 namespace Arc4u.Serializer;
@@ -14,6 +15,7 @@ public class JsonSerialization : IObjectSerialization
     /// <summary>
     /// Construct an instance with default options
     /// </summary>
+    [RequiresUnreferencedCode("This constructor is not suitable for AOT. Use the constructor with JsonSerializerContext for AOT compatibility.")]
     public JsonSerialization()
     {
     }
@@ -22,6 +24,7 @@ public class JsonSerialization : IObjectSerialization
     /// Construct an instance, with specific serializer options
     /// </summary>
     /// <param name="options">Json serializer options</param>
+    [RequiresUnreferencedCode("This constructor is not suitable for AOT. Use the constructor with JsonSerializerContext for AOT compatibility.")]
     public JsonSerialization(JsonSerializerOptions options)
     {
         _options = options;
@@ -37,6 +40,8 @@ public class JsonSerialization : IObjectSerialization
         _context = context;
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "The constructor is marked with RequiresUnreferencedCode.")]
+    [UnconditionalSuppressMessage("Trimming", "IL3050", Justification = "The constructor is marked with RequiresUnreferencedCode.")]
     public byte[] Serialize<T>(T value)
     {
         Activity.Current?.SetTag("SerializerType", "Json");
@@ -51,6 +56,8 @@ public class JsonSerialization : IObjectSerialization
         }
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "The constructor is marked with RequiresUnreferencedCode.")]
+    [UnconditionalSuppressMessage("Trimming", "IL3050", Justification = "The constructor is marked with RequiresUnreferencedCode.")]
     public T? Deserialize<T>(byte[] data)
     {
         Activity.Current?.SetTag("SerializerType", "Json");
@@ -65,6 +72,8 @@ public class JsonSerialization : IObjectSerialization
         }
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "The constructor is marked with RequiresUnreferencedCode.")]
+    [UnconditionalSuppressMessage("Trimming", "IL3050", Justification = "The constructor is marked with RequiresUnreferencedCode.")]
     public object? Deserialize(byte[] data, Type objectType)
     {
         Activity.Current?.SetTag("SerializerType", "Json");

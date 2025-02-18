@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using Microsoft.IO;
 
@@ -12,6 +13,7 @@ public abstract class JsonCompressedStreamSerialization : JsonCompressedStreamSe
     /// <summary>
     /// Construct with default options
     /// </summary>
+    [RequiresUnreferencedCode("This constructor is not suitable for AOT. Use the constructor with JsonSerializerContext for AOT compatibility.")]
     protected JsonCompressedStreamSerialization()
     {
     }
@@ -20,6 +22,7 @@ public abstract class JsonCompressedStreamSerialization : JsonCompressedStreamSe
     /// Construct an instance, optionally specifying compression and other Json serializer options
     /// </summary>
     /// <param name="options">Json serializer options</param>
+    [RequiresUnreferencedCode("This constructor is not suitable for AOT. Use the constructor with JsonSerializerContext for AOT compatibility.")]
     protected JsonCompressedStreamSerialization(JsonSerializerOptions options)
         : base(options)
     {

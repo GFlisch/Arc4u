@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO.Compression;
 using System.Text.Json;
 using Microsoft.IO;
@@ -10,6 +11,7 @@ public class JsonZipSerialization : JsonCompressedStreamSerializationBase, IObje
     /// <summary>
     /// Construct an instance with default options
     /// </summary>
+    [RequiresUnreferencedCode("This constructor is not suitable for AOT. Use the constructor with JsonSerializerContext for AOT compatibility.")]
     public JsonZipSerialization()
     {
     }
@@ -18,6 +20,7 @@ public class JsonZipSerialization : JsonCompressedStreamSerializationBase, IObje
     /// Construct an instance, with specific serializer options
     /// </summary>
     /// <param name="options">Json serializer optios. Default is to use the default options</param>
+    [RequiresUnreferencedCode("This constructor is not suitable for AOT. Use the constructor with JsonSerializerContext for AOT compatibility.")]
     public JsonZipSerialization(JsonSerializerOptions options)
         : base(options)
     {
@@ -28,6 +31,7 @@ public class JsonZipSerialization : JsonCompressedStreamSerializationBase, IObje
     /// This is used for source generation, implemented in .NET 6 or later (https://learn.microsoft.com/en-us/dotnet/standard/serialization/system-text-json/source-generation?pivots=dotnet-6-0)
     /// </summary>
     /// <param name="context">Json context for source generation.</param>
+    [RequiresUnreferencedCode("This constructor is not suitable for AOT. Use the constructor with JsonSerializerContext for AOT compatibility.")]
     public JsonZipSerialization(System.Text.Json.Serialization.JsonSerializerContext context)
         : base(context)
     {

@@ -1,6 +1,7 @@
 using System.Globalization;
-using System.Runtime.Serialization.Json;
 using System.Security.Principal;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Arc4u.Configuration;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
@@ -13,6 +14,11 @@ using Microsoft.Extensions.Options;
 
 namespace Arc4u.OAuth2.Security.Principal;
 
+[JsonSerializable(typeof(IEnumerable<ClaimDto>))]
+internal partial class ClaimsProxyContext : JsonSerializerContext
+{
+}
+
 [Export(typeof(IClaimsFiller))]
 public class ClaimsProxy : IClaimsFiller
 {
@@ -23,16 +29,15 @@ public class ClaimsProxy : IClaimsFiller
         _applicationName = config.CurrentValue?.ApplicationName ?? "Unknow";
         // read information to call the backend service from configuration.
         _url = appSettings.Values.ContainsKey("arc4u_ClaimsProxyUri") ? appSettings.Values["arc4u_ClaimsProxyUri"] : null;
-        _jsonSerializer = new DataContractJsonSerializer(typeof(IEnumerable<ClaimDto>));
         _logger = logger;
     }
 
     private string? _url;
-    private readonly DataContractJsonSerializer _jsonSerializer;
     private readonly string _applicationName;
     protected readonly IServiceProvider _container;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<ClaimsProxy> _logger;
+
     public async Task<IEnumerable<ClaimDto>> GetAsync(IIdentity? identity, IEnumerable<IKeyValueSettings> settings, object? parameter)
     {
         var result = new List<ClaimDto>();
@@ -81,7 +86,7 @@ public class ClaimsProxy : IClaimsFiller
                 _logger.Technical().LogCallBackendWithUrlSucceed(_url);
                 var responsestring = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 // Add the claims.
-                var claims = _jsonSerializer.ReadObject<IEnumerable<ClaimDto>>(responsestring);
+                var claims = JsonSerializer.Deserialize(responsestring, ClaimsProxyContext.Default.IEnumerableClaimDto);
                 if (claims != null)
                 {
                     result.AddRange(claims);

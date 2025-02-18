@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Reflection;
 using System.Runtime.Serialization;
@@ -9,7 +10,7 @@ namespace Arc4u;
 /// </summary>
 /// <typeparam name="T">The <see cref="Value"/> type of the bound.</typeparam>
 [DataContract(Name = "BoundOf{0}")]
-public sealed class Bound<T> : IEquatable<Bound<T>>, IComparable<Bound<T>>
+public sealed class Bound<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.NonPublicFields)] T> : IEquatable<Bound<T>>, IComparable<Bound<T>>
 {
     #region Properties
 
@@ -330,7 +331,7 @@ public sealed class Bound<T> : IEquatable<Bound<T>>, IComparable<Bound<T>>
 
     private static void InitializeEnumBounds(out T lowestValue, out T upmostValue)
     {
-        var values = Enum.GetValues(typeof(T));
+        var values = Enum.GetValuesAsUnderlyingType(typeof(T));
         var hasFlag = (typeof(T).GetTypeInfo().GetCustomAttributes(typeof(FlagsAttribute), true).Length != 0);
         var sum = 0UL;
 

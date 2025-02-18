@@ -1,5 +1,7 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 
 namespace Arc4u;
 
@@ -12,7 +14,7 @@ namespace Arc4u;
 
 [DataContract(Name = "IntervalOf{0}")]
 [KnownType(typeof(Period))]
-public class Interval<T>
+public class Interval<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.NonPublicFields)] T>
     : IEquatable<Interval<T>>
     , IComparable<Interval<T>>
 {
@@ -24,7 +26,7 @@ public class Interval<T>
     /// <value>The lower bound.</value>  
     /// <remarks>The set operation is not private to let the Silverlight runtime 
     /// accessing the property during serializing/deserializing operations.</remarks>
-    [DataMember(EmitDefaultValue = false)]
+    [JsonPropertyName("lowerBound")]
     public Bound<T> LowerBound { get; internal set; }
 
     /// <summary>
@@ -33,7 +35,7 @@ public class Interval<T>
     /// <value>The upper bound.</value>
     /// <remarks>The set operation is not private to let the Silverlight runtime 
     /// accessing the property during serializing/deserializing operations.</remarks>
-    [DataMember(EmitDefaultValue = false)]
+    [JsonPropertyName("upperBound")]
     public Bound<T> UpperBound { get; internal set; }
 
     /// <summary>
@@ -41,6 +43,7 @@ public class Interval<T>
     /// </summary>
     /// <value>An <see cref="IntervalCollection&lt;T&gt;"/> that contains elements not in this instance.</value>
     /// <seealso href="http://en.wikipedia.org/wiki/Complement_(set_theory)">Complement (set theory)</seealso>
+    [JsonIgnore]
     public IntervalCollection<T> Complement
     {
         get { return Interval.ComplementOf(this); }
@@ -55,6 +58,7 @@ public class Interval<T>
     /// <seealso cref="IsSingletonOf"/>
     /// <seealso cref="Interval.SingletonOf"/>
     /// <seealso href="http://en.wikipedia.org/wiki/Singleton_(mathematics)">Singleton (mathematics)</seealso>
+    [JsonIgnore]
     public bool IsSingleton
     {
         get
@@ -88,6 +92,7 @@ public class Interval<T>
     /// <value><c>true</c> if this instance contains no element; otherwise, <c>false</c>.</value>        
     /// <seealso cref="string.Empty"/>
     /// <seealso href="http://en.wikipedia.org/wiki/Empty_set">Empty Set (set theory)</seealso>        
+    [JsonIgnore]
     public bool IsEmpty
     {
         get
@@ -122,6 +127,7 @@ public class Interval<T>
     /// </summary>
     /// <value><c>true</c> if this instance represents an universe; otherwise, <c>false</c>.</value>
     /// <seealso href="http://en.wikipedia.org/wiki/Universe_(mathematics)">Universe (mathematics)</seealso>
+    [JsonIgnore]
     public bool IsUniverse
     {
         get
