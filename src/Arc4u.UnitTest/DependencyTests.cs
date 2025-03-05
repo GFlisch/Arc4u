@@ -10,6 +10,7 @@ using Xunit;
 namespace Arc4u.UnitTest;
 
 [Trait("Category", "CI")]
+#pragma warning disable CS0618
 public class DependencyTests
 {
     #region ComponentModelContainer

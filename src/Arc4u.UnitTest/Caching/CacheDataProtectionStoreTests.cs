@@ -20,6 +20,7 @@ using Xunit;
 namespace Arc4u.UnitTest.Caching;
 
 [Trait("Category", "CI")]
+#pragma warning disable CS0618
 public class CacheDataProtectionStoreTests
 {
     public CacheDataProtectionStoreTests()
@@ -210,7 +211,7 @@ public class CacheDataProtectionStoreTests
 
          }).Build();
 
-        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+        IConfiguration configuration = new ConfigurationRoot([.. config.Providers]);
 
         var mockBuilder = _fixture.Freeze<Mock<IDataProtectionBuilder>>();
         mockBuilder.Setup(p => p.Services).Returns(services);
@@ -235,7 +236,7 @@ public class CacheDataProtectionStoreTests
 
          }).Build();
 
-        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+        IConfiguration configuration = new ConfigurationRoot([.. config.Providers]);
 
         var mockBuilder = _fixture.Freeze<Mock<IDataProtectionBuilder>>();
         mockBuilder.Setup(p => p.Services).Returns(services);
@@ -259,7 +260,7 @@ public class CacheDataProtectionStoreTests
 
          }).Build();
 
-        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+        IConfiguration configuration = new ConfigurationRoot([.. config.Providers]);
 
         var mockBuilder = _fixture.Freeze<Mock<IDataProtectionBuilder>>();
         mockBuilder.Setup(p => p.Services).Returns(services);
@@ -293,7 +294,7 @@ public class CacheDataProtectionStoreTests
 
          }).Build();
 
-        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+        IConfiguration configuration = new ConfigurationRoot([.. config.Providers]);
 
         var mockLoggerWrapperCacheContext = new Mock<ILoggerWrapper<CacheContext>>();
         mockLoggerWrapperCacheContext.Setup(m => m.SetContext(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Type?>()))

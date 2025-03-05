@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using Arc4u.Dependency.Configuration;
 using Microsoft.Extensions.Configuration;
@@ -6,8 +7,9 @@ namespace Arc4u.Dependency;
 
 public static class ContainerInitializerExtention
 {
-    private static readonly object locker = new object();
+    private static readonly object locker = new();
 
+    [RequiresUnreferencedCode("The assembly must be annotated with the 'DynamicDependency' attribute.")]
     public static IContainer InitializeFromConfig(this IContainer container, IConfiguration configuration)
     {
         var dependencies = new Dependencies();
@@ -18,6 +20,7 @@ public static class ContainerInitializerExtention
         return container;
     }
 
+    [RequiresUnreferencedCode("The assembly must be annotated with the 'DynamicDependency' attribute.")]
     private static void LoadFromConfig(Dependencies dependencies, IContainer container)
     {
         // Assert is not null.
@@ -29,13 +32,14 @@ public static class ContainerInitializerExtention
             var assemblies = GetAssembliesFromConfig(dependencies.Assemblies, out var types);
             types.AddRange(GetRegisterTypesFromConfig(dependencies.RegisterTypes));
 
-            container.Initialize(types.ToArray(), assemblies.ToArray());
+            container.Initialize([.. types], [.. assemblies]);
         }
     }
 
+    [RequiresUnreferencedCode("The assembly must be annotated with the 'DynamicDependency' attribute.")]
     private static List<Assembly> GetAssembliesFromConfig(ICollection<AssemblyConfig> assemblies, out List<Type> types)
     {
-        types = new List<Type>();
+        types = [];
         var result = new List<Assembly>();
 
         if (null == assemblies)
@@ -47,7 +51,7 @@ public static class ContainerInitializerExtention
         {
             if (assembly.RejectedTypes?.Count > 0) // fill types selected (!rejected).
             {
-                types.AddRange(GetTypesFromAssembly(assembly.Assembly).FilterList(assembly.RejectedTypes.ToList()));
+                types.AddRange(GetTypesFromAssembly(assembly.Assembly).FilterList([.. assembly.RejectedTypes]));
             }
             else // full types in the assembly
             {
@@ -62,6 +66,7 @@ public static class ContainerInitializerExtention
         return result;
     }
 
+    [RequiresUnreferencedCode("The assembly must be annotated with the 'DynamicDependency' attribute.")]
     private static List<Type> GetRegisterTypesFromConfig(ICollection<string> types)
     {
         var _types = new List<Type>();
@@ -80,9 +85,9 @@ public static class ContainerInitializerExtention
             }
         }
         return _types;
-
     }
 
+    [RequiresUnreferencedCode("The assembly must be annotated with the 'DynamicDependency' attribute.")]
     private static List<Type> GetTypesFromAssembly(string assembly)
     {
         var _assembly = Assembly.Load(assembly);

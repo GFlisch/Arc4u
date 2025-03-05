@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Arc4u;
 
 /// <summary>
@@ -29,7 +31,7 @@ public static class Interval
     /// In such case the <see cref="Interval&lt;T&gt;"/> represents then universe and a singleton.
     /// </remarks>
     /// <seealso href="http://en.wikipedia.org/wiki/Universe_(mathematics)">Universe (mathematics)</seealso>
-    public static Interval<T> Universe<T>()
+    public static Interval<T> Universe<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.NonPublicFields)] T>()
     {
         return new Interval<T>(Bound<T>.LowestBound, Bound<T>.UpmostBound);
     }
@@ -46,7 +48,7 @@ public static class Interval
     /// <seealso cref="Interval&lt;T&gt;.IsSingleton"/>
     /// <seealso cref="Interval&lt;T&gt;.IsSingletonOf"/>
     /// <seealso href="http://en.wikipedia.org/wiki/Singleton_(mathematics)">Singleton (mathematics)</seealso>
-    public static Interval<T> SingletonOf<T>(T value)
+    public static Interval<T> SingletonOf<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.NonPublicFields)] T>(T value)
     {
         ArgumentNullException.ThrowIfNull(value);
 
@@ -72,7 +74,7 @@ public static class Interval
     /// </remarks>
     /// <seealso cref="Interval&lt;T&gt;.IsEmpty"/>        
     /// <seealso href="http://en.wikipedia.org/wiki/Empty_set">Empty Set (set theory)</seealso>
-    public static Interval<T> Empty<T>()
+    public static Interval<T> Empty<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.NonPublicFields)] T>()
     {
         return new Interval<T>(
             new Bound<T>(BoundType.Lower
@@ -110,7 +112,7 @@ public static class Interval
     /// <seealso cref="Interval&lt;T&gt;.IsEmpty"/>
     /// <seealso cref="Interval&lt;T&gt;.IsEmptyOf"/>
     /// <seealso href="http://en.wikipedia.org/wiki/Empty_set">Empty Set (set theory)</seealso>
-    internal static Interval<T> EmptyOf<T>(T value)
+    internal static Interval<T> EmptyOf<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.NonPublicFields)] T>(T value)
     {
         return Bound.IsInfinity(value)
             ? new Interval<T>(BoundDirection.Closed
@@ -131,7 +133,7 @@ public static class Interval
     /// <returns>
     /// 	<c>true</c> if the <paramref name="value"/> parameter is <c>null</c> or an emty interval; otherwise, <c>false</c>.
     /// </returns>
-    public static bool IsNullOrEmpty<T>(Interval<T> value)
+    public static bool IsNullOrEmpty<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.NonPublicFields)] T>(Interval<T> value)
     {
         return (object.Equals(value, default(Interval<T>)) || value.IsEmpty);
     }
@@ -145,7 +147,7 @@ public static class Interval
     /// <returns>
     /// 	<c>true</c> if the <paramref name="interval"/> contains the <paramref name="value"/>; otherwise, <c>false</c>.
     /// </returns>
-    public static bool Contains<T>(Interval<T> interval, T value)
+    public static bool Contains<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.NonPublicFields)] T>(Interval<T> interval, T value)
     {
         if (IsNullOrEmpty(interval))
         {
@@ -184,7 +186,7 @@ public static class Interval
     /// <param name="value">An <see cref="Interval&lt;T&gt;"/> reference.</param>
     /// <returns>An <see cref="IntervalCollection&lt;T&gt;"/> that contains elements not in the specified interval.</returns>
     /// <seealso href="http://en.wikipedia.org/wiki/Complement_(set_theory)">Complement (set theory)</seealso>
-    public static IntervalCollection<T> ComplementOf<T>(Interval<T> value)
+    public static IntervalCollection<T> ComplementOf<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.NonPublicFields)] T>(Interval<T> value)
     {
         if (Interval.IsNullOrEmpty(value))
         {
@@ -245,7 +247,7 @@ public static class Interval
     /// <param name="args">The <see cref="Interval&lt;T&gt;"/> arguments.</param>
     /// <returns>An <see cref="IntervalCollection&lt;T&gt;"/> that contains elements not in the specified intervals.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="args"/> is <c>null</c>.</exception>
-    public static IntervalCollection<T> ComplementOf<T>(params Interval<T>[] args)
+    public static IntervalCollection<T> ComplementOf<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.NonPublicFields)] T>(params Interval<T>[] args)
     {
         ArgumentNullException.ThrowIfNull(args);
 
@@ -260,7 +262,7 @@ public static class Interval
     /// <param name="collection">A collection of <see cref="Interval&lt;T&gt;"/>.</param>
     /// <returns>An <see cref="IntervalCollection&lt;T&gt;"/> that contains elements not in the specified <paramref name="collection"/>.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="collection"/> is <c>null</c>.</exception>
-    internal static IntervalCollection<T> ComplementOf<T>(IntervalCollection<T> collection)
+    internal static IntervalCollection<T> ComplementOf<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.NonPublicFields)] T>(IntervalCollection<T> collection)
     {
         ArgumentNullException.ThrowIfNull(collection);
 
@@ -302,7 +304,7 @@ public static class Interval
     /// <param name="b">The second interval.</param>
     /// <returns>An <see cref="IntervalCollection&lt;T&gt;"/> that contains elements in <paramref name="a"/> but not in <paramref name="b"/>.</returns>
     /// <seealso href="http://en.wikipedia.org/wiki/Complement_(set_theory)">Relative complement (set theory)</seealso>
-    public static IntervalCollection<T> DifferenceOf<T>(Interval<T> a, Interval<T> b)
+    public static IntervalCollection<T> DifferenceOf<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.NonPublicFields)] T>(Interval<T> a, Interval<T> b)
     {
         if (Interval.IsNullOrEmpty(a))
         {
@@ -339,7 +341,7 @@ public static class Interval
         return new IntervalCollection<T>(result);
     }
 
-    private static IntervalCollection<T> DifferenceOf<T>(Interval<T> value, IntervalCollection<T> others)
+    private static IntervalCollection<T> DifferenceOf<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.NonPublicFields)] T>(Interval<T> value, IntervalCollection<T> others)
     {
         var result = new List<Interval<T>> { value };
 
@@ -367,7 +369,7 @@ public static class Interval
     /// <param name="a">The first interval.</param>
     /// <param name="b">The second interval.</param>
     /// <returns><c>true</c> if the <see cref="Interval&lt;T&gt;"/> <paramref name="a"/> intersects the interval <paramref name="b"/>; otherwise, <c>false</c>.</returns>
-    public static bool Intersect<T>(Interval<T> a, Interval<T> b)
+    public static bool Intersect<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.NonPublicFields)] T>(Interval<T> a, Interval<T> b)
     {
         return !IsNullOrEmpty(IntersectionOf(a, b));
     }
@@ -382,7 +384,7 @@ public static class Interval
     /// that contains all elements of <paramref name="a"/> that also belong to <paramref name="b"/>; 
     /// otherwise, an empty interval.</param>
     /// <returns><b>true</b> if the intersection is not empty; otherwise, <b>false</b>.</returns>
-    public static bool TryIntersectionOf<T>(Interval<T> a, Interval<T> b, out Interval<T> intersection)
+    public static bool TryIntersectionOf<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.NonPublicFields)] T>(Interval<T> a, Interval<T> b, out Interval<T> intersection)
     {
         intersection = IntersectionOf(a, b);
         return !IsNullOrEmpty(intersection);
@@ -395,7 +397,7 @@ public static class Interval
     /// <param name="args">The <see cref="Interval&lt;T&gt;"/> arguments.</param>
     /// <returns>An <see cref="Interval&lt;T&gt;"/> that contains elements belonging to all specified intervals.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="args"/> is <c>null</c>.</exception>
-    public static Interval<T> IntersectionOf<T>(params Interval<T>[] args)
+    public static Interval<T> IntersectionOf<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.NonPublicFields)] T>(params Interval<T>[] args)
     {
         ArgumentNullException.ThrowIfNull(args);
 
@@ -414,7 +416,7 @@ public static class Interval
     /// that also belong to <paramref name="b"/> (or equivalently, all elements of <paramref name="b"/> 
     /// that also belong to <paramref name="a"/>), but no other elements.</returns>
     /// <seealso href="http://en.wikipedia.org/wiki/Intersection_(set_theory)">Intersection (set theory)</seealso>
-    private static Interval<T> IntersectionOf<T>(Interval<T> a, Interval<T> b)
+    private static Interval<T> IntersectionOf<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.NonPublicFields)] T>(Interval<T> a, Interval<T> b)
     {
         if (Interval.IsNullOrEmpty(a))
         {
@@ -527,7 +529,7 @@ public static class Interval
     /// <param name="collection">A collection of <see cref="Interval&lt;T&gt;"/>.</param>
     /// <returns>An <see cref="Interval&lt;T&gt;"/> that contains elements belonging to all intervals in the <paramref name="collection"/>.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="collection"/> is <c>null</c>.</exception>
-    internal static Interval<T> IntersectionOf<T>(IntervalCollection<T> collection)
+    internal static Interval<T> IntersectionOf<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.NonPublicFields)] T>(IntervalCollection<T> collection)
     {
         ArgumentNullException.ThrowIfNull(collection);
 
@@ -556,7 +558,7 @@ public static class Interval
     /// <param name="args">The <see cref="Interval&lt;T&gt;"/> arguments.</param>
     /// <returns>An <see cref="IntervalCollection&lt;T&gt;"/> that contains all distinct elements of the specified intervals.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="args"/> is <c>null</c>.</exception>
-    public static IntervalCollection<T> UnionOf<T>(params Interval<T>[] args)
+    public static IntervalCollection<T> UnionOf<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.NonPublicFields)] T>(params Interval<T>[] args)
     {
         return UnionOf(UnionDenominator.Highest, args);
     }
@@ -617,7 +619,7 @@ public static class Interval
     /// </item>
     /// </list>
     /// </remarks>
-    public static IntervalCollection<T> UnionOf<T>(UnionDenominator denominator, params Interval<T>[] args)
+    public static IntervalCollection<T> UnionOf<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.NonPublicFields)] T>(UnionDenominator denominator, params Interval<T>[] args)
     {
         ArgumentNullException.ThrowIfNull(args);
 
@@ -630,7 +632,7 @@ public static class Interval
                 : HighUnionOf(new IntervalCollection<T>(args));
     }
 
-    private static IntervalCollection<T> LowUnionOf<T>(Interval<T> a, Interval<T> b)
+    private static IntervalCollection<T> LowUnionOf<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.NonPublicFields)] T>(Interval<T> a, Interval<T> b)
     {
         if (Interval.IsNullOrEmpty(a))
         {
@@ -658,7 +660,7 @@ public static class Interval
         return new IntervalCollection<T>(result);
     }
 
-    private static IntervalCollection<T> HighUnionOf<T>(Interval<T> a, Interval<T> b)
+    private static IntervalCollection<T> HighUnionOf<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.NonPublicFields)]  T>(Interval<T> a, Interval<T> b)
     {
         if (Interval.IsNullOrEmpty(a))
         {
@@ -766,7 +768,7 @@ public static class Interval
             : new IntervalCollection<T>(a, b);
     }
 
-    internal static IntervalCollection<T> LowUnionOf<T>(IntervalCollection<T> collection)
+    internal static IntervalCollection<T> LowUnionOf<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.NonPublicFields)] T>(IntervalCollection<T> collection)
     {
         ArgumentNullException.ThrowIfNull(collection);
 
@@ -805,7 +807,7 @@ public static class Interval
         return new IntervalCollection<T>(result);
     }
 
-    internal static IntervalCollection<T> HighUnionOf<T>(IntervalCollection<T> collection)
+    internal static IntervalCollection<T> HighUnionOf<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.NonPublicFields)] T>(IntervalCollection<T> collection)
     {
         ArgumentNullException.ThrowIfNull(collection);
 
@@ -843,7 +845,7 @@ public static class Interval
 
     #endregion
 
-    internal static bool TryParse<T>(Bound<T>? lowerBound, Bound<T>? upperBound, out Interval<T> result)
+    internal static bool TryParse<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.NonPublicFields)] T>(Bound<T>? lowerBound, Bound<T>? upperBound, out Interval<T> result)
     {
         result = default!;
 
@@ -863,7 +865,7 @@ public static class Interval
         return true;
     }
 
-    internal static bool TryParse<T>(BoundDirection lowerDirection
+    internal static bool TryParse<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.NonPublicFields)] T>(BoundDirection lowerDirection
         , T lowerValue
         , T upperValue
         , BoundDirection upperDirection

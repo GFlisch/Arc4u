@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace Arc4u.Dependency.Attribute;
@@ -8,14 +9,9 @@ namespace Arc4u.Dependency.Attribute;
 /// based on the presence of the <see cref="SharedAttribute"/> or <see cref="ScopedAttribute"/>.
 /// If none of these attributes are present, the lifetime is transient.
 /// </summary>
-public class AttributeInspector
+public class AttributeInspector(IContainer container)
 {
-    public AttributeInspector(IContainer container)
-    {
-        _container = container ?? throw new ArgumentNullException(nameof(container));
-    }
-
-    private readonly IContainer _container;
+    private readonly IContainer _container = container ?? throw new ArgumentNullException(nameof(container));
 
     /// <summary>
     /// Registers a type in the DI container if it is decorated with the <see cref="ExportAttribute"/>.
@@ -81,7 +77,7 @@ public class AttributeInspector
             }
         }
     }
-
+    [RequiresUnreferencedCode("The assembly must be annotated with the 'DynamicDependency' attribute.")]
     public void Register(Assembly assembly)
     {
         var types = assembly.GetTypes().Where(CanBeExported).ToList();

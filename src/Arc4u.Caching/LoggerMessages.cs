@@ -11,4 +11,8 @@ public static partial class LoggerMessages
     [LoggerMessage(EventId = 9011, Level = LogLevel.Information,
                   Message = "Register a cache with a kind of {CacheKind} and named {CacheName} for later.")]
     public static partial void LogRegisterNewCache(this ILogger logger, string cacheKind, string cacheName);
+
+    [LoggerMessage(EventId = 9012, Level = LogLevel.Error,
+                  Message = "Cannot resolve an ICache instance with the name: {CacheKind}")]
+    public static partial void LogCacheKindIssue(this ILogger logger, string cacheKind);
 }

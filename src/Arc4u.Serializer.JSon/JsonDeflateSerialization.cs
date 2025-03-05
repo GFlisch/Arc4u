@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.IO.Compression;
 using System.Text.Json;
 
@@ -11,6 +12,7 @@ public class JsonDeflateSerialization : JsonCompressedStreamSerialization
     /// <summary>
     /// Construct an instance with default options
     /// </summary>
+    [RequiresUnreferencedCode("This constructor is not suitable for AOT. Use the constructor with JsonSerializerContext for AOT compatibility.")]
     public JsonDeflateSerialization()
     {
     }
@@ -19,6 +21,7 @@ public class JsonDeflateSerialization : JsonCompressedStreamSerialization
     /// Construct an instance, with specific serializer options
     /// </summary>
     /// <param name="options">Json serializer options.</param>
+    [RequiresUnreferencedCode("This constructor is not suitable for AOT. Use the constructor with JsonSerializerContext for AOT compatibility.")]
     public JsonDeflateSerialization(JsonSerializerOptions options)
         : base(options)
     {

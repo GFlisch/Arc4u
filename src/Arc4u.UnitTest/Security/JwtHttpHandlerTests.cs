@@ -30,6 +30,7 @@ using Xunit;
 
 namespace Arc4u.UnitTest.Security;
 
+#pragma warning disable CS0618
 public class JwtHandlerToTest(IScopedServiceProviderAccessor scopedServiceProviderAccessor, ILogger<JwtHttpHandler> logger, IOptionsMonitor<SimpleKeyValueSettings> keyValuesSettingsOption, string resolvingName) : JwtHttpHandler(scopedServiceProviderAccessor, logger, keyValuesSettingsOption.Get(resolvingName))
 {
 }
@@ -50,6 +51,7 @@ public class JwtHandlerToTest2(IServiceProvider serviceProvider, ILogger<JwtHttp
 /// 8) Chain 2 Handlers: OAuth2Bearer + Cookies and the access token returned is the Cookies one
 /// 9) Chain 3 Handlers: Oauth2Bearer + Cookies + Inject but inject is not occuring because a OAuth2Bearer is already available.
 /// </summary>
+#pragma warning disable CS0618
 public class JwtHttpHandlerTests
 {
     public JwtHttpHandlerTests()
@@ -82,7 +84,7 @@ public class JwtHttpHandlerTests
         var jwt = new JwtSecurityToken("issuer", "audience", claims: [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
         var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
 
-        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+        IConfiguration configuration = new ConfigurationRoot([.. config.Providers]);
 
         // Register the different services.
         IServiceCollection services = new ServiceCollection();
@@ -182,7 +184,7 @@ public class JwtHttpHandlerTests
         var jwt = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
         var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
 
-        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+        IConfiguration configuration = new ConfigurationRoot([.. config.Providers]);
 
         // Register the different services.
         IServiceCollection services = new ServiceCollection();
@@ -279,7 +281,7 @@ public class JwtHttpHandlerTests
         var jwt = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
         var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
 
-        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+        IConfiguration configuration = new ConfigurationRoot([.. config.Providers]);
 
         // Register the different services.
         IServiceCollection services = new ServiceCollection();
@@ -375,7 +377,7 @@ public class JwtHttpHandlerTests
         var jwt = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
         var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
 
-        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+        IConfiguration configuration = new ConfigurationRoot([.. config.Providers]);
 
         // Register the different services.
         IServiceCollection services = new ServiceCollection();
@@ -466,7 +468,7 @@ public class JwtHttpHandlerTests
                              ["Authentication:RemoteSecrets:Remote1:HeaderKey"] = "Basic",
                          }).Build();
 
-        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+        IConfiguration configuration = new ConfigurationRoot([.. config.Providers]);
 
         // Register the different services.
         IServiceCollection services = new ServiceCollection();
@@ -543,7 +545,7 @@ public class JwtHttpHandlerTests
                              ["Authentication:RemoteSecrets:Remote1:HeaderKey"] = options.HeaderKey,
                          }).Build();
 
-        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+        IConfiguration configuration = new ConfigurationRoot([.. config.Providers]);
 
         // Register the different services.
         IServiceCollection services = new ServiceCollection();
@@ -626,7 +628,7 @@ public class JwtHttpHandlerTests
         var jwt = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
         var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
 
-        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+        IConfiguration configuration = new ConfigurationRoot([.. config.Providers]);
 
         // Register the different services.
         IServiceCollection services = new ServiceCollection();
@@ -737,7 +739,7 @@ public class JwtHttpHandlerTests
         var jwtCookies = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
         var accessTokenCookies = new JwtSecurityTokenHandler().WriteToken(jwtCookies);
 
-        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+        IConfiguration configuration = new ConfigurationRoot([.. config.Providers]);
 
         // Register the different services.
         IServiceCollection services = new ServiceCollection();
@@ -844,7 +846,7 @@ public class JwtHttpHandlerTests
         var jwtCookies = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
         var accessTokenCookies = new JwtSecurityTokenHandler().WriteToken(jwtCookies);
 
-        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+        IConfiguration configuration = new ConfigurationRoot([.. config.Providers]);
 
         // Register the different services.
         IServiceCollection services = new ServiceCollection();
@@ -958,7 +960,7 @@ public class JwtHttpHandlerTests
         var jwtCookies = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
         var accessTokenCookies = new JwtSecurityTokenHandler().WriteToken(jwtCookies);
 
-        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+        IConfiguration configuration = new ConfigurationRoot([.. config.Providers]);
 
         // Register the different services.
         IServiceCollection services = new ServiceCollection();

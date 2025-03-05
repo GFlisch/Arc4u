@@ -1,6 +1,20 @@
-using System.Net.Http.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Arc4u.OAuth2.Options;
+
+[JsonSerializable(typeof(OpenIdConfiguration))]
+internal partial class OpenIdConfigurationJsonContext : JsonSerializerContext
+{
+}
+
+/// <summary>
+/// Only define the properties that are being used when calling the well-known Oidc endpoint.
+/// </summary>
+sealed class OpenIdConfiguration
+{
+    public /*required*/ Uri token_endpoint { get; set; } = default!;
+}
 
 public class AuthorityOptions
 {
@@ -28,10 +42,10 @@ public class AuthorityOptions
     /// <summary>
     /// Only define the properties that are being used when calling the well-known Oidc endpoint.
     /// </summary>
-    private sealed class OpenIdConfiguration
-    {
-        public /*required*/ Uri token_endpoint { get; set; } = default!;
-    }
+    //private sealed class OpenIdConfiguration
+    //{
+    //    public /*required*/ Uri token_endpoint { get; set; } = default!;
+    //}
 
     public /*required*/ Uri Url { get; set; } = default!;
 
@@ -66,7 +80,8 @@ public class AuthorityOptions
             using var client = new HttpClient();
             OpenIdConfiguration? openIdConfiguration;
 
-            openIdConfiguration = await client.GetFromJsonAsync<OpenIdConfiguration>(GetMetaDataAddress(), cancellationToken).ConfigureAwait(false);
+            var stream = await client.GetStreamAsync(GetMetaDataAddress(), cancellationToken).ConfigureAwait(false);
+            openIdConfiguration = JsonSerializer.Deserialize(stream, OpenIdConfigurationJsonContext.Default.OpenIdConfiguration);
 
             TokenEndpoint = openIdConfiguration!.token_endpoint;
         }

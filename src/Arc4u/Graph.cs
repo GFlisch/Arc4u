@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -14,7 +15,7 @@ namespace Arc4u;
 /// <typeparam name="T">A class of the domain model.</typeparam>
 [DataContract(Namespace = "uri://arc4u.graph", Name = "GraphOf{0}")]
 [DebuggerDisplay("{DebuggerDisplay,nq}")]
-public class Graph<T> where T : class
+[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)]public class Graph<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T> where T : class
 {
     private const string stringTypeNotAllowed = "Including a type of string is not allowed when you try to define a graph path.";
     private const string StructTypeNotAllowed = "Including a struct type is not allowed when you try to define a graph path.";
@@ -271,7 +272,7 @@ public class Graph<T> where T : class
     /// <typeparam name="TProperty">The member where wee need to extract the graph.</typeparam>
     /// <param name="path">The <see cref="MemberExpression"/> used to retrieve the name and the type used for the new Graph.</param>
     /// <returns>A new Graph instance with the type of the property selected in the path parameter.</returns>
-    public Graph<TProperty> GetGraph<TProperty>(Expression<Func<T, TProperty>> path) where TProperty : class
+    public Graph<TProperty> GetGraph<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TProperty>(Expression<Func<T, TProperty>> path) where TProperty : class
     {
         ArgumentNullException.ThrowIfNull(path);
 

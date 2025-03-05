@@ -10,7 +10,7 @@ public class LoggerFactory : ILoggerFactory
         _loggerFactory = loggerFactory;
     }
 
-    private Microsoft.Extensions.Logging.ILoggerFactory _loggerFactory;
+    private Microsoft.Extensions.Logging.ILoggerFactory? _loggerFactory;
     public ILog GetLogger(Type type)
     {
         return GetLogger(type.FullName!);
@@ -18,6 +18,11 @@ public class LoggerFactory : ILoggerFactory
 
     public ILog GetLogger(string name)
     {
+        if (null == _loggerFactory)
+        {
+            throw new InvalidOperationException("The ILoggerFactory is not set!");
+        }
+
         return new LoggerBridge(_loggerFactory);
     }
 }

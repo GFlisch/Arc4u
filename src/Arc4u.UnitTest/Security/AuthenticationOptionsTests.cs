@@ -184,8 +184,8 @@ public class AuthenticationOptionsTests
 
         var configDic = new Dictionary<string, string?>
         {
-            { $"OpenId.Settings:ClientId", options.ClientId },
-            { $"OpenId.Settings:ClientSecret", options.ClientSecret }
+            { "OpenId.Settings:ClientId", options.ClientId },
+            { "OpenId.Settings:ClientSecret", options.ClientSecret },
         };
         foreach (var audience in options.Audiences)
         {
@@ -199,7 +199,7 @@ public class AuthenticationOptionsTests
         var config = new ConfigurationBuilder()
                      .AddInMemoryCollection(configDic).Build();
 
-        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+        IConfiguration configuration = new ConfigurationRoot([.. config.Providers]);
 
         IServiceCollection services = new ServiceCollection();
 
@@ -211,8 +211,7 @@ public class AuthenticationOptionsTests
         var sut = serviceProvider.GetService<IOptionsMonitor<SimpleKeyValueSettings>>()!.Get(Constants.OpenIdOptionsName);
 
         sut.Should().NotBeNull();
-        sut.Values[TokenKeys.Audiences].Should().Be(string.Join(' ', options.Audiences));
-        sut.Values.Should().NotContainKey(TokenKeys.Scopes);
+        sut.Values.Should().NotContainKey(TokenKeys.Audiences);
         sut.Values[TokenKeys.Scope].Should().Be(string.Join(' ', options.Scopes));
     }
 

@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Arc4u;
 
@@ -6,7 +7,7 @@ namespace Arc4u;
 /// Represents a collection of intervals. This class cannot be inherited. 
 /// </summary>
 /// <typeparam name="T">The value type of the interval.</typeparam>
-public sealed class IntervalCollection<T> : ReadOnlyCollection<Interval<T>>
+public sealed class IntervalCollection<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.NonPublicFields)] T> : ReadOnlyCollection<Interval<T>>
 {
     #region Constructors
 
@@ -38,6 +39,7 @@ public sealed class IntervalCollection<T> : ReadOnlyCollection<Interval<T>>
     /// Gets the intersection of the current <see cref="T:IntervalCollection`1"/>.
     /// </summary>
     /// <value>The intersection.</value>
+    
     public Interval<T> Intersection
     {
         get { return Interval.IntersectionOf(this); }

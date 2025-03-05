@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Arc4u;
 
 internal static class Bound
@@ -14,7 +16,7 @@ internal static class Bound
 
     #region Methods
 
-    internal static bool TryParse<T>(BoundType type,
+    internal static bool TryParse<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.NonPublicFields)] T>(BoundType type,
                                      BoundDirection direction,
                                      T value,
                                      out Bound<T> result)
@@ -34,7 +36,7 @@ internal static class Bound
         return object.Equals(value, default);
     }
 
-    internal static Bound<T> Min<T>(Bound<T> x, Bound<T> y)
+    internal static Bound<T> Min<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.NonPublicFields)] T>(Bound<T> x, Bound<T> y)
     {
         ArgumentNullException.ThrowIfNull(x);
         ArgumentNullException.ThrowIfNull(y);
@@ -42,7 +44,7 @@ internal static class Bound
         return x.CompareTo(y) > 0 ? y : x;
     }
 
-    internal static Bound<T> Max<T>(Bound<T> x, Bound<T> y)
+    internal static Bound<T> Max<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.NonPublicFields)] T>(Bound<T> x, Bound<T> y)
     {
         ArgumentNullException.ThrowIfNull(x);
         ArgumentNullException.ThrowIfNull(y);

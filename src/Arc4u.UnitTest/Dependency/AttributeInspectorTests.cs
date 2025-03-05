@@ -4,6 +4,7 @@ using FluentAssertions;
 using Xunit;
 
 namespace Arc4u.UnitTest.Dependency;
+#pragma warning disable CS0618
 public class AttributeInspectorTests
 {
     [Fact]

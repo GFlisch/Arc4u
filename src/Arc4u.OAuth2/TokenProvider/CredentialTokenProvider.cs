@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Options;
@@ -11,6 +12,13 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Arc4u.OAuth2.TokenProvider;
+
+[JsonSerializable(typeof(Dictionary<string, string>))]
+[JsonSerializable(typeof(Dictionary<string, JsonElement>))]
+
+sealed partial class CredentialTokenJsonContext : JsonSerializerContext
+{
+}
 
 [Export(ProviderName, typeof(ICredentialTokenProvider)), Shared]
 public class CredentialTokenProvider(ILogger<CredentialTokenProvider> logger, IOptionsMonitor<AuthorityOptions> authorityOptions) : ICredentialTokenProvider
@@ -223,7 +231,7 @@ public class CredentialTokenProvider(ILogger<CredentialTokenProvider> logger, IO
                 Dictionary<string, string>? dictionary = null;
                 try
                 {
-                    dictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(responseBody);
+                    dictionary = JsonSerializer.Deserialize(responseBody, CredentialTokenJsonContext.Default.DictionaryStringString);
                 }
                 catch
                 {
@@ -259,7 +267,7 @@ public class CredentialTokenProvider(ILogger<CredentialTokenProvider> logger, IO
             }
 
             // at this point, we *must* have a valid Json response. The values are a mixture of strings and numbers, so we deserialize the JsonElements
-            var responseValues = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(responseBody)!;
+            var responseValues = JsonSerializer.Deserialize(responseBody, CredentialTokenJsonContext.Default.DictionaryStringJsonElement)!;
 
             _logger.Technical().LogTokenReceived(upn);
 

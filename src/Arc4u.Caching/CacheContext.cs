@@ -61,7 +61,7 @@ public class CacheContext : ICacheContext
             }
 
             var config = new Configuration.Caching();
-            configuration.Bind("Caching", config);
+            configuration.GetSection("Caching").Bind(config);
 
             if (null != config.Default && !string.IsNullOrWhiteSpace(config.Default))
             {
@@ -84,7 +84,7 @@ public class CacheContext : ICacheContext
                             }
                             else
                             {
-                                _logger.Technical().LogError($"Cannot resolve an ICache instance with the name: {cacheConfig.Kind}.");
+                                _logger.Technical().LogCacheKindIssue(cacheConfig.Kind);
                             }
                         }
                         else

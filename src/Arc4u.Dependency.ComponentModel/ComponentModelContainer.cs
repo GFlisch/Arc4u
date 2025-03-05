@@ -6,6 +6,9 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Arc4u.Dependency.ComponentModel;
 
+[Obsolete("Use the standard IServiceCollection and IServiceProvider from .NET")]
+[RequiresUnreferencedCode("Not AOT compatible")]
+[RequiresDynamicCode("Not AOT compatible")]
 public class ComponentModelContainer : IContainer
 {
     public object Instance => _serviceProvider ?? throw new InvalidOperationException("DI container is null.");

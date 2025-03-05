@@ -21,8 +21,10 @@ public static class TokenCacheExtension
         ArgumentNullException.ThrowIfNull(configuration);
         ArgumentNullException.ThrowIfNullOrWhiteSpace(sectionName);
 
-        AddTokenCache(services,
-                      configuration.GetSection(sectionName)?.Get<TokenCacheOptions>() ?? throw new InvalidOperationException($"Section {sectionName} is not a valid one."));
+        var tokenCacheOptions = new TokenCacheOptions();
+        configuration.GetSection(sectionName).Bind(tokenCacheOptions);
+
+        AddTokenCache(services, tokenCacheOptions);
     }
 
     private static void AddTokenCache(IServiceCollection services, TokenCacheOptions tokenCacheOptions)

@@ -57,6 +57,7 @@ public class InterceptorClientTest : OAuth2Interceptor
     }
 }
 
+#pragma warning disable CS0618
 public class GRpcInterceptorTests
 {
     public GRpcInterceptorTests()
@@ -517,7 +518,6 @@ public class GRpcInterceptorTests
         var mockHttpContextAccessor = _fixture.Freeze<Mock<IHttpContextAccessor>>();
         mockHttpContextAccessor.SetupGet(x => x.HttpContext).Returns(() => null);
 
-
         var mockILoggerFactory = new Mock<ILoggerFactory>();
         mockILoggerFactory.Setup(m => m.CreateLogger(It.IsAny<string>()))
                           .Returns(NullLogger.Instance);
@@ -604,7 +604,6 @@ public class GRpcInterceptorTests
 
         // Register the different services.
         IServiceCollection services = new ServiceCollection();
-
 
         var mockILoggerFactory = new Mock<ILoggerFactory>();
         mockILoggerFactory.Setup(m => m.CreateLogger(It.IsAny<string>()))
