@@ -33,13 +33,15 @@ public static class AddClaimsFillerExtension
 
             if (section is not null && section.Exists())
             {
-                options = section.Get<ClaimsFillerOptions>();
+                if (section.GetChildren().Any(c => c.Key == nameof(ClaimsFillerOptions.LoadClaimsFromClaimsFillerProvider)))
+                {
+                    options.LoadClaimsFromClaimsFillerProvider = section.GetValue<bool>(nameof(ClaimsFillerOptions.LoadClaimsFromClaimsFillerProvider));
+                }
+                if (section.GetChildren().Any(c => c.Key == nameof(ClaimsFillerOptions.SettingsKeys)))
+                {
+                    options.SettingsKeys = section.GetSection(nameof(ClaimsFillerOptions.SettingsKeys)).Get<List<string>>() ?? [];
+                }
             }
-        }
-
-        if (null == options)
-        {
-            return;
         }
 
         AddClaimsFiller(services, o =>

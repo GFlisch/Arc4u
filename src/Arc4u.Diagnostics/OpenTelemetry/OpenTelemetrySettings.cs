@@ -3,7 +3,7 @@ namespace Arc4u.Diagnostics;
 /// <summary>
 /// Class used to bind settings from the configuration file.
 /// </summary>
-public class OpenTelemetrySettings
+public partial class OpenTelemetrySettings
 {
     public OpenTelemetrySettings()
     {
