@@ -39,7 +39,7 @@ public class TokenCacheOptionsTests
         var sut = options.Value;
 
         sut.CacheName.Should().Be("test");
-        sut.MaxTime.Should().Be(TimeSpan.FromMinutes(20));
+        sut.MaxTime.Should().Be(TimeSpan.FromMinutes(50));
     }
 
     [Fact]

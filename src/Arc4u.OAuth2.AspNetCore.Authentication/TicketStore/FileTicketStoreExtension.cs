@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Arc4u.OAuth2.TicketStore;
 
@@ -13,9 +14,6 @@ public static class FileTicketStoreExtension
         new Action<FileTicketStoreOptions>(action).Invoke(validate);
 
         ArgumentNullException.ThrowIfNull(validate.StorePath);
-        ArgumentNullException.ThrowIfNull(validate.TicketStore);
-
-        var type = Type.GetType(validate.TicketStore, true);
 
         if (!validate.StorePath.Exists)
         {
@@ -24,7 +22,7 @@ public static class FileTicketStoreExtension
         }
 
         services.Configure<FileTicketStoreOptions>(action);
-        services.AddTransient(typeof(ITicketStore), type!);
+        services.TryAddTransient<ITicketStore, FileTicketStore>();
     }
 
     public static void AddFileTicketStore(this IServiceCollection services, IConfiguration configuration, string sectionName = "AuthenticationFileTicketStore")
@@ -43,7 +41,6 @@ public static class FileTicketStoreExtension
             void options(FileTicketStoreOptions o)
             {
                 o.StorePath = option.StorePath;
-                o.TicketStore = option.TicketStore;
             }
 
             AddFileTicketStore(services, options);

@@ -30,7 +30,7 @@ public static class ClaimsidentifierExtension
 
         // Standard values used to identify a user.
         var values = new ClaimsIdentifierOption();
-        values.AddRange(new[] { ClaimTypes.ObjectIdentifier, ClaimTypes.OID });
+        values.AddRange([ClaimTypes.ObjectIdentifier, ClaimTypes.OID]);
 
         if (section.Exists())
         {

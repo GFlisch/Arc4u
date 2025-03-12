@@ -86,9 +86,24 @@ public static class OpenIdSettingsExtension
         ArgumentNullException.ThrowIfNullOrWhiteSpace(sectionName);
         ArgumentNullException.ThrowIfNull(configuration);
 
-        var section = configuration.GetSection(sectionName) ?? throw new NullReferenceException($"No section exists with name {sectionName}");
+        var settings = new OpenIdSettingsOption();
+        var defaulValidateAudience = settings.ValidateAudience;
 
-        var settings = section.Get<OpenIdSettingsOption>() ?? throw new NullReferenceException($"No section exists with name {sectionName}");
+        var section = configuration.GetSection(sectionName);
+
+        if (section is not null && section.Exists())
+        {
+            settings = section.Get<OpenIdSettingsOption>() ?? settings;
+
+            if (section.GetChildren().Any(c => c.Key == nameof(OpenIdSettingsOption.ValidateAudience)))
+            {
+                settings.ValidateAudience = section.GetValue<bool>(nameof(OpenIdSettingsOption.ValidateAudience));
+            }
+            else
+            {
+                settings.ValidateAudience = defaulValidateAudience;
+            }
+        }
 
         void OptionFiller(OpenIdSettingsOption option)
         {

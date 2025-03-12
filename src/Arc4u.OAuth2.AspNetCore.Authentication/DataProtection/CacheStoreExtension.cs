@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Arc4u.Caching;
+using Arc4u.Configuration;
 using Arc4u.Serializer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.KeyManagement;
@@ -46,25 +47,21 @@ public static class CacheStoreExtension
         var section = configuration.GetSection(configSectionName);
         if (!section.Exists())
         {
-            throw new KeyNotFoundException($"A section with name {configSectionName} doesn't exist.");
+            throw new ConfigurationException($"A section with name {configSectionName} doesn't exist.");
         }
 
-        var storeInfo = section.Get<CacheStoreOption>();
-        if (storeInfo == null)
-        {
-            throw new InvalidCastException($"Retrieving the cache data protection store info from section {configSectionName} is impossible.");
-        }
+        var storeInfo = section.Get<CacheStoreOption>() ?? throw new ConfigurationException($"Retrieving the cache data protection store info from section {configSectionName} is impossible.");
 
-        if (storeInfo.CacheKey is null && storeInfo.CacheName is null)
+        if (storeInfo.CacheKey is null || storeInfo.CacheName is null)
         {
-            throw new InvalidCastException($"Retrieving the CacheKey or CacheName data protection store info from section {configSectionName} is impossible.");
+            throw new ConfigurationException($"Retrieving the CacheKey or CacheName data protection store info from section {configSectionName} is impossible.");
         }
 
         void OptionsFiller(CacheStoreOption option)
         {
             ArgumentNullException.ThrowIfNull(option);
 
-            option.CacheKey = storeInfo.CacheKey ?? throw new InvalidCastException($"CacheKey from section {configSectionName} is null.");
+            option.CacheKey = storeInfo.CacheKey ?? throw new ConfigurationException($"CacheKey from section {configSectionName} is null.");
             option.CacheName = storeInfo.CacheName;
         }
 

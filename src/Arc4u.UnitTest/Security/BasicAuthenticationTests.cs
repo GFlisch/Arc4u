@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Arc4u.OAuth2;
 using Arc4u.OAuth2.Extensions;
 using Arc4u.OAuth2.Middleware;
@@ -38,7 +39,7 @@ public class BasicAuthenticationTests
 
                                }).Build();
 
-        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+        IConfiguration configuration = new ConfigurationRoot([.. config.Providers]);
 
         IServiceCollection services = new ServiceCollection();
 
@@ -56,6 +57,7 @@ public class BasicAuthenticationTests
     public void Basic_With_Default_Authority_Should()
     {
         var basicSettings = _fixture.Create<BasicSettingsOptions>();
+        var defaultSettings = new BasicSettingsOptions();
 
         var configDic = new Dictionary<string, string?>
         {
@@ -68,7 +70,7 @@ public class BasicAuthenticationTests
         var config = new ConfigurationBuilder()
                         .AddInMemoryCollection(configDic).Build();
 
-        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+        IConfiguration configuration = new ConfigurationRoot([.. config.Providers]);
 
         IServiceCollection services = new ServiceCollection();
 
@@ -78,11 +80,12 @@ public class BasicAuthenticationTests
 
         var sut = app.GetRequiredService<IOptionsMonitor<BasicAuthenticationSettingsOptions>>().CurrentValue;
 
+        sut.BasicSettings.Values.ContainsKey(TokenKeys.ClientSecret).Should().BeFalse();
+        sut.BasicSettings.Values[TokenKeys.AuthenticationTypeKey].Should().Be(defaultSettings.AuthenticationType);
+        sut.BasicSettings.Values[TokenKeys.ProviderIdKey].Should().Be(defaultSettings.ProviderId);
         sut.BasicSettings.Values[TokenKeys.ClientIdKey].Should().Be(basicSettings.ClientId);
         sut.BasicSettings.Values[TokenKeys.Scope].Should().Be(string.Join(' ', basicSettings.Scopes));
         sut.BasicSettings.Values.ContainsKey(TokenKeys.AuthorityKey).Should().BeFalse();
-
-        app.GetRequiredService<IOptionsMonitor<AuthorityOptions>>().Get("Basic");
     }
 
     [Fact]
@@ -90,6 +93,7 @@ public class BasicAuthenticationTests
     {
         var authority = BuildAuthority();
         var basicSettings = _fixture.Create<BasicSettingsOptions>();
+        var defaultSettings = new BasicSettingsOptions();
 
         var configDic = new Dictionary<string, string?>
         {
@@ -115,8 +119,12 @@ public class BasicAuthenticationTests
 
         var sut = app.GetRequiredService<IOptionsMonitor<BasicAuthenticationSettingsOptions>>().CurrentValue;
 
+        sut.BasicSettings.Values.ContainsKey(TokenKeys.ClientSecret).Should().BeFalse();
+        sut.BasicSettings.Values[TokenKeys.AuthenticationTypeKey].Should().Be(defaultSettings.AuthenticationType);
+        sut.BasicSettings.Values[TokenKeys.ProviderIdKey].Should().Be(defaultSettings.ProviderId);
         sut.BasicSettings.Values[TokenKeys.ClientIdKey].Should().Be(basicSettings.ClientId);
         sut.BasicSettings.Values[TokenKeys.Scope].Should().Be(string.Join(' ', basicSettings.Scopes));
+        sut.BasicSettings.Values.ContainsKey(TokenKeys.AuthorityKey).Should().BeTrue();
         sut.BasicSettings.Values[TokenKeys.AuthorityKey].Should().Be("Basic");
 
         var sutAuthority = app.GetRequiredService<IOptionsMonitor<AuthorityOptions>>().Get("Basic");

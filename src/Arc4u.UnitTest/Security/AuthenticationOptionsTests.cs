@@ -30,6 +30,8 @@ public class AuthenticationOptionsTests
         var options = _fixture.Create<OAuth2SettingsOption>();
         var authority = _fixture.Build<AuthorityOptions>().With(p => p.Url, _fixture.Create<Uri>()).Create();
 
+        var defaultOAuth2Settings = new OAuth2SettingsOption();
+
         var configDic = new Dictionary<string, string?>
         {
             ["OAuth2.Settings:Authority:Url"] = authority.Url.ToString(),
@@ -45,7 +47,7 @@ public class AuthenticationOptionsTests
         var config = new ConfigurationBuilder()
                      .AddInMemoryCollection(configDic).Build();
 
-        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+        IConfiguration configuration = new ConfigurationRoot([.. config.Providers]);
 
         IServiceCollection services = new ServiceCollection();
 
@@ -60,12 +62,17 @@ public class AuthenticationOptionsTests
         sut.Values[TokenKeys.Audiences].Should().Be(string.Join(' ', options.Audiences));
         sut.Values[TokenKeys.AuthorityKey].Should().Be(Constants.OAuth2OptionsName);
         sut.Values[TokenKeys.Scope].Should().Be(string.Join(' ', options.Scopes));
+        sut.Values[TokenKeys.ProviderIdKey].Should().Be(defaultOAuth2Settings.ProviderId);
+        sut.Values[TokenKeys.AuthenticationTypeKey].Should().Be(defaultOAuth2Settings.AuthenticationType);
 
         var sutAuthority = serviceProvider.GetService<IOptionsMonitor<AuthorityOptions>>()!.Get(Constants.OAuth2OptionsName);
 
         sutAuthority.Url.Should().NotBeNull();
         sutAuthority.Url.Should().Be(authority.Url);
 
+        var sutOption = serviceProvider.GetRequiredService<IOptionsMonitor<OAuth2SettingsOption>>().Get(Constants.OAuth2OptionsName);
+        sutOption.Should().NotBeNull();
+        sutOption.ValidateAudience.Should().BeTrue();
     }
 
     [Fact]
@@ -182,6 +189,8 @@ public class AuthenticationOptionsTests
     {
         var options = _fixture.Create<OpenIdSettingsOption>();
 
+        var defaultSettings = new OpenIdSettingsOption();
+
         var configDic = new Dictionary<string, string?>
         {
             { "OpenId.Settings:ClientId", options.ClientId },
@@ -197,7 +206,7 @@ public class AuthenticationOptionsTests
         }
 
         var config = new ConfigurationBuilder()
-                     .AddInMemoryCollection(configDic).Build();
+                            .AddInMemoryCollection(configDic).Build();
 
         IConfiguration configuration = new ConfigurationRoot([.. config.Providers]);
 
@@ -211,7 +220,11 @@ public class AuthenticationOptionsTests
         var sut = serviceProvider.GetService<IOptionsMonitor<SimpleKeyValueSettings>>()!.Get(Constants.OpenIdOptionsName);
 
         sut.Should().NotBeNull();
-        sut.Values.Should().NotContainKey(TokenKeys.Audiences);
+        sut.Values[TokenKeys.ProviderIdKey].Should().Be(defaultSettings.ProviderId);
+        sut.Values[TokenKeys.AuthenticationTypeKey].Should().Be(defaultSettings.AuthenticationType);
+        sut.Values[TokenKeys.ClientSecret].Should().Be(options.ClientSecret);
+        sut.Values[TokenKeys.ClientIdKey].Should().Be(options.ClientId);
+        sut.Values[TokenKeys.Audiences].Should().Be(string.Join(' ', options.Audiences));
         sut.Values[TokenKeys.Scope].Should().Be(string.Join(' ', options.Scopes));
     }
 
@@ -219,6 +232,7 @@ public class AuthenticationOptionsTests
     public void Test_OpenID_With_ValidateAudience_Key_Is_True_Should()
     {
         var options = _fixture.Create<OpenIdSettingsOption>();
+        var defaultSettings = new OpenIdSettingsOption();
 
         var configDic = new Dictionary<string, string?>
         {
@@ -250,15 +264,21 @@ public class AuthenticationOptionsTests
         var sut = serviceProvider.GetService<IOptionsMonitor<SimpleKeyValueSettings>>()!.Get(Constants.OpenIdOptionsName);
 
         sut.Should().NotBeNull();
-        sut.Values[TokenKeys.Audiences].Should().Be(string.Join(' ', options.Audiences));
-        sut.Values.Should().NotContainKey(TokenKeys.Scopes);
+
+        sut.Values[TokenKeys.ProviderIdKey].Should().Be(defaultSettings.ProviderId);
+        sut.Values[TokenKeys.AuthenticationTypeKey].Should().Be(defaultSettings.AuthenticationType);
+        sut.Values[TokenKeys.ClientSecret].Should().Be(options.ClientSecret);
+        sut.Values[TokenKeys.ClientIdKey].Should().Be(options.ClientId);
         sut.Values[TokenKeys.Scope].Should().Be(string.Join(' ', options.Scopes));
+        sut.Values[TokenKeys.Audiences].Should().Be(string.Join(' ', options.Audiences));
+
     }
 
     [Fact]
     public void Test_OpenID_With_ValidateAudience_Key_Is_False_Should()
     {
         var options = _fixture.Create<OpenIdSettingsOption>();
+        var defaultSettings = new OpenIdSettingsOption();
 
         var configDic = new Dictionary<string, string?>
         {
@@ -288,8 +308,11 @@ public class AuthenticationOptionsTests
 
         sut.Should().NotBeNull();
         sut.Values.Should().NotContainKey(TokenKeys.Audiences);
-        sut.Values.Should().NotContainKey(TokenKeys.Scopes);
-        sut.Values.Should().ContainKey(TokenKeys.Scope);
+
+        sut.Values[TokenKeys.ProviderIdKey].Should().Be(defaultSettings.ProviderId);
+        sut.Values[TokenKeys.AuthenticationTypeKey].Should().Be(defaultSettings.AuthenticationType);
+        sut.Values[TokenKeys.ClientSecret].Should().Be(options.ClientSecret);
+        sut.Values[TokenKeys.ClientIdKey].Should().Be(options.ClientId);
         sut.Values[TokenKeys.Scope].Should().Be(string.Join(' ', options.Scopes));
     }
 }

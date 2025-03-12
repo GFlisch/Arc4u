@@ -1,7 +1,9 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography.X509Certificates;
 using Arc4u.Configuration;
+using Arc4u.Dependency;
 using Arc4u.OAuth2.DataProtection;
+using Arc4u.OAuth2.Events;
 using Arc4u.OAuth2.Middleware;
 using Arc4u.OAuth2.Options;
 using Arc4u.OAuth2.TicketStore;
@@ -14,6 +16,7 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
@@ -40,20 +43,20 @@ public static partial class AuthenticationExtensions
         }
 
         services.AddDataProtection()
-          .PersistKeysToCache(oidcOptions.DataProtectionCacheStoreOption)
-          .ProtectKeysWithCertificate(oidcOptions.Certificate)
-          .SetApplicationName(oidcOptions.ApplicationName)
-          .SetDefaultKeyLifetime(oidcOptions.DefaultKeyLifetime);
+                .PersistKeysToCache(oidcOptions.DataProtectionCacheStoreOption)
+                .ProtectKeysWithCertificate(oidcOptions.DataProtectionCertificate)
+                .SetApplicationName(oidcOptions.ApplicationName)
+                .SetDefaultKeyLifetime(oidcOptions.DefaultKeyLifetime);
 
         services.Configure(authenticationOptions);
         services.AddClaimsIdentifier(oidcOptions.ClaimsIdentifierOptions);
         services.AddScoped<TokenRefreshInfo>();
         services.AddAuthorizationCore();
         services.AddHttpContextAccessor();
-        services.AddTransient(oidcOptions.CookieAuthenticationEventsType);
-        services.AddTransient(oidcOptions.JwtBearerEventsType);
-        services.AddTransient(oidcOptions.OpenIdConnectEventsType);
-        services.AddSingleton(typeof(IPostConfigureOptions<CookieAuthenticationOptions>), oidcOptions.CookiesConfigureOptionsType!);
+        services.TryAddTransient<CookieAuthenticationEvents, StandardCookieEvents>();
+        services.TryAddTransient<JwtBearerEvents, StandardBearerEvents>();
+        services.TryAddTransient<OpenIdConnectEvents, StandardOpenIdConnectEvents>();
+        services.TryAddSingleton(typeof(IPostConfigureOptions<CookieAuthenticationOptions>), typeof(ConfigureCookieWithTicketStoreAuthenticationOptions));
 
         services.AddDefaultAuthority(options =>
         {
@@ -94,11 +97,11 @@ public static partial class AuthenticationExtensions
                 })
                 .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
                 {
-                    ConfigureOpenIdConnectOptions(options, oidcOptions, openIdOptions, securityKey);
+                    ConfigureOpenIdConnectOptions(services, options, oidcOptions, openIdOptions, securityKey);
                 })
                 .AddJwtBearer(option =>
                 {
-                    ConfigureJwtBearerOptions(option, oidcOptions, oauth2Options, securityKey);
+                    ConfigureJwtBearerOptions(services, option, oidcOptions, oauth2Options, securityKey);
                 }).AddCookie();
 
         return authenticationBuilder;
@@ -108,11 +111,11 @@ public static partial class AuthenticationExtensions
     {
         ArgumentNullException.ThrowIfNull(oidcOptions.OAuth2SettingsOptions);
         ArgumentNullException.ThrowIfNull(oidcOptions.OpenIdSettingsOptions);
-        ArgumentNullException.ThrowIfNull(oidcOptions.Certificate);
+        ArgumentNullException.ThrowIfNull(oidcOptions.DataProtectionCertificate);
         ArgumentNullException.ThrowIfNull(oidcOptions.DefaultAuthority.MetaDataAddress);
     }
 
-    private static void ConfigureOpenIdConnectOptions(OpenIdConnectOptions options, OidcAuthenticationOptions oidcOptions, OpenIdSettingsOption openIdOptions, SecurityKey? securityKey)
+    private static void ConfigureOpenIdConnectOptions(IServiceCollection services, OpenIdConnectOptions options, OidcAuthenticationOptions oidcOptions, OpenIdSettingsOption openIdOptions, SecurityKey? securityKey)
     {
         ArgumentNullException.ThrowIfNull(oidcOptions.DefaultAuthority.MetaDataAddress);
 
@@ -131,7 +134,7 @@ public static partial class AuthenticationExtensions
         options.GetClaimsFromUserInfoEndpoint = false;
         options.TokenValidationParameters.SaveSigninToken = false;
         options.TokenValidationParameters.AuthenticationType = openIdOptions.AuthenticationType;
-        options.TokenValidationParameters.ValidateAudience = oidcOptions.ValidateAudience;
+        options.TokenValidationParameters.ValidateAudience = openIdOptions.ValidateAudience;
         options.TokenValidationParameters.ValidAudiences = openIdOptions.Audiences;
         if (securityKey is not null)
         {
@@ -141,10 +144,10 @@ public static partial class AuthenticationExtensions
         options.SaveTokens = true;
         options.AuthenticationMethod = OpenIdConnectRedirectBehavior.FormPost;
         options.ResponseMode = OpenIdConnectResponseMode.FormPost;
-        options.EventsType = oidcOptions.OpenIdConnectEventsType;
+        options.EventsType = typeof(OpenIdConnectEvents); //services.GetImplementationType<OpenIdConnectEvents>();
     }
 
-    private static void ConfigureJwtBearerOptions(JwtBearerOptions option, OidcAuthenticationOptions oidcOptions, OAuth2SettingsOption oauth2Options, SecurityKey? securityKey)
+    private static void ConfigureJwtBearerOptions(IServiceCollection services, JwtBearerOptions option, OidcAuthenticationOptions oidcOptions, OAuth2SettingsOption oauth2Options, SecurityKey? securityKey)
     {
         ArgumentNullException.ThrowIfNull(oidcOptions.DefaultAuthority.MetaDataAddress);
 
@@ -161,7 +164,7 @@ public static partial class AuthenticationExtensions
         {
             option.TokenValidationParameters.IssuerSigningKey = securityKey;
         }
-        option.EventsType = oidcOptions.JwtBearerEventsType;
+        option.EventsType = typeof(JwtBearerEvents);
     }
 
     public static AuthenticationBuilder AddOidcAuthentication(this IServiceCollection services, IConfiguration configuration, [DisallowNull] string authenticationSectionName = "Authentication", IX509CertificateLoader? certificateLoader = null)
@@ -176,6 +179,7 @@ public static partial class AuthenticationExtensions
             throw new ConfigurationException($"No section exists with name {authenticationSectionName} in the configuration providers for OpenId Connect authentication.");
         }
 
+        var defaultSettings = new OidcAuthenticationSectionOptions();
         var settings = section.Get<OidcAuthenticationSectionOptions>() ?? throw new InvalidOperationException($"No section exists with name {authenticationSectionName} in the configuration providers for OpenId Connect authentication.");
 
         string? configErrors = null;
@@ -207,10 +211,6 @@ public static partial class AuthenticationExtensions
         {
             configErrors += "We need a setting section to configure the TokenCacheOptions." + System.Environment.NewLine;
         }
-        if (string.IsNullOrWhiteSpace(settings.JwtBearerEventsType))
-        {
-            configErrors += "The JwtBearerEventsType must be defined." + System.Environment.NewLine;
-        }
         if (string.IsNullOrWhiteSpace(settings.ClaimsIdentifierSectionPath))
         {
             configErrors += "We need a setting section to specify the claims used to identify a user." + System.Environment.NewLine;
@@ -229,30 +229,6 @@ public static partial class AuthenticationExtensions
             throw new ConfigurationException(configErrors);
         }
 
-        var jwtBearerEventsType = Type.GetType(settings.JwtBearerEventsType, false);
-
-        if (null == jwtBearerEventsType)
-        {
-            throw new MissingFieldException("The JwtBearerEventsType must be defined.");
-        }
-
-        if (string.IsNullOrWhiteSpace(settings.CookieAuthenticationEventsType))
-        {
-            throw new MissingFieldException("The CookieAuthenticationEventsType must be defined.");
-        }
-        var cookieAuthenticationEventsType = Type.GetType(settings.CookieAuthenticationEventsType, false);
-
-        if (null == cookieAuthenticationEventsType)
-        {
-            throw new MissingFieldException("The CookieAuthenticationEventsType must be defined.");
-        }
-
-        if (string.IsNullOrWhiteSpace(settings.OpenIdConnectEventsType))
-        {
-            throw new MissingFieldException("The OpenIdConnectEventsType must be defined.");
-        }
-        var openIdConnectEventsType = Type.GetType(settings.OpenIdConnectEventsType, false) ?? throw new MissingFieldException("The OpenIdConnectEventsType must be defined.");
-
         certificateLoader ??= new X509CertificateLoader(null);
         var certSecurityKey = string.IsNullOrWhiteSpace(settings.CertSecurityKeyPath) ? null : certificateLoader.FindCertificate(configuration, settings.CertSecurityKeyPath) ?? throw new MissingFieldException($"No certificate was found based on the configuration section: {settings.CertSecurityKeyPath}.");
 
@@ -260,46 +236,56 @@ public static partial class AuthenticationExtensions
 
         var ticketStoreAction = CacheTicketStoreExtension.PrepareAction(configuration, settings.AuthenticationCacheTicketStorePath);
 
-        Type? cookiesConfigureOptionsType;
-        if (string.IsNullOrWhiteSpace(settings.CookiesConfigureOptionsType))
-        {
-            cookiesConfigureOptionsType = ticketStoreAction is null ? typeof(ConfigureStandardCookieAuthenticationOptions) : typeof(ConfigureCookieWithTicketStoreAuthenticationOptions);
-        }
-        else
-        {
-            cookiesConfigureOptionsType = Type.GetType(settings.CookiesConfigureOptionsType, true);
-        }
-
         if (string.IsNullOrWhiteSpace(settings.ResponseType))
         {
             throw new MissingFieldException("A ResponseType is mandatory to define the OpenId Connect protocol.");
         }
 
+        // Map default settings if not defined (only for non string values).
+        if (!section.GetChildren().Any(c => c.Key == nameof(OidcAuthenticationOptions.AuthenticationTicketTTL)))
+        {
+            settings.AuthenticationTicketTTL = defaultSettings.AuthenticationTicketTTL;
+        }
+
+        if (!section.GetChildren().Any(c => c.Key == nameof(OidcAuthenticationOptions.ForceRefreshTimeoutTimeSpan)))
+        {
+            settings.ForceRefreshTimeoutTimeSpan = defaultSettings.ForceRefreshTimeoutTimeSpan;
+        }
+
+        if (!section.GetChildren().Any(c => c.Key == nameof(OidcAuthenticationOptions.DefaultKeyLifetime)))
+        {
+            settings.DefaultKeyLifetime = defaultSettings.DefaultKeyLifetime;
+        }
+
+        //if (!section.GetChildren().Any(c => c.Key == nameof(OidcAuthenticationOptions.ValidateAudience)))
+        //{
+        //    settings.ValidateAudience = defaultSettings.ValidateAudience;
+        //}
+
+        //if (!section.GetChildren().Any(c => c.Key == nameof(OidcAuthenticationOptions.ValidateAuthority)))
+        //{
+        //    settings.ValidateAuthority = defaultSettings.ValidateAuthority;
+        //}
+
         void OidcAuthenticationFiller(OidcAuthenticationOptions options)
         {
             options.DefaultAuthority = settings.DefaultAuthority!;
             options.CookieName = settings.CookieName;
-            options.ValidateAuthority = settings.ValidateAuthority;
             options.AuthenticationCacheTicketStoreOption = ticketStoreAction!;
             options.OpenIdSettingsKey = settings.OpenIdSettingsKey;
             options.OpenIdSettingsOptions = OpenIdSettingsExtension.PrepareAction(configuration, settings.OpenIdSettingsSectionPath);
             options.OAuth2SettingsKey = settings.OAuth2SettingsKey;
             options.OAuth2SettingsOptions = OAuth2SettingsExtension.PrepareAction(configuration, settings.OAuth2SettingsSectionPath);
-            options.Certificate = cert;
+            options.DataProtectionCertificate = cert;
             options.CallbackPath = settings.CallbackPath;
             options.DefaultKeyLifetime = settings.DefaultKeyLifetime;
             options.ApplicationName = configuration[settings.ApplicationNameSectionPath]!;
-            options.JwtBearerEventsType = jwtBearerEventsType;
-            options.CookieAuthenticationEventsType = cookieAuthenticationEventsType;
-            options.OpenIdConnectEventsType = openIdConnectEventsType;
             options.ForceRefreshTimeoutTimeSpan = settings.ForceRefreshTimeoutTimeSpan;
             options.CertSecurityKey = certSecurityKey;
-            options.CookiesConfigureOptionsType = cookiesConfigureOptionsType;
             options.ResponseType = settings.ResponseType;
             options.AuthenticationTicketTTL = settings.AuthenticationTicketTTL;
             options.DataProtectionCacheStoreOption = CacheStoreExtension.PrepareAction(configuration, settings.DataProtectionSectionPath);
             options.ClaimsIdentifierOptions = ClaimsidentifierExtension.PrepareAction(configuration, settings.ClaimsIdentifierSectionPath);
-            options.ValidateAudience = settings.ValidateAudience;
         }
 
         services.AddDomainMapping(configuration, settings.DomainMappingsSectionPath);
@@ -336,13 +322,12 @@ public static partial class AuthenticationExtensions
         var oauth2Options = new OAuth2SettingsOption();
         options.OAuth2SettingsOptions(oauth2Options);
 
-        ArgumentNullException.ThrowIfNull(options.JwtBearerEventsType);
         ArgumentNullException.ThrowIfNull(options.DefaultAuthority.GetMetaDataAddress());
         ArgumentNullException.ThrowIfNull(options.DefaultAuthority.MetaDataAddress);
 
         services.ConfigureOAuth2Settings(options.OAuth2SettingsOptions, options.OAuth2SettingsKey);
         services.AddClaimsIdentifier(options.ClaimsIdentifierOptions);
-        services.AddTransient(options.JwtBearerEventsType);
+        services.TryAddTransient(typeof(StandardBearerEvents));
         services.AddAuthorizationCore();
         services.AddHttpContextAccessor();
         services.AddDefaultAuthority(auth =>
@@ -374,7 +359,6 @@ public static partial class AuthenticationExtensions
                     {
                         option.TokenValidationParameters.IssuerSigningKey = securityKey;
                     }
-                    option.EventsType = options.JwtBearerEventsType;
                 });
 
         return authenticationBuilder;
@@ -397,11 +381,6 @@ public static partial class AuthenticationExtensions
         {
             throw new MissingFieldException("We need a setting section to configure OAuth2.");
         }
-        var jwtBearerEventsType = Type.GetType(settings.JwtBearerEventsType, false);
-        if (string.IsNullOrWhiteSpace(settings.JwtBearerEventsType) || jwtBearerEventsType is null)
-        {
-            throw new MissingFieldException("The JwtBearerEventsType must be defined.");
-        }
 
         X509Certificate2? certSecurityKey;
 
@@ -423,7 +402,6 @@ public static partial class AuthenticationExtensions
             options.OAuth2SettingsKey = settings.OAuth2SettingsKey;
             options.OAuth2SettingsOptions = OAuth2SettingsExtension.PrepareAction(configuration, settings.OAuth2SettingsSectionPath);
             options.CertSecurityKey = certSecurityKey;
-            options.JwtBearerEventsType = jwtBearerEventsType!;
             options.ClaimsIdentifierOptions = ClaimsidentifierExtension.PrepareAction(configuration, settings.ClaimsIdentifierSectionPath);
         }
 
@@ -435,4 +413,5 @@ public static partial class AuthenticationExtensions
 
         return services.AddJwtAuthentication(configuration, JwtAuthenticationFiller);
     }
+
 }

@@ -1,7 +1,6 @@
 using System.Security.Cryptography.X509Certificates;
 using Arc4u.OAuth2.Configuration;
 using Arc4u.OAuth2.DataProtection;
-using Arc4u.OAuth2.Events;
 using Arc4u.OAuth2.TicketStore;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
@@ -12,7 +11,7 @@ public class OidcAuthenticationOptions
 
     public string CookieName { get; set; } = default!;
 
-    public bool ValidateAuthority { get; set; } = true;
+   // public bool ValidateAuthority { get; set; } = true;
 
     public string OpenIdSettingsKey { get; set; } = Constants.OpenIdOptionsName;
 
@@ -24,7 +23,7 @@ public class OidcAuthenticationOptions
 
     public Action<ClaimsIdentifierOption> ClaimsIdentifierOptions { get; set; } = default!;
 
-    public X509Certificate2 Certificate { get; set; } = default!;
+    public X509Certificate2 DataProtectionCertificate { get; set; } = default!;
 
     public Action<CacheTicketStoreOptions> AuthenticationCacheTicketStoreOption { get; set; } = default!;
 
@@ -36,11 +35,11 @@ public class OidcAuthenticationOptions
 
     public string ApplicationName { get; set; } = default!;
 
-    public Type JwtBearerEventsType { get; set; } = typeof(StandardBearerEvents);
+    //public Type JwtBearerEventsType { get; set; } = typeof(StandardBearerEvents);
 
-    public Type CookieAuthenticationEventsType { get; set; } = typeof(StandardCookieEvents);
+    //public Type CookieAuthenticationEventsType { get; set; } = typeof(StandardCookieEvents);
 
-    public Type OpenIdConnectEventsType { get; set; } = typeof(StandardOpenIdConnectEvents);
+    //public Type OpenIdConnectEventsType { get; set; } = typeof(StandardOpenIdConnectEvents);
 
     public TimeSpan ForceRefreshTimeoutTimeSpan { get; set; } = TimeSpan.FromMinutes(5);
 
@@ -49,7 +48,7 @@ public class OidcAuthenticationOptions
     /// <summary>
     /// Used to configure the OIDC. See <see cref="ConfigureCookieWithTicketStoreAuthenticationOptions"/>.
     /// </summary>
-    public Type? CookiesConfigureOptionsType { get; set; } = typeof(ConfigureCookieWithTicketStoreAuthenticationOptions);
+    //public Type? CookiesConfigureOptionsType { get; set; } = typeof(ConfigureCookieWithTicketStoreAuthenticationOptions);
 
     /// <summary>
     /// For the other OIDC => ResponseType = OpenIdConnectResponseType.CodeIdTokenToken;
@@ -67,5 +66,5 @@ public class OidcAuthenticationOptions
     /// By default the audience is validated. It is always better to do 
     /// On Keycloak audience doesn't exist by default, so it is needed to disable it.
     /// </summary>
-    public bool ValidateAudience { get; set; } = true;
+    //public bool ValidateAudience { get; set; } = true;
 }

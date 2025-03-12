@@ -2,6 +2,7 @@ using Arc4u.Configuration;
 using Arc4u.OAuth2.Options;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Arc4u.OAuth2.Extensions;
 public static class TokenCacheExtension
@@ -22,7 +23,19 @@ public static class TokenCacheExtension
         ArgumentNullException.ThrowIfNullOrWhiteSpace(sectionName);
 
         var tokenCacheOptions = new TokenCacheOptions();
-        configuration.GetSection(sectionName).Bind(tokenCacheOptions);
+        var defaultMaxTime = tokenCacheOptions.MaxTime;
+
+        var section = configuration.GetSection(sectionName);
+        if (section is not null && section.Exists())
+        {
+            tokenCacheOptions = section.Get<TokenCacheOptions>() ?? tokenCacheOptions;
+
+            if (!section.GetChildren().Any(c => c.Key == nameof(TokenCacheOptions.MaxTime)))
+            {
+                tokenCacheOptions.MaxTime = defaultMaxTime;
+            }
+
+        }
 
         AddTokenCache(services, tokenCacheOptions);
     }

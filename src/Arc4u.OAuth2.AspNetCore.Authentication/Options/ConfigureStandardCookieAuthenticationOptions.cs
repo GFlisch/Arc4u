@@ -20,6 +20,5 @@ public class ConfigureStandardCookieAuthenticationOptions : IPostConfigureOption
         options.Cookie.Name = _options.CurrentValue.CookieName;
         options.SlidingExpiration = true;
         options.ExpireTimeSpan = _options.CurrentValue.AuthenticationTicketTTL;
-        options.EventsType = _options.CurrentValue.CookieAuthenticationEventsType;
     }
 }

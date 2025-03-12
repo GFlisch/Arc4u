@@ -57,11 +57,12 @@ public static class OpenIdBearerInjectorMiddlewareExtension
         var options = app.ApplicationServices.GetRequiredService<IOptions<OpenIdBearerInjectorOptions>>().Value;
         var settings = app.ApplicationServices.GetRequiredService<IOptionsMonitor<SimpleKeyValueSettings>>();
 
-        var middlewareOptions = new OpenIdBearerInjectorSettingsOptions();
-
-        middlewareOptions.OnBehalfOfOpenIdSettings = settings.Get(options.OnBehalfOfOpenIdSettingsKey);
-        middlewareOptions.OboProviderKey = options.OboProviderKey;
-        middlewareOptions.OpenIdSettings = settings.Get(options.OpenIdSettingsKey);
+        var middlewareOptions = new OpenIdBearerInjectorSettingsOptions
+        {
+            OnBehalfOfOpenIdSettings = settings.Get(options.OnBehalfOfOpenIdSettingsKey),
+            OboProviderKey = options.OboProviderKey,
+            OpenIdSettings = settings.Get(options.OpenIdSettingsKey)
+        };
 
         return app.UseMiddleware<OpenIdBearerInjectorMiddleware>(middlewareOptions);
     }

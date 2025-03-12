@@ -81,18 +81,22 @@ public static class OAuth2SettingsExtension
         ArgumentNullException.ThrowIfNullOrWhiteSpace(sectionName);
         ArgumentNullException.ThrowIfNull(configuration);
 
+        var settings = new OAuth2SettingsOption();
+        var defaulValidateAudience = settings.ValidateAudience;
+
         var section = configuration.GetSection(sectionName);
 
-        if (section is null)
+        if (section is not null && section.Exists())
         {
-            throw new NullReferenceException($"No section exists with name {sectionName}");
-        }
+            settings = section.Get<OAuth2SettingsOption>() ?? settings;
 
-        var settings = section.Get<OAuth2SettingsOption>();
-
-        if (settings is null)
-        {
-            throw new NullReferenceException($"No section exists with name {sectionName}");
+            if (section.GetChildren().Any(c => c.Key == nameof(OAuth2SettingsOption.ValidateAudience)))
+            {
+                settings.ValidateAudience = section.GetValue<bool>(nameof(OAuth2SettingsOption.ValidateAudience));
+            } else
+            {
+                settings.ValidateAudience = defaulValidateAudience;
+            }
         }
 
         void OptionFiller(OAuth2SettingsOption option)

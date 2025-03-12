@@ -1,6 +1,7 @@
 using System.Xml.Linq;
 using Arc4u.Caching;
 using Arc4u.Caching.Memory;
+using Arc4u.Configuration;
 using Arc4u.Dependency.ComponentModel;
 using Arc4u.Diagnostics;
 using Arc4u.OAuth2.DataProtection;
@@ -219,7 +220,7 @@ public class CacheDataProtectionStoreTests
         var exception = Record.Exception(() => mockBuilder.Object.PersistKeysToCache(configuration, "NotDefined"));
 
         exception.Should().NotBeNull();
-        exception.Should().BeOfType<KeyNotFoundException>();
+        exception.Should().BeOfType<ConfigurationException>();
     }
 
     [Fact]
@@ -244,7 +245,7 @@ public class CacheDataProtectionStoreTests
         var exception = Record.Exception(() => mockBuilder.Object.PersistKeysToCache(configuration));
 
         exception.Should().NotBeNull();
-        exception.Should().BeOfType<InvalidCastException>();
+        exception.Should().BeOfType<ConfigurationException>();
     }
 
     [Fact]
@@ -268,7 +269,7 @@ public class CacheDataProtectionStoreTests
         var exception = Record.Exception(() => mockBuilder.Object.PersistKeysToCache(configuration));
 
         exception.Should().NotBeNull();
-        exception.Should().BeOfType<InvalidCastException>();
+        exception.Should().BeOfType<ConfigurationException>();
     }
 
     private static (IServiceCollection, IConfiguration) BuiltContainer()

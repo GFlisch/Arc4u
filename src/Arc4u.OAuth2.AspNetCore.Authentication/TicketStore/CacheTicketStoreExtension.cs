@@ -1,6 +1,8 @@
+using Arc4u.Configuration;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Arc4u.OAuth2.TicketStore;
 
@@ -13,12 +15,11 @@ public static class CacheTicketStoreExtension
 
         ArgumentNullException.ThrowIfNull(validate.CacheName);
         ArgumentNullException.ThrowIfNull(validate.KeyPrefix);
-        ArgumentNullException.ThrowIfNull(validate.TicketStore);
-
-        var type = Type.GetType(validate.TicketStore, true);
 
         services.Configure<CacheTicketStoreOptions>(action);
-        services.AddTransient(typeof(ITicketStore), type!);
+        // if another implementation isalready registered, it will not be replaced.
+        // so a custom implementation can be used.
+        services.TryAddTransient<ITicketStore, CacheTicketStore>();
     }
 
     public static void AddCacheTicketStore(this IServiceCollection services, IConfiguration configuration, string sectionName = "AuthenticationCacheTicketStore")
@@ -26,7 +27,7 @@ public static class CacheTicketStoreExtension
         var action = PrepareAction(configuration, sectionName);
         if (null == action)
         {
-            throw new InvalidOperationException("Ticket store cannot be created.");
+            throw new ConfigurationException("Ticket store cannot be created.");
         }
 
         AddCacheTicketStore(services, action);
@@ -40,22 +41,20 @@ public static class CacheTicketStoreExtension
         }
 
         var section = configuration.GetSection(sectionName) as IConfigurationSection;
+        var option = new CacheTicketStoreOptions();
 
         if (section.Exists())
         {
-            var option = configuration.GetSection(sectionName).Get<CacheTicketStoreOptions>() ?? throw new InvalidOperationException($"Section nameof(option) cannot be deserialize to CacheTicketStoreOptions");
-            void options(CacheTicketStoreOptions o)
-            {
-                o.CacheName = option.CacheName;
-                o.KeyPrefix = option.KeyPrefix;
-                o.TicketStore = option.TicketStore;
-            }
-
-            return options;
+            option = configuration.GetSection(sectionName).Get<CacheTicketStoreOptions>() ?? option;
         }
 
-        return null;
-    }
+        void options(CacheTicketStoreOptions o)
+        {
+            o.CacheName = option.CacheName;
+            o.KeyPrefix = option.KeyPrefix;
+        }
 
+        return options;
+    }
 }
 
