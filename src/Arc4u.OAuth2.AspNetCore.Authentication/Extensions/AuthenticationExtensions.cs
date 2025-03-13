@@ -327,7 +327,7 @@ public static partial class AuthenticationExtensions
 
         services.ConfigureOAuth2Settings(options.OAuth2SettingsOptions, options.OAuth2SettingsKey);
         services.AddClaimsIdentifier(options.ClaimsIdentifierOptions);
-        services.TryAddTransient(typeof(StandardBearerEvents));
+        services.TryAddTransient<JwtBearerEvents, StandardBearerEvents>();
         services.AddAuthorizationCore();
         services.AddHttpContextAccessor();
         services.AddDefaultAuthority(auth =>
@@ -355,6 +355,7 @@ public static partial class AuthenticationExtensions
                     option.TokenValidationParameters.ValidateIssuer = false;
                     option.TokenValidationParameters.ValidateAudience = oauth2Options.ValidateAudience;
                     option.TokenValidationParameters.ValidAudiences = oauth2Options.Audiences;
+                    option.EventsType = typeof(JwtBearerEvents);
                     if (securityKey is not null)
                     {
                         option.TokenValidationParameters.IssuerSigningKey = securityKey;

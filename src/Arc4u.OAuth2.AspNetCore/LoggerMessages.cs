@@ -28,7 +28,7 @@ public static partial class LoggerMessages
                    Message = "No claim type found equal to: {IdentifierOptions} in the current identity.")]
     public static partial void LogNoClaimTypeFound(this ILogger logger, string identifierOptions);
 
-    [LoggerMessage(EventId = 9085, Level = LogLevel.Error,
+    [LoggerMessage(EventId = 9085, Level = LogLevel.Debug,
                    Message = "Claim Type id used to identify the user is {ClaimTypeId}.")]
     public static partial void LogClaimTypeIdFound(this ILogger logger, string claimTypeId);
 
