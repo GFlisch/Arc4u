@@ -16,46 +16,30 @@ using Microsoft.IdentityModel.Logging;
 namespace Arc4u.OAuth2.TokenProviders;
 
 [Export(ProviderName, typeof(ITokenProvider))]
-public class AzureADOboTokenProvider : ITokenProvider
+public class AzureADOboTokenProvider(TokenRefreshInfo tokenRefreshInfo,
+                               ICacheHelper cacheHelper,
+                               IActivitySourceFactory activitySourceFactory,
+                               IApplicationContext applicationContext,
+                               IOptionsMonitor<AuthorityOptions> authorities,
+                               ILogger<AzureADOboTokenProvider> logger) : ITokenProvider
 {
-
-    public AzureADOboTokenProvider(TokenRefreshInfo tokenRefreshInfo,
-                                   ICacheHelper cacheHelper,
-                                   IActivitySourceFactory activitySourceFactory,
-                                   IApplicationContext applicationContext,
-                                   IOptionsMonitor<AuthorityOptions> authorities,
-                                   ILogger<AzureADOboTokenProvider> logger)
-    {
-        _defaultAuthority = authorities.Get("Default");
-        _logger = logger;
-        _cacheHelper = cacheHelper;
-        _tokenRefreshInfo = tokenRefreshInfo;
-        _activitySource = activitySourceFactory?.GetArc4u();
-        _applicationContext = applicationContext;
-    }
-
     public const string ProviderName = "Obo";
-
-    private readonly ILogger<AzureADOboTokenProvider> _logger;
-    private readonly ICacheHelper _cacheHelper;
-    private readonly TokenRefreshInfo _tokenRefreshInfo;
-    private readonly ActivitySource? _activitySource;
-    private readonly AuthorityOptions _defaultAuthority;
-    private readonly IApplicationContext _applicationContext;
+    private readonly ActivitySource? _activitySource = activitySourceFactory?.GetArc4u();
+    private readonly AuthorityOptions _defaultAuthority = authorities.Get("Default");
 
     public async Task<Result<TokenInfo>> GetTokenAsync(IKeyValueSettings? settings, object? _)
     {
         ArgumentNullException.ThrowIfNull(settings);
 
-        if (_applicationContext.Principal is null)
+        if (applicationContext.Principal is null)
         {
             return new Error("No principal exists.");
         }
         using var activity = _activitySource?.StartActivity("Get on behal of token", ActivityKind.Producer);
 
-        var identity = _applicationContext.Principal.Identity as ClaimsIdentity;
+        var identity = applicationContext.Principal.Identity as ClaimsIdentity;
 
-        var currentToken = (identity is not null && identity.BootstrapContext is not null) ? identity.BootstrapContext?.ToString() : _tokenRefreshInfo?.AccessToken?.Token;
+        var currentToken = (identity is not null && identity.BootstrapContext is not null) ? identity.BootstrapContext?.ToString() : tokenRefreshInfo?.AccessToken?.Token;
 
         if (currentToken is null)
         {
@@ -68,7 +52,7 @@ public class AzureADOboTokenProvider : ITokenProvider
             return new Error($"Token cannot be retrieved for the AuthenticationType: {identity.AuthenticationType}");
         }
 
-        var cache = _cacheHelper.GetCache();
+        var cache = cacheHelper.GetCache();
 
         // the key is defined by user!
         var cacheKey = $"_Obo_{settings.Values[TokenKeys.ClientIdKey]}_{currentToken.GetHashCode()}_{settings.Values[TokenKeys.Scope]}";
@@ -109,11 +93,11 @@ public class AzureADOboTokenProvider : ITokenProvider
             {
                 if (IdentityModelEventSource.ShowPII)
                 {
-                    _logger.Technical().LogError($"Getting the Access token with Obo failed. {tokenResponse.ReasonPhrase}");
+                    logger.Technical().LogOboFailedReasonWithPII(tokenResponse.ReasonPhrase ?? "No reason found!");
                 }
                 else
                 {
-                    _logger.Technical().LogError("Getting the Access token with Obo failed. Enable PII to have more info.");
+                    logger.Technical().LogOboFailedWithNoReasonNoPII();
                 }
             }
 
@@ -142,7 +126,7 @@ public class AzureADOboTokenProvider : ITokenProvider
 
             if (oboToken is null)
             {
-                _logger.Technical().LogError("No token was in the paylod of the message during the Obo request.");
+                logger.Technical().LogError("No token was in the paylod of the message during the Obo request.");
                 return new Error("No token was in the paylod of the message during the Obo request.");
             }
 

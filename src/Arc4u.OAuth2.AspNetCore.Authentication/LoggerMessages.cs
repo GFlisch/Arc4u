@@ -112,11 +112,19 @@ public static partial class LoggerMessages
         Message = "Get ticket with key: {Key} on path: {FullPath}.")]
     public static partial void LogGetAuthenticationTicket(this ILogger logger, string key, string fullPath);
 
-    [LoggerMessage(EventId = 9145, Level = LogLevel.Error,
+    [LoggerMessage(EventId = 9146, Level = LogLevel.Error,
     Message = "{FullPath} doesn't exist, can't retrieve an authentication ticket.")]
     public static partial void LogNoFileExistForAuthenticationTicket(this ILogger logger, string fullPath);
 
-    [LoggerMessage(EventId = 9146, Level = LogLevel.Error,
+    [LoggerMessage(EventId = 9147, Level = LogLevel.Error,
         Message = "Create ticket with key: {Key} on path: {FullPath}.")]
     public static partial void LogCreateAuthenticationTicketOnFile(this ILogger logger, string key, string fullPath);
+
+    [LoggerMessage(EventId = 9148, Level = LogLevel.Error,
+       Message = "Getting the Access token with Obo failed. {ReasonPhrase}")]
+    public static partial void LogOboFailedReasonWithPII(this ILogger logger, string reasonPhrase);
+
+    [LoggerMessage(EventId = 9149, Level = LogLevel.Error,
+   Message = "Getting the Access token with Obo failed. Enable PII to have more info.")]
+    public static partial void LogOboFailedWithNoReasonNoPII(this ILogger logger);
 }
