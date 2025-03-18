@@ -38,8 +38,7 @@ public sealed class IntervalCollection<[DynamicallyAccessedMembers(DynamicallyAc
     /// <summary>
     /// Gets the intersection of the current <see cref="T:IntervalCollection`1"/>.
     /// </summary>
-    /// <value>The intersection.</value>
-    
+    /// <value>The intersection.</value>    
     public Interval<T> Intersection
     {
         get { return Interval.IntersectionOf(this); }
@@ -65,7 +64,7 @@ public sealed class IntervalCollection<[DynamicallyAccessedMembers(DynamicallyAc
         {
             return (from item in base.Items
                     where !item.IsEmpty
-                    select item).FirstOrDefault() == default(Interval<T>);
+                    select item).FirstOrDefault() == default;
         }
     }
 
@@ -80,7 +79,7 @@ public sealed class IntervalCollection<[DynamicallyAccessedMembers(DynamicallyAc
     {
         return (from item in base.Items
                 where !item.IsEmptyOf(value)
-                select item).FirstOrDefault() == default(Interval<T>);
+                select item).FirstOrDefault() == default;
     }
 
     /// <summary>
@@ -95,7 +94,7 @@ public sealed class IntervalCollection<[DynamicallyAccessedMembers(DynamicallyAc
             return Count != 0
                 && (from item in base.Items
                     where !item.IsUniverse
-                    select item).FirstOrDefault() == default(Interval<T>);
+                    select item).FirstOrDefault() == default;
         }
     }
 
@@ -114,7 +113,7 @@ public sealed class IntervalCollection<[DynamicallyAccessedMembers(DynamicallyAc
             return Count != 0
                 && (from item in base.Items
                     where !item.IsSingleton
-                    select item).FirstOrDefault() == default(Interval<T>);
+                    select item).FirstOrDefault() == default;
         }
     }
 
@@ -132,7 +131,7 @@ public sealed class IntervalCollection<[DynamicallyAccessedMembers(DynamicallyAc
         return Count != 0
             && (from item in base.Items
                 where !item.IsSingletonOf(value)
-                select item).FirstOrDefault() == default(Interval<T>);
+                select item).FirstOrDefault() == default;
     }
 
     #endregion

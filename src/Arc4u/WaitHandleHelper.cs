@@ -19,7 +19,7 @@ public class WaitHandleHelper
 
         ArgumentOutOfRangeException.ThrowIfLessThan(timeout, TimeSpan.Zero);
 
-        var maxWait = TimeSpan.FromMilliseconds(Int32.MaxValue);
+        var maxWait = TimeSpan.FromMilliseconds(int.MaxValue);
 
         while (timeout > maxWait)
         {

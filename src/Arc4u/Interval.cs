@@ -21,8 +21,8 @@ public static class Interval
     /// <list type="number">
     /// 		<item>if <typeparamref name="T"/> is an <see cref="Enum"/>, the lowest and upmost values are represented respectively by the lowest and upmost underlying values of the <see cref="Enum"/>.
     /// In case of <see cref="Enum"/> decorated with the <see cref="FlagsAttribute"/>, the upmost value is then represented by the combination of all underlying values of the <see cref="Enum"/>.</item>
-    /// 		<item>if <typeparamref name="T"/> is exposing the NegativeInfinity and PositiveInfinity fields, they represent respectively the lowest and upmost values, as for <see cref="System.Single"/>, <see cref="System.Double"/>.</item>
-    /// 		<item>if <typeparamref name="T"/> is exposing the MinValue and MaxValue fields, they represent respectively the lowest and upmost values, as for <see cref="System.Byte"/>, <see cref="System.Int32"/>, <see cref="System.DateTime"/> or <see cref="System.Char"/>… </item>
+    /// 		<item>if <typeparamref name="T"/> is exposing the NegativeInfinity and PositiveInfinity fields, they represent respectively the lowest and upmost values, as for <see cref="float"/>, <see cref="double"/>.</item>
+    /// 		<item>if <typeparamref name="T"/> is exposing the MinValue and MaxValue fields, they represent respectively the lowest and upmost values, as for <see cref=byte"/>, <see cref="int32"/>, <see cref="DateTime"/> or <see cref="char"/>… </item>
     /// 		<item>otherwise, <c>default(T)</c> represents the lowest and upmost values.</item>
     /// 	</list>
     /// As a consequence <c>default(T)</c> could be used to represent the universe <see cref="Interval&lt;T&gt;"/> and the default <see cref="Empty"/> interval.
@@ -81,13 +81,13 @@ public static class Interval
                 , object.Equals(default(T), null)
                     ? BoundDirection.Closed
                     : BoundDirection.Opened
-                , default(T)!
+                , default!
                 , false),
             new Bound<T>(BoundType.Upper
                 , object.Equals(default(T), null)
                     ? BoundDirection.Closed
                     : BoundDirection.Opened
-                , default(T)!
+                , default!
                 , false));
     }
 
@@ -224,14 +224,12 @@ public static class Interval
             var jLower = new Bound<T>(BoundType.Lower, Bound.Reverse(upperBound.Direction), upperBound.Value);
             var jUpper = Bound<T>.UpmostBound;
 
-            Interval<T> i;
-            if (Interval.TryParse(iLower, iUpper, out i))
+            if (Interval.TryParse(iLower, iUpper, out var i))
             {
                 result.Add(i);
             }
 
-            Interval<T> j;
-            if (Interval.TryParse(jLower, jUpper, out j))
+            if (Interval.TryParse(jLower, jUpper, out var j))
             {
                 result.Add(j);
             }
@@ -348,7 +346,7 @@ public static class Interval
         foreach (var other in others)
         {
             var col = new IntervalCollection<T>(result);
-            result = new List<Interval<T>>();
+            result = [];
             foreach (var item in col)
             {
                 result.AddRange(item.DifferenceWith(other));
@@ -516,8 +514,7 @@ public static class Interval
             return Interval.Empty<T>();
         }
 
-        Interval<T> result;
-        return TryParse(lowerBound, upperBound, out result)
+        return TryParse(lowerBound, upperBound, out var result)
             ? result
             : Interval.Empty<T>();
     }
@@ -649,8 +646,7 @@ public static class Interval
         result.AddRange(a.DifferenceWith(b));
         result.AddRange(b.DifferenceWith(a));
 
-        Interval<T> intersection;
-        if (TryIntersectionOf(a, b, out intersection))
+        if (TryIntersectionOf(a, b, out var intersection))
         {
             result.Add(intersection);
         }
@@ -660,7 +656,7 @@ public static class Interval
         return new IntervalCollection<T>(result);
     }
 
-    private static IntervalCollection<T> HighUnionOf<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.NonPublicFields)]  T>(Interval<T> a, Interval<T> b)
+    private static IntervalCollection<T> HighUnionOf<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.NonPublicFields)] T>(Interval<T> a, Interval<T> b)
     {
         if (Interval.IsNullOrEmpty(a))
         {
@@ -762,8 +758,7 @@ public static class Interval
             return new IntervalCollection<T>(a, b);
         }
 
-        Interval<T> result;
-        return TryParse(lowerBound, upperBound, out result)
+        return TryParse(lowerBound, upperBound, out var result)
             ? new IntervalCollection<T>(result)
             : new IntervalCollection<T>(a, b);
     }
@@ -800,7 +795,7 @@ public static class Interval
                     interval = u[0];
                 }
             }
-            result = new List<Interval<T>>(result.Distinct());
+            result = [.. result.Distinct()];
         }
 
         result.Sort();
@@ -836,7 +831,7 @@ public static class Interval
                     interval = u[0];
                 }
             }
-            result = new List<Interval<T>>(result.Distinct());
+            result = [.. result.Distinct()];
         }
 
         result.Sort();
@@ -871,9 +866,8 @@ public static class Interval
         , BoundDirection upperDirection
         , out Interval<T> result)
     {
-        Bound<T> lowerBound, upperBound;
-        if (Bound.TryParse(BoundType.Lower, lowerDirection, lowerValue, out lowerBound) &&
-            Bound.TryParse(BoundType.Upper, upperDirection, upperValue, out upperBound))
+        if (Bound.TryParse(BoundType.Lower, lowerDirection, lowerValue, out var lowerBound) &&
+            Bound.TryParse(BoundType.Upper, upperDirection, upperValue, out var upperBound))
         {
             return Interval.TryParse(lowerBound, upperBound, out result);
         }

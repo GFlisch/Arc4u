@@ -57,7 +57,7 @@ public static class EnumExtentions
                     .Where(e => e != null)
                     .ToDictionary(e => e!.ToString(), e => e!.GetDisplayName());
 
-        return t.Select(v => new KeyValuePair<string, string>(v.Key, v.Value)).ToList();
+        return [.. t.Select(v => new KeyValuePair<string, string>(v.Key, v.Value))];
     }
 
     public static Dictionary<Enum, string> ToTranslationDictionary(this Type enumType)

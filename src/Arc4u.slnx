@@ -1,0 +1,58 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="ARM" />
+    <Platform Name="ARM64" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/Buids/">
+    <File Path="Builds/SetNuGetPackageIdPrefix.ps1" />
+    <File Path="Builds/SetVersion.ps1" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="Licensing.txt" />
+  </Folder>
+  <Project Path="Arc4u.AspNetCore.gRpc/Arc4u.AspNetCore.gRpc.csproj" />
+  <Project Path="Arc4u.AspNetCore.Results/Arc4u.AspNetCore.Results.csproj" />
+  <Project Path="Arc4u.Authorization/Arc4u.Authorization.csproj" />
+  <Project Path="Arc4u.Caching.Dapr/Arc4u.Caching.Dapr.csproj" />
+  <Project Path="Arc4u.Caching.Memory/Arc4u.Caching.Memory.csproj" />
+  <Project Path="Arc4u.Caching.Redis/Arc4u.Caching.Redis.csproj" />
+  <Project Path="Arc4u.Caching.Sql/Arc4u.Caching.Sql.csproj" />
+  <Project Path="Arc4u.Caching/Arc4u.Caching.csproj" />
+  <Project Path="Arc4u.Configuration.Decryptor/Arc4u.Configuration.Decryptor.csproj" />
+  <Project Path="Arc4u.Configuration.Store.EFCore/Arc4u.Configuration.Store.EFCore.csproj" />
+  <Project Path="Arc4u.Configuration.Store/Arc4u.Configuration.Store.csproj" />
+  <Project Path="Arc4u.Configuration/Arc4u.Configuration.csproj" />
+  <Project Path="Arc4u.Core/Arc4u.Core.csproj" />
+  <Project Path="Arc4u.Data/Arc4u.Data.csproj" />
+  <Project Path="Arc4u.Dependency.ComponentModel/Arc4u.Dependency.ComponentModel.csproj" />
+  <Project Path="Arc4u.Dependency.Tool/Arc4u.Dependency.Tool.csproj" />
+  <Project Path="Arc4u.Dependency/Arc4u.Dependency.csproj" />
+  <Project Path="Arc4u.Diagnostics.Serilog.Sinks.RealmDb/Arc4u.Diagnostics.Serilog.Sinks.RealmDb.csproj" />
+  <Project Path="Arc4u.Diagnostics.Serilog/Arc4u.Diagnostics.Serilog.csproj" />
+  <Project Path="Arc4u.Diagnostics/Arc4u.Diagnostics.csproj" />
+  <Project Path="Arc4u.Dispatcher/Arc4u.Dispatcher.csproj" />
+  <Project Path="Arc4u.EfCore/Arc4u.EfCore.csproj" />
+  <Project Path="Arc4u.FluentValidation/Arc4u.FluentValidation.csproj" />
+  <Project Path="Arc4u.gRPC/Arc4u.gRPC.csproj" />
+  <Project Path="Arc4u.MongoDB/Arc4u.MongoDB.csproj" />
+  <Project Path="Arc4u.NServiceBus.Core/Arc4u.NServiceBus.Core.csproj" />
+  <Project Path="Arc4u.NServiceBus.RabbitMQ/Arc4u.NServiceBus.RabbitMQ.csproj" />
+  <Project Path="Arc4u.NServiceBus/Arc4u.NServiceBus.csproj" />
+  <Project Path="Arc4u.OAuth.Msal/Arc4u.OAuth2.Msal.csproj" />
+  <Project Path="Arc4u.OAuth2.AspNetCore.Authentication/Arc4u.OAuth2.AspNetCore.Authentication.csproj" />
+  <Project Path="Arc4u.OAuth2.AspNetCore.Blazor/Arc4u.OAuth2.AspNetCore.Blazor.csproj" />
+  <Project Path="Arc4u.OAuth2.AspNetCore/Arc4u.OAuth2.AspNetCore.csproj" />
+  <Project Path="Arc4u.OAuth2.Blazor/Arc4u.OAuth2.Blazor.csproj" />
+  <Project Path="Arc4u.OAuth2.Client/Arc4u.OAuth2.Client.csproj" />
+  <Project Path="Arc4u.OAuth2/Arc4u.OAuth2.csproj" />
+  <Project Path="Arc4u.OData/Arc4u.OData.csproj" />
+  <Project Path="Arc4u.Results/Arc4u.Results.csproj" />
+  <Project Path="Arc4u.Serializer.JSon/Arc4u.Serializer.JSon.csproj" />
+  <Project Path="Arc4u.Serializer/Arc4u.Serializer.csproj" />
+  <Project Path="Arc4u.Threading/Arc4u.Threading.csproj" />
+  <Project Path="Arc4u.UnitTest/Arc4u.UnitTest.csproj" />
+  <Project Path="Arc4u/Arc4u.csproj" />
+</Solution>

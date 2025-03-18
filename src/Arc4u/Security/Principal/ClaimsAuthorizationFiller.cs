@@ -13,20 +13,13 @@ internal partial class AuthorizationJsonContext : JsonSerializerContext
 }
 
 [Export(typeof(IClaimAuthorizationFiller)), Shared]
-public class ClaimsAuthorizationFiller : IClaimAuthorizationFiller
+public class ClaimsAuthorizationFiller(ILogger<ClaimsAuthorizationFiller> logger) : IClaimAuthorizationFiller
 {
-    public ClaimsAuthorizationFiller(ILogger<ClaimsAuthorizationFiller> logger)
-    {
-        _logger = logger;
-    }
-
-    private readonly ILogger<ClaimsAuthorizationFiller> _logger;
-
     public Authorization GetAuthorization(System.Security.Principal.IIdentity identity)
     {
         ArgumentNullException.ThrowIfNull(identity);
 
-        if (!(identity is ClaimsIdentity))
+        if (identity is not ClaimsIdentity)
         {
             throw new NotSupportedException("Only identity from ClaimsIdentity are allowed.");
         }
@@ -52,7 +45,7 @@ public class ClaimsAuthorizationFiller : IClaimAuthorizationFiller
         }
         catch (Exception ex)
         {
-            _logger.Technical().LogException(ex);
+            logger.Technical().LogException(ex);
         }
 
         return new Authorization();

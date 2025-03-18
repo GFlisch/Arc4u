@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 namespace Arc4u;
 
 [StructLayout(LayoutKind.Sequential)]
-public struct TimeoutHelper
+public readonly struct TimeoutHelper
 {
     private readonly DateTime deadline;
     private readonly TimeSpan originalTimeout;

@@ -118,8 +118,8 @@ public sealed class Period
                 ? LowerBound.Value!.Value.ToString(format, formatProvider)
                 : string.Format(formatProvider, "{0}{1} ; {2}{3}"
                                 , LowerBound.Direction == BoundDirection.Closed ? "[" : "]"
-                                , object.Equals(LowerBound.Value, default(object)) ? Bound.Infinity : LowerBound.Value.Value.ToString(format, formatProvider)
-                                , object.Equals(UpperBound.Value, default(object)) ? Bound.Infinity : UpperBound.Value.Value.ToString(format, formatProvider)
+                                , object.Equals(LowerBound.Value, default) ? Bound.Infinity : LowerBound.Value.Value.ToString(format, formatProvider)
+                                , object.Equals(UpperBound.Value, default) ? Bound.Infinity : UpperBound.Value.Value.ToString(format, formatProvider)
                                 , UpperBound.Direction == BoundDirection.Closed ? "]" : "[");
     }
 
