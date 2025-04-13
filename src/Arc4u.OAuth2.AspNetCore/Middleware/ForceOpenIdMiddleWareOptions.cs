@@ -2,7 +2,7 @@ namespace Arc4u.OAuth2.Middleware;
 
 public class ForceOpenIdMiddleWareOptions
 {
-    public List<string> ForceAuthenticationForPaths { get; set; } = new();
+    public List<string> ForceAuthenticationForPaths { get; set; } = [];
 
     /// <summary>
     /// The url to redirect to the authority. If not set, the current url is used.

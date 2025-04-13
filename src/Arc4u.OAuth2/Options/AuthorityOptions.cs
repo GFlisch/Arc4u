@@ -13,7 +13,7 @@ internal partial class OpenIdConfigurationJsonContext : JsonSerializerContext
 /// </summary>
 sealed class OpenIdConfiguration
 {
-    public /*required*/ Uri token_endpoint { get; set; } = default!;
+    public /*required*/ Uri Token_endpoint { get; set; } = default!;
 }
 
 public class AuthorityOptions
@@ -83,7 +83,7 @@ public class AuthorityOptions
             var stream = await client.GetStreamAsync(GetMetaDataAddress(), cancellationToken).ConfigureAwait(false);
             openIdConfiguration = JsonSerializer.Deserialize(stream, OpenIdConfigurationJsonContext.Default.OpenIdConfiguration);
 
-            TokenEndpoint = openIdConfiguration!.token_endpoint;
+            TokenEndpoint = openIdConfiguration!.Token_endpoint;
         }
         return TokenEndpoint;
     }

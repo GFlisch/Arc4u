@@ -55,9 +55,13 @@ public class CredentialTokenProvider(ILogger<CredentialTokenProvider> logger, IO
         }
 
         result.LogIfFailed();
+        if (result.IsFailed)
+        {
+            return result;
+        }
 
         // no cache, do a direct call on every calls.
-        _logger.Technical().LogStsAndUser(authority.Url.ToString(), credential.Upn);
+        _logger.Technical().LogStsAndUser(authority.Url.ToString(), credential.Upn!);
         return await GetTokenInfoAsync(clientSecret, clientId, tokenEndpoint, scope, credential.Upn!, credential.Password!, authority.RetryInterval ?? DefaultRetryInterval).ConfigureAwait(false);
 
     }
@@ -121,21 +125,11 @@ public class CredentialTokenProvider(ILogger<CredentialTokenProvider> logger, IO
     /// <summary>
     /// We do this without Polly since this will need to be integrated in Arc4u at some point.
     /// </summary>
-    private sealed class HttpRetryMessageHandler : DelegatingHandler
+    private sealed class HttpRetryMessageHandler(HttpMessageHandler innerHandler, TimeSpan retryInterval, CredentialTokenProvider.RetryInformation retryInformation) : DelegatingHandler(innerHandler)
     {
-        private readonly TimeSpan _retryInterval;
-        private readonly RetryInformation _retryInformation;
-
-        public HttpRetryMessageHandler(HttpMessageHandler innerHandler, TimeSpan retryInterval, RetryInformation retryInformation)
-            : base(innerHandler)
-        {
-            _retryInterval = retryInterval;
-            _retryInformation = retryInformation;
-        }
-
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            _retryInformation.RetryCount = 0;
+            retryInformation.RetryCount = 0;
             var sw = Stopwatch.StartNew();
             var random = new Random();
             for (; ; )
@@ -147,10 +141,10 @@ public class CredentialTokenProvider(ILogger<CredentialTokenProvider> logger, IO
                     response = await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
 
                     // we always return the response if it is successful or we have reached the retry timespan.
-                    if (response.IsSuccessStatusCode || sw.Elapsed >= _retryInterval)
+                    if (response.IsSuccessStatusCode || sw.Elapsed >= retryInterval)
                     {
                         sw.Stop();
-                        _retryInformation.Delay = sw.Elapsed;
+                        retryInformation.Delay = sw.Elapsed;
                         return response;
                     }
 
@@ -170,7 +164,7 @@ public class CredentialTokenProvider(ILogger<CredentialTokenProvider> logger, IO
 
                     response.Dispose();
                 }
-                catch when (sw.Elapsed < _retryInterval)
+                catch when (sw.Elapsed < retryInterval)
                 {
                     // Ignore the exception if we have retries left. But we need to dispose the response even though it's most likely null.
                     response?.Dispose();
@@ -178,9 +172,9 @@ public class CredentialTokenProvider(ILogger<CredentialTokenProvider> logger, IO
                 catch
                 {
                     sw.Stop();
-                    _retryInformation.Delay = sw.Elapsed;
+                    retryInformation.Delay = sw.Elapsed;
                 }
-                ++_retryInformation.RetryCount;
+                ++retryInformation.RetryCount;
                 await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
             }
         }
@@ -222,7 +216,7 @@ public class CredentialTokenProvider(ILogger<CredentialTokenProvider> logger, IO
                 const int MaxResponseBodyLength = 256;  // arbitrary
                 if (loggedResponseBody != null && loggedResponseBody.Length > MaxResponseBodyLength)
                 {
-                    loggedResponseBody = $"{responseBody.Substring(0, MaxResponseBodyLength)}...(response truncated, {loggedResponseBody.Length} total characters)";
+                    loggedResponseBody = $"{responseBody[..MaxResponseBodyLength]}...(response truncated, {loggedResponseBody.Length} total characters)";
                 }
 
                 var logger = _logger.Technical();

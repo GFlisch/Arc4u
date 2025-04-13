@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Logging;
 using AuthenticationProperties = Microsoft.AspNetCore.Authentication.AuthenticationProperties;
 using Arc4u.OAuth2.AspNetCore;
+using Microsoft.Extensions.Options;
 
 namespace Arc4u.OAuth2.Middleware;
 
@@ -17,13 +18,13 @@ public class ForceOpenIdMiddleWare
     private readonly ForceOpenIdMiddleWareOptions _options;
     private readonly Regex _pathsRegex;
 
-    public ForceOpenIdMiddleWare(RequestDelegate next, ForceOpenIdMiddleWareOptions options)
+    public ForceOpenIdMiddleWare(RequestDelegate next, IOptions<ForceOpenIdMiddleWareOptions> options)
     {
         _next = next ?? throw new ArgumentNullException(nameof(next));
 
         ArgumentNullException.ThrowIfNull(options);
 
-        _options = options;
+        _options = options.Value;
         _pathsRegex = PathsRegex(_options.ForceAuthenticationForPaths);
     }
 

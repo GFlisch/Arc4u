@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Runtime.Serialization.Json;
 using System.Security.Claims;
 using System.Security.Principal;
+using System.Text.Json.Serialization;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Arc4u.IdentityModel.Claims;
@@ -11,6 +12,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Arc4u.OAuth2.Security.Principal;
+
+[JsonSerializable(typeof(IEnumerable<ClaimDto>))]
+internal partial class ClaimsBearerTokenContext : JsonSerializerContext
+{
+}
 
 [Export(typeof(IClaimsFiller))]
 public class ClaimsBearerTokenExtractor : IClaimsFiller

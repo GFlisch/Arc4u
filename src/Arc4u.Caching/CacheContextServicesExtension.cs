@@ -14,18 +14,9 @@ public static class CacheContextServicesExtension
     {
         ArgumentNullException.ThrowIfNull(configuration);
 
-        var section = configuration.GetSection(sectionName);
+        var section = configuration.GetRequiredSection(sectionName);
 
-        if (!section.Exists())
-        {
-            throw new InvalidOperationException($"Section {sectionName} in the configuration providers doesn't exists!");
-        }
-
-        var config = section.Get<Configuration.Caching>();
-        if (config == null)
-        {
-            throw new InvalidOperationException("Configuration for caching is missing.");
-        }
+        var config = section.Get<Configuration.Caching>() ?? throw new InvalidOperationException("Configuration for caching is missing.");
 
         services.TryAddSingleton<ICacheContext, CacheContext>();
 

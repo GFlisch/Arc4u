@@ -6,32 +6,28 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Arc4u.OAuth2.Middleware;
 public static class ForceOpenIdMiddleWareOptionsExtension
 {
-    public static IApplicationBuilder UseForceOfOpenId(this IApplicationBuilder app, Action<ForceOpenIdMiddleWareOptions> options)
+    public static IServiceCollection AddForceOpenId(this IServiceCollection services, Action<ForceOpenIdMiddleWareOptions> configureOptions)
     {
-        ArgumentNullException.ThrowIfNull(app);
-        ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(configureOptions);
 
-        var _options = new ForceOpenIdMiddleWareOptions();
-        options(_options);
-
-        return app.UseMiddleware<ForceOpenIdMiddleWare>(_options);
+        services.Configure(configureOptions);
+        return services;
     }
 
-    public static IApplicationBuilder UseForceOfOpenId(this IApplicationBuilder app, string sectionName = "Authentication:ClaimsMiddleWare:ForceOpenId")
+    public static IServiceCollection AddForceOpenId(this IServiceCollection services, IConfiguration configuration, string sectionName = "Authentication:ClaimsMiddleWare:ForceOpenId")
+    {
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(configuration);
+
+        services.Configure<ForceOpenIdMiddleWareOptions>(configuration.GetSection(sectionName));
+        return services;
+    }
+
+    public static IApplicationBuilder UseForceOpenId(this IApplicationBuilder app)
     {
         ArgumentNullException.ThrowIfNull(app);
-        if (string.IsNullOrWhiteSpace(sectionName))
-        {
-            throw new ArgumentNullException(sectionName);
-        }
 
-        var section = app.ApplicationServices.GetRequiredService<IConfiguration>().GetSection(sectionName);
-
-        if (section is null && !section.Exists())
-        {
-            throw new ConfigurationException($"Section {sectionName} does not exist!");
-        }
-
-        return app.UseMiddleware<ForceOpenIdMiddleWare>(section.Get<ForceOpenIdMiddleWareOptions>());
+        return app.UseMiddleware<ForceOpenIdMiddleWare>(); // Now uses IOptions<T>
     }
 }
