@@ -20,7 +20,7 @@ public static class BasicAuthenticationMiddlewareExtension
     {
         ArgumentNullException.ThrowIfNull(app);
 
-        return app.UseMiddleware<BasicAuthenticationMiddleware>(app.ApplicationServices);
+        return app.UseMiddleware<BasicAuthenticationMiddleware>();
     }
 
     public static void AddBasicAuthenticationSettings(this IServiceCollection services, IConfiguration configuration, string sectionName = "Authentication:Basic", IX509CertificateLoader? certificateLoader = null, bool throwExceptionIfSectionDoesntExist = true)

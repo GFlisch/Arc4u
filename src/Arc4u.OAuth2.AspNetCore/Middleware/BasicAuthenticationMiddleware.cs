@@ -23,15 +23,20 @@ public class BasicAuthenticationMiddleware
     private readonly BasicAuthenticationSettingsOptions _options;
     private readonly ILogger<BasicAuthenticationMiddleware> _logger;
 
-    public BasicAuthenticationMiddleware(RequestDelegate next, IServiceProvider serviceProvider)
+    public BasicAuthenticationMiddleware(RequestDelegate next,
+                                         ILogger<BasicAuthenticationMiddleware> logger,
+                                         IOptionsMonitor<BasicAuthenticationSettingsOptions> options,
+                                         IServiceProvider serviceProvider)
     {
         _next = next ?? throw new ArgumentNullException(nameof(next));
 
         ArgumentNullException.ThrowIfNull(serviceProvider);
+        ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(options);
 
-        _logger = serviceProvider.GetRequiredService<ILogger<BasicAuthenticationMiddleware>>();
+        _logger = logger;
 
-        _options = serviceProvider.GetRequiredService<IOptionsMonitor<BasicAuthenticationSettingsOptions>>().CurrentValue;
+        _options = options.CurrentValue;
 
         if (_options.BasicSettings is null)
         {
