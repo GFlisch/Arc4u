@@ -1,7 +1,7 @@
 using Arc4u.Configuration;
 using Arc4u.Dependency;
-using Arc4u.OAuth2;
 using Arc4u.OAuth2.Extensions;
+using Arc4u.OAuth2.Options;
 using Arc4u.OAuth2.Security.Principal;
 using Arc4u.OAuth2.Token;
 using Arc4u.OAuth2.TokenProvider;

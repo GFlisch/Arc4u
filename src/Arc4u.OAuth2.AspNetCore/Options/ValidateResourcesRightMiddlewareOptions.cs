@@ -1,4 +1,3 @@
-using Arc4u.OAuth2.AspNetCore.Options;
 
 namespace Arc4u.OAuth2.Options;
 public class ValidateResourcesRightMiddlewareOptions

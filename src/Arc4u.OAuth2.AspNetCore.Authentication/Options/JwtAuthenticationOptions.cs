@@ -1,5 +1,4 @@
 using System.Security.Cryptography.X509Certificates;
-using Arc4u.OAuth2.Configuration;
 
 namespace Arc4u.OAuth2.Options;
 public class JwtAuthenticationOptions

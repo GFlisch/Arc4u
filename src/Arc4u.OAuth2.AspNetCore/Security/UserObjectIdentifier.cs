@@ -2,8 +2,7 @@ using System.Security.Claims;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Arc4u.OAuth2.AspNetCore;
-using Arc4u.OAuth2.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+using Arc4u.OAuth2.Options;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 

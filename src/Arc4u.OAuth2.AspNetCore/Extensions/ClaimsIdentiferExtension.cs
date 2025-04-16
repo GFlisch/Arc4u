@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Arc4u.IdentityModel.Claims;
-using Arc4u.OAuth2.Configuration;
+using Arc4u.OAuth2.Options;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 

@@ -1,6 +1,6 @@
 using Arc4u.OAuth2.TokenProvider;
 
-namespace Arc4u.OAuth2;
+namespace Arc4u.OAuth2.Options;
 
 /// <summary>
 /// Contains the user id/password of the user that will be used to retrieve the access token.

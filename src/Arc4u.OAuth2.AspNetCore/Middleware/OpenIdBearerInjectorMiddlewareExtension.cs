@@ -1,7 +1,9 @@
 using System.Diagnostics.CodeAnalysis;
 using Arc4u.Configuration;
+using Arc4u.OAuth2.Options;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 
 namespace Arc4u.OAuth2.Middleware;
@@ -33,7 +35,8 @@ public static class OpenIdBearerInjectorMiddlewareExtension
         }
 
         services.Configure<OpenIdBearerInjectorOptions>(options);
-
+        // Let a customer change the behavior by injecting his/her implementation.
+        services.TryAddSingleton<IPostConfigureOptions<OpenIdBearerInjectorSettingsOptions>, PostConfigureOpenIdBearerInjectorSettings>();
     }
 
     public static void AddOpenIdBearerInjector(this IServiceCollection services)
@@ -54,16 +57,6 @@ public static class OpenIdBearerInjectorMiddlewareExtension
     {
         ArgumentNullException.ThrowIfNull(app);
 
-        var options = app.ApplicationServices.GetRequiredService<IOptions<OpenIdBearerInjectorOptions>>().Value;
-        var settings = app.ApplicationServices.GetRequiredService<IOptionsMonitor<SimpleKeyValueSettings>>();
-
-        var middlewareOptions = new OpenIdBearerInjectorSettingsOptions
-        {
-            OnBehalfOfOpenIdSettings = settings.Get(options.OnBehalfOfOpenIdSettingsKey),
-            OboProviderKey = options.OboProviderKey,
-            OpenIdSettings = settings.Get(options.OpenIdSettingsKey)
-        };
-
-        return app.UseMiddleware<OpenIdBearerInjectorMiddleware>(middlewareOptions);
+        return app.UseMiddleware<OpenIdBearerInjectorMiddleware>();
     }
 }

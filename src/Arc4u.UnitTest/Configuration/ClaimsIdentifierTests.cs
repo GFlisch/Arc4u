@@ -1,5 +1,5 @@
-using Arc4u.OAuth2.Configuration;
 using Arc4u.OAuth2.Extensions;
+using Arc4u.OAuth2.Options;
 using AutoFixture;
 using AutoFixture.AutoMoq;
 using FluentAssertions;

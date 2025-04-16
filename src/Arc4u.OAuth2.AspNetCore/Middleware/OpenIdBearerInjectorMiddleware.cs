@@ -1,13 +1,16 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
+using Arc4u.Configuration;
 using Arc4u.Diagnostics;
+using Arc4u.OAuth2.Options;
 using Arc4u.OAuth2.Token;
 using Arc4u.Security.Principal;
 using FluentResults;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Arc4u.OAuth2.Middleware;
 
@@ -17,9 +20,9 @@ public class OpenIdBearerInjectorMiddleware
     private readonly RequestDelegate _next;
     private ActivitySource? _activitySource;
 
-    public OpenIdBearerInjectorMiddleware([DisallowNull] RequestDelegate next, [DisallowNull] OpenIdBearerInjectorSettingsOptions options)
+    public OpenIdBearerInjectorMiddleware([DisallowNull] RequestDelegate next, [DisallowNull] IOptionsMonitor<OpenIdBearerInjectorSettingsOptions> options)
     {
-        _options = options ?? throw new ArgumentNullException(nameof(options));
+        _options = options.CurrentValue ?? throw new ConfigurationException("No current value exists for OpenIdBearerInjectorSettingsOptions");
         _next = next ?? throw new ArgumentNullException(nameof(next));
     }
 
