@@ -33,12 +33,10 @@ public static class FromResultToProblemDetailExtension
 
         if (errors.OfType<ValidationError>().Any())
         {
-            //TODO: what to do when Code is null.
             var orderedErrors = errors.OfType<ValidationError>()
-                                      .OrderBy(x => x.Code)
-                                      .ThenBy(x => x.Severity)
-                                      .GroupBy(x => x.Code)
-                                      .ToImmutableSortedDictionary(g => g.Key, g => g.ToImmutableList().Select(vError => $"{vError.Severity}: {vError.Message}").ToArray());
+                                      .OrderBy(x => x.Severity)
+                                      .GroupBy(x => x.Severity)
+                                      .ToImmutableSortedDictionary(g => g.Key.ToString(), g => g.ToImmutableList().Select(vError => vError.Message).ToArray());
 
             return new ValidationProblemDetails(orderedErrors)
                         .WithTitle("Error from validation.")
