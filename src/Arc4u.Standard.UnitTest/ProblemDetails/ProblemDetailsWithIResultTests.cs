@@ -223,8 +223,8 @@ public class ProblemDetailsWithIResultTests
         problem!.Title.Should().Be("Error from validation.");
         problem.Detail.Should().BeNull();
         problem.Errors.Should().HaveCount(1);
-        problem.Errors.First().Key.Should().Be("100");
-        problem.Errors.First().Value[0].Should().Be("Error: Problem");
+        problem.Errors.First().Key.Should().Be("Error");
+        problem.Errors.First().Value[0].Should().Be("Problem");
         problem.Status.Should().Be(StatusCodes.Status422UnprocessableEntity);
 
     }
@@ -490,8 +490,8 @@ public class ProblemDetailsWithIResultTests
         problem!.Title.Should().Be("Error from validation.");
         problem.Detail.Should().BeNull();
         problem.Errors.Should().HaveCount(1);
-        problem.Errors.First().Key.Should().Be("100");
-        problem.Errors.First().Value[0].Should().Be("Error: Problem");
+        problem.Errors.First().Key.Should().Be("Error");
+        problem.Errors.First().Value[0].Should().Be("Problem");
         problem.Status.Should().Be(StatusCodes.Status422UnprocessableEntity);
 
     }
@@ -737,8 +737,8 @@ public class ProblemDetailsWithIResultTests
         problem!.Title.Should().Be("Error from validation.");
         problem.Detail.Should().BeNull();
         problem.Errors.Should().HaveCount(1);
-        problem.Errors.First().Key.Should().Be("100");
-        problem.Errors.First().Value[0].Should().Be("Error: Problem");
+        problem.Errors.First().Key.Should().Be("Error");
+        problem.Errors.First().Value[0].Should().Be("Problem");
         problem.Status.Should().Be(StatusCodes.Status422UnprocessableEntity);
 
     }
