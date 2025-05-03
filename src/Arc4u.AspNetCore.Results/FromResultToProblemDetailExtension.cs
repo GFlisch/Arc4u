@@ -27,7 +27,7 @@ public static class FromResultToProblemDetailExtension
             var orderedErrors = errors.OfType<ValidationError>()
                                       .OrderBy(x => x.Severity)
                                       .GroupBy(x => x.Severity)
-                                      .ToImmutableSortedDictionary(g => g.Key, g => g.ToImmutableList().Select(vError => vError.Message).ToArray());
+                                      .ToImmutableSortedDictionary(g => g.Key.ToString(), g => g.ToImmutableList().Select(vError => vError.Message).ToArray());
 
             return new ValidationProblemDetails(orderedErrors)
                         .WithTitle("Error from validation.")
