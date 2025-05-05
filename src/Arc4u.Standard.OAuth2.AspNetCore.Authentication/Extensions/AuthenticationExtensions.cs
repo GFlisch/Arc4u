@@ -109,6 +109,12 @@ public static partial class AuthenticationExtensions
         ArgumentNullException.ThrowIfNull(oidcOptions.OAuth2SettingsOptions);
         ArgumentNullException.ThrowIfNull(oidcOptions.OpenIdSettingsOptions);
         ArgumentNullException.ThrowIfNull(oidcOptions.Certificate);
+
+        if(oidcOptions.DefaultAuthority.MetaDataAddress is null)
+        {
+            oidcOptions.DefaultAuthority.MetaDataAddress = oidcOptions.DefaultAuthority.GetMetaDataAddress();
+        }
+
         ArgumentNullException.ThrowIfNull(oidcOptions.DefaultAuthority.MetaDataAddress);
     }
 
