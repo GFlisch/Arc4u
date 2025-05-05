@@ -109,7 +109,7 @@ public static partial class AuthenticationExtensions
         ArgumentNullException.ThrowIfNull(oidcOptions.OAuth2SettingsOptions);
         ArgumentNullException.ThrowIfNull(oidcOptions.OpenIdSettingsOptions);
         ArgumentNullException.ThrowIfNull(oidcOptions.Certificate);
-        ArgumentNullException.ThrowIfNull(oidcOptions.DefaultAuthority.MetaDataAddress);
+        ArgumentNullException.ThrowIfNull(oidcOptions.DefaultAuthority.GetMetaDataAddress());
     }
 
     private static void ConfigureOpenIdConnectOptions(OpenIdConnectOptions options, OidcAuthenticationOptions oidcOptions, OpenIdSettingsOption openIdOptions, SecurityKey? securityKey)
