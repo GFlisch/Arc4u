@@ -39,7 +39,6 @@ public class BlazorMsalTokenProvider : ITokenProvider
     public async Task<TokenInfo?> GetTokenAsync(IKeyValueSettings? settings, object? platformParameters)
     {
         ArgumentNullException.ThrowIfNull(settings);
-        ArgumentNullException.ThrowIfNull(_applicationContext.Principal);
 
         if (null != _applicationContext.Principal)
         {
