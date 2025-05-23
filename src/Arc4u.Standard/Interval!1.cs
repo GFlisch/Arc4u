@@ -223,14 +223,10 @@ public class Interval<T>
     /// <returns>A 32-bit signed integer hash code.</returns>
     public override int GetHashCode()
     {
-#if NETSTANDARD2_1_OR_GREATER
-        return HashCode.Combine(LowerBound, UpperBound);
-#else
         var hash = 0x4043ed47;
         hash = (hash * -1521134295) + (object.Equals(LowerBound, default(Bound<T>)) ? 0 : LowerBound.GetHashCode());
         hash = (hash * -1521134295) + (object.Equals(UpperBound, default(Bound<T>)) ? 0 : UpperBound.GetHashCode());
         return hash;
-#endif
     }
 
     /// <summary>
