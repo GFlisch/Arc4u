@@ -8,7 +8,7 @@ namespace Arc4u.UnitTest.Database.EfCore;
 public class EfCoreFixture : ContainerFixture
 {
 
-    public override string ConfigFile => @"Configs\EfCore.json";
+    public override string ConfigFile => @"Configs/EfCore.json";
 
     protected override void AddToContainer(IContainerRegistry containerRegistry, IConfiguration configuration)
     {

@@ -100,9 +100,7 @@ public class AppPrincipalTransform : IClaimsTransformation
         return appPrincipal;
     }
 
-    #region Handling extra claims 
-    private const string tokenExpirationClaimType = "exp";
-    private static readonly string[] ClaimsToExclude = { "aud", "iss", "iat", "nbf", "acr", "aio", "appidacr", "ipaddr", "scp", "sub", "tid", "uti", "unique_name", "apptype", "appid", "ver", "http://schemas.microsoft.com/ws/2008/06/identity/claims/authenticationinstant", "http://schemas.microsoft.com/identity/claims/scope" };
+    #region Handling extra claims
 
     /// <summary>
     /// This code is similar to the code in AppPrincipalFactory where the claims are stored in a secureCache.
@@ -128,15 +126,15 @@ public class AppPrincipalTransform : IClaimsTransformation
             var cachedClaims = GetClaimsFromCache(cacheKey);
 
             // check expirity.
-            var cachedExpiredClaim = cachedClaims.FirstOrDefault(c => c.ClaimType.Equals(tokenExpirationClaimType, StringComparison.OrdinalIgnoreCase));
+            var cachedExpiredClaim = cachedClaims.FirstOrDefault(c => c.ClaimType.Equals(_options.ExpireClaim, StringComparison.OrdinalIgnoreCase));
 
             if (cachedExpiredClaim is not null && long.TryParse(cachedExpiredClaim.Value, out var cachedExpiredTicks))
             {
                 var expDate = DateTimeOffset.FromUnixTimeSeconds(cachedExpiredTicks).UtcDateTime;
                 if (expDate > DateTime.UtcNow)
                 {
-                    identity.AddClaims(cachedClaims.Where(c => c.ClaimType != tokenExpirationClaimType)
-                                                   .Where(c => !ClaimsToExclude.Any(arg => arg.Equals(c.ClaimType)))
+                    identity.AddClaims(cachedClaims.Where(c => c.ClaimType != _options.ExpireClaim)
+                                                   .Where(c => !_options.ClaimsToExclude.Any(arg => arg.Equals(c.ClaimType)))
                                                    .Where(c => !identity.Claims.Any(c1 => c1.Type == c.ClaimType))
                                                    .Select(c => new Claim(c.ClaimType, c.Value)));
 
@@ -153,11 +151,11 @@ public class AppPrincipalTransform : IClaimsTransformation
             // Should receive specific extra claims. This is the responsibility of the caller to provide the right claims.
             // We expect the exp claim to be present.
             // if not the persistence time will be the default one.
-            var claims = (await _claimsFiller.GetAsync(identity, settings, null).ConfigureAwait(false)).Where(c => !ClaimsToExclude.Any(arg => arg.Equals(c.ClaimType))).ToList();
+            var claims = (await _claimsFiller.GetAsync(identity, settings, null).ConfigureAwait(false)).Where(c => !_options.ClaimsToExclude.Any(arg => arg.Equals(c.ClaimType))).ToList();
 
             // Load the claims into the identity but exclude the exp claim and the one already present.
-            identity.AddClaims(claims.Where(c => c.ClaimType != tokenExpirationClaimType)
-                                     .Where(c => !ClaimsToExclude.Any(arg => arg.Equals(c.ClaimType)))
+            identity.AddClaims(claims.Where(c => c.ClaimType != _options.ExpireClaim)
+                                     .Where(c => !_options.ClaimsToExclude.Any(arg => arg.Equals(c.ClaimType)))
                                      .Where(c => !identity.Claims.Any(c1 => c1.Type == c.ClaimType))
                                      .Select(c => new Claim(c.ClaimType, c.Value)));
 
@@ -198,12 +196,12 @@ public class AppPrincipalTransform : IClaimsTransformation
 
         try
         {
-            var cachedExpiredClaim = claims.FirstOrDefault(c => c.ClaimType.Equals(tokenExpirationClaimType, StringComparison.OrdinalIgnoreCase));
+            var cachedExpiredClaim = claims.FirstOrDefault(c => c.ClaimType.Equals(_options.ExpireClaim, StringComparison.OrdinalIgnoreCase));
 
             // if no expiration claim exist we assume the lifetime of the extra claims is defined by the cache context for the principal.
             if (cachedExpiredClaim is null)
             {
-                cachedExpiredClaim = new ClaimDto(tokenExpirationClaimType, DateTimeOffset.UtcNow.Add(_cacheOptions.MaxTime).ToUnixTimeSeconds().ToString(CultureInfo.InvariantCulture));
+                cachedExpiredClaim = new ClaimDto(_options.ExpireClaim, DateTimeOffset.UtcNow.Add(_cacheOptions.MaxTime).ToUnixTimeSeconds().ToString(CultureInfo.InvariantCulture));
                 claims = new List<ClaimDto>(claims) { cachedExpiredClaim };
             }
 

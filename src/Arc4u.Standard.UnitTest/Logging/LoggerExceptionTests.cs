@@ -116,6 +116,6 @@ public class ExceptionFixture : SinkContainerFixture
 
     public override ExceptionSinkTest Sink => _sink!.Sink!;
 
-    public override string ConfigFile => @"Configs\Basic.json";
+    public override string ConfigFile => @"Configs/Basic.json";
 }
 

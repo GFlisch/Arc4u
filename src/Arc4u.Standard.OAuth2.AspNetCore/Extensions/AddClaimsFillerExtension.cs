@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Arc4u.OAuth2.Extensions;
 public static class AddClaimsFillerExtension
 {
+    public static readonly List<string> DefaultClaimsToExclude = [ "aud", "iss", "iat", "nbf", "acr", "aio", "appidacr", "ipaddr", "scp", "sub", "tid", "uti", "unique_name", "apptype", "appid", "ver", "http://schemas.microsoft.com/ws/2008/06/identity/claims/authenticationinstant", "http://schemas.microsoft.com/identity/claims/scope" ];
     public static void AddClaimsFiller(this IServiceCollection services, Action<ClaimsFillerOptions> options)
     {
         var validate = new ClaimsFillerOptions();
@@ -14,6 +15,16 @@ public static class AddClaimsFillerExtension
         if (validate.LoadClaimsFromClaimsFillerProvider && (null == validate.SettingsKeys || !validate.SettingsKeys.Any()))
         {
             throw new ConfigurationException("Settings key must be provided.");
+        }
+
+        if (string.IsNullOrWhiteSpace(validate.ExpireClaim))
+        {
+            throw new ConfigurationException("Expire claim must be provided, usually 'exp'.");
+        }
+
+        if (validate.ClaimsToExclude.Any(k => k.Equals(validate.ExpireClaim, StringComparison.OrdinalIgnoreCase)))
+        {
+            throw new ConfigurationException($"The claim use to define when the validity period is expired: {validate.ExpireClaim}, cannot be excluded.");
         }
 
         services.Configure<ClaimsFillerOptions>(options);
@@ -31,7 +42,7 @@ public static class AddClaimsFillerExtension
         {
             var section = configuration.GetSection(sectionName);
 
-            if (section is not null && section.Exists())
+            if (section.Exists())
             {
                 options = section.Get<ClaimsFillerOptions>();
             }
@@ -45,7 +56,9 @@ public static class AddClaimsFillerExtension
         AddClaimsFiller(services, o =>
         {
             o.LoadClaimsFromClaimsFillerProvider = options.LoadClaimsFromClaimsFillerProvider;
-            o.SettingsKeys = options.SettingsKeys;
+            o.SettingsKeys = options.SettingsKeys.Any() ? options.SettingsKeys :  [ Constants.OpenIdOptionsName ];
+            o.ClaimsToExclude = options.ClaimsToExclude.Any() ? options.ClaimsToExclude : DefaultClaimsToExclude;
+            o.ExpireClaim = options.ExpireClaim;
         });
     }
 }
