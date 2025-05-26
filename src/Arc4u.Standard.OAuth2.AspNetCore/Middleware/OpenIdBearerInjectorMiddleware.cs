@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
+using System.Security.Claims;
 using Arc4u.Dependency;
 using Arc4u.Diagnostics;
 using Arc4u.OAuth2.Token;
@@ -90,6 +91,12 @@ public class OpenIdBearerInjectorMiddleware
                 var authorization = new AuthenticationHeaderValue("Bearer", tokenInfo.Token).ToString();
                 context.Request!.Headers.Remove("Authorization");
                 context.Request.Headers.Append("Authorization", authorization);
+
+                // Set the current identity BoostrapContext with the value of the token!
+                if (context.User.Identity is ClaimsIdentity claimsIdentity)
+                {
+                    claimsIdentity.BootstrapContext = tokenInfo.Token;
+                }
             }
         }
 
