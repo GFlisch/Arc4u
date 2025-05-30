@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Reflection;
 using Arc4u.Dependency;
 using Arc4u.Diagnostics;
 using Microsoft.AspNetCore.Http;
@@ -32,34 +33,63 @@ public class LogMonitoringTimeElapsedMiddleware
         var container = context.RequestServices.GetRequiredService<IContainerResolve>();
         var logger = container.Resolve<ILogger>();
 
-        var startingTimestamp = Stopwatch.GetTimestamp();
+        var startTimestamp = Stopwatch.GetTimestamp();
 
         await _next(context).ConfigureAwait(false);
 
-        var elapsed = Stopwatch.GetElapsedTime(startingTimestamp);
+        var elapsed = Stopwatch.GetElapsedTime(startTimestamp);
+
+        if (logger == null)
+        {
+            return;
+        }
 
         try
         {
             var endpoint = context.GetEndpoint();
-            if (endpoint != null)
+            if (endpoint == null)
             {
-                var descriptor = endpoint.Metadata.GetMetadata<ControllerActionDescriptor>();
-                if (descriptor != null && descriptor.MethodInfo.DeclaringType is not null)
-                {
-                    logger?.Monitoring()
-                           .From(descriptor.MethodInfo.DeclaringType, descriptor.MethodInfo.Name)
-                           .Information($"Time to complete method call")
-                           .Add("Elapsed", elapsed.TotalMilliseconds)
-                           .Add("StatusCode", context.Response.StatusCode)
-                           .Log();
+                return;
+            }
 
-                    _log?.Invoke(descriptor.MethodInfo.DeclaringType, elapsed);
+            MemberInfo? methodInfo = null;
+
+            var descriptor = endpoint.Metadata.GetMetadata<ControllerActionDescriptor>();
+            if (descriptor?.MethodInfo?.DeclaringType is not null)
+            {
+                // Try to extract MethodInfo for MVC Controller endpoint
+                methodInfo = descriptor.MethodInfo;
+            }
+            else
+            {
+                // Try to extract MethodInfo for Minimal API endpoints
+                methodInfo = endpoint.Metadata.GetMetadata<MethodInfo>();
+            }
+
+            if (methodInfo?.DeclaringType is not null)
+            {
+                var properties = logger.Monitoring()
+                    .From(methodInfo.DeclaringType, methodInfo.Name)
+                    .Information("Time to complete method call")
+                    .Add("Elapsed", elapsed.TotalMilliseconds)
+                    .Add("StatusCode", context.Response.StatusCode);
+
+                if (!string.IsNullOrWhiteSpace(endpoint.DisplayName))
+                {
+                    properties.Add("Endpoint", endpoint.DisplayName);
                 }
+
+                properties.Log();
+
+                _log?.Invoke(methodInfo.DeclaringType, elapsed);
             }
         }
         catch (Exception ex)
         {
-            logger?.Technical().From<LogMonitoringTimeElapsedMiddleware>().Exception(ex).Log();
+            logger.Technical()
+                .From<LogMonitoringTimeElapsedMiddleware>()
+                .Exception(ex)
+                .Log();
         }
     }
 }
