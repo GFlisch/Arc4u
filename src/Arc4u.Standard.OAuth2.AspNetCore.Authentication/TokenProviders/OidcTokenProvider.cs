@@ -25,7 +25,7 @@ public class OidcTokenProvider : ITokenProvider
     private readonly ITokenRefreshProvider _refreshTokenProvider;
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <param name="settings"></param>
     /// <param name="platformParameters"></param>
@@ -43,7 +43,9 @@ public class OidcTokenProvider : ITokenProvider
             return _tokenRefreshInfo.AccessToken;
         }
 
-        return await _refreshTokenProvider.GetTokenAsync(settings, null).ConfigureAwait(false);
+        var refreshTokenInfo = await _refreshTokenProvider.RefreshTokenAsync(CancellationToken.None).ConfigureAwait(false);
+
+        return refreshTokenInfo?.AccessToken;
     }
 
     public ValueTask SignOutAsync(IKeyValueSettings settings, CancellationToken cancellationToken)

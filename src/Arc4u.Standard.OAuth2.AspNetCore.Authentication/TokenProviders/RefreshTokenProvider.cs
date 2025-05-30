@@ -41,7 +41,7 @@ public class RefreshTokenProvider : ITokenRefreshProvider
     private readonly ILogger<RefreshTokenProvider> _logger;
     private readonly ActivitySource? _activitySource;
 
-    public async Task<TokenInfo?> GetTokenAsync(IKeyValueSettings? settings, object? platformParameters)
+    public async Task<TokenRefreshInfo?> RefreshTokenAsync(CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(_tokenRefreshInfo);
         ArgumentNullException.ThrowIfNull(_openIdConnectOptions);
@@ -49,7 +49,7 @@ public class RefreshTokenProvider : ITokenRefreshProvider
 
         using var activity = _activitySource?.StartActivity("Get on behal of token", ActivityKind.Producer);
 
-        // Check if the token refresh is not expired. 
+        // Check if the token refresh is not expired.
         // if yes => we have to log this and return a Unauthorized!
         if (DateTime.UtcNow > _tokenRefreshInfo.RefreshToken.ExpiresOnUtc)
         {
@@ -97,7 +97,7 @@ public class RefreshTokenProvider : ITokenRefreshProvider
                 _tokenRefreshInfo.AccessToken = new Token.TokenInfo("access_token", access_token, expirationAt);
                 if (!string.IsNullOrEmpty(refresh_token))
                 {
-                    _tokenRefreshInfo.RefreshToken = new Token.TokenInfo("refresh_token", refresh_token, expirationAt);
+                    _tokenRefreshInfo.RefreshToken = new Token.TokenInfo("refresh_token", refresh_token, DateTime.UtcNow + _oidcOptions.RefreshTokenLifetime);
                 }
             }
             else
@@ -105,17 +105,11 @@ public class RefreshTokenProvider : ITokenRefreshProvider
                 _tokenRefreshInfo.AccessToken = new Token.TokenInfo("access_token", access_token);
                 if (!string.IsNullOrEmpty(refresh_token))
                 {
-                    _tokenRefreshInfo.RefreshToken = new Token.TokenInfo("refresh_token", refresh_token, _tokenRefreshInfo.RefreshToken.ExpiresOnUtc);
+                    _tokenRefreshInfo.RefreshToken = new Token.TokenInfo("refresh_token", refresh_token, DateTime.UtcNow + _oidcOptions.RefreshTokenLifetime);
                 }
             }
         }
 
-        return _tokenRefreshInfo.AccessToken;
-    }
-
-    public ValueTask SignOutAsync(IKeyValueSettings settings, CancellationToken cancellationToken)
-    {
-        // there is no Signout on a provider for the token refresh...
-        throw new NotImplementedException();
+        return _tokenRefreshInfo;
     }
 }

@@ -44,6 +44,7 @@ public class OidcAuthenticationOptions
 
     public TimeSpan ForceRefreshTimeoutTimeSpan { get; set; } = TimeSpan.FromMinutes(5);
 
+    public TimeSpan RefreshTokenLifetime { get; set; } = TimeSpan.FromDays(90);
     public X509Certificate2? CertSecurityKey { get; set; } = default!;
 
     /// <summary>
@@ -64,7 +65,7 @@ public class OidcAuthenticationOptions
     public TimeSpan AuthenticationTicketTTL { get; set; } = TimeSpan.FromDays(7);
 
     /// <summary>
-    /// By default the audience is validated. It is always better to do 
+    /// By default the audience is validated. It is always better to do
     /// On Keycloak audience doesn't exist by default, so it is needed to disable it.
     /// </summary>
     public bool ValidateAudience { get; set; } = true;

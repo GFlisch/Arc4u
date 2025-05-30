@@ -37,7 +37,7 @@ public class StandardCookieEvents : CookieAuthenticationEvents
         var cookieTokenExpiration = cookieCtx.Properties.ExpiresUtc;
         if (!cookieTokenExpiration.HasValue || cookieTokenExpiration.Value < DateTime.UtcNow)
         {
-            _logger?.Technical().LogError("No expiration date found in the cookie cache.");
+            _logger?.Technical().LogError("Cookie doesn't exist or is expired. Reject the principal and sign out the user.");
             cookieCtx.RejectPrincipal();
             await cookieCtx.HttpContext.SignOutAsync().ConfigureAwait(false);
             return;
@@ -56,7 +56,7 @@ public class StandardCookieEvents : CookieAuthenticationEvents
 
         if (null == tokensInfo)
         {
-            _logger.Technical().LogError("No TokenRefreshInfo found in the service provider.");
+            _logger.Technical().LogError("No TokenRefreshInfo found in the service provider. Reject the principal and sign out the user.");
             cookieCtx.RejectPrincipal();
             await cookieCtx.HttpContext.SignOutAsync().ConfigureAwait(false);
             return;
@@ -68,7 +68,7 @@ public class StandardCookieEvents : CookieAuthenticationEvents
 
         tokensInfo.AccessToken = new TokenInfo("access_token", accessToken ?? string.Empty, jwtToken.ValidTo);
         // As not all the autorities are using a jwt token for the refresh token, the expiration date is not  extracted from the token
-        tokensInfo.RefreshToken = new TokenInfo("refresh_token", refreshToken ?? string.Empty, cookieTokenExpiration.Value.DateTime);
+        tokensInfo.RefreshToken = new TokenInfo("refresh_token", refreshToken ?? string.Empty, DateTime.UtcNow + _oidcOptions.RefreshTokenLifetime);;
 
         var timeRemaining = jwtToken.ValidTo - DateTime.UtcNow;
         if (timeRemaining < refreshThreshold)
@@ -86,15 +86,13 @@ public class StandardCookieEvents : CookieAuthenticationEvents
                 }
 
                 // throws an exception if the call failed.
-                await _tokenRefreshProvider.GetTokenAsync(null, null).ConfigureAwait(false);
+                await _tokenRefreshProvider.RefreshTokenAsync(CancellationToken.None).ConfigureAwait(false);
 
                 cookieCtx.Properties.UpdateTokenValue("access_token", tokensInfo.AccessToken.Token);
                 cookieCtx.Properties.UpdateTokenValue("refresh_token", tokensInfo.RefreshToken.Token);
                 cookieCtx.Properties.UpdateTokenValue("expires_at", tokensInfo.AccessToken.ExpiresOnUtc.ToString("o", CultureInfo.InvariantCulture));
 
                 cookieCtx.ShouldRenew = true;
-                cookieCtx.RejectPrincipal();
-
             }
             catch (Exception ex)
             {

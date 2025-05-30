@@ -293,6 +293,7 @@ public static partial class AuthenticationExtensions
             options.CookieAuthenticationEventsType = cookieAuthenticationEventsType;
             options.OpenIdConnectEventsType = openIdConnectEventsType;
             options.ForceRefreshTimeoutTimeSpan = settings.ForceRefreshTimeoutTimeSpan;
+            options.RefreshTokenLifetime = settings.RefreshTokenLifetime;
             options.CertSecurityKey = certSecurityKey;
             options.CookiesConfigureOptionsType = cookiesConfigureOptionsType;
             options.ResponseType = settings.ResponseType;

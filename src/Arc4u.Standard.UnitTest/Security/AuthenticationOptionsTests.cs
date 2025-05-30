@@ -25,6 +25,62 @@ public class AuthenticationOptionsTests
     private readonly Fixture _fixture;
 
     [Fact]
+    public void OidcAuthenticationOptions_Should()
+    {
+        var OAuth2Options = _fixture.Create<OAuth2SettingsOption>();
+        var OidcOptions = _fixture.Create<OpenIdSettingsOption>();
+        var cookieName = _fixture.Create<string>();
+        var authority = _fixture.Build<AuthorityOptions>().With(p => p.Url, _fixture.Create<Uri>()).Create();
+
+        var configDic = new Dictionary<string, string?>
+        {
+            ["Authentication:DefaultAuthority:Url"] = authority.Url.ToString(),
+            ["Authentication:CookieName"] = cookieName,
+            ["Authentication:ForceRefreshTimeoutTimeSpan"] = "00:00:00",
+            ["Authentication:RefreshTokenLifetime"] = TimeSpan.FromDays(21).ToString(),
+            ["Authentication:OpenId.Settings:ClientId"] = OidcOptions.ClientId,
+            ["Authentication:OpenId.Settings:ClientSecret"] = OidcOptions.ClientSecret,
+
+        };
+        foreach (var audience in OAuth2Options.Audiences)
+        {
+            configDic.Add($"Authentication:OAuth2.Settings:Audiences:{OAuth2Options.Audiences.IndexOf(audience)}", audience);
+        }
+        foreach (var scope in OAuth2Options.Scopes)
+        {
+            configDic.Add($"Authentication:OAuth2.Settings:Scopes:{OAuth2Options.Scopes.IndexOf(scope)}", scope);
+        }
+
+        foreach (var audience in OidcOptions.Audiences)
+        {
+            configDic.Add($"Authentication:OpenId.Settings:Audiences:{OidcOptions.Audiences.IndexOf(audience)}", audience);
+        }
+        foreach (var scope in OidcOptions.Scopes)
+        {
+            configDic.Add($"Authentication:OpenId.Settings:Scopes:{OidcOptions.Scopes.IndexOf(scope)}", scope);
+        }
+
+        var config = new ConfigurationBuilder()
+              .AddInMemoryCollection(configDic).Build();
+
+        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+
+        var section = configuration.GetSection("Authentication");
+        var settings = section.Get<OidcAuthenticationSectionOptions>();
+
+        settings.Should().NotBeNull();
+        settings.DefaultAuthority.Url.Should().Be(authority.Url.ToString());
+        settings.CookieName.Should().Be(cookieName);
+        settings.ForceRefreshTimeoutTimeSpan.Should().Be(TimeSpan.Zero);
+        settings.RefreshTokenLifetime.Should().Be(TimeSpan.FromDays(21));
+        settings.OpenIdSettingsKey.Should().Be(Constants.OpenIdOptionsName);
+        settings.OAuth2SettingsKey.Should().Be(Constants.OAuth2OptionsName);
+        settings.ValidateAudience.Should().BeTrue();
+        settings.ValidateAuthority.Should().BeTrue();
+
+    }
+
+    [Fact]
     public void Oauth2_Key_Values_With_Authority_Should()
     {
         var options = _fixture.Create<OAuth2SettingsOption>();

@@ -46,6 +46,8 @@ public class OidcAuthenticationSectionOptions
 
     public TimeSpan ForceRefreshTimeoutTimeSpan { get; set; } = TimeSpan.FromMinutes(5);
 
+    public TimeSpan RefreshTokenLifetime { get; set; } = TimeSpan.FromDays(90);
+
     public string CallbackPath { get; set; } = "/signin-oidc";
 
     public string? CertSecurityKeyPath { get; set; } = default!;
@@ -68,7 +70,7 @@ public class OidcAuthenticationSectionOptions
     public TimeSpan AuthenticationTicketTTL { get; set; } = TimeSpan.FromDays(7);
 
     /// <summary>
-    /// By default the audience is validated. It is always better to do 
+    /// By default the audience is validated. It is always better to do
     /// On Keycloak audience doesn't exist by default, so it is needed to disable it.
     /// </summary>
     public bool ValidateAudience { get; set; } = true;

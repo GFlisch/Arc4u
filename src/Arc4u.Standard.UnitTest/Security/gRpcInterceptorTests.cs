@@ -92,7 +92,7 @@ public class GRpcInterceptorTests
         var jwt = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
         var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
 
-        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+        IConfiguration configuration = new ConfigurationRoot([.. config.Providers]);
 
         // Register the different services.
         IServiceCollection services = new ServiceCollection();
@@ -124,7 +124,7 @@ public class GRpcInterceptorTests
         tokenRefresh!.RefreshToken = new TokenInfo("refresh_token", Guid.NewGuid().ToString(), DateTime.UtcNow.AddHours(1));
         tokenRefresh!.AccessToken = new TokenInfo("access_token", accessToken);
 
-        var principal = new AppPrincipal(new Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0")
+        var principal = new AppPrincipal(new Authorization(), new ClaimsIdentity(Constants.CookiesAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0")
         {
             Profile = UserProfile.Empty
         };
@@ -196,7 +196,7 @@ public class GRpcInterceptorTests
 
         scopedServiceAccessor!.ServiceProvider = scopedContainer.ServiceProvider;
 
-        var principal = new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.CookiesAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0")
+        var principal = new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0")
         {
             Profile = UserProfile.Empty
         };
@@ -576,7 +576,7 @@ public class GRpcInterceptorTests
         container.Register<ITokenProvider, BootstrapContextTokenProvider>("Bootstrap");
         container.CreateContainer();
 
-        var principal = new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.CookiesAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0")
+        var principal = new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0")
         {
             Profile = UserProfile.Empty
         };
