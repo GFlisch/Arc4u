@@ -57,7 +57,7 @@ public class LogMonitoringTimeElapsedMiddleware
             var descriptor = endpoint.Metadata.GetMetadata<ControllerActionDescriptor>();
             if (descriptor?.MethodInfo?.DeclaringType is not null)
             {
-                // Try to extract MethodInfo for MVC Controller endpoint
+                // Try to extract MethodInfo for MVC Controller endpoints
                 methodInfo = descriptor.MethodInfo;
             }
             else
