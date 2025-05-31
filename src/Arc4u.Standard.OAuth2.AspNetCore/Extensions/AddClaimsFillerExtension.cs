@@ -37,6 +37,7 @@ public static class AddClaimsFillerExtension
 
         // Get the default values.
         var options = new ClaimsFillerOptions();
+        //var fillDefaultClaimsToExclude = true;
 
         if (!string.IsNullOrWhiteSpace(sectionName))
         {
@@ -45,6 +46,10 @@ public static class AddClaimsFillerExtension
             if (section.Exists())
             {
                 options = section.Get<ClaimsFillerOptions>();
+                if (!section.GetSection("ClaimsToExclude").Exists())
+                {
+                    options!.ClaimsToExclude = DefaultClaimsToExclude;
+                }
             }
         }
 
@@ -57,7 +62,7 @@ public static class AddClaimsFillerExtension
         {
             o.LoadClaimsFromClaimsFillerProvider = options.LoadClaimsFromClaimsFillerProvider;
             o.SettingsKeys = options.SettingsKeys.Any() ? options.SettingsKeys :  [ Constants.OpenIdOptionsName ];
-            o.ClaimsToExclude = options.ClaimsToExclude.Any() ? options.ClaimsToExclude : DefaultClaimsToExclude;
+            o.ClaimsToExclude = options.ClaimsToExclude;
             o.ExpireClaim = options.ExpireClaim;
         });
     }
