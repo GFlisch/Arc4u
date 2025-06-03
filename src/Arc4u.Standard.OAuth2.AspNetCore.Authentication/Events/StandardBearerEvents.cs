@@ -22,8 +22,6 @@ public class StandardBearerEvents : JwtBearerEvents
         context.HandleResponse();
         context.Response.StatusCode = StatusCodes.Status401Unauthorized;
         context.Response.ContentType = "application/json";
-        context.Error = "invalid_or_missing_token";
-        context.ErrorDescription = "This request requires a valid JWT access token to be provided";
 
         // Add some extra context for expired tokens.
         if (context.AuthenticateFailure is not null && context.AuthenticateFailure is SecurityTokenExpiredException authenticationException)
