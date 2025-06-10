@@ -128,14 +128,14 @@ public class OAuth2Interceptor : Interceptor
         }
 
         var claimsIdentity = applicationContext.Principal?.Identity as ClaimsIdentity;
-        // Skip (BE scenario) if the parameter is an identity and the settings doesn't correspond to the identity's type.
+        // if we don't inject a bearer token, the AuthenticationType defined in the settings must be the same as the authentication type defined in the Identity.
         if (!inject
             &&
             claimsIdentity is not null
             &&
             claimsIdentity.AuthenticationType != null
             &&
-            claimsIdentity.AuthenticationType.Equals(_settings.Values[TokenKeys.AuthenticationTypeKey], StringComparison.InvariantCultureIgnoreCase))
+            !claimsIdentity.AuthenticationType.Equals(_settings.Values[TokenKeys.AuthenticationTypeKey], StringComparison.InvariantCultureIgnoreCase))
         {
             return;
         }

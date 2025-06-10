@@ -17,7 +17,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
 
-namespace Arc4u.UnitTest.Caching;
+namespace Arc4u.UnitTest;
 
 [Trait("Category", "CI")]
 public class CacheContextTests
@@ -202,9 +202,9 @@ public class CacheContextTests
         services.AddCacheContext(configuration);
         services.AddTransient<IObjectSerialization, JsonSerialization>();
         services.AddKeyedTransient<ICache, MemoryCache>(CacheContext.Memory);
-        
+
         var mockLoggerWrapper = new Mock<ILoggerWrapper<CacheContext>>();
-        mockLoggerWrapper.Setup(m => m.SetContext(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Type?>()))           
+        mockLoggerWrapper.Setup(m => m.SetContext(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Type?>()))
                          .Returns(mockLoggerWrapper.Object);
 
         var mockLoggerObject = mockLoggerWrapper.As<ILogger<CacheContext>>().Object;
@@ -225,7 +225,7 @@ public class CacheContextTests
         _fixture.Inject<IServiceProvider>(serviceProvider);
 
         var sut = _fixture.Create<CacheContext>();
-        
+
         var cacheInstance = sut["Volatile"];
 
         cacheInstance.Put("key", "value");

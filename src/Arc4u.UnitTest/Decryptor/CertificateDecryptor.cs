@@ -112,8 +112,8 @@ public class CertificateDecryptor
             .AddInMemoryCollection(
                 new Dictionary<string, string?>
                 {
-                    ["Authentication:DataProtection:EncryptionCertificate:File:Cert"] = @".\Configs\cert.pem",
-                    ["Authentication:DataProtection:EncryptionCertificate:File:Key"] = @".\Configs\key.pem",
+                    ["Authentication:DataProtection:EncryptionCertificate:File:Cert"] = @"./Configs/cert.pem",
+                    ["Authentication:DataProtection:EncryptionCertificate:File:Key"] = @"./Configs/key.pem",
                     ["ConnectionStrings:Toto"] = $"Decrypt:{cypherText}"
                 });
 
@@ -141,8 +141,8 @@ public class CertificateDecryptor
             .AddInMemoryCollection(
                 new Dictionary<string, string?>
                 {
-                    ["EncryptionCertificate:File:Cert"] = @".\Configs\cert.pem",
-                    ["EncryptionCertificate:File:Key"] = @".\Configs\key.pem",
+                    ["EncryptionCertificate:File:Cert"] = @"./Configs/cert.pem",
+                    ["EncryptionCertificate:File:Key"] = @"./Configs/key.pem",
                     ["ConnectionStrings:Toto"] = $"Tag:{cypherText}"
                 });
 

@@ -10,7 +10,7 @@ public class OidcAuthenticationOptions
 
     public string CookieName { get; set; } = default!;
 
-   // public bool ValidateAuthority { get; set; } = true;
+   public bool ValidateAuthority { get; set; } = true;
 
     public string OpenIdSettingsKey { get; set; } = Constants.OpenIdOptionsName;
 
@@ -34,13 +34,9 @@ public class OidcAuthenticationOptions
 
     public string ApplicationName { get; set; } = default!;
 
-    //public Type JwtBearerEventsType { get; set; } = typeof(StandardBearerEvents);
-
-    //public Type CookieAuthenticationEventsType { get; set; } = typeof(StandardCookieEvents);
-
-    //public Type OpenIdConnectEventsType { get; set; } = typeof(StandardOpenIdConnectEvents);
-
     public TimeSpan ForceRefreshTimeoutTimeSpan { get; set; } = TimeSpan.FromMinutes(5);
+
+    public TimeSpan RefreshTokenLifetime { get; set; } = TimeSpan.FromDays(90);
 
     public X509Certificate2? CertSecurityKey { get; set; } = default!;
 
@@ -62,8 +58,8 @@ public class OidcAuthenticationOptions
     public TimeSpan AuthenticationTicketTTL { get; set; } = TimeSpan.FromDays(7);
 
     /// <summary>
-    /// By default the audience is validated. It is always better to do 
-    /// On Keycloak audience doesn't exist by default, so it is needed to disable it.
+    /// By default the audience is validated. It is always better to do
+    /// On Keycloak audience doesn't exist by default, so it is needed to disable it or add it.
     /// </summary>
-    //public bool ValidateAudience { get; set; } = true;
+    public bool ValidateAudience { get; set; } = true;
 }

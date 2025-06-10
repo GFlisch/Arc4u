@@ -1,20 +1,18 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Runtime.Serialization;
-using System.Text.Json.Serialization;
 
 namespace Arc4u;
 
 /// <summary>
-/// Represents an interval of values delimited by a <see cref="LowerBound"/> and an <see cref="UpperBound"/>, 
+/// Represents an interval of values delimited by a <see cref="LowerBound"/> and an <see cref="UpperBound"/>,
 /// giving support for set theory operations.
 /// Provides the base class for types requiring support of set theory operations, such as the <see cref="Period"/> class.
 /// </summary>
-/// <typeparam name="T">The type of the interval.</typeparam>    
+/// <typeparam name="T">The type of the interval.</typeparam>
 
 [DataContract(Name = "IntervalOf{0}")]
 [KnownType(typeof(Period))]
-public class Interval<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.NonPublicFields)] T>
+public class Interval<T>
     : IEquatable<Interval<T>>
     , IComparable<Interval<T>>
 {
@@ -23,19 +21,19 @@ public class Interval<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes
     /// <summary>
     /// Gets the lower bound.
     /// </summary>
-    /// <value>The lower bound.</value>  
-    /// <remarks>The set operation is not private to let the Silverlight runtime 
+    /// <value>The lower bound.</value>
+    /// <remarks>The set operation is not private to let the Silverlight runtime
     /// accessing the property during serializing/deserializing operations.</remarks>
-    [JsonPropertyName("lowerBound")]
+    [DataMember(EmitDefaultValue = false)]
     public Bound<T> LowerBound { get; internal set; }
 
     /// <summary>
     /// Gets the upper bound.
     /// </summary>
     /// <value>The upper bound.</value>
-    /// <remarks>The set operation is not private to let the Silverlight runtime 
+    /// <remarks>The set operation is not private to let the Silverlight runtime
     /// accessing the property during serializing/deserializing operations.</remarks>
-    [JsonPropertyName("upperBound")]
+    [DataMember(EmitDefaultValue = false)]
     public Bound<T> UpperBound { get; internal set; }
 
     /// <summary>
@@ -43,7 +41,6 @@ public class Interval<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes
     /// </summary>
     /// <value>An <see cref="IntervalCollection&lt;T&gt;"/> that contains elements not in this instance.</value>
     /// <seealso href="http://en.wikipedia.org/wiki/Complement_(set_theory)">Complement (set theory)</seealso>
-    [JsonIgnore]
     public IntervalCollection<T> Complement
     {
         get { return Interval.ComplementOf(this); }
@@ -58,7 +55,6 @@ public class Interval<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes
     /// <seealso cref="IsSingletonOf"/>
     /// <seealso cref="Interval.SingletonOf"/>
     /// <seealso href="http://en.wikipedia.org/wiki/Singleton_(mathematics)">Singleton (mathematics)</seealso>
-    [JsonIgnore]
     public bool IsSingleton
     {
         get
@@ -89,10 +85,9 @@ public class Interval<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes
     /// <summary>
     /// Gets a value indicating whether this instance represents an empty <see cref="Interval&lt;T&gt;"/>.
     /// </summary>
-    /// <value><c>true</c> if this instance contains no element; otherwise, <c>false</c>.</value>        
-    /// <seealso cref="string.Empty"/>
-    /// <seealso href="http://en.wikipedia.org/wiki/Empty_set">Empty Set (set theory)</seealso>        
-    [JsonIgnore]
+    /// <value><c>true</c> if this instance contains no element; otherwise, <c>false</c>.</value>
+    /// <seealso cref="Empty"/>
+    /// <seealso href="http://en.wikipedia.org/wiki/Empty_set">Empty Set (set theory)</seealso>
     public bool IsEmpty
     {
         get
@@ -107,11 +102,11 @@ public class Interval<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes
     /// <param name="value">The element value.</param>
     /// <returns>
     /// 	<c>true</c> if this instance contains no element; otherwise, <c>false</c>.
-    /// </returns>        
+    /// </returns>
     /// <seealso cref="IsEmpty"/>
-    /// <seealso cref="string.Empty"/>
+    /// <seealso cref="Empty"/>
     /// <seealso cref="Interval.EmptyOf"/>
-    /// <seealso href="http://en.wikipedia.org/wiki/Empty_set">Empty Set (set theory)</seealso>        
+    /// <seealso href="http://en.wikipedia.org/wiki/Empty_set">Empty Set (set theory)</seealso>
     protected internal bool IsEmptyOf(T value)
     {
         return (object.Equals(LowerBound.Value, value)
@@ -127,7 +122,6 @@ public class Interval<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes
     /// </summary>
     /// <value><c>true</c> if this instance represents an universe; otherwise, <c>false</c>.</value>
     /// <seealso href="http://en.wikipedia.org/wiki/Universe_(mathematics)">Universe (mathematics)</seealso>
-    [JsonIgnore]
     public bool IsUniverse
     {
         get
@@ -173,8 +167,20 @@ public class Interval<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes
     /// <param name="upperBound">The upper bound.</param>
     protected internal Interval(Bound<T>? lowerBound, Bound<T>? upperBound)
     {
+#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(lowerBound);
         ArgumentNullException.ThrowIfNull(upperBound);
+#else
+        if (lowerBound is null)
+        {
+            throw new ArgumentNullException(nameof(lowerBound));
+        }
+
+        if (upperBound is null)
+        {
+            throw new ArgumentNullException(nameof(upperBound));
+        }
+#endif
 
         if (lowerBound > upperBound)
         {
@@ -197,10 +203,10 @@ public class Interval<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes
     #region Overriden Members
 
     /// <summary>
-    /// Returns a <see cref="string"/> that represents this instance.
+    /// Returns a <see cref="System.string"/> that represents this instance.
     /// </summary>
     /// <returns>
-    /// A <see cref="string"/> that represents this instance.
+    /// A <see cref="System.string"/> that represents this instance.
     /// </returns>
     public override string ToString()
     {
@@ -212,7 +218,7 @@ public class Interval<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes
     }
 
     /// <summary>
-    /// Returns the hash code for this instance. 
+    /// Returns the hash code for this instance.
     /// </summary>
     /// <returns>A 32-bit signed integer hash code.</returns>
     public override int GetHashCode()
@@ -227,7 +233,7 @@ public class Interval<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes
     /// Returns a value indicating whether this instance is equal to a specified object.
     /// </summary>
     /// <param name="obj">An object to compare to this instance.</param>
-    /// <returns>        
+    /// <returns>
     ///     <b>true</b> if this instance equals the <paramref name="obj"/>; otherwise, <b>false</b>.
     /// </returns>
     public override bool Equals(object? obj)
@@ -276,11 +282,11 @@ public class Interval<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes
     /// <item>
     ///     <term>Zero</term>
     ///     <description>This instance is equal to the <paramref name="other"/>.</description>
-    /// </item>        
+    /// </item>
     /// <item>
     ///     <term>Greater than zero</term>
     ///     <description>This instance is greater than the <paramref name="other"/>.</description>
-    /// </item>        
+    /// </item>
     ///</list>
     /// </returns>
     /// <remarks>
@@ -290,8 +296,14 @@ public class Interval<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes
     /// <exception cref="ArgumentNullException"><paramref name="other"/> is null.</exception>
     public int CompareTo(Interval<T>? other)
     {
+#if NET8_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(other);
-
+#else
+        if (other is null)
+        {
+            throw new ArgumentNullException("other");
+        }
+#endif
         if (IsEmpty && !other.IsEmpty)
         {
             return -1;
@@ -425,7 +437,7 @@ public class Interval<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes
 
     /// <summary>
     /// Determines whether this instance intersects the <paramref name="other"/> one.
-    /// </summary>        
+    /// </summary>
     /// <param name="other">Another <see cref="Interval&lt;T&gt;"/>.</param>
     /// <returns><c>true</c> if this instance intersects the <paramref name="other"/> one; otherwise, <c>false</c>.</returns>
     public bool IntersectsWith(Interval<T> other)
@@ -437,9 +449,9 @@ public class Interval<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes
     /// Determines the intersection of this instance with the <paramref name="other"/> one.
     /// </summary>
     /// <param name="other">Another <see cref="Interval&lt;T&gt;"/>.</param>
-    /// <param name="intersection">When this method returns, contains the <see cref="Interval&lt;T&gt;"/> 
-    /// that contains all elements of this instance that also belong to the <paramref name="other"/> one; 
-    /// otherwise, an <see cref="string.Empty"/> interval.</param>
+    /// <param name="intersection">When this method returns, contains the <see cref="Interval&lt;T&gt;"/>
+    /// that contains all elements of this instance that also belong to the <paramref name="other"/> one;
+    /// otherwise, an <see cref="Empty"/> interval.</param>
     /// <returns><b>true</b> if the intersection is not empty; otherwise, <b>false</b>.</returns>
     public bool TryIntersectionWith(Interval<T> other, out Interval<T> intersection)
     {
@@ -447,8 +459,8 @@ public class Interval<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes
     }
 
     /// <summary>
-    /// Determines the intersection of this instance with the <paramref name="other"/> one.                
-    /// </summary>     
+    /// Determines the intersection of this instance with the <paramref name="other"/> one.
+    /// </summary>
     /// <example>
     /// <img src="../Images/Interval/Venn_Intersection.png" alt="Intersection"/>
     /// </example>
@@ -463,7 +475,7 @@ public class Interval<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes
     }
 
     /// <summary>
-    /// Determines the union of this instance with the <paramref name="other"/> one.          
+    /// Determines the union of this instance with the <paramref name="other"/> one.
     /// </summary>
     /// <example>
     /// <img src="../Images/Interval/Venn_Union.png" alt="Union" />
@@ -480,10 +492,10 @@ public class Interval<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes
     /// Determines the union of this instance with the <paramref name="other"/> one according to the specified <paramref name="denominator"/>.
     /// </summary>
     /// <param name="denominator">The denominator considered while performing the union.</param>
-    /// <param name="other">Another <see cref="Interval&lt;T&gt;"/>.</param>        
+    /// <param name="other">Another <see cref="Interval&lt;T&gt;"/>.</param>
     /// <returns>An <see cref="IntervalCollection&lt;T&gt;"/> that contains all distinct elements of this instance and the <paramref name="other"/> one.</returns>
     /// <remarks>
-    /// While performing an Interval.UnionOf&lt;T&gt; UnionOf intervals, depending of the specified <see cref="UnionDenominator"/>, the result will be different.
+    /// While performing an <see cref="Interval.UnionOf&lt;T&gt;">UnionOf</see> intervals, depending of the specified <see cref="UnionDenominator"/>, the result will be different.
     /// If you consider the following intervals:
     /// <list type="table">
     /// <item>

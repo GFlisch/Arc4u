@@ -168,8 +168,8 @@ public class BasicSettingsOptionsTests
             ["Authentication:Basic:Settings:ClientId"] = options.ClientId,
             ["Authentication:Basic:Settings:ProviderId"] = options.ProviderId,
             ["Authentication:Basic:Settings:AuthenticationType"] = options.AuthenticationType,
-            ["Authentication:Basic:Certificates:Cert1:File:Cert"] = @".\Configs\cert.pem",
-            ["Authentication:Basic:Certificates:Cert1:File:Key"] = @".\Configs\key.pem",
+            ["Authentication:Basic:Certificates:Cert1:File:Cert"] = @"./Configs/cert.pem",
+            ["Authentication:Basic:Certificates:Cert1:File:Key"] = @"./Configs/key.pem",
         };
         foreach (var scope in options.Scopes)
         {

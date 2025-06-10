@@ -69,7 +69,7 @@ public static partial class LoggerMessages
     public static partial void LogNoTokenRefreshInfo(this ILogger logger);
 
     [LoggerMessage(EventId = 9135, Level = LogLevel.Error,
-        Message = "Cannot refresh the token. See exception.")]
+        Message = "No TokenRefreshInfo found in the service provider. Reject the principal and sign out the user.")]
     public static partial void LogCantRefreshToken(this ILogger logger);
 
     [LoggerMessage(EventId = 9136, Level = LogLevel.Debug,

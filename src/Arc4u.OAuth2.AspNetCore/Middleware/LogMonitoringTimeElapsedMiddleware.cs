@@ -1,9 +1,9 @@
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using Arc4u.Diagnostics;
-using Arc4u.Diagnostics.Monitoring;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Arc4u.OAuth2.Middleware;
@@ -19,38 +19,65 @@ public class LogMonitoringTimeElapsedMiddleware
         _log = null;
     }
 
-    [RequiresDynamicCode("Passing a delegate is not compatible with Native AOT.")]
     public LogMonitoringTimeElapsedMiddleware(RequestDelegate next, Action<Type, TimeSpan> extraLog)
     {
         _next = next ?? throw new ArgumentNullException(nameof(next));
         _log = extraLog;
     }
 
-    public async Task InvokeAsync(HttpContext context, ILogger logger)
+    public async Task Invoke(HttpContext context)
     {
-        var start = Stopwatch.GetTimestamp();
+        ArgumentNullException.ThrowIfNull(context);
+
+        var logger = context.RequestServices.GetRequiredService<ILogger>();
+
+        var startTimestamp = Stopwatch.GetTimestamp();
         await _next(context).ConfigureAwait(false);
-        var elapsed = Stopwatch.GetElapsedTime(start);
+        var elapsed = Stopwatch.GetElapsedTime(startTimestamp);
 
         try
         {
             var endpoint = context.GetEndpoint();
-            var descriptor = endpoint?.Metadata.GetMetadata<ControllerActionDescriptor>();
-
-            if (descriptor?.MethodInfo.DeclaringType is { } type)
+            if (endpoint == null)
             {
-                logger.Monitoring(type, descriptor.MethodInfo.Name)
-                      .Add("Elapsed", elapsed.TotalMilliseconds)
-                      .Add("StatusCode", context.Response.StatusCode)
-                      .LogTimeToCompleteCall();
+                return;
+            }
 
-                // ✅ Inline safe call — no method marked with [RequiresDynamicCode]
-                _log?.Invoke(type, elapsed);
+            MemberInfo? methodInfo = null;
+
+            var descriptor = endpoint.Metadata.GetMetadata<ControllerActionDescriptor>();
+            if (descriptor?.MethodInfo?.DeclaringType is not null)
+            {
+                // Try to extract MethodInfo for MVC Controller endpoints
+                methodInfo = descriptor.MethodInfo;
+            }
+            else
+            {
+                // Try to extract MethodInfo for Minimal API endpoints
+                methodInfo = endpoint.Metadata.GetMetadata<MethodInfo>();
+            }
+
+            if (methodInfo?.DeclaringType is not null)
+            {
+                var properties = logger.Monitoring(methodInfo.DeclaringType, methodInfo.Name)
+                    .Add("Elapsed", elapsed.TotalMilliseconds)
+                    .Add("StatusCode", context.Response.StatusCode);
+
+                if (!string.IsNullOrWhiteSpace(endpoint.DisplayName))
+                {
+                    properties.Add("Endpoint", endpoint.DisplayName);
+                }
+
+                properties.LogInformation("Time to complete method call");
+
+                _log?.Invoke(methodInfo.DeclaringType, elapsed);
             }
         }
         catch (Exception ex)
         {
-            logger.Technical<LogMonitoringTimeElapsedMiddleware>().LogException(ex);
+            logger.Technical<LogMonitoringTimeElapsedMiddleware>()
+                  .LogException(ex);
         }
     }
 }
+

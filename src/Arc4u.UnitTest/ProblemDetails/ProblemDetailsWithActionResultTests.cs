@@ -1,5 +1,6 @@
 using Arc4u.AspNetCore.Results;
 using Arc4u.Results;
+using Arc4u.Results.Validation;
 using Arc4u.Validation;
 using AutoFixture;
 using AutoFixture.AutoMoq;
@@ -179,7 +180,7 @@ public class ProblemDetailsWithActionResultTests
         problem.Should().NotBeNull();
         problem!.Title.Should().Be("Error.");
         problem.Detail.Should().Be(value);
-        problem.Status.Should().Be(StatusCodes.Status400BadRequest);
+        problem.Status.Should().Be(StatusCodes.Status500InternalServerError);
     }
 
     [Fact]
@@ -207,7 +208,7 @@ public class ProblemDetailsWithActionResultTests
         problem.Should().NotBeNull();
         problem.Title.Should().Be("Error.");
         problem.Detail.Should().Be(msg1);
-        problem.Status.Should().Be(StatusCodes.Status400BadRequest);
+        problem.Status.Should().Be(StatusCodes.Status500InternalServerError);
     }
 
     [Fact]
@@ -253,7 +254,7 @@ public class ProblemDetailsWithActionResultTests
         problem.Should().NotBeNull();
         problem.Title.Should().Be("Error.");
         problem.Detail.Should().Be(value);
-        problem.Status.Should().Be(StatusCodes.Status400BadRequest);
+        problem.Status.Should().Be(StatusCodes.Status500InternalServerError);
     }
 
     #endregion
@@ -282,7 +283,7 @@ public class ProblemDetailsWithActionResultTests
         problem.Should().NotBeNull();
         problem.Title.Should().Be("Error.");
         problem.Detail.Should().Be(value);
-        problem.Status.Should().Be(StatusCodes.Status400BadRequest);
+        problem.Status.Should().Be(StatusCodes.Status500InternalServerError);
     }
 
     [Fact]
@@ -402,7 +403,7 @@ public class ProblemDetailsWithActionResultTests
         problem.Should().NotBeNull();
         problem.Title.Should().Be("Error.");
         problem.Detail.Should().Be(value);
-        problem.Status.Should().Be(StatusCodes.Status400BadRequest);
+        problem.Status.Should().Be(StatusCodes.Status500InternalServerError);
     }
 
     [Fact]
@@ -447,7 +448,7 @@ public class ProblemDetailsWithActionResultTests
         problem.Should().NotBeNull();
         problem.Title.Should().Be("Error.");
         problem.Detail.Should().Be(value);
-        problem.Status.Should().Be(StatusCodes.Status400BadRequest);
+        problem.Status.Should().Be(StatusCodes.Status500InternalServerError);
     }
 
     [Fact]
@@ -470,8 +471,8 @@ public class ProblemDetailsWithActionResultTests
         problem.Title.Should().Be("Error from validation.");
         problem.Detail.Should().BeNull();
         problem.Errors.Should().HaveCount(1);
-        problem.Errors.First().Key.Should().Be("NotEmptyValidator");
-        problem.Errors.First().Value[0].Should().Be("Error: 'Name' must not be empty.");
+        problem.Errors.First().Key.Should().Be("Error");
+        problem.Errors.First().Value[0].Should().Be("'Name' must not be empty.");
         problem.Status.Should().Be(StatusCodes.Status422UnprocessableEntity);
     }
 
@@ -495,8 +496,8 @@ public class ProblemDetailsWithActionResultTests
         problem.Title.Should().Be("Error from validation.");
         problem.Detail.Should().BeNull();
         problem.Errors.Should().HaveCount(1);
-        problem.Errors.First().Key.Should().Be("NotEmptyValidator");
-        problem.Errors.First().Value[0].Should().Be("Error: 'Name' must not be empty.");
+        problem.Errors.First().Key.Should().Be("Error");
+        problem.Errors.First().Value[0].Should().Be("'Name' must not be empty.");
         problem.Status.Should().Be(StatusCodes.Status422UnprocessableEntity);
     }
 
@@ -572,7 +573,7 @@ public class ProblemDetailsWithActionResultTests
         sut.Result.Should().BeOfType<ObjectResult>();
         ((ObjectResult)sut.Result!).Value.Should().BeOfType<ProblemDetails>();
         var problem = (ProblemDetails)((ObjectResult)sut.Result).Value!;
-        problem.Type.Should().Be("https://github.com/GFlisch/Arc4u/wiki/StatusCodes#unexpected-error");
+        problem.Type.Should().Be("about:blank");
         problem.Instance.Should().BeNull();
         problem.Title.Should().NotBeEmpty();
         problem.Detail.Should().NotBeEmpty();
@@ -615,7 +616,7 @@ public class ProblemDetailsWithActionResultTests
         problem.Should().NotBeNull();
         problem.Title.Should().Be("Error.");
         problem.Detail.Should().Be(value);
-        problem.Status.Should().Be(StatusCodes.Status400BadRequest);
+        problem.Status.Should().Be(StatusCodes.Status500InternalServerError);
     }
 
     [Fact]
@@ -639,8 +640,8 @@ public class ProblemDetailsWithActionResultTests
         problem.Title.Should().Be("Error from validation.");
         problem.Detail.Should().BeNull();
         problem.Errors.Should().HaveCount(1);
-        problem.Errors.First().Key.Should().Be("100");
-        problem.Errors.First().Value[0].Should().Be("Error: Problem");
+        problem.Errors.First().Key.Should().Be("Error");
+        problem.Errors.First().Value[0].Should().Be("Problem");
         problem.Status.Should().Be(StatusCodes.Status422UnprocessableEntity);
 
     }

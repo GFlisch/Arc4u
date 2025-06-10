@@ -34,8 +34,8 @@ public class CertificateLoader
             .AddInMemoryCollection(
                 new Dictionary<string, string?>
                 {
-                    ["EncryptionCertificate:File:Cert"] = @".\Configs\cert.pem",
-                    ["EncryptionCertificate:File:Key"] = @".\Configs\key.pem",
+                    ["EncryptionCertificate:File:Cert"] = @"./Configs/cert.pem",
+                    ["EncryptionCertificate:File:Key"] = @"./Configs/key.pem",
                 }).Build();
 
         var sut = _fixture.Create<X509CertificateLoader>();
@@ -55,8 +55,8 @@ public class CertificateLoader
             .AddInMemoryCollection(
                 new Dictionary<string, string?>
                 {
-                    ["EncryptionCertificate:File:Cert"] = @".\cert.pem",
-                    ["EncryptionCertificate:File:Key"] = @".\key.pem",
+                    ["EncryptionCertificate:File:Cert"] = @"./cert.pem",
+                    ["EncryptionCertificate:File:Key"] = @"./key.pem",
                 }).Build();
 
         var mockLoggerWrapperX509 = new Mock<ILoggerWrapper<X509CertificateLoader>>();

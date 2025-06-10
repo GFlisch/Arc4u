@@ -23,8 +23,8 @@ public class CertificateTests
     public void FileCertificateShouldBe()
     {
         //arrange
-        var publicCert = @".\Configs\cert.pem";
-        var privateCert = @".\Configs\key.pem";
+        var publicCert = @"./Configs/cert.pem";
+        var privateCert = @"./Configs/key.pem";
         var plainText = "FileCertificateShouldBe()";
 
         // act

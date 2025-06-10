@@ -57,7 +57,6 @@ public class InterceptorClientTest : OAuth2Interceptor
     }
 }
 
-#pragma warning disable CS0618
 public class GRpcInterceptorTests
 {
     public GRpcInterceptorTests()
@@ -92,7 +91,7 @@ public class GRpcInterceptorTests
         var jwt = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
         var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
 
-        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+        IConfiguration configuration = new ConfigurationRoot([.. config.Providers]);
 
         // Register the different services.
         IServiceCollection services = new ServiceCollection();
@@ -102,14 +101,7 @@ public class GRpcInterceptorTests
         services.ConfigureOpenIdSettings(configuration, "Authentication:OpenId.Settings");
         services.AddScoped<IApplicationContext, ApplicationInstanceContext>();
         services.AddScoped<TokenRefreshInfo>();
-
-        var mockILoggerFactory = new Mock<ILoggerFactory>();
-        mockILoggerFactory.Setup(m => m.CreateLogger(It.IsAny<string>()))
-                          .Returns(NullLogger.Instance);
-
-        services.AddSingleton<ILoggerFactory>(mockILoggerFactory.Object);
-        services.AddTransient(typeof(ILogger<>), typeof(LoggerWrapper<>));
-        services.AddKeyedTransient<IAddPropertiesToLog, NullLoggerProperties>("Transient");
+        services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
 
         var mockHttpContextAccessor = _fixture.Freeze<Mock<IHttpContextAccessor>>();
         mockHttpContextAccessor.SetupGet(x => x.HttpContext).Returns(() => null);
@@ -131,7 +123,7 @@ public class GRpcInterceptorTests
         tokenRefresh!.RefreshToken = new TokenInfo("refresh_token", Guid.NewGuid().ToString(), DateTime.UtcNow.AddHours(1));
         tokenRefresh!.AccessToken = new TokenInfo("access_token", accessToken);
 
-        var principal = new AppPrincipal(new Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0")
+        var principal = new AppPrincipal(new Authorization(), new ClaimsIdentity(Constants.CookiesAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0")
         {
             Profile = UserProfile.Empty
         };
@@ -148,7 +140,7 @@ public class GRpcInterceptorTests
         var mock = _fixture.Freeze<Mock<BlockingUnaryCallContinuation<string, string>>>();
 
         // Act
-        var sut = new InterceptorTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<OAuth2Interceptor>>()!, setingsOptions!, Constants.OpenIdOptionsName);
+        var sut = new InterceptorTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<InterceptorTest>>()!, setingsOptions!, Constants.OpenIdOptionsName);
 
         sut.BlockingUnaryCall<string, string>("Test", mockClientInterceptorContext, mock.Object);
 
@@ -185,14 +177,7 @@ public class GRpcInterceptorTests
         services.AddDefaultAuthority(configuration);
         services.ConfigureOAuth2Settings(configuration, "Authentication:OAuth2.Settings");
         services.AddScoped<IApplicationContext, ApplicationInstanceContext>();
-
-        var mockILoggerFactory = new Mock<ILoggerFactory>();
-        mockILoggerFactory.Setup(m => m.CreateLogger(It.IsAny<string>()))
-                          .Returns(NullLogger.Instance);
-
-        services.AddSingleton<ILoggerFactory>(mockILoggerFactory.Object);
-        services.AddTransient(typeof(ILogger<>), typeof(LoggerWrapper<>));
-        services.AddKeyedTransient<IAddPropertiesToLog, NullLoggerProperties>("Transient");
+        services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
 
         var mockHttpContextAccessor = _fixture.Freeze<Mock<IHttpContextAccessor>>();
         mockHttpContextAccessor.SetupGet(x => x.HttpContext).Returns(() => null);
@@ -210,7 +195,7 @@ public class GRpcInterceptorTests
 
         scopedServiceAccessor!.ServiceProvider = scopedContainer.ServiceProvider;
 
-        var principal = new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.CookiesAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0")
+        var principal = new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0")
         {
             Profile = UserProfile.Empty
         };
@@ -227,7 +212,7 @@ public class GRpcInterceptorTests
         var mock = _fixture.Freeze<Mock<BlockingUnaryCallContinuation<string, string>>>();
 
         // Act
-        var sut = new InterceptorTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<OAuth2Interceptor>>()!, setingsOptions!, "OAuth2");
+        var sut = new InterceptorTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<InterceptorTest>>()!, setingsOptions!, "OAuth2");
 
         sut.BlockingUnaryCall<string, string>("Test", mockClientInterceptorContext, mock.Object);
 
@@ -256,7 +241,7 @@ public class GRpcInterceptorTests
             configDic.Add($"Authentication:ClientSecrets:Client1:Scopes:{options.Scopes.IndexOf(scope)}", scope);
         }
         var config = new ConfigurationBuilder()
-                            .AddInMemoryCollection(configDic).Build();
+                     .AddInMemoryCollection(configDic).Build();
 
         // Define an access token that will be used as the return of the call to the CredentialDirect token credential provider.
         var jwt = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
@@ -267,16 +252,10 @@ public class GRpcInterceptorTests
         // Register the different services.
         IServiceCollection services = new ServiceCollection();
 
-        var mockILoggerFactory = new Mock<ILoggerFactory>();
-        mockILoggerFactory.Setup(m => m.CreateLogger(It.IsAny<string>()))
-                          .Returns(NullLogger.Instance);
-
-        services.AddSingleton<ILoggerFactory>(mockILoggerFactory.Object);
-        services.AddTransient(typeof(ILogger<>), typeof(LoggerWrapper<>));
-        services.AddKeyedTransient<IAddPropertiesToLog, NullLoggerProperties>("Transient");
         services.AddSingleton<IScopedServiceProviderAccessor, ScopedServiceProviderAccessor>();
         services.AddSecretAuthentication(configuration);
         services.AddScoped<IApplicationContext, ApplicationInstanceContext>();
+        services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
         services.AddDefaultAuthority(configuration);
 
         var mockHttpContextAccessor = _fixture.Freeze<Mock<IHttpContextAccessor>>();
@@ -326,7 +305,7 @@ public class GRpcInterceptorTests
         var mock = _fixture.Freeze<Mock<BlockingUnaryCallContinuation<string, string>>>();
 
         // Act
-        var sut = new InterceptorTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<OAuth2Interceptor>>()!, setingsOptions!, "Client1");
+        var sut = new InterceptorTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<InterceptorTest>>()!, setingsOptions!, "Client1");
 
         sut.BlockingUnaryCall<string, string>("Test", mockClientInterceptorContext, mock.Object);
 
@@ -362,14 +341,7 @@ public class GRpcInterceptorTests
         services.AddSingleton<IScopedServiceProviderAccessor, ScopedServiceProviderAccessor>();
         services.AddRemoteSecretsAuthentication(configuration);
         services.AddScoped<IApplicationContext, ApplicationInstanceContext>();
-
-        var mockILoggerFactory = new Mock<ILoggerFactory>();
-        mockILoggerFactory.Setup(m => m.CreateLogger(It.IsAny<string>()))
-                          .Returns(NullLogger.Instance);
-
-        services.AddSingleton<ILoggerFactory>(mockILoggerFactory.Object);
-        services.AddTransient(typeof(ILogger<>), typeof(LoggerWrapper<>));
-        services.AddKeyedTransient<IAddPropertiesToLog, NullLoggerProperties>("Transient");
+        services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
 
         // Register the different TokenProvider and CredentialTokenProviders.
         var container = new ComponentModelContainer(services);
@@ -402,7 +374,7 @@ public class GRpcInterceptorTests
         var mock = _fixture.Freeze<Mock<BlockingUnaryCallContinuation<string, string>>>();
 
         // Act
-        var sut = new InterceptorTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<OAuth2Interceptor>>()!, setingsOptions!, "Remote1");
+        var sut = new InterceptorTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<InterceptorTest>>()!, setingsOptions!, "Remote1");
 
         sut.BlockingUnaryCall<string, string>("Test", mockClientInterceptorContext, mock.Object);
 
@@ -438,14 +410,7 @@ public class GRpcInterceptorTests
         services.AddSingleton<IScopedServiceProviderAccessor, ScopedServiceProviderAccessor>();
         services.AddRemoteSecretsAuthentication(configuration);
         services.AddScoped<IApplicationContext, ApplicationInstanceContext>();
-
-        var mockILoggerFactory = new Mock<ILoggerFactory>();
-        mockILoggerFactory.Setup(m => m.CreateLogger(It.IsAny<string>()))
-                          .Returns(NullLogger.Instance);
-
-        services.AddSingleton<ILoggerFactory>(mockILoggerFactory.Object);
-        services.AddTransient(typeof(ILogger<>), typeof(LoggerWrapper<>));
-        services.AddKeyedTransient<IAddPropertiesToLog, NullLoggerProperties>("Transient");
+        services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
 
         // Register the different TokenProvider and CredentialTokenProviders.
         var container = new ComponentModelContainer(services);
@@ -478,7 +443,7 @@ public class GRpcInterceptorTests
         var mock = _fixture.Freeze<Mock<BlockingUnaryCallContinuation<string, string>>>();
 
         // Act
-        var sut = new InterceptorTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<OAuth2Interceptor>>()!, setingsOptions!, "Remote1");
+        var sut = new InterceptorTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<InterceptorTest>>()!, setingsOptions!, "Remote1");
 
         sut.BlockingUnaryCall<string, string>("Test", mockClientInterceptorContext, mock.Object);
 
@@ -518,18 +483,12 @@ public class GRpcInterceptorTests
         var mockHttpContextAccessor = _fixture.Freeze<Mock<IHttpContextAccessor>>();
         mockHttpContextAccessor.SetupGet(x => x.HttpContext).Returns(() => null);
 
-        var mockILoggerFactory = new Mock<ILoggerFactory>();
-        mockILoggerFactory.Setup(m => m.CreateLogger(It.IsAny<string>()))
-                          .Returns(NullLogger.Instance);
-
-        services.AddSingleton<ILoggerFactory>(mockILoggerFactory.Object);
-        services.AddTransient(typeof(ILogger<>), typeof(LoggerWrapper<>));
-        services.AddKeyedTransient<IAddPropertiesToLog, NullLoggerProperties>("Transient");
         services.AddSingleton<IScopedServiceProviderAccessor, ScopedServiceProviderAccessor>();
         services.AddDefaultAuthority(configuration);
         services.AddOnBehalfOf(configuration);
         services.AddScoped<IApplicationContext, ApplicationInstanceContext>();
         services.AddScoped<TokenRefreshInfo>();
+        services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
 
         var mockActivitySourceFactory = new Mock<IActivitySourceFactory>();
         mockActivitySourceFactory.Setup(m => m.Get("Arc4u", null)).Returns<string?>(default!);
@@ -572,7 +531,7 @@ public class GRpcInterceptorTests
         var mock = _fixture.Freeze<Mock<BlockingUnaryCallContinuation<string, string>>>();
 
         // Act
-        var sut = new InterceptorTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<OAuth2Interceptor>>()!, setingsOptions!, "Obo");
+        var sut = new InterceptorTest(scopedServiceAccessor, scopedContainer.Resolve<ILogger<InterceptorTest>>()!, setingsOptions!, "Obo");
 
         sut.BlockingUnaryCall<string, string>("Test", mockClientInterceptorContext, mock.Object);
 
@@ -605,32 +564,27 @@ public class GRpcInterceptorTests
         // Register the different services.
         IServiceCollection services = new ServiceCollection();
 
-        var mockILoggerFactory = new Mock<ILoggerFactory>();
-        mockILoggerFactory.Setup(m => m.CreateLogger(It.IsAny<string>()))
-                          .Returns(NullLogger.Instance);
-
-        services.AddSingleton<ILoggerFactory>(mockILoggerFactory.Object);
-        services.AddTransient(typeof(ILogger<>), typeof(LoggerWrapper<>));
-        services.AddKeyedTransient<IAddPropertiesToLog, NullLoggerProperties>("Transient");
         services.AddSingleton<IScopedServiceProviderAccessor, ScopedServiceProviderAccessor>();
         services.AddDefaultAuthority(configuration);
         services.ConfigureOAuth2Settings(configuration, "Authentication:OAuth2.Settings");
         services.AddScoped<IApplicationContext, ApplicationInstanceContext>();
-        services.AddKeyedTransient<ITokenProvider, BootstrapContextTokenProvider>("Bootstrap");
+        services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
+
         // Register the different TokenProvider and CredentialTokenProviders.
+        var container = new ComponentModelContainer(services);
+        container.Register<ITokenProvider, BootstrapContextTokenProvider>("Bootstrap");
+        container.CreateContainer();
 
-        var serviceProvider = services.BuildServiceProvider();
-
-        var principal = new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.CookiesAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0")
+        var principal = new AppPrincipal(new Arc4u.Security.Principal.Authorization(), new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0")
         {
             Profile = UserProfile.Empty
         };
 
         // Define a Principal with no OAuth2Bearer token here => we test the injection.
-        var appContext = serviceProvider.GetRequiredService<IApplicationContext>();
-        appContext.SetPrincipal(principal);
+        var appContext = container.Resolve<IApplicationContext>();
+        appContext!.SetPrincipal(principal);
 
-        var setingsOptions = serviceProvider.GetRequiredService<IOptionsMonitor<SimpleKeyValueSettings>>();
+        var setingsOptions = container.Resolve<IOptionsMonitor<SimpleKeyValueSettings>>();
 
         var mockMethod = _fixture.Freeze<Mock<Method<string, string>>>();
 
@@ -638,7 +592,7 @@ public class GRpcInterceptorTests
         var mock = _fixture.Freeze<Mock<BlockingUnaryCallContinuation<string, string>>>();
 
         // Act
-        var sut = new InterceptorClientTest(serviceProvider, serviceProvider.GetRequiredService<ILogger<OAuth2Interceptor>>()!, setingsOptions!, "OAuth2");
+        var sut = new InterceptorClientTest(container, container.Resolve<ILogger<InterceptorTest>>()!, setingsOptions!, "OAuth2");
 
         sut.BlockingUnaryCall<string, string>("Test", mockClientInterceptorContext, mock.Object);
 

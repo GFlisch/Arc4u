@@ -9,9 +9,18 @@ public class ClaimsFillerOptions
     public bool LoadClaimsFromClaimsFillerProvider { get; set; } = true;
 
     /// <summary>
-    /// The settings key to load the claims from.
+    /// The settings key to load the claims from. => registered as a named <see cref="SimpleKeyValueSettings>"/>
     /// By default no on behalf of scenario is defined => OAuth2 must be added to perform the on behalf of scenario.
     /// </summary>
-    public List<string> SettingsKeys { get; set; } = [Constants.OpenIdOptionsName];
-}
+    public List<string> SettingsKeys { get; set; } = [];
 
+    /// <summary>
+    /// Claim keys that will not be part of the principal.
+    /// </summary>
+    public List<string> ClaimsToExclude { get; set; } = [];
+
+    /// <summary>
+    /// Define the expire claim key from the authority.
+    /// </summary>
+    public string ExpireClaim { get; set; } = "exp";
+}

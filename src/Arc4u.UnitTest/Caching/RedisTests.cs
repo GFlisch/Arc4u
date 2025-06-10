@@ -25,7 +25,7 @@ public class RedisTests
     private readonly Fixture _fixture;
 
     [Fact]
-    [Trait("Category", "CI")]
+    [Trait("Category", "All")]
     public void OptionNameConfigShould()
     {
         // arrange
@@ -69,7 +69,7 @@ public class RedisTests
     }
 
     [Fact]
-    [Trait("Category", "CI")]
+    [Trait("Category", "All")]
     public void OptionNameConfigNoDeclaredShould()
     {
         // arrange
@@ -109,7 +109,7 @@ public class RedisTests
     }
 
     [Fact]
-    [Trait("Category", "CI")]
+    [Trait("Category", "All")]
     public void AddOptionByCodeToServiceCollectionShould()
     {
         // arrange
@@ -136,7 +136,7 @@ public class RedisTests
     }
 
     [Fact]
-    [Trait("Category", "CI")]
+    [Trait("Category", "All")]
     public void AddOptionByConfigToServiceCollectionShould()
     {
         // arrange

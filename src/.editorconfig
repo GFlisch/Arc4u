@@ -13,6 +13,7 @@
 ; This is the default for the codeline.
 root = true
 
+
 [*]
 indent_style = space
 charset = utf-8

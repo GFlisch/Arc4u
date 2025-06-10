@@ -117,7 +117,7 @@ public static partial class AuthenticationExtensions
 
     private static void ConfigureOpenIdConnectOptions(IServiceCollection services, OpenIdConnectOptions options, OidcAuthenticationOptions oidcOptions, OpenIdSettingsOption openIdOptions, SecurityKey? securityKey)
     {
-        ArgumentNullException.ThrowIfNull(oidcOptions.DefaultAuthority.MetaDataAddress);
+        ArgumentNullException.ThrowIfNull(oidcOptions.DefaultAuthority.GetMetaDataAddress());
 
         options.UsePkce = true;
         options.UseTokenLifetime = false;
@@ -281,6 +281,7 @@ public static partial class AuthenticationExtensions
             options.DefaultKeyLifetime = settings.DefaultKeyLifetime;
             options.ApplicationName = configuration[settings.ApplicationNameSectionPath]!;
             options.ForceRefreshTimeoutTimeSpan = settings.ForceRefreshTimeoutTimeSpan;
+            options.RefreshTokenLifetime = settings.RefreshTokenLifetime;
             options.CertSecurityKey = certSecurityKey;
             options.ResponseType = settings.ResponseType;
             options.AuthenticationTicketTTL = settings.AuthenticationTicketTTL;
