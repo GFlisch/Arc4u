@@ -35,12 +35,15 @@ public class AuthorityOptions
     private sealed class OpenIdConfiguration
     {
         public /*required*/ Uri token_endpoint { get; set; } = default!;
+
+        public /*required*/ Uri issuer { get; set; } = default!;
     }
 
     public /*required*/ Uri Url { get; set; } = default!;
 
     public Uri? TokenEndpoint { get; set; }
 
+    public Uri? Issuer { get; set; }
     public Uri? MetaDataAddress { get; set; }
 
     public TimeSpan? RetryInterval { get; set; }
@@ -76,7 +79,32 @@ public class AuthorityOptions
             openIdConfiguration = await JsonSerializer.DeserializeAsync<OpenIdConfiguration>(stream, cancellationToken: cancellationToken).ConfigureAwait(false);
 #endif
             TokenEndpoint = openIdConfiguration!.token_endpoint;
+
+            Issuer = openIdConfiguration.issuer;
         }
+
         return TokenEndpoint;
     }
+
+    public async Task<Uri> GetIssuerAsync(CancellationToken cancellationToken)
+    {
+        if (Issuer is null)
+        {
+            using var client = new HttpClient();
+            OpenIdConfiguration? openIdConfiguration;
+#if NET8_0_OR_GREATER
+            openIdConfiguration = await client.GetFromJsonAsync<OpenIdConfiguration>(GetMetaDataAddress(), cancellationToken).ConfigureAwait(false);
+#else
+            using var stream = await client.GetStreamAsync(GetMetaDataAddress()).ConfigureAwait(false);
+            openIdConfiguration = await JsonSerializer.DeserializeAsync<OpenIdConfiguration>(stream, cancellationToken: cancellationToken).ConfigureAwait(false);
+#endif
+            TokenEndpoint = openIdConfiguration!.token_endpoint;
+
+            Issuer = openIdConfiguration.issuer;
+        }
+
+        return Issuer;
+    }
+
+
 }

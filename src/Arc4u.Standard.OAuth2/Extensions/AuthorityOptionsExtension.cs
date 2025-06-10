@@ -8,7 +8,6 @@ public static class AuthorityOptionsExtension
 {
     public static void AddDefaultAuthority(this IServiceCollection services, Action<AuthorityOptions> options)
     {
-
         services.AddAuthority(options, "Default");
     }
 

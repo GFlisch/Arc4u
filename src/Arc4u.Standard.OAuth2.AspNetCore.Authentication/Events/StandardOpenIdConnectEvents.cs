@@ -18,13 +18,14 @@ public sealed partial class StandardOpenIdConnectEvents : OpenIdConnectEvents
     private readonly ILogger<StandardOpenIdConnectEvents> _logger;
     private readonly OidcAuthenticationOptions _oidcOptions;
     private readonly IOptionsMonitor<SimpleKeyValueSettings> _openIdOptions;
+    private readonly AuthorityOptions _defaultAuthorityOptions;
 
-    public StandardOpenIdConnectEvents(ILogger<StandardOpenIdConnectEvents> logger, IOptionsMonitor<OidcAuthenticationOptions> oidcOptions, IOptionsMonitor<SimpleKeyValueSettings> openIdOptions)
+    public StandardOpenIdConnectEvents(ILogger<StandardOpenIdConnectEvents> logger, IOptionsMonitor<OidcAuthenticationOptions> oidcOptions, IOptionsMonitor<SimpleKeyValueSettings> openIdOptions, IOptionsMonitor<AuthorityOptions> authorityOptions)
     {
         _logger = logger;
         _oidcOptions = oidcOptions.CurrentValue;
         _openIdOptions = openIdOptions;
-
+        _defaultAuthorityOptions = authorityOptions.Get("Default");
     }
 #if NET8_0_OR_GREATER
     [GeneratedRegex(@"\b(?:http:\/\/localhost|https:\/\/)\b", RegexOptions.IgnoreCase)]
@@ -40,11 +41,11 @@ public sealed partial class StandardOpenIdConnectEvents : OpenIdConnectEvents
     }
 #endif
 
-    public override Task TokenResponseReceived(TokenResponseReceivedContext context)
+    public override async Task TokenResponseReceived(TokenResponseReceivedContext context)
     {
         if (string.IsNullOrWhiteSpace(context.TokenEndpointResponse.AccessToken))
         {
-            return Task.CompletedTask;
+            return;
         }
 
         var jwtToken = new JwtSecurityToken(context.TokenEndpointResponse.AccessToken);
@@ -52,7 +53,8 @@ public sealed partial class StandardOpenIdConnectEvents : OpenIdConnectEvents
 
         if (_oidcOptions.ValidateAudience)
         {
-            if (!jwtToken.Audiences.Any(aud => options.Values[TokenKeys.Audiences].Contains(aud)))
+            // The audience is compared in a case senstive way!
+            if (!jwtToken.Audiences.Any(aud => options.Values[TokenKeys.Audiences].Contains(aud, StringComparison.Ordinal)))
             {
                 _logger.Technical()
                     .LogError("Audience(s) {audience} is not in the list of allowed audience(s): {audiences}.",
@@ -61,16 +63,18 @@ public sealed partial class StandardOpenIdConnectEvents : OpenIdConnectEvents
 
                 context.Fail("Invalid audience");
 
-                return Task.CompletedTask;
+                return;
             }
         }
 
         // when a default authority is not defined...
         if (_oidcOptions.ValidateAuthority)
         {
-            if (jwtToken.Issuer.Equals(_oidcOptions.DefaultAuthority.Url.AbsoluteUri, StringComparison.OrdinalIgnoreCase))
+            var issuer = await _defaultAuthorityOptions.GetIssuerAsync(CancellationToken.None)
+                                                           .ConfigureAwait(false);
+            if (jwtToken.Issuer.Equals(issuer.AbsoluteUri, StringComparison.OrdinalIgnoreCase))
             {
-                return Task.CompletedTask;
+                return;
             }
 
             _logger.Technical()
@@ -78,14 +82,8 @@ public sealed partial class StandardOpenIdConnectEvents : OpenIdConnectEvents
                     jwtToken.Issuer,
                     _oidcOptions.DefaultAuthority.Url.AbsoluteUri);
 
-            //context.HandleResponse();
             context.Fail("Invalid authority");
-
-            return Task.CompletedTask;
         }
-
-        return Task.CompletedTask;
-
     }
 
     public override Task RedirectToIdentityProvider(RedirectContext context)

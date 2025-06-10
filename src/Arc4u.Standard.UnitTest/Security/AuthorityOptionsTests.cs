@@ -76,6 +76,7 @@ public class AuthorityOptionsTests
         options.TokenEndpoint.Should().BeNull();
         (await options.GetEndpointAsync(CancellationToken.None)).Should().Be("https://login.microsoftonline.com/e564e8c4-2da9-4f0b-8e3d-c1a065b60501/oauth2/v2.0/token");
         options.TokenEndpoint.Should().Be("https://login.microsoftonline.com/e564e8c4-2da9-4f0b-8e3d-c1a065b60501/oauth2/v2.0/token");
+        options.Issuer.Should().Be("https://login.microsoftonline.com/e564e8c4-2da9-4f0b-8e3d-c1a065b60501/v2.0");
         options.GetMetaDataAddress().Should().Be("https://login.microsoftonline.com/e564e8c4-2da9-4f0b-8e3d-c1a065b60501/v2.0/.well-known/openid-configuration");
     }
 
