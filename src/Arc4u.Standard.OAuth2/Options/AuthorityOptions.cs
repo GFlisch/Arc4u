@@ -37,6 +37,11 @@ public class AuthorityOptions
         public /*required*/ Uri token_endpoint { get; set; } = default!;
 
         public /*required*/ Uri issuer { get; set; } = default!;
+
+        /// <summary>
+        /// ADFS is using this property in the access token as the issuer!
+        /// </summary>
+        public Uri? access_token_issuer { get; set; } = default!;
     }
 
     public /*required*/ Uri Url { get; set; } = default!;
@@ -44,6 +49,7 @@ public class AuthorityOptions
     public Uri? TokenEndpoint { get; set; }
 
     public Uri? Issuer { get; set; }
+
     public Uri? MetaDataAddress { get; set; }
 
     public TimeSpan? RetryInterval { get; set; }
@@ -80,7 +86,7 @@ public class AuthorityOptions
 #endif
             TokenEndpoint = openIdConfiguration!.token_endpoint;
 
-            Issuer = openIdConfiguration.issuer;
+            Issuer = openIdConfiguration.access_token_issuer ?? openIdConfiguration.issuer;
         }
 
         return TokenEndpoint;
@@ -100,7 +106,7 @@ public class AuthorityOptions
 #endif
             TokenEndpoint = openIdConfiguration!.token_endpoint;
 
-            Issuer = openIdConfiguration.issuer;
+            Issuer = openIdConfiguration.access_token_issuer ?? openIdConfiguration.issuer;
         }
 
         return Issuer;
