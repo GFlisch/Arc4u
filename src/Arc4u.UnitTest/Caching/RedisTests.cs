@@ -1,6 +1,7 @@
 using Arc4u.Caching;
 using Arc4u.Caching.Redis;
 using Arc4u.Configuration.Redis;
+using Arc4u.Dependency;
 using Arc4u.Serializer;
 using AutoFixture;
 using AutoFixture.AutoMoq;
@@ -10,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
+using Serilog;
 using Xunit;
 
 namespace Arc4u.UnitTest.Caching;
@@ -178,13 +180,21 @@ public class RedisTests
                              .AddInMemoryCollection(
                                  new Dictionary<string, string?>
                                  {
-                                     ["Store:ConnectionString"] = "127.0.*.1:6379,abortConnect=false,connectTimeout=30,connectRetry=5,ssl=false,DefaultDatabase=4",
+                                     ["Store:ConnectionString"] = "localhost:6379,abortConnect=false,connectTimeout=30,connectRetry=5,ssl=false,DefaultDatabase=4",
                                      ["Store:InstanceName"] = "db1"
                                  }).Build();
 
         var configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
         IServiceCollection services = new ServiceCollection();
+
+        var serilog = new LoggerConfiguration()
+            .MinimumLevel.Debug()
+            .CreateLogger();
+
+        services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(logger: serilog, dispose: false));
+        services.AddILogger();
+
         services.AddTransient<ICache, RedisCache>();
         services.AddRedisCache("Store", configuration, "Store");
         services.AddSingleton<IConfiguration>(configuration);

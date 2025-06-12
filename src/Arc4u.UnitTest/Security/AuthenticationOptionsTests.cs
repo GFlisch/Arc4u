@@ -65,7 +65,9 @@ public class AuthenticationOptionsTests
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
         var section = configuration.GetSection("Authentication");
-        var settings = section.Get<OidcAuthenticationSectionOptions>();
+        var settings = new OidcAuthenticationSectionOptions(); // default values applied
+        section.Bind(settings); // config values override what's provided
+
 
         settings.Should().NotBeNull();
         settings.DefaultAuthority.Url.Should().Be(authority.Url.ToString());

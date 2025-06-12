@@ -18,7 +18,7 @@ public class DependencyTests
     [Fact]
     public void TestCanBeScoped()
     {
-        var configuration = ConfigurationHelper.GetConfigurationFromFile(@"Configs\TestParser.json");
+        var configuration = ConfigurationHelper.GetConfigurationFromFile(@"Configs/TestParser.json");
 
         var services = new ServiceCollection();
         services.AddApplicationConfig(configuration);
@@ -43,7 +43,7 @@ public class DependencyTests
     [Fact]
     public void TestCanBeScopedByName()
     {
-        var configuration = ConfigurationHelper.GetConfigurationFromFile(@"Configs\TestParser.json");
+        var configuration = ConfigurationHelper.GetConfigurationFromFile(@"Configs/TestParser.json");
 
         var services = new ServiceCollection();
         services.AddApplicationConfig(configuration);
@@ -79,7 +79,7 @@ public class DependencyTests
     [Fact]
     void TestRejectedTypeRegister()
     {
-        var configuration = ConfigurationHelper.GetConfigurationFromFile(@"Configs\appsettings.RejectedTypes.json");
+        var configuration = ConfigurationHelper.GetConfigurationFromFile(@"Configs/appsettings.RejectedTypes.json");
         var services = new ServiceCollection();
         services.AddApplicationConfig(configuration);
 
@@ -97,7 +97,7 @@ public class DependencyTests
     [Fact]
     void TestParser()
     {
-        var configuration = ConfigurationHelper.GetConfigurationFromFile(@"Configs\TestParser.json");
+        var configuration = ConfigurationHelper.GetConfigurationFromFile(@"Configs/TestParser.json");
         var services = new ServiceCollection();
         services.AddApplicationConfig(configuration);
 
@@ -115,7 +115,7 @@ public class DependencyTests
     [Fact]
     void TestScopedParser()
     {
-        var configuration = ConfigurationHelper.GetConfigurationFromFile(@"Configs\TestScopedParser.json");
+        var configuration = ConfigurationHelper.GetConfigurationFromFile(@"Configs/TestScopedParser.json");
         var services = new ServiceCollection();
         services.AddApplicationConfig(configuration);
 
@@ -145,7 +145,7 @@ public class DependencyTests
     [Fact]
     void TestCompositionRegister()
     {
-        var configuration = ConfigurationHelper.GetConfigurationFromFile(@"Configs\EmptyAssemblies.json");
+        var configuration = ConfigurationHelper.GetConfigurationFromFile(@"Configs/EmptyAssemblies.json");
         var services = new ServiceCollection();
         services.AddApplicationConfig(configuration);
 
@@ -165,7 +165,7 @@ public class DependencyTests
     [Fact]
     void TestNullNamingRegister()
     {
-        var configuration = ConfigurationHelper.GetConfigurationFromFile(@"Configs\EmptyAssemblies.json");
+        var configuration = ConfigurationHelper.GetConfigurationFromFile(@"Configs/EmptyAssemblies.json");
         var services = new ServiceCollection();
         services.AddApplicationConfig(configuration);
 
@@ -177,7 +177,7 @@ public class DependencyTests
     [Fact]
     void TestNullNamingResolver()
     {
-        var configuration = ConfigurationHelper.GetConfigurationFromFile(@"Configs\EmptyAssemblies.json");
+        var configuration = ConfigurationHelper.GetConfigurationFromFile(@"Configs/EmptyAssemblies.json");
         var services = new ServiceCollection();
         services.AddApplicationConfig(configuration);
 
@@ -204,7 +204,7 @@ public class DependencyTests
     [Fact]
     void TestNullNamingMultiResolveException()
     {
-        var configuration = ConfigurationHelper.GetConfigurationFromFile(@"Configs\EmptyAssemblies.json");
+        var configuration = ConfigurationHelper.GetConfigurationFromFile(@"Configs/EmptyAssemblies.json");
         var services = new ServiceCollection();
         services.AddApplicationConfig(configuration);
 
@@ -226,7 +226,7 @@ public class DependencyTests
     [Fact]
     void TestComponentModelContainerResolveOnNonRegisteredType()
     {
-        var configuration = ConfigurationHelper.GetConfigurationFromFile(@"Configs\EmptyAssemblies.json");
+        var configuration = ConfigurationHelper.GetConfigurationFromFile(@"Configs/EmptyAssemblies.json");
         var services = new ServiceCollection();
         services.AddApplicationConfig(configuration);
 
@@ -248,7 +248,7 @@ public class DependencyTests
     {
         ContainerContext.RegisterCreateContainerFunction(() =>
         {
-            var configuration = ConfigurationHelper.GetConfigurationFromFile(@"Configs\EmptyAssemblies.json");
+            var configuration = ConfigurationHelper.GetConfigurationFromFile(@"Configs/EmptyAssemblies.json");
             var services = new ServiceCollection();
             services.AddApplicationConfig(configuration);
 

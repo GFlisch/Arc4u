@@ -1,6 +1,7 @@
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace Arc4u.OAuth2.Options;
+
 public class OidcAuthenticationSectionOptions
 {
     public AuthorityOptions DefaultAuthority { get; set; } = default!;

@@ -174,13 +174,13 @@ public static partial class AuthenticationExtensions
 
         var section = configuration.GetSection(authenticationSectionName);
 
-        if (section is null || !section.Exists())
+        if (!section.Exists())
         {
             throw new ConfigurationException($"No section exists with name {authenticationSectionName} in the configuration providers for OpenId Connect authentication.");
         }
 
-        var defaultSettings = new OidcAuthenticationSectionOptions();
-        var settings = section.Get<OidcAuthenticationSectionOptions>() ?? throw new InvalidOperationException($"No section exists with name {authenticationSectionName} in the configuration providers for OpenId Connect authentication.");
+        var settings = new OidcAuthenticationSectionOptions();
+        section.Bind(settings);
 
         string? configErrors = null;
         if (settings.DefaultAuthority is null)
@@ -241,21 +241,21 @@ public static partial class AuthenticationExtensions
             throw new MissingFieldException("A ResponseType is mandatory to define the OpenId Connect protocol.");
         }
 
-        // Map default settings if not defined (only for non string values).
-        if (!section.GetChildren().Any(c => c.Key == nameof(OidcAuthenticationOptions.AuthenticationTicketTTL)))
-        {
-            settings.AuthenticationTicketTTL = defaultSettings.AuthenticationTicketTTL;
-        }
-
-        if (!section.GetChildren().Any(c => c.Key == nameof(OidcAuthenticationOptions.ForceRefreshTimeoutTimeSpan)))
-        {
-            settings.ForceRefreshTimeoutTimeSpan = defaultSettings.ForceRefreshTimeoutTimeSpan;
-        }
-
-        if (!section.GetChildren().Any(c => c.Key == nameof(OidcAuthenticationOptions.DefaultKeyLifetime)))
-        {
-            settings.DefaultKeyLifetime = defaultSettings.DefaultKeyLifetime;
-        }
+        // // Map default settings if not defined (only for non string values).
+        // if (!section.GetChildren().Any(c => c.Key == nameof(OidcAuthenticationOptions.AuthenticationTicketTTL)))
+        // {
+        //     settings.AuthenticationTicketTTL = defaultSettings.AuthenticationTicketTTL;
+        // }
+        //
+        // if (!section.GetChildren().Any(c => c.Key == nameof(OidcAuthenticationOptions.ForceRefreshTimeoutTimeSpan)))
+        // {
+        //     settings.ForceRefreshTimeoutTimeSpan = defaultSettings.ForceRefreshTimeoutTimeSpan;
+        // }
+        //
+        // if (!section.GetChildren().Any(c => c.Key == nameof(OidcAuthenticationOptions.DefaultKeyLifetime)))
+        // {
+        //     settings.DefaultKeyLifetime = defaultSettings.DefaultKeyLifetime;
+        // }
 
         //if (!section.GetChildren().Any(c => c.Key == nameof(OidcAuthenticationOptions.ValidateAudience)))
         //{

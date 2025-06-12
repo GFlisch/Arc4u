@@ -44,17 +44,12 @@ public static class AddClaimsFillerExtension
 
             if (section.Exists())
             {
-                options = section.Get<ClaimsFillerOptions>();
+                section.Bind(options);
                 if (!section.GetSection("ClaimsToExclude").Exists())
                 {
                     options!.ClaimsToExclude = DefaultClaimsToExclude;
                 }
             }
-        }
-
-        if (null == options)
-        {
-            return;
         }
 
         AddClaimsFiller(services, o =>

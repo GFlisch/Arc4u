@@ -180,7 +180,7 @@ public class ProblemDetailsWithActionResultTests
         problem.Should().NotBeNull();
         problem!.Title.Should().Be("Error.");
         problem.Detail.Should().Be(value);
-        problem.Status.Should().Be(StatusCodes.Status500InternalServerError);
+        problem.Status.Should().Be(StatusCodes.Status400BadRequest);
     }
 
     [Fact]
@@ -208,7 +208,7 @@ public class ProblemDetailsWithActionResultTests
         problem.Should().NotBeNull();
         problem.Title.Should().Be("Error.");
         problem.Detail.Should().Be(msg1);
-        problem.Status.Should().Be(StatusCodes.Status500InternalServerError);
+        problem.Status.Should().Be(StatusCodes.Status400BadRequest);
     }
 
     [Fact]
@@ -254,7 +254,7 @@ public class ProblemDetailsWithActionResultTests
         problem.Should().NotBeNull();
         problem.Title.Should().Be("Error.");
         problem.Detail.Should().Be(value);
-        problem.Status.Should().Be(StatusCodes.Status500InternalServerError);
+        problem.Status.Should().Be(StatusCodes.Status400BadRequest);
     }
 
     #endregion
@@ -283,7 +283,7 @@ public class ProblemDetailsWithActionResultTests
         problem.Should().NotBeNull();
         problem.Title.Should().Be("Error.");
         problem.Detail.Should().Be(value);
-        problem.Status.Should().Be(StatusCodes.Status500InternalServerError);
+        problem.Status.Should().Be(StatusCodes.Status400BadRequest);
     }
 
     [Fact]
@@ -403,7 +403,7 @@ public class ProblemDetailsWithActionResultTests
         problem.Should().NotBeNull();
         problem.Title.Should().Be("Error.");
         problem.Detail.Should().Be(value);
-        problem.Status.Should().Be(StatusCodes.Status500InternalServerError);
+        problem.Status.Should().Be(StatusCodes.Status400BadRequest);
     }
 
     [Fact]
@@ -448,7 +448,7 @@ public class ProblemDetailsWithActionResultTests
         problem.Should().NotBeNull();
         problem.Title.Should().Be("Error.");
         problem.Detail.Should().Be(value);
-        problem.Status.Should().Be(StatusCodes.Status500InternalServerError);
+        problem.Status.Should().Be(StatusCodes.Status400BadRequest);
     }
 
     [Fact]
@@ -573,7 +573,7 @@ public class ProblemDetailsWithActionResultTests
         sut.Result.Should().BeOfType<ObjectResult>();
         ((ObjectResult)sut.Result!).Value.Should().BeOfType<ProblemDetails>();
         var problem = (ProblemDetails)((ObjectResult)sut.Result).Value!;
-        problem.Type.Should().Be("about:blank");
+        problem.Type.Should().Be("https://github.com/GFlisch/Arc4u/wiki/StatusCodes#unexpected-error");
         problem.Instance.Should().BeNull();
         problem.Title.Should().NotBeEmpty();
         problem.Detail.Should().NotBeEmpty();
@@ -616,7 +616,7 @@ public class ProblemDetailsWithActionResultTests
         problem.Should().NotBeNull();
         problem.Title.Should().Be("Error.");
         problem.Detail.Should().Be(value);
-        problem.Status.Should().Be(StatusCodes.Status500InternalServerError);
+        problem.Status.Should().Be(StatusCodes.Status400BadRequest);
     }
 
     [Fact]

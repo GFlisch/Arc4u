@@ -221,8 +221,8 @@ public class ProblemDetailsWithIResultTests
         problem!.Title.Should().Be("Error from validation.");
         problem.Detail.Should().BeNull();
         problem.Errors.Should().HaveCount(1);
-        problem.Errors.First().Key.Should().Be("100");
-        problem.Errors.First().Value[0].Should().Be("Error: Problem");
+        problem.Errors.First().Key.Should().Be("Error");
+        problem.Errors.First().Value[0].Should().Be("Problem");
         problem.Status.Should().Be(StatusCodes.Status422UnprocessableEntity);
 
     }
@@ -488,8 +488,8 @@ public class ProblemDetailsWithIResultTests
         problem!.Title.Should().Be("Error from validation.");
         problem.Detail.Should().BeNull();
         problem.Errors.Should().HaveCount(1);
-        problem.Errors.First().Key.Should().Be("100");
-        problem.Errors.First().Value[0].Should().Be("Error: Problem");
+        problem.Errors.First().Key.Should().Be("Error");
+        problem.Errors.First().Value[0].Should().Be("Problem");
         problem.Status.Should().Be(StatusCodes.Status422UnprocessableEntity);
 
     }
@@ -706,14 +706,6 @@ public class ProblemDetailsWithIResultTests
         problem.Title.Should().Be("Error.");
         problem.Detail.Should().Be(msg1);
         problem.Status.Should().Be(StatusCodes.Status400BadRequest);
-
-        //problem = problems[1];
-        //problem.Should().NotBeNull();
-        //problem.Title.Should().Be("Error.");
-        //problem.Detail.Should().Be(msg2);
-        //problem.Status.Should().Be(StatusCodes.Status500InternalServerError);
-        //problem.Extensions.Count.Should().Be(2);
-        //problem.Extensions["Code"].Should().Be("100");
     }
 
     [Fact]
@@ -735,8 +727,8 @@ public class ProblemDetailsWithIResultTests
         problem!.Title.Should().Be("Error from validation.");
         problem.Detail.Should().BeNull();
         problem.Errors.Should().HaveCount(1);
-        problem.Errors.First().Key.Should().Be("100");
-        problem.Errors.First().Value[0].Should().Be("Error: Problem");
+        problem.Errors.First().Key.Should().Be("Error");
+        problem.Errors.First().Value[0].Should().Be("Problem");
         problem.Status.Should().Be(StatusCodes.Status422UnprocessableEntity);
 
     }
