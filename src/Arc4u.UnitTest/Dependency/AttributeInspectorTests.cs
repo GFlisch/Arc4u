@@ -5,6 +5,8 @@ using Xunit;
 
 namespace Arc4u.UnitTest.Dependency;
 #pragma warning disable CS0618
+
+[Trait("Category", "CI")]
 public class AttributeInspectorTests
 {
     [Fact]

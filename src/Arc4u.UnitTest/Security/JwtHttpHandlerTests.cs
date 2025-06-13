@@ -52,6 +52,7 @@ public class JwtHandlerToTest2(IServiceProvider serviceProvider, ILogger<JwtHttp
 /// 9) Chain 3 Handlers: Oauth2Bearer + Cookies + Inject but inject is not occuring because a OAuth2Bearer is already available.
 /// </summary>
 #pragma warning disable CS0618
+[Trait("Category", "CI")]
 public class JwtHttpHandlerTests
 {
     public JwtHttpHandlerTests()

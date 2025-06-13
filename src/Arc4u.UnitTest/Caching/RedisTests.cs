@@ -199,7 +199,6 @@ public class RedisTests
         services.AddRedisCache("Store", configuration, "Store");
         services.AddSingleton<IConfiguration>(configuration);
         services.AddTransient<IObjectSerialization, JsonSerialization>();
-        services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
 
         var serviceProvider = services.BuildServiceProvider();
 

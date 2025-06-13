@@ -1,3 +1,4 @@
+using Arc4u.Caching;
 using Arc4u.Caching.Sql;
 using Arc4u.Configuration.Sql;
 using Arc4u.Dependency;
@@ -10,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Moq;
+using Serilog;
 using Xunit;
 
 namespace Arc4u.UnitTest.Caching;
@@ -102,6 +104,13 @@ public class SqlCacheTests
         // arrange
         IServiceCollection services = new ServiceCollection();
 
+        var serilog = new LoggerConfiguration()
+                                    .MinimumLevel.Debug()
+                                    .CreateLogger();
+
+        services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(logger: serilog, dispose: false));
+        services.AddILogger();
+
         var builder = new SqlConnectionStringBuilder
         {
             ConnectTimeout = 30,
@@ -119,17 +128,18 @@ public class SqlCacheTests
             options.TableName = "TestCache";
         });
 
+        services.AddTransient<ICache, SqlCache>();
         services.AddTransient<IObjectSerialization, JsonSerialization>();
 
         var serviceProvider = services.BuildServiceProvider();
 
-        _fixture.Inject<IServiceProvider>(serviceProvider);
-
-        var mockIOptions = _fixture.Freeze<Mock<IOptionsMonitor<SqlCacheOption>>>();
-        mockIOptions.Setup(m => m.Get("storeName")).Returns(serviceProvider.GetService<IOptionsMonitor<SqlCacheOption>>()!.Get("storeName"));
+        // _fixture.Inject<IServiceProvider>(serviceProvider);
+        //
+        // var mockIOptions = _fixture.Freeze<Mock<IOptionsMonitor<SqlCacheOption>>>();
+        // mockIOptions.Setup(m => m.Get("storeName")).Returns(serviceProvider.GetService<IOptionsMonitor<SqlCacheOption>>()!.Get("storeName"));
 
         // act
-        var cache = _fixture.Create<SqlCache>();
+        var cache = serviceProvider.GetRequiredService<ICache>(); //_fixture.Create<SqlCache>();
 
         cache.Initialize("storeName");
 

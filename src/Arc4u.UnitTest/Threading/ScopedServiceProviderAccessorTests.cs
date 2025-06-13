@@ -9,6 +9,7 @@ using Xunit;
 
 namespace Arc4u.UnitTest.Threading;
 
+[Trait("Category", "CI")]
 public class ScopedServiceProviderAccessorTests
 {
     public ScopedServiceProviderAccessorTests()

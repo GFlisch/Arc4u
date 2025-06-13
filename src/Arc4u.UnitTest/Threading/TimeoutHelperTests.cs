@@ -2,6 +2,7 @@ using FluentAssertions;
 using Xunit;
 
 namespace Arc4u.UnitTest.Threading;
+[Trait("Category", "CI")]
 public class TimeoutHelperTests
 {
     [Trait("Category", "CI")]

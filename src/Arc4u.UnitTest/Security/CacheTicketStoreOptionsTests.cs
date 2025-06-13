@@ -6,6 +6,7 @@ using Xunit;
 
 namespace Arc4u.UnitTest.Security;
 
+[Trait("Category", "CI")]
 public class CacheTicketStoreOptionsTests
 {
     [Fact]

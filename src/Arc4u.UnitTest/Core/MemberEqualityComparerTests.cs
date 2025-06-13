@@ -4,6 +4,7 @@ using Xunit;
 
 namespace Arc4u.UnitTest.Collections.Generic;
 
+[Trait("Category", "CI")]
 public class MemberEqualityComparerTests
 {
     private sealed class TestClass

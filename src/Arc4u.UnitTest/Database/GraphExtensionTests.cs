@@ -4,6 +4,7 @@ using Xunit;
 
 namespace Arc4u.UnitTest.Database;
 
+[Trait("Category", "CI")]
 public class GraphExtensionTests
 {
     private sealed class TestEntity

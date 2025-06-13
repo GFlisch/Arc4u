@@ -3,6 +3,7 @@ using Xunit;
 
 namespace Arc4u.UnitTest.Threading;
 
+[Trait("Category", "CI")]
 public class Scope2Tests
 {
     [Fact]

@@ -19,6 +19,7 @@ using Arc4u.Dependency;
 
 namespace Arc4u.UnitTest.Security;
 
+[Trait("Category", "CI")]
 public class OidcAuthenticationOptionsTests
 {
     public OidcAuthenticationOptionsTests()

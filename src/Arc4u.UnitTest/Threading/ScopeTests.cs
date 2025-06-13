@@ -4,6 +4,7 @@ using Xunit;
 
 namespace Arc4u.UnitTest.Threading;
 
+[Trait("Category", "CI")]
 public class Context
 {
     private static readonly Context InnerContext = new();
@@ -103,6 +104,7 @@ public class ScopeTest
     }
 
     [Fact]
+    [Trait("Category", "CI")]
     public async Task TestAsync1()
     {
         using (new Scope<string>("Hello"))
@@ -116,6 +118,7 @@ public class ScopeTest
     }
 
     [Fact]
+    [Trait("Category", "CI")]
     public void TestAsync2()
     {
         using (new Scope<string>("Hello"))

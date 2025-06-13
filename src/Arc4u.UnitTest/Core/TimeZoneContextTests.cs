@@ -9,6 +9,7 @@ using Environment = Arc4u.Configuration.Environment;
 
 namespace Arc4u.UnitTest.Core;
 
+[Trait("Category", "CI")]
 public class TimeZoneContextTests
 {
     private readonly Mock<IOptionsMonitor<ApplicationConfig>> _mockConfigPST;
