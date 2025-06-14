@@ -52,7 +52,7 @@ public static class OpenIdSettingsExtension
                 keyOptions.Add(TokenKeys.AuthorityKey, Constants.OpenIdOptionsName);
                 services.Configure<AuthorityOptions>(Constants.OpenIdOptionsName, options =>
                 {
-                    options.SetData(validate.Authority.Url, validate.Authority.TokenEndpoint, validate.Authority.MetaDataAddress);
+                    options.SetData(validate.Authority.Url, validate.Authority.TokenEndpoint, validate.Authority.Issuer, validate.Authority.MetaDataAddress);
                 });
             }
 

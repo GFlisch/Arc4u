@@ -37,7 +37,7 @@ public static class OAuth2SettingsExtension
         }
 
         // We map this to a IKeyValuesSettings dictionary.
-        // The TokenProviders are based on 
+        // The TokenProviders are based on
 
         void SettingsFiller(SimpleKeyValueSettings keyOptions)
         {
@@ -50,7 +50,7 @@ public static class OAuth2SettingsExtension
                 keyOptions.Add(TokenKeys.AuthorityKey, Constants.OAuth2OptionsName);
                 services.Configure<AuthorityOptions>(Constants.OAuth2OptionsName, options =>
                 {
-                    options.SetData(validate.Authority.Url, validate.Authority.TokenEndpoint, validate.Authority.MetaDataAddress);
+                    options.SetData(validate.Authority.Url, validate.Authority.TokenEndpoint, validate.Authority.Issuer, validate.Authority.MetaDataAddress);
                 });
             }
             // Build the list of Audiences as a string.

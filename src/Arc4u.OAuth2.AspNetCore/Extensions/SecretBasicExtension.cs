@@ -109,13 +109,13 @@ public static class SecretBasicExtension
         {
             services.AddAuthority(authOptions =>
             {
-                authOptions.SetData(options.Authority.Url, options.Authority.TokenEndpoint, options.Authority.MetaDataAddress);
+                authOptions.SetData(options.Authority.Url, options.Authority.TokenEndpoint, options.Authority.Issuer, options.Authority.MetaDataAddress);
             }, optionKey);
             authorityKey = optionKey;
         }
 
         // We map this to a IKeyValuesSettings dictionary.
-        // The TokenProviders are based on 
+        // The TokenProviders are based on
 
         void Settings(SimpleKeyValueSettings settings)
         {

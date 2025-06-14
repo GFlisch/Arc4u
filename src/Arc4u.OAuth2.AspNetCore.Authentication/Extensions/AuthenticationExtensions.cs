@@ -60,7 +60,7 @@ public static partial class AuthenticationExtensions
 
         services.AddDefaultAuthority(options =>
         {
-            options.SetData(oidcOptions.DefaultAuthority.Url, oidcOptions.DefaultAuthority.TokenEndpoint, oidcOptions.DefaultAuthority.MetaDataAddress);
+            options.SetData(oidcOptions.DefaultAuthority.Url, oidcOptions.DefaultAuthority.TokenEndpoint, oidcOptions.DefaultAuthority.Issuer, oidcOptions.DefaultAuthority.MetaDataAddress);
         });
 
         services.Configure<OidcAuthenticationOptions>(authenticationOptions);
@@ -333,7 +333,7 @@ public static partial class AuthenticationExtensions
         services.AddHttpContextAccessor();
         services.AddDefaultAuthority(auth =>
         {
-            auth.SetData(options.DefaultAuthority.Url, options.DefaultAuthority.TokenEndpoint, options.DefaultAuthority.MetaDataAddress);
+            auth.SetData(options.DefaultAuthority.Url, options.DefaultAuthority.TokenEndpoint, options.DefaultAuthority.Issuer, options.DefaultAuthority.MetaDataAddress);
         });
 
         var authenticationBuilder =

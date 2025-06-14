@@ -14,7 +14,14 @@ internal partial class OpenIdConfigurationJsonContext : JsonSerializerContext
 /// </summary>
 sealed class OpenIdConfiguration
 {
-    public /*required*/ Uri Token_endpoint { get; set; } = default!;
+    public required Uri Token_endpoint { get; set; }
+
+    public required Uri issuer { get; set; }
+
+    /// <summary>
+    /// ADFS is using this property in the access token as the issuer!
+    /// </summary>
+    public Uri? access_token_issuer { get; set; }
 }
 
 public class AuthorityOptions
@@ -24,33 +31,30 @@ public class AuthorityOptions
     /// </summary>
     public AuthorityOptions()
     {
+        Url = new Uri("about:blank");
     }
 
-    public AuthorityOptions(Uri url, Uri? tokenEndpoint, Uri? metadataAddress)
+    public AuthorityOptions(Uri url, Uri? tokenEndpoint, Uri? issuer, Uri? metadataAddress)
     {
         Url = url;
         TokenEndpoint = tokenEndpoint;
         MetaDataAddress = metadataAddress;
+        Issuer = issuer;
     }
 
-    public void SetData(Uri url, Uri? tokenEndpoint, Uri? metadataAddress)
+    public void SetData(Uri url, Uri? tokenEndpoint, Uri? issuer, Uri? metadataAddress)
     {
         Url = url;
         TokenEndpoint = tokenEndpoint;
         MetaDataAddress = metadataAddress;
+        Issuer = issuer;
     }
 
-    /// <summary>
-    /// Only define the properties that are being used when calling the well-known Oidc endpoint.
-    /// </summary>
-    //private sealed class OpenIdConfiguration
-    //{
-    //    public /*required*/ Uri token_endpoint { get; set; } = default!;
-    //}
-
-    public /*required*/ Uri Url { get; set; } = default!;
+    public Uri Url { get; set; }
 
     public Uri? TokenEndpoint { get; set; }
+
+    public Uri? Issuer { get; set; }
 
     public Uri? MetaDataAddress { get; set; }
 
@@ -58,9 +62,9 @@ public class AuthorityOptions
 
     /// <summary>
     /// Will retrieve the v2.0 openid connect discovery.
-    /// If you want another one, just provide the full metadata address!
+    /// If you want another one, provide the full metadata address!
     /// </summary>
-    /// <returns>Thetoken_endpoint to use!</returns>
+    /// <returns>The token_endpoint to use!</returns>
     public Uri GetMetaDataAddress()
     {
         if (MetaDataAddress == null)
@@ -79,13 +83,28 @@ public class AuthorityOptions
         if (TokenEndpoint is null)
         {
             using var client = new HttpClient();
-            OpenIdConfiguration? openIdConfiguration;
 
             var stream = await client.GetStreamAsync(GetMetaDataAddress(), cancellationToken).ConfigureAwait(false);
-            openIdConfiguration = JsonSerializer.Deserialize(stream, OpenIdConfigurationJsonContext.Default.OpenIdConfiguration);
+            var openIdConfiguration = JsonSerializer.Deserialize(stream, OpenIdConfigurationJsonContext.Default.OpenIdConfiguration);
 
             TokenEndpoint = openIdConfiguration!.Token_endpoint;
+            Issuer = openIdConfiguration.access_token_issuer ?? openIdConfiguration.issuer;
         }
         return TokenEndpoint;
+    }
+
+    public async Task<Uri> GetIssuerAsync(CancellationToken cancellationToken)
+    {
+        if (Issuer is null)
+        {
+            using var client = new HttpClient();
+
+            var stream = await client.GetStreamAsync(GetMetaDataAddress(), cancellationToken).ConfigureAwait(false);
+            var openIdConfiguration = JsonSerializer.Deserialize(stream, OpenIdConfigurationJsonContext.Default.OpenIdConfiguration);
+
+            TokenEndpoint = openIdConfiguration!.Token_endpoint;
+            Issuer = openIdConfiguration.access_token_issuer ?? openIdConfiguration.issuer;
+        }
+        return Issuer;
     }
 }

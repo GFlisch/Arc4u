@@ -126,7 +126,7 @@ public static class BasicAuthenticationMiddlewareExtension
 
         services.AddAuthority(authOptions =>
         {
-            authOptions.SetData(validate.Authority.Url, validate.Authority.TokenEndpoint, validate.Authority.MetaDataAddress);
+            authOptions.SetData(validate.Authority.Url, validate.Authority.TokenEndpoint, validate.Authority.Issuer, validate.Authority.MetaDataAddress);
         }, "Basic");
 
         return true;
@@ -164,7 +164,7 @@ public static class BasicAuthenticationMiddlewareExtension
         }
 
         // We map this to a IKeyValuesSettings dictionary.
-        // The TokenProviders are based on 
+        // The TokenProviders are based on
 
         var settings = new SimpleKeyValueSettings();
 

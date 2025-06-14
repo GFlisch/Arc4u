@@ -8,7 +8,6 @@ public static class AuthorityOptionsExtension
 {
     public static void AddDefaultAuthority(this IServiceCollection services, Action<AuthorityOptions> options)
     {
-
         services.AddAuthority(options, "Default");
     }
 
@@ -24,7 +23,7 @@ public static class AuthorityOptionsExtension
 
         var section = configuration.GetSection(sectionName);
 
-        if (section is null || !section.Exists())
+        if (!section.Exists())
         {
             throw new ConfigurationException($"Section {sectionName} doesn't exist");
         }
@@ -38,7 +37,7 @@ public static class AuthorityOptionsExtension
 
         services.AddDefaultAuthority(options =>
         {
-            options.SetData(option.Url, option.TokenEndpoint, option.MetaDataAddress);
+            options.SetData(option.Url, option.TokenEndpoint, option.Issuer, option.MetaDataAddress);
         });
     }
 
@@ -60,8 +59,6 @@ public static class AuthorityOptionsExtension
         {
             throw new ConfigurationException("Url authority field is mandatory.");
         }
-
-        // v1.0 is not mandatory and should disappear.
 
         services.Configure(optionKey, options);
     }

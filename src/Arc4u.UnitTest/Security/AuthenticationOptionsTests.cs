@@ -160,7 +160,7 @@ public class AuthenticationOptionsTests
 
         var sutAuthority = serviceProvider.GetService<IOptionsMonitor<AuthorityOptions>>()!.Get(Constants.OAuth2OptionsName);
 
-        sutAuthority.Url.Should().BeNull();
+        sutAuthority.Url.Should().Be(new Uri("about:blank"));
 
     }
 
