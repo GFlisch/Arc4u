@@ -21,13 +21,19 @@ public class GenerateRegisteredTypes : IIncrementalGenerator
             //Debugger.Launch();
         }
 #endif
+        Debugger.Launch();
         // if I have more than one file, the latest one will win!
         // To enforce the rule and having for sure one result => Take only the file under the path Configs\appsettings.json!
+        var normalizedTargetPath = Path.DirectorySeparatorChar + Path.Combine("Configs", "appsettings.json");
+
         var appSettingFiles = context.AdditionalTextsProvider
-                                     .Where(file =>
-                                     {
-                                         return file.Path.EndsWith(@"\configs\appsettings.json".Replace("\\", Path.DirectorySeparatorChar.ToString()), StringComparison.InvariantCultureIgnoreCase);
-                                     });
+            .Where(file =>
+            {
+                // Normalize the path to ensure that the comparison is case insensitive on all platforms.
+                //var normalizedFilePath = file.Path.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+                return file.Path.EndsWith(normalizedTargetPath, StringComparison.InvariantCultureIgnoreCase);
+            });
+
 
         context.RegisterSourceOutput(appSettingFiles.Combine(context.CompilationProvider), (ctx, source) =>
         {
@@ -35,19 +41,14 @@ public class GenerateRegisteredTypes : IIncrementalGenerator
             var json = appSettingFile.GetText(ctx.CancellationToken)?.ToString();
             var path = appSettingFile?.Path;
 
-            // Retrive the different directories and must extract the shared part.
-            var symbolPaths = compilator.Assembly.Locations
-                                        .Where(l => l.SourceTree?.FilePath is not null)
-                                        .Select(l => Path.GetDirectoryName(l.SourceTree?.FilePath))
-                                        .ToList();
-
+            // Retrieve the different directories and must extract the shared part.
             var assemblyPath = GetAssemblyPath(compilator);
             var nugetAssemblies = RetrieveNugetPackages(compilator);
 
             // Check metadata through options if needed (although we don't set it here, options is available)
             if (json != null && path is not null && assemblyPath is not null)
             {
-                if (path.Substring(assemblyPath.Length).Equals(@"\configs\appsettings.json".Replace("\\", Path.DirectorySeparatorChar.ToString()), StringComparison.InvariantCultureIgnoreCase))
+                if (path.Substring(assemblyPath.Length).Equals(normalizedTargetPath, StringComparison.InvariantCultureIgnoreCase))
                 {
                     ctx.AddSource("GeneratedTypes.g.cs", SourceText.From(GenerateRegisterTypes(json, nugetAssemblies), Encoding.UTF8));
                 }
@@ -63,10 +64,10 @@ public class GenerateRegisteredTypes : IIncrementalGenerator
                                      .ToList();
 
         // Find the minimum length of the strings in the list
-        var minLength = symbolPaths.Min(path => path.Length);
+        var minLength = symbolPaths.Min(path => path!.Length);
 
         // Select all the strings that have the shortest length
-        var shortestPaths = symbolPaths.Where(path => path.Length == minLength).ToList();
+        var shortestPaths = symbolPaths.Where(path => path!.Length == minLength).ToList();
 
         // I can have more than one path with the same length: c:\Temp\A\B and c:\Temp\C\D.
         // I need to find the common part: c:\Temp\
@@ -96,7 +97,7 @@ public class GenerateRegisteredTypes : IIncrementalGenerator
         return string.Join(Path.DirectorySeparatorChar.ToString(), commonParts);
     }
 
-    public static List<string> RetrieveNugetPackages(Compilation compilation)
+    private static List<string> RetrieveNugetPackages(Compilation compilation)
     {
         // Get all metadata references (assemblies) in the compilation
         var metadataReferences = compilation.ExternalReferences;
@@ -139,32 +140,29 @@ public class GenerateRegisteredTypes : IIncrementalGenerator
                         var parts = typeString.Split([','], 2);
                         if (parts.Length == 2)
                         {
-                            if (parts.Length == 2)
+                            var typeInfo = new TypeInfo(parts[0].Trim());
+                            var assemblyString = parts[1].Trim();
+
+                            // Parse the assembly information
+                            var assemblyName = new AssemblyName(assemblyString);
+
+                            var nugetFiles = nugetPaths.Where(p => p.EndsWith($"{assemblyName.Name}.dll"));
+                            if (assemblyName.Version is not null)
                             {
-                                var typeInfo = new TypeInfo(parts[0].Trim());
-                                var assemblyString = parts[1].Trim();
+                                nugetFiles = nugetFiles.Where(p => p.Contains(assemblyName.Version.ToString()));
+                            }
 
-                                // Parse the assembly information 
-                                var assemblyName = new AssemblyName(assemblyString);
+                            if (nugetFiles.Any())
+                            {
+                                var nugetInfo = new NugetInfo(nugetFiles.First(), assemblyName);
 
-                                var nugetFiles = nugetPaths.Where(p => p.EndsWith($"{assemblyName.Name}.dll"));
-                                if (assemblyName.Version is not null)
+                                if (!typesByAssemblies.ContainsKey(nugetInfo))
                                 {
-                                    nugetFiles = nugetFiles.Where(p => p.Contains(assemblyName.Version.ToString()));
+                                    typesByAssemblies.Add(nugetInfo, [typeInfo]);
                                 }
-
-                                if (nugetFiles.Any())
+                                else
                                 {
-                                    var nugetInfo = new NugetInfo(nugetFiles.First(), assemblyName);
-
-                                    if (!typesByAssemblies.ContainsKey(nugetInfo))
-                                    {
-                                        typesByAssemblies.Add(nugetInfo, [typeInfo]);
-                                    }
-                                    else
-                                    {
-                                        typesByAssemblies[nugetInfo].Add(typeInfo);
-                                    }
+                                    typesByAssemblies[nugetInfo].Add(typeInfo);
                                 }
                             }
                         }
