@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using FluentResults;
 using Microsoft.Extensions.Logging;
 
@@ -15,12 +14,9 @@ public static class ResultExtension
         }
         return result;
     }
-    public static Result OnSuccessAsync<TValue>(this Result result, Func<Task> func)
+    public static Result OnSuccessAsync(this Result result, Func<Task> func)
     {
-        if (null == func)
-        {
-            return result;
-        }
+        ArgumentNullException.ThrowIfNull(func);
 
         if (result.IsSuccess)
         {
@@ -31,6 +27,7 @@ public static class ResultExtension
 
     public static async Task<Result> OnSuccess(this Task<Result> result, Action action)
     {
+        ArgumentNullException.ThrowIfNull(action);
         var r = await result.ConfigureAwait(false);
 
         if (r.IsSuccess)
@@ -41,6 +38,7 @@ public static class ResultExtension
     }
     public static async Task<Result> OnSuccessAsync(this Task<Result> result, Func<Task> action)
     {
+        ArgumentNullException.ThrowIfNull(action);
         if (result.Result.IsSuccess)
         {
             await action().ConfigureAwait(false);
@@ -51,6 +49,7 @@ public static class ResultExtension
 
     public static async ValueTask<Result> OnSuccess(this ValueTask<Result> result, Action action)
     {
+        ArgumentNullException.ThrowIfNull(action);
         var r = await result.ConfigureAwait(false);
 
         if (r.IsSuccess)
@@ -61,6 +60,8 @@ public static class ResultExtension
     }
     public static async ValueTask<Result> OnSuccessAsync(this ValueTask<Result> result, Func<Task> action)
     {
+        ArgumentNullException.ThrowIfNull(action);
+
         if (result.Result.IsSuccess)
         {
             await action().ConfigureAwait(false);
@@ -71,6 +72,7 @@ public static class ResultExtension
 
     public static Result<TValue> OnSuccess<TValue>(this Result<TValue> result, Action action)
     {
+        ArgumentNullException.ThrowIfNull(action);
         if (result.IsSuccess)
         {
             action();
@@ -79,10 +81,7 @@ public static class ResultExtension
     }
     public static Result<TValue> OnSuccessAsync<TValue>(this Result<TValue> result, Func<Task> func)
     {
-        if (null == func)
-        {
-            return result;
-        }
+        ArgumentNullException.ThrowIfNull(func);
 
         if (result.IsSuccess)
         {
@@ -92,6 +91,7 @@ public static class ResultExtension
     }
     public static Result<TValue> OnSuccess<TValue>(this Result<TValue> result, Action<TValue> action)
     {
+        ArgumentNullException.ThrowIfNull(action);
         if (result.IsSuccess)
         {
             action(result.ValueOrDefault);
@@ -100,10 +100,7 @@ public static class ResultExtension
     }
     public static Result<TValue> OnSuccessAsync<TValue>(this Result<TValue> result, Func<TValue, Task> func)
     {
-        if (null == func)
-        {
-            return result;
-        }
+        ArgumentNullException.ThrowIfNull(func);
 
         if (result.IsSuccess)
         {
@@ -114,6 +111,7 @@ public static class ResultExtension
 
     public static async Task<Result<TValue>> OnSuccess<TValue>(this Task<Result<TValue>> result, Action action)
     {
+        ArgumentNullException.ThrowIfNull(action);
         var r = await result.ConfigureAwait(false);
 
         if (r.IsSuccess)
@@ -124,6 +122,7 @@ public static class ResultExtension
     }
     public static async Task<Result<TValue>> OnSuccess<TValue>(this Task<Result<TValue>> result, Action<TValue> action)
     {
+        ArgumentNullException.ThrowIfNull(action);
         var r = await result.ConfigureAwait(false);
 
         if (r.IsSuccess)
@@ -134,6 +133,7 @@ public static class ResultExtension
     }
     public static async Task<Result<TValue>> OnSuccessAsync<TValue>(this Task<Result<TValue>> result, Func<Task> action)
     {
+        ArgumentNullException.ThrowIfNull(action);
         var r = await result.ConfigureAwait(false);
 
         if (r.IsSuccess)
@@ -145,6 +145,7 @@ public static class ResultExtension
     }
     public static async Task<Result<TValue>> OnSuccessAsync<TValue>(this Task<Result<TValue>> result, Func<TValue, Task> action)
     {
+        ArgumentNullException.ThrowIfNull(action);
         var r = await result.ConfigureAwait(false);
 
         if (r.IsSuccess)
@@ -157,6 +158,7 @@ public static class ResultExtension
 
     public static async ValueTask<Result<TValue>> OnSuccess<TValue>(this ValueTask<Result<TValue>> result, Action action)
     {
+        ArgumentNullException.ThrowIfNull(action);
         var r = await result.ConfigureAwait(false);
 
         if (r.IsSuccess)
@@ -167,6 +169,7 @@ public static class ResultExtension
     }
     public static async ValueTask<Result<TValue>> OnSuccess<TValue>(this ValueTask<Result<TValue>> result, Action<TValue> action)
     {
+        ArgumentNullException.ThrowIfNull(action);
         var r = await result.ConfigureAwait(false);
 
         if (r.IsSuccess)
@@ -177,6 +180,7 @@ public static class ResultExtension
     }
     public static async ValueTask<Result<TValue>> OnSuccessAsync<TValue>(this ValueTask<Result<TValue>> result, Func<Task> action)
     {
+        ArgumentNullException.ThrowIfNull(action);
         var r = await result.ConfigureAwait(false);
 
         if (r.IsSuccess)
@@ -188,6 +192,7 @@ public static class ResultExtension
     }
     public static async ValueTask<Result<TValue>> OnSuccessAsync<TValue>(this ValueTask<Result<TValue>> result, Func<TValue, Task> action)
     {
+        ArgumentNullException.ThrowIfNull(action);
         var r = await result.ConfigureAwait(false);
 
         if (r.IsSuccess)
@@ -203,7 +208,8 @@ public static class ResultExtension
     #region OnSuccessNull
     public static Result<TValue> OnSuccessNull<TValue>(this Result<TValue> result, Action action)
     {
-        if (result.IsSuccess && result.ValueOrDefault is null)
+        ArgumentNullException.ThrowIfNull(action);
+        if (result is { IsSuccess: true, ValueOrDefault: null })
         {
             action();
         }
@@ -211,55 +217,58 @@ public static class ResultExtension
     }
     public static Result<TValue> OnSuccessNullAsync<TValue>(this Result<TValue> result, Func<Task> func)
     {
-        if (null == func)
-        {
-            return result;
-        }
+        ArgumentNullException.ThrowIfNull(func);
 
-        if (result.IsSuccess & result.ValueOrDefault is null)
+        if (result is { IsSuccess: true, ValueOrDefault: null })
         {
             func().Wait();
         }
         return result;
     }
-    public static async Task<Result<TValue>> OnSuccessNull<TValue>(this Task<Result<TValue>> result, Action func)
+    public static async Task<Result<TValue>> OnSuccessNull<TValue>(this Task<Result<TValue>> result,Action action)
     {
+        ArgumentNullException.ThrowIfNull(action);
+
         var r = await result.ConfigureAwait(false);
 
-        if (r.IsSuccess && r.ValueOrDefault is null)
+        if (r is { IsSuccess: true, ValueOrDefault: null })
         {
-            func();
+            action();
         }
 
         return r;
     }
-    public static async Task<Result<TValue>> OnSuccessNullAsync<TValue>(this Task<Result<TValue>> result, Func<Task> func)
+    public static async Task<Result<TValue>> OnSuccessNullAsync<TValue>(this Task<Result<TValue>> result,Func<Task> func)
     {
+        ArgumentNullException.ThrowIfNull(func);
         var r = await result.ConfigureAwait(false);
 
-        if (r.IsSuccess && r.ValueOrDefault is null)
+        if (r is { IsSuccess: true, ValueOrDefault: null })
         {
             await func().ConfigureAwait(false);
         }
 
         return r;
     }
-    public static async ValueTask<Result<TValue>> OnSuccessNull<TValue>(this ValueTask<Result<TValue>> result, Action func)
+    public static async ValueTask<Result<TValue>> OnSuccessNull<TValue>(this ValueTask<Result<TValue>> result, Action action)
     {
+        ArgumentNullException.ThrowIfNull(action);
         var r = await result.ConfigureAwait(false);
 
-        if (r.IsSuccess && r.ValueOrDefault is null)
+        if (r is { IsSuccess: true, ValueOrDefault: null })
         {
-            func();
+            action();
         }
 
         return r;
     }
     public static async ValueTask<Result<TValue>> OnSuccessNullAsync<TValue>(this ValueTask<Result<TValue>> result, Func<Task> func)
     {
+        ArgumentNullException.ThrowIfNull(func);
+
         var r = await result.ConfigureAwait(false);
 
-        if (r.IsSuccess && r.ValueOrDefault is null)
+        if (r is { IsSuccess: true, ValueOrDefault: null })
         {
             await func().ConfigureAwait(false);
         }
@@ -272,7 +281,9 @@ public static class ResultExtension
 
     public static Result<TValue> OnSuccessNotNull<TValue>(this Result<TValue> result, Action action)
     {
-        if (result.IsSuccess && result.ValueOrDefault is not null)
+        ArgumentNullException.ThrowIfNull(action);
+
+        if (result is { IsSuccess: true, ValueOrDefault: not null })
         {
             action();
         }
@@ -280,12 +291,9 @@ public static class ResultExtension
     }
     public static Result<TValue> OnSuccessNotNullAsync<TValue>(this Result<TValue> result, Func<Task> func)
     {
-        if (null == func)
-        {
-            return result;
-        }
+        ArgumentNullException.ThrowIfNull(func);
 
-        if (result.IsSuccess & result.ValueOrDefault is not null)
+        if (result is { IsSuccess: true, ValueOrDefault: not null })
         {
             func().Wait();
         }
@@ -294,7 +302,9 @@ public static class ResultExtension
 
     public static Result<TValue> OnSuccessNotNull<TValue>(this Result<TValue> result, Action<TValue> action)
     {
-        if (result.IsSuccess && result.ValueOrDefault is not null)
+        ArgumentNullException.ThrowIfNull(action);
+
+        if (result is { IsSuccess: true, ValueOrDefault: not null })
         {
             action(result.Value);
         }
@@ -302,45 +312,48 @@ public static class ResultExtension
     }
     public static Result<TValue> OnSuccessNotNullAsync<TValue>(this Result<TValue> result, Func<TValue, Task> func)
     {
-        if (null == func)
-        {
-            return result;
-        }
+        ArgumentNullException.ThrowIfNull(func);
 
-        if (result.IsSuccess & result.ValueOrDefault is not null)
+        if (result is { IsSuccess: true, ValueOrDefault: not null })
         {
             func(result.Value).Wait();
         }
         return result;
     }
 
-    public static async Task<Result<TValue>> OnSuccessNotNull<TValue>(this Task<Result<TValue>> result, Action func)
+    public static async Task<Result<TValue>> OnSuccessNotNull<TValue>(this Task<Result<TValue>> result, Action action)
     {
+        ArgumentNullException.ThrowIfNull(action);
+
         var r = await result.ConfigureAwait(false);
 
-        if (r.IsSuccess && r.ValueOrDefault is not null)
+        if (r is { IsSuccess: true, ValueOrDefault: not null })
         {
-            func();
+            action();
         }
 
         return r;
     }
-    public static async Task<Result<TValue>> OnSuccessNotNull<TValue>(this Task<Result<TValue>> result, Action<TValue> func)
+    public static async Task<Result<TValue>> OnSuccessNotNull<TValue>(this Task<Result<TValue>> result,Action<TValue> action)
     {
+        ArgumentNullException.ThrowIfNull(action);
+
         var r = await result.ConfigureAwait(false);
 
-        if (r.IsSuccess && r.ValueOrDefault is not null)
+        if (r is { IsSuccess: true, ValueOrDefault: not null })
         {
-            func(r.Value);
+            action(r.Value);
         }
 
         return r;
     }
-    public static async Task<Result<TValue>> OnSuccessNotNullAsync<TValue>(this Task<Result<TValue>> result, Func<Task> func)
+    public static async Task<Result<TValue>> OnSuccessNotNullAsync<TValue>(this Task<Result<TValue>> result,Func<Task> func)
     {
+        ArgumentNullException.ThrowIfNull(func);
+
         var r = await result.ConfigureAwait(false);
 
-        if (r.IsSuccess && r.ValueOrDefault is not null)
+        if (r is { IsSuccess: true, ValueOrDefault: not null })
         {
             await func().ConfigureAwait(false);
         }
@@ -349,9 +362,11 @@ public static class ResultExtension
     }
     public static async Task<Result<TValue>> OnSuccessNotNullAsync<TValue>(this Task<Result<TValue>> result, Func<TValue, Task> func)
     {
+        ArgumentNullException.ThrowIfNull(func);
+
         var r = await result.ConfigureAwait(false);
 
-        if (r.IsSuccess && r.ValueOrDefault is not null)
+        if (r is { IsSuccess: true, ValueOrDefault: not null })
         {
             await func(r.Value).ConfigureAwait(false);
         }
@@ -359,33 +374,38 @@ public static class ResultExtension
         return r;
     }
 
-    public static async ValueTask<Result<TValue>> OnSuccessNotNull<TValue>(this ValueTask<Result<TValue>> result, Action func)
+    public static async ValueTask<Result<TValue>> OnSuccessNotNull<TValue>(this ValueTask<Result<TValue>> result, Action action)
     {
+        ArgumentNullException.ThrowIfNull(action);
+
         var r = await result.ConfigureAwait(false);
 
-        if (r.IsSuccess && r.ValueOrDefault is not null)
+        if (r is { IsSuccess: true, ValueOrDefault: not null })
         {
-            func();
+            action();
         }
 
         return r;
     }
-    public static async ValueTask<Result<TValue>> OnSuccessNotNull<TValue>(this ValueTask<Result<TValue>> result, Action<TValue> func)
+    public static async ValueTask<Result<TValue>> OnSuccessNotNull<TValue>(this ValueTask<Result<TValue>> result, Action<TValue> action)
     {
+        ArgumentNullException.ThrowIfNull(action);
         var r = await result.ConfigureAwait(false);
 
-        if (r.IsSuccess && r.ValueOrDefault is not null)
+        if (r is { IsSuccess: true, ValueOrDefault: not null })
         {
-            func(r.Value);
+            action(r.Value);
         }
 
         return r;
     }
     public static async ValueTask<Result<TValue>> OnSuccessNotNullAsync<TValue>(this ValueTask<Result<TValue>> result, Func<Task> func)
     {
+        ArgumentNullException.ThrowIfNull(func);
+
         var r = await result.ConfigureAwait(false);
 
-        if (r.IsSuccess && r.ValueOrDefault is not null)
+        if (r is { IsSuccess: true, ValueOrDefault: not null })
         {
             await func().ConfigureAwait(false);
         }
@@ -394,9 +414,11 @@ public static class ResultExtension
     }
     public static async ValueTask<Result<TValue>> OnSuccessNotNullAsync<TValue>(this ValueTask<Result<TValue>> result, Func<TValue, Task> func)
     {
+        ArgumentNullException.ThrowIfNull(func);
+
         var r = await result.ConfigureAwait(false);
 
-        if (r.IsSuccess && r.ValueOrDefault is not null)
+        if (r is { IsSuccess: true, ValueOrDefault: not null })
         {
             await func(r.Value).ConfigureAwait(false);
         }
@@ -406,16 +428,20 @@ public static class ResultExtension
     #endregion
 
     #region OnFailed
-    public static Result OnFailed(this Result result, Action<List<IError>> action)
+    public static Result OnFailed(this Result result, Action<IReadOnlyCollection<IError>> action)
     {
+        ArgumentNullException.ThrowIfNull(action);
+
         if (result.IsFailed)
         {
             action(result.Errors);
         }
         return result;
     }
-    public static Result OnFailedAsync(this Result result, Func<List<IError>, Task> func)
+    public static Result OnFailedAsync(this Result result, Func<IReadOnlyCollection<IError>, Task> func)
     {
+        ArgumentNullException.ThrowIfNull(func);
+
         if (result.IsFailed)
         {
             func(result.Errors).Wait();
@@ -424,6 +450,8 @@ public static class ResultExtension
     }
     public static Result OnFailed(this Result result, Result globalResult)
     {
+        ArgumentNullException.ThrowIfNull(globalResult);
+
         if (result.IsFailed)
         {
             globalResult.WithErrors(result.Errors);
@@ -432,7 +460,7 @@ public static class ResultExtension
         return result;
     }
 
-    public static Result<TValue> OnFailed<TValue>(this Result<TValue> result, [DisallowNull] Result<TValue> globalResult)
+    public static Result<TValue> OnFailed<TValue>(this Result<TValue> result, Result<TValue> globalResult)
     {
         ArgumentNullException.ThrowIfNull(globalResult);
 
@@ -443,16 +471,20 @@ public static class ResultExtension
 
         return result;
     }
-    public static Result<TValue> OnFailed<TValue>(this Result<TValue> result, Action<List<IError>> action)
+    public static Result<TValue> OnFailed<TValue>(this Result<TValue> result, Action<IReadOnlyCollection<IError>> action)
     {
+        ArgumentNullException.ThrowIfNull(action);
+
         if (result.IsFailed)
         {
             action(result.Errors);
         }
         return result;
     }
-    public static Result<TValue> OnFailedAsync<TValue>(this Result<TValue> result, Func<List<IError>, Task> func)
+    public static Result<TValue> OnFailedAsync<TValue>(this Result<TValue> result, Func<IReadOnlyCollection<IError>, Task> func)
     {
+        ArgumentNullException.ThrowIfNull(func);
+
         if (result.IsFailed)
         {
             func(result.Errors).Wait();
@@ -460,10 +492,9 @@ public static class ResultExtension
         return result;
     }
 
-    public static async Task<Result> OnFailed(this Task<Result> result, [DisallowNull] Result globalResult)
+    public static async Task<Result> OnFailed(this Task<Result> result, Result globalResult)
     {
         ArgumentNullException.ThrowIfNull(globalResult);
-        ArgumentNullException.ThrowIfNull(result);
 
         var r = await result.ConfigureAwait(false);
 
@@ -474,10 +505,9 @@ public static class ResultExtension
 
         return r;
     }
-    public static async Task<Result> OnFailed<TGlobal>(this Task<Result> result, [DisallowNull] Result<TGlobal> globalResult)
+    public static async Task<Result> OnFailed<TGlobal>(this Task<Result> result, Result<TGlobal> globalResult)
     {
         ArgumentNullException.ThrowIfNull(globalResult);
-        ArgumentNullException.ThrowIfNull(result);
 
         var r = await result.ConfigureAwait(false);
 
@@ -488,8 +518,10 @@ public static class ResultExtension
 
         return r;
     }
-    public static async Task<Result> OnFailed(this Task<Result> result, Action<List<IError>> action)
+    public static async Task<Result> OnFailed(this Task<Result> result, Action<IReadOnlyCollection<IError>> action)
     {
+        ArgumentNullException.ThrowIfNull(action);
+
         var r = await result.ConfigureAwait(false);
 
         if (r.IsFailed)
@@ -499,8 +531,10 @@ public static class ResultExtension
 
         return r;
     }
-    public static async Task<Result> OnFailedAsync(this Task<Result> result, Func<List<IError>, Task> func)
+    public static async Task<Result> OnFailedAsync(this Task<Result> result, Func<IReadOnlyCollection<IError>, Task> func)
     {
+        ArgumentNullException.ThrowIfNull(func);
+
         var r = await result.ConfigureAwait(false);
 
         if (r.IsFailed)
@@ -513,28 +547,34 @@ public static class ResultExtension
 
     public static async Task<Result<TValue>> OnFailed<TValue>(this Task<Result<TValue>> result, Result globalResult)
     {
+        ArgumentNullException.ThrowIfNull(result);
+
         var r = await result.ConfigureAwait(false);
 
         if (r.IsFailed)
         {
-            globalResult.WithErrors(result!.Result.Errors);
+            globalResult.WithErrors(result.Result.Errors);
         }
 
         return r;
     }
     public static async Task<Result<TValue>> OnFailed<TValue>(this Task<Result<TValue>> result, Result<TValue> globalResult)
     {
+        ArgumentNullException.ThrowIfNull(globalResult);
+
         var r = await result.ConfigureAwait(false);
 
         if (r.IsFailed)
         {
-            globalResult.WithErrors(result!.Result.Errors);
+            globalResult.WithErrors(result.Result.Errors);
         }
 
         return r;
     }
-    public static async Task<Result<TValue>> OnFailed<TValue>(this Task<Result<TValue>> result, Action<List<IError>> action)
+    public static async Task<Result<TValue>> OnFailed<TValue>(this Task<Result<TValue>> result, Action<IReadOnlyCollection<IError>> action)
     {
+        ArgumentNullException.ThrowIfNull(action);
+
         var r = await result.ConfigureAwait(false);
 
         if (r.IsFailed)
@@ -543,8 +583,10 @@ public static class ResultExtension
         }
         return r;
     }
-    public static async Task<Result<TValue>> OnFailedAsync<TValue>(this Task<Result<TValue>> result, Func<List<IError>, Task> func)
+    public static async Task<Result<TValue>> OnFailedAsync<TValue>(this Task<Result<TValue>> result, Func<IReadOnlyCollection<IError>, Task> func)
     {
+        ArgumentNullException.ThrowIfNull(func);
+
         var r = await result.ConfigureAwait(false);
         if (r.IsFailed)
         {
@@ -553,7 +595,7 @@ public static class ResultExtension
         return r;
     }
 
-    public static async ValueTask<Result> OnFailed(this ValueTask<Result> result, [DisallowNull] Result globalResult)
+    public static async ValueTask<Result> OnFailed(this ValueTask<Result> result, Result globalResult)
     {
         ArgumentNullException.ThrowIfNull(globalResult);
 
@@ -566,8 +608,10 @@ public static class ResultExtension
 
         return r;
     }
-    public static async ValueTask<Result> OnFailed(this ValueTask<Result> result, Action<List<IError>> action)
+    public static async ValueTask<Result> OnFailed(this ValueTask<Result> result, Action<IReadOnlyCollection<IError>> action)
     {
+        ArgumentNullException.ThrowIfNull(action);
+
         var r = await result.ConfigureAwait(false);
 
         if (r.IsFailed)
@@ -577,8 +621,10 @@ public static class ResultExtension
 
         return r;
     }
-    public static async ValueTask<Result> OnFailedAsync(this ValueTask<Result> result, Func<List<IError>, Task> func)
+    public static async ValueTask<Result> OnFailedAsync(this ValueTask<Result> result, Func<IReadOnlyCollection<IError>, Task> func)
     {
+        ArgumentNullException.ThrowIfNull(func);
+
         var r = await result.ConfigureAwait(false);
 
         if (r.IsFailed)
@@ -591,28 +637,34 @@ public static class ResultExtension
 
     public static async ValueTask<Result<TValue>> OnFailed<TValue>(this ValueTask<Result<TValue>> result, Result globalResult)
     {
+        ArgumentNullException.ThrowIfNull(globalResult);
+
         var r = await result.ConfigureAwait(false);
 
         if (r.IsFailed)
         {
-            globalResult.WithErrors(result!.Result.Errors);
+            globalResult.WithErrors(result.Result.Errors);
         }
 
         return r;
     }
     public static async ValueTask<Result<TValue>> OnFailed<TValue>(this ValueTask<Result<TValue>> result, Result<TValue> globalResult)
     {
+        ArgumentNullException.ThrowIfNull(globalResult);
+
         var r = await result.ConfigureAwait(false);
 
         if (r.IsFailed)
         {
-            globalResult.WithErrors(result!.Result.Errors);
+            globalResult.WithErrors(result.Result.Errors);
         }
 
         return r;
     }
-    public static async ValueTask<Result<TValue>> OnFailed<TValue>(this ValueTask<Result<TValue>> result, Action<List<IError>> action)
+    public static async ValueTask<Result<TValue>> OnFailed<TValue>(this ValueTask<Result<TValue>> result, Action<IReadOnlyCollection<IError>> action)
     {
+        ArgumentNullException.ThrowIfNull(action);
+
         var r = await result.ConfigureAwait(false);
 
         if (r.IsFailed)
@@ -621,8 +673,10 @@ public static class ResultExtension
         }
         return r;
     }
-    public static async ValueTask<Result<TValue>> OnFailedAsync<TValue>(this ValueTask<Result<TValue>> result, Func<List<IError>, Task> func)
+    public static async ValueTask<Result<TValue>> OnFailedAsync<TValue>(this ValueTask<Result<TValue>> result, Func<IReadOnlyCollection<IError>, Task> func)
     {
+        ArgumentNullException.ThrowIfNull(func);
+
         var r = await result.ConfigureAwait(false);
         if (r.IsFailed)
         {
