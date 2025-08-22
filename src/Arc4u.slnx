@@ -38,9 +38,6 @@
   <Project Path="Arc4u.FluentValidation/Arc4u.FluentValidation.csproj" />
   <Project Path="Arc4u.gRPC/Arc4u.gRPC.csproj" />
   <Project Path="Arc4u.MongoDB/Arc4u.MongoDB.csproj" />
-  <Project Path="Arc4u.NServiceBus.Core/Arc4u.NServiceBus.Core.csproj" />
-  <Project Path="Arc4u.NServiceBus.RabbitMQ/Arc4u.NServiceBus.RabbitMQ.csproj" />
-  <Project Path="Arc4u.NServiceBus/Arc4u.NServiceBus.csproj" />
   <Project Path="Arc4u.OAuth.Msal/Arc4u.OAuth2.Msal.csproj" />
   <Project Path="Arc4u.OAuth2.AspNetCore.Authentication/Arc4u.OAuth2.AspNetCore.Authentication.csproj" />
   <Project Path="Arc4u.OAuth2.AspNetCore.Blazor/Arc4u.OAuth2.AspNetCore.Blazor.csproj" />

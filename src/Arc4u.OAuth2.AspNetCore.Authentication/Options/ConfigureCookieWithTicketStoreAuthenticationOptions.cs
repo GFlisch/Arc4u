@@ -23,7 +23,11 @@ public class ConfigureCookieWithTicketStoreAuthenticationOptions : IPostConfigur
         options.SessionStore = _ticketStore;
         options.Cookie.Name = _options.CurrentValue.CookieName;
         options.SlidingExpiration = true;
-        options.ExpireTimeSpan = _options.CurrentValue.AuthenticationTicketTTL;
+        // Set the expiration time span to the minimum of AuthenticationTicketTTL and RefreshTokenLifetime
+        // to avoid having a ticket that is expired but still valid.
+        options.ExpireTimeSpan = _options.CurrentValue.AuthenticationTicketTTL < _options.CurrentValue.RefreshTokenLifetime
+                                ? _options.CurrentValue.AuthenticationTicketTTL
+                                : _options.CurrentValue.RefreshTokenLifetime;
         options.EventsType = typeof(CookieAuthenticationEvents);
     }
 }
