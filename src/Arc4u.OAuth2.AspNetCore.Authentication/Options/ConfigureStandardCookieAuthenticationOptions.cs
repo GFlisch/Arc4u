@@ -21,5 +21,10 @@ public class ConfigureStandardCookieAuthenticationOptions : IPostConfigureOption
         options.SlidingExpiration = true;
         options.ExpireTimeSpan = _options.CurrentValue.AuthenticationTicketTTL;
         options.EventsType = typeof(CookieAuthenticationEvents);
+        // we need this to persist the cookie and keep the user logged in.
+        options.Cookie.IsEssential = true;
+        options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict;
+        options.Cookie.SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.Always;
+        options.Cookie.MaxAge = _options.CurrentValue.RefreshTokenLifetime;
     }
 }
