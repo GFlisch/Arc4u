@@ -26,8 +26,14 @@ public class ConfigureCookieWithTicketStoreAuthenticationOptions : IPostConfigur
         // Set the expiration time span to the minimum of AuthenticationTicketTTL and RefreshTokenLifetime
         // to avoid having a ticket that is expired but still valid.
         options.ExpireTimeSpan = _options.CurrentValue.AuthenticationTicketTTL < _options.CurrentValue.RefreshTokenLifetime
-                                ? _options.CurrentValue.AuthenticationTicketTTL
-                                : _options.CurrentValue.RefreshTokenLifetime;
+            ? _options.CurrentValue.AuthenticationTicketTTL
+            : _options.CurrentValue.RefreshTokenLifetime;
         options.EventsType = typeof(CookieAuthenticationEvents);
+        // we need this to persist the cookie and keep the user logged in.
+        options.Cookie.IsEssential = true;
+        // Need to set the same site to Lax to allow the cookie to be sent to the portal from the authority provider.
+        options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax;
+        options.Cookie.SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.Always;
+        options.Cookie.MaxAge = _options.CurrentValue.RefreshTokenLifetime;
     }
 }

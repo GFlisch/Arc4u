@@ -93,6 +93,7 @@ public class StandardCookieEvents : CookieAuthenticationEvents
                 cookieCtx.Properties.UpdateTokenValue("expires_at", tokensInfo.AccessToken.ExpiresOnUtc.ToString("o", CultureInfo.InvariantCulture));
 
                 cookieCtx.ShouldRenew = true;
+                _logger?.Technical().LogDebug("Renew the cookie.");
             }
             catch (Exception ex)
             {
