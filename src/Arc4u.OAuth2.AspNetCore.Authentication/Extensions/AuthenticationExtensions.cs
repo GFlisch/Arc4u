@@ -132,6 +132,9 @@ public static partial class AuthenticationExtensions
         options.ClientId = openIdOptions.ClientId;
         options.ClientSecret = openIdOptions.ClientSecret;
         options.GetClaimsFromUserInfoEndpoint = false;
+        options.MapInboundClaims = false;
+        options.TokenValidationParameters.NameClaimType = oidcOptions.NameClaimType;
+        options.TokenValidationParameters.RoleClaimType = oidcOptions.RoleClaimType;
         options.TokenValidationParameters.SaveSigninToken = false;
         options.TokenValidationParameters.AuthenticationType = openIdOptions.AuthenticationType;
         options.TokenValidationParameters.ValidateAudience = openIdOptions.ValidateAudience;
@@ -155,6 +158,9 @@ public static partial class AuthenticationExtensions
         option.Authority = oauth2Options.Authority is null ? oidcOptions.DefaultAuthority.Url.ToString() : oauth2Options.Authority.Url.ToString();
         option.MetadataAddress = oidcOptions.DefaultAuthority.MetaDataAddress.ToString();
         option.SaveToken = true;
+        option.MapInboundClaims = false;
+        option.TokenValidationParameters.NameClaimType = oidcOptions.NameClaimType;
+        option.TokenValidationParameters.RoleClaimType = oidcOptions.RoleClaimType;
         option.TokenValidationParameters.SaveSigninToken = false;
         option.TokenValidationParameters.AuthenticationType = oauth2Options.AuthenticationType;
         option.TokenValidationParameters.ValidateIssuer = false;
@@ -191,6 +197,17 @@ public static partial class AuthenticationExtensions
         {
             configErrors += "We need a cookie name defined specifically for your services." + System.Environment.NewLine;
         }
+
+        if (string.IsNullOrWhiteSpace(settings.NameClaimType))
+        {
+            configErrors += "We need a name claim type defined specifically for your services." + System.Environment.NewLine;
+        }
+
+        if (string.IsNullOrWhiteSpace(settings.RoleClaimType))
+        {
+            configErrors += "We need a role claim type defined specifically for your services." + System.Environment.NewLine;
+        }
+
         if (string.IsNullOrWhiteSpace(settings.OpenIdSettingsSectionPath))
         {
             configErrors += "We need a setting section to configure the OpenId Connect." + System.Environment.NewLine;
@@ -287,6 +304,8 @@ public static partial class AuthenticationExtensions
             options.AuthenticationTicketTTL = settings.AuthenticationTicketTTL;
             options.DataProtectionCacheStoreOption = CacheStoreExtension.PrepareAction(configuration, settings.DataProtectionSectionPath);
             options.ClaimsIdentifierOptions = ClaimsidentifierExtension.PrepareAction(configuration, settings.ClaimsIdentifierSectionPath);
+            options.NameClaimType = settings.NameClaimType;
+            options.RoleClaimType = settings.RoleClaimType;
         }
 
         services.AddDomainMapping(configuration, settings.DomainMappingsSectionPath);
@@ -351,6 +370,7 @@ public static partial class AuthenticationExtensions
                     option.Authority = oauth2Options.Authority is null ? options.DefaultAuthority.Url.ToString() : oauth2Options.Authority.Url.ToString();
                     option.MetadataAddress = options.DefaultAuthority.MetaDataAddress.ToString();
                     option.SaveToken = true;
+
                     option.TokenValidationParameters.SaveSigninToken = false;
                     option.TokenValidationParameters.AuthenticationType = Constants.BearerAuthenticationType;
                     option.TokenValidationParameters.ValidateIssuer = false;

@@ -18,10 +18,9 @@ sealed class OpenIdConfiguration
 
     public required Uri issuer { get; set; }
 
-    /// <summary>
-    /// ADFS is using this property in the access token as the issuer!
-    /// </summary>
     public Uri? access_token_issuer { get; set; }
+
+    public Uri? end_session_endpoint { get; set; }
 }
 
 public class AuthorityOptions
@@ -58,6 +57,8 @@ public class AuthorityOptions
 
     public Uri? MetaDataAddress { get; set; }
 
+    public Uri? EndSessionEndpoint { get; set; }
+
     public TimeSpan? RetryInterval { get; set; }
 
     /// <summary>
@@ -87,12 +88,28 @@ public class AuthorityOptions
             var stream = await client.GetStreamAsync(GetMetaDataAddress(), cancellationToken).ConfigureAwait(false);
             var openIdConfiguration = JsonSerializer.Deserialize(stream, OpenIdConfigurationJsonContext.Default.OpenIdConfiguration);
 
+            EndSessionEndpoint = openIdConfiguration!.end_session_endpoint;
             TokenEndpoint = openIdConfiguration!.Token_endpoint;
             Issuer = openIdConfiguration.access_token_issuer ?? openIdConfiguration.issuer;
         }
         return TokenEndpoint;
     }
 
+    public async Task<Uri> GetEndSessionEndpointAsync(CancellationToken cancellationToken)
+    {
+        if (EndSessionEndpoint is null)
+        {
+            using var client = new HttpClient();
+
+            var stream = await client.GetStreamAsync(GetMetaDataAddress(), cancellationToken).ConfigureAwait(false);
+            var openIdConfiguration = JsonSerializer.Deserialize(stream, OpenIdConfigurationJsonContext.Default.OpenIdConfiguration);
+
+            EndSessionEndpoint = openIdConfiguration!.end_session_endpoint;
+            TokenEndpoint = openIdConfiguration!.Token_endpoint;
+            Issuer = openIdConfiguration.access_token_issuer ?? openIdConfiguration.issuer;
+        }
+        return EndSessionEndpoint;
+    }
     public async Task<Uri> GetIssuerAsync(CancellationToken cancellationToken)
     {
         if (Issuer is null)
@@ -102,6 +119,7 @@ public class AuthorityOptions
             var stream = await client.GetStreamAsync(GetMetaDataAddress(), cancellationToken).ConfigureAwait(false);
             var openIdConfiguration = JsonSerializer.Deserialize(stream, OpenIdConfigurationJsonContext.Default.OpenIdConfiguration);
 
+            EndSessionEndpoint = openIdConfiguration!.end_session_endpoint;
             TokenEndpoint = openIdConfiguration!.Token_endpoint;
             Issuer = openIdConfiguration.access_token_issuer ?? openIdConfiguration.issuer;
         }

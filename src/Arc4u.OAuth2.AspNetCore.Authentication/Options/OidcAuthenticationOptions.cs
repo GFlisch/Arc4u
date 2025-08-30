@@ -62,4 +62,14 @@ public class OidcAuthenticationOptions
     /// On Keycloak audience doesn't exist by default, so it is needed to disable it or add it.
     /// </summary>
     public bool ValidateAudience { get; set; } = true;
+
+    /// <summary>
+    /// Define the claim type used to identify the name of the user.
+    /// </summary>
+    public string NameClaimType { get; set; } = "name";
+
+    /// <summary>
+    /// Define the claim type used to identify the role of the user.
+    /// </summary>
+    public string RoleClaimType { get; set; } = "role";
 }
