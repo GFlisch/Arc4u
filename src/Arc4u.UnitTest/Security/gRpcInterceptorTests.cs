@@ -4,7 +4,6 @@ using System.Security.Claims;
 using Arc4u.Caching;
 using Arc4u.Configuration;
 using Arc4u.Dependency;
-using Arc4u.Dependency.ComponentModel;
 using Arc4u.Diagnostics;
 using Arc4u.gRPC.Interceptors;
 using Arc4u.OAuth2;

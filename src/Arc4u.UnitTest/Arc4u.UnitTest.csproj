@@ -65,7 +65,6 @@
     <ProjectReference Include="..\Arc4u.Caching.Redis\Arc4u.Caching.Redis.csproj" />
     <ProjectReference Include="..\Arc4u.Caching.Sql\Arc4u.Caching.Sql.csproj" />
     <ProjectReference Include="..\Arc4u.Configuration.Decryptor\Arc4u.Configuration.Decryptor.csproj" />
-    <ProjectReference Include="..\Arc4u.Dependency.ComponentModel\Arc4u.Dependency.ComponentModel.csproj" />
     <ProjectReference Include="..\Arc4u.Dependency\Arc4u.Dependency.csproj" />
     <ProjectReference Include="..\Arc4u.Diagnostics.Serilog\Arc4u.Diagnostics.Serilog.csproj" />
     <ProjectReference Include="..\Arc4u.EfCore\Arc4u.EfCore.csproj" />

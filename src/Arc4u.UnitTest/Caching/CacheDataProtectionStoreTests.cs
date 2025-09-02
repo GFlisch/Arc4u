@@ -2,7 +2,7 @@ using System.Xml.Linq;
 using Arc4u.Caching;
 using Arc4u.Caching.Memory;
 using Arc4u.Configuration;
-using Arc4u.Dependency.ComponentModel;
+using Arc4u.Dependency;
 using Arc4u.Diagnostics;
 using Arc4u.OAuth2.DataProtection;
 using Arc4u.Serializer;
@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
@@ -38,11 +39,9 @@ public class CacheDataProtectionStoreTests
         // arrange
         var (services, _) = BuiltContainer();
 
-        var container = new ComponentModelContainer(services);
+        services.AddKeyedSingleton<ICache, MemoryCache>(CacheContext.Memory);
 
-        container.Register<ICache, MemoryCache>(CacheContext.Memory);
-
-        container.CreateContainer();
+        var container = services.BuildServiceProvider();
 
         // act
         var sut = container.GetRequiredService<ICacheContext>();
@@ -61,11 +60,9 @@ public class CacheDataProtectionStoreTests
         // arrange
         var (services, _) = BuiltContainer();
 
-        var container = new ComponentModelContainer(services);
+        services.AddKeyedSingleton<ICache, MemoryCache>(CacheContext.Memory);
 
-        container.Register<ICache, MemoryCache>(CacheContext.Memory);
-
-        container.CreateContainer();
+        var container = services.BuildServiceProvider();
 
         var mockLoggerWrapperCacheStore = new Mock<ILoggerWrapper<CacheStore>>();
         mockLoggerWrapperCacheStore.Setup(m => m.SetContext(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Type?>()))
@@ -98,12 +95,9 @@ public class CacheDataProtectionStoreTests
     {
         // arrange
         var (services, _) = BuiltContainer();
+        services.AddKeyedSingleton<ICache, MemoryCache>(CacheContext.Memory);
 
-        var container = new ComponentModelContainer(services);
-
-        container.Register<ICache, MemoryCache>(CacheContext.Memory);
-
-        container.CreateContainer();
+        var container = services.BuildServiceProvider();
 
         var mockLoggerWrapperCacheStore = new Mock<ILoggerWrapper<CacheStore>>();
         mockLoggerWrapperCacheStore.Setup(m => m.SetContext(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Type?>()))
@@ -136,18 +130,15 @@ public class CacheDataProtectionStoreTests
     {
         // arrange
         var (services, configuration) = BuiltContainer();
+        services.AddKeyedSingleton<ICache, MemoryCache>(CacheContext.Memory);
 
-        var container = new ComponentModelContainer(services);
+        var container = services.BuildServiceProvider();
 
-        container.Register<ICache, MemoryCache>(CacheContext.Memory);
-
-        container.CreateContainer();
-
-        var mockLoggerFactory = new Mock<ILoggerFactory>();
         var cacheContext = container.GetRequiredService<ICacheContext>();
         var serializer = container.GetRequiredService<IObjectSerialization>();
+
         // act
-        var exception = Record.Exception(() => new CacheStore(cacheContext, mockLoggerFactory.Object, serializer, default!));
+        var exception = Record.Exception(() => new CacheStore(cacheContext, container.GetRequiredService<ILoggerFactory>(), serializer, default!));
 
         // assert
         exception.Should().NotBeNull();
@@ -163,19 +154,14 @@ public class CacheDataProtectionStoreTests
     {
         // arrange
         var (services, configuration) = BuiltContainer();
-
-        var container = new ComponentModelContainer(services);
-
-        container.Register<ICache, MemoryCache>(CacheContext.Memory);
+        services.AddKeyedSingleton<ICache, MemoryCache>(CacheContext.Memory);
 
         var mockBuilder = _fixture.Freeze<Mock<IDataProtectionBuilder>>();
         mockBuilder.Setup(p => p.Services).Returns(services);
         mockBuilder.Object.PersistKeysToCache(configuration);
+        mockBuilder.Object.Services.Should().NotBeNull();
 
-        container.CreateContainer();
-
-        container.ServiceProvider.GetService<IServiceProvider>().Should().NotBeNull();
-
+        var container = services.BuildServiceProvider();
         var sut = container.GetService<IConfigureOptions<KeyManagementOptions>>();
 
         sut.Should().NotBeNull();
@@ -297,17 +283,8 @@ public class CacheDataProtectionStoreTests
 
         IConfiguration configuration = new ConfigurationRoot([.. config.Providers]);
 
-        var mockLoggerWrapperCacheContext = new Mock<ILoggerWrapper<CacheContext>>();
-        mockLoggerWrapperCacheContext.Setup(m => m.SetContext(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Type?>()))
-                                     .Returns(mockLoggerWrapperCacheContext.Object);
-
-        services.AddSingleton<ILogger<CacheContext>>(mockLoggerWrapperCacheContext.Object);
-
-        var mockLoggerWrapperMemoryCache = new Mock<ILoggerWrapper<MemoryCache>>();
-        mockLoggerWrapperMemoryCache.Setup(m => m.SetContext(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Type?>()))
-                          .Returns(mockLoggerWrapperMemoryCache.Object);
-
-        services.AddSingleton<ILogger<MemoryCache>>(mockLoggerWrapperMemoryCache.Object);
+        services.AddSingleton<ILoggerFactory>(NullLoggerFactory.Instance);
+        services.AddILogger();
 
         services.AddCacheContext(configuration);
         services.AddSingleton<IConfiguration>(configuration);

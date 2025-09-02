@@ -10,29 +10,14 @@ using AutoFixture.AutoMoq;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
+using Environment = System.Environment;
 
 namespace Arc4u.UnitTest.Security;
-
-public class DI : IKeyedServiceProvider
-{
-    public object? GetKeyedService(Type serviceType, object? serviceKey)
-    {
-        throw new NotImplementedException();
-    }
-
-    public object GetRequiredKeyedService(Type serviceType, object? serviceKey)
-    {
-        throw new NotImplementedException();
-    }
-
-    public object? GetService(Type serviceType)
-    {
-        throw new NotImplementedException();
-    }
-}
 
 [Trait("Category", "CI")]
 
@@ -90,13 +75,17 @@ public class CredentialSecretTokenProviderTests
 
         var mockCredentialTokenProvider = _fixture.Freeze<Mock<ICredentialTokenProvider>>();
         mockCredentialTokenProvider.Setup(m => m.GetTokenAsync(It.IsAny<SimpleKeyValueSettings>(), It.IsAny<CredentialsResult>())).ReturnsAsync(tokenTest).Verifiable();
-        var credentialProvider = mockCredentialTokenProvider.Object;
 
-        var mockContainer = _fixture.Freeze<Mock<IContainerResolve>>();
-        mockContainer.Setup(m => m.TryResolve<ICredentialTokenProvider>(CredentialTokenCacheTokenProvider.ProviderName, out credentialProvider)).Returns(true).Verifiable();
+        var services = new ServiceCollection();
+        services.AddKeyedSingleton<ICredentialTokenProvider>(CredentialTokenCacheTokenProvider.ProviderName, mockCredentialTokenProvider.Object);
+        services.AddSingleton<ILoggerFactory>(NullLoggerFactory.Instance);
+        services.AddILogger();
+        services.AddApplicationConfig(config => { config.ApplicationName = _fixture.Create<string>(); config.Environment = _fixture.Create<Arc4u.Configuration.Environment>();});
+        services.AddKeyedTransient<ITokenProvider, CredentialSecretTokenProvider>(CredentialSecretTokenProvider.ProviderName);
 
+        var container = services.BuildServiceProvider();
         // act.
-        var sut = _fixture.Create<CredentialSecretTokenProvider>();
+        var sut = container.GetRequiredKeyedService<ITokenProvider>(CredentialSecretTokenProvider.ProviderName);
 
         var result = await sut.GetTokenAsync(settings, null);
 
