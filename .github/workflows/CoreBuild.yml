@@ -28,7 +28,7 @@ on:
          required: true
         
 env:
-  solution: '**/*.sln'
+  solution: '**/*.slnx'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'  
   netStandardVersion: '${{ github.event.inputs.nugetVersion }}'
