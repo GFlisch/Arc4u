@@ -1,6 +1,7 @@
-namespace Arc4u.OAuth2.Token;
-
-public interface ITokenRefreshProvider
+namespace Arc4u.OAuth2.Token
 {
-    Task<TokenRefreshInfo?> RefreshTokenAsync(CancellationToken cancellationToken);
+    public interface ITokenRefreshProvider
+    {
+        Task<TokenRefreshInfo?> RefreshTokenAsync(CancellationToken cancellationToken);
+    }
 }

@@ -3,47 +3,48 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace Arc4u.OAuth2.TicketStore;
-
-public static class FileTicketStoreExtension
+namespace Arc4u.OAuth2.TicketStore
 {
-    public static void AddFileTicketStore(this IServiceCollection services, Action<FileTicketStoreOptions> action)
+    public static class FileTicketStoreExtension
     {
-
-        var validate = new FileTicketStoreOptions();
-        new Action<FileTicketStoreOptions>(action).Invoke(validate);
-
-        ArgumentNullException.ThrowIfNull(validate.StorePath);
-
-        if (!validate.StorePath.Exists)
+        public static void AddFileTicketStore(this IServiceCollection services, Action<FileTicketStoreOptions> action)
         {
-            // will throw an exception if this is not possible!
-            validate.StorePath.Create();
+
+            var validate = new FileTicketStoreOptions();
+            new Action<FileTicketStoreOptions>(action).Invoke(validate);
+
+            ArgumentNullException.ThrowIfNull(validate.StorePath);
+
+            if (!validate.StorePath.Exists)
+            {
+                // will throw an exception if this is not possible!
+                validate.StorePath.Create();
+            }
+
+            services.Configure<FileTicketStoreOptions>(action);
+            services.TryAddTransient<ITicketStore, FileTicketStore>();
         }
 
-        services.Configure<FileTicketStoreOptions>(action);
-        services.TryAddTransient<ITicketStore, FileTicketStore>();
-    }
-
-    public static void AddFileTicketStore(this IServiceCollection services, IConfiguration configuration, string sectionName = "AuthenticationFileTicketStore")
-    {
-        var section = configuration.GetSection(sectionName) as IConfigurationSection;
-
-        if (section.Exists())
+        public static void AddFileTicketStore(this IServiceCollection services, IConfiguration configuration, string sectionName = "AuthenticationFileTicketStore")
         {
-            var option = configuration.GetSection(sectionName).Get<FileTicketStoreOptions>();
+            var section = configuration.GetSection(sectionName) as IConfigurationSection;
 
-            if (option is null)
+            if (section.Exists())
             {
-                throw new NullReferenceException(nameof(option));
-            }
+                var option = configuration.GetSection(sectionName).Get<FileTicketStoreOptions>();
 
-            void options(FileTicketStoreOptions o)
-            {
-                o.StorePath = option.StorePath;
-            }
+                if (option is null)
+                {
+                    throw new NullReferenceException(nameof(option));
+                }
 
-            AddFileTicketStore(services, options);
+                void options(FileTicketStoreOptions o)
+                {
+                    o.StorePath = option.StorePath;
+                }
+
+                AddFileTicketStore(services, options);
+            }
         }
     }
 }

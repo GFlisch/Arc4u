@@ -1,0 +1,328 @@
+using System.Diagnostics.CodeAnalysis;
+using System.Security.Cryptography.X509Certificates;
+using Arc4u.Configuration;
+using Arc4u.OAuth2.DataProtection;
+using Arc4u.OAuth2.Events;
+using Arc4u.OAuth2.Middleware;
+using Arc4u.OAuth2.Options;
+using Arc4u.OAuth2.TicketStore;
+using Arc4u.OAuth2.Token;
+using Arc4u.Security.Cryptography;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using Microsoft.IdentityModel.Tokens;
+using X509CertificateLoader = Arc4u.Security.Cryptography.X509CertificateLoader;
+
+namespace Arc4u.OAuth2.Extensions
+{
+    public static partial class AuthenticationExtensions
+    {
+        public static AuthenticationBuilder AddOidcAuthentication(this IServiceCollection services,
+            Action<OidcAuthenticationOptions> authenticationOptions)
+        {
+            ArgumentNullException.ThrowIfNull(services);
+            ArgumentNullException.ThrowIfNull(authenticationOptions);
+
+            var oidcOptions = new OidcAuthenticationOptions();
+            authenticationOptions(oidcOptions);
+
+            ValidateOidcOptions(oidcOptions);
+
+            services.Configure(authenticationOptions);
+            var openIdOptions = ConfigureOidcServices(services, oidcOptions, out var securityKey);
+
+            var authenticationBuilder = services.AddAuthentication(auth =>
+                {
+                    auth.DefaultAuthenticateScheme = Arc4u.OAuth2.Constants.ChallengePolicyScheme;
+                    auth.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
+                    auth.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                })
+                .AddPolicyScheme(Arc4u.OAuth2.Constants.ChallengePolicyScheme, "Authorization OIDC", options =>
+                {
+                    options.ForwardDefaultSelector = context => OpenIdConnectDefaults.AuthenticationScheme;
+                })
+                .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme,
+                    options =>
+                    {
+                        ConfigureOpenIdConnectOptions(services, options, oidcOptions, openIdOptions, securityKey);
+                    }).AddCookie();
+
+            return authenticationBuilder;
+        }
+
+        private static OpenIdSettingsOption ConfigureOidcServices(IServiceCollection services,
+            OidcAuthenticationOptions oidcOptions, out SecurityKey? securityKey)
+        {
+            if (oidcOptions.AuthenticationCacheTicketStoreOption is not null)
+            {
+                services.AddCacheTicketStore(oidcOptions.AuthenticationCacheTicketStoreOption);
+                services.TryAddSingleton(typeof(IPostConfigureOptions<CookieAuthenticationOptions>),
+                    typeof(ConfigureCookieWithTicketStoreAuthenticationOptions));
+            }
+            else
+            {
+                services.TryAddSingleton(typeof(IPostConfigureOptions<CookieAuthenticationOptions>),
+                    typeof(ConfigureStandardCookieAuthenticationOptions));
+            }
+
+            services.AddDataProtection()
+                .PersistKeysToCache(oidcOptions.DataProtectionCacheStoreOption)
+                .ProtectKeysWithCertificate(oidcOptions.DataProtectionCertificate)
+                .SetApplicationName(oidcOptions.ApplicationName)
+                .SetDefaultKeyLifetime(oidcOptions.DefaultKeyLifetime);
+
+            services.AddClaimsIdentifier(oidcOptions.ClaimsIdentifierOptions);
+            services.AddScoped<TokenRefreshInfo>();
+            services.AddAuthorizationCore();
+            services.AddHttpContextAccessor();
+            services.TryAddTransient<CookieAuthenticationEvents, StandardCookieEvents>();
+            services.TryAddTransient<JwtBearerEvents, StandardBearerEvents>();
+            services.TryAddTransient<OpenIdConnectEvents, StandardOpenIdConnectEvents>();
+
+
+            services.AddDefaultAuthority(options =>
+            {
+                options.SetData(oidcOptions.DefaultAuthority.Url, oidcOptions.DefaultAuthority.TokenEndpoint,
+                    oidcOptions.DefaultAuthority.Issuer, oidcOptions.DefaultAuthority.MetaDataAddress);
+            });
+
+            services.ConfigureOpenIdSettings(oidcOptions.OpenIdSettingsOptions, oidcOptions.OpenIdSettingsKey);
+
+            var openIdOptions = new OpenIdSettingsOption();
+            oidcOptions.OpenIdSettingsOptions(openIdOptions);
+
+            securityKey = oidcOptions.CertSecurityKey is not null
+                ? new X509SecurityKey(oidcOptions.CertSecurityKey)
+                : null;
+
+            return openIdOptions;
+        }
+
+        public static AuthenticationBuilder AddOidcAuthentication(this IServiceCollection services,
+            IConfiguration configuration, [DisallowNull] string authenticationSectionName = "Authentication",
+            IX509CertificateLoader? certificateLoader = null)
+        {
+            ArgumentNullException.ThrowIfNull(configuration);
+            ArgumentNullException.ThrowIfNull(authenticationSectionName);
+
+            var section = configuration.GetSection(authenticationSectionName);
+
+            if (!section.Exists())
+            {
+                throw new ConfigurationException(
+                    $"No section exists with name {authenticationSectionName} in the configuration providers for OpenId Connect authentication.");
+            }
+
+            var settings = new OidcAuthenticationSectionOptions();
+            section.Bind(settings);
+
+            var configErrors = ValidateOidcConfiguration(settings);
+
+            if (configErrors is not null)
+            {
+                throw new ConfigurationException(configErrors);
+            }
+
+            var (dataProtectionCertificate, certSecurityKey, ticketStoreAction)  = PrepareOidcAuthenticationDependencies(services, configuration, certificateLoader, settings);
+
+            // Duplicate code.
+            void OidcAuthenticationFiller(OidcAuthenticationOptions options)
+            {
+                PopulateFromSection(options, settings, configuration, dataProtectionCertificate, certSecurityKey, ticketStoreAction);
+            }
+
+            return services.AddOidcAuthentication(OidcAuthenticationFiller);
+        }
+
+        private static (X509Certificate2? dataProtectionCertificate, X509Certificate2? certSecurityKey, Action<CacheTicketStoreOptions>? ticketStoreAction) PrepareOidcAuthenticationDependencies(IServiceCollection services, IConfiguration configuration,
+            IX509CertificateLoader? certificateLoader, OidcAuthenticationSectionOptions settings)
+        {
+            certificateLoader ??= new X509CertificateLoader(null);
+            var certSecurityKey = string.IsNullOrWhiteSpace(settings.CertSecurityKeyPath)
+                ? null
+                : certificateLoader.FindCertificate(configuration, settings.CertSecurityKeyPath) ??
+                  throw new MissingFieldException(
+                      $"No certificate was found based on the configuration section: {settings.CertSecurityKeyPath}.");
+
+            var cert = certificateLoader.FindCertificate(configuration, settings.CertificateSectionPath) ??
+                       throw new MissingFieldException(
+                           $"No certificate was found based on the configuration section: {settings.CertificateSectionPath}.");
+
+            var ticketStoreAction =
+                CacheTicketStoreExtension.PrepareAction(configuration, settings.AuthenticationCacheTicketStorePath);
+
+            services.AddDomainMapping(configuration, settings.DomainMappingsSectionPath);
+            services.AddOnBehalfOf(configuration);
+            services.AddTokenCache(configuration, settings.TokenCacheSectionPath);
+            services.AddClaimsFiller(configuration, settings.ClaimsFillerSectionPath);
+            services.AddOpenIdBearerInjector();
+
+            return (cert, certSecurityKey, ticketStoreAction);
+        }
+
+        private static void PopulateFromSection(
+            OidcAuthenticationOptions options,
+            OidcAuthenticationSectionOptions settings,
+            IConfiguration configuration,
+            X509Certificate2? dataProtectionCertificate,
+            X509Certificate2? certSecurityKey,
+            Action<CacheTicketStoreOptions>? ticketStoreAction)
+        {
+            options.DefaultAuthority = settings.DefaultAuthority!;
+            options.CookieName = settings.CookieName;
+            options.AuthenticationCacheTicketStoreOption = ticketStoreAction!;
+            options.OpenIdSettingsKey = settings.OpenIdSettingsKey;
+            options.OpenIdSettingsOptions =
+                OpenIdSettingsExtension.PrepareAction(configuration, settings.OpenIdSettingsSectionPath);
+            options.DataProtectionCertificate = dataProtectionCertificate;
+            options.CallbackPath = settings.CallbackPath;
+            options.DefaultKeyLifetime = settings.DefaultKeyLifetime;
+            options.ApplicationName = configuration[settings.ApplicationNameSectionPath]!;
+            options.ForceRefreshTimeoutTimeSpan = settings.ForceRefreshTimeoutTimeSpan;
+            options.RefreshTokenLifetime = settings.RefreshTokenLifetime;
+            options.CertSecurityKey = certSecurityKey;
+            options.ResponseType = settings.ResponseType;
+            options.AuthenticationTicketTtl = settings.AuthenticationTicketTtl;
+            options.DataProtectionCacheStoreOption =
+                CacheStoreExtension.PrepareAction(configuration, settings.DataProtectionSectionPath);
+            options.ClaimsIdentifierOptions =
+                ClaimsidentifierExtension.PrepareAction(configuration, settings.ClaimsIdentifierSectionPath);
+            options.NameClaimType = settings.NameClaimType;
+            options.RoleClaimType = settings.RoleClaimType;
+        }
+
+        private static string? ValidateOidcConfiguration(OidcAuthenticationSectionOptions settings)
+        {
+            string? configErrors = null;
+
+            if (settings.DefaultAuthority is null)
+            {
+                configErrors += "DefaultAuthority must be filled!" + System.Environment.NewLine;
+            }
+
+            if (string.IsNullOrWhiteSpace(settings.CookieName))
+            {
+                configErrors += "We need a cookie name defined specifically for your services." +
+                                System.Environment.NewLine;
+            }
+
+            if (string.IsNullOrWhiteSpace(settings.NameClaimType))
+            {
+                configErrors += "We need a name claim type defined specifically for your services." +
+                                System.Environment.NewLine;
+            }
+
+            if (string.IsNullOrWhiteSpace(settings.RoleClaimType))
+            {
+                configErrors += "We need a role claim type defined specifically for your services." +
+                                System.Environment.NewLine;
+            }
+
+            if (string.IsNullOrWhiteSpace(settings.OpenIdSettingsSectionPath))
+            {
+                configErrors += "We need a setting section to configure the OpenId Connect." +
+                                System.Environment.NewLine;
+            }
+
+            if (string.IsNullOrWhiteSpace(settings.CertificateSectionPath))
+            {
+                configErrors +=
+                    "We need a setting section to specify the certificate to protect your sensitive information." +
+                    System.Environment.NewLine;
+            }
+
+            if (string.IsNullOrWhiteSpace(settings.DataProtectionSectionPath))
+            {
+                configErrors += "We need a setting section to configure the DataProtection cache store." +
+                                System.Environment.NewLine;
+            }
+
+            if (string.IsNullOrWhiteSpace(settings.TokenCacheSectionPath))
+            {
+                configErrors += "We need a setting section to configure the TokenCacheOptions." +
+                                System.Environment.NewLine;
+            }
+
+            if (string.IsNullOrWhiteSpace(settings.ClaimsIdentifierSectionPath))
+            {
+                configErrors += "We need a setting section to specify the claims used to identify a user." +
+                                System.Environment.NewLine;
+            }
+
+            if (string.IsNullOrWhiteSpace(settings.ClaimsFillerSectionPath))
+            {
+                configErrors += "We need a setting section to configure the ClaimsFillerOptions." +
+                                System.Environment.NewLine;
+            }
+
+            if (string.IsNullOrWhiteSpace(settings.DomainMappingsSectionPath))
+            {
+                configErrors += "We need a setting section to configure the DomainsMapping." +
+                                System.Environment.NewLine;
+            }
+
+            if (string.IsNullOrWhiteSpace(settings.ResponseType))
+            {
+                configErrors += "A ResponseType is mandatory to define the OpenId Connect protocol.";
+            }
+
+            return configErrors;
+        }
+
+        private static void ValidateOidcOptions(OidcAuthenticationOptions options)
+        {
+            ArgumentNullException.ThrowIfNull(options.OpenIdSettingsOptions);
+            ArgumentNullException.ThrowIfNull(options.DataProtectionCertificate);
+            ArgumentNullException.ThrowIfNull(options.DefaultAuthority.GetMetaDataAddress());
+        }
+
+        private static void ConfigureOpenIdConnectOptions(IServiceCollection services, OpenIdConnectOptions options,
+            OidcAuthenticationOptions hybridOptions, OpenIdSettingsOption openIdOptions, SecurityKey? securityKey)
+        {
+            ArgumentNullException.ThrowIfNull(hybridOptions.DefaultAuthority.GetMetaDataAddress());
+
+            options.UsePkce = true;
+            options.UseTokenLifetime = false;
+            options.SaveTokens = false;
+            options.Authority = openIdOptions.Authority is null
+                ? hybridOptions.DefaultAuthority.Url.ToString()
+                : openIdOptions.Authority.Url.ToString();
+            options.RequireHttpsMetadata =
+                hybridOptions.DefaultAuthority.MetaDataAddress.Scheme.Equals(Uri.UriSchemeHttps,
+                    StringComparison.InvariantCultureIgnoreCase);
+            options.MetadataAddress = hybridOptions.DefaultAuthority.MetaDataAddress.ToString();
+            options.ResponseType = hybridOptions.ResponseType;
+            options.CallbackPath = hybridOptions.CallbackPath;
+            options.Scope.Clear();
+            openIdOptions.Scopes.ForEach(options.Scope.Add);
+            options.ClientId = openIdOptions.ClientId;
+            options.ClientSecret = openIdOptions.ClientSecret;
+            options.GetClaimsFromUserInfoEndpoint = false;
+            options.MapInboundClaims = false;
+            options.TokenValidationParameters.NameClaimType = hybridOptions.NameClaimType;
+            options.TokenValidationParameters.RoleClaimType = hybridOptions.RoleClaimType;
+            options.TokenValidationParameters.SaveSigninToken = false;
+            options.TokenValidationParameters.AuthenticationType = openIdOptions.AuthenticationType;
+            options.TokenValidationParameters.ValidateAudience = openIdOptions.ValidateAudience;
+            options.TokenValidationParameters.ValidAudiences = openIdOptions.Audiences;
+            if (securityKey is not null)
+            {
+                options.TokenValidationParameters.IssuerSigningKey = securityKey;
+            }
+
+            options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            options.SaveTokens = true;
+            options.AuthenticationMethod = OpenIdConnectRedirectBehavior.FormPost;
+            options.ResponseMode = OpenIdConnectResponseMode.FormPost;
+            options.EventsType = typeof(OpenIdConnectEvents);
+        }
+    }
+}

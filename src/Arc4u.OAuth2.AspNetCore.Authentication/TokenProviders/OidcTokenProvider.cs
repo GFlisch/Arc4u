@@ -5,52 +5,53 @@ using FluentResults;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Arc4u.OAuth2.TokenProviders;
-
-[Export(OidcTokenProvider.ProviderName, typeof(ITokenProvider))]
-public class OidcTokenProvider : ITokenProvider
+namespace Arc4u.OAuth2.TokenProviders
 {
-    public const string ProviderName = "Oidc";
-
-    public OidcTokenProvider(ILogger<OidcTokenProvider> logger, TokenRefreshInfo tokenRefreshInfo, IOptions<OidcAuthenticationOptions> oidcOptions, ITokenRefreshProvider refreshTokenProvider)
+    [Export(OidcTokenProvider.ProviderName, typeof(ITokenProvider))]
+    public class OidcTokenProvider : ITokenProvider
     {
-        _logger = logger;
-        _tokenRefreshInfo = tokenRefreshInfo;
-        _oidcOptions = oidcOptions.Value;
-        _refreshTokenProvider = refreshTokenProvider;
-    }
+        public const string ProviderName = "Oidc";
 
-    private readonly ILogger<OidcTokenProvider> _logger;
-    private readonly TokenRefreshInfo _tokenRefreshInfo;
-    private readonly OidcAuthenticationOptions _oidcOptions;
-    private readonly ITokenRefreshProvider _refreshTokenProvider;
-
-    /// <summary>
-    ///
-    /// </summary>
-    /// <param name="settings"></param>
-    /// <param name="platformParameters"></param>
-    /// <exception cref="ArgumentNullException"/>
-    /// <exception cref="ArgumentException" />
-    /// <returns><see cref="TokenInfo"/></returns>
-    public async Task<Result<TokenInfo?>> GetTokenAsync(IKeyValueSettings? settings, object? platformParameters)
-    {
-        ArgumentNullException.ThrowIfNull(settings);
-
-        var timeRemaining = _tokenRefreshInfo.AccessToken.ExpiresOnUtc.Subtract(DateTime.UtcNow);
-
-        if (timeRemaining > _oidcOptions.ForceRefreshTimeoutTimeSpan)
+        public OidcTokenProvider(ILogger<OidcTokenProvider> logger, TokenRefreshInfo tokenRefreshInfo, IOptions<OidcAuthenticationOptions> oidcOptions, ITokenRefreshProvider refreshTokenProvider)
         {
-            return _tokenRefreshInfo.AccessToken;
+            _logger = logger;
+            _tokenRefreshInfo = tokenRefreshInfo;
+            _hybridOptions = oidcOptions.Value;
+            _refreshTokenProvider = refreshTokenProvider;
         }
 
-        var refreshTokenInfo = await _refreshTokenProvider.RefreshTokenAsync(CancellationToken.None).ConfigureAwait(false);
+        private readonly ILogger<OidcTokenProvider> _logger;
+        private readonly TokenRefreshInfo _tokenRefreshInfo;
+        private readonly OidcAuthenticationOptions _hybridOptions;
+        private readonly ITokenRefreshProvider _refreshTokenProvider;
 
-        return refreshTokenInfo?.AccessToken;
-    }
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="settings"></param>
+        /// <param name="platformParameters"></param>
+        /// <exception cref="ArgumentNullException"/>
+        /// <exception cref="ArgumentException" />
+        /// <returns><see cref="TokenInfo"/></returns>
+        public async Task<Result<TokenInfo?>> GetTokenAsync(IKeyValueSettings? settings, object? platformParameters)
+        {
+            ArgumentNullException.ThrowIfNull(settings);
 
-    public ValueTask SignOutAsync(IKeyValueSettings settings, CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException();
+            var timeRemaining = _tokenRefreshInfo.AccessToken.ExpiresOnUtc.Subtract(DateTime.UtcNow);
+
+            if (timeRemaining > _hybridOptions.ForceRefreshTimeoutTimeSpan)
+            {
+                return _tokenRefreshInfo.AccessToken;
+            }
+
+            var refreshTokenInfo = await _refreshTokenProvider.RefreshTokenAsync(CancellationToken.None).ConfigureAwait(false);
+
+            return refreshTokenInfo?.AccessToken;
+        }
+
+        public ValueTask SignOutAsync(IKeyValueSettings settings, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

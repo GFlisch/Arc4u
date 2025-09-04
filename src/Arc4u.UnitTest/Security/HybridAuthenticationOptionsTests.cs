@@ -20,9 +20,9 @@ using Arc4u.Dependency;
 namespace Arc4u.UnitTest.Security;
 
 [Trait("Category", "CI")]
-public class OidcAuthenticationOptionsTests
+public class HybridAuthenticationOptionsTests
 {
-    public OidcAuthenticationOptionsTests()
+    public HybridAuthenticationOptionsTests()
     {
         _fixture = new Fixture();
         _fixture.Customize(new AutoMoqCustomization());
@@ -44,16 +44,72 @@ public class OidcAuthenticationOptionsTests
 
         IServiceCollection services = new ServiceCollection();
 
-        var exception = Record.Exception(() => AuthenticationExtensions.AddOidcAuthentication(services, configuration));
+        var exception = Record.Exception(() => AuthenticationExtensions.AddHybridAuthentication(services, configuration));
 
         exception.Should().BeOfType<ConfigurationException>();
     }
 
-    [Fact]
+        [Fact]
     public void Default_Oidc_Authentication_Value_Should()
     {
         var oidcSettings = _fixture.Create<OidcAuthenticationOptions>();
-        var defaultSettings = new OidcAuthenticationOptions();
+        var tokenCacheSettings = _fixture.Create<TokenCacheOptions>();
+        var defaultAuthority = _fixture.Create<AuthorityOptions>();
+        var oidcOptions = _fixture.Create<OpenIdSettingsOption>();
+
+        var configDic = new Dictionary<string, string?>
+        {
+            { "Application.configuration:ApplicationName", "TestName" },
+            { "Authentication:DefaultAuthority:RetryInterval", defaultAuthority.RetryInterval.ToString() },
+            { "Authentication:DefaultAuthority:MetaDataAddress", defaultAuthority.MetaDataAddress!.ToString() },
+            { "Authentication:DefaultAuthority:Url", defaultAuthority.Url.ToString() },
+            { "Authentication:DefaultAuthority:TokenEndpoint", defaultAuthority.TokenEndpoint!.ToString() },
+            { "Authentication:CookieName", oidcSettings.CookieName },
+            { "Authentication:ApplicationName", oidcSettings.ApplicationName },
+            { "Authentication:TokenCache:CacheName", tokenCacheSettings.CacheName },
+            { "Authentication:ValidateAudience", false.ToString() },
+            { "Authentication:DataProtection:CacheStore:CacheKey", "TokenCacheKey" },
+            { "Authentication:DataProtection:CacheStore:CacheName", "TokenCacheName" },
+
+            // OpenId
+            { "Authentication:OpenId.Settings:ClientId", oidcOptions.ClientId },
+            { "Authentication:OpenId.Settings:ClientSecret", oidcOptions.ClientSecret },
+        };
+
+        // OpenId
+        foreach (var audience in oidcOptions.Audiences)
+        {
+            configDic.Add($"Authentication:OpenId.Settings:Audiences:{oidcOptions.Audiences.IndexOf(audience)}", audience);
+        }
+        foreach (var scope in oidcOptions.Scopes)
+        {
+            configDic.Add($"Authentication:OpenId.Settings:Scopes:{oidcOptions.Scopes.IndexOf(scope)}", scope);
+        }
+
+        var config = new ConfigurationBuilder()
+                .AddInMemoryCollection(configDic).Build();
+
+        IConfiguration configuration = new ConfigurationRoot([.. config.Providers]);
+
+        IServiceCollection services = new ServiceCollection();
+
+        var mockCertificateLoader = new Mock<IX509CertificateLoader>();
+        mockCertificateLoader.Setup(loader => loader.FindCertificate(It.IsAny<IConfiguration>(), It.IsAny<string>()))
+                             .Returns(_fixture.Create<X509Certificate2>());
+
+        AuthenticationExtensions.AddOidcAuthentication(services, configuration, certificateLoader: mockCertificateLoader.Object);
+
+        var app = services.BuildServiceProvider();
+
+        var sut = app.GetRequiredService<IOptionsMonitor<OidcAuthenticationOptions>>().Get("Default");
+
+        sut.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void Default_Hybrid_Authentication_Value_Should()
+    {
+        var oidcSettings = _fixture.Create<HybridAuthenticationOptions>();
         var tokenCacheSettings = _fixture.Create<TokenCacheOptions>();
         var defaultAuthority = _fixture.Create<AuthorityOptions>();
         var auth2Options = _fixture.Create<OAuth2SettingsOption>();
@@ -109,11 +165,11 @@ public class OidcAuthenticationOptionsTests
         mockCertificateLoader.Setup(loader => loader.FindCertificate(It.IsAny<IConfiguration>(), It.IsAny<string>()))
                              .Returns(_fixture.Create<X509Certificate2>());
 
-        AuthenticationExtensions.AddOidcAuthentication(services, configuration, certificateLoader: mockCertificateLoader.Object);
+        AuthenticationExtensions.AddHybridAuthentication(services, configuration, certificateLoader: mockCertificateLoader.Object);
 
         var app = services.BuildServiceProvider();
 
-        var sut = app.GetRequiredService<IOptionsMonitor<OidcAuthenticationOptions>>().Get("Default");
+        var sut = app.GetRequiredService<IOptionsMonitor<HybridAuthenticationOptions>>().Get("Default");
 
         sut.Should().NotBeNull();
     }

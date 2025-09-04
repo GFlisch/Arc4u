@@ -65,7 +65,7 @@ public class AuthenticationOptionsTests
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
         var section = configuration.GetSection("Authentication");
-        var settings = new OidcAuthenticationSectionOptions(); // default values applied
+        var settings = new HybridAuthenticationSectionOptions(); // default values applied
         section.Bind(settings); // config values override what's provided
 
 

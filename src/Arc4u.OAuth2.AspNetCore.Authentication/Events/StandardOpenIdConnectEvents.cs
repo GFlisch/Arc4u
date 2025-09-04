@@ -10,116 +10,117 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Arc4u.OAuth2.Events;
-
-public sealed partial class StandardOpenIdConnectEvents : OpenIdConnectEvents
-
+namespace Arc4u.OAuth2.Events
 {
-    private readonly ILogger<StandardOpenIdConnectEvents> _logger;
-    private readonly OidcAuthenticationOptions _oidcOptions;
-    private readonly IOptionsMonitor<SimpleKeyValueSettings> _openIdOptions;
+    public sealed partial class StandardOpenIdConnectEvents : OpenIdConnectEvents
 
-    public StandardOpenIdConnectEvents(ILogger<StandardOpenIdConnectEvents> logger, IOptionsMonitor<OidcAuthenticationOptions> oidcOptions, IOptionsMonitor<SimpleKeyValueSettings> openIdOptions)
     {
-        _oidcOptions = oidcOptions.CurrentValue;
-        _openIdOptions = openIdOptions;
-    }
+        private readonly ILogger<StandardOpenIdConnectEvents> _logger;
+        private readonly OidcAuthenticationOptions _hybridOptions;
+        private readonly IOptionsMonitor<SimpleKeyValueSettings> _openIdOptions;
 
-    [GeneratedRegex(@"\b(?:http:\/\/localhost|https:\/\/)\b", RegexOptions.IgnoreCase)]
-    private static partial Regex HttpRegex();
-
-    public override Task TokenResponseReceived(TokenResponseReceivedContext context)
-    {
-        if (string.IsNullOrWhiteSpace(context.TokenEndpointResponse.AccessToken))
+        public StandardOpenIdConnectEvents(ILogger<StandardOpenIdConnectEvents> logger, IOptionsMonitor<OidcAuthenticationOptions> oidcOptions, IOptionsMonitor<SimpleKeyValueSettings> openIdOptions)
         {
-            return Task.CompletedTask;
+            _hybridOptions = oidcOptions.CurrentValue;
+            _openIdOptions = openIdOptions;
         }
 
-        var jwtToken = new JwtSecurityToken(context.TokenEndpointResponse.AccessToken);
-        var options = _openIdOptions.Get(_oidcOptions.OpenIdSettingsKey);
+        [GeneratedRegex(@"\b(?:http:\/\/localhost|https:\/\/)\b", RegexOptions.IgnoreCase)]
+        private static partial Regex HttpRegex();
 
-        if (_oidcOptions.ValidateAudience)
+        public override Task TokenResponseReceived(TokenResponseReceivedContext context)
         {
-            if (!jwtToken.Audiences.Any(aud => options.Values[TokenKeys.Audiences].Contains(aud)))
+            if (string.IsNullOrWhiteSpace(context.TokenEndpointResponse.AccessToken))
             {
-                _logger.Technical()
-                       .LogError("Audience(s) {audience} is not in the list of allowed audience(s): {audiences}.",
-                                 jwtToken.Audiences,
-                                 options.Values[TokenKeys.Audiences]);
-
-                context.Fail("Invalid audience");
-
                 return Task.CompletedTask;
             }
-        }
 
-        // when a default authority is not defined...
-        if (!_oidcOptions.ValidateAuthority)
-        {
+            var jwtToken = new JwtSecurityToken(context.TokenEndpointResponse.AccessToken);
+            var options = _openIdOptions.Get(_hybridOptions.OpenIdSettingsKey);
+
+            if (_hybridOptions.ValidateAudience)
+            {
+                if (!jwtToken.Audiences.Any(aud => options.Values[TokenKeys.Audiences].Contains(aud)))
+                {
+                    _logger.Technical()
+                        .LogError("Audience(s) {audience} is not in the list of allowed audience(s): {audiences}.",
+                            jwtToken.Audiences,
+                            options.Values[TokenKeys.Audiences]);
+
+                    context.Fail("Invalid audience");
+
+                    return Task.CompletedTask;
+                }
+            }
+
+            // when a default authority is not defined...
+            if (!_hybridOptions.ValidateAuthority)
+            {
+                return Task.CompletedTask;
+            }
+
+            if (jwtToken.Issuer.Equals(_hybridOptions.DefaultAuthority.Url.AbsoluteUri, StringComparison.OrdinalIgnoreCase))
+            {
+                return Task.CompletedTask;
+            }
+
+            _logger.Technical()
+                .LogError("Authority {authority} is not in the expected one: {authority_from_config}.",
+                    jwtToken.Issuer,
+                    _hybridOptions.DefaultAuthority.Url.AbsoluteUri);
+
+            //context.HandleResponse();
+            context.Fail("Invalid authority");
+
             return Task.CompletedTask;
+
         }
 
-        if (jwtToken.Issuer.Equals(_oidcOptions.DefaultAuthority.Url.AbsoluteUri, StringComparison.OrdinalIgnoreCase))
+        public override Task RedirectToIdentityProvider(RedirectContext context)
         {
-            return Task.CompletedTask;
+            // force https for redirect uri but for localhost.
+            if (!HttpRegex().IsMatch(context.ProtocolMessage.RedirectUri))
+            {
+                context.ProtocolMessage.RedirectUri = context.ProtocolMessage.RedirectUri.Replace("http://", "https://");
+            }
+
+            // Has been introduced for AzureAD => works also for Keykloack.
+            context.ProtocolMessage.State = Guid.NewGuid().ToString();
+            return base.RedirectToIdentityProvider(context);
         }
 
-        _logger.Technical()
-               .LogError("Authority {authority} is not in the expected one: {authority_from_config}.",
-                         jwtToken.Issuer,
-                         _oidcOptions.DefaultAuthority.Url.AbsoluteUri);
-
-        //context.HandleResponse();
-        context.Fail("Invalid authority");
-
-        return Task.CompletedTask;
-
-    }
-
-    public override Task RedirectToIdentityProvider(RedirectContext context)
-    {
-        // force https for redirect uri but for localhost.
-        if (!HttpRegex().IsMatch(context.ProtocolMessage.RedirectUri))
+        public override async Task AuthenticationFailed(AuthenticationFailedContext context)
         {
-            context.ProtocolMessage.RedirectUri = context.ProtocolMessage.RedirectUri.Replace("http://", "https://");
+            ArgumentNullException.ThrowIfNull(context);
+
+            context.HandleResponse();
+
+            context.Response.StatusCode = 500;
+            context.Response.ContentType = "text/plain";
+
+            _logger.Technical().LogException(context.Exception);
+
+            await context.Response.WriteAsync("<html><p>You are not authenticated.</p></html>").ConfigureAwait(false);
+
         }
 
-        // Has been introduced for AzureAD => works also for Keykloack.
-        context.ProtocolMessage.State = Guid.NewGuid().ToString();
-        return base.RedirectToIdentityProvider(context);
-    }
+        public override Task AccessDenied(AccessDeniedContext context)
+        {
+            ArgumentNullException.ThrowIfNull(context);
 
-    public override async Task AuthenticationFailed(AuthenticationFailedContext context)
-    {
-        ArgumentNullException.ThrowIfNull(context);
+            context.HandleResponse();
 
-        context.HandleResponse();
+            return context.Response.WriteAsync("<html><p>You are not authorized to use this api</p></html>");
 
-        context.Response.StatusCode = 500;
-        context.Response.ContentType = "text/plain";
+        }
 
-        _logger.Technical().LogException(context.Exception);
+        public override Task RemoteFailure(RemoteFailureContext context)
+        {
+            ArgumentNullException.ThrowIfNull(context);
 
-        await context.Response.WriteAsync("<html><p>You are not authenticated.</p></html>").ConfigureAwait(false);
+            context.HandleResponse();
 
-    }
-
-    public override Task AccessDenied(AccessDeniedContext context)
-    {
-        ArgumentNullException.ThrowIfNull(context);
-
-        context.HandleResponse();
-
-        return context.Response.WriteAsync("<html><p>You are not authorized to use this api</p></html>");
-
-    }
-
-    public override Task RemoteFailure(RemoteFailureContext context)
-    {
-        ArgumentNullException.ThrowIfNull(context);
-
-        context.HandleResponse();
-
-        return context.Response.WriteAsync($"<html><p>There was an issue during the request: {context.Failure?.Message ?? "Unknown error"}.</p></html>");
+            return context.Response.WriteAsync($"<html><p>There was an issue during the request: {context.Failure?.Message ?? "Unknown error"}.</p></html>");
+        }
     }
 }

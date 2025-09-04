@@ -6,72 +6,73 @@ using Arc4u.Serializer;
 using Microsoft.AspNetCore.DataProtection.Repositories;
 using Microsoft.Extensions.Logging;
 
-namespace Arc4u.OAuth2.DataProtection;
-
-public class CacheStore : IXmlRepository
+namespace Arc4u.OAuth2.DataProtection
 {
-    public CacheStore(ICacheContext cacheContext, ILoggerFactory loggerFactory, IObjectSerialization serialization, [DisallowNull] string cacheKey, string? cacheName = null)
+    public class CacheStore : IXmlRepository
     {
-        ArgumentNullException.ThrowIfNull(serialization);
-        ArgumentNullException.ThrowIfNull(cacheContext);
-        ArgumentNullException.ThrowIfNull(loggerFactory);
-        ArgumentNullException.ThrowIfNull(cacheKey);
-
-        _logger = loggerFactory.CreateLogger<CacheStore>();
-        _cacheContext = cacheContext;
-        _cacheName = cacheName;
-        _cacheKey = cacheKey;
-        _serialization = serialization;
-
-        _cache = new Lazy<ICache>(() =>
+        public CacheStore(ICacheContext cacheContext, ILoggerFactory loggerFactory, IObjectSerialization serialization, [DisallowNull] string cacheKey, string? cacheName = null)
         {
-            // Check if I give a wrong cache name => Exception with clear context!
-            return string.IsNullOrWhiteSpace(_cacheName) ? cacheContext.Default : cacheContext[_cacheName];
-        });
-    }
+            ArgumentNullException.ThrowIfNull(serialization);
+            ArgumentNullException.ThrowIfNull(cacheContext);
+            ArgumentNullException.ThrowIfNull(loggerFactory);
+            ArgumentNullException.ThrowIfNull(cacheKey);
 
-    private readonly ICacheContext _cacheContext;
-    private readonly ILogger<CacheStore> _logger;
-    private readonly string _cacheKey;
-    private readonly string? _cacheName;
-    private readonly Lazy<ICache> _cache;
-    private readonly IObjectSerialization _serialization;
+            _logger = loggerFactory.CreateLogger<CacheStore>();
+            _cacheContext = cacheContext;
+            _cacheName = cacheName;
+            _cacheKey = cacheKey;
+            _serialization = serialization;
 
-    public IReadOnlyCollection<XElement> GetAllElements()
-    {
-        return GetElements().AsReadOnly();
-    }
-
-    private List<XElement> GetElements()
-    {
-        var result = new List<XElement>();
-
-        var content = _cache.Value.Get<byte[]>(_cacheKey);
-
-        if (content is not null)
-        {
-            var list = _serialization.Deserialize<List<string>>(content);
-
-            if (list is null)
+            _cache = new Lazy<ICache>(() =>
             {
-                _logger.Technical().LogError("The deserialization of the Data Protection xml element failed.");
-                return result;
-            }
-
-            result.AddRange(list.Where(e => !string.IsNullOrWhiteSpace(e)).Select(XElement.Parse));
+                // Check if I give a wrong cache name => Exception with clear context!
+                return string.IsNullOrWhiteSpace(_cacheName) ? cacheContext.Default : cacheContext[_cacheName];
+            });
         }
 
-        return result;
-    }
+        private readonly ICacheContext _cacheContext;
+        private readonly ILogger<CacheStore> _logger;
+        private readonly string _cacheKey;
+        private readonly string? _cacheName;
+        private readonly Lazy<ICache> _cache;
+        private readonly IObjectSerialization _serialization;
 
-    public void StoreElement(XElement element, string friendlyName)
-    {
-        var result = GetElements();
+        public IReadOnlyCollection<XElement> GetAllElements()
+        {
+            return GetElements().AsReadOnly();
+        }
 
-        result.Insert(0, element);
+        private List<XElement> GetElements()
+        {
+            var result = new List<XElement>();
 
-        var content = _serialization.Serialize<List<string>>(result.Select(e => e.ToString(SaveOptions.DisableFormatting)).ToList());
+            var content = _cache.Value.Get<byte[]>(_cacheKey);
 
-        _cache.Value.Put(_cacheKey, content);
+            if (content is not null)
+            {
+                var list = _serialization.Deserialize<List<string>>(content);
+
+                if (list is null)
+                {
+                    _logger.Technical().LogError("The deserialization of the Data Protection xml element failed.");
+                    return result;
+                }
+
+                result.AddRange(list.Where(e => !string.IsNullOrWhiteSpace(e)).Select(XElement.Parse));
+            }
+
+            return result;
+        }
+
+        public void StoreElement(XElement element, string friendlyName)
+        {
+            var result = GetElements();
+
+            result.Insert(0, element);
+
+            var content = _serialization.Serialize<List<string>>(result.Select(e => e.ToString(SaveOptions.DisableFormatting)).ToList());
+
+            _cache.Value.Put(_cacheKey, content);
+        }
     }
 }

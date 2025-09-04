@@ -9,101 +9,102 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 
-namespace Arc4u.OAuth2.Events;
-
-public class StandardCookieEvents : CookieAuthenticationEvents
+namespace Arc4u.OAuth2.Events
 {
-    public StandardCookieEvents(IServiceProvider serviceProvider,
-                                ILogger<StandardCookieEvents> logger,
-                                IOptions<OidcAuthenticationOptions> oidcOptions,
-                                ITokenRefreshProvider tokenRefreshProvider)
+    public class StandardCookieEvents : CookieAuthenticationEvents
     {
-        _serviceProvider = serviceProvider;
-        _logger = logger;
-        _oidcOptions = oidcOptions.Value;
-        _tokenRefreshProvider = tokenRefreshProvider;
-    }
-
-    private readonly IServiceProvider _serviceProvider;
-    private readonly OidcAuthenticationOptions _oidcOptions;
-    private readonly ITokenRefreshProvider _tokenRefreshProvider;
-    private readonly ILogger<StandardCookieEvents> _logger;
-
-    public override async Task ValidatePrincipal(CookieValidatePrincipalContext cookieCtx)
-    {
-        ArgumentNullException.ThrowIfNull(_serviceProvider);
-        ArgumentNullException.ThrowIfNull(_oidcOptions);
-
-        var cookieTokenExpiration = cookieCtx.Properties.ExpiresUtc;
-        if (!cookieTokenExpiration.HasValue || cookieTokenExpiration.Value < DateTime.UtcNow)
+        public StandardCookieEvents(IServiceProvider serviceProvider,
+            ILogger<StandardCookieEvents> logger,
+            IOptions<OidcAuthenticationOptions> oidcOptions,
+            ITokenRefreshProvider tokenRefreshProvider)
         {
-            _logger?.Technical().LogError("Cookie doesn't exist or is expired. Reject the principal and sign out the user.");
-            cookieCtx.RejectPrincipal();
-            await cookieCtx.HttpContext.SignOutAsync().ConfigureAwait(false);
-            return;
+            _serviceProvider = serviceProvider;
+            _logger = logger;
+            _hybridOptions = oidcOptions.Value;
+            _tokenRefreshProvider = tokenRefreshProvider;
         }
 
-        // => must be defined in the options
-        var refreshThreshold = _oidcOptions.ForceRefreshTimeoutTimeSpan;
+        private readonly IServiceProvider _serviceProvider;
+        private readonly OidcAuthenticationOptions _hybridOptions;
+        private readonly ITokenRefreshProvider _tokenRefreshProvider;
+        private readonly ILogger<StandardCookieEvents> _logger;
 
-        _logger.Technical().LogExtractCookieFromTokenCache();
-
-        // Persist the Access and Refresh tokens.
-        // TokenRefreshInfo is registered as Scoped and we create at this moment (by request) an instance to
-        // set the information stored in the TicketStore repo based on the cookie information.
-
-        var tokensInfo = _serviceProvider.GetService<TokenRefreshInfo>();
-
-        if (null == tokensInfo)
+        public override async Task ValidatePrincipal(CookieValidatePrincipalContext cookieCtx)
         {
-            _logger.Technical().LogNoTokenRefreshInfo();
-            cookieCtx.RejectPrincipal();
-            await cookieCtx.HttpContext.SignOutAsync().ConfigureAwait(false);
-            return;
-        }
+            ArgumentNullException.ThrowIfNull(_serviceProvider);
+            ArgumentNullException.ThrowIfNull(_hybridOptions);
 
-        var accessToken = cookieCtx.Properties.GetTokenValue("access_token");
-        var jwtToken = new JsonWebToken(accessToken);
-        var refreshToken = cookieCtx.Properties.GetTokenValue("refresh_token");
-
-        tokensInfo.AccessToken = new TokenInfo("access_token", accessToken ?? string.Empty, jwtToken.ValidTo);
-        // As not all the autorities are using a jwt token for the refresh token, the expiration date is not  extracted from the token
-        tokensInfo.RefreshToken = new TokenInfo("refresh_token", refreshToken ?? string.Empty, DateTime.UtcNow + _oidcOptions.RefreshTokenLifetime);
-
-        var timeRemaining = jwtToken.ValidTo - DateTime.UtcNow;
-        if (timeRemaining < refreshThreshold)
-        {
-            ArgumentNullException.ThrowIfNull(_tokenRefreshProvider);
-            try
+            var cookieTokenExpiration = cookieCtx.Properties.ExpiresUtc;
+            if (!cookieTokenExpiration.HasValue || cookieTokenExpiration.Value < DateTime.UtcNow)
             {
-                if (timeRemaining < TimeSpan.Zero)
-                {
-                    _logger?.Technical().LogAccessTokenIsExpired(timeRemaining.Multiply(-1));
-                }
-                else
-                {
-                    _logger?.Technical().LogAccessTokenIsExpiring(timeRemaining);
-                }
-
-                // throws an exception if the call failed.
-                await _tokenRefreshProvider.RefreshTokenAsync(CancellationToken.None).ConfigureAwait(false);
-
-                cookieCtx.Properties.UpdateTokenValue("access_token", tokensInfo.AccessToken.Token);
-                cookieCtx.Properties.UpdateTokenValue("refresh_token", tokensInfo.RefreshToken.Token);
-                cookieCtx.Properties.UpdateTokenValue("expires_at", tokensInfo.AccessToken.ExpiresOnUtc.ToString("o", CultureInfo.InvariantCulture));
-
-                cookieCtx.ShouldRenew = true;
-                _logger?.Technical().LogDebug("Renew the cookie.");
-            }
-            catch (Exception ex)
-            {
-                _logger?.Technical().LogCantRefreshToken();
-                _logger?.Technical().LogException(ex);
-
+                _logger?.Technical().LogError("Cookie doesn't exist or is expired. Reject the principal and sign out the user.");
                 cookieCtx.RejectPrincipal();
                 await cookieCtx.HttpContext.SignOutAsync().ConfigureAwait(false);
+                return;
             }
 
+            // => must be defined in the options
+            var refreshThreshold = _hybridOptions.ForceRefreshTimeoutTimeSpan;
+
+            _logger.Technical().LogExtractCookieFromTokenCache();
+
+            // Persist the Access and Refresh tokens.
+            // TokenRefreshInfo is registered as Scoped and we create at this moment (by request) an instance to
+            // set the information stored in the TicketStore repo based on the cookie information.
+
+            var tokensInfo = _serviceProvider.GetService<TokenRefreshInfo>();
+
+            if (null == tokensInfo)
+            {
+                _logger.Technical().LogNoTokenRefreshInfo();
+                cookieCtx.RejectPrincipal();
+                await cookieCtx.HttpContext.SignOutAsync().ConfigureAwait(false);
+                return;
+            }
+
+            var accessToken = cookieCtx.Properties.GetTokenValue("access_token");
+            var jwtToken = new JsonWebToken(accessToken);
+            var refreshToken = cookieCtx.Properties.GetTokenValue("refresh_token");
+
+            tokensInfo.AccessToken = new TokenInfo("access_token", accessToken ?? string.Empty, jwtToken.ValidTo);
+            // As not all the autorities are using a jwt token for the refresh token, the expiration date is not  extracted from the token
+            tokensInfo.RefreshToken = new TokenInfo("refresh_token", refreshToken ?? string.Empty, DateTime.UtcNow + _hybridOptions.RefreshTokenLifetime);
+
+            var timeRemaining = jwtToken.ValidTo - DateTime.UtcNow;
+            if (timeRemaining < refreshThreshold)
+            {
+                ArgumentNullException.ThrowIfNull(_tokenRefreshProvider);
+                try
+                {
+                    if (timeRemaining < TimeSpan.Zero)
+                    {
+                        _logger?.Technical().LogAccessTokenIsExpired(timeRemaining.Multiply(-1));
+                    }
+                    else
+                    {
+                        _logger?.Technical().LogAccessTokenIsExpiring(timeRemaining);
+                    }
+
+                    // throws an exception if the call failed.
+                    await _tokenRefreshProvider.RefreshTokenAsync(CancellationToken.None).ConfigureAwait(false);
+
+                    cookieCtx.Properties.UpdateTokenValue("access_token", tokensInfo.AccessToken.Token);
+                    cookieCtx.Properties.UpdateTokenValue("refresh_token", tokensInfo.RefreshToken.Token);
+                    cookieCtx.Properties.UpdateTokenValue("expires_at", tokensInfo.AccessToken.ExpiresOnUtc.ToString("o", CultureInfo.InvariantCulture));
+
+                    cookieCtx.ShouldRenew = true;
+                    _logger?.Technical().LogDebug("Renew the cookie.");
+                }
+                catch (Exception ex)
+                {
+                    _logger?.Technical().LogCantRefreshToken();
+                    _logger?.Technical().LogException(ex);
+
+                    cookieCtx.RejectPrincipal();
+                    await cookieCtx.HttpContext.SignOutAsync().ConfigureAwait(false);
+                }
+
+            }
         }
     }
 }

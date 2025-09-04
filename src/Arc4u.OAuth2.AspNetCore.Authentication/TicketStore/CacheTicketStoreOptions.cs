@@ -1,9 +1,10 @@
-namespace Arc4u.OAuth2.TicketStore;
-
-public class CacheTicketStoreOptions
+namespace Arc4u.OAuth2.TicketStore
 {
-    public string CacheName { get; set; } = "Default";
+    public class CacheTicketStoreOptions
+    {
+        public string CacheName { get; set; } = "Default";
 
-    public string KeyPrefix { get; set; } = "AuthSessionStore-";
+        public string KeyPrefix { get; set; } = "AuthSessionStore-";
+    }
 }
 

@@ -4,83 +4,84 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Arc4u.OAuth2.TicketStore;
-
-public class FileTicketStore : ITicketStore
+namespace Arc4u.OAuth2.TicketStore
 {
-    public FileTicketStore(ILogger<FileTicketStore> logger, IOptionsMonitor<FileTicketStoreOptions> options)
+    public class FileTicketStore : ITicketStore
     {
-        _logger = logger;
-
-        ArgumentNullException.ThrowIfNull(options.CurrentValue.StorePath);
-
-        _directoryStore = options.CurrentValue.StorePath;
-    }
-
-    private readonly DirectoryInfo _directoryStore;
-    private readonly object _lock = new();
-    private readonly ILogger<FileTicketStore> _logger;
-    public Task RemoveAsync(string key)
-    {
-        var fullPath = GetPath(key);
-
-        lock (_lock)
+        public FileTicketStore(ILogger<FileTicketStore> logger, IOptionsMonitor<FileTicketStoreOptions> options)
         {
-            File.Delete(fullPath);
-            _logger.Technical().LogRemoveAuthenticationTicket(key);
+            _logger = logger;
+
+            ArgumentNullException.ThrowIfNull(options.CurrentValue.StorePath);
+
+            _directoryStore = options.CurrentValue.StorePath;
         }
 
-        return Task.CompletedTask;
-    }
-
-    public async Task RenewAsync(string key, AuthenticationTicket ticket)
-    {
-        await RemoveAsync(key).ConfigureAwait(false);
-        var fullPath = GetPath(key);
-
-        lock (_lock)
+        private readonly DirectoryInfo _directoryStore;
+        private readonly object _lock = new();
+        private readonly ILogger<FileTicketStore> _logger;
+        public Task RemoveAsync(string key)
         {
-            File.WriteAllBytes(fullPath, TicketSerializer.Default.Serialize(ticket));
-            _logger.Technical().LogRenewAuthenticationTicket(key,fullPath);
+            var fullPath = GetPath(key);
+
+            lock (_lock)
+            {
+                File.Delete(fullPath);
+                _logger.Technical().LogRemoveAuthenticationTicket(key);
+            }
+
+            return Task.CompletedTask;
         }
 
-        return;
-    }
-
-    public Task<AuthenticationTicket?> RetrieveAsync(string key)
-    {
-        var fullPath = GetPath(key);
-
-        AuthenticationTicket? ticket = null;
-
-        if (File.Exists(fullPath))
+        public async Task RenewAsync(string key, AuthenticationTicket ticket)
         {
-            var content = File.ReadAllBytes(fullPath);
+            await RemoveAsync(key).ConfigureAwait(false);
+            var fullPath = GetPath(key);
 
-            ticket = TicketSerializer.Default.Deserialize(content);
-            _logger.Technical().LogGetAuthenticationTicket(key, fullPath);
-        }
-        else
-        {
-            _logger.Technical().LogNoFileExistForAuthenticationTicket(fullPath);
+            lock (_lock)
+            {
+                File.WriteAllBytes(fullPath, TicketSerializer.Default.Serialize(ticket));
+                _logger.Technical().LogRenewAuthenticationTicket(key,fullPath);
+            }
+
+            return;
         }
 
-        return Task.FromResult(ticket);
-    }
-
-    private string GetPath(string key) => Path.Combine(_directoryStore.FullName, key + ".bin");
-
-    public Task<string> StoreAsync(AuthenticationTicket ticket)
-    {
-        var key = Guid.NewGuid().ToString();
-        var fullPath = GetPath(key);
-
-        lock (_lock)
+        public Task<AuthenticationTicket?> RetrieveAsync(string key)
         {
-            File.WriteAllBytes(fullPath, TicketSerializer.Default.Serialize(ticket));
-            _logger.Technical().LogCreateAuthenticationTicketOnFile(key, fullPath);
+            var fullPath = GetPath(key);
+
+            AuthenticationTicket? ticket = null;
+
+            if (File.Exists(fullPath))
+            {
+                var content = File.ReadAllBytes(fullPath);
+
+                ticket = TicketSerializer.Default.Deserialize(content);
+                _logger.Technical().LogGetAuthenticationTicket(key, fullPath);
+            }
+            else
+            {
+                _logger.Technical().LogNoFileExistForAuthenticationTicket(fullPath);
+            }
+
+            return Task.FromResult(ticket);
         }
 
-        return Task.FromResult(key);
+        private string GetPath(string key) => Path.Combine(_directoryStore.FullName, key + ".bin");
+
+        public Task<string> StoreAsync(AuthenticationTicket ticket)
+        {
+            var key = Guid.NewGuid().ToString();
+            var fullPath = GetPath(key);
+
+            lock (_lock)
+            {
+                File.WriteAllBytes(fullPath, TicketSerializer.Default.Serialize(ticket));
+                _logger.Technical().LogCreateAuthenticationTicketOnFile(key, fullPath);
+            }
+
+            return Task.FromResult(key);
+        }
     }
 }

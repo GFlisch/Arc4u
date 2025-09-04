@@ -1,6 +1,7 @@
-namespace Arc4u.OAuth2.TicketStore;
-
-public class FileTicketStoreOptions
+namespace Arc4u.OAuth2.TicketStore
 {
-    public DirectoryInfo? StorePath { get; set; } = default!;
+    public class FileTicketStoreOptions
+    {
+        public DirectoryInfo? StorePath { get; set; } = default!;
+    }
 }

@@ -5,110 +5,112 @@ using Arc4u.OAuth2.Token;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Arc4u.OAuth2.Extensions;
-public static class OAuth2SettingsExtension
+namespace Arc4u.OAuth2.Extensions
 {
-    public static SimpleKeyValueSettings ConfigureOAuth2Settings(this IServiceCollection services, Action<OAuth2SettingsOption> option, [DisallowNull] string sectionKey = Constants.OAuth2OptionsName)
+    public static class OAuth2SettingsExtension
     {
-        ArgumentNullException.ThrowIfNull(sectionKey);
-
-        var validate = new OAuth2SettingsOption();
-        option(validate);
-        string? configErrors = null;
-
-        if (string.IsNullOrWhiteSpace(validate.ProviderId))
+        public static SimpleKeyValueSettings ConfigureOAuth2Settings(this IServiceCollection services, Action<OAuth2SettingsOption> option, [DisallowNull] string sectionKey = Constants.OAuth2OptionsName)
         {
-            configErrors += "ProviderId field is not defined." + System.Environment.NewLine;
-        }
+            ArgumentNullException.ThrowIfNull(sectionKey);
 
-        if (validate.ValidateAudience && !validate.Audiences.Any())
-        {
-            configErrors += "Audiences field is not defined." + System.Environment.NewLine;
-        }
+            var validate = new OAuth2SettingsOption();
+            option(validate);
+            string? configErrors = null;
 
-        if (string.IsNullOrWhiteSpace(validate.AuthenticationType))
-        {
-            configErrors += "AuthenticationType field is not defined." + System.Environment.NewLine;
-        }
-
-        if (configErrors is not null)
-        {
-            throw new ConfigurationException(configErrors);
-        }
-
-        // We map this to a IKeyValuesSettings dictionary.
-        // The TokenProviders are based on
-
-        void SettingsFiller(SimpleKeyValueSettings keyOptions)
-        {
-            keyOptions.Add(TokenKeys.ProviderIdKey, validate!.ProviderId);
-            keyOptions.Add(TokenKeys.AuthenticationTypeKey, validate.AuthenticationType);
-
-            //Optional => go to default.
-            if (validate.Authority is not null)
+            if (string.IsNullOrWhiteSpace(validate.ProviderId))
             {
-                keyOptions.Add(TokenKeys.AuthorityKey, Constants.OAuth2OptionsName);
-                services.Configure<AuthorityOptions>(Constants.OAuth2OptionsName, options =>
+                configErrors += "ProviderId field is not defined." + System.Environment.NewLine;
+            }
+
+            if (validate.ValidateAudience && !validate.Audiences.Any())
+            {
+                configErrors += "Audiences field is not defined." + System.Environment.NewLine;
+            }
+
+            if (string.IsNullOrWhiteSpace(validate.AuthenticationType))
+            {
+                configErrors += "AuthenticationType field is not defined." + System.Environment.NewLine;
+            }
+
+            if (configErrors is not null)
+            {
+                throw new ConfigurationException(configErrors);
+            }
+
+            // We map this to a IKeyValuesSettings dictionary.
+            // The TokenProviders are based on
+
+            void SettingsFiller(SimpleKeyValueSettings keyOptions)
+            {
+                keyOptions.Add(TokenKeys.ProviderIdKey, validate!.ProviderId);
+                keyOptions.Add(TokenKeys.AuthenticationTypeKey, validate.AuthenticationType);
+
+                //Optional => go to default.
+                if (validate.Authority is not null)
                 {
-                    options.SetData(validate.Authority.Url, validate.Authority.TokenEndpoint, validate.Authority.Issuer, validate.Authority.MetaDataAddress);
-                });
+                    keyOptions.Add(TokenKeys.AuthorityKey, Constants.OAuth2OptionsName);
+                    services.Configure<AuthorityOptions>(Constants.OAuth2OptionsName, options =>
+                    {
+                        options.SetData(validate.Authority.Url, validate.Authority.TokenEndpoint, validate.Authority.Issuer, validate.Authority.MetaDataAddress);
+                    });
+                }
+                // Build the list of Audiences as a string.
+                keyOptions.Add(TokenKeys.Audiences, string.Join(' ', validate.Audiences));
+                keyOptions.Add(TokenKeys.Scope, string.Join(' ', validate.Scopes));
+
             }
-            // Build the list of Audiences as a string.
-            keyOptions.Add(TokenKeys.Audiences, string.Join(' ', validate.Audiences));
-            keyOptions.Add(TokenKeys.Scope, string.Join(' ', validate.Scopes));
+
+            services.Configure<SimpleKeyValueSettings>(sectionKey, SettingsFiller);
+
+            var settings = new SimpleKeyValueSettings();
+
+            SettingsFiller(settings);
+
+            return settings;
 
         }
 
-        services.Configure<SimpleKeyValueSettings>(sectionKey, SettingsFiller);
-
-        var settings = new SimpleKeyValueSettings();
-
-        SettingsFiller(settings);
-
-        return settings;
-
-    }
-
-    public static SimpleKeyValueSettings ConfigureOAuth2Settings(this IServiceCollection services, IConfiguration configuration, [DisallowNull] string sectionName, [DisallowNull] string sectionKey = "OAuth2")
-    {
-        ArgumentNullException.ThrowIfNull(sectionKey);
-
-        return ConfigureOAuth2Settings(services, PrepareAction(configuration, sectionName), sectionKey);
-    }
-
-    internal static Action<OAuth2SettingsOption> PrepareAction(IConfiguration configuration, [DisallowNull] string sectionName)
-    {
-        ArgumentNullException.ThrowIfNullOrWhiteSpace(sectionName);
-        ArgumentNullException.ThrowIfNull(configuration);
-
-        var settings = new OAuth2SettingsOption();
-        var defaulValidateAudience = settings.ValidateAudience;
-
-        var section = configuration.GetSection(sectionName);
-
-        if (section is not null && section.Exists())
+        public static SimpleKeyValueSettings ConfigureOAuth2Settings(this IServiceCollection services, IConfiguration configuration, [DisallowNull] string sectionName, [DisallowNull] string sectionKey = "OAuth2")
         {
-            settings = section.Get<OAuth2SettingsOption>() ?? settings;
+            ArgumentNullException.ThrowIfNull(sectionKey);
 
-            if (section.GetChildren().Any(c => c.Key == nameof(OAuth2SettingsOption.ValidateAudience)))
+            return ConfigureOAuth2Settings(services, PrepareAction(configuration, sectionName), sectionKey);
+        }
+
+        internal static Action<OAuth2SettingsOption> PrepareAction(IConfiguration configuration, [DisallowNull] string sectionName)
+        {
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(sectionName);
+            ArgumentNullException.ThrowIfNull(configuration);
+
+            var settings = new OAuth2SettingsOption();
+            var defaulValidateAudience = settings.ValidateAudience;
+
+            var section = configuration.GetSection(sectionName);
+
+            if (section is not null && section.Exists())
             {
-                settings.ValidateAudience = section.GetValue<bool>(nameof(OAuth2SettingsOption.ValidateAudience));
-            } else
-            {
-                settings.ValidateAudience = defaulValidateAudience;
+                settings = section.Get<OAuth2SettingsOption>() ?? settings;
+
+                if (section.GetChildren().Any(c => c.Key == nameof(OAuth2SettingsOption.ValidateAudience)))
+                {
+                    settings.ValidateAudience = section.GetValue<bool>(nameof(OAuth2SettingsOption.ValidateAudience));
+                } else
+                {
+                    settings.ValidateAudience = defaulValidateAudience;
+                }
             }
-        }
 
-        void OptionFiller(OAuth2SettingsOption option)
-        {
-            option.Authority = settings.Authority;
-            option.Audiences = settings.Audiences;
-            option.AuthenticationType = settings.AuthenticationType;
-            option.ProviderId = settings.ProviderId;
-            option.Scopes = settings.Scopes;
-            option.ValidateAudience = settings.ValidateAudience;
-        }
+            void OptionFiller(OAuth2SettingsOption option)
+            {
+                option.Authority = settings.Authority;
+                option.Audiences = settings.Audiences;
+                option.AuthenticationType = settings.AuthenticationType;
+                option.ProviderId = settings.ProviderId;
+                option.Scopes = settings.Scopes;
+                option.ValidateAudience = settings.ValidateAudience;
+            }
 
-        return OptionFiller;
+            return OptionFiller;
+        }
     }
 }

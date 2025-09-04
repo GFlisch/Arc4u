@@ -1,7 +1,9 @@
-namespace Arc4u.OAuth2.DataProtection;
-public class CacheStoreOption
+namespace Arc4u.OAuth2.DataProtection
 {
-    public string CacheKey { get; set; } = default!;
+    public class CacheStoreOption
+    {
+        public string CacheKey { get; set; } = default!;
 
-    public string? CacheName { get; set; }
+        public string? CacheName { get; set; }
+    }
 }
