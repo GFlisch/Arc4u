@@ -56,7 +56,7 @@ jobs:
           nuget-version: latest
      
       - name: nuget restore
-        run: dotnet restore .\src\arc4u.sln
+        run: dotnet restore .\src\arc4u.slnx
  
       - name: build
         run: dotnet build .\src\arc4u.slnx --configuration ${{env.buildConfiguration}} /p:Version=${{env.netStandardVersionNuget}}
