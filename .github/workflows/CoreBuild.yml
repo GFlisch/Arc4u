@@ -59,7 +59,7 @@ jobs:
         run: dotnet restore .\src\arc4u.sln
  
       - name: build
-        run: dotnet build .\src\arc4u.sln --configuration ${{env.buildConfiguration}} /p:Version=${{env.netStandardVersionNuget}}
+        run: dotnet build .\src\arc4u.slnx --configuration ${{env.buildConfiguration}} /p:Version=${{env.netStandardVersionNuget}}
  
       - name: Run Test projects matching *UnitTest.csproj with filter Category = CI
         run: |
@@ -69,7 +69,7 @@ jobs:
       - name: Copy the nuget packages to a folder to have only one published.
         run: |
             md .\packages 
-            Get-ChildItem -Path .\ -Recurse -Filter *.nupkg |  ForEach-Object { Copy-Item -Path $_.FullName -Destination (".\packages\"+$_.Name) }
+            Get-ChildItem -Path .\ -Recurse -Filter Arc4u.*.nupkg |  ForEach-Object { Copy-Item -Path $_.FullName -Destination (".\packages\"+$_.Name) }
         shell: pwsh  
  
       - name: Save nuget packages
