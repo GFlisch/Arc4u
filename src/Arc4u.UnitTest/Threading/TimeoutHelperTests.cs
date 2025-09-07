@@ -166,7 +166,7 @@ public class TimeoutHelperTests
         var timeout = TimeSpan.FromMilliseconds(50);
         var helper = new TimeoutHelper(timeout);
         var callbackInvoked = false;
-        var evt = new ManualResetEventSlim();
+        var evt = new ManualResetEventSlim(false);
 
         void Callback(object? state)
         {
@@ -174,9 +174,10 @@ public class TimeoutHelperTests
             evt.Set();
         }
 
-        helper.SetTimer(Callback, null);
+        var timer = helper.SetTimer(Callback, null);
         evt.Wait(2000);
 
         callbackInvoked.Should().BeTrue();
+        timer.Should().NotBeNull();
     }
 }
