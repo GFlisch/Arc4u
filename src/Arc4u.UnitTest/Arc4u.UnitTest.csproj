@@ -5,6 +5,7 @@
     <IsPackable>false</IsPackable>
     <IsAotCompatible>false</IsAotCompatible>
     <NoWarn>$(NoWarn);IDE0051;CA2012,xUnit1031;IDE0039;IDE0130</NoWarn>
+    <InterceptorsNamespaces>$(InterceptorsNamespaces);Microsoft.Extensions.Configuration.Binder.SourceGeneration</InterceptorsNamespaces>
   </PropertyGroup>
 
   <ItemGroup>
