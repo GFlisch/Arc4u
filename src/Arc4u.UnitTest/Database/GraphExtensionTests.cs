@@ -7,14 +7,6 @@ namespace Arc4u.UnitTest.Database;
 [Trait("Category", "CI")]
 public class GraphExtensionTests
 {
-    private sealed class TestEntity
-    {
-        public int Id { get; set; }
-        public string Name { get; set; } = default!;
-        public TestEntity RelatedEntity { get; set; } = default!;
-        public ICollection<TestEntity> RelatedEntities { get; set; } = [];
-    }
-
     [Fact]
     public void ApplySingleReferences_ShouldIncludeSingleReferences()
     {
@@ -54,5 +46,13 @@ public class GraphExtensionTests
         // Act & Assert
         var exception = Assert.Throws<InvalidOperationException>(() => graph.ApplyReferences(queryable, path));
         Assert.Equal("It is not allowed to check more than one level!", exception.Message);
+    }
+
+    private sealed class TestEntity
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = default!;
+        public TestEntity RelatedEntity { get; set; } = default!;
+        public ICollection<TestEntity> RelatedEntities { get; } = [];
     }
 }

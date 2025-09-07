@@ -1,27 +1,29 @@
-using AutoFixture.AutoMoq;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
+using Arc4u.Configuration;
+using Arc4u.Dependency;
+using Arc4u.OAuth2.Events;
+using Arc4u.OAuth2.Extensions;
+using Arc4u.OAuth2.Options;
+using Arc4u.Security.Cryptography;
 using AutoFixture;
+using AutoFixture.AutoMoq;
+using AutoFixture.Kernel;
+using FluentAssertions;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Arc4u.OAuth2.Extensions;
-using Arc4u.OAuth2.Options;
-using Xunit;
-using FluentAssertions;
-using Arc4u.Configuration;
-using AutoFixture.Kernel;
-using System.Security.Cryptography.X509Certificates;
-using System.Security.Cryptography;
-using Arc4u.Security.Cryptography;
 using Moq;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Arc4u.OAuth2.Events;
-using Arc4u.Dependency;
+using Xunit;
 
 namespace Arc4u.UnitTest.Security;
 
 [Trait("Category", "CI")]
 public class HybridAuthenticationOptionsTests
 {
+    private readonly Fixture _fixture;
+
     public HybridAuthenticationOptionsTests()
     {
         _fixture = new Fixture();
@@ -29,27 +31,23 @@ public class HybridAuthenticationOptionsTests
         _fixture.Customizations.Add(new X509Certificate2SpecimenBuilder());
     }
 
-    private readonly Fixture _fixture;
-
     [Fact]
     public void Empty_Oidc_Authentication_Should()
     {
         var config = new ConfigurationBuilder()
-                .AddInMemoryCollection(
-                       new Dictionary<string, string?>
-                       {
-                       }).Build();
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>()).Build();
 
         IConfiguration configuration = new ConfigurationRoot([.. config.Providers]);
 
         IServiceCollection services = new ServiceCollection();
 
-        var exception = Record.Exception(() => AuthenticationExtensions.AddHybridAuthentication(services, configuration));
+        var exception = Record.Exception(() => services.AddHybridAuthentication(configuration));
 
         exception.Should().BeOfType<ConfigurationException>();
     }
 
-        [Fact]
+    [Fact]
     public void Default_Oidc_Authentication_Value_Should()
     {
         var oidcSettings = _fixture.Create<OidcAuthenticationOptions>();
@@ -73,21 +71,23 @@ public class HybridAuthenticationOptionsTests
 
             // OpenId
             { "Authentication:OpenId.Settings:ClientId", oidcOptions.ClientId },
-            { "Authentication:OpenId.Settings:ClientSecret", oidcOptions.ClientSecret },
+            { "Authentication:OpenId.Settings:ClientSecret", oidcOptions.ClientSecret }
         };
 
         // OpenId
         foreach (var audience in oidcOptions.Audiences)
         {
-            configDic.Add($"Authentication:OpenId.Settings:Audiences:{oidcOptions.Audiences.IndexOf(audience)}", audience);
+            configDic.Add($"Authentication:OpenId.Settings:Audiences:{oidcOptions.Audiences.IndexOf(audience)}",
+                audience);
         }
+
         foreach (var scope in oidcOptions.Scopes)
         {
             configDic.Add($"Authentication:OpenId.Settings:Scopes:{oidcOptions.Scopes.IndexOf(scope)}", scope);
         }
 
         var config = new ConfigurationBuilder()
-                .AddInMemoryCollection(configDic).Build();
+            .AddInMemoryCollection(configDic).Build();
 
         IConfiguration configuration = new ConfigurationRoot([.. config.Providers]);
 
@@ -95,9 +95,9 @@ public class HybridAuthenticationOptionsTests
 
         var mockCertificateLoader = new Mock<IX509CertificateLoader>();
         mockCertificateLoader.Setup(loader => loader.FindCertificate(It.IsAny<IConfiguration>(), It.IsAny<string>()))
-                             .Returns(_fixture.Create<X509Certificate2>());
+            .Returns(_fixture.Create<X509Certificate2>());
 
-        AuthenticationExtensions.AddOidcAuthentication(services, configuration, certificateLoader: mockCertificateLoader.Object);
+        services.AddOidcAuthentication(configuration, certificateLoader: mockCertificateLoader.Object);
 
         var app = services.BuildServiceProvider();
 
@@ -131,14 +131,16 @@ public class HybridAuthenticationOptionsTests
 
             // OpenId
             { "Authentication:OpenId.Settings:ClientId", oidcOptions.ClientId },
-            { "Authentication:OpenId.Settings:ClientSecret", oidcOptions.ClientSecret },
+            { "Authentication:OpenId.Settings:ClientSecret", oidcOptions.ClientSecret }
         };
 
         // OAuth2
         foreach (var audience in auth2Options.Audiences)
         {
-            configDic.Add($"Authentication:OAuth2.Settings:Audiences:{auth2Options.Audiences.IndexOf(audience)}", audience);
+            configDic.Add($"Authentication:OAuth2.Settings:Audiences:{auth2Options.Audiences.IndexOf(audience)}",
+                audience);
         }
+
         foreach (var scope in auth2Options.Scopes)
         {
             configDic.Add($"Authentication:OAuth2.Settings:Scopes:{auth2Options.Scopes.IndexOf(scope)}", scope);
@@ -147,15 +149,17 @@ public class HybridAuthenticationOptionsTests
         // OpenId
         foreach (var audience in oidcOptions.Audiences)
         {
-            configDic.Add($"Authentication:OpenId.Settings:Audiences:{oidcOptions.Audiences.IndexOf(audience)}", audience);
+            configDic.Add($"Authentication:OpenId.Settings:Audiences:{oidcOptions.Audiences.IndexOf(audience)}",
+                audience);
         }
+
         foreach (var scope in oidcOptions.Scopes)
         {
             configDic.Add($"Authentication:OpenId.Settings:Scopes:{oidcOptions.Scopes.IndexOf(scope)}", scope);
         }
 
         var config = new ConfigurationBuilder()
-                .AddInMemoryCollection(configDic).Build();
+            .AddInMemoryCollection(configDic).Build();
 
         IConfiguration configuration = new ConfigurationRoot([.. config.Providers]);
 
@@ -163,9 +167,9 @@ public class HybridAuthenticationOptionsTests
 
         var mockCertificateLoader = new Mock<IX509CertificateLoader>();
         mockCertificateLoader.Setup(loader => loader.FindCertificate(It.IsAny<IConfiguration>(), It.IsAny<string>()))
-                             .Returns(_fixture.Create<X509Certificate2>());
+            .Returns(_fixture.Create<X509Certificate2>());
 
-        AuthenticationExtensions.AddHybridAuthentication(services, configuration, certificateLoader: mockCertificateLoader.Object);
+        services.AddHybridAuthentication(configuration, certificateLoader: mockCertificateLoader.Object);
 
         var app = services.BuildServiceProvider();
 
@@ -182,7 +186,6 @@ public class HybridAuthenticationOptionsTests
 
         var type = services.GetImplementationType<JwtBearerEvents>();
         type.Should().Be(typeof(StandardBearerEvents));
-
     }
 
     public class X509Certificate2SpecimenBuilder : ISpecimenBuilder

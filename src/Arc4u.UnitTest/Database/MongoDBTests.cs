@@ -13,52 +13,21 @@ namespace Arc4u.UnitTest.Database;
 [Trait("Category", "CI")]
 public class MongoDBTests
 {
+    private readonly Fixture _fixture;
+
     public MongoDBTests()
     {
         _fixture = new Fixture();
         _fixture.Customize(new AutoMoqCustomization());
     }
 
-    private readonly Fixture _fixture;
-
-    private sealed class Contract
-    {
-        public Guid Id { get; set; }
-        public string Name { get; set; } = default!;
-    };
-
-    private sealed class Company
-    {
-        public Guid Id { get; set; }
-        public string Name { get; set; } = default!;
-    };
-
-    private sealed class NotMapped
-    {
-        public Guid Id { get; set; }
-        public string Name { get; set; } = default!;
-    };
-
-    private sealed class DatabaseDbContext : DbContext
-    {
-        protected override void OnConfiguring(DbContextBuilder context)
-        {
-            context.MapCollection("Contracts").With<Contract>();
-            context.MapCollection("Contracts").With<Company>();
-            context.MapCollection("Companies").With<Contract>();
-        }
-    }
-
     [Fact]
     public void Test_MongoDB_Single_Server_Should()
     {
         var config = new ConfigurationBuilder()
-                .AddInMemoryCollection(
-                       new Dictionary<string, string?>
-                       {
-                           ["ConnectionStrings:mongo"] = "mongodb://localhost:27017/DB1",
-
-                       }).Build();
+            .AddInMemoryCollection(
+                new Dictionary<string, string?> { ["ConnectionStrings:mongo"] = "mongodb://localhost:27017/DB1" })
+            .Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
         IServiceCollection services = new ServiceCollection();
@@ -79,12 +48,11 @@ public class MongoDBTests
     public void Test_MongoDB_Cluster_Server_Should()
     {
         var config = new ConfigurationBuilder()
-                .AddInMemoryCollection(
-                       new Dictionary<string, string?>
-                       {
-                           ["ConnectionStrings:mongo"] = "mongodb://localhost:27017,localhost:26000/DB2",
-
-                       }).Build();
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["ConnectionStrings:mongo"] = "mongodb://localhost:27017,localhost:26000/DB2"
+                }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
         IServiceCollection services = new ServiceCollection();
@@ -108,12 +76,9 @@ public class MongoDBTests
     public void Test_MongoDB_ContextBuilder_For_A_Specific_Collection_Should()
     {
         var config = new ConfigurationBuilder()
-        .AddInMemoryCollection(
-               new Dictionary<string, string?>
-               {
-                   ["ConnectionStrings:mongo"] = "mongodb://localhost:27017/DB1",
-
-               }).Build();
+            .AddInMemoryCollection(
+                new Dictionary<string, string?> { ["ConnectionStrings:mongo"] = "mongodb://localhost:27017/DB1" })
+            .Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
         IServiceCollection services = new ServiceCollection();
@@ -131,12 +96,9 @@ public class MongoDBTests
     public void Test_MongoDB_ContextBuilder_For_A_Non_Specific_Collection_Should_Fail()
     {
         var config = new ConfigurationBuilder()
-        .AddInMemoryCollection(
-               new Dictionary<string, string?>
-               {
-                   ["ConnectionStrings:mongo"] = "mongodb://localhost:27017/DB1",
-
-               }).Build();
+            .AddInMemoryCollection(
+                new Dictionary<string, string?> { ["ConnectionStrings:mongo"] = "mongodb://localhost:27017/DB1" })
+            .Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
         IServiceCollection services = new ServiceCollection();
@@ -156,12 +118,9 @@ public class MongoDBTests
     public void Test_MongoDB_ContextBuilder_For_A_Non_Mapped_Type_Should_Fail()
     {
         var config = new ConfigurationBuilder()
-        .AddInMemoryCollection(
-               new Dictionary<string, string?>
-               {
-                   ["ConnectionStrings:mongo"] = "mongodb://localhost:27017/DB1",
-
-               }).Build();
+            .AddInMemoryCollection(
+                new Dictionary<string, string?> { ["ConnectionStrings:mongo"] = "mongodb://localhost:27017/DB1" })
+            .Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
         IServiceCollection services = new ServiceCollection();
@@ -175,5 +134,33 @@ public class MongoDBTests
         var exception = Record.Exception(() => factory!.GetCollection<NotMapped>());
 
         exception.Should().BeOfType<TypeNotMappedToCollectionException>();
+    }
+
+    private sealed class Contract
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = default!;
+    }
+
+    private sealed class Company
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = default!;
+    }
+
+    private sealed class NotMapped
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = default!;
+    }
+
+    private sealed class DatabaseDbContext : DbContext
+    {
+        protected override void OnConfiguring(DbContextBuilder context)
+        {
+            context.MapCollection("Contracts").With<Contract>();
+            context.MapCollection("Contracts").With<Company>();
+            context.MapCollection("Companies").With<Contract>();
+        }
     }
 }

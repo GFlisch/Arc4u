@@ -15,21 +15,20 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
-using Environment = System.Environment;
+using Environment = Arc4u.Configuration.Environment;
 
 namespace Arc4u.UnitTest.Security;
 
 [Trait("Category", "CI")]
-
 public class CredentialSecretTokenProviderTests
 {
+    private readonly Fixture _fixture;
+
     public CredentialSecretTokenProviderTests()
     {
         _fixture = new Fixture();
         _fixture.Customize(new AutoMoqCustomization());
     }
-
-    private readonly Fixture _fixture;
 
     [Fact]
     public async Task SecretBasicTokenProviderShouldAsync()
@@ -40,11 +39,14 @@ public class CredentialSecretTokenProviderTests
         var tokenTest = new TokenInfo("TokenType", "AccessToken", DateTime.UtcNow.AddMinutes(60));
 
         var mockCredentialTokenProvider = _fixture.Freeze<Mock<ICredentialTokenProvider>>();
-        mockCredentialTokenProvider.Setup(m => m.GetTokenAsync(It.IsAny<SimpleKeyValueSettings>(), It.IsAny<CredentialsResult>())).ReturnsAsync(tokenTest).Verifiable();
+        mockCredentialTokenProvider
+            .Setup(m => m.GetTokenAsync(It.IsAny<SimpleKeyValueSettings>(), It.IsAny<CredentialsResult>()))
+            .ReturnsAsync(tokenTest).Verifiable();
         var credentialProvider = mockCredentialTokenProvider.Object;
 
         var mockContainer = _fixture.Freeze<Mock<IKeyedServiceProvider>>();
-        mockContainer.Setup(m => m.GetKeyedService(typeof(ICredentialTokenProvider), It.IsAny<string>())).Returns(credentialProvider).Verifiable();
+        mockContainer.Setup(m => m.GetKeyedService(typeof(ICredentialTokenProvider), It.IsAny<string>()))
+            .Returns(credentialProvider).Verifiable();
 
         _fixture.Inject<IServiceProvider>(mockContainer.Object);
 
@@ -62,8 +64,8 @@ public class CredentialSecretTokenProviderTests
         token.TokenType.Should().Be(tokenTest.TokenType);
         token.ExpiresOnUtc.Should().Be(tokenTest.ExpiresOnUtc);
 
-        mockCredentialTokenProvider.Verify(m => m.GetTokenAsync(It.IsAny<SimpleKeyValueSettings>(), It.IsAny<CredentialsResult>()), Times.Once);
-
+        mockCredentialTokenProvider.Verify(
+            m => m.GetTokenAsync(It.IsAny<SimpleKeyValueSettings>(), It.IsAny<CredentialsResult>()), Times.Once);
     }
 
     [Fact]
@@ -74,14 +76,22 @@ public class CredentialSecretTokenProviderTests
         var tokenTest = new TokenInfo("TokenType", "AccessToken", DateTime.UtcNow.AddMinutes(60));
 
         var mockCredentialTokenProvider = _fixture.Freeze<Mock<ICredentialTokenProvider>>();
-        mockCredentialTokenProvider.Setup(m => m.GetTokenAsync(It.IsAny<SimpleKeyValueSettings>(), It.IsAny<CredentialsResult>())).ReturnsAsync(tokenTest).Verifiable();
+        mockCredentialTokenProvider
+            .Setup(m => m.GetTokenAsync(It.IsAny<SimpleKeyValueSettings>(), It.IsAny<CredentialsResult>()))
+            .ReturnsAsync(tokenTest).Verifiable();
 
         var services = new ServiceCollection();
-        services.AddKeyedSingleton<ICredentialTokenProvider>(CredentialTokenCacheTokenProvider.ProviderName, mockCredentialTokenProvider.Object);
+        services.AddKeyedSingleton<ICredentialTokenProvider>(CredentialTokenCacheTokenProvider.ProviderName,
+            mockCredentialTokenProvider.Object);
         services.AddSingleton<ILoggerFactory>(NullLoggerFactory.Instance);
         services.AddILogger();
-        services.AddApplicationConfig(config => { config.ApplicationName = _fixture.Create<string>(); config.Environment = _fixture.Create<Arc4u.Configuration.Environment>();});
-        services.AddKeyedTransient<ITokenProvider, CredentialSecretTokenProvider>(CredentialSecretTokenProvider.ProviderName);
+        services.AddApplicationConfig(config =>
+        {
+            config.ApplicationName = _fixture.Create<string>();
+            config.Environment = _fixture.Create<Environment>();
+        });
+        services.AddKeyedTransient<ITokenProvider, CredentialSecretTokenProvider>(CredentialSecretTokenProvider
+            .ProviderName);
 
         var container = services.BuildServiceProvider();
         // act.
@@ -93,8 +103,8 @@ public class CredentialSecretTokenProviderTests
         result.IsFailed.Should().BeTrue();
         result.Errors.Count.Should().Be(1);
         result.Errors[0].Message.Should().Be("User/Password or Credential must be filled in.");
-        mockCredentialTokenProvider.Verify(m => m.GetTokenAsync(It.IsAny<SimpleKeyValueSettings>(), It.IsAny<CredentialsResult>()), Times.Never);
-
+        mockCredentialTokenProvider.Verify(
+            m => m.GetTokenAsync(It.IsAny<SimpleKeyValueSettings>(), It.IsAny<CredentialsResult>()), Times.Never);
     }
 
     [Fact]
@@ -106,35 +116,39 @@ public class CredentialSecretTokenProviderTests
         var tokenTest = new TokenInfo("TokenType", "AccessToken", DateTime.UtcNow.AddMinutes(60));
 
         var mockCredentialTokenProvider = _fixture.Freeze<Mock<ICredentialTokenProvider>>();
-        mockCredentialTokenProvider.Setup(m => m.GetTokenAsync(It.IsAny<SimpleKeyValueSettings>(), It.IsAny<CredentialsResult>())).ReturnsAsync(tokenTest).Verifiable();
+        mockCredentialTokenProvider
+            .Setup(m => m.GetTokenAsync(It.IsAny<SimpleKeyValueSettings>(), It.IsAny<CredentialsResult>()))
+            .ReturnsAsync(tokenTest).Verifiable();
         var credentialProvider = mockCredentialTokenProvider.Object;
 
         var mockContainer = _fixture.Freeze<Mock<IKeyedServiceProvider>>();
-        mockContainer.Setup(m => m.GetKeyedService(typeof(ICredentialTokenProvider), It.IsAny<string>())).Returns(credentialProvider).Verifiable();
+        mockContainer.Setup(m => m.GetKeyedService(typeof(ICredentialTokenProvider), It.IsAny<string>()))
+            .Returns(credentialProvider).Verifiable();
 
         // act.
         var sut = _fixture.Create<CredentialSecretTokenProvider>();
 
-        var exception = await Record.ExceptionAsync(async () => await sut.GetTokenAsync(settings, null).ConfigureAwait(false));
+        var exception =
+            await Record.ExceptionAsync(async () => await sut.GetTokenAsync(settings, null).ConfigureAwait(false));
 
         // assert.
         exception.Should().NotBeNull();
         exception.Should().BeOfType<ArgumentNullException>();
-        mockCredentialTokenProvider.Verify(m => m.GetTokenAsync(It.IsAny<SimpleKeyValueSettings>(), It.IsAny<CredentialsResult>()), Times.Never);
-
+        mockCredentialTokenProvider.Verify(
+            m => m.GetTokenAsync(It.IsAny<SimpleKeyValueSettings>(), It.IsAny<CredentialsResult>()), Times.Never);
     }
 
     [Fact]
     public void Read_Secret_From_Config_With_Credential_Should()
     {
         var config = new ConfigurationBuilder()
-                     .AddInMemoryCollection(
-                         new Dictionary<string, string?>
-                         {
-                             ["Authentication:ClientSecrets:Service:ClientId"] = "ClientId",
-                             ["Authentication:ClientSecrets:Service:Scopes:0"] = "A scope",
-                             ["Authentication:ClientSecrets:Service:Credential"] = "user:passw0rd",
-                         }).Build();
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["Authentication:ClientSecrets:Service:ClientId"] = "ClientId",
+                    ["Authentication:ClientSecrets:Service:Scopes:0"] = "A scope",
+                    ["Authentication:ClientSecrets:Service:Credential"] = "user:passw0rd"
+                }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -152,7 +166,6 @@ public class CredentialSecretTokenProviderTests
         sut.Values.ContainsKey("User").Should().BeFalse();
         sut.Values.ContainsKey("Password").Should().BeFalse();
         sut.Values.ContainsKey("Credential").Should().BeTrue();
-
     }
 
     private SimpleKeyValueSettings GetUserPasswordSettings()
@@ -171,6 +184,7 @@ public class CredentialSecretTokenProviderTests
             { "BasicProviderId", CredentialTokenCacheTokenProvider.ProviderName }
         });
     }
+
     private SimpleKeyValueSettings GetUserPasswordAndCredentialSettings()
     {
         var options = _fixture.Create<SecretBasicSettingsOptions>();
@@ -187,5 +201,4 @@ public class CredentialSecretTokenProviderTests
             { "BasicProviderId", CredentialTokenCacheTokenProvider.ProviderName }
         });
     }
-
 }

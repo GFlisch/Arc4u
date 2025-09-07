@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using Arc4u.OAuth2;
 using Arc4u.OAuth2.Extensions;
 using Arc4u.OAuth2.Middleware;
@@ -17,13 +16,13 @@ namespace Arc4u.UnitTest.Security;
 [Trait("Category", "CI")]
 public class BasicAuthenticationTests
 {
+    private readonly Fixture _fixture;
+
     public BasicAuthenticationTests()
     {
         _fixture = new Fixture();
         _fixture.Customize(new AutoMoqCustomization());
     }
-
-    private readonly Fixture _fixture;
 
     [Fact]
     public void Default_Authority_Should()
@@ -31,13 +30,12 @@ public class BasicAuthenticationTests
         var defaultAuthority = BuildAuthority();
 
         var config = new ConfigurationBuilder()
-                        .AddInMemoryCollection(
-                               new Dictionary<string, string?>
-                               {
-                                   ["Authentication:DefaultAuthority:Url"] = defaultAuthority.Url.ToString(),
-                                   ["Authentication:DefaultAuthority:TokenEndpoint"] = defaultAuthority.TokenEndpoint!.ToString(),
-
-                               }).Build();
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["Authentication:DefaultAuthority:Url"] = defaultAuthority.Url.ToString(),
+                    ["Authentication:DefaultAuthority:TokenEndpoint"] = defaultAuthority.TokenEndpoint!.ToString()
+                }).Build();
 
         IConfiguration configuration = new ConfigurationRoot([.. config.Providers]);
 
@@ -61,14 +59,15 @@ public class BasicAuthenticationTests
 
         var configDic = new Dictionary<string, string?>
         {
-            ["Authentication:Basic:Settings:ClientId"] = basicSettings.ClientId,
+            ["Authentication:Basic:Settings:ClientId"] = basicSettings.ClientId
         };
         foreach (var scope in basicSettings.Scopes)
         {
             configDic.Add($"Authentication:Basic:Settings:Scopes:{basicSettings.Scopes.IndexOf(scope)}", scope);
         }
+
         var config = new ConfigurationBuilder()
-                        .AddInMemoryCollection(configDic).Build();
+            .AddInMemoryCollection(configDic).Build();
 
         IConfiguration configuration = new ConfigurationRoot([.. config.Providers]);
 
@@ -99,15 +98,15 @@ public class BasicAuthenticationTests
         {
             ["Authentication:Basic:Settings:ClientId"] = basicSettings.ClientId,
             ["Authentication:Basic:Settings:Authority:url"] = authority.Url.ToString(),
-            ["Authentication:Basic:Settings:Authority:TokenEndpoint"] = authority.TokenEndpoint!.ToString(),
-
+            ["Authentication:Basic:Settings:Authority:TokenEndpoint"] = authority.TokenEndpoint!.ToString()
         };
         foreach (var scope in basicSettings.Scopes)
         {
             configDic.Add($"Authentication:Basic:Settings:Scopes:{basicSettings.Scopes.IndexOf(scope)}", scope);
         }
+
         var config = new ConfigurationBuilder()
-                        .AddInMemoryCollection(configDic).Build();
+            .AddInMemoryCollection(configDic).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -133,5 +132,8 @@ public class BasicAuthenticationTests
         sutAuthority.TokenEndpoint.Should().Be(authority.TokenEndpoint);
     }
 
-    private AuthorityOptions BuildAuthority() => _fixture.Build<AuthorityOptions>().With(p => p.TokenEndpoint, _fixture.Create<Uri>()).Create();
+    private AuthorityOptions BuildAuthority()
+    {
+        return _fixture.Build<AuthorityOptions>().With(p => p.TokenEndpoint, _fixture.Create<Uri>()).Create();
+    }
 }

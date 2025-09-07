@@ -7,15 +7,16 @@ using Microsoft.AspNetCore.Http;
 using Xunit;
 
 namespace Arc4u.UnitTest.ProblemDetail;
+
 public class ProblemDetailErrorTests
 {
+    private readonly Fixture _fixture;
+
     public ProblemDetailErrorTests()
     {
         _fixture = new Fixture();
         _fixture.Customize(new AutoMoqCustomization());
     }
-
-    readonly Fixture _fixture;
 
     [Fact]
     [Trait("Category", "CI")]
@@ -226,5 +227,4 @@ public class ProblemDetailErrorTests
         sut.Metadata[key1].Should().Be(metaData);
         sut.Metadata[key2].Should().Be(metaData2);
     }
-
 }

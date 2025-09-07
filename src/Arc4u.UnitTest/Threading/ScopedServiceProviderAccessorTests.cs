@@ -12,13 +12,13 @@ namespace Arc4u.UnitTest.Threading;
 [Trait("Category", "CI")]
 public class ScopedServiceProviderAccessorTests
 {
+    private readonly Fixture _fixture;
+
     public ScopedServiceProviderAccessorTests()
     {
         _fixture = new Fixture();
         _fixture.Customize(new AutoMoqCustomization());
     }
-
-    private readonly Fixture _fixture;
 
     [Fact]
     public void Scoped_Service_Accessor_When_Null_Should()
@@ -130,11 +130,11 @@ public class ScopedServiceProviderAccessorTests
 
         sut.ServiceProvider.Should().NotBeNull();
         sut.ServiceProvider.Should().BeSameAs(serviceScopedProvider1);
-
     }
 
     [Fact]
-    public async Task Scoped_Service_Accessor_When_HttpContextAccessor_Is_Null_And_ServiceProvider_Exists_In_A_Task_Should()
+    public async Task
+        Scoped_Service_Accessor_When_HttpContextAccessor_Is_Null_And_ServiceProvider_Exists_In_A_Task_Should()
     {
         IServiceCollection services = new ServiceCollection();
 
@@ -163,7 +163,6 @@ public class ScopedServiceProviderAccessorTests
 
         exception = Record.Exception(() => sut.ServiceProvider);
         exception.Should().BeOfType<NullReferenceException>();
-
     }
 
     [Fact]

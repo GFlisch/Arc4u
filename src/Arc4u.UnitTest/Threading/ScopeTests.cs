@@ -9,13 +9,7 @@ public class Context
 {
     private static readonly Context InnerContext = new();
 
-    public static Context Current
-    {
-        get
-        {
-            return Scope<Context>.Current ?? InnerContext;
-        }
-    }
+    public static Context Current => Scope<Context>.Current ?? InnerContext;
 
     public string Value { get; set; } = default!;
 }
@@ -39,11 +33,11 @@ public class ScopeTest
             {
                 Assert.Equal("Gilles", Scope<string>.Current);
             }
+
             Assert.Equal("Hello", Scope<string>.Current);
         }
 
         Assert.Null(Scope<string>.Current);
-
     }
 
     [Trait("Category", "CI")]
@@ -78,7 +72,7 @@ public class ScopeTest
         Thread.CurrentThread.CurrentCulture = frFR;
         Thread.CurrentThread.CurrentUICulture = deDE;
 
-        await ScopeTest.ChangeCultureAsync(culture, threadId).ConfigureAwait(true);
+        await ChangeCultureAsync(culture, threadId).ConfigureAwait(true);
 
         Assert.NotEqual(threadId, Environment.CurrentManagedThreadId);
 
@@ -145,7 +139,6 @@ public class ScopeTest
             await Task.Delay(100).ConfigureAwait(false);
             Assert.Equal("Gilles", Scope<string>.Current);
             threadId = Environment.CurrentManagedThreadId;
-
         }
 
         Assert.Equal("Hello", Scope<string>.Current);
@@ -162,12 +155,10 @@ public class ScopeTest
             await Task.Delay(100).ConfigureAwait(false);
             Assert.Equal("Gaëtan", Scope<string>.Current);
             threadId = Environment.CurrentManagedThreadId;
-
         }
 
         Assert.Equal("Hello", Scope<string>.Current);
 
         return threadId;
     }
-
 }

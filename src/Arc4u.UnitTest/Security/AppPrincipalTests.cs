@@ -10,19 +10,16 @@ namespace Arc4u.UnitTest.Security;
 [Trait("Category", "CI")]
 public class AppPrincipalTests
 {
+    private readonly Fixture _fixture;
+
     public AppPrincipalTests()
     {
         _fixture = new Fixture();
         _fixture.Customize(new AutoMoqCustomization());
     }
 
-    private readonly Fixture _fixture;
-
-    private enum Access : int
-    {
-        AccessApplication = 1,
-        CanSeeSwaggerFacadeApi = 2
-    }
+    private static List<Operation> AllOperations => Enum.GetValues<Access>()
+        .Select(o => new Operation { Name = o.GetValue(), ID = (int)o }).ToList();
 
     [Fact]
     public void Test_IsAuthorise_By_Enum_Should()
@@ -51,13 +48,17 @@ public class AppPrincipalTests
 
         var appAuthorization = new AppAuthorization(authorization);
 
-        appAuthorization.IsAuthorized("Specific", Access.AccessApplication, Access.CanSeeSwaggerFacadeApi).Should().BeTrue();
+        appAuthorization.IsAuthorized("Specific", Access.AccessApplication, Access.CanSeeSwaggerFacadeApi).Should()
+            .BeTrue();
     }
 
     private static Authorization GetAuthorization()
     {
         var defaultScopedOperations = new ScopedOperations { Operations = [(int)Access.AccessApplication], Scope = "" };
-        var specificScope = new ScopedOperations { Operations = [(int)Access.AccessApplication, (int)Access.CanSeeSwaggerFacadeApi], Scope = "Specific" };
+        var specificScope = new ScopedOperations
+        {
+            Operations = [(int)Access.AccessApplication, (int)Access.CanSeeSwaggerFacadeApi], Scope = "Specific"
+        };
         var authorization = new Authorization
         {
             Operations = [defaultScopedOperations, specificScope],
@@ -68,5 +69,10 @@ public class AppPrincipalTests
 
         return authorization;
     }
-    private static List<Operation> AllOperations => System.Enum.GetValues<Access>().Select(o => new Operation { Name = o.GetValue(), ID = (int)o }).ToList();
+
+    private enum Access
+    {
+        AccessApplication = 1,
+        CanSeeSwaggerFacadeApi = 2
+    }
 }

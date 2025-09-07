@@ -1,6 +1,5 @@
 using Arc4u.AspNetCore.Results;
 using Arc4u.Results;
-using Arc4u.Results.Validation;
 using Arc4u.Validation;
 using AutoFixture;
 using AutoFixture.AutoMoq;
@@ -15,25 +14,26 @@ using Severity = FluentValidation.Severity;
 
 namespace Arc4u.UnitTest.ProblemDetail;
 
-sealed class ValidatorExample : AbstractValidator<string>
+internal sealed class ValidatorExample : AbstractValidator<string>
 {
     public ValidatorExample()
     {
         RuleFor(s => s)
             .NotEmpty()
-            .MaximumLength(10).WithErrorCode("100").WithSeverity(Severity.Error).WithName("Name").WithMessage("Problem");
+            .MaximumLength(10).WithErrorCode("100").WithSeverity(Severity.Error).WithName("Name")
+            .WithMessage("Problem");
     }
 }
 
 public class ProblemDetailsWithActionResultTests
 {
+    private readonly Fixture _fixture;
+
     public ProblemDetailsWithActionResultTests()
     {
         _fixture = new Fixture();
         _fixture.Customize(new AutoMoqCustomization());
     }
-
-    readonly Fixture _fixture;
 
     #region ValueTask
 
@@ -47,10 +47,10 @@ public class ProblemDetailsWithActionResultTests
 
         var result = Result.Ok(value);
 
-        Func<ValueTask<Result<string>>> valueTask = () => ValueTask.FromResult(result);
+        var valueTask = () => ValueTask.FromResult(result);
 
         // act
-        var sut = await valueTask().ToActionCreatedResultAsync(uri, (v) => $"{v} Arc4u");
+        var sut = await valueTask().ToActionCreatedResultAsync(uri, v => $"{v} Arc4u");
 
         // assert
         sut.Value.Should().BeNull();
@@ -72,12 +72,12 @@ public class ProblemDetailsWithActionResultTests
 
         var result = Result.Ok(value);
 
-        Func<ValueTask<Result<string>>> valueTask = () => ValueTask.FromResult(result);
+        var valueTask = () => ValueTask.FromResult(result);
 
         // act
         var sut = await valueTask()
-                        .OnSuccessNotNull((v) => uri = okUri)
-                        .ToActionCreatedResultAsync(uri, (v) => $"{v} Arc4u");
+            .OnSuccessNotNull(v => uri = okUri)
+            .ToActionCreatedResultAsync(uri, v => $"{v} Arc4u");
 
         // assert
         sut.Value.Should().BeNull();
@@ -98,10 +98,10 @@ public class ProblemDetailsWithActionResultTests
 
         var result = Result.Ok(value);
 
-        Func<ValueTask<Result<string>>> valueTask = () => ValueTask.FromResult(result);
+        var valueTask = () => ValueTask.FromResult(result);
 
         // act
-        var sut = await valueTask().ToActionCreatedResultAsync(uri, (v) => $"{v} Arc4u");
+        var sut = await valueTask().ToActionCreatedResultAsync(uri, v => $"{v} Arc4u");
 
         // assert
         sut.Value.Should().BeNull();
@@ -121,10 +121,10 @@ public class ProblemDetailsWithActionResultTests
 
         var result = Result.Ok(value);
 
-        Func<ValueTask<Result<string>>> valueTask = () => ValueTask.FromResult(result);
+        var valueTask = () => ValueTask.FromResult(result);
 
         // act
-        var sut = await valueTask().ToActionOkResultAsync((v) => $"{v} Arc4u");
+        var sut = await valueTask().ToActionOkResultAsync(v => $"{v} Arc4u");
 
         // assert
         sut.Value.Should().BeNull();
@@ -132,7 +132,6 @@ public class ProblemDetailsWithActionResultTests
         var actionResult = sut.Result as OkObjectResult;
         actionResult.Should().NotBeNull();
         actionResult!.Value.Should().Be($"{value} Arc4u");
-
     }
 
     [Fact]
@@ -144,10 +143,10 @@ public class ProblemDetailsWithActionResultTests
 
         var result = Result.Ok<string?>(default!);
 
-        Func<ValueTask<Result<string?>>> valueTask = () => ValueTask.FromResult(result);
+        var valueTask = () => ValueTask.FromResult(result);
 
         // act
-        var sut = await valueTask().ToActionOkResultAsync((v) => $"{v} Arc4u");
+        var sut = await valueTask().ToActionOkResultAsync(v => $"{v} Arc4u");
 
         // assert
         sut.Value.Should().BeNull();
@@ -155,7 +154,6 @@ public class ProblemDetailsWithActionResultTests
         var actionResult = sut.Result as OkObjectResult;
         actionResult.Should().NotBeNull();
         actionResult!.Value.Should().BeNull();
-
     }
 
     [Fact]
@@ -167,10 +165,10 @@ public class ProblemDetailsWithActionResultTests
 
         var result = Result.Fail<string>(value);
 
-        Func<ValueTask<Result<string>>> valueTask = () => ValueTask.FromResult(result);
+        var valueTask = () => ValueTask.FromResult(result);
 
         // act
-        var sut = await valueTask().ToActionOkResultAsync((v) => $"{v} Arc4u");
+        var sut = await valueTask().ToActionOkResultAsync(v => $"{v} Arc4u");
 
         // assert
         sut.Value.Should().BeNull();
@@ -194,10 +192,10 @@ public class ProblemDetailsWithActionResultTests
         var error = new Error(msg2).WithMetadata("Code", "100");
         var result = Result.Fail<string>(msg1).WithError(error);
 
-        Func<ValueTask<Result<string>>> valueTask = () => ValueTask.FromResult(result);
+        var valueTask = () => ValueTask.FromResult(result);
 
         // act
-        var sut = await valueTask().ToActionOkResultAsync((v) => $"{v} Arc4u");
+        var sut = await valueTask().ToActionOkResultAsync(v => $"{v} Arc4u");
 
         // assert
         sut.Value.Should().BeNull();
@@ -220,7 +218,7 @@ public class ProblemDetailsWithActionResultTests
 
         var result = Result.Ok(value);
 
-        Func<ValueTask<Result<string>>> valueTask = () => ValueTask.FromResult(result);
+        var valueTask = () => ValueTask.FromResult(result);
 
         // act
         var sut = await valueTask().ToActionOkResultAsync();
@@ -229,7 +227,6 @@ public class ProblemDetailsWithActionResultTests
         sut.Value.Should().BeNull();
         sut.Result.Should().BeOfType<OkObjectResult>();
         ((OkObjectResult)sut.Result!).Value.Should().Be(value);
-
     }
 
     [Fact]
@@ -241,7 +238,7 @@ public class ProblemDetailsWithActionResultTests
 
         var result = Result.Fail<string>(value);
 
-        Func<ValueTask<Result<string>>> valueTask = () => ValueTask.FromResult(result);
+        var valueTask = () => ValueTask.FromResult(result);
 
         // act
         var sut = await valueTask().ToActionOkResultAsync();
@@ -270,7 +267,7 @@ public class ProblemDetailsWithActionResultTests
 
         var result = Result.Fail(value);
 
-        Func<Task<Result>> task = () => Task.FromResult(result);
+        var task = () => Task.FromResult(result);
 
         // act
         var sut = await task().ToActionOkResultAsync();
@@ -293,7 +290,7 @@ public class ProblemDetailsWithActionResultTests
         // arrange
         var result = Result.Ok();
 
-        Func<Task<Result>> task = () => Task.FromResult(result);
+        var task = () => Task.FromResult(result);
 
         // act
         var sut = await task().ToActionOkResultAsync();
@@ -316,12 +313,12 @@ public class ProblemDetailsWithActionResultTests
         var uri = new Uri("about:blank");
         var okUri = _fixture.Create<Uri>();
 
-        var result = Result.Ok<string>(value);
+        var result = Result.Ok(value);
 
         // act
         var sut = result
-                    .OnSuccess(() => uri = okUri)
-                    .ToActionCreatedResult(uri, (v) => $"{v} Arc4u");
+            .OnSuccess(() => uri = okUri)
+            .ToActionCreatedResult(uri, v => $"{v} Arc4u");
 
         // assert
         sut.Value.Should().BeNull();
@@ -342,12 +339,12 @@ public class ProblemDetailsWithActionResultTests
         var uri = new Uri("about:blank");
         var okUri = _fixture.Create<Uri>();
 
-        var result = Result.Ok<string>(value);
+        var result = Result.Ok(value);
 
         // act
         var sut = result
-                            .OnSuccess(() => uri = okUri)
-                            .ToActionCreatedResult(uri, (v) => $"{v} Arc4u");
+            .OnSuccess(() => uri = okUri)
+            .ToActionCreatedResult(uri, v => $"{v} Arc4u");
 
         // assert
         sut.Value.Should().BeNull();
@@ -367,17 +364,16 @@ public class ProblemDetailsWithActionResultTests
 
         var result = Result.Ok(value);
 
-        Func<Task<Result<string>>> task = () => Task.FromResult(result);
+        var task = () => Task.FromResult(result);
 
         // act
         var sut = await task()
-                        .ToActionOkResultAsync();
+            .ToActionOkResultAsync();
 
         // assert
         sut.Value.Should().BeNull();
         sut.Result.Should().BeOfType<OkObjectResult>();
         ((OkObjectResult)sut.Result!).Value.Should().Be(value);
-
     }
 
     [Fact]
@@ -389,11 +385,11 @@ public class ProblemDetailsWithActionResultTests
 
         var result = Result.Fail<string>(value);
 
-        Func<Task<Result<string>>> task = () => Task.FromResult(result);
+        var task = () => Task.FromResult(result);
 
         // act
         var sut = await task()
-                        .ToActionOkResultAsync();
+            .ToActionOkResultAsync();
 
         // assert
         sut.Value.Should().BeNull();
@@ -415,16 +411,15 @@ public class ProblemDetailsWithActionResultTests
 
         var result = Result.Ok(value);
 
-        Func<Task<Result<string>>> task = () => Task.FromResult(result);
+        var task = () => Task.FromResult(result);
 
         // act
-        var sut = await task().ToActionOkResultAsync((v) => $"{v} Arc4u");
+        var sut = await task().ToActionOkResultAsync(v => $"{v} Arc4u");
 
         // assert
         sut.Value.Should().BeNull();
         sut.Result.Should().BeOfType<OkObjectResult>();
         ((OkObjectResult)sut.Result!).Value.Should().Be($"{value} Arc4u");
-
     }
 
     [Fact]
@@ -437,7 +432,7 @@ public class ProblemDetailsWithActionResultTests
         var result = Result.Fail<string>(value);
 
         // act
-        var sut = result.ToActionOkResult((v) => $"{v} Arc4u");
+        var sut = result.ToActionOkResult(v => $"{v} Arc4u");
 
         // assert
         sut.Value.Should().BeNull();
@@ -537,8 +532,8 @@ public class ProblemDetailsWithActionResultTests
         var uri = _fixture.Create<Uri>();
         var title = _fixture.Create<string>();
 
-        await Result.Try(() => error(), (ex) => ProblemDetailError.Create(message).WithType(uri).WithTitle(title))
-                    .OnFailed<string>(globalResult);
+        await Result.Try(() => error(), ex => ProblemDetailError.Create(message).WithType(uri).WithTitle(title))
+            .OnFailed(globalResult);
 
         // act
         var sut = globalResult.ToActionOkResult();
@@ -563,7 +558,7 @@ public class ProblemDetailsWithActionResultTests
         Func<Task<string>> error = () => throw new DbUpdateException();
 
         await Result.Try(() => error())
-                    .OnFailed<string>(globalResult);
+            .OnFailed(globalResult);
 
         // act
         var sut = globalResult.ToActionOkResult();
@@ -582,6 +577,7 @@ public class ProblemDetailsWithActionResultTests
     #endregion
 
     #region Result
+
     [Fact]
     [Trait("Category", "CI")]
     public async Task Test_Result_To_OnSuccess_Should()
@@ -643,7 +639,6 @@ public class ProblemDetailsWithActionResultTests
         problem.Errors.First().Key.Should().Be("Error");
         problem.Errors.First().Value[0].Should().Be("Problem");
         problem.Status.Should().Be(StatusCodes.Status422UnprocessableEntity);
-
     }
 
     #endregion

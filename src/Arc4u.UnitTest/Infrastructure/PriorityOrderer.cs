@@ -21,9 +21,8 @@ public class PriorityOrderer : ITestCaseOrderer
         }
 
         foreach (var testCase in
-            sortedMethods.Keys.SelectMany(
-                priority => sortedMethods[priority].OrderBy(
-                    testCase => testCase.TestMethod.Method.Name)))
+                 sortedMethods.Keys.SelectMany(priority =>
+                     sortedMethods[priority].OrderBy(testCase => testCase.TestMethod.Method.Name)))
         {
             yield return testCase;
         }
@@ -32,8 +31,10 @@ public class PriorityOrderer : ITestCaseOrderer
     private static TValue GetOrCreate<TKey, TValue>(
         IDictionary<TKey, TValue> dictionary, TKey key)
         where TKey : struct
-        where TValue : new() =>
-        dictionary.TryGetValue(key, out var result)
+        where TValue : new()
+    {
+        return dictionary.TryGetValue(key, out var result)
             ? result
-            : (dictionary[key] = new TValue());
+            : dictionary[key] = new TValue();
+    }
 }

@@ -1,57 +1,54 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AutoFixture.AutoMoq;
-using AutoFixture;
+using System.Globalization;
+using System.Net.Mail;
+using System.Text.Json;
 using Arc4u.Security.Principal;
+using AutoFixture;
+using AutoFixture.AutoMoq;
 using FluentAssertions;
 using Xunit;
-using System.Net.Mail;
-using System.Globalization;
 
 namespace Arc4u.UnitTest.Serialization;
+
 public class UserProfileTests
 {
+    private readonly Fixture _fixture;
+
     public UserProfileTests()
     {
         _fixture = new Fixture();
         _fixture.Customize(new AutoMoqCustomization());
     }
 
-    private readonly Fixture _fixture;
-
     [Fact]
     [Trait("Category", "CI")]
     public void Json_Should()
     {
         var userProfile = new UserProfile(_fixture.Create<string>(),
-                                          _fixture.Create<MailAddress>().Address,
-                                          _fixture.Create<string>(),
-                                          _fixture.Create<string>(),
-                                          _fixture.Create<string>(),
-                                          _fixture.Create<string>(),
-                                          _fixture.Create<string>(),
-                                          _fixture.Create<string>(),
-                                          _fixture.Create<string>(),
-                                          _fixture.Create<string>(),
-                                          _fixture.Create<string>(),
-                                          _fixture.Create<string>(),
-                                          _fixture.Create<string>(),
-                                          _fixture.Create<string>(),
-                                          _fixture.Create<string>(),
-                                          _fixture.Create<string>(),
-                                          _fixture.Create<string>(),
-                                          _fixture.Create<string>(),
-                                          _fixture.Create<string>(),
-                                          new CultureInfo("fr-be"),
-                                          _fixture.Create<string>(),
-                                          _fixture.Create<string>());
+            _fixture.Create<MailAddress>().Address,
+            _fixture.Create<string>(),
+            _fixture.Create<string>(),
+            _fixture.Create<string>(),
+            _fixture.Create<string>(),
+            _fixture.Create<string>(),
+            _fixture.Create<string>(),
+            _fixture.Create<string>(),
+            _fixture.Create<string>(),
+            _fixture.Create<string>(),
+            _fixture.Create<string>(),
+            _fixture.Create<string>(),
+            _fixture.Create<string>(),
+            _fixture.Create<string>(),
+            _fixture.Create<string>(),
+            _fixture.Create<string>(),
+            _fixture.Create<string>(),
+            _fixture.Create<string>(),
+            new CultureInfo("fr-be"),
+            _fixture.Create<string>(),
+            _fixture.Create<string>());
 
-        var json = System.Text.Json.JsonSerializer.Serialize(userProfile);
+        var json = JsonSerializer.Serialize(userProfile);
 
-        var deserialized = System.Text.Json.JsonSerializer.Deserialize<UserProfile>(json);
+        var deserialized = JsonSerializer.Deserialize<UserProfile>(json);
 
         deserialized.Should().NotBeNull();
         deserialized!.Name.Should().Be(userProfile.Name);

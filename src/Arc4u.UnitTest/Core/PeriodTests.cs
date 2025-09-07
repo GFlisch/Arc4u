@@ -26,7 +26,7 @@ public class PeriodTest
         var lower = DateTimeOffset.Now;
         var upper = lower.AddDays(1);
 
-        var period = new Period(lower, upper, upperIncluded: true);
+        var period = new Period(lower, upper, true);
 
         period.UpperBound.Direction.Should().Be(BoundDirection.Closed);
     }
@@ -59,7 +59,7 @@ public class PeriodTest
     [Fact]
     public void Constructor_With_Null_Bound_Must_Throw_ArgumentNullException()
     {
-        var exception = Record.Exception(() =>  new Period((Bound<DateTimeOffset?>)null, (Bound<DateTimeOffset?>)null));
+        var exception = Record.Exception(() => new Period(null, (Bound<DateTimeOffset?>)null));
 
         exception.Should().BeOfType<ArgumentNullException>();
         exception.Message.Should().Be("Value cannot be null. (Parameter 'lowerBound')");
@@ -89,13 +89,12 @@ public class PeriodTest
         period.UpperBound.Direction.Should().Be(BoundDirection.Opened);
         period.UpperBound.Type.Should().Be(BoundType.Upper);
         period.UpperBound.Value.Should().BeNull();
-
     }
 
     [Fact]
     public void Constructor_With_Null_DateTimeOffset_Must_Throw_ArgumentException()
     {
-        var exception = Record.Exception(() => new Period((DateTimeOffset?)null, (DateTimeOffset?)null));
+        var exception = Record.Exception(() => new Period(null, (DateTimeOffset?)null));
 
         exception.Should().BeOfType<ArgumentException>("An infinity bound must define an opened direction.");
     }

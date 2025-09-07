@@ -14,15 +14,16 @@ using Xunit;
 using Severity = FluentValidation.Severity;
 
 namespace Arc4u.UnitTest.Results;
+
 public class ResultTests
 {
+    private readonly Fixture _fixture;
+
     public ResultTests()
     {
         _fixture = new Fixture();
         _fixture.Customize(new AutoMoqCustomization());
     }
-
-    readonly Fixture _fixture;
 
     [Fact]
     [Trait("Category", "CI")]
@@ -31,10 +32,7 @@ public class ResultTests
         Result<TokenInfo> result = new();
         var flag = false;
 
-        var sut = result.OnSuccess(() =>
-        {
-            flag = true;
-        });
+        var sut = result.OnSuccess(() => { flag = true; });
 
         flag.Should().BeTrue();
         sut.Should().BeSameAs(result);
@@ -47,10 +45,7 @@ public class ResultTests
         var result = Result.Ok();
         var flag = false;
 
-        var sut = result.OnSuccess(() =>
-        {
-            flag = true;
-        });
+        var sut = result.OnSuccess(() => { flag = true; });
 
         flag.Should().BeTrue();
         sut.Should().BeSameAs(result);
@@ -80,10 +75,7 @@ public class ResultTests
         var result = Result.Fail("");
         var flag = false;
 
-        var sut = result.OnSuccess(() =>
-        {
-            flag = true;
-        });
+        var sut = result.OnSuccess(() => { flag = true; });
 
         flag.Should().BeFalse();
         sut.Should().BeSameAs(result);
@@ -113,10 +105,7 @@ public class ResultTests
         var result = Result.Fail("");
         var flag = false;
 
-        var sut = result.OnFailed((errors) =>
-        {
-            flag = true;
-        });
+        var sut = result.OnFailed(errors => { flag = true; });
 
         flag.Should().BeTrue();
         sut.Should().BeSameAs(result);
@@ -129,12 +118,12 @@ public class ResultTests
         var result = Task.FromResult(Result.Fail(""));
         var flag = false;
 
-        var sut = await result.OnFailedAsync(async (errors) =>
-        {
-            await Task.Delay(1000).ConfigureAwait(false);
-            flag = true;
-        })
-;
+        var sut = await result.OnFailedAsync(async errors =>
+            {
+                await Task.Delay(1000).ConfigureAwait(false);
+                flag = true;
+            })
+            ;
 
         flag.Should().BeTrue();
         sut.Should().BeSameAs(result.Result);
@@ -147,10 +136,7 @@ public class ResultTests
         var result = Result.Ok();
         var flag = false;
 
-        var sut = result.OnFailed((errors) =>
-        {
-            flag = true;
-        });
+        var sut = result.OnFailed(errors => { flag = true; });
 
         flag.Should().BeFalse();
         sut.Should().BeSameAs(result);
@@ -163,12 +149,12 @@ public class ResultTests
         var result = Task.FromResult(Result.Ok());
         var flag = false;
 
-        var sut = await result.OnFailedAsync(async (errors) =>
-        {
-            await Task.Delay(1).ConfigureAwait(false);
-            flag = true;
-        })
-;
+        var sut = await result.OnFailedAsync(async errors =>
+            {
+                await Task.Delay(1).ConfigureAwait(false);
+                flag = true;
+            })
+            ;
 
         flag.Should().BeFalse();
         sut.Should().BeSameAs(result.Result);
@@ -182,7 +168,7 @@ public class ResultTests
         var globalResult = Result.Ok();
 
         var sut = await result.LogIfFailed()
-                              .OnFailed(globalResult);
+            .OnFailed(globalResult);
 
         sut.Should().BeSameAs(result.Result);
         globalResult.IsFailed.Should().BeTrue();
@@ -197,7 +183,7 @@ public class ResultTests
         Result<string> globalResult = Result.Ok();
 
         var sut = await result.LogIfFailed()
-                              .OnFailed((errors) => globalResult.WithErrors(errors));
+            .OnFailed(errors => globalResult.WithErrors(errors));
 
         sut.Should().BeSameAs(result.Result);
         globalResult.IsFailed.Should().BeTrue();
@@ -213,7 +199,7 @@ public class ResultTests
         Func<Task> error = () => throw new DbUpdateException();
 
         await Result.Try(() => error())
-                    .OnFailed(globalResult);
+            .OnFailed(globalResult);
 
         globalResult.IsFailed.Should().BeTrue();
         globalResult.Errors.Count.Should().Be(1);
@@ -225,7 +211,7 @@ public class ResultTests
     [Trait("Category", "CI")]
     public void MessageDetail_tests()
     {
-        var error = new ValidationFailure() { ErrorMessage = "A", ErrorCode = "Code" }.ToValidationError();
+        var error = new ValidationFailure { ErrorMessage = "A", ErrorCode = "Code" }.ToValidationError();
 
         error.Message.Should().Be("A");
     }
@@ -251,11 +237,11 @@ public class ResultTests
     public void Test_Implicit_ProblemDetailError_To_Result_Should()
     {
         var error = ProblemDetailError.Create(_fixture.Create<string>())
-                                      .WithSeverity(_fixture.Create<string>())
-                                      .WithStatusCode(StatusCodes.Status400BadRequest)
-                                      .WithTitle(_fixture.Create<string>())
-                                      .WithType(_fixture.Create<Uri>())
-                                      .WithInstance(_fixture.Create<string>());
+            .WithSeverity(_fixture.Create<string>())
+            .WithStatusCode(StatusCodes.Status400BadRequest)
+            .WithTitle(_fixture.Create<string>())
+            .WithType(_fixture.Create<Uri>())
+            .WithInstance(_fixture.Create<string>());
 
         Result result = error;
 
@@ -269,14 +255,15 @@ public class ResultTests
         problem.Severity.Should().Be(error.Severity);
         problem.Instance.Should().Be(error.Instance);
     }
+
     [Fact]
     [Trait("Category", "CI")]
     public void Test_Implicit_ValidationError_To_Result_Should()
     {
         var error = ValidationError.Create(_fixture.Create<string>())
-                                   .WithCode(_fixture.Create<string>())
-                                   .WithSeverity(Arc4u.Results.Validation.Severity.Warning)
-                                   .WithMetadata("key", _fixture.Create<string>());
+            .WithCode(_fixture.Create<string>())
+            .WithSeverity(Arc4u.Results.Validation.Severity.Warning)
+            .WithMetadata("key", _fixture.Create<string>());
 
         Result result = error;
 
@@ -296,9 +283,9 @@ public class ResultTests
         public Validation()
         {
             RuleFor(s => s).NotEmpty()
-                           .WithMessage("A")
-                           .WithErrorCode("Code")
-                           .WithSeverity(Severity.Error);
+                .WithMessage("A")
+                .WithErrorCode("Code")
+                .WithSeverity(Severity.Error);
         }
     }
 }

@@ -1,7 +1,4 @@
 using Arc4u.Dependency.Attribute;
-using FluentAssertions;
-using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 
 namespace Arc4u.UnitTest.Dependency;
 #pragma warning disable CS0618
@@ -62,13 +59,30 @@ namespace Arc4u.UnitTest.Dependency;
 // }
 
 [Export(typeof(ITransientObject))]
-public class TransientObject : ITransientObject { }
-public interface ITransientObject { }
+public class TransientObject : ITransientObject
+{
+}
 
-[Export(typeof(IScopedObject)), Scoped]
-public class ScopedObject : IScopedObject { }
-public interface IScopedObject { }
+public interface ITransientObject
+{
+}
 
-[Export(typeof(ISingletonObject)), Shared]
-public class SingletonObject : ISingletonObject { }
-public interface ISingletonObject { }
+[Export(typeof(IScopedObject))]
+[Scoped]
+public class ScopedObject : IScopedObject
+{
+}
+
+public interface IScopedObject
+{
+}
+
+[Export(typeof(ISingletonObject))]
+[Shared]
+public class SingletonObject : ISingletonObject
+{
+}
+
+public interface ISingletonObject
+{
+}

@@ -12,26 +12,26 @@
     <IsAotCompatible Condition="!$(MSBuildProjectName.EndsWith('UnitTest')) AND '$(TargetFramework)' != 'netstandard2.0' ">true</IsAotCompatible>
     <EnableConfigurationBindingGenerator>true</EnableConfigurationBindingGenerator>
   </PropertyGroup>
-  
- <!-- Packaging -->
- <PropertyGroup Condition="'$(Configuration)'=='Release' AND $(IsPackable) == true">
-   <GeneratePackageOnBuild>true</GeneratePackageOnBuild> 
-   <Authors>Gilles Flisch</Authors>
-   <Company>Gilles Flisch</Company>
-   <Copyright>Gilles Flisch 2021</Copyright>	
-   <PackageIcon>Arc4u.png</PackageIcon>
-   <PackageReadmeFile>README.md</PackageReadmeFile>
-   <PackageProjectUrl>https://github.com/GFlisch/Arc4u/wiki</PackageProjectUrl>
-   <PublishRepositoryUrl>true</PublishRepositoryUrl>   
-   <RepositoryUrl>https://github.com/GFlisch/Arc4u</RepositoryUrl>
-   <RepositoryType>git</RepositoryType>
-   <PackageTags>Arc4u</PackageTags>
-   <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-   <LangVersion>latest</LangVersion>
-   <RootNamespace>$(MSBuildProjectName.Replace(" ", "_").Replace(".Standard", ""))</RootNamespace>
-   <PackageLicenseExpression>MIT</PackageLicenseExpression>
-   <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
- </PropertyGroup>
+
+  <!-- Packaging -->
+  <PropertyGroup Condition="'$(Configuration)'=='Release' AND $(IsPackable) == true">
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>Gilles Flisch</Authors>
+    <Company>Gilles Flisch</Company>
+    <Copyright>Gilles Flisch 2021</Copyright>
+    <PackageIcon>Arc4u.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageProjectUrl>https://github.com/GFlisch/Arc4u/wiki</PackageProjectUrl>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <RepositoryUrl>https://github.com/GFlisch/Arc4u</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>Arc4u</PackageTags>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>$(MSBuildProjectName.Replace(" ", "_").Replace(".Standard", ""))</RootNamespace>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+  </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release' AND $(IsPackable) == true">
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -41,13 +41,13 @@
     <DebugType>embedded</DebugType>
     <!-- Ensure that pdb's can be added to nuget packages -->
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
-    <Deterministic>true</Deterministic>  
+    <Deterministic>true</Deterministic>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(Configuration)'=='Release' AND $(IsPackable) == true">
-    <None Include="README.md" Pack="true" PackagePath="\" />
-    <None Include="..\..\LICENSE" Pack="true" PackagePath="\" />
-    <None Include="..\..\Arc4u.png" Pack="true" PackagePath="\" />
+    <None Include="README.md" Pack="true" PackagePath="\"/>
+    <None Include="..\..\LICENSE" Pack="true" PackagePath="\"/>
+    <None Include="..\..\Arc4u.png" Pack="true" PackagePath="\"/>
   </ItemGroup>
 
   <!-- Always set to true when GitHub Actions is running the workflow -->

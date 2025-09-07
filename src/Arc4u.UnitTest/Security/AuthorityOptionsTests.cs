@@ -13,14 +13,13 @@ namespace Arc4u.UnitTest.Security;
 [Trait("Category", "CI")]
 public class AuthorityOptionsTests
 {
+    private readonly Fixture _fixture;
 
     public AuthorityOptionsTests()
     {
         _fixture = new Fixture();
         _fixture.Customize(new AutoMoqCustomization());
     }
-
-    private readonly Fixture _fixture;
 
     [Fact]
     public async Task AuthorityOptionsShould()
@@ -29,11 +28,11 @@ public class AuthorityOptionsTests
 
         var config = new ConfigurationBuilder()
             .AddInMemoryCollection(
-       new Dictionary<string, string?>
-       {
-           ["Authentication:DefaultAuthority:Url"] = option.Url.ToString(),
-           ["Authentication:DefaultAuthority:TokenEndpoint"] = option.TokenEndpoint!.ToString(),
-       }).Build();
+                new Dictionary<string, string?>
+                {
+                    ["Authentication:DefaultAuthority:Url"] = option.Url.ToString(),
+                    ["Authentication:DefaultAuthority:TokenEndpoint"] = option.TokenEndpoint!.ToString()
+                }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -55,11 +54,12 @@ public class AuthorityOptionsTests
     public async Task Authority_Options_With_Construction_Of_Metadata_Should()
     {
         var config = new ConfigurationBuilder()
-             .AddInMemoryCollection(
-        new Dictionary<string, string?>
-        {
-            ["Authentication:DefaultAuthority:Url"] = "https://login.microsoftonline.com/e564e8c4-2da9-4f0b-8e3d-c1a065b60501/v2.0",
-        }).Build();
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["Authentication:DefaultAuthority:Url"] =
+                        "https://login.microsoftonline.com/e564e8c4-2da9-4f0b-8e3d-c1a065b60501/v2.0"
+                }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -74,9 +74,13 @@ public class AuthorityOptionsTests
         options.Should().NotBeNull();
         options.Url.Should().Be("https://login.microsoftonline.com/e564e8c4-2da9-4f0b-8e3d-c1a065b60501/v2.0");
         options.TokenEndpoint.Should().BeNull();
-        (await options.GetEndpointAsync(CancellationToken.None)).Should().Be("https://login.microsoftonline.com/e564e8c4-2da9-4f0b-8e3d-c1a065b60501/oauth2/v2.0/token");
-        options.TokenEndpoint.Should().Be("https://login.microsoftonline.com/e564e8c4-2da9-4f0b-8e3d-c1a065b60501/oauth2/v2.0/token");
-        options.GetMetaDataAddress().Should().Be("https://login.microsoftonline.com/e564e8c4-2da9-4f0b-8e3d-c1a065b60501/v2.0/.well-known/openid-configuration");
+        (await options.GetEndpointAsync(CancellationToken.None)).Should()
+            .Be("https://login.microsoftonline.com/e564e8c4-2da9-4f0b-8e3d-c1a065b60501/oauth2/v2.0/token");
+        options.TokenEndpoint.Should()
+            .Be("https://login.microsoftonline.com/e564e8c4-2da9-4f0b-8e3d-c1a065b60501/oauth2/v2.0/token");
+        options.GetMetaDataAddress().Should()
+            .Be(
+                "https://login.microsoftonline.com/e564e8c4-2da9-4f0b-8e3d-c1a065b60501/v2.0/.well-known/openid-configuration");
     }
 
     [Fact]
@@ -87,10 +91,8 @@ public class AuthorityOptionsTests
 
         var config = new ConfigurationBuilder()
             .AddInMemoryCollection(
-       new Dictionary<string, string?>
-       {
-           ["Authentication:DefaultAuthority:Url"] = option.Url.ToString(),
-       }).Build();
+                new Dictionary<string, string?> { ["Authentication:DefaultAuthority:Url"] = option.Url.ToString() })
+            .Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -106,5 +108,4 @@ public class AuthorityOptionsTests
         options.Url.Should().Be(option.Url);
         options.TokenEndpoint.Should().Be(_default.TokenEndpoint);
     }
-
 }

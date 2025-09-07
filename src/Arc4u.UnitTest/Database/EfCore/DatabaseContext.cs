@@ -12,7 +12,6 @@ public partial class DatabaseContext : DbContext
     public DatabaseContext(DbContextOptions<DatabaseContext> options)
         : base(options)
     {
-
     }
 
     public virtual DbSet<Contract> Contracts { get; set; }
@@ -37,7 +36,6 @@ public partial class DatabaseContext : DbContext
 
             entity.Ignore(e => e.PersistChange);
         });
-
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);

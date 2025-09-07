@@ -22,6 +22,7 @@ public class Scope2Tests
         {
             Assert.Equal(instance, Scope<string, TestInstance>.Current);
         }
+
         Assert.Null(Scope<string, TestInstance>.Current);
     }
 
@@ -42,6 +43,7 @@ public class Scope2Tests
 
             Assert.Equal(instance1, Scope<string, TestInstance>.Current);
         }
+
         Assert.Null(Scope<string, TestInstance>.Current);
     }
 

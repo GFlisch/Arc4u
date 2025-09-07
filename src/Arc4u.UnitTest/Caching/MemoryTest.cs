@@ -19,13 +19,13 @@ namespace Arc4u.UnitTest.Caching;
 [Trait("Category", "CI")]
 public class MemoryTest
 {
+    private readonly Fixture _fixture;
+
     public MemoryTest()
     {
         _fixture = new Fixture();
         _fixture.Customize(new AutoMoqCustomization());
     }
-
-    private readonly Fixture _fixture;
 
     [Fact]
     public void AddOptionByCodeToServiceCollectionShould()
@@ -57,16 +57,18 @@ public class MemoryTest
     public void AddOptionByConfigToServiceCollectionShould()
     {
         // arrange
-        var option1 = _fixture.Build<MemoryCacheOption>().With(m => m.CompactionPercentage, 0.8).Create(); ;
+        var option1 = _fixture.Build<MemoryCacheOption>().With(m => m.CompactionPercentage, 0.8).Create();
+        ;
 
         var config = new ConfigurationBuilder()
-                     .AddInMemoryCollection(
-                         new Dictionary<string, string?>
-                         {
-                             ["Option1:SizeLimitInMB"] = option1.SizeLimitInMB.ToString(CultureInfo.InvariantCulture),
-                             ["Option1:CompactionPercentage"] = option1.CompactionPercentage.ToString(CultureInfo.InvariantCulture),
-                             ["Option1:SerializerName"] = option1.SerializerName,
-                         }).Build();
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["Option1:SizeLimitInMB"] = option1.SizeLimitInMB.ToString(CultureInfo.InvariantCulture),
+                    ["Option1:CompactionPercentage"] =
+                        option1.CompactionPercentage.ToString(CultureInfo.InvariantCulture),
+                    ["Option1:SerializerName"] = option1.SerializerName
+                }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -91,11 +93,8 @@ public class MemoryTest
         // arrange
 
         var config = new ConfigurationBuilder()
-                             .AddInMemoryCollection(
-                                 new Dictionary<string, string?>
-                                 {
-                                     ["Store:SizeLimitInMB"] = "10"
-                                 }).Build();
+            .AddInMemoryCollection(
+                new Dictionary<string, string?> { ["Store:SizeLimitInMB"] = "10" }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -108,11 +107,12 @@ public class MemoryTest
         var serviceProvider = services.BuildServiceProvider();
 
         var mockIOptions = _fixture.Freeze<Mock<IOptionsMonitor<MemoryCacheOption>>>();
-        mockIOptions.Setup(m => m.Get("Store")).Returns(serviceProvider.GetService<IOptionsMonitor<MemoryCacheOption>>()!.Get("Store"));
+        mockIOptions.Setup(m => m.Get("Store"))
+            .Returns(serviceProvider.GetService<IOptionsMonitor<MemoryCacheOption>>()!.Get("Store"));
 
         var mockLoggerWrapperMemoryCache = new Mock<ILoggerWrapper<MemoryCache>>();
         mockLoggerWrapperMemoryCache.Setup(m => m.SetContext(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Type?>()))
-                                     .Returns(mockLoggerWrapperMemoryCache.Object);
+            .Returns(mockLoggerWrapperMemoryCache.Object);
 
 
         _fixture.Inject<ILogger<MemoryCache>>(mockLoggerWrapperMemoryCache.Object);
@@ -137,11 +137,8 @@ public class MemoryTest
         // arrange
 
         var config = new ConfigurationBuilder()
-                             .AddInMemoryCollection(
-                                 new Dictionary<string, string?>
-                                 {
-                                     ["Store:SizeLimitInMB"] = "10"
-                                 }).Build();
+            .AddInMemoryCollection(
+                new Dictionary<string, string?> { ["Store:SizeLimitInMB"] = "10" }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -154,11 +151,12 @@ public class MemoryTest
 
         var mockLoggerWrapperMemoryCache = new Mock<ILoggerWrapper<MemoryCache>>();
         mockLoggerWrapperMemoryCache.Setup(m => m.SetContext(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Type?>()))
-                                     .Returns(mockLoggerWrapperMemoryCache.Object);
+            .Returns(mockLoggerWrapperMemoryCache.Object);
 
 
         var mockIOptions = _fixture.Freeze<Mock<IOptionsMonitor<MemoryCacheOption>>>();
-        mockIOptions.Setup(m => m.Get("Store")).Returns(serviceProvider.GetService<IOptionsMonitor<MemoryCacheOption>>()!.Get("Store"));
+        mockIOptions.Setup(m => m.Get("Store"))
+            .Returns(serviceProvider.GetService<IOptionsMonitor<MemoryCacheOption>>()!.Get("Store"));
 
         _fixture.Inject<ILogger<MemoryCache>>(mockLoggerWrapperMemoryCache.Object);
         _fixture.Inject(configuration);
@@ -172,7 +170,9 @@ public class MemoryTest
         var exception = Record.Exception(() => cache.Put("test", "test"));
 
         exception.Should().BeOfType<CacheNotInitializedException>();
-        exception.Message.Should().Be("Memory Cache Store is not initialized. An IObjectSerialization instance cannot be resolved via the Ioc.");
+        exception.Message.Should()
+            .Be(
+                "Memory Cache Store is not initialized. An IObjectSerialization instance cannot be resolved via the Ioc.");
     }
 
     [Fact]
@@ -181,11 +181,8 @@ public class MemoryTest
         // arrange
 
         var config = new ConfigurationBuilder()
-                             .AddInMemoryCollection(
-                                 new Dictionary<string, string?>
-                                 {
-                                     ["Store:SizeLimitInMB"] = "-1"
-                                 }).Build();
+            .AddInMemoryCollection(
+                new Dictionary<string, string?> { ["Store:SizeLimitInMB"] = "-1" }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -201,7 +198,8 @@ public class MemoryTest
         var serviceProvider = services.BuildServiceProvider();
 
         var mockIOptions = _fixture.Freeze<Mock<IOptionsMonitor<MemoryCacheOption>>>();
-        mockIOptions.Setup(m => m.Get("Store")).Returns(serviceProvider.GetService<IOptionsMonitor<MemoryCacheOption>>()!.Get("Store"));
+        mockIOptions.Setup(m => m.Get("Store"))
+            .Returns(serviceProvider.GetService<IOptionsMonitor<MemoryCacheOption>>()!.Get("Store"));
 
         _fixture.Inject(configuration);
         _fixture.Inject<IServiceProvider>(serviceProvider);
@@ -215,7 +213,7 @@ public class MemoryTest
 
         exception = Record.Exception(() => cache.Put("test", "test"));
 
-        exception.Message.Should().StartWith("Memory Cache Store is not initialized. With exception: value must be non-negative.");
-
+        exception.Message.Should()
+            .StartWith("Memory Cache Store is not initialized. With exception: value must be non-negative.");
     }
 }

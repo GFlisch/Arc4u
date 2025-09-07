@@ -13,7 +13,10 @@ public class TestAdditionalFile : AdditionalText
         _jsonText = SourceText.From(json);
     }
 
-    public override SourceText GetText(CancellationToken cancellationToken = new()) => _jsonText;
-
     public override string Path { get; }
+
+    public override SourceText GetText(CancellationToken cancellationToken = new())
+    {
+        return _jsonText;
+    }
 }

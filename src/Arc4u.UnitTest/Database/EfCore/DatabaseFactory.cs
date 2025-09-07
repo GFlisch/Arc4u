@@ -5,12 +5,12 @@ namespace Arc4u.UnitTest.Database.EfCore;
 
 public class DatabaseFactory : IDesignTimeDbContextFactory<DatabaseContext>
 {
+    private readonly DbContextOptions<DatabaseContext> Options;
+
     public DatabaseFactory(DbContextOptions<DatabaseContext> dbContextOptions)
     {
         Options = dbContextOptions;
     }
-
-    private readonly DbContextOptions<DatabaseContext> Options;
 
     public DatabaseContext CreateDbContext(string[] args)
     {

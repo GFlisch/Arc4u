@@ -1,3 +1,4 @@
+using Arc4u.Data;
 using Arc4u.EfCore;
 using Arc4u.UnitTest.Database.EfCore.Model;
 using Arc4u.UnitTest.Infrastructure;
@@ -15,6 +16,9 @@ namespace Arc4u.UnitTest.Database.EfCore;
 [Trait("Category", "CI")]
 public class EfCoreTests
 {
+    private readonly Fixture _fixture;
+    private readonly IServiceProvider _serviceProvider;
+
     public EfCoreTests()
     {
         var services = new ServiceCollection();
@@ -25,7 +29,7 @@ public class EfCoreTests
             var optionsBuilder = new DbContextOptionsBuilder<DatabaseContext>();
 
             optionsBuilder.UseInMemoryDatabase("EfCore")
-                          .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+                .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 
             return optionsBuilder.Options;
         });
@@ -35,9 +39,6 @@ public class EfCoreTests
         _fixture = new Fixture();
         _fixture.Customize(new AutoMoqCustomization());
     }
-
-    readonly Fixture _fixture;
-    readonly IServiceProvider _serviceProvider;
 
     [Fact]
     [TestPriority(1)]
@@ -51,12 +52,11 @@ public class EfCoreTests
         for (var i = 0; i < 10; i++)
         {
             var contract = _fixture.Create<Contract>();
-            contract.PersistChange = Data.PersistChange.Insert;
+            contract.PersistChange = PersistChange.Insert;
 
             db!.ChangeTracker.TrackGraph(contract, ChangeGraphTracker.Tracker);
 
             await db.SaveChangesAsync(CancellationToken.None);
-
         }
 
         var result = await db!.Contracts.ToListAsync();
@@ -73,7 +73,7 @@ public class EfCoreTests
         var result = await db!.Contracts.ToListAsync();
 
         var toDelete = result.First();
-        toDelete.PersistChange = Data.PersistChange.Delete;
+        toDelete.PersistChange = PersistChange.Delete;
 
         db.ChangeTracker.TrackGraph(toDelete, ChangeGraphTracker.Tracker);
 
@@ -94,7 +94,7 @@ public class EfCoreTests
         using var db = container.GetRequiredService<DatabaseContext>();
 
         var contract = fixture.Create<Contract>();
-        contract.PersistChange = Data.PersistChange.Insert;
+        contract.PersistChange = PersistChange.Insert;
 
         var id = contract.Id;
 
@@ -106,9 +106,9 @@ public class EfCoreTests
 
         contract = db.Contracts.First(c => c.Id == id);
 
-        Assert.Equal(Data.PersistChange.None, contract.PersistChange);
+        Assert.Equal(PersistChange.None, contract.PersistChange);
 
-        contract.PersistChange = Data.PersistChange.Update;
+        contract.PersistChange = PersistChange.Update;
 
         contract.Name = "Updated";
 

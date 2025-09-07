@@ -13,17 +13,24 @@ namespace Arc4u.UnitTest.Serialization;
 [Trait("Category", "CI")]
 public class CompressionAndSpeedTests
 {
+    private static string[] _bearerTokens = [];
+
+    private static readonly JwtSecurityToken _jwt = new("issuer", "audience", [new Claim("key", "value")],
+        DateTime.UtcNow.AddHours(-1), DateTime.UtcNow.AddMinutes(-10));
+
+    private static readonly TokenInfo _tokenInfo = new("Bearer", _jwt.EncodedPayload, DateTime.UtcNow);
+    private readonly Fixture _fixture;
+    private readonly ITestOutputHelper _output;
+
     public CompressionAndSpeedTests(ITestOutputHelper output)
     {
         _output = output;
         _fixture = new Fixture();
         _fixture.Customize(new AutoMoqCustomization());
     }
-    private readonly Fixture _fixture;
-    private readonly ITestOutputHelper _output;
-    private static string[] _bearerTokens = [];
+
     /// <summary>
-    /// A normal and a "zuppafat" bearer token
+    ///     A normal and a "zuppafat" bearer token
     /// </summary>
     private string[] BearerTokens()
     {
@@ -35,7 +42,8 @@ public class CompressionAndSpeedTests
                 claims.Add(new Claim(_fixture.Create<string>(), _fixture.Create<string>()));
             }
 
-            JwtSecurityToken jwt = new("issuer", "audience", claims, notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
+            JwtSecurityToken jwt = new("issuer", "audience", claims, DateTime.UtcNow.AddHours(-1),
+                DateTime.UtcNow.AddHours(1));
 
             var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
 
@@ -43,18 +51,6 @@ public class CompressionAndSpeedTests
         }
 
         return _bearerTokens;
-
-    }
-
-    private static readonly JwtSecurityToken _jwt = new("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddMinutes(-10));
-
-    private static readonly TokenInfo _tokenInfo = new("Bearer", _jwt.EncodedPayload, DateTime.UtcNow);
-
-    private sealed class Measurement
-    {
-        public string Method { get; set; } = default!;
-        public TimeSpan TimeSpan { get; set; }
-        public int Size { get; set; }
     }
 
     private Measurement Measure(IObjectSerialization objectSerialization, string method)
@@ -81,6 +77,7 @@ public class CompressionAndSpeedTests
 
             // add other relevant cases here.
         }
+
         sw.Stop();
         return new Measurement { Method = method, TimeSpan = sw.Elapsed, Size = size };
     }
@@ -98,7 +95,7 @@ public class CompressionAndSpeedTests
     }
 
     /// <summary>
-    /// Measure response 
+    ///     Measure response
     /// </summary>
     [Fact]
     public void CheckRuntimeTypeModelConcurrencyAsync()
@@ -126,5 +123,12 @@ public class CompressionAndSpeedTests
         // sort by smallest size
         list.Sort((item1, item2) => item1.Size.CompareTo(item2.Size));
         ShowMeasurements(list, "Results ordered by ascending serialization size");
+    }
+
+    private sealed class Measurement
+    {
+        public string Method { get; set; } = default!;
+        public TimeSpan TimeSpan { get; set; }
+        public int Size { get; set; }
     }
 }

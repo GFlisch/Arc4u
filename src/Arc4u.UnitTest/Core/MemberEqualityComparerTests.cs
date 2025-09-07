@@ -7,12 +7,6 @@ namespace Arc4u.UnitTest.Collections.Generic;
 [Trait("Category", "CI")]
 public class MemberEqualityComparerTests
 {
-    private sealed class TestClass
-    {
-        public int Id { get; set; }
-        public string Name { get; set; } = default!;
-    }
-
     [Fact]
     public void Equals_SameObject_ReturnsTrue()
     {
@@ -69,5 +63,11 @@ public class MemberEqualityComparerTests
         var obj2 = new TestClass { Id = 2, Name = "Test2" };
 
         comparer.GetHashCode(obj1).Should().NotBe(comparer.GetHashCode(obj2));
+    }
+
+    private sealed class TestClass
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = default!;
     }
 }

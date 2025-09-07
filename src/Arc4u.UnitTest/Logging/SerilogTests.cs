@@ -18,7 +18,8 @@ public sealed class SinkSpeedCategoryTest : ILogEventSink
     {
         if (Emited || HitCount == 0)
         {
-            Emited = logEvent.Properties.TryGetValue("Speed", out var value) && value.ToString() == Value.ToString(CultureInfo.InvariantCulture);
+            Emited = logEvent.Properties.TryGetValue("Speed", out var value) &&
+                     value.ToString() == Value.ToString(CultureInfo.InvariantCulture);
         }
 
         HitCount++;
@@ -43,9 +44,9 @@ public sealed class FromSinkTest : ILogEventSink, IDisposable
 
     public string Application { get; set; } = default!;
 
-    public Diagnostics.MessageCategory Category { get; set; }
+    public MessageCategory Category { get; set; }
 
-    public string? ActivityId { get; set; } = default!;
+    public string? ActivityId { get; set; }
 
     public IReadOnlyDictionary<string, LogEventPropertyValue> Properties { get; set; } = default!;
 
@@ -67,7 +68,8 @@ public sealed class FromSinkTest : ILogEventSink, IDisposable
 
         if (logEvent.Properties.TryGetValue(LoggingConstants.Category, out var categoryPropertyValue))
         {
-            Category = (MessageCategory)Enum.Parse(typeof(MessageCategory), GetValue(categoryPropertyValue, MessageCategory.Technical.ToString())!);
+            Category = (MessageCategory)Enum.Parse(typeof(MessageCategory),
+                GetValue(categoryPropertyValue, MessageCategory.Technical.ToString())!);
         }
 
         if (logEvent.Properties.TryGetValue(LoggingConstants.Application, out var applicationName))
@@ -88,7 +90,7 @@ public sealed class FromSinkTest : ILogEventSink, IDisposable
         return pv.GetType().Name switch
         {
             nameof(ScalarValue) => (T?)((ScalarValue)pv).Value,
-            _ => defaultValue,
+            _ => defaultValue
         };
     }
 }

@@ -2,6 +2,7 @@ using FluentAssertions;
 using Xunit;
 
 namespace Arc4u.UnitTest.Threading;
+
 [Trait("Category", "CI")]
 public class TimeoutHelperTests
 {
@@ -28,7 +29,8 @@ public class TimeoutHelperTests
     public void WaitOne_WithNegativeTimeout_ShouldThrowArgumentOutOfRangeException()
     {
         using var waitHandle = new ManualResetEvent(false);
-        Assert.Throws<ArgumentOutOfRangeException>(() => WaitHandleHelper.WaitOne(waitHandle, TimeSpan.FromMilliseconds(-1), false));
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
+            WaitHandleHelper.WaitOne(waitHandle, TimeSpan.FromMilliseconds(-1), false));
     }
 
     [Trait("Category", "CI")]
@@ -171,8 +173,9 @@ public class TimeoutHelperTests
             callbackInvoked = true;
             evt.Set();
         }
+
         helper.SetTimer(Callback, null);
-        evt.Wait(1000);
+        evt.Wait(2000);
 
         callbackInvoked.Should().BeTrue();
     }

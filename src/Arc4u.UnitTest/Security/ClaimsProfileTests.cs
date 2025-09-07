@@ -10,32 +10,32 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
+using ClaimTypes = Arc4u.IdentityModel.Claims.ClaimTypes;
 
 namespace Arc4u.UnitTest.Security;
 
 [Trait("Category", "CI")]
-
 public class ClaimsProfileTests
 {
+    private readonly Fixture _fixture;
+
     public ClaimsProfileTests()
     {
         _fixture = new Fixture();
         _fixture.Customize(new AutoMoqCustomization());
     }
 
-    private readonly Fixture _fixture;
-
     [Fact]
     public void ProfileUpnFillerShould()
     {
         var config = new ConfigurationBuilder()
-             .AddInMemoryCollection(
-        new Dictionary<string, string?>
-        {
-            ["Authentication:DomainsMapping:Arc4u.net"] = "arc4u.net",
-            ["Authentication:DomainsMapping:Arc4u"] = "arc4u.net",
-            ["Authentication:DomainsMapping:Arc4u-net"] = "arc4u.net",
-        }).Build();
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["Authentication:DomainsMapping:Arc4u.net"] = "arc4u.net",
+                    ["Authentication:DomainsMapping:Arc4u"] = "arc4u.net",
+                    ["Authentication:DomainsMapping:Arc4u-net"] = "arc4u.net"
+                }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -45,7 +45,8 @@ public class ClaimsProfileTests
 
         var serviceProvider = services.BuildServiceProvider();
 
-        var settings = serviceProvider.GetRequiredService<IOptionsMonitor<SimpleKeyValueSettings>>().Get("DomainMapping");
+        var settings = serviceProvider.GetRequiredService<IOptionsMonitor<SimpleKeyValueSettings>>()
+            .Get("DomainMapping");
 
         var mockSettings = _fixture.Freeze<Mock<IOptionsMonitor<SimpleKeyValueSettings>>>();
         mockSettings.Setup(m => m.Get("DomainMapping")).Returns(settings).Verifiable();
@@ -54,13 +55,13 @@ public class ClaimsProfileTests
 
         var identity = new ClaimsIdentity(
         [
-            new Claim(IdentityModel.Claims.ClaimTypes.Culture, "fr-BE"),
-            new Claim(IdentityModel.Claims.ClaimTypes.Name, "Flisch"),
-            new Claim(IdentityModel.Claims.ClaimTypes.GivenName, "Gilles"),
-            new Claim(IdentityModel.Claims.ClaimTypes.Email, "info@arc4u.net"),
-            new Claim(IdentityModel.Claims.ClaimTypes.Upn, "info@arc4u.net"),
-            new Claim(IdentityModel.Claims.ClaimTypes.Company, "Arc4u"),
-            new Claim(IdentityModel.Claims.ClaimTypes.Sid, Guid.NewGuid().ToS19())
+            new Claim(ClaimTypes.Culture, "fr-BE"),
+            new Claim(ClaimTypes.Name, "Flisch"),
+            new Claim(ClaimTypes.GivenName, "Gilles"),
+            new Claim(ClaimTypes.Email, "info@arc4u.net"),
+            new Claim(ClaimTypes.Upn, "info@arc4u.net"),
+            new Claim(ClaimTypes.Company, "Arc4u"),
+            new Claim(ClaimTypes.Sid, Guid.NewGuid().ToS19())
         ], "TestType");
 
         var sut = profileFiller.GetProfile(identity);
@@ -74,13 +75,13 @@ public class ClaimsProfileTests
     public void ProfileFillerShould()
     {
         var config = new ConfigurationBuilder()
-             .AddInMemoryCollection(
-        new Dictionary<string, string?>
-        {
-            ["Authentication:DomainsMapping:Arc4u.net"] = "arc4u.net",
-            ["Authentication:DomainsMapping:arc4u"] = "arc4u.net",
-            ["Authentication:DomainsMapping:Arc4u-net"] = "arc4u.net",
-        }).Build();
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["Authentication:DomainsMapping:Arc4u.net"] = "arc4u.net",
+                    ["Authentication:DomainsMapping:arc4u"] = "arc4u.net",
+                    ["Authentication:DomainsMapping:Arc4u-net"] = "arc4u.net"
+                }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -90,7 +91,8 @@ public class ClaimsProfileTests
 
         var serviceProvider = services.BuildServiceProvider();
 
-        var settings = serviceProvider.GetRequiredService<IOptionsMonitor<SimpleKeyValueSettings>>().Get("DomainMapping");
+        var settings = serviceProvider.GetRequiredService<IOptionsMonitor<SimpleKeyValueSettings>>()
+            .Get("DomainMapping");
 
         var mockSettings = _fixture.Freeze<Mock<IOptionsMonitor<SimpleKeyValueSettings>>>();
         mockSettings.Setup(m => m.Get("DomainMapping")).Returns(settings).Verifiable();
@@ -99,13 +101,13 @@ public class ClaimsProfileTests
 
         var identity = new ClaimsIdentity(
         [
-            new Claim(IdentityModel.Claims.ClaimTypes.Culture, "fr-BE"),
-            new Claim(IdentityModel.Claims.ClaimTypes.Name, "Flisch"),
-            new Claim(IdentityModel.Claims.ClaimTypes.GivenName, "Gilles"),
-            new Claim(IdentityModel.Claims.ClaimTypes.Email, "info@arc4u.net"),
-            new Claim(IdentityModel.Claims.ClaimTypes.Upn, "Arc4u\\info"),
-            new Claim(IdentityModel.Claims.ClaimTypes.Company, "Arc4u"),
-            new Claim(IdentityModel.Claims.ClaimTypes.Sid, Guid.NewGuid().ToS19())
+            new Claim(ClaimTypes.Culture, "fr-BE"),
+            new Claim(ClaimTypes.Name, "Flisch"),
+            new Claim(ClaimTypes.GivenName, "Gilles"),
+            new Claim(ClaimTypes.Email, "info@arc4u.net"),
+            new Claim(ClaimTypes.Upn, "Arc4u\\info"),
+            new Claim(ClaimTypes.Company, "Arc4u"),
+            new Claim(ClaimTypes.Sid, Guid.NewGuid().ToS19())
         ], "TestType");
 
         var sut = profileFiller.GetProfile(identity);
@@ -119,8 +121,8 @@ public class ClaimsProfileTests
     public void ProfileWithNoDomainMappingFillerShould()
     {
         var config = new ConfigurationBuilder()
-             .AddInMemoryCollection(
-        []).Build();
+            .AddInMemoryCollection(
+                []).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -130,7 +132,8 @@ public class ClaimsProfileTests
 
         var serviceProvider = services.BuildServiceProvider();
 
-        var settings = serviceProvider.GetRequiredService<IOptionsMonitor<SimpleKeyValueSettings>>().Get("DomainMapping");
+        var settings = serviceProvider.GetRequiredService<IOptionsMonitor<SimpleKeyValueSettings>>()
+            .Get("DomainMapping");
 
         var mockSettings = _fixture.Freeze<Mock<IOptionsMonitor<SimpleKeyValueSettings>>>();
         mockSettings.Setup(m => m.Get("DomainMapping")).Returns(settings).Verifiable();
@@ -139,13 +142,13 @@ public class ClaimsProfileTests
 
         var identity = new ClaimsIdentity(
         [
-            new Claim(IdentityModel.Claims.ClaimTypes.Culture, "fr-BE"),
-            new Claim(IdentityModel.Claims.ClaimTypes.Name, "Flisch"),
-            new Claim(IdentityModel.Claims.ClaimTypes.GivenName, "Gilles"),
-            new Claim(IdentityModel.Claims.ClaimTypes.Email, "info@arc4u.net"),
-            new Claim(IdentityModel.Claims.ClaimTypes.Upn, "info@arc4u.net"),
-            new Claim(IdentityModel.Claims.ClaimTypes.Company, "Arc4u"),
-            new Claim(IdentityModel.Claims.ClaimTypes.Sid, Guid.NewGuid().ToS19())
+            new Claim(ClaimTypes.Culture, "fr-BE"),
+            new Claim(ClaimTypes.Name, "Flisch"),
+            new Claim(ClaimTypes.GivenName, "Gilles"),
+            new Claim(ClaimTypes.Email, "info@arc4u.net"),
+            new Claim(ClaimTypes.Upn, "info@arc4u.net"),
+            new Claim(ClaimTypes.Company, "Arc4u"),
+            new Claim(ClaimTypes.Sid, Guid.NewGuid().ToS19())
         ], "TestType");
 
         var sut = profileFiller.GetProfile(identity);

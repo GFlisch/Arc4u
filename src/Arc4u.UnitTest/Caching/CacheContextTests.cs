@@ -1,6 +1,7 @@
 using System.Globalization;
 using Arc4u.Caching;
 using Arc4u.Caching.Memory;
+using Arc4u.Configuration;
 using Arc4u.Configuration.Dapr;
 using Arc4u.Configuration.Memory;
 using Arc4u.Configuration.Redis;
@@ -22,39 +23,39 @@ namespace Arc4u.UnitTest;
 [Trait("Category", "CI")]
 public class CacheContextTests
 {
+    private readonly Fixture _fixture;
+
     public CacheContextTests()
     {
         _fixture = new Fixture();
         _fixture.Customize(new AutoMoqCustomization());
     }
 
-    private readonly Fixture _fixture;
-
     [Fact]
     public void ConfigSettingsShouldBe()
     {
-        var cache = new Configuration.Caching
-        {
-            Default = "Volatile"
-        };
+        var cache = new Configuration.Caching { Default = "Volatile" };
 
-        cache.Caches.Add(new Configuration.CachingCache { IsAutoStart = true, Kind = "Memory", Name = "Volatile" });
+        cache.Caches.Add(new CachingCache { IsAutoStart = true, Kind = "Memory", Name = "Volatile" });
 
-        var memorySettings = _fixture.Build<MemoryCacheOption>().With(m => m.CompactionPercentage, 0.8).Create(); ;
+        var memorySettings = _fixture.Build<MemoryCacheOption>().With(m => m.CompactionPercentage, 0.8).Create();
+        ;
 
         var config = new ConfigurationBuilder()
-                     .AddInMemoryCollection(
-                         new Dictionary<string, string?>
-                         {
-                             ["Caching:Default"] = cache.Default,
-                             ["Caching:Caches:0:Name"] = cache.Caches[0].Name,
-                             ["Caching:Caches:0:Kind"] = cache.Caches[0].Kind,
-                             ["Caching:Caches:0:IsAutoStart"] = cache.Caches[0].IsAutoStart.ToString(),
-                             ["Caching:Caches:0:Settings"] = cache.Caches[0].IsAutoStart.ToString(),
-                             ["Caching:Caches:0:Settings:SizeLimitInMB"] = memorySettings.SizeLimitInMB.ToString(CultureInfo.InvariantCulture),
-                             ["Caching:Caches:0:Settings:CompactionPercentage"] = memorySettings.CompactionPercentage.ToString(CultureInfo.InvariantCulture),
-                             ["Caching:Caches:0:Settings:SerializerName"] = memorySettings.SerializerName,
-                         }).Build();
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["Caching:Default"] = cache.Default,
+                    ["Caching:Caches:0:Name"] = cache.Caches[0].Name,
+                    ["Caching:Caches:0:Kind"] = cache.Caches[0].Kind,
+                    ["Caching:Caches:0:IsAutoStart"] = cache.Caches[0].IsAutoStart.ToString(),
+                    ["Caching:Caches:0:Settings"] = cache.Caches[0].IsAutoStart.ToString(),
+                    ["Caching:Caches:0:Settings:SizeLimitInMB"] =
+                        memorySettings.SizeLimitInMB.ToString(CultureInfo.InvariantCulture),
+                    ["Caching:Caches:0:Settings:CompactionPercentage"] =
+                        memorySettings.CompactionPercentage.ToString(CultureInfo.InvariantCulture),
+                    ["Caching:Caches:0:Settings:SerializerName"] = memorySettings.SerializerName
+                }).Build();
 
         var configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -83,15 +84,12 @@ public class CacheContextTests
     public void RegisterOptionSettingsShould()
     {
         // arrange
-        var cache = new Configuration.Caching
-        {
-            Default = "Volatile"
-        };
+        var cache = new Configuration.Caching { Default = "Volatile" };
 
-        cache.Caches.Add(new Configuration.CachingCache { IsAutoStart = false, Kind = CacheContext.Redis, Name = "Performance" });
-        cache.Caches.Add(new Configuration.CachingCache { IsAutoStart = false, Kind = CacheContext.Sql, Name = "Compromize" });
-        cache.Caches.Add(new Configuration.CachingCache { IsAutoStart = true, Kind = CacheContext.Memory, Name = "Volatile" });
-        cache.Caches.Add(new Configuration.CachingCache { IsAutoStart = false, Kind = CacheContext.Dapr, Name = "Diversisty" });
+        cache.Caches.Add(new CachingCache { IsAutoStart = false, Kind = CacheContext.Redis, Name = "Performance" });
+        cache.Caches.Add(new CachingCache { IsAutoStart = false, Kind = CacheContext.Sql, Name = "Compromize" });
+        cache.Caches.Add(new CachingCache { IsAutoStart = true, Kind = CacheContext.Memory, Name = "Volatile" });
+        cache.Caches.Add(new CachingCache { IsAutoStart = false, Kind = CacheContext.Dapr, Name = "Diversisty" });
 
         var memorySettings = _fixture.Build<MemoryCacheOption>().With(m => m.CompactionPercentage, 0.2).Create();
         var redisSettings = _fixture.Create<RedisCacheOption>();
@@ -101,39 +99,36 @@ public class CacheContextTests
         IServiceCollection services = new ServiceCollection();
 
         var config = new ConfigurationBuilder()
-             .AddInMemoryCollection(
-                 new Dictionary<string, string?>
-                 {
-                     ["Caching:Default"] = cache.Default,
-
-                     ["Caching:Caches:0:Name"] = cache.Caches[0].Name,
-                     ["Caching:Caches:0:Kind"] = cache.Caches[0].Kind,
-                     ["Caching:Caches:0:IsAutoStart"] = cache.Caches[0].IsAutoStart.ToString(),
-                     ["Caching:Caches:0:Settings:ConnectionString"] = redisSettings.ConnectionString,
-                     ["Caching:Caches:0:Settings:InstanceName"] = redisSettings.InstanceName,
-                     ["Caching:Caches:0:Settings:SerializerName"] = redisSettings.SerializerName,
-
-                     ["Caching:Caches:1:Name"] = cache.Caches[1].Name,
-                     ["Caching:Caches:1:Kind"] = cache.Caches[1].Kind,
-                     ["Caching:Caches:1:IsAutoStart"] = cache.Caches[1].IsAutoStart.ToString(),
-                     ["Caching:Caches:1:Settings:SchemaName"] = sqlSettings.SchemaName,
-                     ["Caching:Caches:1:Settings:TableName"] = sqlSettings.TableName,
-                     ["Caching:Caches:1:Settings:ConnectionString"] = sqlSettings.ConnectionString,
-                     ["Caching:Caches:1:Settings:SerializerName"] = sqlSettings.SerializerName,
-
-                     ["Caching:Caches:2:Name"] = cache.Caches[2].Name,
-                     ["Caching:Caches:2:Kind"] = cache.Caches[2].Kind,
-                     ["Caching:Caches:2:IsAutoStart"] = cache.Caches[2].IsAutoStart.ToString(),
-                     ["Caching:Caches:2:Settings:SizeLimitInMB"] = memorySettings.SizeLimitInMB.ToString(CultureInfo.InvariantCulture),
-                     ["Caching:Caches:2:Settings:CompactionPercentage"] = memorySettings.CompactionPercentage.ToString(CultureInfo.InvariantCulture),
-                     ["Caching:Caches:2:Settings:SerializerName"] = memorySettings.SerializerName,
-
-                     ["Caching:Caches:3:Name"] = cache.Caches[3].Name,
-                     ["Caching:Caches:3:Kind"] = cache.Caches[3].Kind,
-                     ["Caching:Caches:3:Settings:Name"] = daprSettings.Name,
-                     ["Caching:Caches:3:IsAutoStart"] = cache.Caches[3].IsAutoStart.ToString(),
-
-                 }).Build();
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["Caching:Default"] = cache.Default,
+                    ["Caching:Caches:0:Name"] = cache.Caches[0].Name,
+                    ["Caching:Caches:0:Kind"] = cache.Caches[0].Kind,
+                    ["Caching:Caches:0:IsAutoStart"] = cache.Caches[0].IsAutoStart.ToString(),
+                    ["Caching:Caches:0:Settings:ConnectionString"] = redisSettings.ConnectionString,
+                    ["Caching:Caches:0:Settings:InstanceName"] = redisSettings.InstanceName,
+                    ["Caching:Caches:0:Settings:SerializerName"] = redisSettings.SerializerName,
+                    ["Caching:Caches:1:Name"] = cache.Caches[1].Name,
+                    ["Caching:Caches:1:Kind"] = cache.Caches[1].Kind,
+                    ["Caching:Caches:1:IsAutoStart"] = cache.Caches[1].IsAutoStart.ToString(),
+                    ["Caching:Caches:1:Settings:SchemaName"] = sqlSettings.SchemaName,
+                    ["Caching:Caches:1:Settings:TableName"] = sqlSettings.TableName,
+                    ["Caching:Caches:1:Settings:ConnectionString"] = sqlSettings.ConnectionString,
+                    ["Caching:Caches:1:Settings:SerializerName"] = sqlSettings.SerializerName,
+                    ["Caching:Caches:2:Name"] = cache.Caches[2].Name,
+                    ["Caching:Caches:2:Kind"] = cache.Caches[2].Kind,
+                    ["Caching:Caches:2:IsAutoStart"] = cache.Caches[2].IsAutoStart.ToString(),
+                    ["Caching:Caches:2:Settings:SizeLimitInMB"] =
+                        memorySettings.SizeLimitInMB.ToString(CultureInfo.InvariantCulture),
+                    ["Caching:Caches:2:Settings:CompactionPercentage"] =
+                        memorySettings.CompactionPercentage.ToString(CultureInfo.InvariantCulture),
+                    ["Caching:Caches:2:Settings:SerializerName"] = memorySettings.SerializerName,
+                    ["Caching:Caches:3:Name"] = cache.Caches[3].Name,
+                    ["Caching:Caches:3:Kind"] = cache.Caches[3].Kind,
+                    ["Caching:Caches:3:Settings:Name"] = daprSettings.Name,
+                    ["Caching:Caches:3:IsAutoStart"] = cache.Caches[3].IsAutoStart.ToString()
+                }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -167,35 +162,32 @@ public class CacheContextTests
         // dapr
         sutDapr.Should().NotBeNull();
         sutDapr!.Name.Should().Be(daprSettings.Name);
-
     }
 
     [Fact]
     public void InitializeAndUseOfMemoryShould()
     {
-        var cache = new Configuration.Caching
-        {
-            Default = "Volatile"
-        };
+        var cache = new Configuration.Caching { Default = "Volatile" };
 
-        cache.Caches.Add(new Configuration.CachingCache { IsAutoStart = true, Kind = CacheContext.Memory, Name = "Volatile" });
+        cache.Caches.Add(new CachingCache { IsAutoStart = true, Kind = CacheContext.Memory, Name = "Volatile" });
 
         var memorySettings = new MemoryCacheOption { SizeLimitInMB = 10 };
 
         IServiceCollection services = new ServiceCollection();
 
         var config = new ConfigurationBuilder()
-             .AddInMemoryCollection(
-                 new Dictionary<string, string?>
-                 {
-                     ["Caching:Default"] = cache.Default,
-                     ["Caching:Caches:0:Name"] = cache.Caches[0].Name,
-                     ["Caching:Caches:0:Kind"] = cache.Caches[0].Kind,
-                     ["Caching:Caches:0:IsAutoStart"] = cache.Caches[0].IsAutoStart.ToString(),
-                     ["Caching:Caches:0:Settings:SizeLimitInMB"] = memorySettings.SizeLimitInMB.ToString(CultureInfo.InvariantCulture),
-                     ["Caching:Caches:0:Settings:CompactionPercentage"] = memorySettings.CompactionPercentage.ToString(CultureInfo.InvariantCulture),
-
-                 }).Build();
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["Caching:Default"] = cache.Default,
+                    ["Caching:Caches:0:Name"] = cache.Caches[0].Name,
+                    ["Caching:Caches:0:Kind"] = cache.Caches[0].Kind,
+                    ["Caching:Caches:0:IsAutoStart"] = cache.Caches[0].IsAutoStart.ToString(),
+                    ["Caching:Caches:0:Settings:SizeLimitInMB"] =
+                        memorySettings.SizeLimitInMB.ToString(CultureInfo.InvariantCulture),
+                    ["Caching:Caches:0:Settings:CompactionPercentage"] =
+                        memorySettings.CompactionPercentage.ToString(CultureInfo.InvariantCulture)
+                }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -205,20 +197,21 @@ public class CacheContextTests
 
         var mockLoggerWrapper = new Mock<ILoggerWrapper<CacheContext>>();
         mockLoggerWrapper.Setup(m => m.SetContext(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Type?>()))
-                         .Returns(mockLoggerWrapper.Object);
+            .Returns(mockLoggerWrapper.Object);
 
         var mockLoggerObject = mockLoggerWrapper.As<ILogger<CacheContext>>().Object;
 
         var mockLoggerWrapperMemoryCache = new Mock<ILoggerWrapper<MemoryCache>>();
         mockLoggerWrapperMemoryCache.Setup(m => m.SetContext(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Type?>()))
-                          .Returns(mockLoggerWrapperMemoryCache.Object);
+            .Returns(mockLoggerWrapperMemoryCache.Object);
 
         services.AddTransient<ILogger<MemoryCache>>(_ => mockLoggerWrapperMemoryCache.Object);
 
         var serviceProvider = services.BuildServiceProvider();
 
         var mockIOptions = _fixture.Freeze<Mock<IOptionsMonitor<MemoryCacheOption>>>();
-        mockIOptions.Setup(m => m.Get("Volatile")).Returns(serviceProvider.GetService<IOptionsMonitor<MemoryCacheOption>>()!.Get("Volatile"));
+        mockIOptions.Setup(m => m.Get("Volatile"))
+            .Returns(serviceProvider.GetService<IOptionsMonitor<MemoryCacheOption>>()!.Get("Volatile"));
 
         _fixture.Inject<ILogger<CacheContext>>(mockLoggerObject);
         _fixture.Inject(configuration);
@@ -231,7 +224,5 @@ public class CacheContextTests
         cacheInstance.Put("key", "value");
 
         cacheInstance.Get<string>("key").Should().Be("value");
-
     }
-
 }

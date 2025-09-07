@@ -11,7 +11,7 @@ using Xunit;
 namespace Arc4u.UnitTest.Logging;
 
 [Trait("Category", "CI")]
-public class CategorySerilogTesters 
+public class CategorySerilogTesters
 {
     [Fact]
     public void LoggerTechnicalTest()
@@ -21,11 +21,11 @@ public class CategorySerilogTesters
         var sink = new SinkTest();
 
         var serilog = new LoggerConfiguration()
-                             .WriteTo.Sink(sink)
-                             .MinimumLevel.Debug()
-                             .CreateLogger();
+            .WriteTo.Sink(sink)
+            .MinimumLevel.Debug()
+            .CreateLogger();
 
-        services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(logger: serilog, dispose: false));
+        services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(serilog, false));
         services.AddILogger();
 
         var serviceProvider = services.BuildServiceProvider();
@@ -53,10 +53,10 @@ public class CategorySerilogTesters
         var sink = new SinkTest();
 
         var serilog = new LoggerConfiguration()
-                             .WriteTo.Sink(sink)
-                             .CreateLogger();
+            .WriteTo.Sink(sink)
+            .CreateLogger();
 
-        services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(logger: serilog, dispose: false));
+        services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(serilog, false));
         services.AddILogger();
 
         var serviceProvider = services.BuildServiceProvider();
@@ -68,10 +68,7 @@ public class CategorySerilogTesters
         Assert.True(sink.Emited);
         sink.Emited = false;
 
-        using var monitoring = new SystemResources(logger, 1)
-        {
-            StartMonitoringDelayInSeconds = 1
-        };
+        using var monitoring = new SystemResources(logger, 1) { StartMonitoringDelayInSeconds = 1 };
 
         await monitoring.StartAsync(new CancellationToken());
 
@@ -94,7 +91,7 @@ public class LoggerCategorySinkTest : SerilogWriter
         Sink = new SinkTest();
         FromTest = new FromSinkTest();
 
-        configurator.WriteTo.CategoryFilter(Diagnostics.MessageCategory.Business | Diagnostics.MessageCategory.Monitoring, Sink);
+        configurator.WriteTo.CategoryFilter(MessageCategory.Business | MessageCategory.Monitoring, Sink);
         configurator.WriteTo.Sink(FromTest);
     }
 }

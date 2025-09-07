@@ -55,7 +55,8 @@ public class GenerateRegisteredTypesTests
 
         // To run generators, we can use an empty compilation.
         // I have to create a Compiler with Assemblies to test the GenerateRegisteredTypes
-        var compilation = CSharpCompilation.Create(nameof(GenerateRegisteredTypes), [dummySyntaxTree], references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+        var compilation =
+ CSharpCompilation.Create(nameof(GenerateRegisteredTypes), [dummySyntaxTree], references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 
         // Run generators. Don't forget to use the new compilation rather than the previous one.
         driver.RunGeneratorsAndUpdateCompilation(compilation, out var newCompilation, out _);
@@ -76,4 +77,3 @@ public class GenerateRegisteredTypesTests
     }
 }
 #endif
-

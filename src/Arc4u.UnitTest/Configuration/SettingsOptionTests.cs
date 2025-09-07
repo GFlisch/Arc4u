@@ -13,16 +13,8 @@ namespace Arc4u.UnitTest;
 [Trait("Category", "CI")]
 public class SettingsOptionTests
 {
-    public SettingsOptionTests()
-    {
-        _fixture = new Fixture();
-        _fixture.Customize(new AutoMoqCustomization());
-    }
-
-    private readonly Fixture _fixture;
-
     /// <summary>
-    /// This simulates a configuration section with some non-string values
+    ///     This simulates a configuration section with some non-string values
     /// </summary>
     private const string _json = @"{
     ""OAuth2.Settings"": {
@@ -32,6 +24,14 @@ public class SettingsOptionTests
         ""Complex"": [1, 2, 3]
         }
 }";
+
+    private readonly Fixture _fixture;
+
+    public SettingsOptionTests()
+    {
+        _fixture = new Fixture();
+        _fixture.Customize(new AutoMoqCustomization());
+    }
 
     [Fact]
     public void SimpleKeyValueShould()
@@ -66,7 +66,6 @@ public class SettingsOptionTests
         sut.Values["AuthenticationType"].Should().Be("OAuth2Bearer");
         sut.Values["Object"].Should().Be("True");
         sut.Values["Complex"].Should().BeNull();
-
     }
 
     [Fact]
@@ -76,15 +75,14 @@ public class SettingsOptionTests
         IServiceCollection services = new ServiceCollection();
 
         var config = new ConfigurationBuilder()
-             .AddInMemoryCollection(
-                 new Dictionary<string, string?>
-                 {
-                     ["Application.Configuration:ApplicationName"] = "Arc4u.UnitTest",
-                     ["Application.Configuration:Environment:Name"] = "Development",
-                     ["Application.Configuration:Environment:LoggingName"] = "Arc4u.UnitTest",
-                     ["Application.Configuration:Environment:TimeZone"] = "Romance Standard Time"
-
-                 }).Build();
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["Application.Configuration:ApplicationName"] = "Arc4u.UnitTest",
+                    ["Application.Configuration:Environment:Name"] = "Development",
+                    ["Application.Configuration:Environment:LoggingName"] = "Arc4u.UnitTest",
+                    ["Application.Configuration:Environment:TimeZone"] = "Romance Standard Time"
+                }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 

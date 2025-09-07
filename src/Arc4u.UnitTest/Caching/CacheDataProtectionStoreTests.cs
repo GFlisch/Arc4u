@@ -25,13 +25,13 @@ namespace Arc4u.UnitTest.Caching;
 #pragma warning disable CS0618
 public class CacheDataProtectionStoreTests
 {
+    private readonly Fixture _fixture;
+
     public CacheDataProtectionStoreTests()
     {
         _fixture = new Fixture();
         _fixture.Customize(new AutoMoqCustomization());
     }
-
-    private readonly Fixture _fixture;
 
     [Fact]
     public void CheckMemoryStoreShould()
@@ -66,7 +66,7 @@ public class CacheDataProtectionStoreTests
 
         var mockLoggerWrapperCacheStore = new Mock<ILoggerWrapper<CacheStore>>();
         mockLoggerWrapperCacheStore.Setup(m => m.SetContext(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Type?>()))
-                                     .Returns(mockLoggerWrapperCacheStore.Object);
+            .Returns(mockLoggerWrapperCacheStore.Object);
 
         var mockLoggerCacheStore = mockLoggerWrapperCacheStore.As<ILogger<CacheStore>>();
 
@@ -79,7 +79,7 @@ public class CacheDataProtectionStoreTests
         var sut = new CacheStore(cacheContext, mockLoggerFactory.Object, serializer, "DataProtection", "Volatile");
 
         var element = new XElement("Data", new XAttribute("CreationDate", DateTime.UtcNow),
-                            new XElement("Cert", "Begin Certficate"));
+            new XElement("Cert", "Begin Certficate"));
 
         sut.StoreElement(element, "");
 
@@ -87,7 +87,6 @@ public class CacheDataProtectionStoreTests
 
         result.Count.Should().Be(1);
         result.First().Name.LocalName.Should().Be("Data");
-
     }
 
     [Fact]
@@ -101,7 +100,7 @@ public class CacheDataProtectionStoreTests
 
         var mockLoggerWrapperCacheStore = new Mock<ILoggerWrapper<CacheStore>>();
         mockLoggerWrapperCacheStore.Setup(m => m.SetContext(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Type?>()))
-                                     .Returns(mockLoggerWrapperCacheStore.Object);
+            .Returns(mockLoggerWrapperCacheStore.Object);
 
         var mockLoggerCacheStore = mockLoggerWrapperCacheStore.As<ILogger<CacheStore>>();
 
@@ -114,7 +113,7 @@ public class CacheDataProtectionStoreTests
         var sut = new CacheStore(cacheContext, mockLoggerFactory.Object, serializer, "DataProtection");
 
         var element = new XElement("Data", new XAttribute("CreationDate", DateTime.UtcNow),
-                            new XElement("Cert", "Begin Certficate"));
+            new XElement("Cert", "Begin Certficate"));
 
         sut.StoreElement(element, "");
 
@@ -122,7 +121,6 @@ public class CacheDataProtectionStoreTests
 
         result.Count.Should().Be(1);
         result.First().Name.LocalName.Should().Be("Data");
-
     }
 
     [Fact]
@@ -138,7 +136,8 @@ public class CacheDataProtectionStoreTests
         var serializer = container.GetRequiredService<IObjectSerialization>();
 
         // act
-        var exception = Record.Exception(() => new CacheStore(cacheContext, container.GetRequiredService<ILoggerFactory>(), serializer, default!));
+        var exception = Record.Exception(() =>
+            new CacheStore(cacheContext, container.GetRequiredService<ILoggerFactory>(), serializer, default!));
 
         // assert
         exception.Should().NotBeNull();
@@ -146,8 +145,8 @@ public class CacheDataProtectionStoreTests
     }
 
     /// <summary>
-    /// End to end test!
-    /// Use the complete process to store key in the CacheStore, via a MemoryCache
+    ///     End to end test!
+    ///     Use the complete process to store key in the CacheStore, via a MemoryCache
     /// </summary>
     [Fact]
     public void CacheExtensionFromConfigShould()
@@ -173,7 +172,7 @@ public class CacheDataProtectionStoreTests
         options.XmlRepository.Should().NotBeNull();
 
         var element = new XElement("Data", new XAttribute("CreationDate", DateTime.UtcNow),
-                            new XElement("Cert", "Begin Certficate"));
+            new XElement("Cert", "Begin Certficate"));
 
         options.XmlRepository!.StoreElement(element, "");
 
@@ -181,7 +180,6 @@ public class CacheDataProtectionStoreTests
 
         result.Count.Should().Be(1);
         result.First().Name.LocalName.Should().Be("Data");
-
     }
 
     [Fact]
@@ -190,13 +188,11 @@ public class CacheDataProtectionStoreTests
         IServiceCollection services = new ServiceCollection();
 
         var config = new ConfigurationBuilder()
-        .AddInMemoryCollection(
-         new Dictionary<string, string?>
-         {
-             ["DataProtectionStore:CacheKey"] = "Key-",
-             ["DataProtectionStore:CacheName"] = "Volatile"
-
-         }).Build();
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["DataProtectionStore:CacheKey"] = "Key-", ["DataProtectionStore:CacheName"] = "Volatile"
+                }).Build();
 
         IConfiguration configuration = new ConfigurationRoot([.. config.Providers]);
 
@@ -215,13 +211,11 @@ public class CacheDataProtectionStoreTests
         IServiceCollection services = new ServiceCollection();
 
         var config = new ConfigurationBuilder()
-        .AddInMemoryCollection(
-         new Dictionary<string, string?>
-         {
-             ["DataProtectionStore:Key"] = "Key-",
-             ["DataProtectionStore:Name"] = "Volatile"
-
-         }).Build();
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["DataProtectionStore:Key"] = "Key-", ["DataProtectionStore:Name"] = "Volatile"
+                }).Build();
 
         IConfiguration configuration = new ConfigurationRoot([.. config.Providers]);
 
@@ -240,12 +234,8 @@ public class CacheDataProtectionStoreTests
         IServiceCollection services = new ServiceCollection();
 
         var config = new ConfigurationBuilder()
-        .AddInMemoryCollection(
-         new Dictionary<string, string?>
-         {
-             ["DataProtectionStore:CacheName"] = "Volatile"
-
-         }).Build();
+            .AddInMemoryCollection(
+                new Dictionary<string, string?> { ["DataProtectionStore:CacheName"] = "Volatile" }).Build();
 
         IConfiguration configuration = new ConfigurationRoot([.. config.Providers]);
 
@@ -263,23 +253,20 @@ public class CacheDataProtectionStoreTests
         IServiceCollection services = new ServiceCollection();
 
         var config = new ConfigurationBuilder()
-        .AddInMemoryCollection(
-         new Dictionary<string, string?>
-         {
-             ["Caching:Default"] = "Volatile",
-             ["Caching:Principal:CacheName"] = "Volatile",
-             ["Caching:Principal:Duration"] = TimeSpan.FromSeconds(10).ToString(),
-             ["Caching:Principal:IsEnabled"] = "True",
-
-             ["Caching:Caches:0:Name"] = "Volatile",
-             ["Caching:Caches:0:Kind"] = CacheContext.Memory,
-             ["Caching:Caches:0:IsAutoStart"] = "True",
-             ["Caching:Caches:0:Settings:SizeLimitInMB"] = "10",
-
-             ["DataProtectionStore:CacheKey"] = "Key-",
-             ["DataProtectionStore:CacheName"] = "Volatile"
-
-         }).Build();
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["Caching:Default"] = "Volatile",
+                    ["Caching:Principal:CacheName"] = "Volatile",
+                    ["Caching:Principal:Duration"] = TimeSpan.FromSeconds(10).ToString(),
+                    ["Caching:Principal:IsEnabled"] = "True",
+                    ["Caching:Caches:0:Name"] = "Volatile",
+                    ["Caching:Caches:0:Kind"] = CacheContext.Memory,
+                    ["Caching:Caches:0:IsAutoStart"] = "True",
+                    ["Caching:Caches:0:Settings:SizeLimitInMB"] = "10",
+                    ["DataProtectionStore:CacheKey"] = "Key-",
+                    ["DataProtectionStore:CacheName"] = "Volatile"
+                }).Build();
 
         IConfiguration configuration = new ConfigurationRoot([.. config.Providers]);
 

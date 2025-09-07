@@ -1,6 +1,5 @@
 using Arc4u.AspNetCore.Results;
 using Arc4u.Results;
-using Arc4u.Results.Validation;
 using Arc4u.Validation;
 using AutoFixture;
 using AutoFixture.AutoMoq;
@@ -16,13 +15,13 @@ namespace Arc4u.UnitTest.ProblemDetail;
 [Trait("Category", "CI")]
 public class ProblemDetailsWithTypedResultTests
 {
+    private readonly Fixture _fixture;
+
     public ProblemDetailsWithTypedResultTests()
     {
         _fixture = new Fixture();
         _fixture.Customize(new AutoMoqCustomization());
     }
-
-    readonly Fixture _fixture;
 
     #region ValueTask
 
@@ -35,11 +34,11 @@ public class ProblemDetailsWithTypedResultTests
 
         var result = Result.Ok(value);
 
-        Func<ValueTask<Result<string>>> valueTask = () => ValueTask.FromResult(result);
+        var valueTask = () => ValueTask.FromResult(result);
 
         // act
         var sut = await valueTask()
-                            .ToTypedCreatedResultAsync(uri, (v) => $"{v} Arc4u");
+            .ToTypedCreatedResultAsync(uri, v => $"{v} Arc4u");
 
         // assert
         sut.Should().NotBeNull();
@@ -60,12 +59,12 @@ public class ProblemDetailsWithTypedResultTests
 
         var result = Result.Ok<string?>(value);
 
-        Func<ValueTask<Result<string?>>> valueTask = () => ValueTask.FromResult(result);
+        var valueTask = () => ValueTask.FromResult(result);
 
         // act
         var sut = await valueTask()
-                        .OnSuccessNotNull((v) => uri = okUri)
-                        .ToTypedCreatedResultAsync(uri, (v) => $"{v} Arc4u");
+            .OnSuccessNotNull(v => uri = okUri)
+            .ToTypedCreatedResultAsync(uri, v => $"{v} Arc4u");
 
         // assert
         sut.Should().NotBeNull();
@@ -85,11 +84,11 @@ public class ProblemDetailsWithTypedResultTests
 
         var result = Result.Ok(value);
 
-        Func<ValueTask<Result<string>>> valueTask = () => ValueTask.FromResult(result);
+        var valueTask = () => ValueTask.FromResult(result);
 
         // act
         var sut = await valueTask()
-                          .ToTypedCreatedResultAsync(uri, (v) => $"{v} Arc4u");
+            .ToTypedCreatedResultAsync(uri, v => $"{v} Arc4u");
 
         // assert
         sut.Should().NotBeNull();
@@ -108,18 +107,17 @@ public class ProblemDetailsWithTypedResultTests
 
         var result = Result.Ok(value);
 
-        Func<ValueTask<Result<string>>> valueTask = () => ValueTask.FromResult(result);
+        var valueTask = () => ValueTask.FromResult(result);
 
         // act
         var sut = await valueTask()
-                          .ToTypedOkResultAsync((v) => $"{v} Arc4u");
+            .ToTypedOkResultAsync(v => $"{v} Arc4u");
 
         // assert
         sut.Should().NotBeNull();
         sut.Should().BeOfType<Results<Ok<string>, ProblemHttpResult, ValidationProblem>>();
         var okResult = (Ok<string>)sut.Result;
         okResult!.Value.Should().Be($"{value} Arc4u");
-
     }
 
     [Fact]
@@ -130,11 +128,11 @@ public class ProblemDetailsWithTypedResultTests
 
         var result = Result.Ok<string>(default!);
 
-        Func<ValueTask<Result<string>>> valueTask = () => ValueTask.FromResult(result);
+        var valueTask = () => ValueTask.FromResult(result);
 
         // act
         var sut = await valueTask()
-                          .ToTypedOkResultAsync((v) => $"{v} Arc4u");
+            .ToTypedOkResultAsync(v => $"{v} Arc4u");
 
         // assert
         sut.Should().NotBeNull();
@@ -150,11 +148,11 @@ public class ProblemDetailsWithTypedResultTests
 
         var result = Result.Fail<string>(value);
 
-        Func<ValueTask<Result<string>>> valueTask = () => ValueTask.FromResult(result);
+        var valueTask = () => ValueTask.FromResult(result);
 
         // act
         var sut = await valueTask()
-                          .ToTypedOkResultAsync((v) => $"{v} Arc4u");
+            .ToTypedOkResultAsync(v => $"{v} Arc4u");
 
         // assert
         sut.Should().NotBeNull();
@@ -176,11 +174,11 @@ public class ProblemDetailsWithTypedResultTests
         var error = new Error(msg2).WithMetadata("Code", "100");
         var result = Result.Fail<string>(msg1).WithError(error);
 
-        Func<ValueTask<Result<string>>> valueTask = () => ValueTask.FromResult(result);
+        var valueTask = () => ValueTask.FromResult(result);
 
         // act
         var sut = await valueTask()
-                          .ToTypedOkResultAsync((v) => $"{v} Arc4u");
+            .ToTypedOkResultAsync(v => $"{v} Arc4u");
 
         // assert
         sut.Should().NotBeNull();
@@ -209,7 +207,7 @@ public class ProblemDetailsWithTypedResultTests
         var validation = new ValidatorExample();
         var result = validation.ValidateWithResult(value);
 
-        Func<ValueTask<Result<string>>> valueTask = () => ValueTask.FromResult(result);
+        var valueTask = () => ValueTask.FromResult(result);
 
         // act
         var sut = await valueTask().ToTypedOkResultAsync();
@@ -225,7 +223,6 @@ public class ProblemDetailsWithTypedResultTests
         problem.Errors.First().Key.Should().Be("Error");
         problem.Errors.First().Value[0].Should().Be("Problem");
         problem.Status.Should().Be(StatusCodes.Status422UnprocessableEntity);
-
     }
 
     [Fact]
@@ -236,11 +233,11 @@ public class ProblemDetailsWithTypedResultTests
 
         var result = Result.Ok(value);
 
-        Func<ValueTask<Result<string>>> valueTask = () => ValueTask.FromResult(result);
+        var valueTask = () => ValueTask.FromResult(result);
 
         // act
         var sut = await valueTask()
-                          .ToTypedOkResultAsync();
+            .ToTypedOkResultAsync();
 
         // assert
         sut.Should().NotBeNull();
@@ -257,11 +254,11 @@ public class ProblemDetailsWithTypedResultTests
 
         var result = Result.Fail<string>(value);
 
-        Func<ValueTask<Result<string>>> valueTask = () => ValueTask.FromResult(result);
+        var valueTask = () => ValueTask.FromResult(result);
 
         // act
         var sut = await valueTask()
-                          .ToTypedOkResultAsync();
+            .ToTypedOkResultAsync();
 
         // assert
         sut.Should().NotBeNull();
@@ -280,17 +277,18 @@ public class ProblemDetailsWithTypedResultTests
         // arrange
         var result = Result.Ok();
 
-        Func<ValueTask<Result>> valueTask = () => ValueTask.FromResult(result);
+        var valueTask = () => ValueTask.FromResult(result);
 
         // act
         var sut = await valueTask()
-                          .ToTypedOkResultAsync();
+            .ToTypedOkResultAsync();
 
         // assert
         sut.Should().NotBeNull();
         sut.Should().BeOfType<Results<NoContent, ProblemHttpResult, ValidationProblem>>();
         sut.Result.Should().BeOfType<NoContent>();
     }
+
     #endregion
 
     #region Task
@@ -304,11 +302,11 @@ public class ProblemDetailsWithTypedResultTests
 
         var result = Result.Ok(value);
 
-        Func<ValueTask<Result<string>>> task = () => ValueTask.FromResult(result);
+        var task = () => ValueTask.FromResult(result);
 
         // act
         var sut = await task()
-                            .ToTypedCreatedResultAsync(uri, (v) => $"{v} Arc4u");
+            .ToTypedCreatedResultAsync(uri, v => $"{v} Arc4u");
 
         // assert
         sut.Should().NotBeNull();
@@ -329,12 +327,12 @@ public class ProblemDetailsWithTypedResultTests
 
         var result = Result.Ok<string?>(value);
 
-        Func<ValueTask<Result<string?>>> task = () => ValueTask.FromResult(result);
+        var task = () => ValueTask.FromResult(result);
 
         // act
         var sut = await task()
-                        .OnSuccessNotNull((v) => uri = okUri)
-                        .ToTypedCreatedResultAsync(uri, (v) => $"{v} Arc4u");
+            .OnSuccessNotNull(v => uri = okUri)
+            .ToTypedCreatedResultAsync(uri, v => $"{v} Arc4u");
 
         // assert
         sut.Should().NotBeNull();
@@ -354,11 +352,11 @@ public class ProblemDetailsWithTypedResultTests
 
         var result = Result.Ok(value);
 
-        Func<ValueTask<Result<string>>> task = () => ValueTask.FromResult(result);
+        var task = () => ValueTask.FromResult(result);
 
         // act
         var sut = await task()
-                          .ToTypedCreatedResultAsync(uri, (v) => $"{v} Arc4u");
+            .ToTypedCreatedResultAsync(uri, v => $"{v} Arc4u");
 
         // assert
         sut.Should().NotBeNull();
@@ -377,18 +375,17 @@ public class ProblemDetailsWithTypedResultTests
 
         var result = Result.Ok(value);
 
-        Func<ValueTask<Result<string>>> task = () => ValueTask.FromResult(result);
+        var task = () => ValueTask.FromResult(result);
 
         // act
         var sut = await task()
-                          .ToTypedOkResultAsync((v) => $"{v} Arc4u");
+            .ToTypedOkResultAsync(v => $"{v} Arc4u");
 
         // assert
         sut.Should().NotBeNull();
         sut.Should().BeOfType<Results<Ok<string>, ProblemHttpResult, ValidationProblem>>();
         var okResult = (Ok<string>)sut.Result;
         okResult!.Value.Should().Be($"{value} Arc4u");
-
     }
 
     [Fact]
@@ -399,11 +396,11 @@ public class ProblemDetailsWithTypedResultTests
 
         var result = Result.Ok<string>(default!);
 
-        Func<ValueTask<Result<string>>> task = () => ValueTask.FromResult(result);
+        var task = () => ValueTask.FromResult(result);
 
         // act
         var sut = await task()
-                          .ToTypedOkResultAsync((v) => $"{v} Arc4u");
+            .ToTypedOkResultAsync(v => $"{v} Arc4u");
 
         // assert
         sut.Should().NotBeNull();
@@ -419,11 +416,11 @@ public class ProblemDetailsWithTypedResultTests
 
         var result = Result.Fail<string>(value);
 
-        Func<ValueTask<Result<string>>> task = () => ValueTask.FromResult(result);
+        var task = () => ValueTask.FromResult(result);
 
         // act
         var sut = await task()
-                          .ToTypedOkResultAsync((v) => $"{v} Arc4u");
+            .ToTypedOkResultAsync(v => $"{v} Arc4u");
 
         // assert
         sut.Should().NotBeNull();
@@ -445,11 +442,11 @@ public class ProblemDetailsWithTypedResultTests
         var error = new Error(msg2).WithMetadata("Code", "100");
         var result = Result.Fail<string>(msg1).WithError(error);
 
-        Func<ValueTask<Result<string>>> task = () => ValueTask.FromResult(result);
+        var task = () => ValueTask.FromResult(result);
 
         // act
         var sut = await task()
-                          .ToTypedOkResultAsync((v) => $"{v} Arc4u");
+            .ToTypedOkResultAsync(v => $"{v} Arc4u");
 
         // assert
         sut.Should().NotBeNull();
@@ -478,7 +475,7 @@ public class ProblemDetailsWithTypedResultTests
         var validation = new ValidatorExample();
         var result = validation.ValidateWithResult(value);
 
-        Func<ValueTask<Result<string>>> task = () => ValueTask.FromResult(result);
+        var task = () => ValueTask.FromResult(result);
 
         // act
         var sut = await task().ToTypedOkResultAsync();
@@ -494,7 +491,6 @@ public class ProblemDetailsWithTypedResultTests
         problem.Errors.First().Key.Should().Be("Error");
         problem.Errors.First().Value[0].Should().Be("Problem");
         problem.Status.Should().Be(StatusCodes.Status422UnprocessableEntity);
-
     }
 
     [Fact]
@@ -505,11 +501,11 @@ public class ProblemDetailsWithTypedResultTests
 
         var result = Result.Ok(value);
 
-        Func<ValueTask<Result<string>>> task = () => ValueTask.FromResult(result);
+        var task = () => ValueTask.FromResult(result);
 
         // act
         var sut = await task()
-                          .ToTypedOkResultAsync();
+            .ToTypedOkResultAsync();
 
         // assert
         sut.Should().NotBeNull();
@@ -526,11 +522,11 @@ public class ProblemDetailsWithTypedResultTests
 
         var result = Result.Fail<string>(value);
 
-        Func<ValueTask<Result<string>>> task = () => ValueTask.FromResult(result);
+        var task = () => ValueTask.FromResult(result);
 
         // act
         var sut = await task()
-                          .ToTypedOkResultAsync();
+            .ToTypedOkResultAsync();
 
         // assert
         sut.Should().NotBeNull();
@@ -549,17 +545,18 @@ public class ProblemDetailsWithTypedResultTests
         // arrange
         var result = Result.Ok();
 
-        Func<ValueTask<Result>> task = () => ValueTask.FromResult(result);
+        var task = () => ValueTask.FromResult(result);
 
         // act
         var sut = await task()
-                          .ToTypedOkResultAsync();
+            .ToTypedOkResultAsync();
 
         // assert
         sut.Should().NotBeNull();
         sut.Should().BeOfType<Results<NoContent, ProblemHttpResult, ValidationProblem>>();
         sut.Result.Should().BeOfType<NoContent>();
     }
+
     #endregion
 
     #region Result
@@ -574,7 +571,7 @@ public class ProblemDetailsWithTypedResultTests
         var result = Result.Ok(value);
 
         // act
-        var sut = result.ToTypedCreatedResult(uri, (v) => $"{v} Arc4u");
+        var sut = result.ToTypedCreatedResult(uri, v => $"{v} Arc4u");
 
         // assert
         sut.Should().NotBeNull();
@@ -597,8 +594,8 @@ public class ProblemDetailsWithTypedResultTests
 
         // act
         var sut = result
-                        .OnSuccessNotNull((v) => uri = okUri)
-                        .ToTypedCreatedResult(uri, (v) => $"{v} Arc4u");
+            .OnSuccessNotNull(v => uri = okUri)
+            .ToTypedCreatedResult(uri, v => $"{v} Arc4u");
 
         // assert
         sut.Should().NotBeNull();
@@ -620,7 +617,7 @@ public class ProblemDetailsWithTypedResultTests
 
         // act
         var sut = result
-                          .ToTypedCreatedResult(uri, (v) => $"{v} Arc4u");
+            .ToTypedCreatedResult(uri, v => $"{v} Arc4u");
 
         // assert
         sut.Should().NotBeNull();
@@ -640,14 +637,13 @@ public class ProblemDetailsWithTypedResultTests
         var result = Result.Ok(value);
 
         // act
-        var sut = result.ToTypedOkResult((v) => $"{v} Arc4u");
+        var sut = result.ToTypedOkResult(v => $"{v} Arc4u");
 
         // assert
         sut.Should().NotBeNull();
         sut.Should().BeOfType<Results<Ok<string>, ProblemHttpResult, ValidationProblem>>();
         var okResult = (Ok<string>)sut.Result;
         okResult!.Value.Should().Be($"{value} Arc4u");
-
     }
 
     [Fact]
@@ -659,7 +655,7 @@ public class ProblemDetailsWithTypedResultTests
         var result = Result.Ok<string>(default!);
 
         // act
-        var sut = result.ToTypedOkResult((v) => $"{v} Arc4u");
+        var sut = result.ToTypedOkResult(v => $"{v} Arc4u");
 
         // assert
         sut.Should().NotBeNull();
@@ -676,7 +672,7 @@ public class ProblemDetailsWithTypedResultTests
         var result = Result.Fail<string>(value);
 
         // act
-        var sut = result.ToTypedOkResult((v) => $"{v} Arc4u");
+        var sut = result.ToTypedOkResult(v => $"{v} Arc4u");
 
         // assert
         sut.Should().NotBeNull();
@@ -699,7 +695,7 @@ public class ProblemDetailsWithTypedResultTests
         var result = Result.Fail<string>(msg1).WithError(error);
 
         // act
-        var sut = result.ToTypedOkResult((v) => $"{v} Arc4u");
+        var sut = result.ToTypedOkResult(v => $"{v} Arc4u");
 
         // assert
         sut.Should().NotBeNull();
@@ -742,7 +738,6 @@ public class ProblemDetailsWithTypedResultTests
         problem.Errors.First().Key.Should().Be("Error");
         problem.Errors.First().Value[0].Should().Be("Problem");
         problem.Status.Should().Be(StatusCodes.Status422UnprocessableEntity);
-
     }
 
     [Fact]
@@ -799,5 +794,6 @@ public class ProblemDetailsWithTypedResultTests
         sut.Should().BeOfType<Results<NoContent, ProblemHttpResult, ValidationProblem>>();
         sut.Result.Should().BeOfType<NoContent>();
     }
+
     #endregion
 }

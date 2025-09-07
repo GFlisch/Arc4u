@@ -132,7 +132,8 @@ public class IntervalTests
     [Fact]
     public void Int_Nullable_WithNullValue_IsSingleton()
     {
-        var exception = Record.Exception(() => new Interval<int?>(BoundDirection.Closed, null, null, BoundDirection.Closed));
+        var exception =
+            Record.Exception(() => new Interval<int?>(BoundDirection.Closed, null, null, BoundDirection.Closed));
 
         exception.Should().BeOfType<ArgumentException>("An infinity bound must define an opened direction.");
     }

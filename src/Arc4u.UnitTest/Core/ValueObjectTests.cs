@@ -9,13 +9,13 @@ namespace Arc4u.UnitTest.Core;
 [Trait("Category", "CI")]
 public class ValueObjectTests
 {
+    private readonly Fixture _fixture;
+
     public ValueObjectTests()
     {
         _fixture = new Fixture();
         _fixture.Customize(new AutoMoqCustomization());
     }
-
-    private readonly Fixture _fixture;
 
     [Fact]
     public void Test_Null_Operator_Should()
@@ -67,7 +67,6 @@ public class ValueObjectTests
 
         (o1 != o2).Should().BeFalse();
     }
-
 }
 
 public class SimpleObject : ValueObject

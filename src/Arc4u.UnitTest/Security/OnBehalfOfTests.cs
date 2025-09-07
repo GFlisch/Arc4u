@@ -15,13 +15,13 @@ namespace Arc4u.UnitTest.Security;
 [Trait("Category", "CI")]
 public class OnBehalfOfTests
 {
+    private readonly Fixture _fixture;
+
     public OnBehalfOfTests()
     {
         _fixture = new Fixture();
         _fixture.Customize(new AutoMoqCustomization());
     }
-
-    private readonly Fixture _fixture;
 
     [Fact]
     public void OnBehalfOfAuthenticationOptionsShould()
@@ -31,9 +31,10 @@ public class OnBehalfOfTests
         var configDic = new Dictionary<string, string?>
         {
             ["Authentication:OnBehalfOf:Obo1:ClientId"] = settings.ClientId,
-            ["Authentication:OnBehalfOf:Obo1:ClientSecret"] = settings.ClientSecret,
+            ["Authentication:OnBehalfOf:Obo1:ClientSecret"] = settings.ClientSecret
         };
-        settings.Scopes.ForEach(scope => configDic.Add($"Authentication:OnBehalfOf:Obo1:Scopes:{settings.Scopes.IndexOf(scope)}", scope));
+        settings.Scopes.ForEach(scope =>
+            configDic.Add($"Authentication:OnBehalfOf:Obo1:Scopes:{settings.Scopes.IndexOf(scope)}", scope));
         var config = new ConfigurationBuilder()
             .AddInMemoryCollection(configDic).Build();
 
@@ -51,6 +52,5 @@ public class OnBehalfOfTests
         oboSettings.Values[TokenKeys.ClientIdKey].Should().Be(settings.ClientId);
         oboSettings.Values[TokenKeys.ClientSecret].Should().Be(settings.ClientSecret);
         oboSettings.Values[TokenKeys.Scope].Should().Be(string.Join(' ', settings.Scopes));
-
     }
 }

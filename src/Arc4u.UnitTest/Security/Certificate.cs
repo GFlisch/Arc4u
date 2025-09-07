@@ -11,13 +11,13 @@ namespace Arc4u.UnitTest.Security;
 [Trait("Category", "CI")]
 public class CertificateTests
 {
+    private readonly Fixture _fixture;
+
     public CertificateTests()
     {
         _fixture = new Fixture();
         _fixture.Customize(new AutoMoqCustomization());
     }
-
-    private readonly Fixture _fixture;
 
     [Fact]
     public void FileCertificateShouldBe()
@@ -40,7 +40,8 @@ public class CertificateTests
     [Theory]
     [InlineData("0123456789")]
     [InlineData("012345678901234567890123456789012345678901234567890123456789")]
-    [InlineData("0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789")]
+    [InlineData(
+        "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789")]
     public void Small_Text_Shoud_Directly_Encrypted(string plainText)
     {
         //arranges

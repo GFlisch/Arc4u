@@ -1,3 +1,4 @@
+using Arc4u.Dependency;
 using Arc4u.Diagnostics;
 using Arc4u.Diagnostics.Serilog;
 using Microsoft.Extensions.DependencyInjection;
@@ -6,12 +7,11 @@ using Serilog;
 using Serilog.Core;
 using Serilog.Events;
 using Xunit;
-using Arc4u.Dependency;
 
 namespace Arc4u.UnitTest.Logging;
 
 [Trait("Category", "CI")]
-public class LoggerSimpleExceptionTests 
+public class LoggerSimpleExceptionTests
 {
     [Fact]
     public void ExceptionTest()
@@ -21,11 +21,11 @@ public class LoggerSimpleExceptionTests
         var sink = new ExceptionSinkTest();
 
         var serilog = new LoggerConfiguration()
-                             .WriteTo.Sink(sink)
-                             .MinimumLevel.Debug()
-                             .CreateLogger();
+            .WriteTo.Sink(sink)
+            .MinimumLevel.Debug()
+            .CreateLogger();
 
-        services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(logger: serilog, dispose: false));
+        services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(serilog, false));
         services.AddILogger();
 
         var serviceProvider = services.BuildServiceProvider();
@@ -43,7 +43,6 @@ public class LoggerSimpleExceptionTests
 [Trait("Category", "CI")]
 public class LoggerAggregateExceptionTests
 {
-
     //[Fact]
     //public void TestAggregateException()
     //{
@@ -98,6 +97,7 @@ public sealed class ExceptionSinkTest : ILogEventSink, IDisposable
     {
         Exceptions = [];
     }
+
     public bool HasException { get; set; }
 
     public List<Exception> Exceptions { get; set; }
@@ -115,4 +115,3 @@ public sealed class ExceptionSinkTest : ILogEventSink, IDisposable
         }
     }
 }
-

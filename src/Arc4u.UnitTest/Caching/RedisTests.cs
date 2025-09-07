@@ -8,8 +8,6 @@ using AutoFixture.AutoMoq;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Serilog;
 using Xunit;
@@ -18,13 +16,13 @@ namespace Arc4u.UnitTest.Caching;
 
 public class RedisTests
 {
+    private readonly Fixture _fixture;
+
     public RedisTests()
     {
         _fixture = new Fixture();
         _fixture.Customize(new AutoMoqCustomization());
     }
-
-    private readonly Fixture _fixture;
 
     [Fact]
     [Trait("Category", "All")]
@@ -35,16 +33,16 @@ public class RedisTests
         var option2 = _fixture.Create<RedisCacheOption>();
 
         var config = new ConfigurationBuilder()
-                             .AddInMemoryCollection(
-                                 new Dictionary<string, string?>
-                                 {
-                                     ["Option1:ConnectionString"] = option1.ConnectionString,
-                                     ["Option1:InstanceName"] = option1.InstanceName,
-                                     ["Option1:SerializerName"] = option1.SerializerName,
-                                     ["Option2:ConnectionString"] = option2.ConnectionString,
-                                     ["Option2:InstanceName"] = option2.InstanceName,
-                                     ["Option2:SerializerName"] = option2.SerializerName,
-                                 }).Build();
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["Option1:ConnectionString"] = option1.ConnectionString,
+                    ["Option1:InstanceName"] = option1.InstanceName,
+                    ["Option1:SerializerName"] = option1.SerializerName,
+                    ["Option2:ConnectionString"] = option2.ConnectionString,
+                    ["Option2:InstanceName"] = option2.InstanceName,
+                    ["Option2:SerializerName"] = option2.SerializerName
+                }).Build();
 
         var configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -78,13 +76,13 @@ public class RedisTests
         var option1 = _fixture.Create<RedisCacheOption>();
 
         var config = new ConfigurationBuilder()
-                             .AddInMemoryCollection(
-                                 new Dictionary<string, string?>
-                                 {
-                                     ["Option1:ConnectionString"] = option1.ConnectionString,
-                                     ["Option1:InstanceName"] = option1.InstanceName,
-                                     ["Option1:SerializerName"] = option1.SerializerName,
-                                 }).Build();
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["Option1:ConnectionString"] = option1.ConnectionString,
+                    ["Option1:InstanceName"] = option1.InstanceName,
+                    ["Option1:SerializerName"] = option1.SerializerName
+                }).Build();
 
         var configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -107,7 +105,6 @@ public class RedisTests
         config2.ConnectionString.Should().BeNull();
         config2.SerializerName.Should().BeNull();
         config2.InstanceName.Should().Be("Default");
-
     }
 
     [Fact]
@@ -145,13 +142,13 @@ public class RedisTests
         var option1 = _fixture.Create<RedisCacheOption>();
 
         var config = new ConfigurationBuilder()
-                     .AddInMemoryCollection(
-                         new Dictionary<string, string?>
-                         {
-                             ["Option1:ConnectionString"] = option1.ConnectionString,
-                             ["Option1:InstanceName"] = option1.InstanceName,
-                             ["Option1:SerializerName"] = option1.SerializerName,
-                         }).Build();
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["Option1:ConnectionString"] = option1.ConnectionString,
+                    ["Option1:InstanceName"] = option1.InstanceName,
+                    ["Option1:SerializerName"] = option1.SerializerName
+                }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -177,12 +174,13 @@ public class RedisTests
         // arrange
 
         var config = new ConfigurationBuilder()
-                             .AddInMemoryCollection(
-                                 new Dictionary<string, string?>
-                                 {
-                                     ["Store:ConnectionString"] = "localhost:6379,abortConnect=false,connectTimeout=30,connectRetry=5,ssl=false,DefaultDatabase=4",
-                                     ["Store:InstanceName"] = "db1"
-                                 }).Build();
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["Store:ConnectionString"] =
+                        "localhost:6379,abortConnect=false,connectTimeout=30,connectRetry=5,ssl=false,DefaultDatabase=4",
+                    ["Store:InstanceName"] = "db1"
+                }).Build();
 
         var configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -192,7 +190,7 @@ public class RedisTests
             .MinimumLevel.Debug()
             .CreateLogger();
 
-        services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(logger: serilog, dispose: false));
+        services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(serilog, false));
         services.AddILogger();
 
         services.AddTransient<ICache, RedisCache>();

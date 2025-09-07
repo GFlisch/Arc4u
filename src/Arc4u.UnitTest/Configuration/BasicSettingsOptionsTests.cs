@@ -16,13 +16,13 @@ namespace Arc4u.UnitTest;
 [Trait("Category", "CI")]
 public class BasicSettingsOptionsTests
 {
+    private readonly Fixture _fixture;
+
     public BasicSettingsOptionsTests()
     {
         _fixture = new Fixture();
         _fixture.Customize(new AutoMoqCustomization());
     }
-
-    private readonly Fixture _fixture;
 
     [Fact]
     public void Basic_Standard_Should()
@@ -31,11 +31,9 @@ public class BasicSettingsOptionsTests
         var _default = new BasicSettingsOptions();
 
         var config = new ConfigurationBuilder()
-                     .AddInMemoryCollection(
-                         new Dictionary<string, string?>
-                         {
-                             ["Authentication:Basic:Settings:ClientId"] = options.ClientId,
-                         }).Build();
+            .AddInMemoryCollection(
+                new Dictionary<string, string?> { ["Authentication:Basic:Settings:ClientId"] = options.ClientId })
+            .Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -51,8 +49,8 @@ public class BasicSettingsOptionsTests
     public void Basic_Standard_No_Section_Should_Throw_An_Exception()
     {
         var config = new ConfigurationBuilder()
-                     .AddInMemoryCollection(
-                         []).Build();
+            .AddInMemoryCollection(
+                []).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -68,8 +66,8 @@ public class BasicSettingsOptionsTests
     public void Basic_Standard_No_Section_Should()
     {
         var config = new ConfigurationBuilder()
-                     .AddInMemoryCollection(
-                         []).Build();
+            .AddInMemoryCollection(
+                []).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -95,14 +93,15 @@ public class BasicSettingsOptionsTests
             ["Authentication:Basic:Settings:ClientId"] = options.ClientId,
             ["Authentication:Basic:Settings:ProviderId"] = options.ProviderId,
             ["Authentication:Basic:Settings:AuthenticationType"] = options.AuthenticationType,
-            ["Authentication:Basic:Settings:ClientSecret"] = options.ClientSecret,
+            ["Authentication:Basic:Settings:ClientSecret"] = options.ClientSecret
         };
         foreach (var scope in options.Scopes)
         {
             configDic.Add($"Authentication:Basic:Settings:Scopes:{options.Scopes.IndexOf(scope)}", scope);
         }
+
         var config = new ConfigurationBuilder()
-                     .AddInMemoryCollection(configDic).Build();
+            .AddInMemoryCollection(configDic).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -133,14 +132,15 @@ public class BasicSettingsOptionsTests
             ["Authentication:Basic:Settings:ClientId"] = options.ClientId,
             ["Authentication:Basic:Settings:ProviderId"] = options.ProviderId,
             ["Authentication:Basic:Settings:AuthenticationType"] = options.AuthenticationType,
-            ["Authentication:Basic:DefaultUpn"] = "@arc4u.net",
+            ["Authentication:Basic:DefaultUpn"] = "@arc4u.net"
         };
         foreach (var scope in options.Scopes)
         {
             configDic.Add($"Authentication:Basic:Settings:Scopes:{options.Scopes.IndexOf(scope)}", scope);
         }
+
         var config = new ConfigurationBuilder()
-                     .AddInMemoryCollection(configDic).Build();
+            .AddInMemoryCollection(configDic).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -169,14 +169,15 @@ public class BasicSettingsOptionsTests
             ["Authentication:Basic:Settings:ProviderId"] = options.ProviderId,
             ["Authentication:Basic:Settings:AuthenticationType"] = options.AuthenticationType,
             ["Authentication:Basic:Certificates:Cert1:File:Cert"] = @"./Configs/cert.pem",
-            ["Authentication:Basic:Certificates:Cert1:File:Key"] = @"./Configs/key.pem",
+            ["Authentication:Basic:Certificates:Cert1:File:Key"] = @"./Configs/key.pem"
         };
         foreach (var scope in options.Scopes)
         {
             configDic.Add($"Authentication:Basic:Settings:Scopes:{options.Scopes.IndexOf(scope)}", scope);
         }
+
         var config = new ConfigurationBuilder()
-                     .AddInMemoryCollection(configDic).Build();
+            .AddInMemoryCollection(configDic).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 

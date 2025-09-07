@@ -1,6 +1,5 @@
 using Arc4u.AspNetCore.Results;
 using Arc4u.Results;
-using Arc4u.Results.Validation;
 using Arc4u.Validation;
 using AutoFixture;
 using AutoFixture.AutoMoq;
@@ -16,13 +15,13 @@ namespace Arc4u.UnitTest.ProblemDetail;
 [Trait("Category", "CI")]
 public class ProblemDetailsWithIResultTests
 {
+    private readonly Fixture _fixture;
+
     public ProblemDetailsWithIResultTests()
     {
         _fixture = new Fixture();
         _fixture.Customize(new AutoMoqCustomization());
     }
-
-    readonly Fixture _fixture;
 
     #region ValueTask
 
@@ -35,11 +34,11 @@ public class ProblemDetailsWithIResultTests
 
         var result = Result.Ok(value);
 
-        Func<ValueTask<Result<string>>> valueTask = () => ValueTask.FromResult(result);
+        var valueTask = () => ValueTask.FromResult(result);
 
         // act
         var sut = await valueTask()
-                            .ToHttpCreatedResultAsync(uri, (v) => $"{v} Arc4u");
+            .ToHttpCreatedResultAsync(uri, v => $"{v} Arc4u");
 
         // assert
         sut.Should().NotBeNull();
@@ -60,12 +59,12 @@ public class ProblemDetailsWithIResultTests
 
         var result = Result.Ok<string?>(value);
 
-        Func<ValueTask<Result<string?>>> valueTask = () => ValueTask.FromResult(result);
+        var valueTask = () => ValueTask.FromResult(result);
 
         // act
         var sut = await valueTask()
-                        .OnSuccessNotNull((v) => uri = okUri)
-                        .ToHttpCreatedResultAsync(uri, (v) => $"{v} Arc4u");
+            .OnSuccessNotNull(v => uri = okUri)
+            .ToHttpCreatedResultAsync(uri, v => $"{v} Arc4u");
 
         // assert
         sut.Should().NotBeNull();
@@ -85,11 +84,11 @@ public class ProblemDetailsWithIResultTests
 
         var result = Result.Ok(value);
 
-        Func<ValueTask<Result<string>>> valueTask = () => ValueTask.FromResult(result);
+        var valueTask = () => ValueTask.FromResult(result);
 
         // act
         var sut = await valueTask()
-                          .ToHttpCreatedResultAsync(uri, (v) => $"{v} Arc4u");
+            .ToHttpCreatedResultAsync(uri, v => $"{v} Arc4u");
 
         // assert
         sut.Should().NotBeNull();
@@ -108,18 +107,17 @@ public class ProblemDetailsWithIResultTests
 
         var result = Result.Ok(value);
 
-        Func<ValueTask<Result<string>>> valueTask = () => ValueTask.FromResult(result);
+        var valueTask = () => ValueTask.FromResult(result);
 
         // act
         var sut = await valueTask()
-                          .ToHttpOkResultAsync((v) => $"{v} Arc4u");
+            .ToHttpOkResultAsync(v => $"{v} Arc4u");
 
         // assert
         sut.Should().NotBeNull();
         sut.Should().BeOfType<Ok<string>>();
         var okResult = (Ok<string>)sut;
         okResult!.Value.Should().Be($"{value} Arc4u");
-
     }
 
     [Fact]
@@ -130,11 +128,11 @@ public class ProblemDetailsWithIResultTests
 
         var result = Result.Ok<string>(default!);
 
-        Func<ValueTask<Result<string>>> valueTask = () => ValueTask.FromResult(result);
+        var valueTask = () => ValueTask.FromResult(result);
 
         // act
         var sut = await valueTask()
-                            .ToHttpOkResultAsync((v) => $"{v} Arc4u");
+            .ToHttpOkResultAsync(v => $"{v} Arc4u");
 
         // assert
         sut.Should().NotBeNull();
@@ -149,11 +147,11 @@ public class ProblemDetailsWithIResultTests
 
         var result = Result.Fail<string>(value);
 
-        Func<ValueTask<Result<string>>> valueTask = () => ValueTask.FromResult(result);
+        var valueTask = () => ValueTask.FromResult(result);
 
         // act
         var sut = await valueTask()
-                          .ToHttpOkResultAsync((v) => $"{v} Arc4u");
+            .ToHttpOkResultAsync(v => $"{v} Arc4u");
 
         // assert
         sut.Should().NotBeNull();
@@ -175,11 +173,11 @@ public class ProblemDetailsWithIResultTests
         var error = new Error(msg2).WithMetadata("Code", "100");
         var result = Result.Fail<string>(msg1).WithError(error);
 
-        Func<ValueTask<Result<string>>> valueTask = () => ValueTask.FromResult(result);
+        var valueTask = () => ValueTask.FromResult(result);
 
         // act
         var sut = await valueTask()
-                          .ToHttpOkResultAsync((v) => $"{v} Arc4u");
+            .ToHttpOkResultAsync(v => $"{v} Arc4u");
 
         // assert
         sut.Should().NotBeNull();
@@ -208,7 +206,7 @@ public class ProblemDetailsWithIResultTests
         var validation = new ValidatorExample();
         var result = validation.ValidateWithResult(value);
 
-        Func<ValueTask<Result<string>>> valueTask = () => ValueTask.FromResult(result);
+        var valueTask = () => ValueTask.FromResult(result);
 
         // act
         var sut = await valueTask().ToHttpOkResultAsync();
@@ -224,7 +222,6 @@ public class ProblemDetailsWithIResultTests
         problem.Errors.First().Key.Should().Be("Error");
         problem.Errors.First().Value[0].Should().Be("Problem");
         problem.Status.Should().Be(StatusCodes.Status422UnprocessableEntity);
-
     }
 
     [Fact]
@@ -235,11 +232,11 @@ public class ProblemDetailsWithIResultTests
 
         var result = Result.Ok(value);
 
-        Func<ValueTask<Result<string>>> valueTask = () => ValueTask.FromResult(result);
+        var valueTask = () => ValueTask.FromResult(result);
 
         // act
         var sut = await valueTask()
-                          .ToHttpOkResultAsync();
+            .ToHttpOkResultAsync();
 
         // assert
         sut.Should().NotBeNull();
@@ -256,11 +253,11 @@ public class ProblemDetailsWithIResultTests
 
         var result = Result.Fail<string>(value);
 
-        Func<ValueTask<Result<string>>> valueTask = () => ValueTask.FromResult(result);
+        var valueTask = () => ValueTask.FromResult(result);
 
         // act
         var sut = await valueTask()
-                          .ToHttpOkResultAsync();
+            .ToHttpOkResultAsync();
 
         // assert
         sut.Should().NotBeNull();
@@ -279,16 +276,17 @@ public class ProblemDetailsWithIResultTests
         // arrange
         var result = Result.Ok();
 
-        Func<ValueTask<Result>> valueTask = () => ValueTask.FromResult(result);
+        var valueTask = () => ValueTask.FromResult(result);
 
         // act
         var sut = await valueTask()
-                          .ToHttpOkResultAsync();
+            .ToHttpOkResultAsync();
 
         // assert
         sut.Should().NotBeNull();
         sut.Should().BeOfType<NoContent>();
     }
+
     #endregion
 
     #region Task<Result>
@@ -302,11 +300,11 @@ public class ProblemDetailsWithIResultTests
 
         var result = Result.Ok(value);
 
-        Func<Task<Result<string>>> task = () => Task.FromResult(result);
+        var task = () => Task.FromResult(result);
 
         // act
         var sut = await task()
-                            .ToHttpCreatedResultAsync(uri, (v) => $"{v} Arc4u");
+            .ToHttpCreatedResultAsync(uri, v => $"{v} Arc4u");
 
         // assert
         sut.Should().NotBeNull();
@@ -327,12 +325,15 @@ public class ProblemDetailsWithIResultTests
 
         var result = Result.Ok<string?>(value);
 
-        Task<Result<string?>> task() => Task.FromResult<Result<string?>>(result);
+        Task<Result<string?>> task()
+        {
+            return Task.FromResult(result);
+        }
 
         // act
         var sut = await task()
-                        .OnSuccessNotNull((v) => uri = okUri)
-                        .ToHttpCreatedResultAsync(uri, (v) => $"{v} Arc4u");
+            .OnSuccessNotNull(v => uri = okUri)
+            .ToHttpCreatedResultAsync(uri, v => $"{v} Arc4u");
 
         // assert
         sut.Should().NotBeNull();
@@ -352,11 +353,11 @@ public class ProblemDetailsWithIResultTests
 
         var result = Result.Ok(value);
 
-        Func<Task<Result<string>>> task = () => Task.FromResult(result);
+        var task = () => Task.FromResult(result);
 
         // act
         var sut = await task()
-                          .ToHttpCreatedResultAsync(uri, (v) => $"{v} Arc4u");
+            .ToHttpCreatedResultAsync(uri, v => $"{v} Arc4u");
 
         // assert
         sut.Should().NotBeNull();
@@ -375,18 +376,17 @@ public class ProblemDetailsWithIResultTests
 
         var result = Result.Ok(value);
 
-        Func<Task<Result<string>>> task = () => Task.FromResult(result);
+        var task = () => Task.FromResult(result);
 
         // act
         var sut = await task()
-                          .ToHttpOkResultAsync((v) => $"{v} Arc4u");
+            .ToHttpOkResultAsync(v => $"{v} Arc4u");
 
         // assert
         sut.Should().NotBeNull();
         sut.Should().BeOfType<Ok<string>>();
         var okResult = (Ok<string>)sut;
         okResult!.Value.Should().Be($"{value} Arc4u");
-
     }
 
     [Fact]
@@ -397,11 +397,11 @@ public class ProblemDetailsWithIResultTests
 
         var result = Result.Ok<string>(default!);
 
-        Func<Task<Result<string>>> task = () => Task.FromResult(result);
+        var task = () => Task.FromResult(result);
 
         // act
         var sut = await task()
-                            .ToHttpOkResultAsync((v) => $"{v} Arc4u");
+            .ToHttpOkResultAsync(v => $"{v} Arc4u");
 
         // assert
         sut.Should().NotBeNull();
@@ -416,11 +416,11 @@ public class ProblemDetailsWithIResultTests
 
         var result = Result.Fail<string>(value);
 
-        Func<Task<Result<string>>> task = () => Task.FromResult(result);
+        var task = () => Task.FromResult(result);
 
         // act
         var sut = await task()
-                          .ToHttpOkResultAsync((v) => $"{v} Arc4u");
+            .ToHttpOkResultAsync(v => $"{v} Arc4u");
 
         // assert
         sut.Should().NotBeNull();
@@ -442,11 +442,11 @@ public class ProblemDetailsWithIResultTests
         var error = new Error(msg2).WithMetadata("Code", "100");
         var result = Result.Fail<string>(msg1).WithError(error);
 
-        Func<Task<Result<string>>> task = () => Task.FromResult(result);
+        var task = () => Task.FromResult(result);
 
         // act
         var sut = await task()
-                          .ToHttpOkResultAsync((v) => $"{v} Arc4u");
+            .ToHttpOkResultAsync(v => $"{v} Arc4u");
 
         // assert
         sut.Should().NotBeNull();
@@ -475,7 +475,7 @@ public class ProblemDetailsWithIResultTests
         var validation = new ValidatorExample();
         var result = validation.ValidateWithResult(value);
 
-        Func<Task<Result<string>>> task = () => Task.FromResult(result);
+        var task = () => Task.FromResult(result);
 
         // act
         var sut = await task().ToHttpOkResultAsync();
@@ -491,7 +491,6 @@ public class ProblemDetailsWithIResultTests
         problem.Errors.First().Key.Should().Be("Error");
         problem.Errors.First().Value[0].Should().Be("Problem");
         problem.Status.Should().Be(StatusCodes.Status422UnprocessableEntity);
-
     }
 
     [Fact]
@@ -502,11 +501,11 @@ public class ProblemDetailsWithIResultTests
 
         var result = Result.Ok(value);
 
-        Func<Task<Result<string>>> task = () => Task.FromResult(result);
+        var task = () => Task.FromResult(result);
 
         // act
         var sut = await task()
-                          .ToHttpOkResultAsync();
+            .ToHttpOkResultAsync();
 
         // assert
         sut.Should().NotBeNull();
@@ -523,11 +522,11 @@ public class ProblemDetailsWithIResultTests
 
         var result = Result.Fail<string>(value);
 
-        Func<Task<Result<string>>> task = () => Task.FromResult(result);
+        var task = () => Task.FromResult(result);
 
         // act
         var sut = await task()
-                          .ToHttpOkResultAsync();
+            .ToHttpOkResultAsync();
 
         // assert
         sut.Should().NotBeNull();
@@ -546,11 +545,11 @@ public class ProblemDetailsWithIResultTests
         // arrange
         var result = Result.Ok();
 
-        Func<Task<Result>> task = () => Task.FromResult(result);
+        var task = () => Task.FromResult(result);
 
         // act
         var sut = await task()
-                          .ToHttpOkResultAsync();
+            .ToHttpOkResultAsync();
 
         // assert
         sut.Should().NotBeNull();
@@ -572,7 +571,7 @@ public class ProblemDetailsWithIResultTests
 
         // act
         var sut = result
-                    .ToHttpCreatedResult(uri, (v) => $"{v} Arc4u");
+            .ToHttpCreatedResult(uri, v => $"{v} Arc4u");
 
         // assert
         sut.Should().NotBeNull();
@@ -595,8 +594,8 @@ public class ProblemDetailsWithIResultTests
 
         // act
         var sut = result
-                        .OnSuccessNotNull((v) => uri = okUri)
-                        .ToHttpCreatedResult(uri, (v) => $"{v} Arc4u");
+            .OnSuccessNotNull(v => uri = okUri)
+            .ToHttpCreatedResult(uri, v => $"{v} Arc4u");
 
         // assert
         sut.Should().NotBeNull();
@@ -617,7 +616,7 @@ public class ProblemDetailsWithIResultTests
         var result = Result.Ok(value);
         // act
         var sut = result
-                    .ToHttpCreatedResult(uri, (v) => $"{v} Arc4u");
+            .ToHttpCreatedResult(uri, v => $"{v} Arc4u");
 
         // assert
         sut.Should().NotBeNull();
@@ -637,14 +636,13 @@ public class ProblemDetailsWithIResultTests
         var result = Result.Ok(value);
 
         // act
-        var sut = result.ToHttpOkResult((v) => $"{v} Arc4u");
+        var sut = result.ToHttpOkResult(v => $"{v} Arc4u");
 
         // assert
         sut.Should().NotBeNull();
         sut.Should().BeOfType<Ok<string>>();
         var okResult = (Ok<string>)sut;
         okResult!.Value.Should().Be($"{value} Arc4u");
-
     }
 
     [Fact]
@@ -656,7 +654,7 @@ public class ProblemDetailsWithIResultTests
         var result = Result.Ok<string>(default!);
 
         // act
-        var sut = result.ToHttpOkResult((v) => $"{v} Arc4u");
+        var sut = result.ToHttpOkResult(v => $"{v} Arc4u");
 
         // assert
         sut.Should().NotBeNull();
@@ -672,7 +670,7 @@ public class ProblemDetailsWithIResultTests
         var result = Result.Fail<string>(value);
 
         // act
-        var sut = result.ToHttpOkResult((v) => $"{v} Arc4u");
+        var sut = result.ToHttpOkResult(v => $"{v} Arc4u");
 
         // assert
         sut.Should().NotBeNull();
@@ -695,7 +693,7 @@ public class ProblemDetailsWithIResultTests
         var result = Result.Fail<string>(msg1).WithError(error);
 
         // act
-        var sut = result.ToHttpOkResult((v) => $"{v} Arc4u");
+        var sut = result.ToHttpOkResult(v => $"{v} Arc4u");
 
         // assert
         sut.Should().NotBeNull();
@@ -730,7 +728,6 @@ public class ProblemDetailsWithIResultTests
         problem.Errors.First().Key.Should().Be("Error");
         problem.Errors.First().Value[0].Should().Be("Problem");
         problem.Status.Should().Be(StatusCodes.Status422UnprocessableEntity);
-
     }
 
     [Fact]

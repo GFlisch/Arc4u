@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using Arc4u.Blazor;
 using Arc4u.OAuth2.Token;
 using Arc4u.OAuth2.TokenProvider;
@@ -15,19 +16,20 @@ namespace Arc4u.UnitTest.Blazor;
 [Trait("Category", "CI")]
 public class BlazorTokenProviderTests
 {
+    private readonly Fixture fixture;
+
     public BlazorTokenProviderTests()
     {
         fixture = new Fixture();
         fixture.Customize(new AutoMoqCustomization());
     }
 
-    private readonly Fixture fixture;
-
     [Fact]
     public void JwtSecurityTokenShould()
     {
         // arrange
-        var jwt = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
+        var jwt = new JwtSecurityToken("issuer", "audience", [new Claim("key", "value")], DateTime.UtcNow.AddHours(-1),
+            DateTime.UtcNow.AddHours(1));
 
         var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
         // act
@@ -41,7 +43,8 @@ public class BlazorTokenProviderTests
     public async Task GetValidTokenShoud()
     {
         // Arrange
-        var jwt = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
+        var jwt = new JwtSecurityToken("issuer", "audience", [new Claim("key", "value")], DateTime.UtcNow.AddHours(-1),
+            DateTime.UtcNow.AddHours(1));
 
         var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
         var tokenInfo = new TokenInfo("Bearer", accessToken, DateTime.UtcNow);
@@ -51,12 +54,14 @@ public class BlazorTokenProviderTests
         keySettings.Add(TokenKeys.RedirectUrl, "https://localhost:44444/");
 
         var mockLocalStorage = fixture.Freeze<Mock<ILocalStorageService>>();
-        mockLocalStorage.Setup(p => p.GetItemAsStringAsync("token", It.IsAny<CancellationToken>())).Returns(ValueTask.FromResult<string?>(accessToken));
+        mockLocalStorage.Setup(p => p.GetItemAsStringAsync("token", It.IsAny<CancellationToken>()))
+            .Returns(ValueTask.FromResult<string?>(accessToken));
         mockLocalStorage.Setup(p => p.RemoveItemAsync("token", It.IsAny<CancellationToken>()));
 
         var mockInterop = fixture.Freeze<Mock<ITokenWindowInterop>>();
-        mockInterop.Setup(m => m.OpenWindowAsync(It.IsAny<IJSRuntime>(), It.IsAny<ILocalStorageService>(), It.IsAny<string>(), It.IsAny<string>()))
-                     .Returns(Task.CompletedTask);
+        mockInterop.Setup(m => m.OpenWindowAsync(It.IsAny<IJSRuntime>(), It.IsAny<ILocalStorageService>(),
+                It.IsAny<string>(), It.IsAny<string>()))
+            .Returns(Task.CompletedTask);
 
         var mockKeyValueSettings = fixture.Freeze<Mock<IKeyValueSettings>>();
         mockKeyValueSettings.SetupGet(p => p.Values).Returns(keySettings);
@@ -73,7 +78,9 @@ public class BlazorTokenProviderTests
         token.Should().NotBeNull();
         token!.Token.Should().Be(accessToken);
 
-        mockInterop.Verify(m => m.OpenWindowAsync(It.IsAny<IJSRuntime>(), It.IsAny<ILocalStorageService>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        mockInterop.Verify(
+            m => m.OpenWindowAsync(It.IsAny<IJSRuntime>(), It.IsAny<ILocalStorageService>(), It.IsAny<string>(),
+                It.IsAny<string>()), Times.Never);
         mockLocalStorage.Verify(p => p.GetItemAsStringAsync("token", It.IsAny<CancellationToken>()), Times.Once);
         mockLocalStorage.Verify(p => p.RemoveItemAsync("token", It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -82,10 +89,12 @@ public class BlazorTokenProviderTests
     public async Task ObsoleteAccessTokenInTheCacheShoud()
     {
         // Arrange
-        var jwtExpired = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddMinutes(-10));
+        var jwtExpired = new JwtSecurityToken("issuer", "audience", [new Claim("key", "value")],
+            DateTime.UtcNow.AddHours(-1), DateTime.UtcNow.AddMinutes(-10));
         var expiredAccessToken = new JwtSecurityTokenHandler().WriteToken(jwtExpired);
 
-        var jwt = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
+        var jwt = new JwtSecurityToken("issuer", "audience", [new Claim("key", "value")], DateTime.UtcNow.AddHours(-1),
+            DateTime.UtcNow.AddHours(1));
         var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
 
         Dictionary<string, string> keySettings = [];
@@ -94,13 +103,14 @@ public class BlazorTokenProviderTests
 
         var mockLocalStorage = fixture.Freeze<Mock<ILocalStorageService>>();
         mockLocalStorage.SetupSequence(p => p.GetItemAsStringAsync("token", It.IsAny<CancellationToken>()))
-                        .Returns(ValueTask.FromResult<string?>(expiredAccessToken))
-                        .Returns(ValueTask.FromResult<string?>(accessToken));
+            .Returns(ValueTask.FromResult<string?>(expiredAccessToken))
+            .Returns(ValueTask.FromResult<string?>(accessToken));
         mockLocalStorage.Setup(p => p.RemoveItemAsync("token", It.IsAny<CancellationToken>()));
 
         var mockInterop = fixture.Freeze<Mock<ITokenWindowInterop>>();
-        mockInterop.Setup(m => m.OpenWindowAsync(It.IsAny<IJSRuntime>(), It.IsAny<ILocalStorageService>(), It.IsAny<string>(), It.IsAny<string>()))
-                     .Returns(Task.CompletedTask);
+        mockInterop.Setup(m => m.OpenWindowAsync(It.IsAny<IJSRuntime>(), It.IsAny<ILocalStorageService>(),
+                It.IsAny<string>(), It.IsAny<string>()))
+            .Returns(Task.CompletedTask);
 
         var mockKeyValueSettings = fixture.Freeze<Mock<IKeyValueSettings>>();
         mockKeyValueSettings.SetupGet(p => p.Values).Returns(keySettings);
@@ -117,7 +127,9 @@ public class BlazorTokenProviderTests
         token.Should().NotBeNull();
         token!.Token.Should().Be(accessToken);
 
-        mockInterop.Verify(m => m.OpenWindowAsync(It.IsAny<IJSRuntime>(), It.IsAny<ILocalStorageService>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+        mockInterop.Verify(
+            m => m.OpenWindowAsync(It.IsAny<IJSRuntime>(), It.IsAny<ILocalStorageService>(), It.IsAny<string>(),
+                It.IsAny<string>()), Times.Once);
         mockLocalStorage.Verify(p => p.GetItemAsStringAsync("token", It.IsAny<CancellationToken>()), Times.Exactly(2));
         mockLocalStorage.Verify(p => p.RemoveItemAsync("token", It.IsAny<CancellationToken>()), Times.Once);
     }
@@ -126,7 +138,8 @@ public class BlazorTokenProviderTests
     public async Task NoTokenInTheCacheShoud()
     {
         // Arrange
-        var jwt = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
+        var jwt = new JwtSecurityToken("issuer", "audience", [new Claim("key", "value")], DateTime.UtcNow.AddHours(-1),
+            DateTime.UtcNow.AddHours(1));
 
         var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
         var tokenInfo = new TokenInfo("Bearer", accessToken, DateTime.UtcNow);
@@ -137,13 +150,14 @@ public class BlazorTokenProviderTests
 
         var mockLocalStorage = fixture.Freeze<Mock<ILocalStorageService>>();
         mockLocalStorage.SetupSequence(p => p.GetItemAsStringAsync("token", It.IsAny<CancellationToken>()))
-                        .Returns(ValueTask.FromResult<string?>(default!))
-                        .Returns(ValueTask.FromResult<string?>(accessToken));
+            .Returns(ValueTask.FromResult<string?>(default!))
+            .Returns(ValueTask.FromResult<string?>(accessToken));
         mockLocalStorage.Setup(p => p.RemoveItemAsync("token", It.IsAny<CancellationToken>()));
 
         var mockInterop = fixture.Freeze<Mock<ITokenWindowInterop>>();
-        mockInterop.Setup(m => m.OpenWindowAsync(It.IsAny<IJSRuntime>(), It.IsAny<ILocalStorageService>(), It.IsAny<string>(), It.IsAny<string>()))
-                     .Returns(Task.CompletedTask);
+        mockInterop.Setup(m => m.OpenWindowAsync(It.IsAny<IJSRuntime>(), It.IsAny<ILocalStorageService>(),
+                It.IsAny<string>(), It.IsAny<string>()))
+            .Returns(Task.CompletedTask);
 
         var mockKeyValueSettings = fixture.Freeze<Mock<IKeyValueSettings>>();
         mockKeyValueSettings.SetupGet(p => p.Values).Returns(keySettings);
@@ -160,7 +174,9 @@ public class BlazorTokenProviderTests
         token.Should().NotBeNull();
         token!.Token.Should().Be(accessToken);
 
-        mockInterop.Verify(m => m.OpenWindowAsync(It.IsAny<IJSRuntime>(), It.IsAny<ILocalStorageService>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+        mockInterop.Verify(
+            m => m.OpenWindowAsync(It.IsAny<IJSRuntime>(), It.IsAny<ILocalStorageService>(), It.IsAny<string>(),
+                It.IsAny<string>()), Times.Once);
         mockLocalStorage.Verify(p => p.GetItemAsStringAsync("token", It.IsAny<CancellationToken>()), Times.Exactly(2));
     }
 
@@ -168,7 +184,8 @@ public class BlazorTokenProviderTests
     public async Task NoValidAccessTokenInTheCacheShoud()
     {
         // Arrange
-        var jwt = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddHours(1));
+        var jwt = new JwtSecurityToken("issuer", "audience", [new Claim("key", "value")], DateTime.UtcNow.AddHours(-1),
+            DateTime.UtcNow.AddHours(1));
 
         var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
         var tokenInfo = new TokenInfo("Bearer", accessToken, DateTime.UtcNow);
@@ -179,14 +196,15 @@ public class BlazorTokenProviderTests
 
         var mockLocalStorage = fixture.Freeze<Mock<ILocalStorageService>>();
         mockLocalStorage.SetupSequence(p => p.GetItemAsStringAsync("token", It.IsAny<CancellationToken>()))
-                        .Returns(ValueTask.FromResult<string?>(jwt.EncodedPayload)) // wrong access token
-                        .Returns(ValueTask.FromResult<string?>(accessToken));
+            .Returns(ValueTask.FromResult<string?>(jwt.EncodedPayload)) // wrong access token
+            .Returns(ValueTask.FromResult<string?>(accessToken));
 
         mockLocalStorage.Setup(p => p.RemoveItemAsync("token", It.IsAny<CancellationToken>()));
 
         var mockInterop = fixture.Freeze<Mock<ITokenWindowInterop>>();
-        mockInterop.Setup(m => m.OpenWindowAsync(It.IsAny<IJSRuntime>(), It.IsAny<ILocalStorageService>(), It.IsAny<string>(), It.IsAny<string>()))
-                     .Returns(Task.CompletedTask);
+        mockInterop.Setup(m => m.OpenWindowAsync(It.IsAny<IJSRuntime>(), It.IsAny<ILocalStorageService>(),
+                It.IsAny<string>(), It.IsAny<string>()))
+            .Returns(Task.CompletedTask);
 
         var mockKeyValueSettings = fixture.Freeze<Mock<IKeyValueSettings>>();
         mockKeyValueSettings.SetupGet(p => p.Values).Returns(keySettings);
@@ -203,7 +221,9 @@ public class BlazorTokenProviderTests
         token.Should().NotBeNull();
         token!.Token.Should().Be(accessToken);
 
-        mockInterop.Verify(m => m.OpenWindowAsync(It.IsAny<IJSRuntime>(), It.IsAny<ILocalStorageService>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+        mockInterop.Verify(
+            m => m.OpenWindowAsync(It.IsAny<IJSRuntime>(), It.IsAny<ILocalStorageService>(), It.IsAny<string>(),
+                It.IsAny<string>()), Times.Once);
         mockLocalStorage.Verify(p => p.GetItemAsStringAsync("token", It.IsAny<CancellationToken>()), Times.Exactly(2));
         mockLocalStorage.Verify(p => p.RemoveItemAsync("token", It.IsAny<CancellationToken>()), Times.Once);
     }
@@ -220,7 +240,8 @@ public class BlazorTokenProviderTests
         var sut = fixture.Create<BlazorTokenProvider>();
 
         // act
-        var exception = await Record.ExceptionAsync(async () => await sut.GetTokenAsync(mockKeyValueSettings.Object, null));
+        var exception =
+            await Record.ExceptionAsync(async () => await sut.GetTokenAsync(mockKeyValueSettings.Object, null));
 
         // assert
         exception.Should().NotBeNull();

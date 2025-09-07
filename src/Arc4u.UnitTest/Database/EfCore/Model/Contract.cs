@@ -15,11 +15,6 @@ public class Contract : IPersistEntity, IComparer<Contract>, IEqualityComparer<C
 
     public DateTime EndDate { get; set; }
 
-    /// <summary>
-    /// We do not compare an object on its PersistChange.
-    /// </summary>
-    public PersistChange PersistChange { get; set; }
-
     public int Compare(Contract? x, Contract? y)
     {
         if (x == null && y == null)
@@ -36,7 +31,7 @@ public class Contract : IPersistEntity, IComparer<Contract>, IEqualityComparer<C
             string.Compare(y.Name, x.Name),
             string.Compare(y.Reference, x.Reference),
             DateTime.Compare(y.StartDate, x.StartDate),
-            DateTime.Compare(y.EndDate, x.EndDate),
+            DateTime.Compare(y.EndDate, x.EndDate)
         ];
         if (comparisons.All(x => x == 0))
         {
@@ -62,4 +57,9 @@ public class Contract : IPersistEntity, IComparer<Contract>, IEqualityComparer<C
     {
         return obj.Id.GetHashCode();
     }
+
+    /// <summary>
+    ///     We do not compare an object on its PersistChange.
+    /// </summary>
+    public PersistChange PersistChange { get; set; }
 }

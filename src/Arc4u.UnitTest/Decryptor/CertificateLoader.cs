@@ -14,13 +14,13 @@ namespace Arc4u.UnitTest.Decryptor;
 [Trait("Category", "CI")]
 public class CertificateLoader
 {
+    private readonly Fixture _fixture;
+
     public CertificateLoader()
     {
         _fixture = new Fixture();
         _fixture.Customize(new AutoMoqCustomization());
     }
-
-    private readonly Fixture _fixture;
 
     [Fact]
     public void FileCertificateShould()
@@ -35,7 +35,7 @@ public class CertificateLoader
                 new Dictionary<string, string?>
                 {
                     ["EncryptionCertificate:File:Cert"] = @"./Configs/cert.pem",
-                    ["EncryptionCertificate:File:Key"] = @"./Configs/key.pem",
+                    ["EncryptionCertificate:File:Key"] = @"./Configs/key.pem"
                 }).Build();
 
         var sut = _fixture.Create<X509CertificateLoader>();
@@ -56,12 +56,12 @@ public class CertificateLoader
                 new Dictionary<string, string?>
                 {
                     ["EncryptionCertificate:File:Cert"] = @"./cert.pem",
-                    ["EncryptionCertificate:File:Key"] = @"./key.pem",
+                    ["EncryptionCertificate:File:Key"] = @"./key.pem"
                 }).Build();
 
         var mockLoggerWrapperX509 = new Mock<ILoggerWrapper<X509CertificateLoader>>();
         mockLoggerWrapperX509.Setup(m => m.SetContext(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Type?>()))
-                             .Returns(mockLoggerWrapperX509.Object);
+            .Returns(mockLoggerWrapperX509.Object);
 
         _fixture.Inject<ILogger<X509CertificateLoader>>(mockLoggerWrapperX509.Object);
         var sut = _fixture.Create<X509CertificateLoader>();
@@ -78,10 +78,7 @@ public class CertificateLoader
     {
         var config = new ConfigurationBuilder()
             .AddInMemoryCollection(
-                new Dictionary<string, string?>
-                {
-                    ["EncryptionCertificate:Store:Name"] = "friendlyName"
-                }).Build();
+                new Dictionary<string, string?> { ["EncryptionCertificate:Store:Name"] = "friendlyName" }).Build();
 
         var sut = _fixture.Create<X509CertificateLoader>();
 
@@ -92,5 +89,4 @@ public class CertificateLoader
         configCert.Should().NotBeNull();
         configCert.Should().BeOfType<KeyNotFoundException>();
     }
-
 }

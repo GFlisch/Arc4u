@@ -10,16 +10,15 @@ using Xunit;
 namespace Arc4u.UnitTest.Security;
 
 [Trait("Category", "CI")]
-
 public class RemoteSecretsTokenProviderTests
 {
+    private readonly Fixture _fixture;
+
     public RemoteSecretsTokenProviderTests()
     {
         _fixture = new Fixture();
         _fixture.Customize(new AutoMoqCustomization());
     }
-
-    private readonly Fixture _fixture;
 
     [Fact]
     public async Task RemoteSecrets_TokenProvider_Should()
@@ -27,11 +26,11 @@ public class RemoteSecretsTokenProviderTests
         // arrange
         var options = _fixture.Create<RemoteSecretSettingsOptions>();
 
-        var settings = new SimpleKeyValueSettings(new Dictionary<string, string>()
+        var settings = new SimpleKeyValueSettings(new Dictionary<string, string>
         {
-            {TokenKeys.ProviderIdKey, RemoteClientSecretTokenProvider.ProviderName },
-            {TokenKeys.ClientSecret,  options.ClientSecret},
-            {TokenKeys.ClientSecretHeader, options.HeaderKey }
+            { TokenKeys.ProviderIdKey, RemoteClientSecretTokenProvider.ProviderName },
+            { TokenKeys.ClientSecret, options.ClientSecret },
+            { TokenKeys.ClientSecretHeader, options.HeaderKey }
         });
 
         // act
@@ -54,7 +53,8 @@ public class RemoteSecretsTokenProviderTests
 
         // act
         var sut = _fixture.Create<RemoteClientSecretTokenProvider>();
-        var exception = await Record.ExceptionAsync(async () => await sut.GetTokenAsync(null, null).ConfigureAwait(false));
+        var exception =
+            await Record.ExceptionAsync(async () => await sut.GetTokenAsync(null, null).ConfigureAwait(false));
 
         // assert
         exception.Should().NotBeNull();
@@ -67,15 +67,16 @@ public class RemoteSecretsTokenProviderTests
         // arrange
         var options = _fixture.Create<RemoteSecretSettingsOptions>();
 
-        var settings = new SimpleKeyValueSettings(new Dictionary<string, string>()
+        var settings = new SimpleKeyValueSettings(new Dictionary<string, string>
         {
-            {TokenKeys.ProviderIdKey, RemoteClientSecretTokenProvider.ProviderName },
-            {TokenKeys.ClientSecretHeader, options.HeaderKey }
+            { TokenKeys.ProviderIdKey, RemoteClientSecretTokenProvider.ProviderName },
+            { TokenKeys.ClientSecretHeader, options.HeaderKey }
         });
 
         // act
         var sut = _fixture.Create<RemoteClientSecretTokenProvider>();
-        var exception = await Record.ExceptionAsync(async () => await sut.GetTokenAsync(settings, null).ConfigureAwait(false));
+        var exception =
+            await Record.ExceptionAsync(async () => await sut.GetTokenAsync(settings, null).ConfigureAwait(false));
 
         // assert
         exception.Should().NotBeNull();
@@ -87,11 +88,11 @@ public class RemoteSecretsTokenProviderTests
     {
         // arrange
         var options = _fixture.Create<RemoteSecretSettingsOptions>();
-        
-        var settings = new SimpleKeyValueSettings(new Dictionary<string, string>()
+
+        var settings = new SimpleKeyValueSettings(new Dictionary<string, string>
         {
-            {TokenKeys.ProviderIdKey, RemoteClientSecretTokenProvider.ProviderName },
-            {TokenKeys.ClientSecret,  options.ClientSecret},
+            { TokenKeys.ProviderIdKey, RemoteClientSecretTokenProvider.ProviderName },
+            { TokenKeys.ClientSecret, options.ClientSecret }
         });
 
         // act
@@ -100,6 +101,6 @@ public class RemoteSecretsTokenProviderTests
 
         // assert
         result.IsFailed.Should().BeTrue();
-        result.Errors.First().Message.Should().Be("Client secret Header is missing. Cannot process the request.");  
+        result.Errors.First().Message.Should().Be("Client secret Header is missing. Cannot process the request.");
     }
 }

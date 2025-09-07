@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using Arc4u.Caching;
 using Arc4u.Caching.Memory;
 using Arc4u.Configuration.Memory;
@@ -19,19 +20,20 @@ namespace Arc4u.UnitTest.Serialization;
 [Trait("Category", "CI")]
 public class TokenTests
 {
+    private readonly Fixture _fixture;
+
     public TokenTests()
     {
         _fixture = new Fixture();
         _fixture.Customize(new AutoMoqCustomization());
     }
 
-    private readonly Fixture _fixture;
-
     [Fact]
     public void AccessTokenValidityShould()
     {
         // act
-        var sut = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow, expires: DateTime.UtcNow.AddHours(1));
+        var sut = new JwtSecurityToken("issuer", "audience", [new Claim("key", "value")], DateTime.UtcNow,
+            DateTime.UtcNow.AddHours(1));
 
         // assert
         (sut.ValidTo > DateTime.UtcNow.AddMinutes(-5)).Should().BeTrue();
@@ -41,7 +43,8 @@ public class TokenTests
     public void AccessTokenValidityShouldNot()
     {
         // act
-        var sut = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddMinutes(-10));
+        var sut = new JwtSecurityToken("issuer", "audience", [new Claim("key", "value")], DateTime.UtcNow.AddHours(-1),
+            DateTime.UtcNow.AddMinutes(-10));
 
         // assert
         (sut.ValidTo > DateTime.UtcNow.AddMinutes(-5)).Should().BeFalse();
@@ -51,11 +54,12 @@ public class TokenTests
     public void AccessTokenBlazorSerializationShouldNot()
     {
         // Arrange
-        var jwt = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddMinutes(-10));
+        var jwt = new JwtSecurityToken("issuer", "audience", [new Claim("key", "value")], DateTime.UtcNow.AddHours(-1),
+            DateTime.UtcNow.AddMinutes(-10));
 
         var tokenInfo = new TokenInfo("Bearer", jwt.EncodedPayload, DateTime.UtcNow);
 
-        var sut = new Arc4u.Caching.SecureCache();
+        var sut = new SecureCache();
         sut.Initialize("store name");
 
         sut.Put("key", tokenInfo);
@@ -66,14 +70,14 @@ public class TokenTests
         // assert
         cachedToken.Should().NotBeNull();
         cachedToken.Token.Should().Be(jwt.EncodedPayload);
-
     }
 
     [Fact]
     public void AccessTokenSerializationJsonShouldNot()
     {
         // Arrange
-        var jwt = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddMinutes(-10));
+        var jwt = new JwtSecurityToken("issuer", "audience", [new Claim("key", "value")], DateTime.UtcNow.AddHours(-1),
+            DateTime.UtcNow.AddMinutes(-10));
 
         var tokenInfo = new TokenInfo("Bearer", jwt.EncodedPayload, DateTime.UtcNow);
         var storeName = "store name";
@@ -86,15 +90,15 @@ public class TokenTests
 
         var mockILoggerFactory = new Mock<ILoggerFactory>();
         mockILoggerFactory.Setup(m => m.CreateLogger(It.IsAny<string>()))
-                          .Returns(NullLogger.Instance);
+            .Returns(NullLogger.Instance);
 
-        services.AddSingleton<ILoggerFactory>(mockILoggerFactory.Object);
+        services.AddSingleton(mockILoggerFactory.Object);
         services.AddTransient(typeof(ILogger<>), typeof(LoggerWrapper<>));
         services.AddKeyedTransient<IAddPropertiesToLog, NullLoggerProperties>("Transient");
 
         var serviceProvider = services.BuildServiceProvider();
 
-        ICache sut = serviceProvider.GetRequiredService<ICache>();
+        var sut = serviceProvider.GetRequiredService<ICache>();
         sut.Initialize(storeName);
 
         sut.Put("key", tokenInfo);
@@ -113,7 +117,8 @@ public class TokenTests
     public void AccessTokenSerializationProtobufShouldNot()
     {
         // Arrange
-        var jwt = new JwtSecurityToken("issuer", "audience", [new("key", "value")], notBefore: DateTime.UtcNow.AddHours(-1), expires: DateTime.UtcNow.AddMinutes(-10));
+        var jwt = new JwtSecurityToken("issuer", "audience", [new Claim("key", "value")], DateTime.UtcNow.AddHours(-1),
+            DateTime.UtcNow.AddMinutes(-10));
 
         var tokenInfo = new TokenInfo("Bearer", jwt.EncodedPayload, DateTime.UtcNow);
 
@@ -126,15 +131,15 @@ public class TokenTests
 
         var mockILoggerFactory = new Mock<ILoggerFactory>();
         mockILoggerFactory.Setup(m => m.CreateLogger(It.IsAny<string>()))
-                          .Returns(NullLogger.Instance);
+            .Returns(NullLogger.Instance);
 
-        services.AddSingleton<ILoggerFactory>(mockILoggerFactory.Object);
+        services.AddSingleton(mockILoggerFactory.Object);
         services.AddTransient(typeof(ILogger<>), typeof(LoggerWrapper<>));
         services.AddKeyedTransient<IAddPropertiesToLog, NullLoggerProperties>("Transient");
 
         var serviceProvider = services.BuildServiceProvider();
 
-        ICache sut = serviceProvider.GetRequiredService<ICache>();
+        var sut = serviceProvider.GetRequiredService<ICache>();
         sut.Initialize(storeName);
 
         sut.Put("key", tokenInfo);

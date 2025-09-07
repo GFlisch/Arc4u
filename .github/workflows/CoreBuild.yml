@@ -44,7 +44,7 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
            dotnet-version: |
-             9.0.100
+             9.0.304
 
       - name: Set the NuGet PackageId in the project files
         run: .\src\Builds\SetNuGetPackageIdPrefix.ps1 ".." "${{ github.event.inputs.nugetPackageIdPrefix }}"

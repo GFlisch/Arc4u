@@ -14,23 +14,20 @@ namespace Arc4u.UnitTest.Security;
 [Trait("Category", "CI")]
 public class TokenCacheOptionsTests
 {
+    private readonly Fixture _fixture;
+
     public TokenCacheOptionsTests()
     {
         _fixture = new Fixture();
         _fixture.Customize(new AutoMoqCustomization());
     }
 
-    private readonly Fixture _fixture;
-
     [Fact]
     public void TockeCacheOption_From_Action_Should()
     {
         IServiceCollection services = new ServiceCollection();
 
-        services.AddTokenCache(options =>
-        {
-            options.CacheName = "test";
-        });
+        services.AddTokenCache(options => { options.CacheName = "test"; });
 
         var servicePovider = services.BuildServiceProvider();
 
@@ -50,12 +47,12 @@ public class TokenCacheOptionsTests
         var options = _fixture.Create<TokenCacheOptions>();
 
         var config = new ConfigurationBuilder()
-              .AddInMemoryCollection(
-                  new Dictionary<string, string?>
-                  {
-                      ["Authentication:TokenCache:CacheName"] = options.CacheName,
-                      ["Authentication:TokenCache:MaxTime"] = options.MaxTime.ToString(),
-                  }).Build();
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["Authentication:TokenCache:CacheName"] = options.CacheName,
+                    ["Authentication:TokenCache:MaxTime"] = options.MaxTime.ToString()
+                }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -80,11 +77,9 @@ public class TokenCacheOptionsTests
         var defaultOptions = new TokenCacheOptions();
 
         var config = new ConfigurationBuilder()
-              .AddInMemoryCollection(
-                  new Dictionary<string, string?>
-                  {
-                      ["Authentication:TokenCache:CacheName"] = options.CacheName,
-                  }).Build();
+            .AddInMemoryCollection(
+                new Dictionary<string, string?> { ["Authentication:TokenCache:CacheName"] = options.CacheName })
+            .Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -108,12 +103,12 @@ public class TokenCacheOptionsTests
         var options = _fixture.Create<TokenCacheOptions>();
 
         var config = new ConfigurationBuilder()
-              .AddInMemoryCollection(
-                  new Dictionary<string, string?>
-                  {
-                      ["Authentication:TokenCache:CacheName"] = options.CacheName,
-                      ["Authentication:TokenCache:MaxTime"] = TimeSpan.Zero.ToString(),
-                  }).Build();
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["Authentication:TokenCache:CacheName"] = options.CacheName,
+                    ["Authentication:TokenCache:MaxTime"] = TimeSpan.Zero.ToString()
+                }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -129,12 +124,12 @@ public class TokenCacheOptionsTests
         IServiceCollection services = new ServiceCollection();
 
         var config = new ConfigurationBuilder()
-              .AddInMemoryCollection(
-                  new Dictionary<string, string?>
-                  {
-                      ["Authentication:TokenCache:CacheName"] = "",
-                      ["Authentication:TokenCache:MaxTime"] = TimeSpan.FromMinutes(20).ToString(),
-                  }).Build();
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["Authentication:TokenCache:CacheName"] = "",
+                    ["Authentication:TokenCache:MaxTime"] = TimeSpan.FromMinutes(20).ToString()
+                }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 

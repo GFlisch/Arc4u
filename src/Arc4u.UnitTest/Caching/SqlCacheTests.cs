@@ -10,28 +10,28 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Moq;
 using Serilog;
 using Xunit;
 
 namespace Arc4u.UnitTest.Caching;
 
 /// <summary>
-/// To run the test all the tests, you need a sql server instance.
-/// To prepare the database install the followin dotnet tools.
-///  dotnet tool install --global dotnet-sql-cache
-/// Run this command:
-///  dotnet sql-cache create "Data Source=localhost;Initial Catalog=CacheTestDB;User ID=sa;Password=P@ssw0rd!;Connect Timeout=30;Encrypt=False" dbo TestCache
+///     To run the test all the tests, you need a sql server instance.
+///     To prepare the database install the followin dotnet tools.
+///     dotnet tool install --global dotnet-sql-cache
+///     Run this command:
+///     dotnet sql-cache create "Data Source=localhost;Initial Catalog=CacheTestDB;User ID=sa;Password=P@ssw0rd!;Connect
+///     Timeout=30;Encrypt=False" dbo TestCache
 /// </summary>
 public class SqlCacheTests
 {
+    private readonly Fixture _fixture;
+
     public SqlCacheTests()
     {
         _fixture = new Fixture();
         _fixture.Customize(new AutoMoqCustomization());
     }
-
-    private readonly Fixture _fixture;
 
     [Fact]
     [Trait("Category", "CI")]
@@ -70,14 +70,14 @@ public class SqlCacheTests
         var option1 = _fixture.Create<SqlCacheOption>();
 
         var config = new ConfigurationBuilder()
-                     .AddInMemoryCollection(
-                         new Dictionary<string, string?>
-                         {
-                             ["Option1:SchemaName"] = option1.SchemaName,
-                             ["Option1:TableName"] = option1.TableName,
-                             ["Option1:ConnectionString"] = option1.ConnectionString,
-                             ["Option1:SerializerName"] = option1.SerializerName,
-                         }).Build();
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["Option1:SchemaName"] = option1.SchemaName,
+                    ["Option1:TableName"] = option1.TableName,
+                    ["Option1:ConnectionString"] = option1.ConnectionString,
+                    ["Option1:SerializerName"] = option1.SerializerName
+                }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -105,10 +105,10 @@ public class SqlCacheTests
         IServiceCollection services = new ServiceCollection();
 
         var serilog = new LoggerConfiguration()
-                                    .MinimumLevel.Debug()
-                                    .CreateLogger();
+            .MinimumLevel.Debug()
+            .CreateLogger();
 
-        services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(logger: serilog, dispose: false));
+        services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(serilog, false));
         services.AddILogger();
 
         var builder = new SqlConnectionStringBuilder

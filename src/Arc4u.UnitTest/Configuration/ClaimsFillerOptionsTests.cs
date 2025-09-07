@@ -14,13 +14,13 @@ namespace Arc4u.UnitTest;
 [Trait("Category", "CI")]
 public class ClaimsFillerOptionsTests
 {
+    private readonly Fixture _fixture;
+
     public ClaimsFillerOptionsTests()
     {
         _fixture = new Fixture();
         _fixture.Customize(new AutoMoqCustomization());
     }
-
-    private readonly Fixture _fixture;
 
     [Fact]
     public void Default_Settings_Should()
@@ -31,7 +31,8 @@ public class ClaimsFillerOptionsTests
             .AddInMemoryCollection(
                 new Dictionary<string, string?>
                 {
-                    ["Authentication:ClaimsMiddleWare:ClaimsFiller:LoadClaimsFromClaimsFillerProvider"] = _default.LoadClaimsFromClaimsFillerProvider.ToString()
+                    ["Authentication:ClaimsMiddleWare:ClaimsFiller:LoadClaimsFromClaimsFillerProvider"] =
+                        _default.LoadClaimsFromClaimsFillerProvider.ToString()
                 }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
@@ -47,7 +48,7 @@ public class ClaimsFillerOptionsTests
         sut.Should().NotBeNull();
         sut!.Value.Should().NotBeNull();
         sut.Value.LoadClaimsFromClaimsFillerProvider.Should().Be(_default.LoadClaimsFromClaimsFillerProvider);
-        sut.Value.SettingsKeys.Should().Equal([ Constants.OpenIdOptionsName ]);
+        sut.Value.SettingsKeys.Should().Equal(Constants.OpenIdOptionsName);
         sut.Value.ExpireClaim.Should().Be(_default.ExpireClaim);
         sut.Value.ClaimsToExclude.Should().Equal(AddClaimsFillerExtension.DefaultClaimsToExclude);
     }
@@ -58,24 +59,26 @@ public class ClaimsFillerOptionsTests
         var options = _fixture.Create<ClaimsFillerOptions>();
 
         var settingsKeysDictionary = options.SettingsKeys
-                                            .Select((value, index) => new { value, index })
-                                            .ToDictionary(
-                                                x => $"Authentication:ClaimsMiddleWare:ClaimsFiller:SettingsKeys:{x.index}", // Key: e.g. "SettingKey_0"
-                                                x => (string?)x.value // Value: original value
-                                            );
+            .Select((value, index) => new { value, index })
+            .ToDictionary(
+                x => $"Authentication:ClaimsMiddleWare:ClaimsFiller:SettingsKeys:{x.index}", // Key: e.g. "SettingKey_0"
+                x => (string?)x.value // Value: original value
+            );
         var claimsToExcludeKeysDictionary = options.ClaimsToExclude
-                                                   .Select((value, index) => new { value, index })
-                                                   .ToDictionary(
-                                                   x => $"Authentication:ClaimsMiddleWare:ClaimsFiller:ClaimsToExclude:{x.index}", // Key: e.g. "SettingKey_0"
-                                                   x => (string?)x.value // Value: original value
-                                                   );
+            .Select((value, index) => new { value, index })
+            .ToDictionary(
+                x =>
+                    $"Authentication:ClaimsMiddleWare:ClaimsFiller:ClaimsToExclude:{x.index}", // Key: e.g. "SettingKey_0"
+                x => (string?)x.value // Value: original value
+            );
         var config = new ConfigurationBuilder()
             .AddInMemoryCollection(
                 new Dictionary<string, string?>
-                {
-                    ["Authentication:ClaimsMiddleWare:ClaimsFiller:LoadClaimsFromClaimsFillerProvider"] = options.LoadClaimsFromClaimsFillerProvider.ToString(),
-                    ["Authentication:ClaimsMiddleWare:ClaimsFiller:ExpireClaim"] = options.ExpireClaim,
-                }
+                    {
+                        ["Authentication:ClaimsMiddleWare:ClaimsFiller:LoadClaimsFromClaimsFillerProvider"] =
+                            options.LoadClaimsFromClaimsFillerProvider.ToString(),
+                        ["Authentication:ClaimsMiddleWare:ClaimsFiller:ExpireClaim"] = options.ExpireClaim
+                    }
                     .Union(claimsToExcludeKeysDictionary)
                     .Union(settingsKeysDictionary)).Build();
 
@@ -106,7 +109,8 @@ public class ClaimsFillerOptionsTests
             .AddInMemoryCollection(
                 new Dictionary<string, string?>
                 {
-                    ["Authentication:ClaimsMiddleWare:ClaimsFiller:LoadClaimsFromClaimsFillerProvider"] = _default.LoadClaimsFromClaimsFillerProvider.ToString(),
+                    ["Authentication:ClaimsMiddleWare:ClaimsFiller:LoadClaimsFromClaimsFillerProvider"] =
+                        _default.LoadClaimsFromClaimsFillerProvider.ToString(),
                     ["Authentication:ClaimsMiddleWare:ClaimsFiller:ClaimsToExclude"] = ""
                 }).Build();
 
@@ -123,9 +127,8 @@ public class ClaimsFillerOptionsTests
         sut.Should().NotBeNull();
         sut!.Value.Should().NotBeNull();
         sut.Value.LoadClaimsFromClaimsFillerProvider.Should().Be(_default.LoadClaimsFromClaimsFillerProvider);
-        sut.Value.SettingsKeys.Should().Equal([Constants.OpenIdOptionsName]);
+        sut.Value.SettingsKeys.Should().Equal(Constants.OpenIdOptionsName);
         sut.Value.ExpireClaim.Should().Be(_default.ExpireClaim);
         sut.Value.ClaimsToExclude.Should().BeEmpty();
     }
-
 }

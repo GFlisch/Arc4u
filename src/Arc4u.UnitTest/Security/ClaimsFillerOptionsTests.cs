@@ -1,4 +1,3 @@
-using Arc4u.Configuration;
 using Arc4u.OAuth2;
 using Arc4u.OAuth2.Extensions;
 using Arc4u.OAuth2.Options;
@@ -15,22 +14,20 @@ namespace Arc4u.UnitTest.Security;
 [Trait("Category", "CI")]
 public class ClaimsFillerOptionsTests
 {
+    private readonly Fixture _fixture;
+
     public ClaimsFillerOptionsTests()
     {
         _fixture = new Fixture();
         _fixture.Customize(new AutoMoqCustomization());
     }
 
-    private readonly Fixture _fixture;
-
     [Fact]
     public void Basic_ClaimsFillerOptions_Should()
     {
         var config = new ConfigurationBuilder()
-                            .AddInMemoryCollection(
-        new Dictionary<string, string?>
-        {
-        }).Build();
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>()).Build();
 
         IConfiguration configuration = new ConfigurationRoot([.. config.Providers]);
 
@@ -51,11 +48,11 @@ public class ClaimsFillerOptionsTests
     public void Settings_ClaimsFillerOptions_Should()
     {
         var config = new ConfigurationBuilder()
-                                            .AddInMemoryCollection(
-                                                 new Dictionary<string, string?>
-                                                 {
-                                                     ["Authentication:ClaimsMiddleWare:ClaimsFiller:SettingsKeys:0"] = "OAuth2",
-                                                 }).Build();
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["Authentication:ClaimsMiddleWare:ClaimsFiller:SettingsKeys:0"] = "OAuth2"
+                }).Build();
 
         IConfiguration configuration = new ConfigurationRoot([.. config.Providers]);
 
@@ -78,11 +75,11 @@ public class ClaimsFillerOptionsTests
     public void Do_No_Load_Claims_ClaimsFillerOptions_Should()
     {
         var config = new ConfigurationBuilder()
-                            .AddInMemoryCollection(
-        new Dictionary<string, string?>
-        {
-            ["Authentication:ClaimsMiddleWare:ClaimsFiller:LoadClaimsFromClaimsFillerProvider"] = "false",
-        }).Build();
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["Authentication:ClaimsMiddleWare:ClaimsFiller:LoadClaimsFromClaimsFillerProvider"] = "false"
+                }).Build();
 
         IConfiguration configuration = new ConfigurationRoot([.. config.Providers]);
 

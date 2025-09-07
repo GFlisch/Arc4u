@@ -1,5 +1,4 @@
 using Arc4u.Configuration;
-using Arc4u.OAuth2;
 using Arc4u.OAuth2.Extensions;
 using Arc4u.OAuth2.Options;
 using Arc4u.OAuth2.Token;
@@ -16,13 +15,13 @@ namespace Arc4u.UnitTest;
 [Trait("Category", "CI")]
 public class SecretBasicSettingsOptionsTests
 {
+    private readonly Fixture _fixture;
+
     public SecretBasicSettingsOptionsTests()
     {
         _fixture = new Fixture();
         _fixture.Customize(new AutoMoqCustomization());
     }
-
-    private readonly Fixture _fixture;
 
     [Fact]
     public void Secret_User_Password_Basic_Should()
@@ -32,14 +31,14 @@ public class SecretBasicSettingsOptionsTests
         var authUrl = _fixture.Create<Uri>().ToString();
 
         var config = new ConfigurationBuilder()
-                     .AddInMemoryCollection(
-                         new Dictionary<string, string?>
-                         {
-                             ["Authentication:ClientSecrets:Client1:ClientId"] = options.ClientId,
-                             ["Authentication:ClientSecrets:Client1:Authority:Url"] = authUrl,
-                             ["Authentication:ClientSecrets:Client1:User"] = options.User,
-                             ["Authentication:ClientSecrets:Client1:Password"] = options.Password,
-                         }).Build();
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["Authentication:ClientSecrets:Client1:ClientId"] = options.ClientId,
+                    ["Authentication:ClientSecrets:Client1:Authority:Url"] = authUrl,
+                    ["Authentication:ClientSecrets:Client1:User"] = options.User,
+                    ["Authentication:ClientSecrets:Client1:Password"] = options.Password
+                }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -76,14 +75,14 @@ public class SecretBasicSettingsOptionsTests
         var authUrl = _fixture.Create<Uri>().ToString();
 
         var config = new ConfigurationBuilder()
-                     .AddInMemoryCollection(
-                         new Dictionary<string, string?>
-                         {
-                             ["Authentication:ClientSecrets:Client1:ClientId"] = options.ClientId,
-                             ["Authentication:ClientSecrets:Client1:Authority:Url"] = authUrl,
-                             ["Authentication:ClientSecrets:Client1:User"] = options.User,
-                             ["Authentication:ClientSecrets:Client1:Credential"] = options.Credential,
-                         }).Build();
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["Authentication:ClientSecrets:Client1:ClientId"] = options.ClientId,
+                    ["Authentication:ClientSecrets:Client1:Authority:Url"] = authUrl,
+                    ["Authentication:ClientSecrets:Client1:User"] = options.User,
+                    ["Authentication:ClientSecrets:Client1:Credential"] = options.Credential
+                }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -119,13 +118,13 @@ public class SecretBasicSettingsOptionsTests
         var _default = new SecretBasicSettingsOptions();
 
         var config = new ConfigurationBuilder()
-                     .AddInMemoryCollection(
-                         new Dictionary<string, string?>
-                         {
-                             ["Authentication:ClientSecrets:Client1:ClientId"] = options.ClientId,
-                             ["Authentication:ClientSecrets:Client1:User"] = options.User,
-                             ["Authentication:ClientSecrets:Client1:Credential"] = options.Credential,
-                         }).Build();
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["Authentication:ClientSecrets:Client1:ClientId"] = options.ClientId,
+                    ["Authentication:ClientSecrets:Client1:User"] = options.User,
+                    ["Authentication:ClientSecrets:Client1:Credential"] = options.Credential
+                }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -158,7 +157,7 @@ public class SecretBasicSettingsOptionsTests
     public void No_Secret_Should()
     {
         var config = new ConfigurationBuilder()
-                     .AddInMemoryCollection([]).Build();
+            .AddInMemoryCollection([]).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -181,11 +180,11 @@ public class SecretBasicSettingsOptionsTests
         var _default = new SecretBasicSettingsOptions();
 
         var config = new ConfigurationBuilder()
-                     .AddInMemoryCollection(
-                         new Dictionary<string, string?>
-                         {
-                             ["Authentication:ClientSecrets:Client1:ClientId"] = options.ClientId,
-                         }).Build();
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["Authentication:ClientSecrets:Client1:ClientId"] = options.ClientId
+                }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -204,13 +203,13 @@ public class SecretBasicSettingsOptionsTests
         var _default = new SecretBasicSettingsOptions();
 
         var config = new ConfigurationBuilder()
-                     .AddInMemoryCollection(
-                         new Dictionary<string, string?>
-                         {
-                             ["Authentication:ClientSecrets:Client1:ClientId"] = options.ClientId,
-                             ["Authentication:ClientSecrets:Client1:Password"] = options.Password,
-                             ["Authentication:ClientSecrets:Client1:Credential"] = options.Credential,
-                         }).Build();
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["Authentication:ClientSecrets:Client1:ClientId"] = options.ClientId,
+                    ["Authentication:ClientSecrets:Client1:Password"] = options.Password,
+                    ["Authentication:ClientSecrets:Client1:Credential"] = options.Credential
+                }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 

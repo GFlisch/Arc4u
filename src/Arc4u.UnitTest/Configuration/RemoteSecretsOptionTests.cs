@@ -13,16 +13,15 @@ using Xunit;
 namespace Arc4u.UnitTest;
 
 [Trait("Category", "CI")]
-
 public class RemoteSecretsOptionTests
 {
+    private readonly Fixture _fixture;
+
     public RemoteSecretsOptionTests()
     {
         _fixture = new Fixture();
         _fixture.Customize(new AutoMoqCustomization());
     }
-
-    private readonly Fixture _fixture;
 
     [Fact]
     public void RemoteSecretsShould()
@@ -31,11 +30,11 @@ public class RemoteSecretsOptionTests
         var _default = new RemoteSecretSettingsOptions();
 
         var config = new ConfigurationBuilder()
-                     .AddInMemoryCollection(
-                         new Dictionary<string, string?>
-                         {
-                             ["Authentication:RemoteSecrets:Remote1:ClientSecret"] = options.ClientSecret,
-                         }).Build();
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["Authentication:RemoteSecrets:Remote1:ClientSecret"] = options.ClientSecret
+                }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -62,11 +61,11 @@ public class RemoteSecretsOptionTests
         var _default = new RemoteSecretSettingsOptions();
 
         var config = new ConfigurationBuilder()
-                     .AddInMemoryCollection(
-                         new Dictionary<string, string?>
-                         {
-                             ["Authentication:RemoteSecrets:Remote1:HeaderKey"] = options.HeaderKey,
-                         }).Build();
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["Authentication:RemoteSecrets:Remote1:HeaderKey"] = options.HeaderKey
+                }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
@@ -88,11 +87,8 @@ public class RemoteSecretsOptionTests
         var _default = new RemoteSecretSettingsOptions();
 
         var config = new ConfigurationBuilder()
-                     .AddInMemoryCollection(
-                         new Dictionary<string, string?>
-                         {
-                             ["Authentication:RemoteSecrets:Remote1:HeaderKey"] = null,
-                         }).Build();
+            .AddInMemoryCollection(
+                new Dictionary<string, string?> { ["Authentication:RemoteSecrets:Remote1:HeaderKey"] = null }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
