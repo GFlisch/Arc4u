@@ -5,8 +5,8 @@
     <NoWarn>$(NoWarn);IDE0130</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Grpc.Core.Api" Version="2.66.0" />
-    <PackageReference Include="GrpcRichError" Version="0.1.6" />
+    <PackageReference Include="Grpc.Core.Api" Version="2.71.0" />
+    <PackageReference Include="GrpcRichError" Version="0.1.8" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />

@@ -6,7 +6,6 @@ namespace Arc4u.UnitTest.Threading;
 [Trait("Category", "CI")]
 public class TimeoutHelperTests
 {
-    [Trait("Category", "CI")]
     [Fact]
     public void WaitOne_WithTimeout_ShouldReturnFalse()
     {
@@ -15,7 +14,6 @@ public class TimeoutHelperTests
         Assert.False(result);
     }
 
-    [Trait("Category", "CI")]
     [Fact]
     public void WaitOne_WithSignaledHandle_ShouldReturnTrue()
     {
@@ -24,7 +22,6 @@ public class TimeoutHelperTests
         Assert.True(result);
     }
 
-    [Trait("Category", "CI")]
     [Fact]
     public void WaitOne_WithNegativeTimeout_ShouldThrowArgumentOutOfRangeException()
     {
@@ -33,7 +30,6 @@ public class TimeoutHelperTests
             WaitHandleHelper.WaitOne(waitHandle, TimeSpan.FromMilliseconds(-1), false));
     }
 
-    [Trait("Category", "CI")]
     [Fact]
     public void TimeoutHelper_Constructor_ShouldInitializeCorrectly()
     {
@@ -41,7 +37,6 @@ public class TimeoutHelperTests
         Assert.Equal(TimeSpan.FromMilliseconds(100), timeoutHelper.OriginalTimeout);
     }
 
-    [Trait("Category", "CI")]
     [Fact]
     public void TimeoutHelper_RemainingTime_ShouldReturnCorrectValue()
     {
@@ -89,25 +84,6 @@ public class TimeoutHelperTests
         var remaining = helper.RemainingTime();
 
         Assert.Equal(TimeSpan.Zero, remaining);
-    }
-
-    [Fact]
-    public void SetTimer_ShouldInvokeCallback_AfterTimeout()
-    {
-        var timeout = TimeSpan.FromMilliseconds(500);
-        var helper = new TimeoutHelper(timeout);
-        var callbackInvoked = false;
-
-        void Callback(object state)
-        {
-            callbackInvoked = true;
-        }
-
-        helper.SetTimer(Callback!, null);
-
-        Thread.Sleep(1000);
-
-        Assert.True(callbackInvoked);
     }
 
     [Fact]

@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis;
+#if NET9_0
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 
 namespace Arc4u.UnitTest.SourceCodeGenerator;
@@ -20,3 +21,4 @@ public class TestAdditionalFile : AdditionalText
         return _jsonText;
     }
 }
+#endif

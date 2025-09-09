@@ -17,7 +17,7 @@
     <PackageReference Include="System.Text.Json" Version="9.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.1.2" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.14.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Arc4u.Diagnostics\Arc4u.Diagnostics.csproj" />

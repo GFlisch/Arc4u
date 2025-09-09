@@ -247,8 +247,8 @@ public class ResultTests
 
         result.IsFailed.Should().BeTrue();
         result.Errors.Count.Should().Be(1);
-        result.Errors.First().Should().BeOfType<ProblemDetailError>();
-        var problem = result.Errors.First().As<ProblemDetailError>();
+        result.Errors[0].Should().BeOfType<ProblemDetailError>();
+        var problem = (ProblemDetailError)result.Errors[0];
         problem.Message.Should().Be(error.Message);
         problem.StatusCode.Should().Be(error.StatusCode);
         problem.Title.Should().Be(error.Title);

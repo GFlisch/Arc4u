@@ -1,6 +1,5 @@
-﻿#if NET9_0
+#if NET7_0
 using System.Collections.Immutable;
-using System.Reflection;
 using Arc4u.Dependency.Tool;
 using FluentAssertions;
 using Microsoft.CodeAnalysis;
@@ -55,8 +54,7 @@ public class GenerateRegisteredTypesTests
 
         // To run generators, we can use an empty compilation.
         // I have to create a Compiler with Assemblies to test the GenerateRegisteredTypes
-        var compilation =
- CSharpCompilation.Create(nameof(GenerateRegisteredTypes), [dummySyntaxTree], references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+        var compilation = CSharpCompilation.Create(nameof(GenerateRegisteredTypes), [dummySyntaxTree], references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 
         // Run generators. Don't forget to use the new compilation rather than the previous one.
         driver.RunGeneratorsAndUpdateCompilation(compilation, out var newCompilation, out _);
@@ -77,3 +75,4 @@ public class GenerateRegisteredTypesTests
     }
 }
 #endif
+

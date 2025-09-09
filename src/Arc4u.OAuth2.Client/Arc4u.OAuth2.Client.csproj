@@ -5,7 +5,7 @@
     <NoWarn>$(NoWarn);IDE0130</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.1.2" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.14.0" />
     <PackageReference Include="System.Security.Cryptography.Cng" Version="5.0.0" />
     <ProjectReference Include="..\Arc4u.OAuth2\Arc4u.OAuth2.csproj" />
   </ItemGroup>
