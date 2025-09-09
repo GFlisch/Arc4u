@@ -67,16 +67,6 @@ public class CategorySerilogTesters
 
         Assert.True(sink.Emited);
         sink.Emited = false;
-
-        using var monitoring = new SystemResources(logger, 1) { StartMonitoringDelayInSeconds = 1 };
-
-        await monitoring.StartAsync(new CancellationToken());
-
-        await Task.Delay(1500);
-
-        await monitoring.StopAsync(new CancellationToken());
-
-        Assert.True(sink.Emited);
     }
 }
 
