@@ -81,18 +81,23 @@ public class TimeZoneContextTests
     public void ConvertToUtc_ShouldConvertToUtc()
     {
         // Arrange
-        var timeZoneContextPST = new TimeZoneContext(_mockConfigPST.Object, _mockLogger);
-        var timeZoneContextBE = new TimeZoneContext(_mockConfigBE.Object, _mockLogger);
+        var timeZoneContextPst = new TimeZoneContext(_mockConfigPST.Object, _mockLogger);
+        var timeZoneContextBe = new TimeZoneContext(_mockConfigBE.Object, _mockLogger);
 
         var utcTime = new DateTime(2023, 1, 1, 12, 0, 0, DateTimeKind.Utc);
-        var localTime = timeZoneContextBE.ConvertFromUtc(utcTime);
+        var beLocalTime = timeZoneContextBe.ConvertFromUtc(utcTime);
+        var beUtcTime = timeZoneContextBe.ConvertToUtc(beLocalTime);
 
         // Act
-        var pstUtcTime = timeZoneContextPST.ConvertToUtc(localTime);
+        var pstLocalTime = timeZoneContextPst.ConvertFromUtc(utcTime);
+        var pstUtcTime = timeZoneContextPst.ConvertToUtc(pstLocalTime);
 
         // Assert
-        Assert.Equal(DateTimeKind.Utc, utcTime.Kind);
+        Assert.Equal(DateTimeKind.Utc, pstUtcTime.Kind);
+        Assert.Equal(DateTimeKind.Utc, beUtcTime.Kind);
         Assert.Equal(pstUtcTime, utcTime);
+        Assert.Equal(beUtcTime, utcTime);
+        (beLocalTime - pstLocalTime).Should().Be(TimeSpan.FromHours(9));
     }
 
     [Fact]

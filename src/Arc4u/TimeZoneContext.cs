@@ -142,7 +142,7 @@ namespace Arc4u
                 throw new InvalidTimeZoneException("An Utc date is mandatory!");
             }
 
-            var date = TimeZoneInfo.ConvertTime(value, TimeZoneInfo);
+            var date = TimeZoneInfo.ConvertTimeFromUtc(value, _timeZone);
             return DateTime.SpecifyKind(date, DateTimeKind.Local);
         }
 
@@ -153,7 +153,8 @@ namespace Arc4u
                 return value;
             }
 
-            return TimeZoneInfo.ConvertTime(value, TimeZoneInfo.Utc);
+            var unspecifiedDate = DateTime.SpecifyKind(value, DateTimeKind.Unspecified);
+            return TimeZoneInfo.ConvertTime(unspecifiedDate, _timeZone, TimeZoneInfo.Utc);
         }
     }
 }
