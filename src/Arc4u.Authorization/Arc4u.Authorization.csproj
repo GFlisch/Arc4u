@@ -12,8 +12,8 @@
   <ItemGroup Condition=" '$(TargetFramework)' == 'net9.0' ">
     <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="9.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.0" />
-    <PackageReference Include="System.Text.Json" Version="9.0.0" />
-  </ItemGroup>  
+    <PackageReference Include="System.Text.Json" Version="9.0.5" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Arc4u\Arc4u.csproj" />
   </ItemGroup>
