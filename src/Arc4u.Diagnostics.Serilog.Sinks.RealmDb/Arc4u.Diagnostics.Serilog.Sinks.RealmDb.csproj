@@ -4,7 +4,6 @@
     <PackageId>Arc4u.Diagnostics.Serilog.Sinks.RealmDb</PackageId>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="AutoMapper" />
     <PackageReference Include="Realm" />
     <PackageReference Include="Serilog.Sinks.PeriodicBatching" />
     <PackageReference Include="Microsoft.Extensions.Hosting" />

@@ -1,4 +1,3 @@
-using AutoMapper;
 using Microsoft.Extensions.Logging;
 using Realms;
 
@@ -6,7 +5,7 @@ namespace Arc4u.Diagnostics.Serilog.Sinks.RealmDb;
 
 public class RealmLoggingDbCtx : ILogStore
 {
-    public RealmLoggingDbCtx(RealmConfiguration config)
+    public RealmLoggingDbCtx(RealmConfiguration config, ILoggerFactory loggerFactory)
     {
         _realm = Realm.GetInstance(config);
     }
@@ -49,26 +48,28 @@ public class RealmLoggingDbCtx : ILogStore
             i++;
         }
 
-        return Mapper.Map<List<LogMessage>>(result);
+        // return the list<LogMessage> based on the list<LogDBMessage>.
+        var mapped = result.Select(db => new LogMessage
+        {
+            Message = db.Message,
+            MessageCategory = ((MessageCategory)db.MessageCategory).ToString(),
+            MessageType = ((LogLevel)db.MessageType).ToString(),
+            Timestamp = db.Timestamp,
+            ActivityId = db.ActivityId,
+            Application = db.Application,
+            Identity = db.Identity,
+            ClassType = db.ClassType,
+            MethodName = db.MethodName,
+            ProcessId = db.ProcessId,
+            ThreadId = db.ThreadId,
+            Stacktrace = db.Stacktrace,
+            Properties = db.Properties
+        }).ToList();
+
+        return mapped;
     }
 
     private readonly Realm _realm;
+    private readonly ILoggerFactory _loggerFactory;
     public Realm Realm { get { return _realm; } }
-
-    private static readonly IMapper _mapper = CreateMapping();
-    public static IMapper Mapper { get { return _mapper; } }
-
-    public static IMapper CreateMapping()
-    {
-        var config = new MapperConfiguration(cfg =>
-        {
-            // cfg.AddCollectionMappers();
-            cfg.CreateMap<LogDBMessage, LogMessage>()
-               .ForMember(dest => dest.MessageCategory, opts => opts.MapFrom(src => ((MessageCategory)src.MessageCategory).ToString()))
-               .ForMember(dest => dest.MessageType, opts => opts.MapFrom(src => ((LogLevel)src.MessageType).ToString()));
-        });
-
-        return config.CreateMapper();
-
-    }
 }

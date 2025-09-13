@@ -43,8 +43,8 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net9.0' ">
-    <ProjectReference Include="..\Arc4u.Dependency.Tool\Arc4u.Dependency.Tool.csproj" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.SourceGenerators.Testing.XUnit" />
+    <ProjectReference Include="..\Arc4u.Dependency.Tool\Arc4u.Dependency.Tool.csproj" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all"/>
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" PrivateAssets="all"/>
   </ItemGroup>
