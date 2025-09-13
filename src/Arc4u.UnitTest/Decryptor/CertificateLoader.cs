@@ -2,7 +2,7 @@ using Arc4u.Diagnostics;
 using Arc4u.Security.Cryptography;
 using AutoFixture;
 using AutoFixture.AutoMoq;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;

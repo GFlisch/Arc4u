@@ -2,7 +2,7 @@ using Arc4u.Extensions;
 using Arc4u.Security.Principal;
 using AutoFixture;
 using AutoFixture.AutoMoq;
-using FluentAssertions;
+using AwesomeAssertions;
 using Xunit;
 
 namespace Arc4u.UnitTest.Security;

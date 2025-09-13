@@ -1,7 +1,7 @@
 using Arc4u.Core;
 using AutoFixture;
 using AutoFixture.AutoMoq;
-using FluentAssertions;
+using AwesomeAssertions;
 using Xunit;
 
 namespace Arc4u.UnitTest.Core;

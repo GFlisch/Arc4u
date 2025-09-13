@@ -8,7 +8,7 @@ using Arc4u.OAuth2.DataProtection;
 using Arc4u.Serializer;
 using AutoFixture;
 using AutoFixture.AutoMoq;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.Extensions.Configuration;

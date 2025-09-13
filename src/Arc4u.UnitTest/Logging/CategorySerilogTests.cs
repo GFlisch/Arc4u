@@ -2,7 +2,7 @@ using Arc4u.Dependency;
 using Arc4u.Diagnostics;
 using Arc4u.Diagnostics.Monitoring;
 using Arc4u.Diagnostics.Serilog;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;

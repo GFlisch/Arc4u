@@ -8,7 +8,7 @@ using Arc4u.OAuth2.Token;
 using Arc4u.Serializer;
 using AutoFixture;
 using AutoFixture.AutoMoq;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;

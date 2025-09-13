@@ -3,7 +3,7 @@ using Arc4u.Security.Cryptography;
 using Arc4u.UnitTest.Decryptor;
 using AutoFixture;
 using AutoFixture.AutoMoq;
-using FluentAssertions;
+using AwesomeAssertions;
 using Xunit;
 
 namespace Arc4u.UnitTest.Security;

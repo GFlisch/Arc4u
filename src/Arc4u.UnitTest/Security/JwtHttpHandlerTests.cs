@@ -16,7 +16,7 @@ using Arc4u.OAuth2.TokenProviders;
 using Arc4u.Security.Principal;
 using AutoFixture;
 using AutoFixture.AutoMoq;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

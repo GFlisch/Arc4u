@@ -1,7 +1,7 @@
 #if NET7_0
 using System.Collections.Immutable;
 using Arc4u.Dependency.Tool;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;

@@ -4,7 +4,7 @@ using Arc4u.Results.Validation;
 using Arc4u.Validation;
 using AutoFixture;
 using AutoFixture.AutoMoq;
-using FluentAssertions;
+using AwesomeAssertions;
 using FluentResults;
 using FluentValidation;
 using FluentValidation.Results;

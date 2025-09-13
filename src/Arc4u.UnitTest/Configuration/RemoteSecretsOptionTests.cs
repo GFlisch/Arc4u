@@ -4,7 +4,7 @@ using Arc4u.OAuth2.Options;
 using Arc4u.OAuth2.Token;
 using AutoFixture;
 using AutoFixture.AutoMoq;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;

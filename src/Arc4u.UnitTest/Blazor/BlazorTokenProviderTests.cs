@@ -6,7 +6,7 @@ using Arc4u.OAuth2.TokenProvider;
 using AutoFixture;
 using AutoFixture.AutoMoq;
 using Blazored.LocalStorage;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.JSInterop;
 using Moq;
 using Xunit;

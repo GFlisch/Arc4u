@@ -1,7 +1,7 @@
 using System.Reflection;
 using Arc4u.Configuration;
 using Arc4u.Diagnostics;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;

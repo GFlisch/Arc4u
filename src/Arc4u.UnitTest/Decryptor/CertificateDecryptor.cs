@@ -4,7 +4,7 @@ using Arc4u.Security;
 using Arc4u.Security.Cryptography;
 using AutoFixture;
 using AutoFixture.AutoMoq;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.Extensions.Configuration;
 using Xunit;
 using X509CertificateLoader = Arc4u.Security.Cryptography.X509CertificateLoader;

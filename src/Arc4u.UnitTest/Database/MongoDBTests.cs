@@ -3,7 +3,7 @@ using Arc4u.MongoDB.Configuration;
 using Arc4u.MongoDB.Exceptions;
 using AutoFixture;
 using AutoFixture.AutoMoq;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;

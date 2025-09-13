@@ -17,7 +17,7 @@ using Arc4u.OAuth2.TokenProviders;
 using Arc4u.Security.Principal;
 using AutoFixture;
 using AutoFixture.AutoMoq;
-using FluentAssertions;
+using AwesomeAssertions;
 using Grpc.Core;
 using Grpc.Core.Interceptors;
 using Microsoft.AspNetCore.Http;

@@ -1,5 +1,5 @@
 using Arc4u.Collections.Generic;
-using FluentAssertions;
+using AwesomeAssertions;
 using Xunit;
 
 namespace Arc4u.UnitTest.Collections.Generic;

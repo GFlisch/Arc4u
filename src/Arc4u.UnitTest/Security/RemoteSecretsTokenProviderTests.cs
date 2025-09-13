@@ -4,7 +4,7 @@ using Arc4u.OAuth2.Token;
 using Arc4u.OAuth2.TokenProvider;
 using AutoFixture;
 using AutoFixture.AutoMoq;
-using FluentAssertions;
+using AwesomeAssertions;
 using Xunit;
 
 namespace Arc4u.UnitTest.Security;

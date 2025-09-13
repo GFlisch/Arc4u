@@ -2,7 +2,7 @@
 // using Arc4u.Dependency;
 // using Arc4u.Dependency.Attribute;
 // using Arc4u.Dependency.ComponentModel;
-// using FluentAssertions;
+// using AwesomeAssertions;
 // using Microsoft.Extensions.DependencyInjection;
 // using Microsoft.Extensions.Options;
 // using Xunit;

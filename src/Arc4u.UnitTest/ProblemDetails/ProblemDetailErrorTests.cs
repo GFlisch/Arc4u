@@ -1,7 +1,7 @@
 using Arc4u.Results;
 using AutoFixture;
 using AutoFixture.AutoMoq;
-using FluentAssertions;
+using AwesomeAssertions;
 using FluentResults;
 using Microsoft.AspNetCore.Http;
 using Xunit;
