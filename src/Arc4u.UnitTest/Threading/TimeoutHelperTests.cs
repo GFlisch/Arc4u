@@ -139,7 +139,7 @@ public class TimeoutHelperTests
     [Fact]
     public void Set_Timer_CallBack()
     {
-        var timeout = TimeSpan.FromMilliseconds(50);
+        var timeout = TimeSpan.FromMilliseconds(100);
         var helper = new TimeoutHelper(timeout);
         var callbackInvoked = false;
         var evt = new ManualResetEventSlim(false);
