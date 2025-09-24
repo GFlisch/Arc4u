@@ -16,24 +16,6 @@ namespace Arc4u.OAuth2.Token
         // case can be a singleton because we do an impersonation!
 
         /// <summary>
-        /// This constructor is obsolete. It does not allow <see cref="JwtHttpHandler"/> to be used with a client secret outside a http context.
-        /// Please use <see cref="JwtHttpHandler(IServiceProvider, ILogger{JwtHttpHandler}, IKeyValueSettings)"/> instead.
-        /// </summary>
-        /// <param name="serviceProviderAccessor">The name used to resolve the settings</param>
-        /// <param name="logger">The scoped container</param>
-        /// <param name="keyValuesSettings"></param>
-        [Obsolete("Use the ctor accepting an IServiceProvider as first parameter")]
-        public JwtHttpHandler(IScopedServiceProviderAccessor serviceProviderAccessor, ILogger<JwtHttpHandler> logger, [DisallowNull] IKeyValueSettings keyValuesSettings)
-        {
-            _serviceProvider = null;
-            _serviceProviderAccessor = serviceProviderAccessor;
-
-            _logger = logger;
-
-            _settings = keyValuesSettings ?? throw new ArgumentNullException(nameof(keyValuesSettings));
-        }
-
-        /// <summary>
         /// This is a ctor to use only in a backend scenario => where IPlatformParameters is not used!
         /// No inner handler is defined because this will be done via the AddHttpClient method in a service!
         /// </summary>
@@ -96,7 +78,7 @@ namespace Arc4u.OAuth2.Token
                 return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
             }
 
-            // Or we have an OAuth token and we have to validate if the Authenication Type is 
+            // Or we have an OAuth token and we have to validate if the Authenication Type is
             // well the same as the ClaimsPrincipal!
             // Or we inject in a header another kind of token and we just inject it (no other check).
             // By pass is provided with the AuthenticationType value = "Inject"

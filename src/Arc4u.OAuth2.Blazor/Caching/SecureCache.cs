@@ -1,6 +1,7 @@
+using Arc4u.Caching;
 using Arc4u.Dependency.Attribute;
 
-namespace Arc4u.Caching;
+namespace Arc4u.Blazor.Caching;
 
 /// <summary>
 /// Provides a secure cache implementation.

@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Arc4u.Results.Validation;
 using FluentResults;
@@ -5,6 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Arc4u.Results.Logging;
 
+[Export(typeof(IResultLogger)), Shared]
 public class FluentLogger : IResultLogger
 {
     public FluentLogger(ILogger<FluentLogger> logger)
@@ -12,7 +15,7 @@ public class FluentLogger : IResultLogger
         _logger = logger;
     }
 
-    delegate void logDelegate(string? message, params object?[] args);
+    delegate void LogDelegate(string? message, params object?[] args);
 
     private readonly ILogger<FluentLogger> _logger;
     public void Log(string context, string content, ResultBase result, LogLevel logLevel)
@@ -20,36 +23,38 @@ public class FluentLogger : IResultLogger
         if (!string.IsNullOrEmpty(context) && !string.IsNullOrEmpty(content))
         {
             var logger = _logger.Business()
-                                .AddIf(context is not null, "Context", () => context!);
+                                .Add("Context", () => context!);
 
             GetBusinessLogger(logger, logLevel)(content);
         }
 
-        if (result is not null && result.IsFailed && result.Errors is not null)
+        if (result is { IsFailed: true, Errors: not null })
         {
             foreach (var error in result.Errors)
             {
-                if (error is ValidationError validationError)
+                switch (error)
                 {
-                    var logger = _logger.Business()
-                                        .AddIf(validationError.Code is not null, "Code", () => validationError.Code!);
+                    case ValidationError validationError:
+                    {
+                        var logger = _logger.Business()
+                            .AddIf(validationError.Code is not null, "Code", () => validationError.Code!);
 
-                    GetBusinessLogger(logger, validationError.Severity)(validationError.Message); ;
+                        GetBusinessLogger(logger, validationError.Severity)(validationError.Message); ;
 
-                    LogReasons(result.Reasons);
-                    continue;
+                        LogReasons(result.Reasons);
+                        continue;
+                    }
+                    case IExceptionalError exceptionalError:
+                        _logger.LogException(exceptionalError.Exception);
+                        continue;
+                    default:
+                        _logger.Business().LogError(error.Message);
+                        break;
                 }
-                if (error is IExceptionalError exceptionalError)
-                {
-                    _logger.LogException(exceptionalError.Exception);
-                    continue;
-                }
-
-                _logger.Business().LogError(error.Message);
             }
         }
 
-        if (result is not null && result.IsSuccess && result.Reasons.Any())
+        if (result.IsSuccess && result.Reasons.Any())
         {
             LogReasons(result.Reasons);
         }
@@ -62,31 +67,31 @@ public class FluentLogger : IResultLogger
 
         GetBusinessLogger(logger, logLevel)(content);
 
-        if (result is not null && result.IsFailed && result.Errors is not null)
+        if (result is { IsFailed: true, Errors: not null })
         {
             foreach (var error in result.Errors)
             {
-                if (error is ValidationError validationError)
+                switch (error)
                 {
-                    logger = _logger.Business()
-                                    .AddIf(validationError.Code is not null, "Code", () => validationError.Code!);
+                    case ValidationError validationError:
+                        logger = _logger.Business()
+                            .AddIf(validationError.Code is not null, "Code", () => validationError.Code!);
 
-                    GetBusinessLogger(logger, validationError.Severity)(validationError.Message);
+                        GetBusinessLogger(logger, validationError.Severity)(validationError.Message);
 
-                    LogReasons(result.Reasons);
-                    continue;
+                        LogReasons(result.Reasons);
+                        continue;
+                    case IExceptionalError exceptionalError:
+                        _logger.LogException(exceptionalError.Exception);
+                        continue;
+                    default:
+                        _logger.Business().LogError(error.Message);
+                        break;
                 }
-                if (error is IExceptionalError exceptionalError)
-                {
-                    _logger.LogException(exceptionalError.Exception);
-                    continue;
-                }
-
-                _logger.Business().LogError(error.Message);
             }
         }
 
-        if (result is not null && result.IsSuccess && result.Reasons.Any())
+        if (result.IsSuccess && result.Reasons.Any())
         {
             LogReasons(result.Reasons);
         }
@@ -100,7 +105,7 @@ public class FluentLogger : IResultLogger
         }
     }
 
-    private static logDelegate GetBusinessLogger(ILoggerWrapper<FluentLogger> logger, Severity severity) => severity switch
+    private static LogDelegate GetBusinessLogger(ILoggerWrapper<FluentLogger> logger, Severity severity) => severity switch
     {
         Severity.Error => logger.LogError,
         Severity.Warning => logger.LogWarning,
@@ -108,7 +113,7 @@ public class FluentLogger : IResultLogger
         _ => logger.LogDebug,
     };
 
-    private static logDelegate GetBusinessLogger(ILoggerWrapper<FluentLogger> logger, LogLevel logLevel) => logLevel switch
+    private static LogDelegate GetBusinessLogger(ILoggerWrapper<FluentLogger> logger, LogLevel logLevel) => logLevel switch
     {
         LogLevel.Trace => logger.LogTrace,
         LogLevel.Debug => logger.LogDebug,

@@ -7,6 +7,7 @@
     <!-- Common packages -->
     <PackageVersion Include="Grpc.AspNetCore.Server" Version="2.71.0" />
     <PackageVersion Include="FluentResults" Version="4.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Http" Version="6.0.0" />
     <PackageVersion Include="System.ComponentModel.Annotations" Version="5.0.0" />
     <PackageVersion Include="Serilog" Version="4.3.0" />
     <PackageVersion Include="AutoMapper" Version="15.0.1" />

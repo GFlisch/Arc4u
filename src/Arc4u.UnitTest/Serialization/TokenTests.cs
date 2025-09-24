@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Arc4u.Blazor.Caching;
 using Arc4u.Caching;
 using Arc4u.Caching.Memory;
 using Arc4u.Configuration.Memory;
