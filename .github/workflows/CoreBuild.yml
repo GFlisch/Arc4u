@@ -1,5 +1,8 @@
 name: Build And Publish
 
+permissions:
+  id-token: write   # required for GitHub OIDC
+
 on: 
   workflow_call:
     inputs:
@@ -26,6 +29,8 @@ on:
     secrets:
        NUGET_API_KEY:
          required: true
+       NUGET_USER:
+         required: true
         
 env:
   solution: '**/*.slnx'
@@ -37,6 +42,8 @@ env:
 
 jobs:
   build:
+    permissions:
+      id-token: write  # enable GitHub OIDC token issuance for this job
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
@@ -80,7 +87,16 @@ jobs:
           path: |
             ./packages
           retention-days: 1
+
+      # Get a short-lived NuGet API key
+      - name: NuGet login (OIDC → temp API key)
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: ${{ secrets.NUGET_USER }}
         
       - name: Publish packages
         if: ${{ env.PublishToNuget == 'true'  }}
-        run: dotnet nuget push ".\packages\*.nupkg" --skip-duplicate --no-symbols --api-key ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json
+        run: dotnet nuget push ".\packages\*.nupkg" --skip-duplicate --no-symbols --api-key ${{ steps.login.outputs.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json
+
+#        run: dotnet nuget push ".\packages\*.nupkg" --skip-duplicate --no-symbols --api-key ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json

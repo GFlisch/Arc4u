@@ -23,8 +23,6 @@ public class ClientTokenProvider(IHttpClientFactory httpClientFactory, ILogger<C
 
     public async Task<Result<TokenInfo>> GetTokenAsync(IKeyValueSettings? settings, object? platformParameters)
     {
-        logger.Technical().LogInformation("Get token from WASM!");
-
         if (_token.ExpiresOnUtc >= DateTime.UtcNow)
         {
             return Result.Ok(_token);

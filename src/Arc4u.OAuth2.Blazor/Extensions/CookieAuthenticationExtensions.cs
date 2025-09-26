@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Arc4u.Blazor.Handlers;
+using Arc4u.Configuration;
+using Arc4u.OAuth2.Token;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Arc4u.Blazor.Options;
@@ -7,8 +10,49 @@ namespace Arc4u.Blazor.Options;
 /// Provides extension methods to register and configure <see cref="AuthenticationCookieSettingsOption"/> for handling authentication cookies.
 /// Options can be configured directly from application configuration or via custom code using an action delegate.
 /// </summary>
-public static partial class CookieAuthenticationExtensions
+public static class CookieAuthenticationExtensions
 {
+    public static void AddAuthenticationCookie(this IServiceCollection services,
+                                                    Action<AuthenticationCookieSettingsOption> option,
+                                                    string sectionKey = "OAuth2")
+    {
+        ArgumentNullException.ThrowIfNull(option);
+        ArgumentNullException.ThrowIfNull(sectionKey);
+
+        var authenticationCookieSettingsOption = services.ReadAuthenticationCookieSettingsOption(option);
+
+        ConfigureAuthenticationCookieSettings(services, sectionKey, authenticationCookieSettingsOption);
+    }
+
+    public static void AddAuthenticationCookie(this IServiceCollection services,
+        IConfiguration configuration,
+        string sectionName = "Authentication:OAuth2.Settings", string sectionKey = "OAuth2")
+    {
+        var authenticationCookieSettingsOption =
+            services.ReadAuthenticationCookieSettingsOption(configuration, sectionName);
+
+        ConfigureAuthenticationCookieSettings(services, sectionKey, authenticationCookieSettingsOption);
+    }
+
+    private static void ConfigureAuthenticationCookieSettings(IServiceCollection services,
+                                                              string sectionKey,
+                                                              AuthenticationCookieSettingsOption authenticationCookieSettingsOption)
+    {
+        // Register the settings for the cookie client token provider.
+        void SettingsFiller(SimpleKeyValueSettings keyOptions)
+        {
+            keyOptions.Add(TokenKeys.ProviderIdKey, authenticationCookieSettingsOption.ProviderId);
+            keyOptions.Add("BaseUrl", authenticationCookieSettingsOption.BaseUri.ToString());
+            keyOptions.Add("RequestUrl", authenticationCookieSettingsOption.RequestUrl);
+        }
+
+        services.Configure<SimpleKeyValueSettings>(sectionKey, SettingsFiller);
+
+        services.AddHttpClient(authenticationCookieSettingsOption.HttpClientName,
+                client => { client.BaseAddress = authenticationCookieSettingsOption.BaseUri; })
+            .AddHttpMessageHandler<AttachCookiesHandler>();
+    }
+
     public static AuthenticationCookieSettingsOption ReadAuthenticationCookieSettingsOption(this IServiceCollection services, Action<AuthenticationCookieSettingsOption> option)
     {
         var validate = new AuthenticationCookieSettingsOption();

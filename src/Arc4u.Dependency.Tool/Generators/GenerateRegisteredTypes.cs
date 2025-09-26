@@ -13,6 +13,7 @@ namespace Arc4u.Dependency.Tool;
 public class GenerateRegisteredTypes : IIncrementalGenerator
 {
     const string section = "Application.Dependency";
+    const string settingsFileName = "appsettings.json";
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
 #if DEBUG
@@ -21,17 +22,18 @@ public class GenerateRegisteredTypes : IIncrementalGenerator
             //Debugger.Launch();
         }
 #endif
-        Debugger.Launch();
         // if I have more than one file, the latest one will win!
         // To enforce the rule and having for sure one result => Take only the file under the path Configs\appsettings.json!
-        var normalizedTargetPath = Path.DirectorySeparatorChar + Path.Combine("Configs", "appsettings.json");
+        var normalizedTargetPath = Path.DirectorySeparatorChar + Path.Combine("Configs", settingsFileName);
+        var wwwrootTargetPath = Path.DirectorySeparatorChar + Path.Combine("wwwroot", settingsFileName);
 
         var appSettingFiles = context.AdditionalTextsProvider
             .Where(file =>
             {
                 // Normalize the path to ensure that the comparison is case insensitive on all platforms.
-                //var normalizedFilePath = file.Path.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
-                return file.Path.EndsWith(normalizedTargetPath, StringComparison.InvariantCultureIgnoreCase);
+                return file.Path.EndsWith(normalizedTargetPath, StringComparison.InvariantCultureIgnoreCase)
+                    ||
+                        file.Path.EndsWith(wwwrootTargetPath, StringComparison.InvariantCultureIgnoreCase);
             });
 
 
@@ -50,7 +52,11 @@ public class GenerateRegisteredTypes : IIncrementalGenerator
             {
                 if (path.Substring(assemblyPath.Length).Equals(normalizedTargetPath, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    ctx.AddSource("GeneratedTypes.g.cs", SourceText.From(GenerateRegisterTypes(json, nugetAssemblies), Encoding.UTF8));
+                    ctx.AddSource("GeneratedTypes.g.cs", SourceText.From(GenerateRegisterTypes(json, "RegisterTypes", nugetAssemblies), Encoding.UTF8));
+                }
+                if (path.Substring(assemblyPath.Length).Equals(wwwrootTargetPath, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    ctx.AddSource("GeneratedWwwRootTypes.g.cs", SourceText.From(GenerateRegisterTypes(json, "RegisterWwwTypes", nugetAssemblies), Encoding.UTF8));
                 }
             }
         });
@@ -111,7 +117,7 @@ public class GenerateRegisteredTypes : IIncrementalGenerator
         return assemblyPaths!;
     }
 
-    private string GenerateRegisterTypes(string text, List<string> nugetPaths)
+    private string GenerateRegisterTypes(string text, string memberName, List<string> nugetPaths)
     {
         var sb = new StringBuilder();
 
@@ -122,7 +128,7 @@ public class GenerateRegisteredTypes : IIncrementalGenerator
         sb.AppendLine();
         sb.AppendLine("public static partial class RegisterExtensions");
         sb.AppendLine("{");
-        sb.AppendLine($"    public static void RegisterTypes(this IServiceCollection services)");
+        sb.AppendLine($"    public static void {memberName}(this IServiceCollection services)");
         sb.AppendLine("    {");
 
         // Read the content of the file and generate the code.
