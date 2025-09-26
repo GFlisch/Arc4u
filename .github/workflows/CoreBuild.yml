@@ -2,7 +2,6 @@ name: Build And Publish
 
 permissions:
   id-token: write   # required for GitHub OIDC
-
 on: 
   workflow_call:
     inputs:
@@ -27,8 +26,6 @@ on:
         type: string
         required: true
     secrets:
-       NUGET_API_KEY:
-         required: true
        NUGET_USER:
          required: true
         

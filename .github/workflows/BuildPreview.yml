@@ -1,5 +1,5 @@
 name: Build and publish preview
-
+ 
 on: 
   workflow_dispatch:
     inputs:
@@ -24,7 +24,7 @@ on:
         default: false
         
 jobs:
-  build:
+  build:  
     uses: ./.github/workflows/CoreBuild.yml
     with:
       nugetVersion: ${{ github.event.inputs.nugetVersion }}
@@ -32,4 +32,4 @@ jobs:
       nugetPackageIdPrefix: ${{ github.event.inputs.nugetPackageIdPrefix }}
       publish: ${{ github.event.inputs.publish }}
     secrets:
-      NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+      NUGET_USER: ${{ secrets.NUGET_USER }}
