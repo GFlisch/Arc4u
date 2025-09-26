@@ -19,12 +19,12 @@ namespace Arc4u.OAuth2.Client.Security.Principal;
 [Export(typeof(IAppPrincipalFactory))]
 public class AppPrincipalFactory(IServiceProvider container, INetworkInformation networkInformation, ISecureCache claimsCache, ICacheKeyGenerator cacheKeyGenerator, IApplicationContext applicationContext, ILogger<AppPrincipalFactory> logger) : IAppPrincipalFactory
 {
-    public const string ProviderKey = "ProviderId";
-    public const string DefaultSettingsResolveName = "OAuth2";
+    private const string ProviderKey = "ProviderId";
+    private const string DefaultSettingsResolveName = "OAuth2";
     public const string PlatformParameters = "platformParameters";
 
-    public static readonly string tokenExpirationClaimType = "exp";
-    public static readonly string[] ClaimsToExclude = ["exp", "aud", "iss", "iat", "nbf", "acr", "aio", "appidacr", "ipaddr", "scp", "sub", "tid", "uti", "unique_name", "apptype", "appid", "ver", "http://schemas.microsoft.com/ws/2008/06/identity/claims/authenticationinstant", "http://schemas.microsoft.com/identity/claims/scope"];
+    private static readonly string tokenExpirationClaimType = "exp";
+    private static readonly string[] ClaimsToExclude = [ "aud", "iss", "iat", "nbf", "acr", "aio", "appidacr", "ipaddr", "scp", "tid", "uti", "unique_name", "apptype", "appid", "ver" ];
     private readonly ICache _claimsCache = claimsCache;
 
     public async Task<Result<AppPrincipal>> CreatePrincipalAsync(object? parameter = null)

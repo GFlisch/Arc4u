@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Arc4u.OAuth2.Extensions;
 public static class AddClaimsFillerExtension
 {
-    public static readonly List<string> DefaultClaimsToExclude = [ "aud", "iss", "iat", "nbf", "acr", "aio", "appidacr", "ipaddr", "scp", "sub", "tid", "uti", "unique_name", "apptype", "appid", "ver", "http://schemas.microsoft.com/ws/2008/06/identity/claims/authenticationinstant", "http://schemas.microsoft.com/identity/claims/scope" ];
+    public static readonly List<string> DefaultClaimsToExclude = [ "aud", "iss", "iat", "nbf", "acr", "aio", "appidacr", "ipaddr", "scp", "tid", "uti", "unique_name", "apptype", "appid", "ver" ];
     public static void AddClaimsFiller(this IServiceCollection services, Action<ClaimsFillerOptions> options)
     {
         var validate = new ClaimsFillerOptions();
