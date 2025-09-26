@@ -1,4 +1,7 @@
 name: Build and publish preview
+
+permissions:
+  id-token: write   # required for GitHub OIDC
  
 on: 
   workflow_dispatch:
@@ -24,7 +27,9 @@ on:
         default: false
         
 jobs:
-  build:  
+  build:
+    permissions:
+      id-token: write  # enable GitHub OIDC token issuance for this job    
     uses: ./.github/workflows/CoreBuild.yml
     with:
       nugetVersion: ${{ github.event.inputs.nugetVersion }}
