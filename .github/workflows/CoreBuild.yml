@@ -43,6 +43,13 @@ jobs:
       id-token: write  # enable GitHub OIDC token issuance for this job
     runs-on: windows-latest
     steps:
+      # Get a short-lived NuGet API key
+      - name: NuGet login (OIDC → temp API key)
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: ${{ secrets.NUGET_USER }}
+             
       - uses: actions/checkout@v3
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v4
@@ -85,13 +92,6 @@ jobs:
             ./packages
           retention-days: 1
 
-      # Get a short-lived NuGet API key
-      - name: NuGet login (OIDC → temp API key)
-        uses: NuGet/login@v1
-        id: login
-        with:
-          user: ${{ secrets.NUGET_USER }}
-        
       - name: Publish packages
         if: ${{ env.PublishToNuget == 'true'  }}
         run: dotnet nuget push ".\packages\*.nupkg" --skip-duplicate --no-symbols --api-key ${{ steps.login.outputs.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json
