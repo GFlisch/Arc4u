@@ -106,7 +106,7 @@ namespace Arc4u.OAuth2.Extensions
                             : oauth2Options.Authority.Url.ToString();
                         option.MetadataAddress = options.DefaultAuthority.MetaDataAddress.ToString();
                         option.SaveToken = true;
-
+                        option.MapInboundClaims = false;
                         option.TokenValidationParameters.SaveSigninToken = false;
                         option.TokenValidationParameters.AuthenticationType = Constants.BearerAuthenticationType;
                         option.TokenValidationParameters.ValidateIssuer = false;
