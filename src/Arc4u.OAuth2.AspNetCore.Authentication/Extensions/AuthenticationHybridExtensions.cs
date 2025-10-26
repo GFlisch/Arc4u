@@ -78,6 +78,8 @@ namespace Arc4u.OAuth2.Extensions
                     ConfigureJwtBearerOptions(services, option, oidcOptions, oauth2Options, securityKey);
                 }).AddCookie();
 
+            services.AddAuthenticationApiContext(_ => { });
+
             return authenticationBuilder;
         }
 
@@ -124,6 +126,9 @@ namespace Arc4u.OAuth2.Extensions
             {
                 PopulateFromSection(options, settings, configuration, dataProtectionCertificate, certSecurityKey, ticketStoreAction);
             }
+
+            services.AddAuthenticationApiContext(configuration);
+
             return services.AddHybridAuthentication(HybridAuthenticationFiller);
         }
         private static string? ValidateHybridConfiguration(HybridAuthenticationSectionOptions settings)

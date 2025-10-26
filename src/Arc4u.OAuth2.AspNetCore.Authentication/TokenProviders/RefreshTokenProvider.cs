@@ -26,6 +26,7 @@ namespace Arc4u.OAuth2.TokenProviders
             IOptionsMonitor<OpenIdConnectOptions> openIdConnectOptions,
             IOptions<OidcAuthenticationOptions> oidcOptions,
             IActivitySourceFactory activitySourceFactory,
+            IOptionsMonitor<ApiExtraContextAuthenticationOption> extraContextOptions,
             ILogger<RefreshTokenProvider> logger)
         {
             _tokenRefreshInfo = refreshInfo;
@@ -33,6 +34,7 @@ namespace Arc4u.OAuth2.TokenProviders
             _hybridOptions = oidcOptions.Value;
             _logger = logger;
             _activitySource = activitySourceFactory?.GetArc4u();
+            _extraContextOptions = extraContextOptions;
         }
 
         private readonly TokenRefreshInfo _tokenRefreshInfo;
@@ -40,6 +42,7 @@ namespace Arc4u.OAuth2.TokenProviders
         private readonly OidcAuthenticationOptions _hybridOptions;
         private readonly ILogger<RefreshTokenProvider> _logger;
         private readonly ActivitySource? _activitySource;
+        private readonly IOptionsMonitor<ApiExtraContextAuthenticationOption> _extraContextOptions;
 
         public async Task<TokenRefreshInfo?> RefreshTokenAsync(CancellationToken cancellationToken)
         {
@@ -67,6 +70,17 @@ namespace Arc4u.OAuth2.TokenProviders
                 { "grant_type", "refresh_token" },
                 { "refresh_token", _tokenRefreshInfo.RefreshToken.Token }
             };
+
+            // Some Idp require extra parameters to link application definition to the right Api context.
+            foreach (var extra in _extraContextOptions.CurrentValue.AuthorizationParameters.Values)
+            {
+                pairs.Add(extra.Key, extra.Value);
+            }
+            foreach (var extra in _extraContextOptions.CurrentValue.TokenParameters.Values)
+            {
+                pairs.Add(extra.Key, extra.Value);
+            }
+
             var content = new FormUrlEncodedContent(pairs);
 
             var tokenResponse = await options.Backchannel.PostAsync(metadata.TokenEndpoint, content, CancellationToken.None).ConfigureAwait(false);

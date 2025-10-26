@@ -55,6 +55,8 @@ namespace Arc4u.OAuth2.Extensions
                         ConfigureOpenIdConnectOptions(services, options, oidcOptions, openIdOptions, securityKey);
                     }).AddCookie();
 
+            services.AddAuthenticationApiContext(_ => { });
+
             return authenticationBuilder;
         }
 
@@ -86,7 +88,6 @@ namespace Arc4u.OAuth2.Extensions
             services.TryAddTransient<CookieAuthenticationEvents, StandardCookieEvents>();
             services.TryAddTransient<JwtBearerEvents, StandardBearerEvents>();
             services.TryAddTransient<OpenIdConnectEvents, StandardOpenIdConnectEvents>();
-
 
             services.AddDefaultAuthority(options =>
             {
@@ -138,6 +139,8 @@ namespace Arc4u.OAuth2.Extensions
             {
                 PopulateFromSection(options, settings, configuration, dataProtectionCertificate, certSecurityKey, ticketStoreAction);
             }
+
+            services.AddAuthenticationApiContext(configuration);
 
             return services.AddOidcAuthentication(OidcAuthenticationFiller);
         }

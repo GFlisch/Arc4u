@@ -18,11 +18,14 @@ namespace Arc4u.OAuth2.Events
         private readonly ILogger<StandardOpenIdConnectEvents> _logger;
         private readonly OidcAuthenticationOptions _hybridOptions;
         private readonly IOptionsMonitor<SimpleKeyValueSettings> _openIdOptions;
+        private readonly IOptionsMonitor<ApiExtraContextAuthenticationOption> _extraContextOptions;
 
-        public StandardOpenIdConnectEvents(ILogger<StandardOpenIdConnectEvents> logger, IOptionsMonitor<OidcAuthenticationOptions> oidcOptions, IOptionsMonitor<SimpleKeyValueSettings> openIdOptions)
+        public StandardOpenIdConnectEvents(ILogger<StandardOpenIdConnectEvents> logger, IOptionsMonitor<OidcAuthenticationOptions> oidcOptions, IOptionsMonitor<SimpleKeyValueSettings> openIdOptions, IOptionsMonitor<ApiExtraContextAuthenticationOption> extraContextOptions)
         {
             _hybridOptions = oidcOptions.CurrentValue;
             _openIdOptions = openIdOptions;
+            _logger = logger;
+            _extraContextOptions = extraContextOptions;
         }
 
         [GeneratedRegex(@"\b(?:http:\/\/localhost|https:\/\/)\b", RegexOptions.IgnoreCase)]
@@ -86,7 +89,25 @@ namespace Arc4u.OAuth2.Events
 
             // Has been introduced for AzureAD => works also for Keykloack.
             context.ProtocolMessage.State = Guid.NewGuid().ToString();
+
+            // Some Idp require extra parameters to link application definition to the right Api context.
+            foreach (var extra in _extraContextOptions.CurrentValue.AuthorizationParameters.Values)
+            {
+                context.ProtocolMessage.SetParameter(extra.Key, extra.Value);
+            }
+
             return base.RedirectToIdentityProvider(context);
+        }
+
+        public override Task AuthorizationCodeReceived(AuthorizationCodeReceivedContext context)
+        {
+            // Some Idp require extra parameters to link application definition to the right Api context.
+            foreach (var extra in _extraContextOptions.CurrentValue.TokenParameters.Values)
+            {
+                context.TokenEndpointRequest?.Parameters.Add(extra.Key, extra.Value);
+            }
+
+            return base.AuthorizationCodeReceived(context);
         }
 
         public override async Task AuthenticationFailed(AuthenticationFailedContext context)

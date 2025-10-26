@@ -34,7 +34,7 @@ public class CacheContextTests
     [Fact]
     public void ConfigSettingsShouldBe()
     {
-        var cache = new Configuration.Caching { Default = "Volatile" };
+        var cache = new Arc4u.Configuration.Caching { Default = "Volatile" };
 
         cache.Caches.Add(new CachingCache { IsAutoStart = true, Kind = "Memory", Name = "Volatile" });
 
@@ -59,7 +59,7 @@ public class CacheContextTests
 
         var configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
-        var bindedCaching = new Configuration.Caching();
+        var bindedCaching = new Arc4u.Configuration.Caching();
         configuration.GetSection("Caching").Bind(bindedCaching);
 
         bindedCaching.Should().NotBeNull();
@@ -84,7 +84,7 @@ public class CacheContextTests
     public void RegisterOptionSettingsShould()
     {
         // arrange
-        var cache = new Configuration.Caching { Default = "Volatile" };
+        var cache = new Arc4u.Configuration.Caching { Default = "Volatile" };
 
         cache.Caches.Add(new CachingCache { IsAutoStart = false, Kind = CacheContext.Redis, Name = "Performance" });
         cache.Caches.Add(new CachingCache { IsAutoStart = false, Kind = CacheContext.Sql, Name = "Compromize" });
@@ -167,7 +167,7 @@ public class CacheContextTests
     [Fact]
     public void InitializeAndUseOfMemoryShould()
     {
-        var cache = new Configuration.Caching { Default = "Volatile" };
+        var cache = new Arc4u.Configuration.Caching { Default = "Volatile" };
 
         cache.Caches.Add(new CachingCache { IsAutoStart = true, Kind = CacheContext.Memory, Name = "Volatile" });
 
