@@ -62,6 +62,7 @@
     <ProjectReference Include="..\Arc4u.MongoDB\Arc4u.MongoDB.csproj" />
     <ProjectReference Include="..\Arc4u.OAuth2.AspNetCore.Authentication\Arc4u.OAuth2.AspNetCore.Authentication.csproj" />
     <ProjectReference Include="..\Arc4u.OAuth2.Blazor\Arc4u.OAuth2.Blazor.csproj" />
+    <ProjectReference Include="..\Arc4u.OAuth2.Client.Authentication\Arc4u.OAuth2.Client.Authentication.csproj" />
     <ProjectReference Include="..\Arc4u.OAuth2\Arc4u.OAuth2.csproj" />
     <ProjectReference Include="..\Arc4u.Results\Arc4u.Results.csproj" />
     <ProjectReference Include="..\Arc4u.Serializer.JSon\Arc4u.Serializer.JSon.csproj" />

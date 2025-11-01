@@ -79,6 +79,21 @@ public class AuthorityOptions
         return MetaDataAddress;
     }
 
+    public bool IsLocalHost => Url.Host.Equals("localhost", StringComparison.OrdinalIgnoreCase) ||
+                               Url.Host.Equals("127.0.0.1", StringComparison.OrdinalIgnoreCase) ||
+                               Url.Host.Equals("::1", StringComparison.OrdinalIgnoreCase);
+
+    public string GetRelativeMetaDataAddress()
+    {
+        // some metadata addresses do not follow the standard.
+        // Remove from the MetaDataAddress the Url path!
+        if (MetaDataAddress == null)
+        {
+            GetMetaDataAddress();
+        }
+        return MetaDataAddress!.ToString().Replace(Url.ToString(), string.Empty, StringComparison.OrdinalIgnoreCase);
+    }
+
     public async Task<Uri> GetEndpointAsync(CancellationToken cancellationToken)
     {
         if (TokenEndpoint is null)

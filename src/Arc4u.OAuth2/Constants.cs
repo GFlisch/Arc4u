@@ -1,4 +1,4 @@
-namespace Arc4u.OAuth2;
+﻿namespace Arc4u.OAuth2;
 
 public class Constants
 {
@@ -15,5 +15,4 @@ public class Constants
     public const string OpenIdOptionsName = "OpenId";
 
     public const string InjectAuthenticationType = "Inject";
-
 }

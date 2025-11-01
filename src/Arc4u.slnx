@@ -41,6 +41,16 @@
   <Project Path="Arc4u.OAuth2.AspNetCore.Blazor/Arc4u.OAuth2.AspNetCore.Blazor.csproj" />
   <Project Path="Arc4u.OAuth2.AspNetCore/Arc4u.OAuth2.AspNetCore.csproj" />
   <Project Path="Arc4u.OAuth2.Blazor/Arc4u.OAuth2.Blazor.csproj" />
+  <Project Path="Arc4u.OAuth2.Client.Authentication\Arc4u.OAuth2.Client.Authentication.csproj" Type="Classic C#">
+    <Configuration Solution="Debug|ARM" Project="Debug|Any CPU" />
+    <Configuration Solution="Debug|ARM64" Project="Debug|Any CPU" />
+    <Configuration Solution="Debug|x64" Project="Debug|Any CPU" />
+    <Configuration Solution="Debug|x86" Project="Debug|Any CPU" />
+    <Configuration Solution="Release|ARM" Project="Release|Any CPU" />
+    <Configuration Solution="Release|ARM64" Project="Release|Any CPU" />
+    <Configuration Solution="Release|x64" Project="Release|Any CPU" />
+    <Configuration Solution="Release|x86" Project="Release|Any CPU" />
+  </Project>
   <Project Path="Arc4u.OAuth2.Client/Arc4u.OAuth2.Client.csproj" />
   <Project Path="Arc4u.OAuth2/Arc4u.OAuth2.csproj" />
   <Project Path="Arc4u.OData/Arc4u.OData.csproj" />
