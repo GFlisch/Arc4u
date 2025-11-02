@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+    <PackageId>Arc4u.OAuth2.Client.Authentication</PackageId>
+    <NoWarn>$(NoWarn);IDE0130</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Duende.IdentityModel.OidcClient"/>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Arc4u.OAuth2\Arc4u.OAuth2.csproj"/>
+  </ItemGroup>
+</Project>
