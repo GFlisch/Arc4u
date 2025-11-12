@@ -1,4 +1,4 @@
-#if NET9_0
+#if NET10_0
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 

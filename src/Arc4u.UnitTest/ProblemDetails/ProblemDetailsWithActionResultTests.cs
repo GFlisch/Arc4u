@@ -568,7 +568,7 @@ public class ProblemDetailsWithActionResultTests
         sut.Result.Should().BeOfType<ObjectResult>();
         ((ObjectResult)sut.Result!).Value.Should().BeOfType<ProblemDetails>();
         var problem = (ProblemDetails)((ObjectResult)sut.Result).Value!;
-        problem.Type.Should().Be("https://github.com/GFlisch/Arc4u/wiki/StatusCodes#unexpected-error");
+        problem.Type.Should().Be("https://github.com/Arc4u-org/Arc4u/wiki/StatusCodes#unexpected-error");
         problem.Instance.Should().BeNull();
         problem.Title.Should().NotBeEmpty();
         problem.Detail.Should().NotBeEmpty();

@@ -34,7 +34,7 @@ public class ManageExceptionsFilter(ILogger<ManageExceptionsFilter> logger, IApp
                                                         .WithDetail("You are not allowed to perform this operation")
                                                         .WithStatusCode(StatusCodes.Status403Forbidden)
                                                         .WithSeverity("Error")
-                                                        .WithType(new Uri("https://github.com/GFlisch/Arc4u/wiki/StatusCodes#unauthorized")));
+                                                        .WithType(new Uri("https://github.com/Arc4u-org/Arc4u/wiki/StatusCodes#unauthorized")));
                 break;
             default:
                 context.Result = new ObjectResult(new ProblemDetails()
@@ -42,7 +42,7 @@ public class ManageExceptionsFilter(ILogger<ManageExceptionsFilter> logger, IApp
                                                         .WithDetail($"A technical error occured, contact the application owner. A message has been logged with id: {activityId}")
                                                         .WithStatusCode(StatusCodes.Status500InternalServerError)
                                                         .WithSeverity("Error")
-                                                        .WithType(new Uri("https://github.com/GFlisch/Arc4u/wiki/StatusCodes#unexpected-error")));
+                                                        .WithType(new Uri("https://github.com/Arc4u-org/Arc4u/wiki/StatusCodes#unexpected-error")));
                 break;
         }
 

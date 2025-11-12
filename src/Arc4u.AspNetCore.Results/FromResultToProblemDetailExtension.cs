@@ -10,9 +10,9 @@ namespace Arc4u.AspNetCore.Results;
 
 public static class FromResultToProblemDetailExtension
 {
-    private static readonly Uri UnexpectedErrorType = new("https://github.com/GFlisch/Arc4u/wiki/StatusCodes#unexpected-error");
-    private static readonly Uri ExpectedErrorType = new("https://github.com/GFlisch/Arc4u/wiki/StatusCodes#expected-error");
-    private static readonly Uri ValidationErrorType = new("https://github.com/GFlisch/Arc4u/wiki/StatusCodes#validation-error");
+    private static readonly Uri UnexpectedErrorType = new("https://github.com/Arc4u-org/Arc4u/wiki/StatusCodes#unexpected-error");
+    private static readonly Uri ExpectedErrorType = new("https://github.com/Arc4u-org/Arc4u/wiki/StatusCodes#expected-error");
+    private static readonly Uri ValidationErrorType = new("https://github.com/Arc4u-org/Arc4u/wiki/StatusCodes#validation-error");
     private static readonly Uri AboutBlankType = new("about:blank");
     public static Func<IEnumerable<IError>, ProblemDetails> FromError => errors => _fromErrors(errors);
 
@@ -118,7 +118,7 @@ public static class FromResultToProblemDetailExtension
     /// <returns></returns>
     public static ProblemDetails ToProblemDetails<TResult>(this Result<TResult> result)
     {
-        // Could not be a valid scenario to call this method! An Exceptional error will be created so the developer is aware of 
+        // Could not be a valid scenario to call this method! An Exceptional error will be created so the developer is aware of
         if (result.IsSuccess)
         {
             result.WithError(new ExceptionalError(new UnreachableException("Creating a ProblemDetails on a success Result does not make any sense!")));
@@ -136,7 +136,7 @@ public static class FromResultToProblemDetailExtension
     /// <returns></returns>
     public static ProblemDetails ToProblemDetails(this Result result)
     {
-        // Could not be a valid scenario to call this method! An Exceptional error will be created so the developer is aware of 
+        // Could not be a valid scenario to call this method! An Exceptional error will be created so the developer is aware of
         if (result.IsSuccess)
         {
             result.WithError(new ExceptionalError(new UnreachableException("Creating a ProblemDetails on a success Result does not make any sense!")));
