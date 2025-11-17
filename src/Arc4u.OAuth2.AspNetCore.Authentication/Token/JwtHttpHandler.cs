@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Arc4u.OAuth2.Token
 {
-    public class JwtHttpHandler : DelegatingHandler
+    public class JwtHttpHandler<T> : DelegatingHandler
     {
 
         // on the backend, we have to retrieve the user context based on his scoped context when we do a request to another
@@ -23,7 +23,7 @@ namespace Arc4u.OAuth2.Token
         /// <param name="logger"></param>
         /// <param name="keyValuesSettings"></param>
         /// <exception cref="ArgumentNullException"></exception>
-        public JwtHttpHandler(IServiceProvider serviceProvider, ILogger<JwtHttpHandler> logger, [DisallowNull] IKeyValueSettings keyValuesSettings)
+        public JwtHttpHandler(IServiceProvider serviceProvider, ILogger<T> logger, [DisallowNull] IKeyValueSettings keyValuesSettings)
         {
             _serviceProvider = serviceProvider;
             _serviceProviderAccessor = serviceProvider.GetRequiredService<IScopedServiceProviderAccessor>();
@@ -36,7 +36,7 @@ namespace Arc4u.OAuth2.Token
         private readonly IKeyValueSettings? _settings;
         private readonly IServiceProvider? _serviceProvider;
         private readonly IScopedServiceProviderAccessor _serviceProviderAccessor;
-        private readonly ILogger<JwtHttpHandler> _logger;
+        private readonly ILogger<T> _logger;
 
         private IServiceProvider? GetResolver()
         {

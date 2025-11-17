@@ -34,9 +34,9 @@ namespace Arc4u.UnitTest.Security;
 
 public class JwtHandlerToTest(
     IServiceProvider serviceProvider,
-    ILogger<JwtHttpHandler> logger,
+    ILogger<JwtHandlerToTest> logger,
     IOptionsMonitor<SimpleKeyValueSettings> keyValuesSettingsOption,
-    string resolvingName) : JwtHttpHandler(serviceProvider, logger, keyValuesSettingsOption.Get(resolvingName))
+    string resolvingName) : JwtHttpHandler<JwtHandlerToTest>(serviceProvider, logger, keyValuesSettingsOption.Get(resolvingName))
 {
 }
 
@@ -162,7 +162,7 @@ public class JwtHttpHandlerTests
 
         // Act
         var sut = new JwtHandlerToTest(scopedContainer.ServiceProvider,
-            scopedContainer.ServiceProvider.GetRequiredService<ILogger<JwtHttpHandler>>()!, setingsOptions!,
+            scopedContainer.ServiceProvider.GetRequiredService<ILogger<JwtHandlerToTest>>()!, setingsOptions!,
             Constants.OpenIdOptionsName) { InnerHandler = innerHandler.Object };
 
         var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://example.com/");
@@ -255,7 +255,7 @@ public class JwtHttpHandlerTests
 
         // Act
         var sut = new JwtHandlerToTest(scopedContainer.ServiceProvider,
-            scopedContainer.ServiceProvider.GetRequiredService<ILogger<JwtHttpHandler>>()!, setingsOptions!, "OAuth2")
+            scopedContainer.ServiceProvider.GetRequiredService<ILogger<JwtHandlerToTest>>()!, setingsOptions!, "OAuth2")
         {
             InnerHandler = innerHandler.Object
         };
@@ -362,7 +362,7 @@ public class JwtHttpHandlerTests
 
         // Act
         var sut = new JwtHandlerToTest(scopedContainer.ServiceProvider,
-            scopedContainer.ServiceProvider.GetRequiredService<ILogger<JwtHttpHandler>>(), setingsOptions!, "Client1")
+            scopedContainer.ServiceProvider.GetRequiredService<ILogger<JwtHandlerToTest>>(), setingsOptions!, "Client1")
         {
             InnerHandler = innerHandler.Object
         };
@@ -442,7 +442,7 @@ public class JwtHttpHandlerTests
 
         // Act
         var sut = new JwtHandlerToTest(scopedContainer.ServiceProvider,
-            scopedContainer.ServiceProvider.GetRequiredService<ILogger<JwtHttpHandler>>()!, setingsOptions!, "Remote1")
+            scopedContainer.ServiceProvider.GetRequiredService<ILogger<JwtHandlerToTest>>()!, setingsOptions!, "Remote1")
         {
             InnerHandler = innerHandler.Object
         };
@@ -522,7 +522,7 @@ public class JwtHttpHandlerTests
 
         // Act
         var sut = new JwtHandlerToTest(scopedContainer.ServiceProvider,
-            scopedContainer.ServiceProvider.GetRequiredService<ILogger<JwtHttpHandler>>(), setingsOptions!, "Remote1")
+            scopedContainer.ServiceProvider.GetRequiredService<ILogger<JwtHandlerToTest>>(), setingsOptions!, "Remote1")
         {
             InnerHandler = innerHandler.Object
         };
@@ -635,7 +635,7 @@ public class JwtHttpHandlerTests
 
         // Act
         var sut = new JwtHandlerToTest(scopedContainer.ServiceProvider,
-            scopedContainer.ServiceProvider.GetRequiredService<ILogger<JwtHttpHandler>>(), setingsOptions!, "Obo")
+            scopedContainer.ServiceProvider.GetRequiredService<ILogger<JwtHandlerToTest>>(), setingsOptions!, "Obo")
         {
             InnerHandler = innerHandler.Object
         };
@@ -747,12 +747,12 @@ public class JwtHttpHandlerTests
         // Act
         var sut =
             new JwtHandlerToTest(scopedContainer.ServiceProvider,
-                scopedContainer.ServiceProvider.GetRequiredService<ILogger<JwtHttpHandler>>()!, setingsOptions!,
+                scopedContainer.ServiceProvider.GetRequiredService<ILogger<JwtHandlerToTest>>()!, setingsOptions!,
                 Constants.OAuth2OptionsName)
             {
                 InnerHandler =
                     new JwtHandlerToTest(scopedContainer.ServiceProvider,
-                        scopedContainer.ServiceProvider.GetRequiredService<ILogger<JwtHttpHandler>>()!, setingsOptions!,
+                        scopedContainer.ServiceProvider.GetRequiredService<ILogger<JwtHandlerToTest>>()!, setingsOptions!,
                         Constants.OpenIdOptionsName) { InnerHandler = innerHandler.Object }
             };
 
@@ -866,12 +866,12 @@ public class JwtHttpHandlerTests
         // Act
         var sut =
             new JwtHandlerToTest(scopedContainer.ServiceProvider,
-                scopedContainer.ServiceProvider.GetRequiredService<ILogger<JwtHttpHandler>>()!, setingsOptions!,
+                scopedContainer.ServiceProvider.GetRequiredService<ILogger<JwtHandlerToTest>>()!, setingsOptions!,
                 Constants.OAuth2OptionsName)
             {
                 InnerHandler =
                     new JwtHandlerToTest(scopedContainer.ServiceProvider,
-                        scopedContainer.ServiceProvider.GetRequiredService<ILogger<JwtHttpHandler>>()!, setingsOptions!,
+                        scopedContainer.ServiceProvider.GetRequiredService<ILogger<JwtHandlerToTest>>()!, setingsOptions!,
                         Constants.OpenIdOptionsName) { InnerHandler = innerHandler.Object }
             };
 
@@ -989,17 +989,17 @@ public class JwtHttpHandlerTests
         // Act
         var sut =
             new JwtHandlerToTest(scopedContainer.ServiceProvider,
-                scopedContainer.ServiceProvider.GetRequiredService<ILogger<JwtHttpHandler>>()!, setingsOptions!,
+                scopedContainer.ServiceProvider.GetRequiredService<ILogger<JwtHandlerToTest>>()!, setingsOptions!,
                 Constants.OAuth2OptionsName)
             {
                 InnerHandler =
                     new JwtHandlerToTest(scopedContainer.ServiceProvider,
-                        scopedContainer.ServiceProvider.GetRequiredService<ILogger<JwtHttpHandler>>()!, setingsOptions!,
+                        scopedContainer.ServiceProvider.GetRequiredService<ILogger<JwtHandlerToTest>>()!, setingsOptions!,
                         Constants.OpenIdOptionsName)
                     {
                         InnerHandler =
                             new JwtHandlerToTest(scopedContainer.ServiceProvider,
-                                scopedContainer.ServiceProvider.GetRequiredService<ILogger<JwtHttpHandler>>()!,
+                                scopedContainer.ServiceProvider.GetRequiredService<ILogger<JwtHandlerToTest>>()!,
                                 setingsOptions!, "Remote1") { InnerHandler = innerHandler.Object }
                     }
             };
