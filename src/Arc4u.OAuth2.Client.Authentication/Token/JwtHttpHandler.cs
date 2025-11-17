@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Arc4u.OAuth2.Client.Authentication.Token;
 
-public class JwtHttpHandler : DelegatingHandler
+public class JwtHttpHandler<T> : DelegatingHandler
 {
     // on the Frontend, we have to retrieve the user context based the singleton instance of the application context
     // service if this was done in the context of a user (via rest api or gRPC service).
@@ -21,7 +21,7 @@ public class JwtHttpHandler : DelegatingHandler
     /// <param name="container">The scoped container</param>
     /// <param name="logger">The logger</param>
     /// <param name="resolvingName">The name used to resolve the settings</param>
-    public JwtHttpHandler(IServiceProvider container, ILogger<JwtHttpHandler> logger, string resolvingName)
+    public JwtHttpHandler(IServiceProvider container, ILogger<T> logger, string resolvingName)
     {
         ArgumentNullException.ThrowIfNull(logger);
 
@@ -50,7 +50,7 @@ public class JwtHttpHandler : DelegatingHandler
     /// <param name="logger">The logger</param>
     /// <param name="settings">A key value collection.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public JwtHttpHandler(IServiceProvider container, ILogger<JwtHttpHandler> logger, IKeyValueSettings settings)
+    public JwtHttpHandler(IServiceProvider container, ILogger<T> logger, IKeyValueSettings settings)
     {
         _container = container ?? throw new ArgumentNullException(nameof(container));
         _settings = settings ?? throw new ArgumentNullException(nameof(settings));
@@ -68,7 +68,7 @@ public class JwtHttpHandler : DelegatingHandler
     private readonly IKeyValueSettings? _settings;
     private readonly IServiceProvider _container;
     private readonly IApplicationContext? _applicationContext;
-    private readonly ILogger<JwtHttpHandler> _logger;
+    private readonly ILogger<T> _logger;
     private static readonly string[] SourceArray = ["Bearer", "Basic"];
 
     private IServiceProvider GetResolver() => _container;
