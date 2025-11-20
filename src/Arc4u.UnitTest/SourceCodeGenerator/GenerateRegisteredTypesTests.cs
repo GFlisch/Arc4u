@@ -1,4 +1,4 @@
-#if NET7_0
+#if NET10_0
 using System.Collections.Immutable;
 using Arc4u.Dependency.Tool;
 using AwesomeAssertions;

@@ -31,9 +31,10 @@ public class GenerateRegisteredTypes : IIncrementalGenerator
             .Where(file =>
             {
                 // Normalize the path to ensure that the comparison is case insensitive on all platforms.
-                return file.Path.EndsWith(normalizedTargetPath, StringComparison.InvariantCultureIgnoreCase)
+                var normalizedPath = file.Path.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar);
+                return normalizedPath.EndsWith(normalizedTargetPath, StringComparison.InvariantCultureIgnoreCase)
                     ||
-                        file.Path.EndsWith(wwwrootTargetPath, StringComparison.InvariantCultureIgnoreCase);
+                       normalizedPath.EndsWith(wwwrootTargetPath, StringComparison.InvariantCultureIgnoreCase);
             });
 
 
@@ -50,11 +51,12 @@ public class GenerateRegisteredTypes : IIncrementalGenerator
             // Check metadata through options if needed (although we don't set it here, options is available)
             if (json != null && path is not null && assemblyPath is not null)
             {
-                if (path.Substring(assemblyPath.Length).Equals(normalizedTargetPath, StringComparison.InvariantCultureIgnoreCase))
+                var normalizedPath = path.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar);
+                if (normalizedPath.Substring(assemblyPath.Length).Equals(normalizedTargetPath, StringComparison.InvariantCultureIgnoreCase))
                 {
                     ctx.AddSource("GeneratedTypes.g.cs", SourceText.From(GenerateRegisterTypes(json, "RegisterTypes", nugetAssemblies), Encoding.UTF8));
                 }
-                if (path.Substring(assemblyPath.Length).Equals(wwwrootTargetPath, StringComparison.InvariantCultureIgnoreCase))
+                if (normalizedPath.Substring(assemblyPath.Length).Equals(wwwrootTargetPath, StringComparison.InvariantCultureIgnoreCase))
                 {
                     ctx.AddSource("GeneratedWwwRootTypes.g.cs", SourceText.From(GenerateRegisterTypes(json, "RegisterWwwTypes", nugetAssemblies), Encoding.UTF8));
                 }
