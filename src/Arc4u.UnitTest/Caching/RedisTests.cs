@@ -168,7 +168,7 @@ public class RedisTests
     }
 
     [Fact]
-    [Trait("Category", "CI")]
+    [Trait("Category", "All")]
     public void DatabaseConnectionShould()
     {
         // arrange
