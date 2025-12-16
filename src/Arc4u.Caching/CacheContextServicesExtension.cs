@@ -32,7 +32,7 @@ public static class CacheContextServicesExtension
                 case "redis":
                     services.AddRedisCache(cache.Name, configuration, BuildCacheSettingsSectionPath(idx, sectionName));
                     break;
-                case "redisSentinel":
+                case "redissentinel":
                     services.AddRedisSentinelCache(cache.Name, configuration, BuildCacheSettingsSectionPath(idx, sectionName));
                     break;
                 case "sql":

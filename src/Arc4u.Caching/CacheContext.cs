@@ -22,6 +22,9 @@ public class CacheContext : ICacheContext
     // Constant used to resolve the ICache interface to retrieve the Redis implementation.
     public const string Redis = "Redis";
 
+    // Constant used to resolve the ICache interface to retrieve the Redis Sentinel implementation.
+    public const string RedisSentinel = "RedisSentinel";
+
     public const string Dapr = "Dapr";
 
     private Dictionary<string, ICache> _caches = [];
@@ -140,7 +143,7 @@ public class CacheContext : ICacheContext
                             caches.Add(cacheName, cache);
                             uninitializedCaches.Remove(cacheName);
 
-                            // atomic exchange of object state. 
+                            // atomic exchange of object state.
                             Interlocked.Exchange(ref _caches, caches);
                             Interlocked.Exchange(ref _uninitializedCaches, uninitializedCaches);
 
