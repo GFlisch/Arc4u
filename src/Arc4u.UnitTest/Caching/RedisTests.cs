@@ -25,7 +25,7 @@ public class RedisTests
     }
 
     [Fact]
-    [Trait("Category", "All")]
+    [Trait("Category", "CI")]
     public void OptionNameConfigShould()
     {
         // arrange
@@ -69,7 +69,7 @@ public class RedisTests
     }
 
     [Fact]
-    [Trait("Category", "All")]
+    [Trait("Category", "CI")]
     public void OptionNameConfigNoDeclaredShould()
     {
         // arrange
@@ -108,7 +108,7 @@ public class RedisTests
     }
 
     [Fact]
-    [Trait("Category", "All")]
+    [Trait("Category", "CI")]
     public void AddOptionByCodeToServiceCollectionShould()
     {
         // arrange
@@ -135,7 +135,7 @@ public class RedisTests
     }
 
     [Fact]
-    [Trait("Category", "All")]
+    [Trait("Category", "CI")]
     public void AddOptionByConfigToServiceCollectionShould()
     {
         // arrange
@@ -168,7 +168,7 @@ public class RedisTests
     }
 
     [Fact]
-    [Trait("Category", "All")]
+    [Trait("Category", "CI")]
     public void DatabaseConnectionShould()
     {
         // arrange
@@ -211,5 +211,44 @@ public class RedisTests
 
         // assert
         value.Should().Be("test");
+    }
+
+    [Fact]
+    [Trait("Category", "CI")]
+    public void RedisSentinelCacheOptionConfigShould()
+    {
+        // arrange
+        var option1 = _fixture.Create<RedisSentinelCacheOption>();
+
+        var config = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["SentinelOption1:InstanceName"] = option1.InstanceName,
+                    ["SentinelOption1:MasterName"] = option1.MasterName,
+                    ["SentinelOption1:SerializerName"] = option1.SerializerName,
+                    ["SentinelOption1:SentinelEndpoints:0"] = option1.SentinelEndpoints[0],
+                    ["SentinelOption1:SentinelEndpoints:1"] = option1.SentinelEndpoints[1],
+                    ["SentinelOption1:SentinelEndpoints:2"] = option1.SentinelEndpoints[2]
+                }).Build();
+
+        var configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+
+        IServiceCollection services = new ServiceCollection();
+        services.AddRedisSentinelCache("sentineloption1", configuration, "SentinelOption1");
+
+        var serviceProvider = services.BuildServiceProvider();
+
+        // act
+        var sut = serviceProvider.GetService<IOptionsMonitor<RedisSentinelCacheOption>>()!.Get("sentineloption1");
+
+        // assert
+        sut.InstanceName.Should().Be(option1.InstanceName);
+        sut.MasterName.Should().Be(option1.MasterName);
+        sut.SerializerName.Should().Be(option1.SerializerName);
+        sut.SentinelEndpoints.Should().HaveCount(3);
+        sut.SentinelEndpoints[0].Should().Be(option1.SentinelEndpoints[0]);
+        sut.SentinelEndpoints[1].Should().Be(option1.SentinelEndpoints[1]);
+        sut.SentinelEndpoints[2].Should().Be(option1.SentinelEndpoints[2]);
     }
 }
