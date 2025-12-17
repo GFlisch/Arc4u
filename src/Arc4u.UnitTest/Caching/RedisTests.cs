@@ -264,6 +264,8 @@ public class RedisTests
                 {
                     ["SentinelOption1:InstanceName"] = "RedisTest-",
                     ["SentinelOption1:MasterName"] = "mymaster",
+                    ["SentinelOption1:RedisPassword"] = "titi",
+                    ["SentinelOption1:DefaultDatabase"] = "5",
                     ["SentinelOption1:SentinelEndpoints:0"] = "localhost:16379",
                 }).Build();
 

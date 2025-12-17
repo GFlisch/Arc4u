@@ -49,6 +49,8 @@ public static class RedisSentinelCacheExtension
                 o.InstanceName = option.InstanceName;
                 o.MasterName = option.MasterName;
                 o.SentinelEndpoints = option.SentinelEndpoints;
+                o.RedisPassword = option.RedisPassword;
+                o.DefaultDatabase = option.DefaultDatabase;
                 o.SerializerName = option.SerializerName;
             }
 

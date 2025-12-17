@@ -77,12 +77,18 @@ public class RedisSentinelCache : BaseDistributeCache<RedisSentinelCache>, ICach
                             TieBreaker = string.Empty,
                             ServiceName = config.MasterName,
                             AllowAdmin = false,
+                            DefaultDatabase = config.DefaultDatabase
                         };
+
+                        // Set Redis password if provided
+                        if (!string.IsNullOrWhiteSpace(config.RedisPassword))
+                        {
+                            sentinelAware.Password = config.RedisPassword;
+                        }
 
                         foreach (var endpoint in config.SentinelEndpoints)
                         {
-                            // accepts "host:port" or "host"
-                            sentinelAware.EndPoints.Add(endpoint);
+                                sentinelAware.EndPoints.Add(endpoint);
                         }
 
                         // Let StackExchange.Redis handle Sentinel discovery based on ServiceName and EndPoints
