@@ -251,4 +251,50 @@ public class RedisTests
         sut.SentinelEndpoints[1].Should().Be(option1.SentinelEndpoints[1]);
         sut.SentinelEndpoints[2].Should().Be(option1.SentinelEndpoints[2]);
     }
+
+    [Fact]
+    [Trait("Category", "All")]
+    public void RedisSentinelCacheShould()
+    {
+        // arrange
+
+        var config = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["SentinelOption1:InstanceName"] = "RedisTest-",
+                    ["SentinelOption1:MasterName"] = "mymaster",
+                    ["SentinelOption1:SentinelEndpoints:0"] = "localhost:16379",
+                }).Build();
+
+        var configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+
+        IServiceCollection services = new ServiceCollection();
+
+        var serilog = new LoggerConfiguration()
+            .MinimumLevel.Debug()
+            .CreateLogger();
+
+        services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(serilog, false));
+        services.AddILogger();
+
+        services.AddTransient<ICache, RedisSentinelCache>();
+        services.AddRedisSentinelCache("Store", configuration, "SentinelOption1");
+        services.AddSingleton<IConfiguration>(configuration);
+        services.AddTransient<IObjectSerialization, JsonSerialization>();
+
+        var serviceProvider = services.BuildServiceProvider();
+
+        // act
+        var cache = serviceProvider.GetRequiredService<ICache>();
+
+        cache.Initialize("Store");
+
+        cache.Put("test", "test");
+
+        var value = cache.Get<string>("test");
+
+        // assert
+        value.Should().Be("test");
+    }
 }

@@ -1,0 +1,36 @@
+services:
+  redis-master:
+    image: redis:latest
+    # Optionally mount volumes for Redis so data is persisted when containers shut down or restart
+    #    volumes:
+    #      - .docker/redis/redis-master:/data
+    ports:
+      - "6379:6379"
+    command: [
+      "redis-server",
+      "--appendonly", "yes",
+      "--protected-mode", "no",
+      "--bind", "0.0.0.0",
+      "--port", "6379"
+    ]
+
+  sentinel-1:
+    image: redis:latest
+    depends_on:
+      - redis-master
+    ports:
+      - "16379:26379"
+    # Sentinel configuration is created dynamically and mounted by volume because Sentinel itself will modify the configuration
+    # once it is running. If master changes this will be reflected in all configurations and some additional things are added which are
+    # meant only for runtime use and not something that should be commited as base configuration.
+    command: >
+      sh -c 'echo "sentinel resolve-hostnames yes" > /etc/sentinel.conf &&
+            echo "sentinel monitor mymaster localhost 6379 1" >> /etc/sentinel.conf &&
+            echo "sentinel down-after-milliseconds mymaster 5000" >> /etc/sentinel.conf &&
+            echo "sentinel failover-timeout mymaster 10000" >> /etc/sentinel.conf &&
+            echo "sentinel down-after-milliseconds mymaster 1000" >> /etc/sentinel.conf &&
+            echo "sentinel parallel-syncs mymaster 1" >> /etc/sentinel.conf &&
+            echo "sentinel announce-ip 127.0.0.1" >> /etc/sentinel.conf &&
+            echo "sentinel announce-port 16379" >> /etc/sentinel.conf &&
+            redis-server /etc/sentinel.conf --sentinel'
+
