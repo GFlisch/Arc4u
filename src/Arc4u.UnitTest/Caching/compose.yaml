@@ -13,7 +13,7 @@ services:
       "--bind", "0.0.0.0",
       "--port", "6379",
       "--requirepass", "titi",
-      "--masterauth", "toto",
+      "--masterauth", "titi",
     ]
 
   sentinel-1:
@@ -34,7 +34,7 @@ services:
             echo "sentinel parallel-syncs mymaster 1" >> /etc/sentinel.conf &&
             echo "sentinel announce-ip 127.0.0.1" >> /etc/sentinel.conf &&
             echo "sentinel announce-port 16379" >> /etc/sentinel.conf &&
-            echo "sentinel auth-pass mymaster toto" >> /etc/sentinel.conf &&
+            echo "sentinel auth-pass mymaster titi" >> /etc/sentinel.conf &&
             echo "requirepass titi" >> /etc/sentinel.conf &&
             redis-server /etc/sentinel.conf --sentinel'
 
