@@ -40,15 +40,15 @@ public static class Certificate
         aes.GenerateIV();
 
         var encryptedKey = x509.Encrypt(aes.Key);
-        var encryptedIV = x509.Encrypt(aes.IV);
+        var encryptedIv = x509.Encrypt(aes.IV);
         var encryptedData = CypherCodec.EncodeClearText(plainText, aes.Key, aes.IV);
 
-        return $"{encryptedKey}.{encryptedIV}.{encryptedData}";
+        return $"{encryptedKey}.{encryptedIv}.{encryptedData}";
 
     }
 
     /// <summary>
-    /// Encrypt a byte array and return an encrypted version formated in a 64string.
+    /// Encrypt a byte array and return an encrypted version formated in a base64string.
     /// </summary>
     /// <param name="content">The binary content to encrypt.</param>
     /// <param name="x509">The certificate used to encrypt</param>
