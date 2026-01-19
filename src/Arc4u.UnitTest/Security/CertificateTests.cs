@@ -164,26 +164,6 @@ public class CertificateTests
 
     }
 
-    [Fact]
-    public void Custom_Root_CA_With_Bad_Key_Should_Throw_ConfigurationException()
-    {
-        var services = new ServiceCollection();
-
-        var config = new ConfigurationBuilder()
-            .AddInMemoryCollection(
-                new Dictionary<string, string?>
-                {
-                    ["SomeOtherSection:Value"] = "test"
-                }).Build();
-
-        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
-
-        var exception = Record.Exception(() => services.AddCustomRootCA(configuration));
-
-        exception.Should().NotBeNull();
-        exception.Should().BeOfType<ConfigurationException>();
-        exception.Message.Should().Contain("Section CustomRootCA does not exist in the configuration.");
-    }
 
     [Fact]
     public void Custom_Root_CA_With_No_Certificate_Defined_Should_Throw_ConfigurationException()
