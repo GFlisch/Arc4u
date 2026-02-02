@@ -15,26 +15,18 @@ namespace Arc4u.gRPC.Interceptors;
 /// </summary>
 public class OAuth2Interceptor : Interceptor
 {
-    public OAuth2Interceptor(IScopedServiceProviderAccessor serviceProviderAccessor, ILogger<OAuth2Interceptor> logger, IKeyValueSettings keyValuesSettings)
-    {
-        _serviceProviderAccessor = serviceProviderAccessor;
-
-        _logger = logger;
-
-        _settings = keyValuesSettings ?? throw new ArgumentNullException(nameof(keyValuesSettings));
-    }
-
     /// <summary>
     /// This is the constructor to use in a Client scenario like a Wpf or a MAUI or a console.
     /// The <see cref="IApplicationContext"/> and the <see cref="ITokenProvider"/> are not scoped to an httpRequest or a job, etc...
     /// </summary>
-    /// <param name="containerResolve"><see cref="IContainerResolve"/></param>
+    /// <param name="serviceProvider"><see cref="IServiceProvider"/></param>
     /// <param name="logger"><see cref="ILogger"/></param>
     /// <param name="keyValuesSettings">Property bag for the token povider.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public OAuth2Interceptor(IServiceProvider containerResolve, ILogger<OAuth2Interceptor> logger, IKeyValueSettings keyValuesSettings)
+    public OAuth2Interceptor(IServiceProvider serviceProvider, ILogger<OAuth2Interceptor> logger, IKeyValueSettings keyValuesSettings)
     {
-        _containerResolve = containerResolve ?? throw new ArgumentNullException(nameof(containerResolve));
+        _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+        _serviceProviderAccessor = serviceProvider.GetRequiredService<IScopedServiceProviderAccessor>();
 
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
@@ -44,11 +36,20 @@ public class OAuth2Interceptor : Interceptor
     private readonly IKeyValueSettings _settings;
     private readonly ILogger<OAuth2Interceptor> _logger;
     private readonly IScopedServiceProviderAccessor? _serviceProviderAccessor;
-    private readonly IServiceProvider? _containerResolve;
-    private static readonly string[] sourceArray = new string[] { "Bearer", "Basic" };
+    private readonly IServiceProvider? _serviceProvider;
+    private static readonly string[] SourceArray = ["Bearer", "Basic"];
 
-    private IServiceProvider? GetResolver() => _containerResolve ?? _serviceProviderAccessor?.ServiceProvider?.GetService<IServiceProvider>();
+    private IServiceProvider GetResolver()
+    {
+        var serviceProvider = _serviceProviderAccessor?.ServiceProvider;
 
+        if (serviceProvider is null)
+        {
+            return _serviceProvider ?? throw new InvalidOperationException("The service provider is not defined. Use the other constructor");
+        }
+
+        return serviceProvider;
+    }
     public override AsyncUnaryCall<TResponse> AsyncUnaryCall<TRequest, TResponse>(TRequest request, ClientInterceptorContext<TRequest, TResponse> context, AsyncUnaryCallContinuation<TRequest, TResponse> continuation)
     {
         AddBearerTokenCallerMetadata(ref context);
@@ -107,7 +108,7 @@ public class OAuth2Interceptor : Interceptor
 
         var applicationContext = GetCallContext(out var containerResolve);
 
-        if (_settings is null || applicationContext is null || containerResolve is null)
+        if (applicationContext is null || containerResolve is null)
         {
             _logger.Technical().LogNoApplicationContextIsDefined(GetType().Name);
             return;
@@ -175,7 +176,7 @@ public class OAuth2Interceptor : Interceptor
             var scheme = inject ? tokenInfo.TokenType : "Bearer";
             _logger.Technical().LogAddSchemeToken(scheme);
 
-            if (sourceArray.Any(s => s.Equals(scheme, StringComparison.InvariantCultureIgnoreCase)))
+            if (SourceArray.Any(s => s.Equals(scheme, StringComparison.InvariantCultureIgnoreCase)))
             {
                 headers.Add("authorization", $"{scheme} {tokenInfo.Token}");
             }
@@ -190,15 +191,14 @@ public class OAuth2Interceptor : Interceptor
         }
 
         // Add culture and activityID if exists!
-        if (null != applicationContext?.Principal)
+        var culture = applicationContext.Principal?.Profile.CurrentCulture.TwoLetterISOLanguageName;
+        if (culture is null || null != headers.GetValue("culture"))
         {
-            var culture = applicationContext.Principal.Profile?.CurrentCulture?.TwoLetterISOLanguageName;
-            if (null != culture && null == headers.GetValue("culture"))
-            {
-                _logger.Technical().LogAddCurrentCulture(applicationContext.Principal.Profile?.CurrentCulture?.TwoLetterISOLanguageName ?? "No Culture found");
-                headers.Add("culture", culture);
-            }
+            return;
         }
+
+        _logger.Technical().LogAddCurrentCulture(applicationContext.Principal?.Profile.CurrentCulture.TwoLetterISOLanguageName ?? "No Culture found");
+        headers.Add("culture", culture);
     }
 
     private IApplicationContext? GetCallContext(out IServiceProvider? containerResolve)
