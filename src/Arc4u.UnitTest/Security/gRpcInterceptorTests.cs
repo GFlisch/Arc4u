@@ -48,18 +48,11 @@ namespace Arc4u.UnitTest.Security;
 ///     AuthenticationType is Inject.
 ///     6) Have an on behalf of scenario based on the scenario 1 or 2.
 /// </summary>
+
+
 public class InterceptorTest : OAuth2Interceptor
 {
-    public InterceptorTest(IScopedServiceProviderAccessor scopedServiceProviderAccessor,
-        ILogger<OAuth2Interceptor> logger, IOptionsMonitor<SimpleKeyValueSettings> keyValuesSettingsOption,
-        string settingsName) : base(scopedServiceProviderAccessor, logger, keyValuesSettingsOption.Get(settingsName))
-    {
-    }
-}
-
-public class InterceptorClientTest : OAuth2Interceptor
-{
-    public InterceptorClientTest(IServiceProvider containerResolve, ILogger<OAuth2Interceptor> logger,
+    public InterceptorTest(IServiceProvider containerResolve, ILogger<OAuth2Interceptor> logger,
         IOptionsMonitor<SimpleKeyValueSettings> keyValuesSettingsOption, string settingsName) : base(containerResolve,
         logger, keyValuesSettingsOption.Get(settingsName))
     {
@@ -167,7 +160,7 @@ public class GRpcInterceptorTests
         var mock = _fixture.Freeze<Mock<BlockingUnaryCallContinuation<string, string>>>();
 
         // Act
-        var sut = new InterceptorTest(scopedServiceAccessor,
+        var sut = new InterceptorTest(scopedContainer.ServiceProvider,
             scopedContainer.ServiceProvider.GetRequiredService<ILogger<OAuth2Interceptor>>()!, setingsOptions!,
             Constants.OpenIdOptionsName);
 
@@ -253,7 +246,7 @@ public class GRpcInterceptorTests
         var mock = _fixture.Freeze<Mock<BlockingUnaryCallContinuation<string, string>>>();
 
         // Act
-        var sut = new InterceptorTest(scopedServiceAccessor,
+        var sut = new InterceptorTest(scopedContainer.ServiceProvider,
             scopedContainer.ServiceProvider.GetRequiredService<ILogger<OAuth2Interceptor>>()!, setingsOptions!,
             "OAuth2");
 
@@ -360,7 +353,7 @@ public class GRpcInterceptorTests
         var mock = _fixture.Freeze<Mock<BlockingUnaryCallContinuation<string, string>>>();
 
         // Act
-        var sut = new InterceptorTest(scopedServiceAccessor,
+        var sut = new InterceptorTest(scopedContainer.ServiceProvider,
             scopedContainer.ServiceProvider.GetService<ILogger<OAuth2Interceptor>>()!, settingsOptions!, "Client1");
 
         sut.BlockingUnaryCall<string, string>("Test", mockClientInterceptorContext, mock.Object);
@@ -441,7 +434,7 @@ public class GRpcInterceptorTests
         var mock = _fixture.Freeze<Mock<BlockingUnaryCallContinuation<string, string>>>();
 
         // Act
-        var sut = new InterceptorTest(scopedServiceAccessor,
+        var sut = new InterceptorTest(scopedContainer.ServiceProvider,
             scopedContainer.ServiceProvider.GetRequiredService<ILogger<OAuth2Interceptor>>()!, setingsOptions!,
             "Remote1");
 
@@ -524,7 +517,7 @@ public class GRpcInterceptorTests
         var mock = _fixture.Freeze<Mock<BlockingUnaryCallContinuation<string, string>>>();
 
         // Act
-        var sut = new InterceptorTest(scopedServiceAccessor,
+        var sut = new InterceptorTest(scopedContainer.ServiceProvider,
             scopedContainer.ServiceProvider.GetRequiredService<ILogger<OAuth2Interceptor>>()!, setingsOptions!,
             "Remote1");
 
@@ -624,7 +617,7 @@ public class GRpcInterceptorTests
         var mock = _fixture.Freeze<Mock<BlockingUnaryCallContinuation<string, string>>>();
 
         // Act
-        var sut = new InterceptorTest(scopedServiceAccessor,
+        var sut = new InterceptorTest(scopedContainer.ServiceProvider,
             scopedContainer.ServiceProvider.GetService<ILogger<OAuth2Interceptor>>()!, setingsOptions!, "Obo");
 
         sut.BlockingUnaryCall<string, string>("Test", mockClientInterceptorContext, mock.Object);
@@ -697,7 +690,7 @@ public class GRpcInterceptorTests
         var mock = _fixture.Freeze<Mock<BlockingUnaryCallContinuation<string, string>>>();
 
         // Act
-        var sut = new InterceptorClientTest(serviceProvider,
+        var sut = new InterceptorTest(serviceProvider,
             serviceProvider.GetRequiredService<ILogger<OAuth2Interceptor>>()!, setingsOptions!, "OAuth2");
 
         sut.BlockingUnaryCall<string, string>("Test", mockClientInterceptorContext, mock.Object);

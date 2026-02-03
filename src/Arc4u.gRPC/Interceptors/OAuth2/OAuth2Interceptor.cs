@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Arc4u.Dependency;
 using Arc4u.Diagnostics;
 using Arc4u.OAuth2;
 using Arc4u.OAuth2.Token;
@@ -26,7 +27,7 @@ public class OAuth2Interceptor : Interceptor
     public OAuth2Interceptor(IServiceProvider serviceProvider, ILogger<OAuth2Interceptor> logger, IKeyValueSettings keyValuesSettings)
     {
         _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
-        _serviceProviderAccessor = serviceProvider.GetRequiredService<IScopedServiceProviderAccessor>();
+        serviceProvider.TryGetService(out _serviceProviderAccessor);
 
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
