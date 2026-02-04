@@ -14,7 +14,7 @@ namespace Arc4u.gRPC.Interceptors;
 /// <summary>
 /// Inject in the Metadata's message the Bearer token of the authenticated user.
 /// </summary>
-public class OAuth2Interceptor : Interceptor
+public class OAuth2Interceptor<T> : Interceptor
 {
     /// <summary>
     /// This is the constructor to use in a Client scenario like a Wpf or a MAUI or a console.
@@ -24,7 +24,7 @@ public class OAuth2Interceptor : Interceptor
     /// <param name="logger"><see cref="ILogger"/></param>
     /// <param name="keyValuesSettings">Property bag for the token povider.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public OAuth2Interceptor(IServiceProvider serviceProvider, ILogger<OAuth2Interceptor> logger, IKeyValueSettings keyValuesSettings)
+    public OAuth2Interceptor(IServiceProvider serviceProvider, ILogger<T> logger, IKeyValueSettings keyValuesSettings)
     {
         _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         serviceProvider.TryGetService(out _serviceProviderAccessor);
@@ -35,7 +35,7 @@ public class OAuth2Interceptor : Interceptor
     }
 
     private readonly IKeyValueSettings _settings;
-    private readonly ILogger<OAuth2Interceptor> _logger;
+    private readonly ILogger<T> _logger;
     private readonly IScopedServiceProviderAccessor? _serviceProviderAccessor;
     private readonly IServiceProvider? _serviceProvider;
     private static readonly string[] SourceArray = ["Bearer", "Basic"];
@@ -170,7 +170,7 @@ public class OAuth2Interceptor : Interceptor
             var tokenInfo = tokenInfoResult.Value;
             if (tokenInfo.ExpiresOnUtc < DateTime.UtcNow)
             {
-                _logger.Technical().LogTokenIsExpired();
+                _logger.Technical().LogGrpcTokenIsExpired();
                 return;
             }
 
