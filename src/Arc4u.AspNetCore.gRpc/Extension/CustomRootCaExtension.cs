@@ -8,18 +8,18 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Arc4u.OAuth2.Extensions;
+namespace Arc4u.AspNetCore.gRpc;
 
 public static class CustomRootCaExtension
 {
     extension(IHttpClientBuilder builder)
     {
-        public IHttpClientBuilder ConfigureLocalCaCertificate(string? certificateOptionKey = null)
+        public IHttpClientBuilder ConfigureLocalCaCertificateForGrpc(string? certificateOptionKey = null)
         {
             return builder.ConfigurePrimaryHttpMessageHandler(sp =>
             {
-                var handler = new HttpClientHandler();
-                var logger = sp.GetRequiredService<ILogger<HttpClientHandler>>();
+                var handler = new SocketsHttpHandler();
+                var logger = sp.GetRequiredService<ILogger<SocketsHttpHandler>>();
                 var x509Loader = sp.GetRequiredService<IX509CertificateLoader>();
 
                 var options = new List<CARootOption>();
@@ -50,18 +50,18 @@ public static class CustomRootCaExtension
 
                     if (customRootCertificates.Count == 0)
                     {
-                        logger.Technical().LogNoValidCaCertificatesLoaded();
+                        logger.Technical().LogNoValidCACertificatesLoaded();
                     }
                 }
                 catch (Exception ex)
                 {
-                    logger.Technical().LogFailedToLoadCaCertificate(ex, certificateOptionKey);
+                    logger.Technical().LogFailedToLoadCACertificate(ex, certificateOptionKey);
                 }
 
                 // Only configure callback if we have certificates (OPTIMIZATION)
                 if (customRootCertificates.Count > 0)
                 {
-                    handler.ServerCertificateCustomValidationCallback = (_, cert, chain, sslPolicyErrors) =>
+                    handler.SslOptions.RemoteCertificateValidationCallback = (_, cert, chain, sslPolicyErrors) =>
                     {
                         // If no errors, accept immediately
                         if (sslPolicyErrors == System.Net.Security.SslPolicyErrors.None)
@@ -78,6 +78,7 @@ public static class CustomRootCaExtension
                             logger.Technical().LogFailedToGetRemoteCertificate();
                             return false;
                         }
+
                         // Configure chain to use custom root trust
                         chain.ChainPolicy.TrustMode = X509ChainTrustMode.CustomRootTrust;
                         chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
@@ -87,7 +88,9 @@ public static class CustomRootCaExtension
                             chain.ChainPolicy.CustomTrustStore.Add(certificate);
                         }
 
-                        var isValid = chain.Build(cert!);
+                        // Cast to X509Certificate2 (RemoteCertificateValidationCallback receives X509Certificate)
+                        var cert2 = cert as X509Certificate2 ?? new X509Certificate2(cert);
+                        var isValid = chain.Build(cert2);
 
                         if (!isValid)
                         {
