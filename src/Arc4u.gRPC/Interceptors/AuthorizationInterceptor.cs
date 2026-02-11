@@ -96,20 +96,21 @@ public class AuthorizationInterceptor(
         {
             SetCultureIfExist(context);
             SetActivityIDIfExist(context);
-            try
-            {
-                await continuation(requestStream, responseStream, context).ConfigureAwait(false);
-            }
-            catch (RpcException rcp)
-            {
-                logger.Technical().LogException(rcp);
-                throw;
-            }
-            catch (Exception ex)
-            {
-                logger.Technical().LogException(ex);
-                throw new RpcException(new Grpc.Core.Status(StatusCode.Internal, "An error occurs."));
-            }
+        }
+
+        try
+        {
+            await continuation(requestStream, responseStream, context).ConfigureAwait(false);
+        }
+        catch (RpcException rcp)
+        {
+            logger.Technical().LogException(rcp);
+            throw;
+        }
+        catch (Exception ex)
+        {
+            logger.Technical().LogException(ex);
+            throw new RpcException(new Grpc.Core.Status(StatusCode.Internal, "An error occurs."));
         }
     }
 }
