@@ -176,7 +176,7 @@ public class AppPrincipalTransform : IClaimsTransformation
 
         try
         {
-            claims = _cacheHelper.GetCache().Get<List<ClaimDto>>(cacheKey) ?? new List<ClaimDto>();
+            claims = _cacheHelper.GetCache().Get<List<ClaimDto>>(cacheKey) ?? [];
         }
         catch (Exception ex)
         {
