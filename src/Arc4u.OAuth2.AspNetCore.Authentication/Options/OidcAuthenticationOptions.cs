@@ -1,6 +1,7 @@
 ﻿using System.Security.Cryptography.X509Certificates;
 using Arc4u.OAuth2.DataProtection;
 using Arc4u.OAuth2.TicketStore;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace Arc4u.OAuth2.Options;
@@ -64,4 +65,6 @@ namespace Arc4u.OAuth2.Options;
         /// Define the claim type used to identify the role of the user.
         /// </summary>
         public string RoleClaimType { get; set; } = "role";
+
+        public OpenIdConnectRedirectBehavior AuthenticationMethod { get; set; } = OpenIdConnectRedirectBehavior.FormPost;
     }

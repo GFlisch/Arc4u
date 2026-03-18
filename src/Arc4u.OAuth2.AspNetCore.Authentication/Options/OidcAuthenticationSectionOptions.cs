@@ -1,4 +1,5 @@
-﻿using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+﻿using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace Arc4u.OAuth2.Options;
 
@@ -68,4 +69,5 @@ namespace Arc4u.OAuth2.Options;
         /// </summary>
         public string RoleClaimType { get; set; } = "role";
 
+        public string AuthenticationMethod { get; set; } = nameof(OpenIdConnectRedirectBehavior.FormPost);
     }

@@ -20,6 +20,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using X509CertificateLoader = Arc4u.Security.Cryptography.X509CertificateLoader;
+using System.Linq;
 
 namespace Arc4u.OAuth2.Extensions
 {
@@ -277,6 +278,11 @@ namespace Arc4u.OAuth2.Extensions
                 configErrors += "A ResponseType is mandatory to define the OpenId Connect protocol.";
             }
 
+            if (new [] {nameof(OpenIdConnectRedirectBehavior.FormPost), nameof(OpenIdConnectRedirectBehavior.RedirectGet)}.AsEnumerable().Any(rt => !rt.Equals(settings.AuthenticationMethod, StringComparison.InvariantCulture)))
+            {
+                configErrors += "The AuthenticationMethod should be either FormPost or RedirectGet.";
+            }
+
             return configErrors;
         }
 
@@ -323,7 +329,7 @@ namespace Arc4u.OAuth2.Extensions
 
             options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
             options.SaveTokens = true;
-            options.AuthenticationMethod = OpenIdConnectRedirectBehavior.FormPost;
+            options.AuthenticationMethod = hybridOptions.AuthenticationMethod;
             options.ResponseMode = OpenIdConnectResponseMode.FormPost;
             options.EventsType = typeof(OpenIdConnectEvents);
         }
