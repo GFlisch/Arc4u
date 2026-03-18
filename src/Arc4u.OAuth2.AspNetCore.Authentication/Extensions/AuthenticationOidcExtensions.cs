@@ -182,6 +182,7 @@ namespace Arc4u.OAuth2.Extensions
         {
             options.DefaultAuthority = settings.DefaultAuthority!;
             options.CookieName = settings.CookieName;
+            options.AuthenticationMethod = Enum.Parse<OpenIdConnectRedirectBehavior>(settings.AuthenticationMethod);
             options.AuthenticationCacheTicketStoreOption = ticketStoreAction!;
             options.OpenIdSettingsKey = settings.OpenIdSettingsKey;
             options.OpenIdSettingsOptions =
@@ -278,7 +279,7 @@ namespace Arc4u.OAuth2.Extensions
                 configErrors += "A ResponseType is mandatory to define the OpenId Connect protocol.";
             }
 
-            if (new [] {nameof(OpenIdConnectRedirectBehavior.FormPost), nameof(OpenIdConnectRedirectBehavior.RedirectGet)}.AsEnumerable().Any(rt => !rt.Equals(settings.AuthenticationMethod, StringComparison.InvariantCulture)))
+            if (!new [] {nameof(OpenIdConnectRedirectBehavior.FormPost), nameof(OpenIdConnectRedirectBehavior.RedirectGet)}.AsEnumerable().Contains(settings.AuthenticationMethod, StringComparer.InvariantCulture))
             {
                 configErrors += "The AuthenticationMethod should be either FormPost or RedirectGet.";
             }

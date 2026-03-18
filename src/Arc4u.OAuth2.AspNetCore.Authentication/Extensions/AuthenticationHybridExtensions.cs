@@ -29,6 +29,7 @@ namespace Arc4u.OAuth2.Extensions
             {
                 options.DefaultAuthority = oidcOptions.DefaultAuthority!;
                 options.CookieName = oidcOptions.CookieName;
+                options.AuthenticationMethod = oidcOptions.AuthenticationMethod;
                 options.AuthenticationCacheTicketStoreOption = oidcOptions.AuthenticationCacheTicketStoreOption!;
                 options.OpenIdSettingsKey = oidcOptions.OpenIdSettingsKey;
                 options.OpenIdSettingsOptions = oidcOptions.OpenIdSettingsOptions!;

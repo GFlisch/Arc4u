@@ -11,6 +11,7 @@ using AutoFixture.AutoMoq;
 using AutoFixture.Kernel;
 using AwesomeAssertions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -58,6 +59,7 @@ public class HybridAuthenticationOptionsTests
         var configDic = new Dictionary<string, string?>
         {
             { "Application.configuration:ApplicationName", "TestName" },
+            { "Authentication:AuthenticationMethod", nameof(OpenIdConnectRedirectBehavior.RedirectGet) },
             { "Authentication:DefaultAuthority:RetryInterval", defaultAuthority.RetryInterval.ToString() },
             { "Authentication:DefaultAuthority:MetaDataAddress", defaultAuthority.MetaDataAddress!.ToString() },
             { "Authentication:DefaultAuthority:Url", defaultAuthority.Url.ToString() },
@@ -101,9 +103,10 @@ public class HybridAuthenticationOptionsTests
 
         var app = services.BuildServiceProvider();
 
-        var sut = app.GetRequiredService<IOptionsMonitor<OidcAuthenticationOptions>>().Get("Default");
+        var sut = app.GetRequiredService<IOptionsMonitor<OidcAuthenticationOptions>>().CurrentValue;
 
         sut.Should().NotBeNull();
+        sut.AuthenticationMethod.Should().Be(OpenIdConnectRedirectBehavior.RedirectGet);
     }
 
     [Fact]
@@ -124,6 +127,7 @@ public class HybridAuthenticationOptionsTests
             { "Authentication:DefaultAuthority:TokenEndpoint", defaultAuthority.TokenEndpoint!.ToString() },
             { "Authentication:CookieName", oidcSettings.CookieName },
             { "Authentication:ApplicationName", oidcSettings.ApplicationName },
+            { "Authentication:AuthenticationMethod", nameof(OpenIdConnectRedirectBehavior.RedirectGet) },
             { "Authentication:TokenCache:CacheName", tokenCacheSettings.CacheName },
             { "Authentication:ValidateAudience", false.ToString() },
             { "Authentication:DataProtection:CacheStore:CacheKey", "TokenCacheKey" },
@@ -173,9 +177,10 @@ public class HybridAuthenticationOptionsTests
 
         var app = services.BuildServiceProvider();
 
-        var sut = app.GetRequiredService<IOptionsMonitor<HybridAuthenticationOptions>>().Get("Default");
+        var sut = app.GetRequiredService<IOptionsMonitor<OidcAuthenticationOptions>>().CurrentValue;
 
         sut.Should().NotBeNull();
+        sut.AuthenticationMethod.Should().Be(OpenIdConnectRedirectBehavior.RedirectGet);
     }
 
     [Fact]
