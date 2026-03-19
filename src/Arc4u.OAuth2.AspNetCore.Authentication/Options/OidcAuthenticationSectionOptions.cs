@@ -69,5 +69,5 @@ namespace Arc4u.OAuth2.Options;
         /// </summary>
         public string RoleClaimType { get; set; } = "role";
 
-        public string AuthenticationMethod { get; set; } = nameof(OpenIdConnectRedirectBehavior.FormPost);
+        public string AuthenticationMethod { get; set; } = nameof(OpenIdConnectRedirectBehavior.RedirectGet);
     }
