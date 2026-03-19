@@ -86,3 +86,12 @@ public class SingletonObject : ISingletonObject
 public interface ISingletonObject
 {
 }
+
+[Export(typeof(ITuple<int, string>))]
+public class ImpTuple : ITuple<int, string>
+{
+}
+
+public interface ITuple<T1, T2>
+{
+}

@@ -4,9 +4,22 @@ internal sealed class TypeInfo
 
     public string Name { get; }
     public string Namespace { get; }
-    public string FullName => Namespace + NamespaceSeparator + Name;
+    public IReadOnlyList<TypeInfo> GenericArguments { get; }
 
-    public TypeInfo(string @namespace, string name)
+    public string FullName
+    {
+        get
+        {
+            var baseName = Namespace + NamespaceSeparator + Name;
+            if (GenericArguments.Count == 0)
+            {
+                return baseName;
+            }
+            return baseName + "<" + string.Join(", ", GenericArguments.Select(a => a.FullName)) + ">";
+        }
+    }
+
+    public TypeInfo(string @namespace, string name, IReadOnlyList<TypeInfo>? genericArguments = null)
     {
         if (string.IsNullOrEmpty(@namespace))
         {
@@ -18,6 +31,7 @@ internal sealed class TypeInfo
         }
         Name = name;
         Namespace = @namespace;
+        GenericArguments = genericArguments ?? Array.Empty<TypeInfo>();
     }
 
     public TypeInfo(string fullName)
@@ -34,6 +48,7 @@ internal sealed class TypeInfo
 
         Namespace = fullName.Substring(0, lastSeparatorIndex);
         Name = fullName.Substring(lastSeparatorIndex + 1);
+        GenericArguments = Array.Empty<TypeInfo>();
     }
 
     public override int GetHashCode()

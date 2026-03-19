@@ -1,6 +1,7 @@
 #if NET10_0
 using System.Collections.Immutable;
 using Arc4u.Dependency.Tool;
+using Arc4u.UnitTest.Dependency;
 using AwesomeAssertions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -17,7 +18,8 @@ public class GenerateRegisteredTypesTests
 ""Application.Dependency"": {{
     ""RegisterTypes"": [
       ""Arc4u.AppSettings, Arc4u.Configuration"",
-      ""Arc4u.Diagnostics.DefaultLoggingProperties, Arc4u""
+      ""Arc4u.Diagnostics.DefaultLoggingProperties, Arc4u"",
+      ""Arc4u.UnitTest.Dependency.ImpTuple, Arc4u.UnitTest""
     ]
   }}
 }}";
@@ -48,6 +50,7 @@ public class GenerateRegisteredTypesTests
         var references = new[]
         {
             MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+            MetadataReference.CreateFromFile(typeof(ImpTuple).Assembly.Location),
             MetadataReference.CreateFromFile(typeof(Arc4u.AppSettings).Assembly.Location),
             MetadataReference.CreateFromFile(typeof(Arc4u.Diagnostics.DefaultLoggingProperties).Assembly.Location)
         };
@@ -72,6 +75,7 @@ public class GenerateRegisteredTypesTests
         generatedFile.ToString().Should().Contain("public static void RegisterTypes(this IServiceCollection services)");
         generatedFile.ToString().Should().Contain("services.AddSingleton<Arc4u.IAppSettings, Arc4u.AppSettings>();");
         generatedFile.ToString().Should().Contain("services.AddKeyedScoped<Arc4u.Diagnostics.IAddPropertiesToLog, Arc4u.Diagnostics.DefaultLoggingProperties>(\"Scoped\");");
+        generatedFile.ToString().Should().Contain("services.AddTransient<Arc4u.UnitTest.Dependency.ITuple<System.Int32, System.String>, Arc4u.UnitTest.Dependency.ImpTuple>();");
     }
 }
 #endif
