@@ -19,7 +19,8 @@ public class GenerateRegisteredTypesTests
     ""RegisterTypes"": [
       ""Arc4u.AppSettings, Arc4u.Configuration"",
       ""Arc4u.Diagnostics.DefaultLoggingProperties, Arc4u"",
-      ""Arc4u.UnitTest.Dependency.ImpTuple, Arc4u.UnitTest""
+      ""Arc4u.UnitTest.Dependency.ImpTuple, Arc4u.UnitTest"",
+      ""Arc4u.Blazor.Options.ConfigureAuthStateDeserializationOptions, Arc4u.OAuth2.Blazor""
     ]
   }}
 }}";
@@ -50,6 +51,7 @@ public class GenerateRegisteredTypesTests
         var references = new[]
         {
             MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+            MetadataReference.CreateFromFile(typeof(Arc4u.Blazor.Options.ConfigureAuthStateDeserializationOptions).Assembly.Location),
             MetadataReference.CreateFromFile(typeof(ImpTuple).Assembly.Location),
             MetadataReference.CreateFromFile(typeof(Arc4u.AppSettings).Assembly.Location),
             MetadataReference.CreateFromFile(typeof(Arc4u.Diagnostics.DefaultLoggingProperties).Assembly.Location)
@@ -76,6 +78,7 @@ public class GenerateRegisteredTypesTests
         generatedFile.ToString().Should().Contain("services.AddSingleton<Arc4u.IAppSettings, Arc4u.AppSettings>();");
         generatedFile.ToString().Should().Contain("services.AddKeyedScoped<Arc4u.Diagnostics.IAddPropertiesToLog, Arc4u.Diagnostics.DefaultLoggingProperties>(\"Scoped\");");
         generatedFile.ToString().Should().Contain("services.AddTransient<Arc4u.UnitTest.Dependency.ITuple<System.Int32, System.String>, Arc4u.UnitTest.Dependency.ImpTuple>();");
+        generatedFile.ToString().Should().Contain("services.AddSingleton<Microsoft.Extensions.Options.IConfigureOptions<Microsoft.AspNetCore.Components.WebAssembly.Authentication.AuthenticationStateDeserializationOptions>, Arc4u.Blazor.Options.ConfigureAuthStateDeserializationOptions>();");
     }
 }
 #endif
