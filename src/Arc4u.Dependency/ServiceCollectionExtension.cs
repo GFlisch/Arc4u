@@ -1,3 +1,4 @@
+#if NET8_0_OR_GREATER
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Arc4u.Dependency;
@@ -19,3 +20,4 @@ public static class ServiceCollectionExtension
         return serviceDescriptor?.ImplementationType;
     }
 }
+#endif
