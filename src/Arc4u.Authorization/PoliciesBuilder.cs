@@ -44,6 +44,25 @@ public sealed class PoliciesBuilder
         return this;
     }
 
+    public PoliciesBuilder AddAndOperations(string name, params int[] operations)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(name);
+
+        _services.Configure<AuthorizationOptions>(opts => opts.AddPolicy(name, p => p.AddRequirements(new ScopedOperationsRequirement(operations))));
+
+        return this;
+    }
+
+    public PoliciesBuilder AddAndOperations(string name, string scope, params int[] operations)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(name);
+        ArgumentException.ThrowIfNullOrEmpty(scope);
+
+        _services.Configure<AuthorizationOptions>(opts => opts.AddPolicy(name, p => p.AddRequirements(new ScopedOperationsRequirement(scope, operations))));
+
+        return this;
+    }
+
     /// <summary>
     /// Applies additional configuration to the global <see cref="AuthorizationOptions"/>,
     /// such as setting <see cref="AuthorizationOptions.DefaultPolicy"/> or

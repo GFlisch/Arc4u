@@ -48,8 +48,7 @@ public class ScopedOperationsExtensionTests
             policy.Should().NotBeNull();
             policy!.Requirements.Should().ContainSingle()
                 .Which.Should().BeOfType<ScopedOperationsRequirement>()
-                .Which.Operations.Should().BeEquivalentTo([operation.ID]);
-            policy.Requirements.OfType<ScopedOperationsRequirement>().Single().Scope.Should().BeEmpty();
+                .Which.Permissions.Should().BeEquivalentTo([(string.Empty, operation.ID)]);
         }
     }
 
@@ -68,10 +67,9 @@ public class ScopedOperationsExtensionTests
             {
                 var policy = options.GetPolicy($"{scope}:{operation.Name}");
                 policy.Should().NotBeNull();
-                var requirement = policy!.Requirements.Should().ContainSingle()
-                    .Which.Should().BeOfType<ScopedOperationsRequirement>().Subject;
-                requirement.Scope.Should().Be(scope);
-                requirement.Operations.Should().BeEquivalentTo([operation.ID]);
+                policy!.Requirements.Should().ContainSingle()
+                    .Which.Should().BeOfType<ScopedOperationsRequirement>()
+                    .Which.Permissions.Should().BeEquivalentTo([(scope, operation.ID)]);
             }
         }
     }
@@ -158,5 +156,90 @@ public class ScopedOperationsExtensionTests
 
         var options = services.BuildServiceProvider().GetRequiredService<IOptions<AuthorizationOptions>>().Value;
         options.GetPolicy("Read").Should().NotBeNull();
+    }
+
+    [Fact]
+    public void AddAndOperations_Without_Scope_Registers_Policy_With_Empty_Scope()
+    {
+        var services = new ServiceCollection();
+
+        services.AddScopedOperationsPolicy(Scopes, Operations)
+            .AddAndOperations("ReadAndWrite", 1, 2);
+
+        var options = services.BuildServiceProvider().GetRequiredService<IOptions<AuthorizationOptions>>().Value;
+
+        var policy = options.GetPolicy("ReadAndWrite");
+        policy.Should().NotBeNull();
+        policy!.Requirements.Should().ContainSingle()
+            .Which.Should().BeOfType<ScopedOperationsRequirement>()
+            .Which.Permissions.Should().BeEquivalentTo([(string.Empty, 1), (string.Empty, 2)]);
+    }
+
+    [Fact]
+    public void AddAndOperations_With_Scope_Registers_Policy_With_Scope()
+    {
+        var services = new ServiceCollection();
+
+        services.AddScopedOperationsPolicy(Scopes, Operations)
+            .AddAndOperations("ScopedReadAndWrite", "Tenant1", 1, 2);
+
+        var options = services.BuildServiceProvider().GetRequiredService<IOptions<AuthorizationOptions>>().Value;
+
+        var policy = options.GetPolicy("ScopedReadAndWrite");
+        policy.Should().NotBeNull();
+        policy!.Requirements.Should().ContainSingle()
+            .Which.Should().BeOfType<ScopedOperationsRequirement>()
+            .Which.Permissions.Should().BeEquivalentTo([("Tenant1", 1), ("Tenant1", 2)]);
+    }
+
+    [Fact]
+    public void AddAndOperations_With_Null_Name_Throws()
+    {
+        var services = new ServiceCollection();
+
+        var builder = services.AddScopedOperationsPolicy(Scopes, Operations);
+
+        var act = () => builder.AddAndOperations(null!, 1);
+
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
+    public void AddAndOperations_With_Empty_Name_Throws()
+    {
+        var services = new ServiceCollection();
+
+        var builder = services.AddScopedOperationsPolicy(Scopes, Operations);
+
+        var act = () => builder.AddAndOperations("", 1);
+
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
+    public void AddAndOperations_With_Scope_And_Empty_Name_Throws()
+    {
+        var services = new ServiceCollection();
+
+        var builder = services.AddScopedOperationsPolicy(Scopes, Operations);
+
+        var act = () => builder.AddAndOperations("", "Tenant1", 1);
+
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
+    public void AddAndOperations_Chains_Fluently()
+    {
+        var services = new ServiceCollection();
+
+        services.AddScopedOperationsPolicy(Scopes, Operations)
+            .AddAndOperations("Policy1", 1)
+            .AddAndOperations("Policy2", "Tenant1", 2);
+
+        var options = services.BuildServiceProvider().GetRequiredService<IOptions<AuthorizationOptions>>().Value;
+
+        options.GetPolicy("Policy1").Should().NotBeNull();
+        options.GetPolicy("Policy2").Should().NotBeNull();
     }
 }

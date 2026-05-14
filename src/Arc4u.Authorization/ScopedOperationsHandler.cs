@@ -4,27 +4,39 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Arc4u.Authorization;
 
+/// <summary>
+/// Handles <see cref="ScopedOperationsRequirement"/> by verifying that the current principal
+/// possesses <b>all</b> of the required scoped permissions (AND logic).
+/// </summary>
+/// <remarks>
+/// Registered as a scoped <see cref="IAuthorizationHandler"/> via dependency injection.
+/// If the principal is <c>null</c> (e.g. on Blazor WASM before authentication), the requirement fails immediately.
+/// </remarks>
 [Export(typeof(IAuthorizationHandler)), Scoped]
-public class ScopedOperationsHandler(IApplicationContext applicationContext)
+public sealed class ScopedOperationsHandler(IApplicationContext applicationContext)
     : AuthorizationHandler<ScopedOperationsRequirement>
 {
+    /// <inheritdoc />
     protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, ScopedOperationsRequirement requirement)
     {
-        // on Blazor WASM, IApplicationContext.Principal can be null
-        if (applicationContext?.Principal is null)
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(requirement);
+
+        if (applicationContext.Principal is null)
         {
             context.Fail();
             return Task.CompletedTask;
         }
 
-        if (applicationContext.Principal.IsAuthorized(requirement.Scope, requirement.Operations))
+        foreach (var operation in requirement.Permissions)
         {
-            context.Succeed(requirement);
+            if (!applicationContext.Principal.IsAuthorized(operation.scope, operation.permission))
+            {
+                context.Fail();
+                return Task.CompletedTask;
+            }
         }
-        else
-        {
-            context.Fail();
-        }
+        context.Succeed(requirement);
 
         return Task.CompletedTask;
     }
