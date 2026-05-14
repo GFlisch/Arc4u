@@ -6,14 +6,9 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Arc4u.Authorization;
 public static class ScopedOperationsExtension
 {
-    public static void AddScopedOperationsPolicy(this IServiceCollection services, IEnumerable<string> scopes, IEnumerable<Operation> operations, [AllowNull] Action<AuthorizationOptions> authorizationOptions = null)
+    public static PoliciesBuilder AddScopedOperationsPolicy(this IServiceCollection services, IEnumerable<string> scopes, IEnumerable<Operation> operations)
     {
         services.AddScoped<IAuthorizationHandler, ScopedOperationsHandler>();
-
-        if (authorizationOptions is not null)
-        {
-            services.Configure(authorizationOptions);
-        }
 
         services.AddAuthorizationCore(options =>
         {
@@ -34,5 +29,7 @@ public static class ScopedOperationsExtension
                 }
             }
         });
+
+        return new PoliciesBuilder(services);
     }
 }

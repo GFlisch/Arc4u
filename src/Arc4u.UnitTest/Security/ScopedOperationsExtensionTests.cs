@@ -81,10 +81,9 @@ public class ScopedOperationsExtensionTests
     {
         var services = new ServiceCollection();
 
-        services.AddScopedOperationsPolicy(Scopes, Operations, authorizationOptions: o =>
-        {
-            o.AddPolicy("ExtraPolicy", p => p.Requirements.Add(new CustomRequirement()));
-        });
+        services.AddScopedOperationsPolicy(Scopes, Operations)
+            .AddPolicy("ExtraPolicy", p => p.Requirements.Add(new CustomRequirement()));
+
 
         var options = services.BuildServiceProvider().GetRequiredService<IOptions<AuthorizationOptions>>().Value;
 
@@ -105,11 +104,12 @@ public class ScopedOperationsExtensionTests
             .AddRequirements(new CustomRequirement())
             .Build();
 
-        services.AddScopedOperationsPolicy(Scopes, Operations, authorizationOptions: o =>
-        {
-            o.DefaultPolicy = customDefaultPolicy;
-            o.InvokeHandlersAfterFailure = false;
-        });
+        services.AddScopedOperationsPolicy(Scopes, Operations)
+            .ConfigureAuthorization(o =>
+            {
+                o.DefaultPolicy = customDefaultPolicy;
+                o.InvokeHandlersAfterFailure = false;
+            });
 
         var options = services.BuildServiceProvider().GetRequiredService<IOptions<AuthorizationOptions>>().Value;
 
