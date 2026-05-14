@@ -140,7 +140,7 @@ public class GRpcInterceptorTests
         tokenRefresh!.AccessToken = new TokenInfo("access_token", accessToken);
 
         var principal =
-            new AppPrincipal(new Authorization(),
+            new AppPrincipal(new Arc4u.Security.Principal.Authorization(),
                 new ClaimsIdentity(Constants.CookiesAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0")
             {
                 Profile = UserProfile.Empty
@@ -226,7 +226,7 @@ public class GRpcInterceptorTests
         scopedServiceAccessor!.ServiceProvider = scopedContainer.ServiceProvider;
 
         var principal =
-            new AppPrincipal(new Authorization(),
+            new AppPrincipal(new Arc4u.Security.Principal.Authorization(),
                 new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0")
             {
                 Profile = UserProfile.Empty
@@ -332,7 +332,7 @@ public class GRpcInterceptorTests
         using var scopedContainer = serviceProvider.CreateScope();
 
         var principal =
-            new AppPrincipal(new Authorization(),
+            new AppPrincipal(new Arc4u.Security.Principal.Authorization(),
                 new ClaimsIdentity(Constants.CookiesAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0")
             {
                 Profile = UserProfile.Empty
@@ -412,7 +412,7 @@ public class GRpcInterceptorTests
         using var scopedContainer = serviceProvider.CreateScope();
 
         var principal =
-            new AppPrincipal(new Authorization(),
+            new AppPrincipal(new Arc4u.Security.Principal.Authorization(),
                 new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = string.Empty }, "S-1-0-0")
             {
                 Profile = UserProfile.Empty
@@ -495,7 +495,7 @@ public class GRpcInterceptorTests
         using var scopedContainer = serviceProvider.CreateScope();
 
         var principal =
-            new AppPrincipal(new Authorization(),
+            new AppPrincipal(new Arc4u.Security.Principal.Authorization(),
                 new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = string.Empty }, "S-1-0-0")
             {
                 Profile = UserProfile.Empty
@@ -601,7 +601,7 @@ public class GRpcInterceptorTests
 
         scopedServiceAccessor!.ServiceProvider = scopedContainer.ServiceProvider;
 
-        var principal = new AppPrincipal(new Authorization(),
+        var principal = new AppPrincipal(new Arc4u.Security.Principal.Authorization(),
             new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0");
         principal.Profile = UserProfile.Empty;
         // Define a Principal with no OAuth2Bearer token here => we test the injection.
@@ -671,7 +671,7 @@ public class GRpcInterceptorTests
         var serviceProvider = services.BuildServiceProvider();
 
         var principal =
-            new AppPrincipal(new Authorization(),
+            new AppPrincipal(new Arc4u.Security.Principal.Authorization(),
                 new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0")
             {
                 Profile = UserProfile.Empty

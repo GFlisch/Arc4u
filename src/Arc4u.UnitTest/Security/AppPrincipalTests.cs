@@ -52,14 +52,14 @@ public class AppPrincipalTests
             .BeTrue();
     }
 
-    private static Authorization GetAuthorization()
+    private static Arc4u.Security.Principal.Authorization GetAuthorization()
     {
         var defaultScopedOperations = new ScopedOperations { Operations = [(int)Access.AccessApplication], Scope = "" };
         var specificScope = new ScopedOperations
         {
             Operations = [(int)Access.AccessApplication, (int)Access.CanSeeSwaggerFacadeApi], Scope = "Specific"
         };
-        var authorization = new Authorization
+        var authorization = new Arc4u.Security.Principal.Authorization
         {
             Operations = [defaultScopedOperations, specificScope],
             AllOperations = AllOperations,

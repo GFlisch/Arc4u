@@ -138,7 +138,7 @@ public class JwtHttpHandlerTests
         tokenRefresh.AccessToken = new TokenInfo("access_token", accessToken);
 
         var principal =
-            new AppPrincipal(new Authorization(),
+            new AppPrincipal(new Arc4u.Security.Principal.Authorization(),
                 new ClaimsIdentity(Constants.CookiesAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0")
             {
                 Profile = UserProfile.Empty
@@ -231,7 +231,7 @@ public class JwtHttpHandlerTests
         scopedServiceAccessor!.ServiceProvider = scopedContainer.ServiceProvider;
 
         var principal =
-            new AppPrincipal(new Authorization(),
+            new AppPrincipal(new Arc4u.Security.Principal.Authorization(),
                 new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0")
             {
                 Profile = UserProfile.Empty
@@ -611,7 +611,7 @@ public class JwtHttpHandlerTests
         scopedServiceAccessor!.ServiceProvider = scopedContainer.ServiceProvider;
 
         var principal =
-            new AppPrincipal(new Authorization(),
+            new AppPrincipal(new Arc4u.Security.Principal.Authorization(),
                 new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessToken }, "S-1-0-0")
             {
                 Profile = UserProfile.Empty
@@ -724,7 +724,7 @@ public class JwtHttpHandlerTests
         tokenRefresh!.AccessToken = new TokenInfo("access_token", accessTokenCookies);
 
         var principal =
-            new AppPrincipal(new Authorization(),
+            new AppPrincipal(new Arc4u.Security.Principal.Authorization(),
                 new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessTokenOAuth2 },
                 "S-1-0-0") { Profile = UserProfile.Empty };
 
@@ -843,7 +843,7 @@ public class JwtHttpHandlerTests
         tokenRefresh!.AccessToken = new TokenInfo("access_token", accessTokenCookies);
 
         var principal =
-            new AppPrincipal(new Authorization(),
+            new AppPrincipal(new Arc4u.Security.Principal.Authorization(),
                 new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessTokenOAuth2 },
                 "S-1-0-0") { Profile = UserProfile.Empty };
 
@@ -966,7 +966,7 @@ public class JwtHttpHandlerTests
         tokenRefresh!.AccessToken = new TokenInfo("access_token", accessTokenCookies);
 
         var principal =
-            new AppPrincipal(new Authorization(),
+            new AppPrincipal(new Arc4u.Security.Principal.Authorization(),
                 new ClaimsIdentity(Constants.BearerAuthenticationType) { BootstrapContext = accessTokenOAuth2 },
                 "S-1-0-0") { Profile = UserProfile.Empty };
 
