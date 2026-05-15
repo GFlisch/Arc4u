@@ -8,7 +8,7 @@ public static class ScopedOperationsExtension
 {
     public static PoliciesBuilder AddScopedOperationsPolicy(this IServiceCollection services, IEnumerable<string> scopes, IEnumerable<Operation> operations)
     {
-        services.AddScoped<IAuthorizationHandler, ScopedOperationsHandler>();
+        services.AddScoped<IAuthorizationHandler, AllScopedOperationsHandler>();
 
         services.AddAuthorizationCore(options =>
         {
@@ -16,7 +16,7 @@ public static class ScopedOperationsExtension
             foreach (var operation in operations)
             {
                 options.AddPolicy(operation.Name, policy =>
-                policy.Requirements.Add(new ScopedOperationsRequirement(operation.ID)));
+                policy.Requirements.Add(new AllScopedOperationsRequirement(operation.ID)));
             }
 
             // Add the scoped policy.
@@ -25,7 +25,7 @@ public static class ScopedOperationsExtension
                 foreach (var operation in operations)
                 {
                     options.AddPolicy($"{scope}:{operation.Name}", policy =>
-                    policy.Requirements.Add(new ScopedOperationsRequirement(scope, operation.ID)));
+                    policy.Requirements.Add(new AllScopedOperationsRequirement(scope, operation.ID)));
                 }
             }
         });

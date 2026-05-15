@@ -9,7 +9,7 @@ using Xunit;
 namespace Arc4u.UnitTest.Security;
 
 [Trait("Category", "CI")]
-public class ScopedOperationsHandlerTests
+public class AnyScopedOperationHandlerTests
 {
     private static AppPrincipal CreatePrincipal(params ScopedOperations[] scopedOperations)
     {
@@ -36,15 +36,15 @@ public class ScopedOperationsHandlerTests
     }
 
     [Fact]
-    public async Task Succeeds_When_Principal_Has_All_Permissions()
+    public async Task Succeeds_When_Principal_Has_Any_Operation()
     {
-        var principal = CreatePrincipal(new ScopedOperations { Scope = "", Operations = [1, 2] });
+        var principal = CreatePrincipal(new ScopedOperations { Scope = "", Operations = [1] });
         var appContext = new Mock<IApplicationContext>();
         appContext.Setup(x => x.Principal).Returns(principal);
 
-        var requirement = new ScopedOperationsRequirement(1, 2);
+        var requirement = new AnyScopedOperationRequirement(1, 2);
         var context = CreateContext(requirement);
-        var handler = new ScopedOperationsHandler(appContext.Object);
+        var handler = new AnyScopedOperationHandler(appContext.Object);
 
         await handler.HandleAsync(context);
 
@@ -52,31 +52,31 @@ public class ScopedOperationsHandlerTests
     }
 
     [Fact]
-    public async Task Fails_When_Principal_Missing_One_Permission()
+    public async Task Succeeds_When_Principal_Has_Second_Operation_Only()
     {
-        var principal = CreatePrincipal(new ScopedOperations { Scope = "", Operations = [1] });
+        var principal = CreatePrincipal(new ScopedOperations { Scope = "", Operations = [2] });
         var appContext = new Mock<IApplicationContext>();
         appContext.Setup(x => x.Principal).Returns(principal);
 
-        var requirement = new ScopedOperationsRequirement(1, 2);
+        var requirement = new AnyScopedOperationRequirement(1, 2);
         var context = CreateContext(requirement);
-        var handler = new ScopedOperationsHandler(appContext.Object);
+        var handler = new AnyScopedOperationHandler(appContext.Object);
 
         await handler.HandleAsync(context);
 
-        context.HasSucceeded.Should().BeFalse();
+        context.HasSucceeded.Should().BeTrue();
     }
 
     [Fact]
-    public async Task Fails_When_Principal_Has_No_Matching_Permissions()
+    public async Task Fails_When_Principal_Has_No_Matching_Operations()
     {
         var principal = CreatePrincipal(new ScopedOperations { Scope = "", Operations = [99] });
         var appContext = new Mock<IApplicationContext>();
         appContext.Setup(x => x.Principal).Returns(principal);
 
-        var requirement = new ScopedOperationsRequirement(1, 2);
+        var requirement = new AnyScopedOperationRequirement(1, 2);
         var context = CreateContext(requirement);
-        var handler = new ScopedOperationsHandler(appContext.Object);
+        var handler = new AnyScopedOperationHandler(appContext.Object);
 
         await handler.HandleAsync(context);
 
@@ -84,16 +84,16 @@ public class ScopedOperationsHandlerTests
     }
 
     [Fact]
-    public async Task Succeeds_With_Scoped_Permissions()
+    public async Task Succeeds_With_Scoped_Operation()
     {
         var principal = CreatePrincipal(
-            new ScopedOperations { Scope = "Tenant1", Operations = [1, 2] });
+            new ScopedOperations { Scope = "Tenant1", Operations = [1] });
         var appContext = new Mock<IApplicationContext>();
         appContext.Setup(x => x.Principal).Returns(principal);
 
-        var requirement = new ScopedOperationsRequirement("Tenant1", 1, 2);
+        var requirement = new AnyScopedOperationRequirement("Tenant1", 1, 2);
         var context = CreateContext(requirement);
-        var handler = new ScopedOperationsHandler(appContext.Object);
+        var handler = new AnyScopedOperationHandler(appContext.Object);
 
         await handler.HandleAsync(context);
 
@@ -104,13 +104,13 @@ public class ScopedOperationsHandlerTests
     public async Task Fails_When_Scope_Does_Not_Match()
     {
         var principal = CreatePrincipal(
-            new ScopedOperations { Scope = "Tenant1", Operations = [1, 2] });
+            new ScopedOperations { Scope = "Tenant1", Operations = [1] });
         var appContext = new Mock<IApplicationContext>();
         appContext.Setup(x => x.Principal).Returns(principal);
 
-        var requirement = new ScopedOperationsRequirement("WrongScope", 1);
+        var requirement = new AnyScopedOperationRequirement("WrongScope", 1);
         var context = CreateContext(requirement);
-        var handler = new ScopedOperationsHandler(appContext.Object);
+        var handler = new AnyScopedOperationHandler(appContext.Object);
 
         await handler.HandleAsync(context);
 
@@ -118,17 +118,16 @@ public class ScopedOperationsHandlerTests
     }
 
     [Fact]
-    public async Task Succeeds_With_Mixed_Scope_Permissions()
+    public async Task Succeeds_With_Mixed_Scopes_When_One_Matches()
     {
         var principal = CreatePrincipal(
-            new ScopedOperations { Scope = "ScopeA", Operations = [1] },
-            new ScopedOperations { Scope = "ScopeB", Operations = [2] });
+            new ScopedOperations { Scope = "ScopeA", Operations = [1] });
         var appContext = new Mock<IApplicationContext>();
         appContext.Setup(x => x.Principal).Returns(principal);
 
-        var requirement = new ScopedOperationsRequirement(("ScopeA", 1), ("ScopeB", 2));
+        var requirement = new AnyScopedOperationRequirement(("ScopeA", 1), ("ScopeB", 2));
         var context = CreateContext(requirement);
-        var handler = new ScopedOperationsHandler(appContext.Object);
+        var handler = new AnyScopedOperationHandler(appContext.Object);
 
         await handler.HandleAsync(context);
 
@@ -136,16 +135,16 @@ public class ScopedOperationsHandlerTests
     }
 
     [Fact]
-    public async Task Fails_With_Mixed_Scopes_When_One_Missing()
+    public async Task Fails_With_Mixed_Scopes_When_None_Match()
     {
         var principal = CreatePrincipal(
-            new ScopedOperations { Scope = "ScopeA", Operations = [1] });
+            new ScopedOperations { Scope = "ScopeC", Operations = [99] });
         var appContext = new Mock<IApplicationContext>();
         appContext.Setup(x => x.Principal).Returns(principal);
 
-        var requirement = new ScopedOperationsRequirement(("ScopeA", 1), ("ScopeB", 2));
+        var requirement = new AnyScopedOperationRequirement(("ScopeA", 1), ("ScopeB", 2));
         var context = CreateContext(requirement);
-        var handler = new ScopedOperationsHandler(appContext.Object);
+        var handler = new AnyScopedOperationHandler(appContext.Object);
 
         await handler.HandleAsync(context);
 
@@ -158,9 +157,9 @@ public class ScopedOperationsHandlerTests
         var appContext = new Mock<IApplicationContext>();
         appContext.Setup(x => x.Principal).Returns((AppPrincipal?)null);
 
-        var requirement = new ScopedOperationsRequirement(1);
+        var requirement = new AnyScopedOperationRequirement(1);
         var context = CreateContext(requirement);
-        var handler = new ScopedOperationsHandler(appContext.Object);
+        var handler = new AnyScopedOperationHandler(appContext.Object);
 
         await handler.HandleAsync(context);
 
@@ -168,15 +167,15 @@ public class ScopedOperationsHandlerTests
     }
 
     [Fact]
-    public async Task Succeeds_With_Single_Permission()
+    public async Task Succeeds_With_Single_Operation()
     {
         var principal = CreatePrincipal(new ScopedOperations { Scope = "", Operations = [1] });
         var appContext = new Mock<IApplicationContext>();
         appContext.Setup(x => x.Principal).Returns(principal);
 
-        var requirement = new ScopedOperationsRequirement(1);
+        var requirement = new AnyScopedOperationRequirement(1);
         var context = CreateContext(requirement);
-        var handler = new ScopedOperationsHandler(appContext.Object);
+        var handler = new AnyScopedOperationHandler(appContext.Object);
 
         await handler.HandleAsync(context);
 
