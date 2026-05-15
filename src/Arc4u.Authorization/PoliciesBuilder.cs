@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Arc4u.Authorization;
 
@@ -46,6 +47,7 @@ public sealed class PoliciesBuilder
     {
         ArgumentException.ThrowIfNullOrEmpty(name);
 
+        EnsureAllHandlerRegistered();
         _services.Configure<AuthorizationOptions>(opts => opts.AddPolicy(name, p => p.AddRequirements(new AllScopedOperationsRequirement(operations))));
 
         return this;
@@ -65,6 +67,7 @@ public sealed class PoliciesBuilder
         ArgumentException.ThrowIfNullOrEmpty(name);
         ArgumentException.ThrowIfNullOrEmpty(scope);
 
+        EnsureAllHandlerRegistered();
         _services.Configure<AuthorizationOptions>(opts => opts.AddPolicy(name, p => p.AddRequirements(new AllScopedOperationsRequirement(scope, operations))));
 
         return this;
@@ -84,6 +87,7 @@ public sealed class PoliciesBuilder
     {
         ArgumentException.ThrowIfNullOrEmpty(name);
 
+        EnsureAllHandlerRegistered();
         _services.Configure<AuthorizationOptions>(opts => opts.AddPolicy(name, p => p.AddRequirements(new AllScopedOperationsRequirement(scopedOperations))));
 
         return this;
@@ -97,10 +101,11 @@ public sealed class PoliciesBuilder
     /// <param name="operations">One or more operation identifiers; being granted any of them satisfies the policy.</param>
     /// <returns>The same <see cref="PoliciesBuilder"/> instance for further chaining.</returns>
     /// <exception cref="ArgumentException"><paramref name="name"/> is <see langword="null"/> or empty.</exception>
-    public PoliciesBuilder AddAnyOperation(string name, params int[] operations)
+    public PoliciesBuilder AddAnyOperations(string name, params int[] operations)
     {
         ArgumentException.ThrowIfNullOrEmpty(name);
 
+        EnsureAnyHandlerRegistered();
         _services.Configure<AuthorizationOptions>(opts => opts.AddPolicy(name, p => p.AddRequirements(new AnyScopedOperationRequirement(operations))));
 
         return this;
@@ -115,11 +120,12 @@ public sealed class PoliciesBuilder
     /// <param name="operations">One or more operation identifiers; being granted any of them within <paramref name="scope"/> satisfies the policy.</param>
     /// <returns>The same <see cref="PoliciesBuilder"/> instance for further chaining.</returns>
     /// <exception cref="ArgumentException"><paramref name="name"/> or <paramref name="scope"/> is <see langword="null"/> or empty.</exception>
-    public PoliciesBuilder AddAnyOperation(string name, string scope, params int[] operations)
+    public PoliciesBuilder AddAnyOperations(string name, string scope, params int[] operations)
     {
         ArgumentException.ThrowIfNullOrEmpty(name);
         ArgumentException.ThrowIfNullOrEmpty(scope);
 
+        EnsureAnyHandlerRegistered();
         _services.Configure<AuthorizationOptions>(opts => opts.AddPolicy(name, p => p.AddRequirements(new AnyScopedOperationRequirement(scope, operations))));
 
         return this;
@@ -136,10 +142,11 @@ public sealed class PoliciesBuilder
     /// </param>
     /// <returns>The same <see cref="PoliciesBuilder"/> instance for further chaining.</returns>
     /// <exception cref="ArgumentException"><paramref name="name"/> is <see langword="null"/> or empty.</exception>
-    public PoliciesBuilder AddAnyOperation(string name, params (string scope, int operation)[] scopedOperations)
+    public PoliciesBuilder AddAnyOperations(string name, params (string scope, int operation)[] scopedOperations)
     {
         ArgumentException.ThrowIfNullOrEmpty(name);
 
+        EnsureAnyHandlerRegistered();
         _services.Configure<AuthorizationOptions>(opts =>
             opts.AddPolicy(name, p => p.AddRequirements(new AnyScopedOperationRequirement(scopedOperations))));
 
@@ -160,5 +167,15 @@ public sealed class PoliciesBuilder
 
         _services.Configure(configure);
         return this;
+    }
+
+    private void EnsureAllHandlerRegistered()
+    {
+        _services.TryAddEnumerable(ServiceDescriptor.Scoped<IAuthorizationHandler, AllScopedOperationsHandler>());
+    }
+
+    private void EnsureAnyHandlerRegistered()
+    {
+        _services.TryAddEnumerable(ServiceDescriptor.Scoped<IAuthorizationHandler, AnyScopedOperationHandler>());
     }
 }
