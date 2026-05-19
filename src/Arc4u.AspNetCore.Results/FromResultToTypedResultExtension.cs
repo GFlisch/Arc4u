@@ -43,6 +43,35 @@ public static class FromResultToTypedResultExtension
         return objectResult;
     }
 
+    public static async Task<Results<Ok<T>, ProblemHttpResult, ValidationProblem>>
+    ToTypedOkResultAsync<TResult, T>(this ValueTask<Result<TResult>> result, [DisallowNull] Func<TResult, Task<T>> asyncMapper)
+    {
+        ArgumentNullException.ThrowIfNull(asyncMapper);
+
+        var res = await result.ConfigureAwait(false);
+
+        Results<Ok<T>, ProblemHttpResult, ValidationProblem> objectResult = TypedResults.Problem();
+
+        if (res.IsSuccess)
+        {
+            if (res.Value is null)
+            {
+                objectResult = TypedResults.Ok(default(T));
+            }
+            else
+            {
+                var mapped = await asyncMapper(res.Value).ConfigureAwait(false);
+                objectResult = TypedResults.Ok(mapped);
+            }
+        }
+        else
+        {
+            objectResult = TypedResults.Problem(res.ToProblemDetails());
+        }
+
+        return objectResult;
+    }
+
     public static async ValueTask<Results<NoContent, ProblemHttpResult, ValidationProblem>>
     ToTypedOkResultAsync(this ValueTask<Result> result)
     {
@@ -68,6 +97,35 @@ public static class FromResultToTypedResultExtension
             .OnSuccessNotNull(value => objectResult = TypedResults.Created(location, mapper(value)))
             .OnSuccessNull(() => objectResult = TypedResults.Created((Uri?)null, default(T)))
             .OnFailed(errors => objectResult = TypedResults.Problem(res.ToProblemDetails()));
+
+        return objectResult;
+    }
+
+    public static async Task<Results<Created<T>, ProblemHttpResult, ValidationProblem>>
+    ToTypedCreatedResultAsync<TResult, T>(this ValueTask<Result<TResult>> result, Uri? location, [DisallowNull] Func<TResult, Task<T>> asyncMapper)
+    {
+        ArgumentNullException.ThrowIfNull(asyncMapper);
+
+        var res = await result.ConfigureAwait(false);
+
+        Results<Created<T>, ProblemHttpResult, ValidationProblem> objectResult = TypedResults.Problem();
+
+        if (res.IsSuccess)
+        {
+            if (res.Value is null)
+            {
+                objectResult = TypedResults.Created((Uri?)null, default(T));
+            }
+            else
+            {
+                var mapped = await asyncMapper(res.Value).ConfigureAwait(false);
+                objectResult = TypedResults.Created(location, mapped);
+            }
+        }
+        else
+        {
+            objectResult = TypedResults.Problem(res.ToProblemDetails());
+        }
 
         return objectResult;
     }
@@ -134,6 +192,35 @@ public static class FromResultToTypedResultExtension
         return objectResult;
     }
 
+    public static async Task<Results<Ok<T>, ProblemHttpResult, ValidationProblem>>
+    ToTypedOkResultAsync<TResult, T>(this Task<Result<TResult>> result, [DisallowNull] Func<TResult, Task<T>> asyncMapper)
+    {
+        ArgumentNullException.ThrowIfNull(asyncMapper);
+
+        var res = await result.ConfigureAwait(false);
+
+        Results<Ok<T>, ProblemHttpResult, ValidationProblem> objectResult = TypedResults.Problem();
+
+        if (res.IsSuccess)
+        {
+            if (res.Value is null)
+            {
+                objectResult = TypedResults.Ok(default(T));
+            }
+            else
+            {
+                var mapped = await asyncMapper(res.Value).ConfigureAwait(false);
+                objectResult = TypedResults.Ok(mapped);
+            }
+        }
+        else
+        {
+            objectResult = TypedResults.Problem(res.ToProblemDetails());
+        }
+
+        return objectResult;
+    }
+
     public static async Task<Results<NoContent, ProblemHttpResult, ValidationProblem>>
     ToTypedOkResultAsync(this Task<Result> result)
     {
@@ -159,6 +246,33 @@ public static class FromResultToTypedResultExtension
         return Task.FromResult(objectResult);
     }
 
+    public static async Task<Results<Ok<T>, ProblemHttpResult, ValidationProblem>>
+    ToTypedOkResultAsync<TResult, T>(this Result<TResult> result, [DisallowNull] Func<TResult, Task<T>> asyncMapper)
+    {
+        ArgumentNullException.ThrowIfNull(asyncMapper);
+
+        Results<Ok<T>, ProblemHttpResult, ValidationProblem> objectResult = TypedResults.Problem();
+
+        if (result.IsSuccess)
+        {
+            if (result.Value is null)
+            {
+                objectResult = TypedResults.Ok(default(T));
+            }
+            else
+            {
+                var mapped = await asyncMapper(result.Value).ConfigureAwait(false);
+                objectResult = TypedResults.Ok(mapped);
+            }
+        }
+        else
+        {
+            objectResult = TypedResults.Problem(result.ToProblemDetails());
+        }
+
+        return objectResult;
+    }
+
     public static async Task<Results<Created<T>, ProblemHttpResult, ValidationProblem>>
     ToTypedCreatedResultAsync<TResult, T>(this Task<Result<TResult>> result, Uri? location, [DisallowNull] Func<TResult, T> mapper)
     {
@@ -171,6 +285,35 @@ public static class FromResultToTypedResultExtension
             .OnSuccessNotNull(value => objectResult = TypedResults.Created(location, mapper(value)))
             .OnSuccessNull(() => objectResult = TypedResults.Created((Uri?)null, default(T)))
             .OnFailed(errors => objectResult = TypedResults.Problem(res.ToProblemDetails()));
+
+        return objectResult;
+    }
+
+    public static async Task<Results<Created<T>, ProblemHttpResult, ValidationProblem>>
+    ToTypedCreatedResultAsync<TResult, T>(this Task<Result<TResult>> result, Uri? location, [DisallowNull] Func<TResult, Task<T>> asyncMapper)
+    {
+        ArgumentNullException.ThrowIfNull(asyncMapper);
+
+        var res = await result.ConfigureAwait(false);
+
+        Results<Created<T>, ProblemHttpResult, ValidationProblem> objectResult = TypedResults.Problem();
+
+        if (res.IsSuccess)
+        {
+            if (res.Value is null)
+            {
+                objectResult = TypedResults.Created((Uri?)null, default(T));
+            }
+            else
+            {
+                var mapped = await asyncMapper(res.Value).ConfigureAwait(false);
+                objectResult = TypedResults.Created(location, mapped);
+            }
+        }
+        else
+        {
+            objectResult = TypedResults.Problem(res.ToProblemDetails());
+        }
 
         return objectResult;
     }
@@ -201,6 +344,33 @@ public static class FromResultToTypedResultExtension
             .OnFailed(errors => objectResult = TypedResults.Problem(result.ToProblemDetails()));
 
         return Task.FromResult(objectResult);
+    }
+
+    public static async Task<Results<Created<T>, ProblemHttpResult, ValidationProblem>>
+    ToTypedCreatedResultAsync<TResult, T>(this Result<TResult> result, Uri? location, [DisallowNull] Func<TResult, Task<T>> asyncMapper)
+    {
+        ArgumentNullException.ThrowIfNull(asyncMapper);
+
+        Results<Created<T>, ProblemHttpResult, ValidationProblem> objectResult = TypedResults.Problem();
+
+        if (result.IsSuccess)
+        {
+            if (result.Value is null)
+            {
+                objectResult = TypedResults.Created((Uri?)null, default(T));
+            }
+            else
+            {
+                var mapped = await asyncMapper(result.Value).ConfigureAwait(false);
+                objectResult = TypedResults.Created(location, mapped);
+            }
+        }
+        else
+        {
+            objectResult = TypedResults.Problem(result.ToProblemDetails());
+        }
+
+        return objectResult;
     }
 
     public static Task<Results<Created<TResult>, ProblemHttpResult, ValidationProblem>>

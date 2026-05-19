@@ -785,4 +785,137 @@ public class ProblemDetailsWithIResultTests
     }
 
     #endregion
+
+    #region Async mapper
+
+    [Fact]
+    public async Task Test_ValueTask_Result_To_OnSuccess_With_Async_Mapping_Should()
+    {
+        // arrange
+        var value = Guid.NewGuid().ToString();
+        var result = Result.Ok(value);
+        var valueTask = () => ValueTask.FromResult(result);
+
+        // act
+        var sut = await valueTask().ToHttpOkResultAsync(v => Task.FromResult($"{v} Arc4u"));
+
+        // assert
+        sut.Should().BeOfType<Ok<string>>();
+        ((Ok<string>)sut).Value.Should().Be($"{value} Arc4u");
+    }
+
+    [Fact]
+    public async Task Test_Task_Result_To_OnSuccess_With_Async_Mapping_Should()
+    {
+        // arrange
+        var value = Guid.NewGuid().ToString();
+        var result = Result.Ok(value);
+        var task = () => Task.FromResult(result);
+
+        // act
+        var sut = await task().ToHttpOkResultAsync(v => Task.FromResult($"{v} Arc4u"));
+
+        // assert
+        sut.Should().BeOfType<Ok<string>>();
+        ((Ok<string>)sut).Value.Should().Be($"{value} Arc4u");
+    }
+
+    [Fact]
+    public async Task Test_Task_Result_To_OnSuccess_Null_With_Async_Mapping_Should()
+    {
+        // arrange
+        var result = Result.Ok<string>(default!);
+        var task = () => Task.FromResult(result);
+
+        // act
+        var sut = await task().ToHttpOkResultAsync(v => Task.FromResult($"{v} Arc4u"));
+
+        // assert
+        sut.Should().BeOfType<Ok>();
+    }
+
+    [Fact]
+    public async Task Test_Task_Result_To_OnFailed_With_Async_Mapping_Should()
+    {
+        // arrange
+        var value = Guid.NewGuid().ToString();
+        var result = Result.Fail<string>(value);
+        var task = () => Task.FromResult(result);
+
+        // act
+        var sut = await task().ToHttpOkResultAsync(v => Task.FromResult($"{v} Arc4u"));
+
+        // assert
+        sut.Should().BeOfType<ProblemHttpResult>();
+        var problem = ((ProblemHttpResult)sut).ProblemDetails;
+        problem.Title.Should().Be("Error.");
+        problem.Detail.Should().Be(value);
+        problem.Status.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task Test_Task_Result_To_OnSuccess_Created_With_Async_Mapping_Should()
+    {
+        // arrange
+        var value = Guid.NewGuid().ToString();
+        var uri = _fixture.Create<Uri>();
+        var result = Result.Ok(value);
+        var task = () => Task.FromResult(result);
+
+        // act
+        var sut = await task().ToHttpCreatedResultAsync(uri, v => Task.FromResult($"{v} Arc4u"));
+
+        // assert
+        sut.Should().BeOfType<Created<string>>();
+        var createdResult = (Created<string>)sut;
+        createdResult.Value.Should().Be($"{value} Arc4u");
+        createdResult.Location.Should().Be(uri.ToString());
+    }
+
+    [Fact]
+    public async Task Test_Result_To_OnSuccess_Created_With_Async_Mapping_Should()
+    {
+        // arrange
+        var value = Guid.NewGuid().ToString();
+        var uri = _fixture.Create<Uri>();
+        var result = Result.Ok(value);
+
+        // act
+        var sut = await result.ToHttpCreatedResultAsync(uri, v => Task.FromResult($"{v} Arc4u"));
+
+        // assert
+        sut.Should().BeOfType<Created<string>>();
+        var createdResult = (Created<string>)sut;
+        createdResult.Value.Should().Be($"{value} Arc4u");
+        createdResult.Location.Should().Be(uri.ToString());
+    }
+
+    [Fact]
+    public async Task Test_Result_To_OnSuccess_Ok_With_Async_Mapping_Should()
+    {
+        // arrange
+        var value = Guid.NewGuid().ToString();
+        var result = Result.Ok(value);
+
+        // act
+        var sut = await result.ToHttpOkResultAsync(v => Task.FromResult($"{v} Arc4u"));
+
+        // assert
+        sut.Should().BeOfType<Ok<string>>();
+        ((Ok<string>)sut).Value.Should().Be($"{value} Arc4u");
+    }
+
+    [Fact]
+    public async Task Test_Async_Mapper_Null_Should_Throw()
+    {
+        // arrange
+        var result = Result.Ok(Guid.NewGuid().ToString());
+        Func<string, Task<string>> asyncMapper = null!;
+
+        // act + assert
+        var act = () => Task.FromResult(result).ToHttpOkResultAsync(asyncMapper);
+        await act.Should().ThrowAsync<ArgumentNullException>();
+    }
+
+    #endregion
 }

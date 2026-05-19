@@ -41,6 +41,35 @@ public static class FromResultToActionResultExtension
         return objectResult;
     }
 
+    public static async Task<ActionResult<T>>
+    ToActionOkResultAsync<TResult, T>(this ValueTask<Result<TResult>> result, [DisallowNull] Func<TResult, Task<T>> asyncMapper)
+    {
+        ArgumentNullException.ThrowIfNull(asyncMapper);
+
+        var res = await result.ConfigureAwait(false);
+
+        ActionResult objectResult = new BadRequestResult();
+
+        if (res.IsSuccess)
+        {
+            if (res.Value is null)
+            {
+                objectResult = new OkObjectResult(default(T));
+            }
+            else
+            {
+                var mapped = await asyncMapper(res.Value).ConfigureAwait(false);
+                objectResult = new OkObjectResult(mapped);
+            }
+        }
+        else
+        {
+            objectResult = new ObjectResult(res.ToProblemDetails());
+        }
+
+        return objectResult;
+    }
+
     public static async ValueTask<ActionResult>
     ToActionOkResultAsync(this ValueTask<Result> result)
     {
@@ -69,6 +98,38 @@ public static class FromResultToActionResultExtension
                 StatusCode = StatusCodes.Status201Created
             })
             .OnFailed(_ => objectResult = new ObjectResult(res.ToProblemDetails()));
+
+        return objectResult;
+    }
+
+    public static async Task<ActionResult<T>>
+    ToActionCreatedResultAsync<TResult, T>(this ValueTask<Result<TResult>> result, Uri? location, [DisallowNull] Func<TResult, Task<T>> asyncMapper)
+    {
+        ArgumentNullException.ThrowIfNull(asyncMapper);
+
+        var res = await result.ConfigureAwait(false);
+
+        ActionResult objectResult = new BadRequestResult();
+
+        if (res.IsSuccess)
+        {
+            if (res.Value is null)
+            {
+                objectResult = new ObjectResult(default(T))
+                {
+                    StatusCode = StatusCodes.Status201Created
+                };
+            }
+            else
+            {
+                var mapped = await asyncMapper(res.Value).ConfigureAwait(false);
+                objectResult = new CreatedResult(location, mapped);
+            }
+        }
+        else
+        {
+            objectResult = new ObjectResult(res.ToProblemDetails());
+        }
 
         return objectResult;
     }
@@ -125,6 +186,35 @@ public static class FromResultToActionResultExtension
         return objectResult;
     }
 
+    public static async Task<ActionResult<T>>
+    ToActionOkResultAsync<TResult, T>(this Task<Result<TResult>> result, [DisallowNull] Func<TResult, Task<T>> asyncMapper)
+    {
+        ArgumentNullException.ThrowIfNull(asyncMapper);
+
+        var res = await result.ConfigureAwait(false);
+
+        ActionResult<T> objectResult = new BadRequestResult();
+
+        if (res.IsSuccess)
+        {
+            if (res.Value is null)
+            {
+                objectResult = new OkObjectResult(default(T));
+            }
+            else
+            {
+                var mapped = await asyncMapper(res.Value).ConfigureAwait(false);
+                objectResult = new OkObjectResult(mapped);
+            }
+        }
+        else
+        {
+            objectResult = new ObjectResult(res.ToProblemDetails());
+        }
+
+        return objectResult;
+    }
+
     public static async Task<ActionResult>
     ToActionOkResultAsync(this Task<Result> result)
     {
@@ -151,6 +241,33 @@ public static class FromResultToActionResultExtension
     }
 
     public static async Task<ActionResult<T>>
+    ToActionOkResultAsync<TResult, T>(this Result<TResult> result, [DisallowNull] Func<TResult, Task<T>> asyncMapper)
+    {
+        ArgumentNullException.ThrowIfNull(asyncMapper);
+
+        ActionResult<T> objectResult = new BadRequestResult();
+
+        if (result.IsSuccess)
+        {
+            if (result.Value is null)
+            {
+                objectResult = new OkObjectResult(default(T));
+            }
+            else
+            {
+                var mapped = await asyncMapper(result.Value).ConfigureAwait(false);
+                objectResult = new OkObjectResult(mapped);
+            }
+        }
+        else
+        {
+            objectResult = new ObjectResult(result.ToProblemDetails());
+        }
+
+        return objectResult;
+    }
+
+    public static async Task<ActionResult<T>>
     ToActionCreatedResultAsync<TResult, T>(this Task<Result<TResult>> result, Uri? location, [DisallowNull] Func<TResult, T> mapper)
     {
         ArgumentNullException.ThrowIfNull(mapper);
@@ -165,6 +282,38 @@ public static class FromResultToActionResultExtension
                 StatusCode = StatusCodes.Status201Created
             })
             .OnFailed(_ => objectResult = new ObjectResult(res.ToProblemDetails()));
+
+        return objectResult;
+    }
+
+    public static async Task<ActionResult<T>>
+    ToActionCreatedResultAsync<TResult, T>(this Task<Result<TResult>> result, Uri? location, [DisallowNull] Func<TResult, Task<T>> asyncMapper)
+    {
+        ArgumentNullException.ThrowIfNull(asyncMapper);
+
+        var res = await result.ConfigureAwait(false);
+
+        ActionResult<T> objectResult = new BadRequestResult();
+
+        if (res.IsSuccess)
+        {
+            if (res.Value is null)
+            {
+                objectResult = new ObjectResult(default(T))
+                {
+                    StatusCode = StatusCodes.Status201Created
+                };
+            }
+            else
+            {
+                var mapped = await asyncMapper(res.Value).ConfigureAwait(false);
+                objectResult = new CreatedResult(location, mapped);
+            }
+        }
+        else
+        {
+            objectResult = new ObjectResult(res.ToProblemDetails());
+        }
 
         return objectResult;
     }
@@ -201,6 +350,36 @@ public static class FromResultToActionResultExtension
             .OnFailed(_ => objectResult = new ObjectResult(result.ToProblemDetails()));
 
         return Task.FromResult(objectResult);
+    }
+
+    public static async Task<ActionResult>
+    ToActionCreatedResultAsync<TResult, T>(this Result<TResult> result, Uri? location, [DisallowNull] Func<TResult, Task<T>> asyncMapper)
+    {
+        ArgumentNullException.ThrowIfNull(asyncMapper);
+
+        ActionResult objectResult = new BadRequestResult();
+
+        if (result.IsSuccess)
+        {
+            if (result.Value is null)
+            {
+                objectResult = new ObjectResult(default(T))
+                {
+                    StatusCode = StatusCodes.Status201Created
+                };
+            }
+            else
+            {
+                var mapped = await asyncMapper(result.Value).ConfigureAwait(false);
+                objectResult = new CreatedResult(location, mapped);
+            }
+        }
+        else
+        {
+            objectResult = new ObjectResult(result.ToProblemDetails());
+        }
+
+        return objectResult;
     }
 
     public static Task<ActionResult>
