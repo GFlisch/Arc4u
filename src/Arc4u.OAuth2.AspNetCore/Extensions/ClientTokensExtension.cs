@@ -16,17 +16,55 @@ namespace Arc4u.OAuth2.Extensions;
 public static class ClientTokensExtension
 {
     /// <summary>
+    /// Resolves an <see cref="IClientTokenScenario"/> from its discriminator (the
+    /// <see cref="ClientTokenSettingsOptions.Scenario"/> value), or <c>null</c> when none matches.
+    /// <para>
+    /// Defaults to <see cref="DefaultScenario"/> (the built-in scenarios). A framework user can
+    /// reconfigure it via <see cref="SetScenarioResolver"/> — typically by handling their own
+    /// discriminators and delegating to <see cref="DefaultScenario"/> for the rest.
+    /// </para>
+    /// </summary>
+    public static Func<string, IClientTokenScenario?> Scenario => discriminator => _scenario(discriminator);
+
+    private static Func<string, IClientTokenScenario?> _scenario = DefaultScenario;
+
+    /// <summary>
+    /// Reconfigures the scenario resolver. Delegate to <see cref="DefaultScenario"/> to keep the built-ins.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// ClientTokensExtension.SetScenarioResolver(discriminator => discriminator switch
+    /// {
+    ///     "MyCustom" => new MyCustomScenario(),
+    ///     _ => ClientTokensExtension.DefaultScenario(discriminator)
+    /// });
+    /// </code>
+    /// </example>
+    public static void SetScenarioResolver([DisallowNull] Func<string, IClientTokenScenario?> resolver)
+    {
+        ArgumentNullException.ThrowIfNull(resolver);
+        _scenario = resolver;
+    }
+
+    /// <summary>
+    /// The default resolver: maps the built-in discriminators
+    /// (<see cref="UserPasswordScenario.Name"/>, <see cref="ClientCredentialsScenario.Name"/>) to their scenarios.
+    /// </summary>
+    public static IClientTokenScenario? DefaultScenario(string discriminator) => discriminator switch
+    {
+        UserPasswordScenario.Name => new UserPasswordScenario(),
+        ClientCredentialsScenario.Name => new ClientCredentialsScenario(),
+        _ => null
+    };
+
+    /// <summary>
     /// Reads the <paramref name="sectionName"/> section and registers a named
     /// <see cref="SimpleKeyValueSettings"/> per entry, selecting the matching
-    /// <see cref="IClientTokenScenario"/> by the entry's discriminator.
+    /// <see cref="IClientTokenScenario"/> by the entry's discriminator through <see cref="Scenario"/>.
     /// </summary>
-    /// <param name="configureScenarios">
-    /// Optional hook to register custom scenarios or override the built-in ones
-    /// (<see cref="UserPasswordScenario"/>, <see cref="ClientCredentialsScenario"/>).
-    /// </param>
+    /// <param name="sectionName">Section name to read the configuration from the builder.Configuration</param>
     public static void AddClientTokens(this IServiceCollection services,
         [DisallowNull] IConfiguration configuration,
-        Action<ClientTokenScenarioRegistry>? configureScenarios = null,
         [DisallowNull] string sectionName = "Authentication:ClientTokens")
     {
         ArgumentNullException.ThrowIfNull(configuration);
@@ -46,29 +84,21 @@ public static class ClientTokensExtension
             return;
         }
 
-        var registry = new ClientTokenScenarioRegistry()
-            .Add(UserPasswordScenario.Name, new UserPasswordScenario())
-            .Add(ClientCredentialsScenario.Name, new ClientCredentialsScenario());
-
-        configureScenarios?.Invoke(registry);
-
         foreach (var (optionKey, options) in entries)
         {
-            Register(services, registry, optionKey, options);
+            Register(services, optionKey, options);
         }
     }
 
-    private static void Register(IServiceCollection services, ClientTokenScenarioRegistry registry, string optionKey, ClientTokenSettingsOptions options)
+    private static void Register(IServiceCollection services, string optionKey, ClientTokenSettingsOptions options)
     {
         if (string.IsNullOrWhiteSpace(options.Scenario))
         {
             throw new ConfigurationException($"[{optionKey}] The 'Scenario' discriminator must be filled.");
         }
 
-        if (!registry.TryGet(options.Scenario, out var scenario))
-        {
-            throw new ConfigurationException($"[{optionKey}] No client token scenario is registered for the discriminator '{options.Scenario}'.");
-        }
+        var scenario = Scenario(options.Scenario)
+            ?? throw new ConfigurationException($"[{optionKey}] No client token scenario is registered for the discriminator '{options.Scenario}'.");
 
         // Eager validation: fail fast, before the service provider is built.
         scenario.Validate(optionKey, options);

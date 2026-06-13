@@ -145,16 +145,17 @@ public class CredentialSecretTokenProviderTests
             .AddInMemoryCollection(
                 new Dictionary<string, string?>
                 {
-                    ["Authentication:ClientSecrets:Service:ClientId"] = "ClientId",
-                    ["Authentication:ClientSecrets:Service:Scopes:0"] = "A scope",
-                    ["Authentication:ClientSecrets:Service:Credential"] = "user:passw0rd"
+                    ["Authentication:ClientTokens:Service:Scenario"] = UserPasswordScenario.Name,
+                    ["Authentication:ClientTokens:Service:ClientId"] = "ClientId",
+                    ["Authentication:ClientTokens:Service:Scopes:0"] = "A scope",
+                    ["Authentication:ClientTokens:Service:Credential"] = "user:passw0rd"
                 }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
 
         IServiceCollection services = new ServiceCollection();
 
-        services.AddSecretAuthentication(configuration);
+        services.AddClientTokens(configuration);
 
         var serviceProvider = services.BuildServiceProvider();
 
@@ -170,7 +171,7 @@ public class CredentialSecretTokenProviderTests
 
     private SimpleKeyValueSettings GetUserPasswordSettings()
     {
-        var options = _fixture.Create<SecretBasicSettingsOptions>();
+        var options = _fixture.Create<ClientTokenSettingsOptions>();
 
         return new SimpleKeyValueSettings(new Dictionary<string, string>
         {
@@ -187,7 +188,7 @@ public class CredentialSecretTokenProviderTests
 
     private SimpleKeyValueSettings GetUserPasswordAndCredentialSettings()
     {
-        var options = _fixture.Create<SecretBasicSettingsOptions>();
+        var options = _fixture.Create<ClientTokenSettingsOptions>();
 
         return new SimpleKeyValueSettings(new Dictionary<string, string>
         {

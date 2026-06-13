@@ -280,17 +280,18 @@ public class JwtHttpHandlerTests
     {
         // arrange
         // arrange the configuration to setup the Client secret.
-        var options = _fixture.Create<SecretBasicSettingsOptions>();
+        var options = _fixture.Create<ClientTokenSettingsOptions>();
         var configDic = new Dictionary<string, string?>
         {
-            ["Authentication:ClientSecrets:Client1:ClientId"] = options.ClientId,
-            ["Authentication:ClientSecrets:Client1:User"] = options.User,
-            ["Authentication:ClientSecrets:Client1:Credential"] = $"{options.User}:password",
+            ["Authentication:ClientTokens:Client1:Scenario"] = UserPasswordScenario.Name,
+            ["Authentication:ClientTokens:Client1:ClientId"] = options.ClientId,
+            ["Authentication:ClientTokens:Client1:User"] = options.User,
+            ["Authentication:ClientTokens:Client1:Credential"] = $"{options.User}:password",
             ["Authentication:DefaultAuthority:Url"] = "https://login.microsoft.com"
         };
         foreach (var scope in options.Scopes)
         {
-            configDic.Add($"Authentication:ClientSecrets:Client1:Scopes:{options.Scopes.IndexOf(scope)}", scope);
+            configDic.Add($"Authentication:ClientTokens:Client1:Scopes:{options.Scopes.IndexOf(scope)}", scope);
         }
 
         var config = new ConfigurationBuilder()
@@ -307,7 +308,7 @@ public class JwtHttpHandlerTests
         IServiceCollection services = new ServiceCollection();
 
         services.AddSingleton<IScopedServiceProviderAccessor, ScopedServiceProviderAccessor>();
-        services.AddSecretAuthentication(configuration);
+        services.AddClientTokens(configuration);
         services.AddScoped<IApplicationContext, ApplicationInstanceContext>();
         services.AddDefaultAuthority(configuration);
 
@@ -545,7 +546,7 @@ public class JwtHttpHandlerTests
     {
         // arrange
         // arrange the configuration to setup the Client secret.
-        var options = _fixture.Create<SecretBasicSettingsOptions>();
+        var options = _fixture.Create<ClientTokenSettingsOptions>();
 
         var config = new ConfigurationBuilder()
             .AddInMemoryCollection(

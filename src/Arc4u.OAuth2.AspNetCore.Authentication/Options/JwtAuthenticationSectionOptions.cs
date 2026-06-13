@@ -17,7 +17,7 @@ namespace Arc4u.OAuth2.Options
 
         public string TokenCacheSectionPath { get; set; } = "Authentication:TokenCache";
 
-        public string ClientSecretSectionPath { get; set; } = "Authentication:ClientSecrets";
+        public string ClientTokensSectionPath { get; set; } = "Authentication:ClientTokens";
 
         public string RemoteSecretSectionPath { get; set; } = "Authentication:RemoteSecrets";
 

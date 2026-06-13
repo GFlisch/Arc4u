@@ -10,7 +10,7 @@ namespace Arc4u.OAuth2.TokenProvider;
 /// <c>ProviderId</c> (token provider) that handles it, and how it projects the bound
 /// <see cref="ClientTokenSettingsOptions"/> into a flat <see cref="SimpleKeyValueSettings"/>.
 /// Scenarios are selected by the <see cref="ClientTokenSettingsOptions.Scenario"/> discriminator
-/// through a <see cref="ClientTokenScenarioRegistry"/>.
+/// through the <see cref="Arc4u.OAuth2.Extensions.ClientTokensExtension.Scenario"/> resolver function.
 /// </para>
 /// </summary>
 public interface IClientTokenScenario

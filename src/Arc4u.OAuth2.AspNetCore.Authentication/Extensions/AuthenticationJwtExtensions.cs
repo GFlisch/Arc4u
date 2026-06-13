@@ -178,7 +178,7 @@ namespace Arc4u.OAuth2.Extensions
             services.AddDomainMapping(configuration, settings.DomainMappingsSectionPath);
             services.AddTokenCache(configuration, settings.TokenCacheSectionPath);
             services.AddClaimsFiller(configuration, settings.ClaimsFillerSectionPath);
-            services.AddSecretAuthentication(configuration, settings.ClientSecretSectionPath);
+            services.AddClientTokens(configuration, settings.ClientTokensSectionPath);
             services.AddRemoteSecretsAuthentication(configuration, settings.RemoteSecretSectionPath);
 
             return services.AddJwtAuthentication(configuration, JwtAuthenticationFiller);

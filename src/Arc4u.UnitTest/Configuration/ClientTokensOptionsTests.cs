@@ -168,6 +168,52 @@ public class ClientTokensOptionsTests
     }
 
     [Fact]
+    public void UserPassword_Password_And_Credential_Should_Throw()
+    {
+        var options = _fixture.Create<ClientTokenSettingsOptions>();
+
+        var config = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["Authentication:ClientTokens:Client1:Scenario"] = UserPasswordScenario.Name,
+                    ["Authentication:ClientTokens:Client1:ClientId"] = options.ClientId,
+                    ["Authentication:ClientTokens:Client1:User"] = options.User,
+                    ["Authentication:ClientTokens:Client1:Password"] = options.Password,
+                    ["Authentication:ClientTokens:Client1:Credential"] = options.Credential
+                }).Build();
+
+        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+        IServiceCollection services = new ServiceCollection();
+
+        var exception = Record.Exception(() => services.AddClientTokens(configuration));
+
+        exception.Should().BeOfType<ConfigurationException>();
+    }
+
+    [Fact]
+    public void UserPassword_Password_Without_User_Should_Throw()
+    {
+        var options = _fixture.Create<ClientTokenSettingsOptions>();
+
+        var config = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["Authentication:ClientTokens:Client1:Scenario"] = UserPasswordScenario.Name,
+                    ["Authentication:ClientTokens:Client1:ClientId"] = options.ClientId,
+                    ["Authentication:ClientTokens:Client1:Password"] = options.Password
+                }).Build();
+
+        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+        IServiceCollection services = new ServiceCollection();
+
+        var exception = Record.Exception(() => services.AddClientTokens(configuration));
+
+        exception.Should().BeOfType<ConfigurationException>();
+    }
+
+    [Fact]
     public void Custom_Scenario_Can_Be_Registered_Should()
     {
         var options = _fixture.Create<ClientTokenSettingsOptions>();
@@ -183,13 +229,27 @@ public class ClientTokensOptionsTests
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
         IServiceCollection services = new ServiceCollection();
 
-        services.AddClientTokens(configuration, registry => registry.Add("Custom", new CustomScenario()));
+        try
+        {
+            ClientTokensExtension.SetScenarioResolver(discriminator => discriminator switch
+            {
+                "Custom" => new CustomScenario(),
+                _ => ClientTokensExtension.DefaultScenario(discriminator)
+            });
 
-        var serviceProvider = services.BuildServiceProvider();
-        var sut = serviceProvider.GetService<IOptionsMonitor<SimpleKeyValueSettings>>()!.Get("Client1");
+            services.AddClientTokens(configuration);
 
-        sut.Values[TokenKeys.ProviderIdKey].Should().Be("Custom");
-        sut.Values[TokenKeys.ClientIdKey].Should().Be(options.ClientId);
+            var serviceProvider = services.BuildServiceProvider();
+            var sut = serviceProvider.GetService<IOptionsMonitor<SimpleKeyValueSettings>>()!.Get("Client1");
+
+            sut.Values[TokenKeys.ProviderIdKey].Should().Be("Custom");
+            sut.Values[TokenKeys.ClientIdKey].Should().Be(options.ClientId);
+        }
+        finally
+        {
+            // Restore the default resolver so the global static does not leak into other tests.
+            ClientTokensExtension.SetScenarioResolver(ClientTokensExtension.DefaultScenario);
+        }
     }
 
     [Fact]
