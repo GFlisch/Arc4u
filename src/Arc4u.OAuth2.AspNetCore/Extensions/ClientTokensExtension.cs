@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Arc4u.Configuration;
 using Arc4u.OAuth2.Options;
+using Arc4u.OAuth2.Token;
 using Arc4u.OAuth2.TokenProvider;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -100,6 +101,11 @@ public static class ClientTokensExtension
         var scenario = Scenario(options.Scenario)
             ?? throw new ConfigurationException($"[{optionKey}] No client token scenario is registered for the discriminator '{options.Scenario}'.");
 
+        if (string.IsNullOrWhiteSpace(options.AuthenticationType))
+        {
+            throw new ConfigurationException($"[{optionKey}] AuthenticationType must be filled.");
+        }
+
         // Eager validation: fail fast, before the service provider is built.
         scenario.Validate(optionKey, options);
 
@@ -112,6 +118,16 @@ public static class ClientTokensExtension
         }
 
         // Projection is deferred into the named options callback; it only writes already-validated data.
-        services.Configure<SimpleKeyValueSettings>(optionKey, settings => scenario.WriteTo(optionKey, options, settings));
+        services.Configure<SimpleKeyValueSettings>(optionKey, settings =>
+        {
+            scenario.WriteTo(optionKey, options, settings);
+
+            // Any Settings key the scenario does not claim is forwarded verbatim as an extra request parameter.
+            var extra = options.Settings.Where(kv => !scenario.KnownKeys.Contains(kv.Key)).ToList();
+            if (extra.Count > 0)
+            {
+                settings.Add(TokenKeys.ExtraParameters, ExtraParametersEncoder.Encode(extra));
+            }
+        });
     }
 }

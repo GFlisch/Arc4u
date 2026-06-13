@@ -280,18 +280,20 @@ public class JwtHttpHandlerTests
     {
         // arrange
         // arrange the configuration to setup the Client secret.
-        var options = _fixture.Create<ClientTokenSettingsOptions>();
+        var clientId = _fixture.Create<string>();
+        var user = _fixture.Create<string>();
+        var scopes = _fixture.Create<List<string>>();
         var configDic = new Dictionary<string, string?>
         {
             ["Authentication:ClientTokens:Client1:Scenario"] = UserPasswordScenario.Name,
-            ["Authentication:ClientTokens:Client1:ClientId"] = options.ClientId,
-            ["Authentication:ClientTokens:Client1:User"] = options.User,
-            ["Authentication:ClientTokens:Client1:Credential"] = $"{options.User}:password",
+            ["Authentication:ClientTokens:Client1:Settings:ClientId"] = clientId,
+            ["Authentication:ClientTokens:Client1:Settings:User"] = user,
+            ["Authentication:ClientTokens:Client1:Settings:Credential"] = $"{user}:password",
             ["Authentication:DefaultAuthority:Url"] = "https://login.microsoft.com"
         };
-        foreach (var scope in options.Scopes)
+        foreach (var scope in scopes)
         {
-            configDic.Add($"Authentication:ClientTokens:Client1:Scopes:{options.Scopes.IndexOf(scope)}", scope);
+            configDic.Add($"Authentication:ClientTokens:Client1:Scopes:{scopes.IndexOf(scope)}", scope);
         }
 
         var config = new ConfigurationBuilder()
@@ -546,8 +548,6 @@ public class JwtHttpHandlerTests
     {
         // arrange
         // arrange the configuration to setup the Client secret.
-        var options = _fixture.Create<ClientTokenSettingsOptions>();
-
         var config = new ConfigurationBuilder()
             .AddInMemoryCollection(
                 new Dictionary<string, string?>

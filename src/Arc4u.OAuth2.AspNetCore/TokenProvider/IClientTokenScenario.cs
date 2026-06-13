@@ -16,9 +16,15 @@ namespace Arc4u.OAuth2.TokenProvider;
 public interface IClientTokenScenario
 {
     /// <summary>
-    /// Validates the bound options. Implementations throw a
-    /// <see cref="ConfigurationException"/> when the configuration is invalid. Invoked eagerly,
-    /// before the service provider is built, so misconfiguration fails fast.
+    /// The keys in <see cref="ClientTokenSettingsOptions.Settings"/> this scenario consumes.
+    /// Any other key present in <c>Settings</c> is forwarded verbatim to the token endpoint as an
+    /// extra request parameter. Should use a case-insensitive comparer.
+    /// </summary>
+    IReadOnlyCollection<string> KnownKeys { get; }
+
+    /// <summary>
+    /// Validates the bound options. Implementations throw a <see cref="ConfigurationException"/>
+    /// when the configuration is invalid. Invoked eagerly, before the service provider is built.
     /// </summary>
     void Validate(string optionKey, ClientTokenSettingsOptions options);
 

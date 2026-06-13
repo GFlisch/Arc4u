@@ -146,9 +146,9 @@ public class CredentialSecretTokenProviderTests
                 new Dictionary<string, string?>
                 {
                     ["Authentication:ClientTokens:Service:Scenario"] = UserPasswordScenario.Name,
-                    ["Authentication:ClientTokens:Service:ClientId"] = "ClientId",
+                    ["Authentication:ClientTokens:Service:Settings:ClientId"] = "ClientId",
                     ["Authentication:ClientTokens:Service:Scopes:0"] = "A scope",
-                    ["Authentication:ClientTokens:Service:Credential"] = "user:passw0rd"
+                    ["Authentication:ClientTokens:Service:Settings:Credential"] = "user:passw0rd"
                 }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
@@ -171,34 +171,30 @@ public class CredentialSecretTokenProviderTests
 
     private SimpleKeyValueSettings GetUserPasswordSettings()
     {
-        var options = _fixture.Create<ClientTokenSettingsOptions>();
-
         return new SimpleKeyValueSettings(new Dictionary<string, string>
         {
             { TokenKeys.ClientIdKey, CredentialSecretTokenProvider.ProviderName },
             { TokenKeys.AuthorityKey, "Basic" },
-            { TokenKeys.ProviderIdKey, options.ProviderId },
-            { TokenKeys.Scope, string.Join(' ', options.Scopes) },
-            { TokenKeys.AuthenticationTypeKey, options.AuthenticationType },
-            { "Password", options.Password },
-            { "User", options.User },
+            { TokenKeys.ProviderIdKey, _fixture.Create<string>() },
+            { TokenKeys.Scope, _fixture.Create<string>() },
+            { TokenKeys.AuthenticationTypeKey, _fixture.Create<string>() },
+            { "Password", _fixture.Create<string>() },
+            { "User", _fixture.Create<string>() },
             { "BasicProviderId", CredentialTokenCacheTokenProvider.ProviderName }
         });
     }
 
     private SimpleKeyValueSettings GetUserPasswordAndCredentialSettings()
     {
-        var options = _fixture.Create<ClientTokenSettingsOptions>();
-
         return new SimpleKeyValueSettings(new Dictionary<string, string>
         {
             { TokenKeys.ClientIdKey, CredentialSecretTokenProvider.ProviderName },
             { TokenKeys.AuthorityKey, "Basic" },
-            { TokenKeys.ProviderIdKey, options.ProviderId },
-            { TokenKeys.Scope, string.Join(' ', options.Scopes) },
-            { TokenKeys.AuthenticationTypeKey, options.AuthenticationType },
-            { "Password", options.Password },
-            { "Credential", $"{options.User}:{options.Credential}" },
+            { TokenKeys.ProviderIdKey, _fixture.Create<string>() },
+            { TokenKeys.Scope, _fixture.Create<string>() },
+            { TokenKeys.AuthenticationTypeKey, _fixture.Create<string>() },
+            { "Password", _fixture.Create<string>() },
+            { "Credential", $"{_fixture.Create<string>()}:{_fixture.Create<string>()}" },
             { "BasicProviderId", CredentialTokenCacheTokenProvider.ProviderName }
         });
     }
