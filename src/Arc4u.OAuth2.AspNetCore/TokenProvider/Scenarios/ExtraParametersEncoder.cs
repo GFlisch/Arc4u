@@ -1,4 +1,4 @@
-namespace Arc4u.OAuth2.TokenProvider;
+namespace Arc4u.OAuth2.TokenProvider.Scenarios;
 
 /// <summary>
 /// Serializes the open <c>ExtraParameters</c> bag into a single form-url-encoded value so it

@@ -2,7 +2,7 @@ using Arc4u.Configuration;
 using Arc4u.OAuth2.Options;
 using Arc4u.OAuth2.Token;
 
-namespace Arc4u.OAuth2.TokenProvider;
+namespace Arc4u.OAuth2.TokenProvider.Scenarios;
 
 /// <summary>
 /// <c>grant_type=client_credentials</c> scenario: a ClientId + ClientSecret pair. Any other key in

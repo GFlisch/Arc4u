@@ -3,6 +3,7 @@ using Arc4u.OAuth2.Extensions;
 using Arc4u.OAuth2.Options;
 using Arc4u.OAuth2.Token;
 using Arc4u.OAuth2.TokenProvider;
+using Arc4u.OAuth2.TokenProvider.Scenarios;
 using AutoFixture;
 using AutoFixture.AutoMoq;
 using AwesomeAssertions;

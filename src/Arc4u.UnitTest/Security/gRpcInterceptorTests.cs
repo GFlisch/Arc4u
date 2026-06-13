@@ -13,6 +13,7 @@ using Arc4u.OAuth2.Options;
 using Arc4u.OAuth2.Security.Principal;
 using Arc4u.OAuth2.Token;
 using Arc4u.OAuth2.TokenProvider;
+using Arc4u.OAuth2.TokenProvider.Scenarios;
 using Arc4u.OAuth2.TokenProviders;
 using Arc4u.Security.Principal;
 using AutoFixture;

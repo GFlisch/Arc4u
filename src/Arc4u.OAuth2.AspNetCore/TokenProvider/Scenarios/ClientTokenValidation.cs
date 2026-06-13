@@ -1,6 +1,6 @@
 using Arc4u.Configuration;
 
-namespace Arc4u.OAuth2.TokenProvider;
+namespace Arc4u.OAuth2.TokenProvider.Scenarios;
 
 /// <summary>
 /// A small fluent validator for the scenario-specific <see cref="Arc4u.OAuth2.Options.ClientTokenSettingsOptions.Settings"/>

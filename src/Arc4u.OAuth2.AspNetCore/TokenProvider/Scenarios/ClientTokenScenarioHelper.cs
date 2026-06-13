@@ -2,7 +2,7 @@ using Arc4u.Configuration;
 using Arc4u.OAuth2.Options;
 using Arc4u.OAuth2.Token;
 
-namespace Arc4u.OAuth2.TokenProvider;
+namespace Arc4u.OAuth2.TokenProvider.Scenarios;
 
 /// <summary>
 /// Shared projection logic for <see cref="IClientTokenScenario"/> implementations: writes the keys

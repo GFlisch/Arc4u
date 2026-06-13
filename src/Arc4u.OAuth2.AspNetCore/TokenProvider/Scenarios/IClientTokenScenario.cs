@@ -1,7 +1,7 @@
 using Arc4u.Configuration;
 using Arc4u.OAuth2.Options;
 
-namespace Arc4u.OAuth2.TokenProvider;
+namespace Arc4u.OAuth2.TokenProvider.Scenarios;
 
 /// <summary>
 /// A client token acquisition scenario.
