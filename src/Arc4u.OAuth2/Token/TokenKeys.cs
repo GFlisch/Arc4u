@@ -106,4 +106,10 @@ public class TokenKeys
     /// A string containing the audience when used as a client calling the sts.
     /// </summary>
     public const string Audience = "Audience";
+
+    /// <summary>
+    /// Open bag of extra request parameters (form-url-encoded) forwarded to the token endpoint,
+    /// e.g. the Logto.io 'resource' or 'audience' parameters.
+    /// </summary>
+    public const string ExtraParameters = "ExtraParameters";
 }

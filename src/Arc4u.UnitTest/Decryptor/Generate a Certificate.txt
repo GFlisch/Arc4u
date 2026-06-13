@@ -9,7 +9,7 @@ The procedure is the following:
 
 New-SelfSignedCertificate -certstorelocation cert:\localmachine\my -dnsname MySelfSignedCertificate -NotAfter (Get-Date).AddYears(10)
 
-The output will be the thumbprit => in this case it was C442DDA851E6BF96E6818C3160EA5D692841CF0B
+The output will be the thumbprint => in this case it was C442DDA851E6BF96E6818C3160EA5D692841CF0B
 
 -2 Export it to a pfx in the Desktop folder of your pc.
 
