@@ -54,14 +54,12 @@ public class ClientTokensOptionsTests
         var sut = serviceProvider.GetService<IOptionsMonitor<SimpleKeyValueSettings>>()!.Get("Client1");
 
         sut.Should().NotBeNull();
-        sut.Values[TokenKeys.ProviderIdKey].Should().Be(CredentialSecretTokenProvider.ProviderName);
+        sut.Values[TokenKeys.ProviderIdKey].Should().Be(CredentialTokenCacheTokenProvider.ProviderName);
         sut.Values[TokenKeys.ClientIdKey].Should().Be(clientId);
         sut.Values[TokenKeys.AuthorityKey].Should().Be("Client1");
         sut.Values[TokenKeys.Scope].Should().Be("openid");
         sut.Values["User"].Should().Be(user);
         sut.Values["Password"].Should().Be(password);
-        // BasicProviderId defaults when not provided.
-        sut.Values["BasicProviderId"].Should().Be(CredentialTokenCacheTokenProvider.ProviderName);
         sut.Values.ContainsKey("Credential").Should().BeFalse();
         sut.Values.ContainsKey(TokenKeys.ExtraParameters).Should().BeFalse();
 
@@ -168,17 +166,69 @@ public class ClientTokensOptionsTests
     }
 
     [Fact]
-    public void UserPassword_Password_And_Credential_Should_Throw()
+    public void Basic_Scenario_Decodes_Credential_Should()
+    {
+        var clientId = _fixture.Create<string>();
+        var user = _fixture.Create<string>();
+        var password = _fixture.Create<string>();
+
+        var config = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["Authentication:ClientTokens:Client1:Scenario"] = BasicScenario.Name,
+                    ["Authentication:ClientTokens:Client1:Settings:ClientId"] = clientId,
+                    ["Authentication:ClientTokens:Client1:Settings:Credential"] = $"{user}:{password}"
+                }).Build();
+
+        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+
+        IServiceCollection services = new ServiceCollection();
+        services.AddClientTokens(configuration);
+
+        var serviceProvider = services.BuildServiceProvider();
+
+        var sut = serviceProvider.GetService<IOptionsMonitor<SimpleKeyValueSettings>>()!.Get("Client1");
+
+        sut.Should().NotBeNull();
+        // The credential pair is split into User/Password at configuration time and targets the cache provider.
+        sut.Values[TokenKeys.ProviderIdKey].Should().Be(CredentialTokenCacheTokenProvider.ProviderName);
+        sut.Values[TokenKeys.ClientIdKey].Should().Be(clientId);
+        sut.Values["User"].Should().Be(user);
+        sut.Values["Password"].Should().Be(password);
+        sut.Values.ContainsKey("Credential").Should().BeFalse();
+        sut.Values.ContainsKey(TokenKeys.ExtraParameters).Should().BeFalse();
+    }
+
+    [Fact]
+    public void Basic_Missing_Credential_Should_Throw()
     {
         var config = new ConfigurationBuilder()
             .AddInMemoryCollection(
                 new Dictionary<string, string?>
                 {
-                    ["Authentication:ClientTokens:Client1:Scenario"] = UserPasswordScenario.Name,
+                    ["Authentication:ClientTokens:Client1:Scenario"] = BasicScenario.Name,
+                    ["Authentication:ClientTokens:Client1:Settings:ClientId"] = _fixture.Create<string>()
+                }).Build();
+
+        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+        IServiceCollection services = new ServiceCollection();
+
+        var exception = Record.Exception(() => services.AddClientTokens(configuration));
+
+        exception.Should().BeOfType<ConfigurationException>();
+    }
+
+    [Fact]
+    public void Basic_Credential_Without_Pair_Format_Should_Throw()
+    {
+        var config = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["Authentication:ClientTokens:Client1:Scenario"] = BasicScenario.Name,
                     ["Authentication:ClientTokens:Client1:Settings:ClientId"] = _fixture.Create<string>(),
-                    ["Authentication:ClientTokens:Client1:Settings:User"] = _fixture.Create<string>(),
-                    ["Authentication:ClientTokens:Client1:Settings:Password"] = _fixture.Create<string>(),
-                    ["Authentication:ClientTokens:Client1:Settings:Credential"] = _fixture.Create<string>()
+                    ["Authentication:ClientTokens:Client1:Settings:Credential"] = "no-colon-here"
                 }).Build();
 
         IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));

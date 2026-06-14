@@ -49,11 +49,13 @@ public static class ClientTokensExtension
 
     /// <summary>
     /// The default resolver: maps the built-in discriminators
-    /// (<see cref="UserPasswordScenario.Name"/>, <see cref="ClientCredentialsScenario.Name"/>) to their scenarios.
+    /// (<see cref="UserPasswordScenario.Name"/>, <see cref="BasicScenario.Name"/>,
+    /// <see cref="ClientCredentialsScenario.Name"/>) to their scenarios.
     /// </summary>
     public static IClientTokenScenario? DefaultScenario(string discriminator) => discriminator switch
     {
         UserPasswordScenario.Name => new UserPasswordScenario(),
+        BasicScenario.Name => new BasicScenario(),
         ClientCredentialsScenario.Name => new ClientCredentialsScenario(),
         _ => null
     };

@@ -271,7 +271,7 @@ public class GRpcInterceptorTests
             ["Authentication:ClientTokens:Client1:Scenario"] = UserPasswordScenario.Name,
             ["Authentication:ClientTokens:Client1:Settings:ClientId"] = clientId,
             ["Authentication:ClientTokens:Client1:Settings:User"] = user,
-            ["Authentication:ClientTokens:Client1:Settings:Credential"] = $"{user}:password",
+            ["Authentication:ClientTokens:Client1:Settings:Password"] = "password",
             ["Authentication:DefaultAuthority:Url"] = "https://login.microsoft.com"
         };
         foreach (var scope in scopes)
@@ -321,8 +321,7 @@ public class GRpcInterceptorTests
 
         // Register the different TokenProvider and CredentialTokenProviders.
         services.AddKeyedSingleton<ICredentialTokenProvider>("CredentialDirect", mockSecretTokenProvider.Object);
-        services.AddKeyedTransient<ITokenProvider, CredentialSecretTokenProvider>("ClientSecret");
-        services.AddKeyedTransient<ICredentialTokenProvider, CredentialTokenCacheTokenProvider>("Credential");
+        services.AddKeyedTransient<ITokenProvider, CredentialTokenCacheTokenProvider>("Credential");
         services.AddSingleton<ITokenCache>(mockTokenCache.Object);
         services.AddSingleton<IHttpContextAccessor>(mockHttpContextAccessor.Object);
 

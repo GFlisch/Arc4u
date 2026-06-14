@@ -22,4 +22,23 @@ internal static class ClientTokenScenarioHelper
             settings.Add(TokenKeys.AuthorityKey, optionKey);
         }
     }
+
+    /// <summary>
+    /// Shared projection for the user/password scenarios (<see cref="UserPasswordScenario"/> and
+    /// <see cref="BasicScenario"/>): both target the cache-backed
+    /// <see cref="CredentialTokenCacheTokenProvider"/> and emit the same <c>User</c>/<c>Password</c>
+    /// shape, differing only in how the credential is sourced.
+    /// </summary>
+    public static void WriteUserPassword(ClientTokenSettingsOptions options, SimpleKeyValueSettings settings, string optionKey,
+        string clientId, string user, string password, string? clientSecret)
+    {
+        settings.Add(TokenKeys.ProviderIdKey, CredentialTokenCacheTokenProvider.ProviderName);
+        WriteCommon(options, settings, optionKey);
+
+        settings.Add(TokenKeys.ClientIdKey, clientId);
+        settings.Add("User", user);
+        settings.Add("Password", password);
+        // Some STS expect a client secret in combination with the user/password (kind of 2FA).
+        settings.AddifNotNullOrEmpty(TokenKeys.ClientSecret, clientSecret);
+    }
 }

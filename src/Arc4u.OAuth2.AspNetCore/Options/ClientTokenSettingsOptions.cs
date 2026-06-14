@@ -9,10 +9,9 @@ namespace Arc4u.OAuth2.Options;
 /// entry and projecting it into a <see cref="Arc4u.Configuration.SimpleKeyValueSettings"/>.
 /// </para>
 /// <para>
-/// All scenario-specific values (ClientId, ClientSecret, User, Password, Credential,
-/// BasicProviderId, …) live in the open <see cref="Settings"/> bag. The selected scenario claims
-/// the keys it consumes; every remaining key is forwarded verbatim to the token endpoint as an
-/// extra request parameter.
+/// All scenario-specific values (ClientId, ClientSecret, User, Password, Credential, …) live in the
+/// open <see cref="Settings"/> bag. The selected scenario claims the keys it consumes; every
+/// remaining key is forwarded verbatim to the token endpoint as an extra request parameter.
 /// </para>
 /// </summary>
 public class ClientTokenSettingsOptions

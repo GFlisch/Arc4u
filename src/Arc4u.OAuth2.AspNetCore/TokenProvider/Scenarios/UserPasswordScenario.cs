@@ -1,15 +1,18 @@
 using Arc4u.Configuration;
 using Arc4u.OAuth2.Options;
-using Arc4u.OAuth2.Token;
-using Arc4u.OAuth2.TokenProvider;
 
 namespace Arc4u.OAuth2.TokenProvider.Scenarios;
 
 /// <summary>
-/// <c>grant_type=password</c> style scenario: a user/password (or its base64 <c>Credential</c>
-/// encoding), forwarded to the STS through the <see cref="CredentialSecretTokenProvider"/> and its
-/// inner <c>BasicProviderId</c>. Also supports the user+password+clientSecret variant.
+/// <c>grant_type=password</c> style scenario taking the user name and password as two separate
+/// fields. The values are projected into the <c>User</c>/<c>Password</c> keys consumed by the
+/// cache-backed <see cref="CredentialTokenCacheTokenProvider"/>, which performs the STS call and
+/// caches the resulting token.
 /// <para>Reads its values from the <see cref="ClientTokenSettingsOptions.Settings"/> bag.</para>
+/// <para>
+/// Use the <see cref="BasicScenario"/> instead when the credential is supplied as a single
+/// <c>user:password</c> (Basic) pair.
+/// </para>
 /// </summary>
 public sealed class UserPasswordScenario : IClientTokenScenario
 {
@@ -19,20 +22,17 @@ public sealed class UserPasswordScenario : IClientTokenScenario
     private const string ClientId = "ClientId";
     private const string User = "User";
     private const string Password = "Password";
-    private const string Credential = "Credential";
     private const string ClientSecret = "ClientSecret";
-    private const string BasicProviderId = "BasicProviderId";
 
     public IReadOnlyCollection<string> KnownKeys { get; } =
-        new HashSet<string>(StringComparer.OrdinalIgnoreCase) { ClientId, User, Password, Credential, ClientSecret, BasicProviderId };
+        new HashSet<string>(StringComparer.OrdinalIgnoreCase) { ClientId, User, Password, ClientSecret };
 
     public void Validate(string optionKey, ClientTokenSettingsOptions options)
     {
         new ClientTokenValidation(optionKey)
             .Require(options.Settings, ClientId)
-            .AtLeastOne(options.Settings, User, Password, Credential)
-            .MutuallyExclusive(options.Settings, Password, Credential)
-            .RequiredTogether(options.Settings, Password, User)
+            .Require(options.Settings, User)
+            .Require(options.Settings, Password)
             .ThrowIfInvalid();
     }
 
@@ -40,17 +40,12 @@ public sealed class UserPasswordScenario : IClientTokenScenario
     {
         var s = options.Settings;
 
-        settings.Add(TokenKeys.ProviderIdKey, CredentialSecretTokenProvider.ProviderName);
-        ClientTokenScenarioHelper.WriteCommon(options, settings, optionKey);
-
-        settings.Add(TokenKeys.ClientIdKey, s[ClientId]);
-        settings.AddifNotNullOrEmpty(User, Get(s, User));
-        settings.AddifNotNullOrEmpty(Password, Get(s, Password));
-        settings.AddifNotNullOrEmpty(Credential, Get(s, Credential));
-        // Some STS expect a client secret in combination with the user/password (kind of 2FA).
-        settings.AddifNotNullOrEmpty(TokenKeys.ClientSecret, Get(s, ClientSecret));
-        // The inner credential provider; defaults to the cache-backed credential provider when omitted.
-        settings.Add(BasicProviderId, Get(s, BasicProviderId) ?? CredentialTokenCacheTokenProvider.ProviderName);
+        ClientTokenScenarioHelper.WriteUserPassword(
+            options, settings, optionKey,
+            clientId: s[ClientId],
+            user: s[User],
+            password: s[Password],
+            clientSecret: Get(s, ClientSecret));
     }
 
     private static string? Get(IReadOnlyDictionary<string, string> settings, string key)

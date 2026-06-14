@@ -289,7 +289,7 @@ public class JwtHttpHandlerTests
             ["Authentication:ClientTokens:Client1:Scenario"] = UserPasswordScenario.Name,
             ["Authentication:ClientTokens:Client1:Settings:ClientId"] = clientId,
             ["Authentication:ClientTokens:Client1:Settings:User"] = user,
-            ["Authentication:ClientTokens:Client1:Settings:Credential"] = $"{user}:password",
+            ["Authentication:ClientTokens:Client1:Settings:Password"] = "password",
             ["Authentication:DefaultAuthority:Url"] = "https://login.microsoft.com"
         };
         foreach (var scope in scopes)
@@ -340,8 +340,7 @@ public class JwtHttpHandlerTests
         // Register the different TokenProvider and CredentialTokenProviders.
 
         services.AddKeyedSingleton("CredentialDirect", mockSecretTokenProvider.Object);
-        services.AddKeyedTransient<ITokenProvider, CredentialSecretTokenProvider>("ClientSecret");
-        services.AddKeyedTransient<ICredentialTokenProvider, CredentialTokenCacheTokenProvider>("Credential");
+        services.AddKeyedTransient<ITokenProvider, CredentialTokenCacheTokenProvider>("Credential");
         services.AddSingleton<IHttpContextAccessor>(mockHttpContextAccessor.Object);
         services.AddSingleton<ITokenCache>(mockTokenCache.Object);
 

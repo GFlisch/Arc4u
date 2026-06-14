@@ -45,9 +45,9 @@ public class BasicAuthenticationMiddleware
 
         if (_options.BasicSettings.Values.ContainsKey(TokenKeys.ProviderIdKey))
         {
-            if (!serviceProvider.TryGetService<ICredentialTokenProvider>(_options.BasicSettings.Values[TokenKeys.ProviderIdKey], out _))
+            if (!serviceProvider.TryGetService<ITokenProvider>(_options.BasicSettings.Values[TokenKeys.ProviderIdKey], out _))
             {
-                throw new ConfigurationException($"No token provider ICredentialTokenProvider is defined with ProviderId {_options.BasicSettings.Values[TokenKeys.ProviderIdKey]}!");
+                throw new ConfigurationException($"No token provider ITokenProvider is defined with ProviderId {_options.BasicSettings.Values[TokenKeys.ProviderIdKey]}!");
             }
         }
         else
@@ -112,7 +112,7 @@ public class BasicAuthenticationMiddleware
     {
         if (credential.CredentialsEntered)
         {
-            var provider = serviceProvider.GetKeyedService<ICredentialTokenProvider>(_options.BasicSettings.Values[TokenKeys.ProviderIdKey]);
+            var provider = serviceProvider.GetKeyedService<ITokenProvider>(_options.BasicSettings.Values[TokenKeys.ProviderIdKey]);
 
             if (null == provider)
             {
@@ -120,7 +120,8 @@ public class BasicAuthenticationMiddleware
                 return null;
             }
 
-            // Get an Access Token.
+            // Get an Access Token. The credential extracted from the request is passed as the
+            // platform parameter so the provider uses it instead of the settings User/Password.
             var result = await provider.GetTokenAsync(_options.BasicSettings, credential).ConfigureAwait(false);
 
             if (result.IsFailed)
