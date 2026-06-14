@@ -15,7 +15,7 @@ public sealed class ClientCredentialsScenario : IClientTokenScenario
     public const string Name = "ClientCredentials";
 
     /// <summary>The token provider (ProviderId) that consumes settings produced by this scenario.</summary>
-    public const string ProviderName = "ClientCredentials";
+    public const string ProviderName = ClientCredentialsTokenProvider.ProviderName;
 
     private const string ClientId = "ClientId";
     private const string ClientSecret = "ClientSecret";

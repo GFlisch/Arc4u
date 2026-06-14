@@ -75,4 +75,8 @@ public static partial class LoggerMessages
     [LoggerMessage(EventId = 9116, Level = LogLevel.Trace,
     Message = "Creating an authentication context for the request.")]
     public static partial void LogCreateAuthenticationContext(this ILogger logger);
+
+    [LoggerMessage(EventId = 9117, Level = LogLevel.Error,
+    Message = "Requesting a client_credentials token failed with {StatusCode}: {ResponseBody}.")]
+    public static partial void LogClientCredentialsTokenError(this ILogger logger, string statusCode, string responseBody);
 }
