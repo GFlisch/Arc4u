@@ -105,6 +105,21 @@ public class ClientTokensOptionsTests
         extra.Should().HaveCount(2);
         extra["resource"].Should().Be("https://api.example.com/path");
         extra["audience"].Should().Be("logto");
+
+        // Check a second call is not filling twice the settings parameters.
+        using var scope = serviceProvider.CreateScope();
+        sut = scope.ServiceProvider.GetRequiredService<IOptionsMonitor<SimpleKeyValueSettings>>().Get("Logto");
+        sut.Should().NotBeNull();
+        sut.Values[TokenKeys.ProviderIdKey].Should().Be(ClientCredentialsScenario.ProviderName);
+        sut.Values[TokenKeys.ClientIdKey].Should().Be(clientId);
+        sut.Values[TokenKeys.ClientSecret].Should().Be(clientSecret);
+        sut.Values.ContainsKey(TokenKeys.AuthorityKey).Should().BeFalse();
+
+        // Unclaimed Settings keys flow through as extra parameters.
+        extra = ExtraParametersEncoder.Decode(sut.Values[TokenKeys.ExtraParameters]).ToDictionary(p => p.Key, p => p.Value);
+        extra.Should().HaveCount(2);
+        extra["resource"].Should().Be("https://api.example.com/path");
+        extra["audience"].Should().Be("logto");
     }
 
     [Fact]
@@ -237,6 +252,35 @@ public class ClientTokensOptionsTests
         var exception = Record.Exception(() => services.AddClientTokens(configuration));
 
         exception.Should().BeOfType<ConfigurationException>();
+    }
+
+    [Fact]
+    public void AddClientTokens_Called_Twice_Should_Register_Entry_Once()
+    {
+        var clientId = _fixture.Create<string>();
+        var config = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["Authentication:ClientTokens:Client1:Scenario"] = ClientCredentialsScenario.Name,
+                    ["Authentication:ClientTokens:Client1:Settings:ClientId"] = clientId,
+                    ["Authentication:ClientTokens:Client1:Settings:ClientSecret"] = _fixture.Create<string>()
+                }).Build();
+
+        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+        IServiceCollection services = new ServiceCollection();
+
+        // Mimic two composition paths registering the same client tokens.
+        services.AddClientTokens(configuration);
+        services.AddClientTokens(configuration);
+
+        var serviceProvider = services.BuildServiceProvider();
+
+        // Resolving the options must not throw a duplicate-key exception (WriteTo runs once).
+        var sut = serviceProvider.GetService<IOptionsMonitor<SimpleKeyValueSettings>>()!.Get("Client1");
+
+        sut.Should().NotBeNull();
+        sut.Values[TokenKeys.ClientIdKey].Should().Be(clientId);
     }
 
     [Fact]

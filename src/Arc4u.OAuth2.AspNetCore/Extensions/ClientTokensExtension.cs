@@ -95,6 +95,15 @@ public static class ClientTokensExtension
 
     private static void Register(IServiceCollection services, string optionKey, ClientTokenSettingsOptions options)
     {
+        // AddClientTokens may be reached from several composition paths (e.g. a service registration
+        // and an HttpClient handler pipeline). Registering the named-options projection twice for the
+        // same entry would make a single IOptions Create run WriteTo twice on the same instance,
+        // throwing a duplicate-key exception. Configure each entry only once per service collection.
+        if (!RegisteredKeys(services).Add(optionKey))
+        {
+            return;
+        }
+
         if (string.IsNullOrWhiteSpace(options.Scenario))
         {
             throw new ConfigurationException($"[{optionKey}] The 'Scenario' discriminator must be filled.");
@@ -131,5 +140,28 @@ public static class ClientTokensExtension
                 settings.Add(TokenKeys.ExtraParameters, ExtraParametersEncoder.Encode(extra));
             }
         });
+    }
+
+    /// <summary>
+    /// Returns the set of entry keys already configured on this service collection, so the same
+    /// entry is never registered twice across multiple <see cref="AddClientTokens"/> invocations.
+    /// </summary>
+    private static HashSet<string> RegisteredKeys(IServiceCollection services)
+    {
+        var marker = (RegisteredClientTokens?)services
+            .FirstOrDefault(d => d.ServiceType == typeof(RegisteredClientTokens))?.ImplementationInstance;
+
+        if (marker is null)
+        {
+            marker = new RegisteredClientTokens();
+            services.AddSingleton(marker);
+        }
+
+        return marker.Keys;
+    }
+
+    private sealed class RegisteredClientTokens
+    {
+        public HashSet<string> Keys { get; } = new(StringComparer.OrdinalIgnoreCase);
     }
 }
