@@ -13,7 +13,7 @@ public class TokenKeys
     public const string ServiceApplicationIdKey = "ServiceApplicationId";
 
     ///// <summary>
-    ///// The STS authority 
+    ///// The STS authority
     ///// </summary>
     public const string AuthorityKey = "Authority";
 
@@ -33,7 +33,7 @@ public class TokenKeys
     public const string RedirectUrl = "RedirectUrl";
 
     /// <summary>
-    /// Application key used to certified the caller (User or Application).
+    /// Application key used to certify the caller (User or Application).
     /// </summary>
     public const string ApplicationKey = "ApplicationKey";
 
@@ -112,4 +112,14 @@ public class TokenKeys
     /// e.g. the Logto.io 'resource' or 'audience' parameters.
     /// </summary>
     public const string ExtraParameters = "ExtraParameters";
+
+    /// <summary>
+    /// Http factory name <see cref="IHttpClientFactory"/> given in settings to create an <see cref="HttpClient"/>
+    /// </summary>
+    public const string HttpClientName = "HttpClientName";
+
+    /// <summary>
+    /// Url used to contact an external token identity provider.
+    /// </summary>
+    public const string TokenRequestUrl = "TokenRequestUrl";
 }

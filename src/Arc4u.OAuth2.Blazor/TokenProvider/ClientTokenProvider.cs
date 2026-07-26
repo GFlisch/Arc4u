@@ -28,15 +28,34 @@ public class ClientTokenProvider(IHttpClientFactory httpClientFactory, ILogger<C
             return Result.Ok(_token);
         }
 
+        if (settings is null)
+        {
+            return Result.Fail("No settings provided.");
+        }
+
+        settings.Values.TryGetValue(TokenKeys.HttpClientName, out var httpClientName);
+        if (string.IsNullOrWhiteSpace(httpClientName))
+        {
+            return Result.Fail("No HttpClientName provided.");
+        }
+
+        settings.Values.TryGetValue(TokenKeys.TokenRequestUrl, out var requestUrl);
+        if (string.IsNullOrWhiteSpace(requestUrl))
+        {
+            return Result.Fail("No TokenRequestUrl provided.");
+        }
+
         try
         {
-            var httpClient = httpClientFactory.CreateClient("Authentication");
+            var httpClient = httpClientFactory.CreateClient(httpClientName);
             // Get the new token from the backend.
-            var bearerToken = await httpClient.GetFromJsonAsync<string>("authentication/token", TokenJsonContext.Default.String).ConfigureAwait(false);
+            var bearerToken = await httpClient.GetFromJsonAsync<string>(requestUrl, TokenJsonContext.Default.String)
+                                                .ConfigureAwait(false);
             if (string.IsNullOrEmpty(bearerToken))
             {
-                return Result.Fail("Unable to get a token.");
+                return Result.Fail($"Unable to get a token, HttpClientFactory({httpClientName}), endpoint is {httpClient.BaseAddress?.ToString()}.");
             }
+
             _token = new TokenInfo("Bearer", bearerToken);
             return Result.Ok(_token);
         }
@@ -46,7 +65,6 @@ public class ClientTokenProvider(IHttpClientFactory httpClientFactory, ILogger<C
         }
 
         return Result.Fail("Unable to get the token.");
-
     }
 
     public ValueTask SignOutAsync(IKeyValueSettings settings, CancellationToken cancellationToken)

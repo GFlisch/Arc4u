@@ -26,7 +26,7 @@ public static class CookieAuthenticationExtensions
 
     public static void AddAuthenticationCookie(this IServiceCollection services,
         IConfiguration configuration,
-        string sectionName = "Authentication:OAuth2.Settings", string sectionKey = "OAuth2")
+        string sectionName = "Authentication:OAuth.Settings", string sectionKey = "OAuth2")
     {
         var authenticationCookieSettingsOption =
             services.ReadAuthenticationCookieSettingsOption(configuration, sectionName);
@@ -42,15 +42,15 @@ public static class CookieAuthenticationExtensions
         void SettingsFiller(SimpleKeyValueSettings keyOptions)
         {
             keyOptions.Add(TokenKeys.ProviderIdKey, authenticationCookieSettingsOption.ProviderId);
-            keyOptions.Add("BaseUrl", authenticationCookieSettingsOption.BaseUri.ToString());
-            keyOptions.Add("RequestUrl", authenticationCookieSettingsOption.RequestUrl);
+            keyOptions.Add(TokenKeys.TokenRequestUrl, authenticationCookieSettingsOption.TokenRequestUrl);
+            keyOptions.Add(TokenKeys.HttpClientName, authenticationCookieSettingsOption.HttpClientName);
         }
 
         services.Configure<SimpleKeyValueSettings>(sectionKey, SettingsFiller);
 
         services.AddHttpClient(authenticationCookieSettingsOption.HttpClientName,
                 client => { client.BaseAddress = authenticationCookieSettingsOption.BaseUri; })
-            .AddHttpMessageHandler<AttachCookiesHandler>();
+                .AddHttpMessageHandler<AttachCookiesHandler>();
     }
 
     public static AuthenticationCookieSettingsOption ReadAuthenticationCookieSettingsOption(this IServiceCollection services, Action<AuthenticationCookieSettingsOption> option)
@@ -68,9 +68,14 @@ public static class CookieAuthenticationExtensions
             throw new MissingFieldException("ProviderId field is missing.");
         }
 
-        if (string.IsNullOrWhiteSpace(validate.ProviderId))
+        if (string.IsNullOrWhiteSpace(validate.TokenRequestUrl))
         {
-            throw new MissingFieldException("RequestUrl field is missing.");
+            throw new MissingFieldException("TokenRequestUrl field is missing.");
+        }
+
+        if (validate.BaseUri is null || string.IsNullOrWhiteSpace(validate.BaseUri.AbsoluteUri))
+        {
+            throw new MissingFieldException("BaseUri field is missing.");
         }
 
         return validate;
@@ -78,7 +83,7 @@ public static class CookieAuthenticationExtensions
 
     public static AuthenticationCookieSettingsOption ReadAuthenticationCookieSettingsOption(this IServiceCollection services,
                                                                                                  IConfiguration configuration,
-                                                                                                 string sectionName = "Authentication:OAuth2.Settings")
+                                                                                                 string sectionName = "Authentication:OAuth.Settings")
     {
         if (string.IsNullOrWhiteSpace(sectionName))
         {
@@ -106,7 +111,7 @@ public static class CookieAuthenticationExtensions
             option.BaseUri = cookieOption.BaseUri;
             option.HttpClientName = cookieOption.HttpClientName;
             option.ProviderId = cookieOption.ProviderId;
-            option.RequestUrl = cookieOption.RequestUrl;
+            option.TokenRequestUrl = cookieOption.TokenRequestUrl;
         });
     }
 }
