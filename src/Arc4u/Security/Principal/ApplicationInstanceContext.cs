@@ -14,10 +14,8 @@ namespace Arc4u.Security.Principal;
 [Export(typeof(IApplicationContext)), Shared]
 public class ApplicationInstanceContext : IApplicationContext
 {
-    public void SetPrincipal(AppPrincipal principal)
+    public void SetPrincipal(AppPrincipal? principal)
     {
-        ArgumentNullException.ThrowIfNull(principal);
-
         Principal = principal;
     }
 

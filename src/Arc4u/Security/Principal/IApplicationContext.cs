@@ -10,5 +10,5 @@ public interface IApplicationContext
     /// <value>The activity ID.</value>
     string ActivityID { get; set; }
 
-    void SetPrincipal(AppPrincipal principal);
+    void SetPrincipal(AppPrincipal? principal);
 }

@@ -15,10 +15,8 @@ public class ApplicationClaimsPrincipalSelectorContext : IApplicationContext
     /// <value>The activity ID.</value>
     public string ActivityID { get; set; } = string.Empty;
 
-    public void SetPrincipal(AppPrincipal principal)
+    public void SetPrincipal(AppPrincipal? principal)
     {
-        ArgumentNullException.ThrowIfNull(principal);
-
         Thread.CurrentPrincipal = principal;
     }
 }
