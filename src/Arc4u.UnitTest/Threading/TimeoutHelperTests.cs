@@ -151,8 +151,13 @@ public class TimeoutHelperTests
         }
 
         var timer = helper.SetTimer(Callback, null);
-        evt.Wait(2000);
 
+        // The callback runs on the ThreadPool. On loaded CI runners the pool can be
+        // starved, so give it a generous window and assert on the wait result itself
+        // to avoid a flaky race on the callbackInvoked flag.
+        var signaled = evt.Wait(TimeSpan.FromSeconds(30));
+
+        signaled.Should().BeTrue();
         callbackInvoked.Should().BeTrue();
         timer.Should().NotBeNull();
     }
