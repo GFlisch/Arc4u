@@ -49,7 +49,7 @@ public sealed class AppPrincipalServerAuthenticationStateProvider : ServerAuthen
 
         // Same construction as the WASM AppPrincipalFromAuthenticationState, reusing the identity
         // already carried by the state (it keeps its original authentication type and claims).
-        var principal = SetPrincipal(
+        var principal = ApplicationContextInitializer.SetPrincipal(
             state.User.Identity as ClaimsIdentity,
             _authorizationFiller,
             _claimsFiller,
@@ -59,29 +59,5 @@ public sealed class AppPrincipalServerAuthenticationStateProvider : ServerAuthen
         return principal is null ? state : new AuthenticationState(principal);
     }
 
-    private static AppPrincipal? SetPrincipal(
-        ClaimsIdentity? identity,
-        IClaimAuthorizationFiller authorizationFiller,
-        IClaimProfileFiller profileFiller,
-        IApplicationContext applicationContext)
-    {
-        // Nothing to build for an anonymous user: leave the context untouched.
-        if (identity is null || !identity.IsAuthenticated)
-        {
-            // ensure the Principal is not kept after a sign-out.
-            // Should never happen because the class is scoped and a new instance is created per call.
-            applicationContext.SetPrincipal(null);
-
-            return null;
-        }
-
-        var authorization = authorizationFiller.GetAuthorization(identity);
-        var profile = profileFiller.GetProfile(identity);
-        var principal = new AppPrincipal(authorization, identity, profile.Sid) { Profile = profile };
-
-        applicationContext.SetPrincipal(principal);
-
-        return principal;
-    }
 }
 #endif
