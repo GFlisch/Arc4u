@@ -87,7 +87,6 @@ namespace Arc4u.OAuth2.Extensions
             services.AddAuthorizationCore();
             services.AddHttpContextAccessor();
             services.TryAddTransient<CookieAuthenticationEvents, StandardCookieEvents>();
-            services.TryAddTransient<JwtBearerEvents, StandardBearerEvents>();
             services.TryAddTransient<OpenIdConnectEvents, StandardOpenIdConnectEvents>();
 
             services.AddDefaultAuthority(options =>
