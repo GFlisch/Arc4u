@@ -26,7 +26,7 @@ public static class CookieAuthenticationExtensions
 
     public static void AddAuthenticationCookie(this IServiceCollection services,
         IConfiguration configuration,
-        string sectionName = "Authentication:OAuth.Settings", string sectionKey = "OAuth2")
+        string sectionName = "Authentication:OAuth2.Settings", string sectionKey = "OAuth2")
     {
         var authenticationCookieSettingsOption =
             services.ReadAuthenticationCookieSettingsOption(configuration, sectionName);
