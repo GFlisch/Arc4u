@@ -1,4 +1,5 @@
 ﻿using Arc4u.Configuration;
+using Arc4u.OAuth2.Events;
 using Arc4u.OAuth2.Middleware;
 using Arc4u.OAuth2.Options;
 using Arc4u.Security.Cryptography;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Net.Http.Headers;
 
 namespace Arc4u.OAuth2.Extensions
@@ -48,6 +50,7 @@ namespace Arc4u.OAuth2.Extensions
                 options.RoleClaimType = oidcOptions.RoleClaimType;
             });
             var openIdOptions = ConfigureOidcServices(services, oidcOptions, out var securityKey);
+            services.TryAddTransient<JwtBearerEvents, StandardBearerEvents>();
 
             services.ConfigureOAuth2Settings(oidcOptions.OAuth2SettingsOptions, oidcOptions.OAuth2SettingsKey);
 
