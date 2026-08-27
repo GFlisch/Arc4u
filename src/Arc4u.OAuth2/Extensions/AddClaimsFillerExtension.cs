@@ -50,7 +50,12 @@ public static class AddClaimsFillerExtension
                     options!.ClaimsToExclude = DefaultClaimsToExclude;
                 }
             }
+            else
+            {
+                options.ClaimsToExclude = DefaultClaimsToExclude;
+            }
         }
+
 
         AddClaimsFiller(services, o =>
         {

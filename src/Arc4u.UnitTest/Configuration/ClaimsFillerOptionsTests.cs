@@ -131,4 +131,33 @@ public class ClaimsFillerOptionsTests
         sut.Value.ExpireClaim.Should().Be(_default.ExpireClaim);
         sut.Value.ClaimsToExclude.Should().BeEmpty();
     }
+
+    [Fact]
+    public void Default_Config_When_No_Section_Should()
+    {
+        var _default = new ClaimsFillerOptions();
+
+        var config = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                }).Build();
+
+        IConfiguration configuration = new ConfigurationRoot(new List<IConfigurationProvider>(config.Providers));
+
+        IServiceCollection services = new ServiceCollection();
+
+        services.AddClaimsFiller(configuration);
+
+        var serviceProvider = services.BuildServiceProvider();
+
+        var sut = serviceProvider.GetService<IOptions<ClaimsFillerOptions>>();
+
+        sut.Should().NotBeNull();
+        sut!.Value.Should().NotBeNull();
+        sut.Value.LoadClaimsFromClaimsFillerProvider.Should().Be(_default.LoadClaimsFromClaimsFillerProvider);
+        sut.Value.SettingsKeys.Should().Equal(Constants.OpenIdOptionsName);
+        sut.Value.ExpireClaim.Should().Be(_default.ExpireClaim);
+        sut.Value.ClaimsToExclude.Should().Equal(AddClaimsFillerExtension.DefaultClaimsToExclude);
+    }
 }
