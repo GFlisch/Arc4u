@@ -93,7 +93,6 @@ public class ClaimsFillerOptionsTests
 
         Assert.NotNull(settings);
         settings.LoadClaimsFromClaimsFillerProvider.Should().BeFalse();
-        settings.SettingsKeys.Should().HaveCount(1);
-        settings.SettingsKeys.Should().OnlyContain(settings => settings == "OpenId");
+        settings.SettingsKeys.Should().BeEmpty();
     }
 }

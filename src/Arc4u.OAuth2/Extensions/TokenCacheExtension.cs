@@ -26,7 +26,7 @@ public static class TokenCacheExtension
         var defaultMaxTime = tokenCacheOptions.MaxTime;
 
         var section = configuration.GetSection(sectionName);
-        if (section is not null && section.Exists())
+        if (section.Exists())
         {
             tokenCacheOptions = section.Get<TokenCacheOptions>() ?? tokenCacheOptions;
 

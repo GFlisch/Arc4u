@@ -12,11 +12,6 @@ public static class AddClaimsFillerExtension
         var validate = new ClaimsFillerOptions();
         options(validate);
 
-        if (validate.LoadClaimsFromClaimsFillerProvider && (null == validate.SettingsKeys || !validate.SettingsKeys.Any()))
-        {
-            throw new ConfigurationException("Settings key must be provided.");
-        }
-
         if (string.IsNullOrWhiteSpace(validate.ExpireClaim))
         {
             throw new ConfigurationException("Expire claim must be provided, usually 'exp'.");
@@ -56,11 +51,10 @@ public static class AddClaimsFillerExtension
             }
         }
 
-
         AddClaimsFiller(services, o =>
         {
             o.LoadClaimsFromClaimsFillerProvider = options.LoadClaimsFromClaimsFillerProvider;
-            o.SettingsKeys = options.SettingsKeys.Any() ? options.SettingsKeys :  [ Constants.OpenIdOptionsName ];
+            o.SettingsKeys = options.SettingsKeys;
             o.ClaimsToExclude = options.ClaimsToExclude;
             o.ExpireClaim = options.ExpireClaim;
         });

@@ -48,7 +48,7 @@ public class ClaimsFillerOptionsTests
         sut.Should().NotBeNull();
         sut!.Value.Should().NotBeNull();
         sut.Value.LoadClaimsFromClaimsFillerProvider.Should().Be(_default.LoadClaimsFromClaimsFillerProvider);
-        sut.Value.SettingsKeys.Should().Equal(Constants.OpenIdOptionsName);
+        sut.Value.SettingsKeys.Should().BeEmpty();
         sut.Value.ExpireClaim.Should().Be(_default.ExpireClaim);
         sut.Value.ClaimsToExclude.Should().Equal(AddClaimsFillerExtension.DefaultClaimsToExclude);
     }
@@ -127,7 +127,7 @@ public class ClaimsFillerOptionsTests
         sut.Should().NotBeNull();
         sut!.Value.Should().NotBeNull();
         sut.Value.LoadClaimsFromClaimsFillerProvider.Should().Be(_default.LoadClaimsFromClaimsFillerProvider);
-        sut.Value.SettingsKeys.Should().Equal(Constants.OpenIdOptionsName);
+        sut.Value.SettingsKeys.Should().BeEmpty();
         sut.Value.ExpireClaim.Should().Be(_default.ExpireClaim);
         sut.Value.ClaimsToExclude.Should().BeEmpty();
     }
@@ -156,7 +156,7 @@ public class ClaimsFillerOptionsTests
         sut.Should().NotBeNull();
         sut!.Value.Should().NotBeNull();
         sut.Value.LoadClaimsFromClaimsFillerProvider.Should().Be(_default.LoadClaimsFromClaimsFillerProvider);
-        sut.Value.SettingsKeys.Should().Equal(Constants.OpenIdOptionsName);
+        sut.Value.SettingsKeys.Should().BeEmpty();
         sut.Value.ExpireClaim.Should().Be(_default.ExpireClaim);
         sut.Value.ClaimsToExclude.Should().Equal(AddClaimsFillerExtension.DefaultClaimsToExclude);
     }
