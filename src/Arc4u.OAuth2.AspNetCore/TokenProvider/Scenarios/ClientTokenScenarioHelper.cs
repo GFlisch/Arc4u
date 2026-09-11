@@ -14,7 +14,7 @@ internal static class ClientTokenScenarioHelper
     public static void WriteCommon(ClientTokenSettingsOptions options, SimpleKeyValueSettings settings, string optionKey)
     {
         settings.Add(TokenKeys.AuthenticationTypeKey, options.AuthenticationType);
-        settings.Add(TokenKeys.Scope, options.Scopes.Count > 0 ? string.Join(' ', options.Scopes) : "openid");
+        settings.Add(TokenKeys.Scope, options.Scopes.Count > 0 ? string.Join(' ', options.Scopes) : Constants.OpenIdScope);
 
         // The authority is registered under the option key only when an Authority section is provided.
         if (options.Authority is not null)

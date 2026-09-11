@@ -28,6 +28,21 @@ public class FluentLogger : IResultLogger
             GetBusinessLogger(logger, logLevel)(content);
         }
 
+        LogErrorsAndReasons(result);
+    }
+
+    public void Log<TContext>(string content, ResultBase result, LogLevel logLevel)
+    {
+        var logger = _logger.Business()
+                            .Add("Context", typeof(TContext).FullName!);
+
+        GetBusinessLogger(logger, logLevel)(content);
+
+        LogErrorsAndReasons(result);
+    }
+
+    private void LogErrorsAndReasons(ResultBase result)
+    {
         if (result is { IsFailed: true, Errors: not null })
         {
             foreach (var error in result.Errors)
@@ -39,14 +54,12 @@ public class FluentLogger : IResultLogger
                         var logger = _logger.Business()
                             .AddIf(validationError.Code is not null, "Code", () => validationError.Code!);
 
-                        GetBusinessLogger(logger, validationError.Severity)(validationError.Message); ;
-
-                        LogReasons(result.Reasons);
-                        continue;
+                        GetBusinessLogger(logger, validationError.Severity)(validationError.Message);
+                        break;
                     }
                     case IExceptionalError exceptionalError:
                         _logger.LogException(exceptionalError.Exception);
-                        continue;
+                        break;
                     default:
                         _logger.Business().LogError(error.Message);
                         break;
@@ -54,53 +67,20 @@ public class FluentLogger : IResultLogger
             }
         }
 
-        if (result.IsSuccess && result.Reasons.Any())
-        {
-            LogReasons(result.Reasons);
-        }
+        // Once for the result, not once per error, and never re-logging an error that the loop
+        // above already reported at its own severity: what is left are the informational reasons.
+        LogReasons(result.Reasons);
     }
 
-    public void Log<TContext>(string content, ResultBase result, LogLevel logLevel)
-    {
-        var logger = _logger.Business()
-                            .Add("Context", typeof(TContext).FullName!);
-
-        GetBusinessLogger(logger, logLevel)(content);
-
-        if (result is { IsFailed: true, Errors: not null })
-        {
-            foreach (var error in result.Errors)
-            {
-                switch (error)
-                {
-                    case ValidationError validationError:
-                        logger = _logger.Business()
-                            .AddIf(validationError.Code is not null, "Code", () => validationError.Code!);
-
-                        GetBusinessLogger(logger, validationError.Severity)(validationError.Message);
-
-                        LogReasons(result.Reasons);
-                        continue;
-                    case IExceptionalError exceptionalError:
-                        _logger.LogException(exceptionalError.Exception);
-                        continue;
-                    default:
-                        _logger.Business().LogError(error.Message);
-                        break;
-                }
-            }
-        }
-
-        if (result.IsSuccess && result.Reasons.Any())
-        {
-            LogReasons(result.Reasons);
-        }
-    }
-
-    private void LogReasons(IList<IReason> reasons)
+    private void LogReasons(IEnumerable<IReason> reasons)
     {
         foreach (var reason in reasons)
         {
+            if (reason is IError)
+            {
+                continue;
+            }
+
             _logger.Business().LogInformation(reason.Message);
         }
     }

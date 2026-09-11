@@ -162,7 +162,7 @@ public class AppPrincipalFactory(IServiceProvider container, INetworkInformation
                     try
                     {
                         // Get the claims and clean any technical claims in case of.
-                        var claims = (await claimFiller!.GetAsync(identity, [settings], parameter).ConfigureAwait(false))
+                        var claims = (await claimFiller!.GetAsync(identity).ConfigureAwait(false))
                                         .Where(c => !ClaimsToExclude.Any(arg => arg.Equals(c.ClaimType))).ToList();
 
                         // We copy the claims from the backend but the exp claim will be the value of the token (front end definition) and not the backend one. Otherwhise there will be always a difference.

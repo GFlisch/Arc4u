@@ -95,7 +95,7 @@ namespace Arc4u.OAuth2.Extensions
                     oidcOptions.DefaultAuthority.Issuer, oidcOptions.DefaultAuthority.MetaDataAddress);
             });
 
-            services.ConfigureOpenIdSettings(oidcOptions.OpenIdSettingsOptions, oidcOptions.OpenIdSettingsKey);
+            services.ConfigureOpenIdSettings(oidcOptions.OpenIdSettingsOptions);
 
             var openIdOptions = new OpenIdSettingsOption();
             oidcOptions.OpenIdSettingsOptions(openIdOptions);
@@ -183,7 +183,6 @@ namespace Arc4u.OAuth2.Extensions
             options.CookieName = settings.CookieName;
             options.AuthenticationMethod = Enum.Parse<OpenIdConnectRedirectBehavior>(settings.AuthenticationMethod);
             options.AuthenticationCacheTicketStoreOption = ticketStoreAction!;
-            options.OpenIdSettingsKey = settings.OpenIdSettingsKey;
             options.OpenIdSettingsOptions =
                 OpenIdSettingsExtension.PrepareAction(configuration, settings.OpenIdSettingsSectionPath);
             options.DataProtectionCertificate = dataProtectionCertificate;
@@ -319,7 +318,7 @@ namespace Arc4u.OAuth2.Extensions
             options.TokenValidationParameters.NameClaimType = hybridOptions.NameClaimType;
             options.TokenValidationParameters.RoleClaimType = hybridOptions.RoleClaimType;
             options.TokenValidationParameters.SaveSigninToken = false;
-            options.TokenValidationParameters.AuthenticationType = openIdOptions.AuthenticationType;
+            options.TokenValidationParameters.AuthenticationType = Constants.CookiesAuthenticationType;
             options.TokenValidationParameters.ValidateAudience = openIdOptions.ValidateAudience;
             options.TokenValidationParameters.ValidAudiences = openIdOptions.Audiences;
             if (securityKey is not null)

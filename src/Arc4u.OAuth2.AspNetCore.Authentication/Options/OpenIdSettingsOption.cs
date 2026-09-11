@@ -6,8 +6,6 @@ namespace Arc4u.OAuth2.Options
     {
         public string ProviderId { get; set; } = OidcTokenProvider.ProviderName;
 
-        public string AuthenticationType { get; set; } = Constants.CookiesAuthenticationType;
-
         /// <summary>
         /// If null default authority is used!
         /// </summary>

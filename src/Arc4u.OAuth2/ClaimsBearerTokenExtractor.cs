@@ -3,6 +3,7 @@ using System.Runtime.Serialization.Json;
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Text.Json.Serialization;
+using Arc4u.Configuration;
 using Arc4u.Dependency.Attribute;
 using Arc4u.Diagnostics;
 using Arc4u.IdentityModel.Claims;
@@ -10,6 +11,7 @@ using Arc4u.OAuth2.Token;
 using Arc4u.Security.Principal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Arc4u.OAuth2.Security.Principal;
 
@@ -21,39 +23,30 @@ internal partial class ClaimsBearerTokenContext : JsonSerializerContext
 [Export(typeof(IClaimsFiller))]
 public class ClaimsBearerTokenExtractor : IClaimsFiller
 {
-    public ClaimsBearerTokenExtractor(IServiceProvider container, ILogger<ClaimsBearerTokenExtractor> logger)
+    public ClaimsBearerTokenExtractor(IOptionsMonitor<SimpleKeyValueSettings> settings, IServiceProvider serviceProvider, ILogger<ClaimsBearerTokenExtractor> logger)
     {
-        _container = container;
-        _jsonSerializer = new DataContractJsonSerializer(typeof(IEnumerable<ClaimDto>));
+        _settings = settings;
         _logger = logger;
+        _serviceProvider = serviceProvider;
     }
 
-    private readonly DataContractJsonSerializer _jsonSerializer;
-    private readonly IServiceProvider _container;
+    private readonly IOptionsMonitor<SimpleKeyValueSettings> _settings;
     private readonly ILogger<ClaimsBearerTokenExtractor> _logger;
+    private readonly IServiceProvider _serviceProvider;
 
-    public async Task<IEnumerable<ClaimDto>> GetAsync(IIdentity identity, IEnumerable<IKeyValueSettings> settings, object? parameter)
+    public async Task<IEnumerable<ClaimDto>> GetAsync(IIdentity identity)
     {
+        ArgumentNullException.ThrowIfNull(identity);
+
         var result = new List<ClaimDto>();
 
-        if (null == identity)
-        {
-            _logger.Technical().LogError($"A null identity was received. No Claims will be generated.");
-            return result;
-        }
-
-        if (!(identity is ClaimsIdentity claimsIdentity))
+        if (identity is not ClaimsIdentity claimsIdentity)
         {
             _logger.Technical().LogError($"The identity received is not of type ClaimsIdentity.");
             return result;
         }
 
-        if (null == settings || !settings.Any())
-        {
-            _logger.Technical().LogError($"We need token settings to call the backend.");
-            return result;
-        }
-        if (null == claimsIdentity.BootstrapContext && !settings.Any(s => s.Values.ContainsKey(TokenKeys.AuthenticationTypeKey) && s.Values[TokenKeys.AuthenticationTypeKey].Equals(identity.AuthenticationType)))
+        if (null == claimsIdentity.BootstrapContext && _settings.Get(identity.AuthenticationType).Values.Count == 0)
         {
             _logger.Technical().LogSkipFetchingClaims(identity.AuthenticationType ?? "No AuthenticationType.");
             return result;
@@ -69,18 +62,17 @@ public class ClaimsBearerTokenExtractor : IClaimsFiller
             else
             {
                 // find the Provider for the AuthenticationType!
-                // exist because tested in the constructor!
-                var providerSettings = settings.First(s => s.Values[TokenKeys.AuthenticationTypeKey].Equals(identity.AuthenticationType));
+                var providerSettings = _settings.Get(identity.AuthenticationType).Values;
 
-                var provider = _container.GetKeyedService<ITokenProvider>(providerSettings.Values[TokenKeys.ProviderIdKey]);
+                var provider = _serviceProvider.GetKeyedService<ITokenProvider>(providerSettings[TokenKeys.ProviderIdKey]);
 
                 if (null == provider)
                 {
-                    throw new InvalidOperationException($"No token provider named: {providerSettings.Values[TokenKeys.ProviderIdKey]} is registered.");
+                    throw new InvalidOperationException($"No token provider named: {providerSettings[TokenKeys.ProviderIdKey]} is registered.");
                 }
 
                 _logger.Technical().LogRequestingAuthenticationToken();
-                var tokenInfoResult = await provider.GetTokenAsync(providerSettings, claimsIdentity).ConfigureAwait(false);
+                var tokenInfoResult = await provider.GetTokenAsync(new SimpleKeyValueSettings(providerSettings), claimsIdentity).ConfigureAwait(false);
 
                 if (tokenInfoResult.IsFailed)
                 {

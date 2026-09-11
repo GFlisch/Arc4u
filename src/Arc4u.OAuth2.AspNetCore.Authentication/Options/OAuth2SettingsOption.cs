@@ -4,8 +4,6 @@ namespace Arc4u.OAuth2.Options
     {
         public string ProviderId { get; set; } = "Bootstrap";
 
-        public string AuthenticationType { get; set; } = Constants.BearerAuthenticationType;
-
         public AuthorityOptions? Authority { get; set; } = default!;
 
         public List<string> Audiences { get; set; } = [];

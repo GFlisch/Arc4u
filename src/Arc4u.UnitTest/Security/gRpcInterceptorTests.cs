@@ -161,7 +161,7 @@ public class GRpcInterceptorTests
         // Act
         var sut = new InterceptorTest(scopedContainer.ServiceProvider,
             scopedContainer.ServiceProvider.GetRequiredService<ILogger<InterceptorTest>>()!, setingsOptions!,
-            Constants.OpenIdOptionsName);
+            Constants.CookiesAuthenticationType);
 
         sut.BlockingUnaryCall<string, string>("Test", mockClientInterceptorContext, mock.Object);
 
@@ -665,7 +665,7 @@ public class GRpcInterceptorTests
         services.AddScoped<IApplicationContext, ApplicationInstanceContext>();
 
         // Register the different TokenProvider and CredentialTokenProviders.
-        services.AddKeyedTransient<ITokenProvider, BootstrapContextTokenProvider>("Bootstrap");
+        services.AddKeyedTransient<ITokenProvider, BootstrapContextTokenProvider>(BootstrapContextTokenProvider.ProviderName);
 
         var serviceProvider = services.BuildServiceProvider();
 
@@ -690,7 +690,7 @@ public class GRpcInterceptorTests
 
         // Act
         var sut = new InterceptorTest(serviceProvider,
-            serviceProvider.GetRequiredService<ILogger<InterceptorTest>>()!, setingsOptions!, "OAuth2");
+            serviceProvider.GetRequiredService<ILogger<InterceptorTest>>()!, setingsOptions!, Constants.BearerAuthenticationType);
 
         sut.BlockingUnaryCall<string, string>("Test", mockClientInterceptorContext, mock.Object);
 

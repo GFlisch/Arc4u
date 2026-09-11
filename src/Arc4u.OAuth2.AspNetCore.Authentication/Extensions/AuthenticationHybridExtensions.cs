@@ -33,7 +33,6 @@ namespace Arc4u.OAuth2.Extensions
                 options.CookieName = oidcOptions.CookieName;
                 options.AuthenticationMethod = oidcOptions.AuthenticationMethod;
                 options.AuthenticationCacheTicketStoreOption = oidcOptions.AuthenticationCacheTicketStoreOption!;
-                options.OpenIdSettingsKey = oidcOptions.OpenIdSettingsKey;
                 options.OpenIdSettingsOptions = oidcOptions.OpenIdSettingsOptions!;
                 options.DataProtectionCertificate = oidcOptions.DataProtectionCertificate;
                 options.CallbackPath = oidcOptions.CallbackPath;
@@ -52,7 +51,7 @@ namespace Arc4u.OAuth2.Extensions
             var openIdOptions = ConfigureOidcServices(services, oidcOptions, out var securityKey);
             services.TryAddTransient<JwtBearerEvents, StandardBearerEvents>();
 
-            services.ConfigureOAuth2Settings(oidcOptions.OAuth2SettingsOptions, oidcOptions.OAuth2SettingsKey);
+            services.ConfigureOAuth2Settings(oidcOptions.OAuth2SettingsOptions);
 
             var oauth2Options = new OAuth2SettingsOption();
             oidcOptions.OAuth2SettingsOptions(oauth2Options);
@@ -119,7 +118,6 @@ namespace Arc4u.OAuth2.Extensions
 
             void HybridAuthenticationFiller(HybridAuthenticationOptions options)
             {
-                options.OAuth2SettingsKey = settings.OAuth2SettingsKey;
                 options.OAuth2SettingsOptions =
                     OAuth2SettingsExtension.PrepareAction(configuration, settings.OAuth2SettingsSectionPath);
 

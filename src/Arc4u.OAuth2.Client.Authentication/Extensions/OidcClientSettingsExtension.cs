@@ -7,10 +7,8 @@ namespace Arc4u.OAuth2.Extensions
 {
     public static class OidcClientSettingsExtension
     {
-        public static void ValidateOIdcClientSettings(this IServiceCollection services, Action<OidcClientSettingsOption> option, [DisallowNull] string sectionKey = "OpenId")
+        public static void ValidateOIdcClientSettings(this IServiceCollection services, Action<OidcClientSettingsOption> option)
         {
-            ArgumentNullException.ThrowIfNull(sectionKey);
-
             var validate = new OidcClientSettingsOption();
             option(validate);
 

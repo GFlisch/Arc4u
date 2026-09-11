@@ -1,4 +1,5 @@
 using Arc4u.Configuration;
+using Arc4u.OAuth2;
 using Arc4u.OAuth2.Extensions;
 using Arc4u.OAuth2.Options;
 using Arc4u.OAuth2.Token;
@@ -57,7 +58,7 @@ public class ClientTokensOptionsTests
         sut.Values[TokenKeys.ProviderIdKey].Should().Be(CredentialTokenCacheTokenProvider.ProviderName);
         sut.Values[TokenKeys.ClientIdKey].Should().Be(clientId);
         sut.Values[TokenKeys.AuthorityKey].Should().Be("Client1");
-        sut.Values[TokenKeys.Scope].Should().Be("openid");
+        sut.Values[TokenKeys.Scope].Should().Be(Constants.OpenIdScope);
         sut.Values["User"].Should().Be(user);
         sut.Values["Password"].Should().Be(password);
         sut.Values.ContainsKey("Credential").Should().BeFalse();

@@ -13,6 +13,6 @@ public class OpenIdBearerInjectorOptions
     /// <summary>
     /// The OpenId KeyValues settings resolver name
     /// </summary>
-    public string OpenIdSettingsKey { get; set; } = Constants.OpenIdOptionsName;
+    public string OpenIdSettingsKey { get; set; } = Constants.CookiesAuthenticationType;
 }
 

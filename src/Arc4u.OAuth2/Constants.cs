@@ -6,13 +6,15 @@ public class Constants
 
     public const string ChallengePolicyScheme = "Arc4uScheme";
 
-    public const string BearerAuthenticationType = "OAuth2Bearer";
+    public const string BearerAuthenticationType = "OAuth2";
 
     public const string CookiesAuthenticationType = "Cookies";
 
-    public const string OAuth2OptionsName = "OAuth2";
+    //public const string OAuth2OptionsName = "OAuth2";
 
-    public const string OpenIdOptionsName = "OpenId";
+    //public const string OpenIdOptionsName = "OpenId";
 
     public const string InjectAuthenticationType = "Inject";
+
+    public const string OpenIdScope = "openid";
 }

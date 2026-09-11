@@ -13,8 +13,6 @@ namespace Arc4u.OAuth2.Options;
 
         public string OpenIdSettingsSectionPath { get; set; } = "Authentication:OpenId.Settings";
 
-        public string OpenIdSettingsKey { get; set; } = Constants.OpenIdOptionsName;
-
         public string ClaimsIdentifierSectionPath { get; set; } = "Authentication:ClaimsIdentifier";
 
         public string CertificateSectionPath { get; set; } = "Authentication:DataProtection:EncryptionCertificate";

@@ -41,34 +41,6 @@ public class ClaimsFillerOptionsTests
 
         Assert.NotNull(settings);
         settings.LoadClaimsFromClaimsFillerProvider.Should().BeTrue();
-        settings.SettingsKeys.Should().OnlyContain(settings => settings == Constants.OpenIdOptionsName);
-    }
-
-    [Fact]
-    public void Settings_ClaimsFillerOptions_Should()
-    {
-        var config = new ConfigurationBuilder()
-            .AddInMemoryCollection(
-                new Dictionary<string, string?>
-                {
-                    ["Authentication:ClaimsMiddleWare:ClaimsFiller:SettingsKeys:0"] = "OAuth2"
-                }).Build();
-
-        IConfiguration configuration = new ConfigurationRoot([.. config.Providers]);
-
-        IServiceCollection services = new ServiceCollection();
-
-        services.AddClaimsFiller(configuration);
-
-        var serviceProvider = services.BuildServiceProvider();
-
-        var settings = serviceProvider.GetRequiredService<IOptionsMonitor<ClaimsFillerOptions>>().CurrentValue;
-
-        Assert.NotNull(settings);
-        settings.LoadClaimsFromClaimsFillerProvider.Should().BeTrue();
-        settings.SettingsKeys.Should().HaveCount(1);
-        settings.SettingsKeys.Should().OnlyContain(s => s == "OAuth2");
-        settings.ClaimsToExclude.Should().NotBeEmpty();
     }
 
     [Fact]
@@ -93,6 +65,5 @@ public class ClaimsFillerOptionsTests
 
         Assert.NotNull(settings);
         settings.LoadClaimsFromClaimsFillerProvider.Should().BeFalse();
-        settings.SettingsKeys.Should().BeEmpty();
     }
 }

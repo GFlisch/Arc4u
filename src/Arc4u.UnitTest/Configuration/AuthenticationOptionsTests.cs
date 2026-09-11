@@ -77,8 +77,7 @@ public class AuthenticationOptionsTests
         settings.CookieName.Should().Be(cookieName);
         settings.ForceRefreshTimeoutTimeSpan.Should().Be(TimeSpan.Zero);
         settings.RefreshTokenLifetime.Should().Be(TimeSpan.FromDays(21));
-        settings.OpenIdSettingsKey.Should().Be(Constants.OpenIdOptionsName);
-        settings.OAuth2SettingsKey.Should().Be(Constants.OAuth2OptionsName);
+        settings.OAuth2SettingsKey.Should().Be(Constants.BearerAuthenticationType);
         settings.ValidateAudience.Should().BeTrue();
         settings.ValidateAuthority.Should().BeTrue();
     }
@@ -116,15 +115,14 @@ public class AuthenticationOptionsTests
 
         // act
         var sut =
-            serviceProvider.GetService<IOptionsMonitor<SimpleKeyValueSettings>>()!.Get(Constants.OAuth2OptionsName);
+            serviceProvider.GetService<IOptionsMonitor<SimpleKeyValueSettings>>()!.Get(Constants.BearerAuthenticationType);
 
         sut.Should().NotBeNull();
         sut.Values[TokenKeys.Audiences].Should().Be(string.Join(' ', options.Audiences));
-        sut.Values[TokenKeys.AuthorityKey].Should().Be(Constants.OAuth2OptionsName);
         sut.Values[TokenKeys.Scope].Should().Be(string.Join(' ', options.Scopes));
 
         var sutAuthority =
-            serviceProvider.GetService<IOptionsMonitor<AuthorityOptions>>()!.Get(Constants.OAuth2OptionsName);
+            serviceProvider.GetService<IOptionsMonitor<AuthorityOptions>>()!.Get(Constants.BearerAuthenticationType);
 
         sutAuthority.Url.Should().NotBeNull();
         sutAuthority.Url.Should().Be(authority.Url);
@@ -159,7 +157,7 @@ public class AuthenticationOptionsTests
 
         // act
         var sut =
-            serviceProvider.GetService<IOptionsMonitor<SimpleKeyValueSettings>>()!.Get(Constants.OAuth2OptionsName);
+            serviceProvider.GetService<IOptionsMonitor<SimpleKeyValueSettings>>()!.Get(Constants.BearerAuthenticationType);
 
         sut.Should().NotBeNull();
         sut.Values[TokenKeys.Audiences].Should().Be(string.Join(' ', options.Audiences));
@@ -167,7 +165,7 @@ public class AuthenticationOptionsTests
         sut.Values[TokenKeys.Scope].Should().Be(string.Join(' ', options.Scopes));
 
         var sutAuthority =
-            serviceProvider.GetService<IOptionsMonitor<AuthorityOptions>>()!.Get(Constants.OAuth2OptionsName);
+            serviceProvider.GetService<IOptionsMonitor<AuthorityOptions>>()!.Get(Constants.BearerAuthenticationType);
 
         sutAuthority.Url.Should().Be(new Uri("about:blank"));
     }
@@ -272,7 +270,7 @@ public class AuthenticationOptionsTests
 
         // act
         var sut =
-            serviceProvider.GetService<IOptionsMonitor<SimpleKeyValueSettings>>()!.Get(Constants.OpenIdOptionsName);
+            serviceProvider.GetService<IOptionsMonitor<SimpleKeyValueSettings>>()!.Get(Constants.CookiesAuthenticationType);
 
         sut.Should().NotBeNull();
         sut.Values[TokenKeys.Audiences].Should().Be(string.Join(' ', options.Audiences));
@@ -314,7 +312,7 @@ public class AuthenticationOptionsTests
 
         // act
         var sut =
-            serviceProvider.GetService<IOptionsMonitor<SimpleKeyValueSettings>>()!.Get(Constants.OpenIdOptionsName);
+            serviceProvider.GetService<IOptionsMonitor<SimpleKeyValueSettings>>()!.Get(Constants.CookiesAuthenticationType);
 
         sut.Should().NotBeNull();
         sut.Values[TokenKeys.Audiences].Should().Be(string.Join(' ', options.Audiences));
@@ -352,7 +350,7 @@ public class AuthenticationOptionsTests
 
         // act
         var sut =
-            serviceProvider.GetService<IOptionsMonitor<SimpleKeyValueSettings>>()!.Get(Constants.OpenIdOptionsName);
+            serviceProvider.GetService<IOptionsMonitor<SimpleKeyValueSettings>>()!.Get(Constants.CookiesAuthenticationType);
 
         sut.Should().NotBeNull();
         sut.Values.Should().NotContainKey(TokenKeys.Audiences);

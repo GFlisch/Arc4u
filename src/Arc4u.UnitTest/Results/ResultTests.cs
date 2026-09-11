@@ -192,6 +192,117 @@ public class ResultTests
 
     [Fact]
     [Trait("Category", "CI")]
+    public void Test_On_Failed_Typed_Result_With_Untyped_Global_Result_Should()
+    {
+        var result = Result.Fail<Guid>("");
+        var globalResult = Result.Ok();
+
+        var sut = result.OnFailed(globalResult);
+
+        sut.Should().BeSameAs(result);
+        globalResult.IsFailed.Should().BeTrue();
+        globalResult.Errors.Count.Should().Be(1);
+    }
+
+    [Fact]
+    [Trait("Category", "CI")]
+    public void Test_On_Failed_Untyped_Result_With_Typed_Global_Result_Should()
+    {
+        var result = Result.Fail("");
+        Result<string> globalResult = Result.Ok();
+
+        var sut = result.OnFailed(globalResult);
+
+        sut.Should().BeSameAs(result);
+        globalResult.IsFailed.Should().BeTrue();
+        globalResult.Errors.Count.Should().Be(1);
+    }
+
+    [Fact]
+    [Trait("Category", "CI")]
+    public async Task Test_ValueTask_On_Failed_With_Typed_Global_Result_Should()
+    {
+        var result = ValueTask.FromResult(Result.Fail(""));
+        Result<string> globalResult = Result.Ok();
+
+        var sut = await result.OnFailed(globalResult);
+
+        sut.IsFailed.Should().BeTrue();
+        globalResult.IsFailed.Should().BeTrue();
+        globalResult.Errors.Count.Should().Be(1);
+    }
+
+    [Fact]
+    [Trait("Category", "CI")]
+    public void Test_On_Failed_Typed_Result_With_Differently_Typed_Global_Result_Should()
+    {
+        var result = Result.Fail<Guid>("");
+        Result<string> globalResult = Result.Ok("value");
+
+        var sut = result.OnFailed(globalResult);
+
+        sut.Should().BeSameAs(result);
+        globalResult.IsFailed.Should().BeTrue();
+        globalResult.Errors.Count.Should().Be(1);
+    }
+
+    [Fact]
+    [Trait("Category", "CI")]
+    public async Task Test_Task_On_Failed_Typed_Result_With_Differently_Typed_Global_Result_Should()
+    {
+        var result = Task.FromResult(Result.Fail<Guid>(""));
+        Result<string> globalResult = Result.Ok("value");
+
+        var sut = await result.OnFailed(globalResult);
+
+        sut.Should().BeSameAs(result.Result);
+        globalResult.IsFailed.Should().BeTrue();
+        globalResult.Errors.Count.Should().Be(1);
+    }
+
+    [Fact]
+    [Trait("Category", "CI")]
+    public async Task Test_ValueTask_On_Failed_Typed_Result_With_Differently_Typed_Global_Result_Should()
+    {
+        var result = ValueTask.FromResult(Result.Fail<Guid>(""));
+        Result<string> globalResult = Result.Ok("value");
+
+        var sut = await result.OnFailed(globalResult);
+
+        sut.IsFailed.Should().BeTrue();
+        globalResult.IsFailed.Should().BeTrue();
+        globalResult.Errors.Count.Should().Be(1);
+    }
+
+    [Fact]
+    [Trait("Category", "CI")]
+    public void Test_On_Failed_Typed_Result_With_Differently_Typed_Global_Result_And_Success_Should()
+    {
+        var result = Result.Ok(Guid.NewGuid());
+        Result<string> globalResult = Result.Ok("value");
+
+        var sut = result.OnFailed(globalResult);
+
+        sut.Should().BeSameAs(result);
+        globalResult.IsSuccess.Should().BeTrue();
+        globalResult.Value.Should().Be("value");
+    }
+
+    [Fact]
+    [Trait("Category", "CI")]
+    public void Test_On_Failed_With_Global_Result_And_Success_Should()
+    {
+        var result = Result.Ok(Guid.NewGuid());
+        var globalResult = Result.Ok();
+
+        var sut = result.OnFailed(globalResult);
+
+        sut.Should().BeSameAs(result);
+        globalResult.IsSuccess.Should().BeTrue();
+    }
+
+    [Fact]
+    [Trait("Category", "CI")]
     public async Task Test_Exception_Failed_Should()
     {
         var globalResult = Result.Ok();

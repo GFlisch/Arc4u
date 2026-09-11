@@ -89,7 +89,7 @@ namespace Arc4u.OAuth2.Token
                 return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
             }
 
-            var inject = authenticationType.Equals("inject", StringComparison.OrdinalIgnoreCase);
+            var inject = authenticationType.Equals(Constants.InjectAuthenticationType, StringComparison.OrdinalIgnoreCase);
 
             // if we don't inject a bearer token, the AuthenticationType defined in the settings must be the same as the authentication type defined in the Identity.
             if (!inject

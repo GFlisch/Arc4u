@@ -9,10 +9,8 @@ namespace Arc4u.OAuth2.Extensions
 {
     public static class OpenIdSettingsExtension
     {
-        public static SimpleKeyValueSettings ConfigureOpenIdSettings(this IServiceCollection services, Action<OpenIdSettingsOption> option, [DisallowNull] string sectionKey = "OpenId")
+        public static SimpleKeyValueSettings ConfigureOpenIdSettings(this IServiceCollection services, Action<OpenIdSettingsOption> option)
         {
-            ArgumentNullException.ThrowIfNull(sectionKey);
-
             var validate = new OpenIdSettingsOption();
             option(validate);
 
@@ -32,11 +30,6 @@ namespace Arc4u.OAuth2.Extensions
                 throw new MissingFieldException($"ClientId field is not defined.");
             }
 
-            if (string.IsNullOrWhiteSpace(validate.AuthenticationType))
-            {
-                throw new MissingFieldException($"AuthenticationType field is not defined.");
-            }
-
             if (!validate.Scopes.Any())
             {
                 throw new MissingFieldException($"Scopes field is not defined.");
@@ -45,16 +38,15 @@ namespace Arc4u.OAuth2.Extensions
             void SettingsFiller(SimpleKeyValueSettings keyOptions)
             {
                 keyOptions.Add(TokenKeys.ProviderIdKey, validate!.ProviderId);
-                keyOptions.Add(TokenKeys.AuthenticationTypeKey, validate.AuthenticationType);
-
+                keyOptions.Add(TokenKeys.AuthenticationTypeKey, Constants.CookiesAuthenticationType);
                 //Optional => go to default.
                 if (validate.Authority is not null)
                 {
-                    keyOptions.Add(TokenKeys.AuthorityKey, Constants.OpenIdOptionsName);
-                    services.Configure<AuthorityOptions>(Constants.OpenIdOptionsName, options =>
+                    keyOptions.Add(TokenKeys.AuthorityKey, Constants.CookiesAuthenticationType);
+                    services.AddAuthority(options =>
                     {
                         options.SetData(validate.Authority.Url, validate.Authority.TokenEndpoint, validate.Authority.Issuer, validate.Authority.MetaDataAddress);
-                    });
+                    }, Constants.CookiesAuthenticationType);
                 }
 
                 keyOptions.Add(TokenKeys.ClientIdKey, validate.ClientId);
@@ -66,7 +58,7 @@ namespace Arc4u.OAuth2.Extensions
                 keyOptions.Add(TokenKeys.Scope, string.Join(' ', validate.Scopes));
             }
 
-            services.Configure<SimpleKeyValueSettings>(sectionKey, SettingsFiller);
+            services.Configure<SimpleKeyValueSettings>(Constants.CookiesAuthenticationType, SettingsFiller);
 
             var settings = new SimpleKeyValueSettings();
 
@@ -75,11 +67,9 @@ namespace Arc4u.OAuth2.Extensions
             return settings;
         }
 
-        public static SimpleKeyValueSettings ConfigureOpenIdSettings(this IServiceCollection services, IConfiguration configuration, [DisallowNull] string sectionName, [DisallowNull] string sectionKey = Constants.OpenIdOptionsName)
+        public static SimpleKeyValueSettings ConfigureOpenIdSettings(this IServiceCollection services, IConfiguration configuration, [DisallowNull] string sectionName)
         {
-            ArgumentNullException.ThrowIfNull(sectionKey);
-
-            return ConfigureOpenIdSettings(services, PrepareAction(configuration, sectionName), sectionKey);
+            return ConfigureOpenIdSettings(services, PrepareAction(configuration, sectionName));
         }
 
         internal static Action<OpenIdSettingsOption> PrepareAction(IConfiguration configuration, [DisallowNull] string sectionName)
@@ -113,7 +103,6 @@ namespace Arc4u.OAuth2.Extensions
                 option.ClientId = settings.ClientId;
                 option.Audiences = settings.Audiences;
                 option.Scopes = settings.Scopes;
-                option.AuthenticationType = settings.AuthenticationType;
                 option.ProviderId = settings.ProviderId;
                 option.ValidateAudience = settings.ValidateAudience;
             }

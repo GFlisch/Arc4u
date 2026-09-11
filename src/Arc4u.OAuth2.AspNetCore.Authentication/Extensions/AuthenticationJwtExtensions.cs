@@ -32,7 +32,7 @@ namespace Arc4u.OAuth2.Extensions
             option.TokenValidationParameters.NameClaimType = hybridOptions.NameClaimType;
             option.TokenValidationParameters.RoleClaimType = hybridOptions.RoleClaimType;
             option.TokenValidationParameters.SaveSigninToken = false;
-            option.TokenValidationParameters.AuthenticationType = oauth2Options.AuthenticationType;
+            option.TokenValidationParameters.AuthenticationType = Constants.BearerAuthenticationType;
             option.TokenValidationParameters.ValidateIssuer = false;
             option.TokenValidationParameters.ValidateAudience = oauth2Options.ValidateAudience;
             option.TokenValidationParameters.ValidAudiences = oauth2Options.Audiences;
@@ -74,7 +74,7 @@ namespace Arc4u.OAuth2.Extensions
             ArgumentNullException.ThrowIfNull(options.DefaultAuthority.GetMetaDataAddress());
             ArgumentNullException.ThrowIfNull(options.DefaultAuthority.MetaDataAddress);
 
-            services.ConfigureOAuth2Settings(options.OAuth2SettingsOptions, options.OAuth2SettingsKey);
+            services.ConfigureOAuth2Settings(options.OAuth2SettingsOptions);
             services.AddClaimsIdentifier(options.ClaimsIdentifierOptions);
             services.TryAddTransient<JwtBearerEvents, StandardBearerEvents>();
             services.AddAuthorizationCore();
@@ -167,7 +167,6 @@ namespace Arc4u.OAuth2.Extensions
             {
                 options.DefaultAuthority = settings.DefaultAuthority;
                 options.ValidateAuthority = settings.ValidateAuthority;
-                options.OAuth2SettingsKey = settings.OAuth2SettingsKey;
                 options.OAuth2SettingsOptions =
                     OAuth2SettingsExtension.PrepareAction(configuration, settings.OAuth2SettingsSectionPath);
                 options.CertSecurityKey = certSecurityKey;

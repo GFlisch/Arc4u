@@ -14,6 +14,12 @@ public class SimpleKeyValueSettings : IKeyValueSettings, IEquatable<SimpleKeyVal
     {
         _keyValues = keyValues;
     }
+
+    public SimpleKeyValueSettings(IReadOnlyDictionary<string, string> keyValues)
+    {
+        _keyValues = keyValues.ToDictionary();
+    }
+
     public SimpleKeyValueSettings(params (string key, string value)[] keyValues)
     {
         _keyValues = keyValues.Select(x => (x.key, x.value)).ToDictionary(x => x.key, x => x.value, StringComparer.OrdinalIgnoreCase);

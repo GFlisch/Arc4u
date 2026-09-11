@@ -103,7 +103,7 @@ public class CredentialTokenProvider(ILogger<CredentialTokenProvider> logger, IO
         clientId = settings.Values[TokenKeys.ClientIdKey];
         clientSecret = settings.Values.ContainsKey(TokenKeys.ClientSecret) ? settings.Values[TokenKeys.ClientSecret] : string.Empty;
         // More for backward compatibility! We should throw an error message if scope is not defined...
-        scope = !settings.Values.ContainsKey(TokenKeys.Scope) ? "openid" : settings.Values[TokenKeys.Scope];
+        scope = !settings.Values.ContainsKey(TokenKeys.Scope) ? Constants.OpenIdScope : settings.Values[TokenKeys.Scope];
         return Result.Ok();
     }
 

@@ -14,8 +14,6 @@ namespace Arc4u.OAuth2.Options;
 
         public bool ValidateAuthority { get; set; } = true;
 
-        public string OpenIdSettingsKey { get; set; } = Constants.OpenIdOptionsName;
-
         public Action<OpenIdSettingsOption> OpenIdSettingsOptions { get; set; } = default!;
 
         public Action<ClaimsIdentifierOption> ClaimsIdentifierOptions { get; set; } = default!;

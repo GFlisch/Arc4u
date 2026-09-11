@@ -9,7 +9,7 @@ namespace Arc4u.OAuth2.Extensions
 {
     public static class OAuth2SettingsExtension
     {
-        public static SimpleKeyValueSettings ConfigureOAuth2Settings(this IServiceCollection services, Action<OAuth2SettingsOption> option, [DisallowNull] string sectionKey = Constants.OAuth2OptionsName)
+        public static SimpleKeyValueSettings ConfigureOAuth2Settings(this IServiceCollection services, Action<OAuth2SettingsOption> option, [DisallowNull] string sectionKey = Constants.BearerAuthenticationType)
         {
             ArgumentNullException.ThrowIfNull(sectionKey);
 
@@ -27,11 +27,6 @@ namespace Arc4u.OAuth2.Extensions
                 configErrors += "Audiences field is not defined." + System.Environment.NewLine;
             }
 
-            if (string.IsNullOrWhiteSpace(validate.AuthenticationType))
-            {
-                configErrors += "AuthenticationType field is not defined." + System.Environment.NewLine;
-            }
-
             if (configErrors is not null)
             {
                 throw new ConfigurationException(configErrors);
@@ -43,16 +38,15 @@ namespace Arc4u.OAuth2.Extensions
             void SettingsFiller(SimpleKeyValueSettings keyOptions)
             {
                 keyOptions.Add(TokenKeys.ProviderIdKey, validate!.ProviderId);
-                keyOptions.Add(TokenKeys.AuthenticationTypeKey, validate.AuthenticationType);
-
+                keyOptions.Add(TokenKeys.AuthenticationTypeKey, Constants.BearerAuthenticationType);
                 //Optional => go to default.
                 if (validate.Authority is not null)
                 {
-                    keyOptions.Add(TokenKeys.AuthorityKey, Constants.OAuth2OptionsName);
-                    services.Configure<AuthorityOptions>(Constants.OAuth2OptionsName, options =>
+                    keyOptions.Add(TokenKeys.AuthorityKey, Constants.BearerAuthenticationType);
+                    services.AddAuthority(options =>
                     {
                         options.SetData(validate.Authority.Url, validate.Authority.TokenEndpoint, validate.Authority.Issuer, validate.Authority.MetaDataAddress);
-                    });
+                    }, Constants.BearerAuthenticationType);
                 }
                 // Build the list of Audiences as a string.
                 keyOptions.Add(TokenKeys.Audiences, string.Join(' ', validate.Audiences));
@@ -70,7 +64,7 @@ namespace Arc4u.OAuth2.Extensions
 
         }
 
-        public static SimpleKeyValueSettings ConfigureOAuth2Settings(this IServiceCollection services, IConfiguration configuration, [DisallowNull] string sectionName, [DisallowNull] string sectionKey = "OAuth2")
+        public static SimpleKeyValueSettings ConfigureOAuth2Settings(this IServiceCollection services, IConfiguration configuration, [DisallowNull] string sectionName, [DisallowNull] string sectionKey = Constants.BearerAuthenticationType)
         {
             ArgumentNullException.ThrowIfNull(sectionKey);
 
@@ -104,7 +98,6 @@ namespace Arc4u.OAuth2.Extensions
             {
                 option.Authority = settings.Authority;
                 option.Audiences = settings.Audiences;
-                option.AuthenticationType = settings.AuthenticationType;
                 option.ProviderId = settings.ProviderId;
                 option.Scopes = settings.Scopes;
                 option.ValidateAudience = settings.ValidateAudience;

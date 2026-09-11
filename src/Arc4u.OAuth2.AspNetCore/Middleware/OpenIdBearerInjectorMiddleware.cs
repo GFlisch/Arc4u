@@ -29,7 +29,11 @@ public class OpenIdBearerInjectorMiddleware
 
     public async Task InvokeAsync([DisallowNull] HttpContext context, IActivitySourceFactory activitySourceFactory, ILogger<OpenIdBearerInjectorMiddleware> logger)
     {
-        if (context.User is not null && context.User.Identity is not null && context.User.Identity.IsAuthenticated && context.User.Identity.AuthenticationType!.Equals(_options.OpenIdSettings.Values[TokenKeys.AuthenticationTypeKey], StringComparison.InvariantCultureIgnoreCase))
+        ArgumentNullException.ThrowIfNull(context);
+
+        if (context.User.Identity is not null
+            && context.User.Identity.IsAuthenticated
+            && context.User.Identity.AuthenticationType!.Equals(_options.OpenIdSettings.Values[TokenKeys.AuthenticationTypeKey], StringComparison.InvariantCultureIgnoreCase))
         {
             if (context.User is AppPrincipal principal)
             {

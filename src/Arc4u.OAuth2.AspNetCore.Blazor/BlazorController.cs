@@ -14,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Arc4u.AspNetCore.Results;
+using Arc4u.OAuth2;
 
 namespace Arc4u.Blazor;
 
@@ -50,7 +51,7 @@ public class BlazorController : ControllerBase
     public BlazorController(IOptionsSnapshot<SimpleKeyValueSettings> options, IConfiguration configuration, ILogger<BlazorController> logger)
     {
         _logger = logger;
-        _settings = options.Get("OpenId");
+        _settings = options.Get(Constants.CookiesAuthenticationType);
         _rootServiceUrl = configuration[RootServiceUrlKey] ?? throw new InvalidOperationException($"The root service URL is not defined in the configuration {RootServiceUrlKey}!");
     }
 

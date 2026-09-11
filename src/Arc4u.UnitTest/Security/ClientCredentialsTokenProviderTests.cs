@@ -2,6 +2,7 @@ using System.Net;
 using System.Text;
 using Arc4u.Configuration;
 using Arc4u.Dependency;
+using Arc4u.OAuth2;
 using Arc4u.OAuth2.Extensions;
 using Arc4u.OAuth2.Options;
 using Arc4u.OAuth2.Token;
@@ -71,7 +72,7 @@ public class ClientCredentialsTokenProviderTests
     public async Task GetToken_Stores_Token_In_Cache_Should()
     {
         // arrange
-        var settings = BuildSettings(_fixture.Create<string>(), _fixture.Create<string>(), "openid", []);
+        var settings = BuildSettings(_fixture.Create<string>(), _fixture.Create<string>(), Constants.OpenIdScope, []);
         var handler = new StubHandler(Ok(_fixture.Create<string>(), 3600));
         var (cache, mockCache) = MockCache(cached: null);
         var sut = BuildSut(handler, cache);
@@ -89,7 +90,7 @@ public class ClientCredentialsTokenProviderTests
     {
         // arrange
         var cachedToken = new TokenInfo("Bearer", _fixture.Create<string>(), DateTime.UtcNow.AddHours(1));
-        var settings = BuildSettings(_fixture.Create<string>(), _fixture.Create<string>(), "openid", []);
+        var settings = BuildSettings(_fixture.Create<string>(), _fixture.Create<string>(), Constants.OpenIdScope, []);
         var handler = new StubHandler(Ok(_fixture.Create<string>(), 3600));
         var (cache, _) = MockCache(cached: cachedToken);
         var sut = BuildSut(handler, cache);
@@ -110,7 +111,7 @@ public class ClientCredentialsTokenProviderTests
         var settings = new SimpleKeyValueSettings(new Dictionary<string, string>
         {
             { TokenKeys.ClientIdKey, _fixture.Create<string>() },
-            { TokenKeys.Scope, "openid" }
+            { TokenKeys.Scope, Constants.OpenIdScope }
         });
         var handler = new StubHandler(Ok(_fixture.Create<string>(), 3600));
         var (cache, _) = MockCache(cached: null);

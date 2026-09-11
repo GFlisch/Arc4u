@@ -39,7 +39,7 @@ namespace Arc4u.OAuth2.Events
             }
 
             var jwtToken = new JwtSecurityToken(context.TokenEndpointResponse.AccessToken);
-            var options = _openIdOptions.Get(_hybridOptions.OpenIdSettingsKey);
+            var options = _openIdOptions.Get(Constants.CookiesAuthenticationType);
 
             if (_hybridOptions.ValidateAudience)
             {

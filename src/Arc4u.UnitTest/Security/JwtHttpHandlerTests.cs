@@ -164,7 +164,7 @@ public class JwtHttpHandlerTests
         // Act
         var sut = new JwtHandlerToTest(scopedContainer.ServiceProvider,
             scopedContainer.ServiceProvider.GetRequiredService<ILogger<JwtHandlerToTest>>()!, setingsOptions!,
-            Constants.OpenIdOptionsName) { InnerHandler = innerHandler.Object };
+            Constants.CookiesAuthenticationType) { InnerHandler = innerHandler.Object };
 
         var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://example.com/");
         var invoker = new HttpMessageInvoker(sut);
@@ -749,12 +749,12 @@ public class JwtHttpHandlerTests
         var sut =
             new JwtHandlerToTest(scopedContainer.ServiceProvider,
                 scopedContainer.ServiceProvider.GetRequiredService<ILogger<JwtHandlerToTest>>()!, setingsOptions!,
-                Constants.OAuth2OptionsName)
+                Constants.BearerAuthenticationType)
             {
                 InnerHandler =
                     new JwtHandlerToTest(scopedContainer.ServiceProvider,
                         scopedContainer.ServiceProvider.GetRequiredService<ILogger<JwtHandlerToTest>>()!, setingsOptions!,
-                        Constants.OpenIdOptionsName) { InnerHandler = innerHandler.Object }
+                        Constants.CookiesAuthenticationType) { InnerHandler = innerHandler.Object }
             };
 
         var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://example.com/");
@@ -868,12 +868,12 @@ public class JwtHttpHandlerTests
         var sut =
             new JwtHandlerToTest(scopedContainer.ServiceProvider,
                 scopedContainer.ServiceProvider.GetRequiredService<ILogger<JwtHandlerToTest>>()!, setingsOptions!,
-                Constants.OAuth2OptionsName)
+                Constants.BearerAuthenticationType)
             {
                 InnerHandler =
                     new JwtHandlerToTest(scopedContainer.ServiceProvider,
                         scopedContainer.ServiceProvider.GetRequiredService<ILogger<JwtHandlerToTest>>()!, setingsOptions!,
-                        Constants.OpenIdOptionsName) { InnerHandler = innerHandler.Object }
+                        Constants.CookiesAuthenticationType) { InnerHandler = innerHandler.Object }
             };
 
         var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://example.com/");
@@ -991,12 +991,12 @@ public class JwtHttpHandlerTests
         var sut =
             new JwtHandlerToTest(scopedContainer.ServiceProvider,
                 scopedContainer.ServiceProvider.GetRequiredService<ILogger<JwtHandlerToTest>>()!, setingsOptions!,
-                Constants.OAuth2OptionsName)
+                Constants.BearerAuthenticationType)
             {
                 InnerHandler =
                     new JwtHandlerToTest(scopedContainer.ServiceProvider,
                         scopedContainer.ServiceProvider.GetRequiredService<ILogger<JwtHandlerToTest>>()!, setingsOptions!,
-                        Constants.OpenIdOptionsName)
+                        Constants.CookiesAuthenticationType)
                     {
                         InnerHandler =
                             new JwtHandlerToTest(scopedContainer.ServiceProvider,

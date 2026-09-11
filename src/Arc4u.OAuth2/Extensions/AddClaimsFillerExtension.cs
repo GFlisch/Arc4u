@@ -54,7 +54,6 @@ public static class AddClaimsFillerExtension
         AddClaimsFiller(services, o =>
         {
             o.LoadClaimsFromClaimsFillerProvider = options.LoadClaimsFromClaimsFillerProvider;
-            o.SettingsKeys = options.SettingsKeys;
             o.ClaimsToExclude = options.ClaimsToExclude;
             o.ExpireClaim = options.ExpireClaim;
         });

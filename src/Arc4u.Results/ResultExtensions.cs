@@ -1,26 +1,56 @@
+using System.ComponentModel;
 using FluentResults;
 using Microsoft.Extensions.Logging;
 
 namespace Arc4u.Results;
+
+/// <summary>
+/// Reads a use case out loud: OnSuccess / OnSuccessNull / OnSuccessNotNull / OnFailed describe
+/// what happens to a <see cref="Result"/> without the caller writing a single if statement.
+///
+/// Two rules keep that readability honest:
+///   1. A method named *Async always returns a Task or a ValueTask, so the caller must await it.
+///      Nothing in this class ever blocks on a Task (no .Wait(), no .Result).
+///   2. A method NOT named *Async never accepts an asynchronous callback. Passing one is a
+///      compile error pointing at the *Async twin, because an async lambda bound to an Action
+///      would run as 'async void': fire-and-forget, with nothing awaiting it. Its exception
+///      would then surface on a thread pool thread instead of at the caller's await.
+///
+/// The *Async twins take Task-returning callbacks. Adapt a ValueTask-returning call with an async
+/// lambda ('async () => await SaveAsync()') or with .AsTask(): a second overload taking Func&lt;ValueTask&gt;
+/// would make every async lambda ambiguous.
+///
+/// None of these methods turns an exception thrown by a callback into a failed Result: the
+/// exception propagates to the caller. Use FluentResults' Result.Try for that conversion.
+/// </summary>
 public static class ResultExtension
 {
+    private const string AsyncCallbackOnSyncMethod =
+        "This overload takes a synchronous callback. An asynchronous one would be invoked as 'async void': " +
+        "nothing would await it, so its exception would surface on a thread pool thread instead of at the " +
+        "caller's await. Use the *Async twin of this method and await the chain. A ValueTask-returning call " +
+        "is adapted with an async lambda ('async () => await SaveAsync()') or with .AsTask().";
+
     #region OnSuccess
 
     public static Result OnSuccess(this Result result, Action action)
     {
-        if (result.IsSuccess)
+        ArgumentNullException.ThrowIfNull(action);
+
+        if (result is { IsSuccess: true })
         {
             action();
         }
         return result;
     }
-    public static Result OnSuccessAsync(this Result result, Func<Task> func)
+
+    public static async Task<Result> OnSuccessAsync(this Result result, Func<Task> func)
     {
         ArgumentNullException.ThrowIfNull(func);
 
-        if (result.IsSuccess)
+        if (result is { IsSuccess: true })
         {
-            func().Wait();
+            await func().ConfigureAwait(false);
         }
         return result;
     }
@@ -28,83 +58,99 @@ public static class ResultExtension
     public static async Task<Result> OnSuccess(this Task<Result> result, Action action)
     {
         ArgumentNullException.ThrowIfNull(action);
+
         var r = await result.ConfigureAwait(false);
 
-        if (r.IsSuccess)
+        if (r is { IsSuccess: true })
         {
             action();
         }
         return r;
     }
-    public static async Task<Result> OnSuccessAsync(this Task<Result> result, Func<Task> action)
-    {
-        ArgumentNullException.ThrowIfNull(action);
-        if (result.Result.IsSuccess)
-        {
-            await action().ConfigureAwait(false);
-        }
 
-        return result.Result;
+    public static async Task<Result> OnSuccessAsync(this Task<Result> result, Func<Task> func)
+    {
+        ArgumentNullException.ThrowIfNull(func);
+
+        var r = await result.ConfigureAwait(false);
+
+        if (r is { IsSuccess: true })
+        {
+            await func().ConfigureAwait(false);
+        }
+        return r;
     }
 
     public static async ValueTask<Result> OnSuccess(this ValueTask<Result> result, Action action)
     {
         ArgumentNullException.ThrowIfNull(action);
+
         var r = await result.ConfigureAwait(false);
 
-        if (r.IsSuccess)
+        if (r is { IsSuccess: true })
         {
             action();
         }
         return r;
     }
-    public static async ValueTask<Result> OnSuccessAsync(this ValueTask<Result> result, Func<Task> action)
+
+    public static async ValueTask<Result> OnSuccessAsync(this ValueTask<Result> result, Func<Task> func)
     {
-        ArgumentNullException.ThrowIfNull(action);
+        ArgumentNullException.ThrowIfNull(func);
 
-        if (result.Result.IsSuccess)
+        var r = await result.ConfigureAwait(false);
+
+        if (r is { IsSuccess: true })
         {
-            await action().ConfigureAwait(false);
+            await func().ConfigureAwait(false);
         }
-
-        return result.Result;
+        return r;
     }
 
     public static Result<TValue> OnSuccess<TValue>(this Result<TValue> result, Action action)
     {
         ArgumentNullException.ThrowIfNull(action);
-        if (result.IsSuccess)
+
+        if (result is { IsSuccess: true })
         {
             action();
         }
         return result;
     }
-    public static Result<TValue> OnSuccessAsync<TValue>(this Result<TValue> result, Func<Task> func)
+
+    public static async Task<Result<TValue>> OnSuccessAsync<TValue>(this Result<TValue> result, Func<Task> func)
     {
         ArgumentNullException.ThrowIfNull(func);
 
-        if (result.IsSuccess)
+        if (result is { IsSuccess: true })
         {
-            func().Wait();
+            await func().ConfigureAwait(false);
         }
         return result;
     }
+
+    /// <remarks>
+    /// A successful Result may still carry a null value: use <see cref="OnSuccessNotNull{TValue}(Result{TValue}, Action{TValue})"/>
+    /// when the callback needs a value it can dereference.
+    /// </remarks>
     public static Result<TValue> OnSuccess<TValue>(this Result<TValue> result, Action<TValue> action)
     {
         ArgumentNullException.ThrowIfNull(action);
-        if (result.IsSuccess)
+
+        if (result is { IsSuccess: true })
         {
-            action(result.ValueOrDefault);
+            action(result.Value);
         }
         return result;
     }
-    public static Result<TValue> OnSuccessAsync<TValue>(this Result<TValue> result, Func<TValue, Task> func)
+
+    public static async Task<Result<TValue>> OnSuccessAsync<TValue>(this Result<TValue> result, Func<TValue, Task> func)
     {
         ArgumentNullException.ThrowIfNull(func);
 
-        if (result.IsSuccess)
+        if (result is { IsSuccess: true })
         {
-            func(result.ValueOrDefault).Wait();
+            await func(result.Value).ConfigureAwait(false);
         }
         return result;
     }
@@ -112,120 +158,134 @@ public static class ResultExtension
     public static async Task<Result<TValue>> OnSuccess<TValue>(this Task<Result<TValue>> result, Action action)
     {
         ArgumentNullException.ThrowIfNull(action);
+
         var r = await result.ConfigureAwait(false);
 
-        if (r.IsSuccess)
+        if (r is { IsSuccess: true })
         {
             action();
         }
         return r;
     }
+
     public static async Task<Result<TValue>> OnSuccess<TValue>(this Task<Result<TValue>> result, Action<TValue> action)
     {
         ArgumentNullException.ThrowIfNull(action);
+
         var r = await result.ConfigureAwait(false);
 
-        if (r.IsSuccess)
+        if (r is { IsSuccess: true })
         {
-            action(r.ValueOrDefault);
+            action(r.Value);
         }
         return r;
     }
-    public static async Task<Result<TValue>> OnSuccessAsync<TValue>(this Task<Result<TValue>> result, Func<Task> action)
+
+    public static async Task<Result<TValue>> OnSuccessAsync<TValue>(this Task<Result<TValue>> result, Func<Task> func)
     {
-        ArgumentNullException.ThrowIfNull(action);
+        ArgumentNullException.ThrowIfNull(func);
+
         var r = await result.ConfigureAwait(false);
 
-        if (r.IsSuccess)
+        if (r is { IsSuccess: true })
         {
-            await action().ConfigureAwait(false);
+            await func().ConfigureAwait(false);
         }
-
         return r;
     }
-    public static async Task<Result<TValue>> OnSuccessAsync<TValue>(this Task<Result<TValue>> result, Func<TValue, Task> action)
+
+    public static async Task<Result<TValue>> OnSuccessAsync<TValue>(this Task<Result<TValue>> result, Func<TValue, Task> func)
     {
-        ArgumentNullException.ThrowIfNull(action);
+        ArgumentNullException.ThrowIfNull(func);
+
         var r = await result.ConfigureAwait(false);
 
-        if (r.IsSuccess)
+        if (r is { IsSuccess: true })
         {
-            await action(r.Value).ConfigureAwait(false);
+            await func(r.Value).ConfigureAwait(false);
         }
-
         return r;
     }
 
     public static async ValueTask<Result<TValue>> OnSuccess<TValue>(this ValueTask<Result<TValue>> result, Action action)
     {
         ArgumentNullException.ThrowIfNull(action);
+
         var r = await result.ConfigureAwait(false);
 
-        if (r.IsSuccess)
+        if (r is { IsSuccess: true })
         {
             action();
         }
         return r;
     }
+
     public static async ValueTask<Result<TValue>> OnSuccess<TValue>(this ValueTask<Result<TValue>> result, Action<TValue> action)
     {
         ArgumentNullException.ThrowIfNull(action);
+
         var r = await result.ConfigureAwait(false);
 
-        if (r.IsSuccess)
+        if (r is { IsSuccess: true })
         {
-            action(r.ValueOrDefault);
+            action(r.Value);
         }
         return r;
     }
-    public static async ValueTask<Result<TValue>> OnSuccessAsync<TValue>(this ValueTask<Result<TValue>> result, Func<Task> action)
+
+    public static async ValueTask<Result<TValue>> OnSuccessAsync<TValue>(this ValueTask<Result<TValue>> result, Func<Task> func)
     {
-        ArgumentNullException.ThrowIfNull(action);
+        ArgumentNullException.ThrowIfNull(func);
+
         var r = await result.ConfigureAwait(false);
 
-        if (r.IsSuccess)
+        if (r is { IsSuccess: true })
         {
-            await action().ConfigureAwait(false);
+            await func().ConfigureAwait(false);
         }
-
         return r;
     }
-    public static async ValueTask<Result<TValue>> OnSuccessAsync<TValue>(this ValueTask<Result<TValue>> result, Func<TValue, Task> action)
+
+    public static async ValueTask<Result<TValue>> OnSuccessAsync<TValue>(this ValueTask<Result<TValue>> result, Func<TValue, Task> func)
     {
-        ArgumentNullException.ThrowIfNull(action);
+        ArgumentNullException.ThrowIfNull(func);
+
         var r = await result.ConfigureAwait(false);
 
-        if (r.IsSuccess)
+        if (r is { IsSuccess: true })
         {
-            await action(r.Value).ConfigureAwait(false);
+            await func(r.Value).ConfigureAwait(false);
         }
-
         return r;
     }
 
     #endregion
 
     #region OnSuccessNull
+
     public static Result<TValue> OnSuccessNull<TValue>(this Result<TValue> result, Action action)
     {
         ArgumentNullException.ThrowIfNull(action);
+
         if (result is { IsSuccess: true, ValueOrDefault: null })
         {
             action();
         }
         return result;
     }
-    public static Result<TValue> OnSuccessNullAsync<TValue>(this Result<TValue> result, Func<Task> func)
+
+    public static async Task<Result<TValue>> OnSuccessNullAsync<TValue>(this Result<TValue> result, Func<Task> func)
     {
         ArgumentNullException.ThrowIfNull(func);
 
         if (result is { IsSuccess: true, ValueOrDefault: null })
         {
-            func().Wait();
+            await func().ConfigureAwait(false);
         }
         return result;
     }
-    public static async Task<Result<TValue>> OnSuccessNull<TValue>(this Task<Result<TValue>> result,Action action)
+
+    public static async Task<Result<TValue>> OnSuccessNull<TValue>(this Task<Result<TValue>> result, Action action)
     {
         ArgumentNullException.ThrowIfNull(action);
 
@@ -235,33 +295,35 @@ public static class ResultExtension
         {
             action();
         }
-
         return r;
     }
-    public static async Task<Result<TValue>> OnSuccessNullAsync<TValue>(this Task<Result<TValue>> result,Func<Task> func)
+
+    public static async Task<Result<TValue>> OnSuccessNullAsync<TValue>(this Task<Result<TValue>> result, Func<Task> func)
     {
         ArgumentNullException.ThrowIfNull(func);
+
         var r = await result.ConfigureAwait(false);
 
         if (r is { IsSuccess: true, ValueOrDefault: null })
         {
             await func().ConfigureAwait(false);
         }
-
         return r;
     }
+
     public static async ValueTask<Result<TValue>> OnSuccessNull<TValue>(this ValueTask<Result<TValue>> result, Action action)
     {
         ArgumentNullException.ThrowIfNull(action);
+
         var r = await result.ConfigureAwait(false);
 
         if (r is { IsSuccess: true, ValueOrDefault: null })
         {
             action();
         }
-
         return r;
     }
+
     public static async ValueTask<Result<TValue>> OnSuccessNullAsync<TValue>(this ValueTask<Result<TValue>> result, Func<Task> func)
     {
         ArgumentNullException.ThrowIfNull(func);
@@ -272,9 +334,9 @@ public static class ResultExtension
         {
             await func().ConfigureAwait(false);
         }
-
         return r;
     }
+
     #endregion
 
     #region OnSuccessNotNull
@@ -289,13 +351,14 @@ public static class ResultExtension
         }
         return result;
     }
-    public static Result<TValue> OnSuccessNotNullAsync<TValue>(this Result<TValue> result, Func<Task> func)
+
+    public static async Task<Result<TValue>> OnSuccessNotNullAsync<TValue>(this Result<TValue> result, Func<Task> func)
     {
         ArgumentNullException.ThrowIfNull(func);
 
         if (result is { IsSuccess: true, ValueOrDefault: not null })
         {
-            func().Wait();
+            await func().ConfigureAwait(false);
         }
         return result;
     }
@@ -310,13 +373,14 @@ public static class ResultExtension
         }
         return result;
     }
-    public static Result<TValue> OnSuccessNotNullAsync<TValue>(this Result<TValue> result, Func<TValue, Task> func)
+
+    public static async Task<Result<TValue>> OnSuccessNotNullAsync<TValue>(this Result<TValue> result, Func<TValue, Task> func)
     {
         ArgumentNullException.ThrowIfNull(func);
 
         if (result is { IsSuccess: true, ValueOrDefault: not null })
         {
-            func(result.Value).Wait();
+            await func(result.Value).ConfigureAwait(false);
         }
         return result;
     }
@@ -331,10 +395,10 @@ public static class ResultExtension
         {
             action();
         }
-
         return r;
     }
-    public static async Task<Result<TValue>> OnSuccessNotNull<TValue>(this Task<Result<TValue>> result,Action<TValue> action)
+
+    public static async Task<Result<TValue>> OnSuccessNotNull<TValue>(this Task<Result<TValue>> result, Action<TValue> action)
     {
         ArgumentNullException.ThrowIfNull(action);
 
@@ -344,10 +408,10 @@ public static class ResultExtension
         {
             action(r.Value);
         }
-
         return r;
     }
-    public static async Task<Result<TValue>> OnSuccessNotNullAsync<TValue>(this Task<Result<TValue>> result,Func<Task> func)
+
+    public static async Task<Result<TValue>> OnSuccessNotNullAsync<TValue>(this Task<Result<TValue>> result, Func<Task> func)
     {
         ArgumentNullException.ThrowIfNull(func);
 
@@ -357,9 +421,9 @@ public static class ResultExtension
         {
             await func().ConfigureAwait(false);
         }
-
         return r;
     }
+
     public static async Task<Result<TValue>> OnSuccessNotNullAsync<TValue>(this Task<Result<TValue>> result, Func<TValue, Task> func)
     {
         ArgumentNullException.ThrowIfNull(func);
@@ -370,7 +434,6 @@ public static class ResultExtension
         {
             await func(r.Value).ConfigureAwait(false);
         }
-
         return r;
     }
 
@@ -384,21 +447,22 @@ public static class ResultExtension
         {
             action();
         }
-
         return r;
     }
+
     public static async ValueTask<Result<TValue>> OnSuccessNotNull<TValue>(this ValueTask<Result<TValue>> result, Action<TValue> action)
     {
         ArgumentNullException.ThrowIfNull(action);
+
         var r = await result.ConfigureAwait(false);
 
         if (r is { IsSuccess: true, ValueOrDefault: not null })
         {
             action(r.Value);
         }
-
         return r;
     }
+
     public static async ValueTask<Result<TValue>> OnSuccessNotNullAsync<TValue>(this ValueTask<Result<TValue>> result, Func<Task> func)
     {
         ArgumentNullException.ThrowIfNull(func);
@@ -409,9 +473,9 @@ public static class ResultExtension
         {
             await func().ConfigureAwait(false);
         }
-
         return r;
     }
+
     public static async ValueTask<Result<TValue>> OnSuccessNotNullAsync<TValue>(this ValueTask<Result<TValue>> result, Func<TValue, Task> func)
     {
         ArgumentNullException.ThrowIfNull(func);
@@ -422,72 +486,105 @@ public static class ResultExtension
         {
             await func(r.Value).ConfigureAwait(false);
         }
-
         return r;
     }
+
     #endregion
 
     #region OnFailed
+
     public static Result OnFailed(this Result result, Action<IReadOnlyCollection<IError>> action)
     {
         ArgumentNullException.ThrowIfNull(action);
 
-        if (result.IsFailed)
+        if (result is { IsFailed: true })
         {
             action(result.Errors);
         }
         return result;
     }
-    public static Result OnFailedAsync(this Result result, Func<IReadOnlyCollection<IError>, Task> func)
+
+    public static async Task<Result> OnFailedAsync(this Result result, Func<IReadOnlyCollection<IError>, Task> func)
     {
         ArgumentNullException.ThrowIfNull(func);
 
-        if (result.IsFailed)
+        if (result is { IsFailed: true })
         {
-            func(result.Errors).Wait();
+            await func(result.Errors).ConfigureAwait(false);
         }
         return result;
     }
+
     public static Result OnFailed(this Result result, Result globalResult)
     {
         ArgumentNullException.ThrowIfNull(globalResult);
 
-        if (result.IsFailed)
+        if (result is { IsFailed: true })
         {
             globalResult.WithErrors(result.Errors);
         }
-
         return result;
     }
 
-    public static Result<TValue> OnFailed<TValue>(this Result<TValue> result, Result<TValue> globalResult)
+    /// <summary>
+    /// Collects the errors of a typed result into an untyped global one, the synchronous twin of
+    /// <see cref="OnFailed{TValue}(Task{Result{TValue}}, Result)"/>.
+    /// </summary>
+    public static Result<TValue> OnFailed<TValue>(this Result<TValue> result, Result globalResult)
     {
         ArgumentNullException.ThrowIfNull(globalResult);
 
-        if (result.IsFailed)
+        if (result is { IsFailed: true })
         {
             globalResult.WithErrors(result.Errors);
         }
-
         return result;
     }
+
+    public static Result<TValue> OnFailed<TValue, TGlobal>(this Result<TValue> result, Result<TGlobal> globalResult)
+    {
+        ArgumentNullException.ThrowIfNull(globalResult);
+
+        if (result is { IsFailed: true })
+        {
+            globalResult.WithErrors(result.Errors);
+        }
+        return result;
+    }
+
+    /// <summary>
+    /// Collects the errors of an untyped result into a typed global one, the synchronous twin of
+    /// <see cref="OnFailed{TGlobal}(Task{Result}, Result{TGlobal})"/>.
+    /// </summary>
+    public static Result OnFailed<TGlobal>(this Result result, Result<TGlobal> globalResult)
+    {
+        ArgumentNullException.ThrowIfNull(globalResult);
+
+        if (result is { IsFailed: true })
+        {
+            globalResult.WithErrors(result.Errors);
+        }
+        return result;
+    }
+
     public static Result<TValue> OnFailed<TValue>(this Result<TValue> result, Action<IReadOnlyCollection<IError>> action)
     {
         ArgumentNullException.ThrowIfNull(action);
 
-        if (result.IsFailed)
+        if (result is { IsFailed: true })
         {
             action(result.Errors);
         }
         return result;
     }
-    public static Result<TValue> OnFailedAsync<TValue>(this Result<TValue> result, Func<IReadOnlyCollection<IError>, Task> func)
+
+    public static async Task<Result<TValue>> OnFailedAsync<TValue>(this Result<TValue> result, Func<IReadOnlyCollection<IError>, Task> func)
     {
         ArgumentNullException.ThrowIfNull(func);
 
-        if (result.IsFailed)
+        if (result is { IsFailed: true })
         {
-            func(result.Errors).Wait();
+            await func(result.Errors).ConfigureAwait(false);
         }
         return result;
     }
@@ -498,97 +595,98 @@ public static class ResultExtension
 
         var r = await result.ConfigureAwait(false);
 
-        if (r.IsFailed)
+        if (r is { IsFailed: true })
         {
             globalResult.WithErrors(r.Errors);
         }
-
         return r;
     }
+
     public static async Task<Result> OnFailed<TGlobal>(this Task<Result> result, Result<TGlobal> globalResult)
     {
         ArgumentNullException.ThrowIfNull(globalResult);
 
         var r = await result.ConfigureAwait(false);
 
-        if (r.IsFailed)
+        if (r is { IsFailed: true })
         {
             globalResult.WithErrors(r.Errors);
         }
-
         return r;
     }
+
     public static async Task<Result> OnFailed(this Task<Result> result, Action<IReadOnlyCollection<IError>> action)
     {
         ArgumentNullException.ThrowIfNull(action);
 
         var r = await result.ConfigureAwait(false);
 
-        if (r.IsFailed)
+        if (r is { IsFailed: true })
         {
             action(r.Errors);
         }
-
         return r;
     }
+
     public static async Task<Result> OnFailedAsync(this Task<Result> result, Func<IReadOnlyCollection<IError>, Task> func)
     {
         ArgumentNullException.ThrowIfNull(func);
 
         var r = await result.ConfigureAwait(false);
 
-        if (r.IsFailed)
+        if (r is { IsFailed: true })
         {
             await func(r.Errors).ConfigureAwait(false);
         }
-
         return r;
     }
 
     public static async Task<Result<TValue>> OnFailed<TValue>(this Task<Result<TValue>> result, Result globalResult)
     {
-        ArgumentNullException.ThrowIfNull(result);
+        ArgumentNullException.ThrowIfNull(globalResult);
 
         var r = await result.ConfigureAwait(false);
 
-        if (r.IsFailed)
+        if (r is { IsFailed: true })
         {
-            globalResult.WithErrors(result.Result.Errors);
+            globalResult.WithErrors(r.Errors);
         }
-
         return r;
     }
-    public static async Task<Result<TValue>> OnFailed<TValue>(this Task<Result<TValue>> result, Result<TValue> globalResult)
+
+    public static async Task<Result<TValue>> OnFailed<TValue, TGlobal>(this Task<Result<TValue>> result, Result<TGlobal> globalResult)
     {
         ArgumentNullException.ThrowIfNull(globalResult);
 
         var r = await result.ConfigureAwait(false);
 
-        if (r.IsFailed)
+        if (r is { IsFailed: true })
         {
-            globalResult.WithErrors(result.Result.Errors);
+            globalResult.WithErrors(r.Errors);
         }
-
         return r;
     }
+
     public static async Task<Result<TValue>> OnFailed<TValue>(this Task<Result<TValue>> result, Action<IReadOnlyCollection<IError>> action)
     {
         ArgumentNullException.ThrowIfNull(action);
 
         var r = await result.ConfigureAwait(false);
 
-        if (r.IsFailed)
+        if (r is { IsFailed: true })
         {
             action(r.Errors);
         }
         return r;
     }
+
     public static async Task<Result<TValue>> OnFailedAsync<TValue>(this Task<Result<TValue>> result, Func<IReadOnlyCollection<IError>, Task> func)
     {
         ArgumentNullException.ThrowIfNull(func);
 
         var r = await result.ConfigureAwait(false);
-        if (r.IsFailed)
+
+        if (r is { IsFailed: true })
         {
             await func(r.Errors).ConfigureAwait(false);
         }
@@ -601,37 +699,53 @@ public static class ResultExtension
 
         var r = await result.ConfigureAwait(false);
 
-        if (r.IsFailed)
+        if (r is { IsFailed: true })
         {
             globalResult.WithErrors(r.Errors);
         }
-
         return r;
     }
+
+    /// <summary>
+    /// Collects the errors of an untyped result into a typed global one, the ValueTask twin of
+    /// <see cref="OnFailed{TGlobal}(Task{Result}, Result{TGlobal})"/>.
+    /// </summary>
+    public static async ValueTask<Result> OnFailed<TGlobal>(this ValueTask<Result> result, Result<TGlobal> globalResult)
+    {
+        ArgumentNullException.ThrowIfNull(globalResult);
+
+        var r = await result.ConfigureAwait(false);
+
+        if (r is { IsFailed: true })
+        {
+            globalResult.WithErrors(r.Errors);
+        }
+        return r;
+    }
+
     public static async ValueTask<Result> OnFailed(this ValueTask<Result> result, Action<IReadOnlyCollection<IError>> action)
     {
         ArgumentNullException.ThrowIfNull(action);
 
         var r = await result.ConfigureAwait(false);
 
-        if (r.IsFailed)
+        if (r is { IsFailed: true })
         {
             action(r.Errors);
         }
-
         return r;
     }
+
     public static async ValueTask<Result> OnFailedAsync(this ValueTask<Result> result, Func<IReadOnlyCollection<IError>, Task> func)
     {
         ArgumentNullException.ThrowIfNull(func);
 
         var r = await result.ConfigureAwait(false);
 
-        if (r.IsFailed)
+        if (r is { IsFailed: true })
         {
             await func(r.Errors).ConfigureAwait(false);
         }
-
         return r;
     }
 
@@ -641,49 +755,52 @@ public static class ResultExtension
 
         var r = await result.ConfigureAwait(false);
 
-        if (r.IsFailed)
+        if (r is { IsFailed: true })
         {
-            globalResult.WithErrors(result.Result.Errors);
+            globalResult.WithErrors(r.Errors);
         }
-
         return r;
     }
-    public static async ValueTask<Result<TValue>> OnFailed<TValue>(this ValueTask<Result<TValue>> result, Result<TValue> globalResult)
+
+    public static async ValueTask<Result<TValue>> OnFailed<TValue, TGlobal>(this ValueTask<Result<TValue>> result, Result<TGlobal> globalResult)
     {
         ArgumentNullException.ThrowIfNull(globalResult);
 
         var r = await result.ConfigureAwait(false);
 
-        if (r.IsFailed)
+        if (r is { IsFailed: true })
         {
-            globalResult.WithErrors(result.Result.Errors);
+            globalResult.WithErrors(r.Errors);
         }
-
         return r;
     }
+
     public static async ValueTask<Result<TValue>> OnFailed<TValue>(this ValueTask<Result<TValue>> result, Action<IReadOnlyCollection<IError>> action)
     {
         ArgumentNullException.ThrowIfNull(action);
 
         var r = await result.ConfigureAwait(false);
 
-        if (r.IsFailed)
+        if (r is { IsFailed: true })
         {
             action(r.Errors);
         }
         return r;
     }
+
     public static async ValueTask<Result<TValue>> OnFailedAsync<TValue>(this ValueTask<Result<TValue>> result, Func<IReadOnlyCollection<IError>, Task> func)
     {
         ArgumentNullException.ThrowIfNull(func);
 
         var r = await result.ConfigureAwait(false);
-        if (r.IsFailed)
+
+        if (r is { IsFailed: true })
         {
             await func(r.Errors).ConfigureAwait(false);
         }
         return r;
     }
+
     #endregion
 
     #region LogIfFailed
@@ -721,5 +838,212 @@ public static class ResultExtension
 
         return r;
     }
+    #endregion
+
+    #region async void guards
+
+    // These overloads exist only to be picked by overload resolution when an asynchronous callback
+    // is handed to a synchronous method, and to fail the compilation with an actionable message.
+    // A plain lambda still binds to the Action overload, so correct code is unaffected.
+    // They also catch the subtler 'c => SaveAsync(c)' form, where the returned Task or ValueTask is
+    // silently dropped: without a guard such a lambda binds to the Action overload.
+    //
+    // The ValueTask guards are generic with a constraint that only ValueTask satisfies. A plain
+    // Func<ValueTask> overload would make every async lambda ambiguous with the Func<Task> guard, and an
+    // unconstrained Func<T> would also swallow legitimate value-returning statements such as '() => set.Add(x)'.
+    // A callback returning ValueTask<T> is not caught.
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static Result OnSuccess(this Result result, Func<Task> func) => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static Task<Result> OnSuccess(this Task<Result> result, Func<Task> func) => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static ValueTask<Result> OnSuccess(this ValueTask<Result> result, Func<Task> func) => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static Result<TValue> OnSuccess<TValue>(this Result<TValue> result, Func<Task> func) => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static Result<TValue> OnSuccess<TValue>(this Result<TValue> result, Func<TValue, Task> func) => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static Task<Result<TValue>> OnSuccess<TValue>(this Task<Result<TValue>> result, Func<Task> func) => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static Task<Result<TValue>> OnSuccess<TValue>(this Task<Result<TValue>> result, Func<TValue, Task> func) => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static ValueTask<Result<TValue>> OnSuccess<TValue>(this ValueTask<Result<TValue>> result, Func<Task> func) => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static ValueTask<Result<TValue>> OnSuccess<TValue>(this ValueTask<Result<TValue>> result, Func<TValue, Task> func) => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static Result<TValue> OnSuccessNull<TValue>(this Result<TValue> result, Func<Task> func) => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static Task<Result<TValue>> OnSuccessNull<TValue>(this Task<Result<TValue>> result, Func<Task> func) => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static ValueTask<Result<TValue>> OnSuccessNull<TValue>(this ValueTask<Result<TValue>> result, Func<Task> func) => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static Result<TValue> OnSuccessNotNull<TValue>(this Result<TValue> result, Func<Task> func) => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static Result<TValue> OnSuccessNotNull<TValue>(this Result<TValue> result, Func<TValue, Task> func) => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static Task<Result<TValue>> OnSuccessNotNull<TValue>(this Task<Result<TValue>> result, Func<Task> func) => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static Task<Result<TValue>> OnSuccessNotNull<TValue>(this Task<Result<TValue>> result, Func<TValue, Task> func) => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static ValueTask<Result<TValue>> OnSuccessNotNull<TValue>(this ValueTask<Result<TValue>> result, Func<Task> func) => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static ValueTask<Result<TValue>> OnSuccessNotNull<TValue>(this ValueTask<Result<TValue>> result, Func<TValue, Task> func) => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static Result OnFailed(this Result result, Func<IReadOnlyCollection<IError>, Task> func) => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static Result<TValue> OnFailed<TValue>(this Result<TValue> result, Func<IReadOnlyCollection<IError>, Task> func) => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static Task<Result> OnFailed(this Task<Result> result, Func<IReadOnlyCollection<IError>, Task> func) => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static Task<Result<TValue>> OnFailed<TValue>(this Task<Result<TValue>> result, Func<IReadOnlyCollection<IError>, Task> func) => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static ValueTask<Result> OnFailed(this ValueTask<Result> result, Func<IReadOnlyCollection<IError>, Task> func) => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static ValueTask<Result<TValue>> OnFailed<TValue>(this ValueTask<Result<TValue>> result, Func<IReadOnlyCollection<IError>, Task> func) => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static Result OnSuccess<TValueTask>(this Result result, Func<TValueTask> func) where TValueTask : struct, IEquatable<ValueTask> => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static Task<Result> OnSuccess<TValueTask>(this Task<Result> result, Func<TValueTask> func) where TValueTask : struct, IEquatable<ValueTask> => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static ValueTask<Result> OnSuccess<TValueTask>(this ValueTask<Result> result, Func<TValueTask> func) where TValueTask : struct, IEquatable<ValueTask> => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static Result<TValue> OnSuccess<TValue, TValueTask>(this Result<TValue> result, Func<TValueTask> func) where TValueTask : struct, IEquatable<ValueTask> => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static Result<TValue> OnSuccess<TValue, TValueTask>(this Result<TValue> result, Func<TValue, TValueTask> func) where TValueTask : struct, IEquatable<ValueTask> => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static Task<Result<TValue>> OnSuccess<TValue, TValueTask>(this Task<Result<TValue>> result, Func<TValueTask> func) where TValueTask : struct, IEquatable<ValueTask> => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static Task<Result<TValue>> OnSuccess<TValue, TValueTask>(this Task<Result<TValue>> result, Func<TValue, TValueTask> func) where TValueTask : struct, IEquatable<ValueTask> => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static ValueTask<Result<TValue>> OnSuccess<TValue, TValueTask>(this ValueTask<Result<TValue>> result, Func<TValueTask> func) where TValueTask : struct, IEquatable<ValueTask> => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static ValueTask<Result<TValue>> OnSuccess<TValue, TValueTask>(this ValueTask<Result<TValue>> result, Func<TValue, TValueTask> func) where TValueTask : struct, IEquatable<ValueTask> => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static Result<TValue> OnSuccessNull<TValue, TValueTask>(this Result<TValue> result, Func<TValueTask> func) where TValueTask : struct, IEquatable<ValueTask> => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static Task<Result<TValue>> OnSuccessNull<TValue, TValueTask>(this Task<Result<TValue>> result, Func<TValueTask> func) where TValueTask : struct, IEquatable<ValueTask> => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static ValueTask<Result<TValue>> OnSuccessNull<TValue, TValueTask>(this ValueTask<Result<TValue>> result, Func<TValueTask> func) where TValueTask : struct, IEquatable<ValueTask> => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static Result<TValue> OnSuccessNotNull<TValue, TValueTask>(this Result<TValue> result, Func<TValueTask> func) where TValueTask : struct, IEquatable<ValueTask> => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static Result<TValue> OnSuccessNotNull<TValue, TValueTask>(this Result<TValue> result, Func<TValue, TValueTask> func) where TValueTask : struct, IEquatable<ValueTask> => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static Task<Result<TValue>> OnSuccessNotNull<TValue, TValueTask>(this Task<Result<TValue>> result, Func<TValueTask> func) where TValueTask : struct, IEquatable<ValueTask> => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static Task<Result<TValue>> OnSuccessNotNull<TValue, TValueTask>(this Task<Result<TValue>> result, Func<TValue, TValueTask> func) where TValueTask : struct, IEquatable<ValueTask> => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static ValueTask<Result<TValue>> OnSuccessNotNull<TValue, TValueTask>(this ValueTask<Result<TValue>> result, Func<TValueTask> func) where TValueTask : struct, IEquatable<ValueTask> => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static ValueTask<Result<TValue>> OnSuccessNotNull<TValue, TValueTask>(this ValueTask<Result<TValue>> result, Func<TValue, TValueTask> func) where TValueTask : struct, IEquatable<ValueTask> => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static Result OnFailed<TValueTask>(this Result result, Func<IReadOnlyCollection<IError>, TValueTask> func) where TValueTask : struct, IEquatable<ValueTask> => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static Task<Result> OnFailed<TValueTask>(this Task<Result> result, Func<IReadOnlyCollection<IError>, TValueTask> func) where TValueTask : struct, IEquatable<ValueTask> => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static ValueTask<Result> OnFailed<TValueTask>(this ValueTask<Result> result, Func<IReadOnlyCollection<IError>, TValueTask> func) where TValueTask : struct, IEquatable<ValueTask> => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static Result<TValue> OnFailed<TValue, TValueTask>(this Result<TValue> result, Func<IReadOnlyCollection<IError>, TValueTask> func) where TValueTask : struct, IEquatable<ValueTask> => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static Task<Result<TValue>> OnFailed<TValue, TValueTask>(this Task<Result<TValue>> result, Func<IReadOnlyCollection<IError>, TValueTask> func) where TValueTask : struct, IEquatable<ValueTask> => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
+    [Obsolete(AsyncCallbackOnSyncMethod, error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static ValueTask<Result<TValue>> OnFailed<TValue, TValueTask>(this ValueTask<Result<TValue>> result, Func<IReadOnlyCollection<IError>, TValueTask> func) where TValueTask : struct, IEquatable<ValueTask> => throw new NotSupportedException(AsyncCallbackOnSyncMethod);
+
     #endregion
 }
